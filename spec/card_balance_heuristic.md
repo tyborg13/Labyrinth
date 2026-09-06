@@ -56,25 +56,26 @@ These assumptions are baked into the current coefficients:
   plays. The physical card's top-level Time cost is paid once. Plays gained
   during resolution remain available after the Flurry commits.
 - Fatigue starts at `2` health and increases by `1` health each reshuffle.
-- Each combat tracks room-wide elemental intensity for fire, ice, lightning,
-  air, and earth. The room's element starts at intensity `1`; other elements
-  start at `0`. Cards and elemental enemies share this resource: both sides can
-  build it, threshold effects can gate on it, and stronger cards or enemy
-  intents can consume it. Spending can deny a telegraphed enemy payoff or calm
-  matching traps as well as fund a card.
+- Rules v4 uses shared board surfaces, with Rubble under one elemental layer.
+  Fire deals 1 per actual entry step and 2 per affected actor start, without
+  direct-attack riders. Ice activates Chill on entry or eligible start, never
+  on placement. Chilled adds 1 direct hit damage while supported by Ice.
+  A subsequent Ice attack can Freeze and consume every Ice tile under that actor.
+  Rubble costs 2 movement to enter; a fresh positive allowance permits a first
+  adjacent step even when only 1 movement remains. Splitting movement does not
+  refresh that exception. Electrified is immediately usable as cardinally
+  connected ground or as relay nodes for intrinsic Chain.
 - Enemy preview block matters immediately during the player turn.
-- Freeze doubles incoming damage and skips the enemy's next turn.
+- Freeze doubles direct damage instead of stacking Chill, skips the next activation, and cannot refresh. Start hazards still resolve; Chill is suppressed during the skipped start.
 - Pierce attacks deal HP damage through block and stoneskin without removing
   those defenses.
 - Shock lets the enemy keep movement, but strips non-movement actions for that
   turn.
-- Burn ticks at enemy start of turn and decays by `1`.
 - Bleed is one-turn physical pressure: it triggers before the affected actor's
   resolved move or attack actions, stacks additively by damage, and clears when
   that actor finishes its next turn.
 - Expose adds damage to the next hit against the target, then clears.
 - Sunder removes block and stoneskin before damage lands.
-- Poison lands after a two-turn delay.
 - Stoneskin is persistent defense and is valued above temporary block.
 - Permanent levels grant one run-scoped Defiance charge at levels
   `4/8/12/16/20`. A lethal hit spends one charge and restores `25%` max HP.
@@ -99,7 +100,7 @@ These assumptions are baked into the current coefficients:
 ### Qualitative Progression Policy
 
 The scorer uses a no-skill reference profile. Learned skills can change card
-access, card persistence, play timing, positioning, conditional intensity,
+access, card persistence, play timing, positioning, surface placement and relocation,
 defense carryover, and discard or draw choices, but those benefits are not
 folded into a card's intrinsic printed score.
 
@@ -170,9 +171,9 @@ Encounter calibration is also important:
   initiative by up to `4` over time.
 - Specialist enemies enter normal local depth `1-3` pools only in matching
   elemental rooms: Cinder Oozes in fire, Frostglass Lancers in ice, Chainbound
-  Gaolers in air, and Bile Bloomers in earth. Those specialists now build their
-  matching room intensity and either gate stronger effects or consume intensity
-  for an upgraded payoff; Lightning Wisps use the same builder/consumer model.
+  Gaolers in air, and Shale Bloomers in earth. Specialists create, consume or
+  exploit local shared surfaces: Ooze Fire and local fuel defense, Lancer Ice
+  lanes, Gaoler hazard displacement, Bloomer Rubble, and Wisp Electrified.
   Generic enemies keep their own printed intent actions instead of being
   rewritten to match the room element.
 - Cinder Oozes split into up to two summoned Cinder Droplets on nearby legal
@@ -187,8 +188,8 @@ Encounter calibration is also important:
 - Chainbound Gaolers enter normal local depth `1-3` pools at low frequency as
   pull/immobilize control anchors without stacking with wardens or boss adds in
   their seeded compositions.
-- Bile Bloomers enter normal local depth `1-3` pools at low frequency as slow
-  poison/expose attrition anchors without changing boss rooms.
+- Shale Bloomers enter normal local depth `1-3` pools at low frequency as slow
+  Rubble/Expose control anchors without changing boss rooms.
 - Frostglass Lancers enter normal local depth `1-3` pools as precision
   four-tile line-thrust enemies that can move sideways to set up a lane, so
   lateral movement and blocker-aware positioning can appear from the opener band.
@@ -248,24 +249,13 @@ Encounter calibration is also important:
   threat unions remain visible, with the exact current route, destination, and
   projected attack shown separately; exact projections also honor freeze,
   shock, immobilize, and deterministic lightning-strike tiles.
-- Elemental combat rooms seed `2-3` traps across eligible passable floor tiles,
-  including the playable edge band, while still avoiding occupied tiles and the
-  player's entry halo. Traps blast adjacent tiles when stepped on or attacked,
-  so forced movement and area targeting can create higher positional upside and
-  risk than the old single-tile trap model.
-- Generated traps retain the authored positional base-damage curve:
-  `6/7/8` player-scale damage in local standard depths `1/2/3`. First-sequence
-  boss-depth traps hit for `5` so they beat weak ranged attacks without
-  one-shotting full-health lightning wisps; generated traps use sequence bonuses
-  `0/1/1/2/2/3`. Live damage then multiplies
-  that base by `72/94/124/162/208/262/324%` at matching elemental intensity
-  `0/1/2/3/4/5/6`; scaling caps at `6` for malformed or legacy saves. Normal
-  matching rooms therefore begin slightly below the previous damage, while a
-  volatile intensity `4` room is already more than twice as deadly. Depth-3
-  fire and earth trap statuses are capped at `2`.
-- Fire trap burn ramps gently in the first sequence: depth `1-2` fire traps
-  apply shallow burn pressure, then deeper standard fire rooms restore the
-  heavier trap payload.
+- Elemental combat rooms seed `2-3` single-use traps, avoiding the player's
+  entry halo. Only the center occupant takes direct damage. The four cardinal
+  neighbors receive the element's surface, or an outward push for Air. Placement
+  does not cause immediate Fire/Chill contact; diagonals are unaffected.
+- Generated traps retain fixed `6/7/8` damage at local depths `1/2/3` and `5`
+  in first-sequence boss rooms, with later sequence bonuses `0/1/1/2/2/3`.
+  There is no multiplier, direct status rider or adjacent crate damage.
 - Combat and boss rooms scatter consumable item cards: `15%` have none, `65%`
   have one, and `20%` have two. Equipment eligibility and drop rates are unchanged.
   Pickups prefer a five-tile Manhattan gap from other items and equipment, with
@@ -284,7 +274,7 @@ Encounter calibration is also important:
   eligible passable floor tiles, including edge-band and corner floor tiles when
   connectivity stays intact. They block movement, do not block line of sight,
   and can be destroyed by player or enemy attacks, area effects, deterministic
-  lightning strikes, and adjacent trap blasts. The heuristic's existing AOE
+  lightning strikes, but not trap wake placement. The heuristic's existing AOE
   tile multiplier represents this conditional terrain-clearing upside; there is
   no separate terrain coefficient because the value depends on the live layout.
 
@@ -297,7 +287,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + elemental_intensity + mobility + radiance + synergy + tempo + flurry_compression_bonus - intensity_spend_cost - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
+`EV = offense + control + defense + flow + surfaces + mobility + radiance + synergy + tempo + flurry_compression_bonus - surface_fuel_cost - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -321,9 +311,6 @@ These are the current default weights used by `tools/card_heuristic.py`:
   another available play to the same printed package. This deliberately makes
   the single-card/single-time compression visible in the score so Flurry cards
   must be under-rate before their copies are counted.
-- Elemental intensity gain: `0.70` per point
-- Elemental intensity spend: `0.35` per point consumed, after the conditional
-  package availability adjustment described below
 - High-damage kill-card-play premium: up to `0.45`, scaled by damage,
   playability, and target count
 - Illusion health: `0.48` per point
@@ -358,17 +345,13 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Bleed one-turn action pressure: `0.65` per stack
 - Expose next-hit setup: `0.32` per point
 - Sunder defense removal: `0.20` per point
-- Freeze: `3.8`
+- Freeze: `3.8`, discounted by `0.30` for a previously activated Ice contact
 - Shock: `2.5`
 - Immobilize one-turn movement lock: `1.7`
 - Push: `0.28` per tile
 - Pull: `0.14` per tile
 - Directed push/pull bonus: `0.03` per forced-movement tile
-
-Status damage proxies:
-
-- Burn effective damage: `0.75 * stacks + 0.12 * stacks^2`
-- Poison effective damage: `0.70 * stacks`
+- Shared hazard opportunity: `0.16` per forced-movement tile
 
 Synergy bonuses:
 
@@ -382,43 +365,40 @@ Synergy bonuses:
 - `+0.40` for `move + defense` on non-attack cards
 - `+0.30` for `illusion + move/blink`
 - `+0.25` when `illusion` appears before later movement on the same card
-- `+0.18` when an elemental card raises its own element's intensity
-- `+0.30` when a card both raises intensity and has intensity-gated text
+## Board Surface Value and Setup
 
-## Elemental Intensity Gating and Spending
+Permanent terrain receives bounded expected useful-contact value, never a
+turn count multiplied by arbitrary encounter duration. For `n` distinct authored
+cells, effective coverage is `min(4, 1 + (n-1) * 0.45)`. Fire is `0.52`, Ice
+`0.45`, Rubble `0.32` and Electrified `0.30` per effective cell. Fire's coefficient
+represents roughly one useful contact weighted for shared hazard risk and local
+setup value; it does not assume every tile hits every turn. Placement at range
+uses the existing reach availability; self placement uses `0.60`.
 
-For heuristic purposes, elemental cards are scored as if they are played in a
-room of their own element, so their element starts at intensity `1`. Intensity
-actions on the same card update this local context before later actions are
-valued.
+Electrified adds `0.18` per cardinal link, capped at three. Spaced or diagonal
+cells receive no connectivity value. Intrinsic Chain retains its `0.45` extra
+expected target bonus; the printed number remains hop reach. Lightning receives
+`0.55` extra component occupants at `0.35` network availability, halved when
+Chain already accounts for some of the same targets. Targets are a union.
 
-Actions with `requires_intensity` and attack-side `intensity_bonus` clauses are
-discounted by how far their threshold is from the current local context:
+Local surface conditions use `0.50` availability, or `0.80` when an earlier
+same-card action supplied that surface; geometry still has to overlap. Newly
+painted Ice never increases immediate Freeze availability. Electrified-assisted
+Shock receives `0.35` availability, increased by `0.20` for earlier wiring.
 
-- Already met: `1.00`
-- Short by `1`: `0.62`
-- Short by `2`: `0.44`
-- Short by `3`: `0.28`
-- Short by `4+`: `0.18`
+Detonate values the union blast at `1.35` expected targets plus `0.25` per
+additional useful fuel cell, capped at two targets. Fuel expectation is capped
+at `2.5` cells. Each fuel cell costs `0.35` in foregone setup plus a `0.45`
+shared-blast risk cost per Detonate, weighted by availability. A previous-target
+Detonate inherits the initiating attack's reach. Consume-surface rewards use
+their ordinary coefficients, weighted by setup availability and charged at least
+one fuel cell. These are conservative initial values to review against seeded
+mixed-element playtests, not a simulation of a prepared perfect board.
 
-For `intensity_bonus`, the base action is scored normally and only the bonus
-damage, status, chain, pierce, or forced movement is discounted. This mirrors
-the card UI convention that a card should generally have one targetable attack,
-with intensity-gated upside shown as a shaded modifier row instead of a second
-attack. This makes mild `2+` text meaningful in matching rooms, gives
-self-enabling cards credit for sequencing, and keeps large `4+` payoffs from
-scoring as always-on standalone power.
-
-A top-level `intensity_cost` makes the entire printed action package conditional.
-The scorer uses the same raw availability table, then applies a `0.68` retention
-floor: `retained availability = 0.68 + 0.32 * raw availability`. This models a
-player holding a payoff while either side builds the shared room resource,
-without pretending the card is always playable on draw. The package is
-multiplied by retained availability and then charged `0.35` per intensity
-spent. The cost is paid once even if a future Flurry card repeats its printed
-actions. The heuristic does not credit the situational upside of draining traps
-or denying an enemy intent, so Air forced-movement and other battlefield-control
-spenders may deliberately land toward the low end of their rarity band.
+Flurry repeats damage and other ordinary effects, but each extra surface painting
+receives only `35%` extra value because repainting the same ground is idempotent.
+Fuel costs recur per repetition. Consumption and setup across repeats require
+separate playtest checks: an earlier discharge cannot leave reusable wiring.
 
 ## Playability Factors
 
@@ -508,7 +488,7 @@ following change:
 - enemy roster or intent pacing
 - AOE, chain, push, or pull behavior
 - new card action types or keywords
-- elemental intensity production, gates, spending, trap scaling, or enemy use
+- surface creation, contact timing, consumption, connectivity, trap wakes, or enemy use
 
 If you change the rules above and do not update the heuristic, future card work
 will drift against stale assumptions.
@@ -584,3 +564,7 @@ When reviewing or adding cards:
 4. Decide whether any intentional over- or under-rate is justified by build,
    rarity, or encounter role.
 5. If the underlying combat assumptions changed, update the heuristic first.
+
+### Repeated consuming payoffs
+
+A Flurry copy cannot reuse Fire, Ice or Electrified ground consumed by an earlier copy. Extra copies receive 35% availability for an additional consuming payoff (and its matching fuel cost), representing a different prepared target or component. An explicit painter earlier in each repeated action sequence restores ordinary availability for Detonate and conduction. Ice painting does not activate Chill, so repeated Freeze remains discounted even with fresh paint. Ordinary direct hits and native Chain continue to repeat normally. This is a conservative availability model, not a simulation of an infinite supply of ground.

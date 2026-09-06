@@ -106,6 +106,55 @@ static func has_line_of_sight(grid: Array, start: Vector2i, goal: Vector2i) -> b
 			return false
 	return true
 
+# Keep geometric range separate from movement cost. Each budget state is
+# considered so a slightly longer safe route can beat a short harmful route.
+static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: Dictionary = {}, step_cost: Callable = Callable(), hazard_cost: Callable = Callable(), minimum_progress: bool = true, pickup_score: Callable = Callable()) -> Dictionary:
+	var initial_path: Array[Vector2i]
+	initial_path.append(start)
+	var paths: Dictionary = {start: initial_path}
+	var costs: Dictionary = {start: 0}
+	var hazards: Dictionary = {start: 0}
+	var pickups: Dictionary = {start: 0}
+	var queue: Array[Dictionary]
+	queue.append({"tile": start, "cost": 0, "hazard": 0, "pickups": 0, "path": initial_path})
+	var best: Dictionary = {}
+	var cursor: int = 0
+	while cursor < queue.size():
+		var current: Dictionary = queue[cursor]
+		cursor += 1
+		var current_tile: Vector2i = current["tile"]
+		var current_path: Array[Vector2i]
+		current_path.assign(current["path"])
+		for direction: Vector2i in DIRS_4:
+			var next: Vector2i = current_tile + direction
+			if not is_passable(grid, next) or occupied.has(next) or current_path.has(next):
+				continue
+			var entry: int = maxi(1, int(step_cost.call(current_tile, next))) if step_cost.is_valid() else 1
+			var spent: int = int(current["cost"]) + entry
+			if spent > budget:
+				if minimum_progress and int(current["cost"]) == 0 and budget > 0:
+					spent = budget
+				else:
+					continue
+			var harm: int = int(current["hazard"]) + (maxi(0, int(hazard_cost.call(next))) if hazard_cost.is_valid() else 0)
+			var key: String = "%d,%d:%d" % [next.x, next.y, spent]
+			var pickup: int = int(current.get("pickups", 0)) + (maxi(0, int(pickup_score.call(next))) if pickup_score.is_valid() else 0)
+			if best.has(key):
+				var previous: Dictionary = best[key]
+				if int(previous["hazard"]) < harm or (int(previous["hazard"]) == harm and int(previous["pickups"]) >= pickup):
+					continue
+			best[key] = {"hazard": harm, "pickups": pickup}
+			var path: Array[Vector2i] = current_path.duplicate()
+			path.append(next)
+			if not paths.has(next) or harm < int(hazards[next]) or (harm == int(hazards[next]) and (pickup > int(pickups[next]) or (pickup == int(pickups[next]) and spent < int(costs[next])))):
+				paths[next] = path
+				costs[next] = spent
+				hazards[next] = harm
+				pickups[next] = pickup
+			if spent < budget:
+				queue.append({"tile": next, "cost": spent, "hazard": harm, "pickups": pickup, "path": path})
+	return {"paths": paths, "costs": costs, "hazards": hazards}
+
 static func diamond_tiles(center: Vector2i, radius: int, grid: Array = []) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for dy: int in range(-radius, radius + 1):

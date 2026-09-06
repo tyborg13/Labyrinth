@@ -118,7 +118,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 	var brightglass_result: Dictionary = combat.apply_player_action(brightglass_state, rider, Vector2i(4, 4))
 	expect.call(int(((brightglass_result.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 20, "Post-hit Light should not self-prime Brightglass Lens on the same attack")
 
-	var squall_action: Dictionary = (GameData.card_def("squall_shot").get("actions", []) as Array)[1]
+	var squall_action: Dictionary = (GameData.card_def("squall_shot").get("actions", []) as Array)[0]
 	expect.call(not bool(GameData.card_def("squall_shot").get("radiance", false)) and not squall_action.has("illuminate_radius"), "Squall Shot should retain its AOE-and-push identity without an added Light rider")
 	var synthetic_aoe_rider: Dictionary = squall_action.duplicate(true)
 	synthetic_aoe_rider["illuminate_radius"] = 1

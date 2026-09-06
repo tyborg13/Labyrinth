@@ -1,0 +1,279 @@
+{
+  "design_only": true,
+  "baseline_commit": "11a62f65e4070ae397d651778b550668bda0c854",
+  "owning_rules": "DESIGN.md",
+  "definition_count": 30,
+  "active_count": 29,
+  "skills": [
+    {
+      "id": "quick_wits",
+      "name": "Quick Wits",
+      "current_activation": "manual",
+      "current_description": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
+      "retired": false,
+      "disposition": "retain tactical hand filtering",
+      "proposal": "Choose between a surface painter, displacement card and payoff in the current hand. Retain discard/draw and its once-per-combat limit; it grants no free board action."
+    },
+    {
+      "id": "measured_breath",
+      "name": "Measured Breath",
+      "current_activation": "automatic",
+      "current_description": "End your turn with an unused @icon(card_play) to bank it for your next turn. One banked @icon(card_play) maximum.",
+      "retired": false,
+      "disposition": "retain planned tempo",
+      "proposal": "Bank a play while waiting for enemy entry/start to activate prepared Ice or Fire. Banking does not advance a hazard or activate newly placed Ice by itself."
+    },
+    {
+      "id": "ghost_stride",
+      "name": "Ghost Stride",
+      "current_activation": "manual",
+      "current_description": "Once per combat, arm so your next movement becomes @icon(blink) 2.",
+      "retired": false,
+      "disposition": "retain; specify terrain traversal",
+      "proposal": "Use the armed Blink to cross Fire or Rubble and change attack angles. Intermediate tiles are ignored; arrival on Fire, Ice or a trap resolves normally. It is an escape tool, not landing immunity."
+    },
+    {
+      "id": "discerning_eye",
+      "name": "Discerning Eye",
+      "current_activation": "contextual",
+      "current_description": "Once between bosses, replace every card in a combat reward.",
+      "retired": false,
+      "disposition": "retain reward choice",
+      "proposal": "Reroll a reward when the deck needs a painter, positioning tool or payoff. Review offer coverage under the new full card pool; do not require a rare card for basic elemental function."
+    },
+    {
+      "id": "rehearsed_escape",
+      "name": "Rehearsed Escape",
+      "current_activation": "manual",
+      "current_description": "Once per combat, arm so your next non-item @icon(exhaust) card goes to discard.",
+      "retired": false,
+      "disposition": "retain Exhaust preservation",
+      "proposal": "Reuse an Exhaust setup or payoff card later through discard. Preserve the internal preserve_burn effect meaning Exhaust; do not delete this skill with damaging Burn."
+    },
+    {
+      "id": "makeshift_tool",
+      "name": "Makeshift Tool",
+      "current_activation": "manual",
+      "current_description": "Once per combat, arm so your next played item goes to discard instead of @icon(consume).",
+      "retired": false,
+      "disposition": "retain item preservation",
+      "proposal": "Keep a terrain or movement item available for a later draw. The preserved item still resolves its actual printed action and pays its normal play/Time costs."
+    },
+    {
+      "id": "carry_the_guard",
+      "name": "Carry the Guard",
+      "current_activation": "manual",
+      "current_description": "Once per combat, while you have @icon(block), arm during your turn to convert all remaining @icon(block) at turn end into @icon(stoneskin).",
+      "retired": false,
+      "disposition": "retain; specify passive hazard defense",
+      "proposal": "Convert remaining Block to Stoneskin at turn end, allowing defense against next-start Fire after Block expires. No damage reduction is added to the tile itself and shared hazards remain dangerous."
+    },
+    {
+      "id": "pain_remembers",
+      "name": "Pain Remembers",
+      "current_activation": "automatic",
+      "current_description": "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it.",
+      "retired": false,
+      "disposition": "retain; specify real health-loss event",
+      "proposal": "Actual Fire or trap health loss may prime its existing once-per-combat card recall. Fully absorbed damage does not. Repeated hazard steps never replenish the use or generate additional recalls."
+    },
+    {
+      "id": "sure_footed",
+      "name": "Sure-Footed",
+      "current_activation": "automatic",
+      "current_description": "Once per combat, the first @icon(traps) blast that would affect you leaves you untouched and resolves normally against everything else.",
+      "retired": false,
+      "disposition": "rework trigger contract and rules text",
+      "proposal": "Ignore the first trap center hit or Air-trap outward push that would affect you, once per combat. The trap still resolves its other effects and cardinal wake. Wake placement alone neither spends the protection nor is prevented; later terrain contact/start effects follow normal rules. This lets you deliberately trigger a trap to shape the board without granting ongoing hazard immunity."
+    },
+    {
+      "id": "afterimage",
+      "name": "Afterimage",
+      "current_activation": "automatic",
+      "current_description": "Your first @icon(blink) each combat leaves @icon(illusion) 2 behind. You may @icon(move) through your copies; ending on one dispels it.",
+      "retired": false,
+      "disposition": "retain; specify shared-hazard decoy behavior",
+      "proposal": "Blink leaves the existing decoy at the origin to redirect enemy attacks and routes. A decoy is a real shared-hazard occupant: spawning on Fire/Ice counts as arrival. Do not silently make copies immune or trigger this skill again when a surface destroys one."
+    },
+    {
+      "id": "deferred_choice",
+      "name": "Deferred Choice",
+      "current_activation": "contextual",
+      "current_description": "Skip a card reward to save one offered card. It replaces one card in your next reward.",
+      "retired": false,
+      "disposition": "retain reward planning",
+      "proposal": "Carry a chosen setup or payoff card into a later offer while skipping the present reward. Preserve its card-ID remap through renamed/reworked content."
+    },
+    {
+      "id": "salvager",
+      "name": "Salvager",
+      "current_activation": "automatic",
+      "current_description": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+      "retired": false,
+      "disposition": "retain equipment recovery",
+      "proposal": "Recover the existing eligible missed equipment after victory. Reauthored equipment grants must match the recovered item; surface damage has already stopped before the reward flow."
+    },
+    {
+      "id": "borrowed_time",
+      "name": "Borrowed Time",
+      "current_activation": "automatic",
+      "current_description": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
+      "retired": false,
+      "disposition": "retain planned burst",
+      "proposal": "Use a banked play for a prepared combo without adding Time on that one card. It is not a new play refund, and surface events do not independently consume or retrigger the skill."
+    },
+    {
+      "id": "last_reserve",
+      "name": "Last Reserve",
+      "current_activation": "automatic",
+      "current_description": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
+      "retired": false,
+      "disposition": "retain fatigue-specific defense",
+      "proposal": "Keep the lethal-Fatigue safety net. Fire, trap or enemy damage is not Fatigue and does not gain this protection."
+    },
+    {
+      "id": "plunderers_step",
+      "name": "Plunderer's Step",
+      "current_activation": "automatic",
+      "current_description": "The first @icon(move) or @icon(blink) to collect loot each combat refunds its @icon(card_play).",
+      "retired": false,
+      "disposition": "retain; specify resolved movement reward",
+      "proposal": "Reward an actual Move/Blink that collects loot, once per combat. Use real movement and landing results, including Rubble cost and hazard deaths; blocked movement and surface creation are not loot collection."
+    },
+    {
+      "id": "prismatic_instinct",
+      "name": "Prismatic Instinct",
+      "current_activation": "manual",
+      "current_description": "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions.",
+      "retired": false,
+      "disposition": "replace intensity-only skill",
+      "proposal": "Once per combat, manually place one chosen Fire, Ice, Electrified or Rubble tile on nearby visible floor. This supplies a missing setup tile or replaces hostile elemental terrain. Fire/Chill still await entry/start; Electrified and a later paid Detonate can use the new tile immediately."
+    },
+    {
+      "id": "curators_patience",
+      "name": "Curator's Patience",
+      "current_activation": "contextual",
+      "current_description": "After choosing a relic, save one unchosen relic for your next relic offer.",
+      "retired": false,
+      "disposition": "retain relic planning",
+      "proposal": "Save a synergistic unchosen relic for the next offer. Preserve exact relic identity across renames and show its revised rules before committing the choice."
+    },
+    {
+      "id": "living_shadow",
+      "name": "Living Shadow",
+      "current_activation": "automatic",
+      "current_description": "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
+      "retired": false,
+      "disposition": "retain; specify bounded hazard interaction",
+      "proposal": "A decoy destroyed by a surface or dispelled still qualifies for the existing one-recall window. Sacrificing a decoy can recover a needed card, but one removal emits one event and cannot refresh the window or reproduce the decoy."
+    },
+    {
+      "id": "true_bearing",
+      "name": "True Bearing",
+      "current_activation": "contextual",
+      "current_description": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
+      "retired": false,
+      "disposition": "retain; specify initial terrain preview",
+      "proposal": "Choose an open legal starting tile using the existing range. Show starting surfaces, visible threats and arrival effects before selection. Starting on a hazard is arrival under the common contract; the room generator must retain a safe legal starting option."
+    },
+    {
+      "id": "layaway",
+      "name": "Layaway",
+      "current_activation": "contextual",
+      "current_description": "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.",
+      "retired": true,
+      "disposition": "remain retired",
+      "proposal": "Keep the retired definition out of the active skill tree. Preserve the explicit legacy-save disposition; this refactor does not reactivate the merchant reservation mechanic."
+    },
+    {
+      "id": "encore",
+      "name": "Encore",
+      "current_activation": "manual",
+      "current_description": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
+      "retired": false,
+      "disposition": "retain tactical card recovery",
+      "proposal": "Recover a discarded painter, displacement tool or payoff at the right moment. The recovered card still needs a normal play and real board conditions; the recall itself is not a surface or attack event."
+    },
+    {
+      "id": "open_arsenal",
+      "name": "Open Arsenal",
+      "current_activation": "passive",
+      "current_description": "Equip any equipment in your trinket slot, ignoring its normal slot.",
+      "retired": false,
+      "disposition": "retain equipment keystone",
+      "proposal": "Use the additional equipment slot to combine different surface, mobility and defense packages. Rebudget all granted cards together, including shared grants, without adding an elemental restriction."
+    },
+    {
+      "id": "confluence",
+      "name": "Confluence",
+      "current_activation": "passive",
+      "current_description": "@icon(elemental_intensity) conditions use your highest value, regardless of element. @icon(draw) enabled solely by Confluence stops before it would trigger @icon(fatigue).",
+      "retired": false,
+      "disposition": "replace intensity-only keystone",
+      "proposal": "Change to a manual terrain manipulation: once per combat, relocate a chosen visible surface layer to a nearby visible floor tile. Clear only that layer at the origin and use ordinary replacement at the destination. This can remove hostile setup, relocate an Electrified relay, or combine Fire/Ice with Rubble. It cannot copy terrain, move the occupant, instantly activate Chill, or waive consumption. Keep the single-tile action as the initial rules prototype; its keystone budget requires explicit comparison with the other keystones."
+    },
+    {
+      "id": "last_door",
+      "name": "Last Door",
+      "current_activation": "automatic",
+      "current_description": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1. Spent items stay spent.",
+      "retired": false,
+      "disposition": "retain non-boss defeat recovery",
+      "proposal": "Recognize defeat from shared hazards through the same encounter outcome path as attacks. Resolve the complete simultaneous damage event before recovery; no duplicate victory reward or rollback of already-spent items."
+    },
+    {
+      "id": "long_dawn",
+      "name": "Long Dawn",
+      "current_activation": "passive",
+      "current_description": "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1. Permanent and tethered effects are unchanged.",
+      "retired": false,
+      "disposition": "retain independent Light identity",
+      "proposal": "Extend only the existing timed radiance effects. Persistent surfaces have no duration and gain neither extra lifetime nor immediate occupant activation from this skill."
+    },
+    {
+      "id": "sunpath",
+      "name": "Sunpath",
+      "current_activation": "automatic",
+      "current_description": "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.",
+      "retired": false,
+      "disposition": "retain; specify actual path semantics",
+      "proposal": "Leave Light along the resolved qualifying movement route, preserving its distinct visibility role. Rubble spending extra movement points must not count as extra distance traveled. Blink lights its existing origin/destination pattern, not crossed hazard tiles."
+    },
+    {
+      "id": "witchlight",
+      "name": "Witchlight",
+      "current_activation": "passive",
+      "current_description": "Each living @icon(illusion) adds +1 to its tethered @icon(illuminate).",
+      "retired": false,
+      "disposition": "retain illuminated decoys",
+      "proposal": "Decoys reveal useful routes and terrain through their tethered Light. Remove that tether when the decoy dies, including to a hazard. Fire/Electrified visual glow never independently reveals hidden actors."
+    },
+    {
+      "id": "dawnbrand",
+      "name": "Dawnbrand",
+      "current_activation": "automatic",
+      "current_description": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
+      "retired": false,
+      "disposition": "retain; rework attack-event classification",
+      "proposal": "Keep the first direct attack against an enemy in Light applying Expose. Classify newly authored direct attacks such as Detonate explicitly; passive Fire, surface placement and empty Chain relay visits do not qualify. Use one action-scoped trigger with deterministic actual recipient, not one proc per tile."
+    },
+    {
+      "id": "afterglow",
+      "name": "Afterglow",
+      "current_activation": "automatic",
+      "current_description": "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.",
+      "retired": false,
+      "disposition": "retain; specify decoy-removal event",
+      "proposal": "Leave the existing temporary Light at a decoy removal caused by hazard, attack or dispel. Emit it once from the real final tile, without clearing or copying underlying terrain."
+    },
+    {
+      "id": "open_sky",
+      "name": "Open Sky",
+      "current_activation": "passive",
+      "current_description": "While you stand in @icon(illuminate), you have @icon(truesight).",
+      "retired": false,
+      "disposition": "retain visibility keystone",
+      "proposal": "Keep Truesight while standing in actual Light. Neither glowing surfaces nor terrain knowledge substitutes for Light or grants knowledge of unseen Chain targets."
+    }
+  ]
+}

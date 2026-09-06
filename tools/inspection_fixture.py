@@ -67,7 +67,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog=(
             "Fixture options not recognized by this wrapper are passed through to "
             "tools/inspection_fixture.gd. Example: tools/inspection_fixture.py "
-            "--scenario combat --hand quick_stab,bone_dart --summary 'targeting check'"
+            "--scenario combat --hand quick_stab,pale_spark --summary 'targeting check'"
         ),
     )
     parser.add_argument("--project", default=".", help="Project directory.")

@@ -489,7 +489,7 @@ func _defeated_state() -> Dictionary:
 		"room_element": "umbra",
 		"grid": _grid(),
 		"moss": {},
-		"elemental_intensity": {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0},
+		"surfaces": {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}},
 		"player": {"pos": Vector2i(5, 6), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0},
 		"enemies": [
 			_support_unit(402, Vector2i(3, 5)),

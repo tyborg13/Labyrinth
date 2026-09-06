@@ -15,12 +15,13 @@ const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
 ## to reintroduce a second unit system.
 const FIXED_POINT_SCALE: int = 1
 const LEGACY_FIXED_POINT_SCALE: int = 10
-const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const FIXED_POINT_ATTACK_ACTION_TYPES: Array[String] = [
 	"melee", "ranged", "aoe", "push", "pull", "lightning_strikes",
-	"terrain_burst", "cinder_marks", "gale_force", "umbra_eclipse"
+	"terrain_burst", "detonate", "detonate_cinders", "gale_force", "umbra_eclipse"
 ]
-const STATUS_UPGRADE_FIELDS: Array[String] = ["burn", "poison", "freeze", "shock"]
+const STATUS_UPGRADE_FIELDS: Array[String] = ["bleed", "expose", "sunder"]
+const SURFACE_KINDS: Array[String] = ["fire", "ice", "electrified", "rubble"]
 const LEGACY_PROGRESSION_STAT_IDS = [
 	"might",
 	"dexterity",
@@ -165,7 +166,12 @@ static func _raw_upgraded_card_def(upgrade_id: String) -> Dictionary:
 	return card
 
 static func _raw_card_def(card_id: String) -> Dictionary:
-	return _duplicate_dict(cards().get(card_id, {}))
+	var card: Dictionary = _duplicate_dict(cards().get(card_id, {}))
+	if bool(card.get("retired", false)):
+		var replacement_id: String = str(card.get("replacement_id", ""))
+		if not replacement_id.is_empty() and replacement_id != card_id:
+			return _duplicate_dict(cards().get(replacement_id, {}))
+	return card
 
 static func _raw_card_def_for_progression(card_id: String, progression: Dictionary) -> Dictionary:
 	var entry: Variant = (progression.get("card_upgrades", {}) as Dictionary).get(card_id, "")
@@ -468,8 +474,8 @@ static func upgradeable_elements_for_card(card_id: String, progression: Dictiona
 				"field": "damage",
 				"label": "Damage"
 			})
-		if action.has("range"):
-			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Illusion Range" if action_type == "illusion" else "Attack Range"
+		if action.has("range") and int(action.get("range", 0)) > 0 and str(action.get("target", "")) != "previous_target":
+			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Illusion Range" if action_type == "illusion" else "Surface Range" if action_type == "surface" else "Attack Range"
 			_append_upgrade_element_if_available(elements, card_id, progression, {
 				"key": "stat:%d:range" % index,
 				"kind": "stat",
@@ -502,7 +508,7 @@ static func upgradeable_elements_for_card(card_id: String, progression: Dictiona
 					"field": status_field,
 					"label": "%s Effect" % _status_label(status_field)
 				})
-		if action_type == "aoe":
+		if action_type in ["aoe", "surface", "detonate"] and not (action.get("pattern", []) as Array).is_empty():
 			_append_upgrade_element_if_available(elements, card_id, progression, {
 				"key": "pattern:%d" % index,
 				"kind": "pattern",
@@ -602,11 +608,11 @@ static func stat_bonus_from_relics(relic_ids_list: Array, effect_key: String) ->
 static func fixed_point_amount(amount: int) -> int:
 	return amount * FIXED_POINT_SCALE
 
-static func status_tick_reduction(status_id: String) -> int:
-	return FIXED_POINT_SCALE if status_id in ["burn", "poison"] else 1
+static func status_tick_reduction(_status_id: String) -> int:
+	return 1
 
 static func action_field_uses_fixed_point(action_type: String, field: String) -> bool:
-	if field in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison"]:
+	if field in ["damage", "self_damage", "bleed", "expose", "sunder"]:
 		return action_type in FIXED_POINT_ATTACK_ACTION_TYPES or action_type in ["trap", "all_enemies_damage", "all_enemies_status"]
 	if field == "amount":
 		return action_type in ["block", "stoneskin", "heal", "heal_self", "heal_ally", "guard_ally"]
@@ -701,16 +707,13 @@ static func _relic_effect_display_value(effect: Dictionary, key: String) -> Vari
 		"max_hp", "first_attack_bonus", "start_combat_stoneskin", "start_combat_block", "damage_vs_status", "kill_status_heal", "glass_attack_bonus", "bloodied_glass_attack_bonus", "stoneskin_thorns", "first_card_attack_bonus":
 			if key == "value":
 				return fixed_point_amount(amount)
-		"prevent_lethal_once":
-			if key == "burn_all_enemies":
-				return fixed_point_amount(amount)
 		"overheal_to_stoneskin":
 			if key in ["cap", "value", "max_value"]:
 				return fixed_point_amount(amount)
 		"start_combat_stoneskin_per_deck_element":
 			if key == "value" or key == "max_value":
 				return fixed_point_amount(amount)
-		"card_action_mod", "player_state_action_mod":
+		"card_action_mod", "player_state_action_mod", "target_state_action_mod":
 			if (key == "amount" or key == "value") and _relic_card_action_mod_uses_fixed_point(effect):
 				return fixed_point_amount(amount)
 	return amount
@@ -734,7 +737,7 @@ static func _relic_reward_display_value(reward: Dictionary, key: String) -> Vari
 			return fixed_point_amount(amount)
 		"all_enemies_status":
 			var status_id: String = str(reward.get("status", ""))
-			return fixed_point_amount(amount) if status_id in ["burn", "poison"] else amount
+			return fixed_point_amount(amount) if status_id in ["bleed", "expose", "sunder"] else amount
 		_:
 			return amount
 
@@ -824,8 +827,28 @@ static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
 		for action_var: Variant in intent.get("actions", []):
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue
-			actions.append(_scale_action_fixed_point(action_var as Dictionary))
+			var action: Dictionary = _scale_action_fixed_point(action_var as Dictionary)
+			# Generated enemy variants inherit their element only when the attack
+			# does not explicitly declare a physical or different-element strike.
+			if str(action.get("type", "")) in FIXED_POINT_ATTACK_ACTION_TYPES and not action.has("element"):
+				action["element"] = str(next_enemy.get("element", ElementData.NONE))
+			actions.append(action)
 		intent["actions"] = actions
+		if typeof(intent.get("surface_fuel", null)) == TYPE_DICTIONARY:
+			var fuel: Dictionary = (intent["surface_fuel"] as Dictionary).duplicate(true)
+			var bonuses: Dictionary = (fuel.get("action_bonuses", {}) as Dictionary).duplicate(true)
+			for index_var: Variant in bonuses.keys():
+				var action_index: int = int(str(index_var))
+				if action_index < 0 or action_index >= actions.size() or typeof(bonuses[index_var]) != TYPE_DICTIONARY:
+					continue
+				var bonus: Dictionary = (bonuses[index_var] as Dictionary).duplicate(true)
+				var action_type: String = str((actions[action_index] as Dictionary).get("type", ""))
+				for field_var: Variant in bonus.keys():
+					if action_field_uses_fixed_point(action_type, str(field_var)):
+						bonus[field_var] = int(bonus[field_var]) * FIXED_POINT_SCALE
+				bonuses[index_var] = bonus
+			fuel["action_bonuses"] = bonuses
+			intent["surface_fuel"] = fuel
 		intents.append(intent)
 	next_enemy["intents"] = intents
 	return next_enemy
@@ -833,15 +856,21 @@ static func _scale_enemy_fixed_point(enemy: Dictionary) -> Dictionary:
 static func _scale_action_fixed_point(action: Dictionary) -> Dictionary:
 	var next_action: Dictionary = action.duplicate(true)
 	var action_type: String = str(next_action.get("type", ""))
-	for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+	for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
 		if next_action.has(field) and action_field_uses_fixed_point(action_type, field):
 			next_action[field] = int(next_action.get(field, 0)) * FIXED_POINT_SCALE
-	if typeof(next_action.get("intensity_bonus", {})) == TYPE_DICTIONARY:
-		var bonus: Dictionary = (next_action.get("intensity_bonus", {}) as Dictionary).duplicate(true)
-		for field: String in ["damage", "self_damage", "burn", "bleed", "expose", "sunder", "poison", "amount", "health"]:
+	if typeof(next_action.get("surface_bonus", null)) == TYPE_DICTIONARY:
+		var bonus: Dictionary = (next_action["surface_bonus"] as Dictionary).duplicate(true)
+		for field: String in ["damage", "self_damage", "bleed", "expose", "sunder", "amount", "health"]:
 			if bonus.has(field) and action_field_uses_fixed_point(action_type, field):
 				bonus[field] = int(bonus.get(field, 0)) * FIXED_POINT_SCALE
-		next_action["intensity_bonus"] = bonus
+		next_action["surface_bonus"] = bonus
+	if typeof(next_action.get("rewards", null)) == TYPE_ARRAY:
+		var rewards: Array = []
+		for reward_var: Variant in next_action["rewards"]:
+			if typeof(reward_var) == TYPE_DICTIONARY:
+				rewards.append(_scale_action_fixed_point(reward_var as Dictionary))
+		next_action["rewards"] = rewards
 	return next_action
 
 static func _rarity_sort_index(rarity: String) -> int:
@@ -924,19 +953,7 @@ static func _amount_upgrade_label(action_type: String) -> String:
 			return "Amount"
 
 static func _status_label(status_field: String) -> String:
-	match status_field:
-		"burn":
-			return "Burn"
-		"poison":
-			return "Poison"
-		"freeze":
-			return "Freeze"
-		"shock":
-			return "Shock"
-		"immobilize":
-			return "Immobilize"
-		_:
-			return status_field.capitalize()
+	return status_field.capitalize()
 
 static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
 	var action_index: int = int(element.get("action_index", -1))
@@ -945,7 +962,7 @@ static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Ar
 	var options: Array = []
 	match field:
 		"damage":
-			var base_cost: int = 190 if action_type == "aoe" else 130
+			var base_cost: int = 230 if action_type == "detonate" else 190 if action_type == "aoe" else 130
 			for amount: int in [1, 2, 3]:
 				options.append(_stat_mod(action_index, field, amount, "Damage +%d" % amount, base_cost * amount * amount))
 		"range":
@@ -953,10 +970,10 @@ static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Ar
 				var base_cost: int = 150 if action_type == "move" else 170 if action_type == "illusion" else 190
 				for amount: int in [1, 2]:
 					options.append(_stat_mod(action_index, field, amount, "Range +%d" % amount, base_cost * amount * amount))
-			elif action_type in ATTACK_ACTION_TYPES:
-				var attack_base: int = 210 if action_type == "aoe" else 170
+			elif action_type in ATTACK_ACTION_TYPES or action_type == "surface":
+				var attack_base: int = 260 if action_type in ["surface", "detonate"] else 210 if action_type == "aoe" else 170
 				options.append(_stat_mod(action_index, field, 1, "Range +1", attack_base))
-				if action_type in ["ranged", "aoe"]:
+				if action_type in ["ranged", "aoe", "surface", "detonate"]:
 					options.append(_stat_mod(action_index, field, 2, "Range +2", attack_base * 4))
 		"amount":
 			match action_type:
@@ -980,27 +997,35 @@ static func _stat_upgrade_options(action: Dictionary, element: Dictionary) -> Ar
 static func _status_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
 	var action_index: int = int(element.get("action_index", -1))
 	var field: String = str(element.get("field", ""))
-	var current: int = int(action.get(field, 0))
 	var options: Array = []
-	match field:
-		"burn":
-			for amount: int in [1, 2]:
-				options.append(_stat_mod(action_index, field, amount, "Burn +%d" % amount, 250 * amount * amount, "status"))
-		"poison":
-			for amount: int in [2, 4]:
-				options.append(_stat_mod(action_index, field, amount, "Poison +%d" % amount, 95 * amount * amount, "status"))
-		"freeze":
-			if current <= 0:
-				options.append(_stat_mod(action_index, field, 1, "Add Freeze", 760, "status"))
-		"shock":
-			if current <= 0:
-				options.append(_stat_mod(action_index, field, 1, "Add Shock", 620, "status"))
+	# Control from Ice and Shock remains a positional payoff. Upgrades can
+	# strengthen printed physical riders without turning every spell into one.
+	if field not in STATUS_UPGRADE_FIELDS or int(action.get(field, 0)) <= 0:
+		return options
+	for amount: int in [1, 2]:
+		var base_cost: int = 250 if field == "bleed" else 210 if field == "expose" else 170
+		options.append(_stat_mod(action_index, field, amount, "%s +%d" % [_status_label(field), amount], base_cost * amount * amount, "status"))
 	return options
 
 static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) -> Array:
 	var action_index: int = int(element.get("action_index", -1))
 	var pattern: Array = (action.get("pattern", []) as Array).duplicate(true)
 	var options: Array = []
+	var territory_multiplier: int = 2 if action.has("surface") or str(action.get("type", "")) == "detonate" else 1
+	if str(action.get("surface", "")) == "electrified":
+		# Conduction needs cardinally connected territory. Expand its frontier,
+		# never offer isolated diagonals that only work as Chain relays.
+		var frontier: Array = []
+		for offset_var: Variant in pattern:
+			var origin: Vector2i = _offset_to_vector(offset_var)
+			for delta: Vector2i in [Vector2i.LEFT, Vector2i.RIGHT, Vector2i.UP, Vector2i.DOWN]:
+				var candidate: Vector2i = origin + delta
+				var pair: Array = [candidate.x, candidate.y]
+				if not pattern.has(pair) and not frontier.has(pair):
+					frontier.append(pair)
+		if not frontier.is_empty():
+			options.append({"kind": "pattern_add", "action_index": action_index, "label": "Widen connected area", "offsets": frontier, "cost_base": 460 * frontier.size()})
+		return options
 	var diagonal_offsets: Array = [[1, 1], [1, -1], [-1, 1], [-1, -1]]
 	if _missing_offsets(pattern, diagonal_offsets).size() > 0:
 		options.append({
@@ -1008,7 +1033,7 @@ static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) ->
 			"action_index": action_index,
 			"label": "Add diagonals",
 			"offsets": diagonal_offsets,
-			"cost_base": 920
+			"cost_base": 920 * territory_multiplier
 		})
 	var extended_cross: Array = [[2, 0], [-2, 0], [0, 2], [0, -2]]
 	if _missing_offsets(pattern, extended_cross).size() > 0:
@@ -1017,7 +1042,7 @@ static func _pattern_upgrade_options(action: Dictionary, element: Dictionary) ->
 			"action_index": action_index,
 			"label": "Extend cross",
 			"offsets": extended_cross,
-			"cost_base": 1080
+			"cost_base": 1080 * territory_multiplier
 		})
 	return options
 
@@ -1031,7 +1056,7 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"] or (action_type == "aoe" and int(action.get("range", 0)) > 0):
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"] or (action_type in ["aoe", "surface", "detonate", "consume_surface"] and int(action.get("range", 0)) > 0):
 			has_targeted_action = true
 			break
 	if not has_targeted_action:
@@ -1223,8 +1248,14 @@ static func _relic_card_action_types(card: Dictionary) -> Array[String]:
 		var action_type: String = str((action_var as Dictionary).get("type", ""))
 		if not action_type.is_empty() and not result.has(action_type):
 			result.append(action_type)
+		if not str((action_var as Dictionary).get("surface", "")).is_empty() and not result.has("surface"):
+			result.append("surface")
 		if int((action_var as Dictionary).get("illuminate_radius", 0)) > 0 and not result.has("illuminate"):
 			result.append("illuminate")
+		if typeof((action_var as Dictionary).get("rewards", null)) == TYPE_ARRAY:
+			for reward_type: String in _relic_card_action_types({"actions": (action_var as Dictionary)["rewards"]}):
+				if not result.has(reward_type):
+					result.append(reward_type)
 	return result
 
 static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary) -> bool:
@@ -1232,7 +1263,7 @@ static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary)
 	if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
 		return false
 	var required_field: String = str(effect.get("requires_field", ""))
-	if not required_field.is_empty() and not _action_has_field_or_intensity_bonus(action, required_field):
+	if not required_field.is_empty() and not _action_has_field_or_surface_bonus(action, required_field):
 		return false
 	return true
 
@@ -1241,21 +1272,24 @@ static func _relic_effect_matches_card_action_requirement(card: Dictionary, effe
 	var required_type: String = str(effect.get("requires_action_type", ""))
 	if required_field.is_empty() and required_type.is_empty():
 		return true
+	if required_field.is_empty():
+		return _relic_card_action_types(card).has(required_type)
 	for action_var: Variant in card.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var
 		if not required_type.is_empty() and str(action.get("type", "")) != required_type:
 			continue
-		if not required_field.is_empty() and not _action_has_field_or_intensity_bonus(action, required_field):
+		if not required_field.is_empty() and not _action_has_field_or_surface_bonus(action, required_field):
 			continue
 		return true
 	return false
 
-static func _action_has_field_or_intensity_bonus(action: Dictionary, field: String) -> bool:
-	if int(action.get(field, 0)) > 0:
+static func _action_has_field_or_surface_bonus(action: Dictionary, field: String) -> bool:
+	var value: Variant = action.get(field, null)
+	if (typeof(value) in [TYPE_INT, TYPE_FLOAT, TYPE_BOOL] and int(value) > 0) or (typeof(value) == TYPE_STRING and not str(value).is_empty()):
 		return true
-	var raw_bonus: Variant = action.get("intensity_bonus", {})
+	var raw_bonus: Variant = action.get("surface_bonus", {})
 	if typeof(raw_bonus) != TYPE_DICTIONARY:
 		return false
 	return int((raw_bonus as Dictionary).get(field, 0)) > 0
@@ -1281,7 +1315,7 @@ static func _apply_card_mod(card: Dictionary, mod: Dictionary) -> Dictionary:
 	var action_index: int = int(mod.get("action_index", -1))
 	if str(mod.get("kind", "")) == "action_add":
 		var added_action: Variant = mod.get("action", {})
-		if typeof(added_action) == TYPE_DICTIONARY:
+		if typeof(added_action) == TYPE_DICTIONARY and str((added_action as Dictionary).get("type", "")) in ["move", "block", "draw"]:
 			actions.append((added_action as Dictionary).duplicate(true))
 			next_card["actions"] = actions
 		return next_card
@@ -1293,7 +1327,7 @@ static func _apply_card_mod(card: Dictionary, mod: Dictionary) -> Dictionary:
 			action["pattern"] = _pattern_with_added_offsets((action.get("pattern", []) as Array), mod.get("offsets", []) as Array)
 		_:
 			var field: String = str(mod.get("field", ""))
-			if not field.is_empty():
+			if field in ["damage", "range", "amount", "health", "bleed", "expose", "sunder"]:
 				action[field] = int(action.get(field, 0)) + int(mod.get("amount", 0))
 	actions[action_index] = action
 	next_card["actions"] = actions
@@ -1343,23 +1377,6 @@ static func _card_value(card: Dictionary) -> float:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		total += _action_value(action_var as Dictionary)
-	var intensity_cost: Dictionary = card.get("intensity_cost", {}) as Dictionary
-	var intensity_cost_amount: int = maxi(0, int(intensity_cost.get("amount", intensity_cost.get("cost", 0))))
-	if intensity_cost_amount > 0:
-		var cost_element: String = str(intensity_cost.get("element", card.get("element", ElementData.NONE)))
-		var matching_room_intensity: int = 1 if cost_element == str(card.get("element", ElementData.NONE)) else 0
-		var gap: int = intensity_cost_amount - matching_room_intensity
-		var raw_availability: float = 1.0
-		if gap == 1:
-			raw_availability = 0.62
-		elif gap == 2:
-			raw_availability = 0.44
-		elif gap == 3:
-			raw_availability = 0.28
-		elif gap >= 4:
-			raw_availability = 0.18
-		total *= 0.68 + 0.32 * raw_availability
-		total -= float(intensity_cost_amount) * 0.7
 	total -= float(int(card.get("health_cost", 0))) * 1.6
 	if bool(card.get("burn", false)):
 		total -= 1.2
@@ -1375,8 +1392,8 @@ static func _action_value(action: Dictionary) -> float:
 		"ranged":
 			value += float(int(action.get("damage", 0))) * 1.0
 			value += float(int(action.get("range", 0))) * 0.22
-		"aoe":
-			value += float(int(action.get("damage", 0))) * 1.35
+		"aoe", "detonate":
+			value += float(int(action.get("damage", 0))) * (0.95 if action_type == "detonate" else 1.35)
 			value += float(int(action.get("range", 0))) * 0.25
 			value += float((action.get("pattern", []) as Array).size()) * 0.15
 		"push":
@@ -1387,6 +1404,8 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("damage", 0))) * 0.9
 			value += float(int(action.get("pull", 0))) * 0.65
 			value += float(int(action.get("range", 0))) * 0.18
+		"surface":
+			value += float(int(action.get("range", 0))) * 0.30
 		"move":
 			value += float(int(action.get("range", 0))) * 0.75
 		"blink":
@@ -1401,8 +1420,6 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("amount", 0))) * 2.4
 		"card_play":
 			value += float(int(action.get("amount", 0))) * 2.0
-		"intensity":
-			value += float(int(action.get("amount", 0))) * 1.4
 		"illusion":
 			value += float(int(action.get("health", action.get("amount", 0)))) * 0.95
 			value += float(int(action.get("range", 0))) * 0.28
@@ -1419,66 +1436,35 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(3 if truesight_duration < 0 else maxi(1, truesight_duration)) * 2.2
 		"dispel_umbra":
 			value += float(int(action.get("amount", 1))) * 2.4
-	value += float(int(action.get("burn", 0))) * 1.15
 	value += float(int(action.get("bleed", 0))) * 1.05
 	value += float(int(action.get("expose", 0))) * 0.95
 	value += float(int(action.get("sunder", 0))) * 0.70
-	value += float(int(action.get("poison", 0))) * 0.95
-	value += float(int(action.get("freeze", 0))) * 3.2
 	value += float(int(action.get("shock", 0))) * 2.4
 	if bool(action.get("immobilize", false)):
 		value += 1.7
 	value += float(int(action.get("chain", 0))) * 1.5
 	if bool(action.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
 		value += 1.1
-	value += _intensity_bonus_value(action, action_type)
-	return value * _intensity_requirement_value_scale(action)
+	if not str(action.get("surface", "")).is_empty():
+		var footprint: Array = action.get("surface_pattern", action.get("pattern", [[0, 0]])) as Array
+		# Persistent territory has a finite setup premium. The cohort scorer owns
+		# combat balance; this local proxy prices incremental campfire upgrades.
+		value += 0.8 + sqrt(float(maxi(1, footprint.size()))) * 0.75
+	if action_type == "consume_surface":
+		for reward_var: Variant in action.get("rewards", []):
+			if typeof(reward_var) == TYPE_DICTIONARY:
+				value += _action_value(reward_var as Dictionary) * 0.55
+	value += _surface_bonus_value(action, action_type)
+	return value * (0.62 if action.has("requires_surface") else 1.0)
 
-static func _intensity_bonus_value(action: Dictionary, action_type: String) -> float:
-	var raw: Variant = action.get("intensity_bonus", {})
-	if typeof(raw) != TYPE_DICTIONARY:
+static func _surface_bonus_value(action: Dictionary, action_type: String) -> float:
+	var raw: Variant = action.get("surface_bonus", {})
+	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
 		return 0.0
-	var bonus: Dictionary = raw as Dictionary
-	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
-	if threshold <= 0:
-		return 0.0
-	var value: float = 0.0
-	if action_type in ATTACK_ACTION_TYPES:
-		var damage_multiplier: float = 1.0
-		match action_type:
-			"melee":
-				damage_multiplier = 1.05
-			"aoe":
-				damage_multiplier = 1.35
-			"push", "pull":
-				damage_multiplier = 0.9
-		value += float(int(bonus.get("damage", 0))) * damage_multiplier
-	value += float(int(bonus.get("burn", 0))) * 1.15
-	value += float(int(bonus.get("bleed", 0))) * 1.05
-	value += float(int(bonus.get("expose", 0))) * 0.95
-	value += float(int(bonus.get("sunder", 0))) * 0.70
-	value += float(int(bonus.get("poison", 0))) * 0.95
-	value += float(int(bonus.get("freeze", 0))) * 3.2
-	value += float(int(bonus.get("shock", 0))) * 2.4
-	if bool(bonus.get("immobilize", false)):
-		value += 1.7
-	value += float(int(bonus.get("chain", 0))) * 1.5
-	value += float(int(bonus.get("push", 0))) * 0.9
-	value += float(int(bonus.get("pull", 0))) * 0.65
-	if action_type == "push":
-		value += float(int(bonus.get("amount", 0))) * 0.9
-	elif action_type == "pull":
-		value += float(int(bonus.get("amount", 0))) * 0.65
-	if bool(bonus.get("pierce", false)) and action_type in ATTACK_ACTION_TYPES:
-		value += 1.1
-	return value * clampf(1.0 - float(threshold - 1) * 0.18, 0.34, 0.82)
-
-static func _intensity_requirement_value_scale(action: Dictionary) -> float:
-	var raw: Variant = action.get("requires_intensity", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return 1.0
-	var requirement: Dictionary = raw as Dictionary
-	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
-	if threshold <= 0:
-		return 1.0
-	return clampf(1.0 - float(threshold - 1) * 0.18, 0.34, 0.82)
+	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
+	bonus["type"] = action_type
+	bonus.erase("surface")
+	bonus.erase("subject")
+	bonus.erase("present")
+	bonus.erase("surface_bonus")
+	return _action_value(bonus) * 0.62

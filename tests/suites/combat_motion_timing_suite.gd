@@ -26,7 +26,7 @@ static func run(tree: SceneTree, expect: Callable, capture: bool = false) -> voi
 			await tree.process_frame
 		await _test_card_resolution_overlap(tree, instance, expect, capture, reduced_motion)
 		await _test_combined_counter_rewards(tree, instance, expect, capture, reduced_motion)
-		await _test_intensity_motion(tree, instance, expect, reduced_motion)
+		await _test_surface_motion(tree, instance, expect, reduced_motion)
 		instance.queue_free()
 		if capture_viewport != null:
 			capture_viewport.queue_free()
@@ -95,24 +95,26 @@ static func _test_combined_counter_rewards(tree: SceneTree, instance: Node, expe
 	expect.call(meter.scale.is_equal_approx(Vector2.ONE) and meter.modulate.is_equal_approx(Color.WHITE), "The play meter must settle cleanly after the aggregate reward")
 	expect.call(int(instance.get("_ember_count_override")) == -1, "The ember presentation override must be released after feedback")
 
-static func _test_intensity_motion(tree: SceneTree, instance: Node, expect: Callable, reduced_motion: bool) -> void:
-	var content: Control = (instance.get("_intensity_content_hosts") as Dictionary).get("fire") as Control
+static func _test_surface_motion(tree: SceneTree, instance: Node, expect: Callable, reduced_motion: bool) -> void:
+	var before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var after: Dictionary = before.duplicate(true)
+	preload("res://scripts/board_surface_rules.gd").place(after, Vector2i(3, 4), "fire")
 	var completion: Dictionary = {"done": false}
-	_track_intensity(instance, completion)
+	_track_surface(instance, before, after, completion)
 	var deadline: int = Time.get_ticks_msec() + 1500
+	var board: Control = instance.get("board_view") as Control
 	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
-		if reduced_motion:
-			expect.call(content.scale.is_equal_approx(Vector2.ONE), "Reduced-motion intensity feedback must keep stable geometry")
+		if reduced_motion: expect.call(board.scale.is_equal_approx(Vector2.ONE), "Reduced ground feedback never displaces the board")
 		await tree.process_frame
-	expect.call(bool(completion.get("done", false)), "Intensity feedback must complete")
-	expect.call(content.scale.is_equal_approx(Vector2.ONE) and content.modulate.is_equal_approx(Color.WHITE), "Intensity feedback must settle cleanly")
+	expect.call(bool(completion.get("done", false)), "Ground feedback completes in one short beat")
+	expect.call((board.get("combat_state") as Dictionary).get("surfaces", {}) == after.get("surfaces", {}), "Ground feedback must settle on the exact committed surface state")
 
 static func _track_death_rewards(instance: Node, before: Dictionary, after: Dictionary, completion: Dictionary) -> void:
 	await instance.call("_animate_death_rewards", before, after)
 	completion["done"] = true
 
-static func _track_intensity(instance: Node, completion: Dictionary) -> void:
-	await instance.call("_animate_intensity_gain", "fire", 3)
+static func _track_surface(instance: Node, before: Dictionary, after: Dictionary, completion: Dictionary) -> void:
+	await instance.call("_animate_surface_change", before, after)
 	completion["done"] = true
 
 static func _card_proxy_count(instance: Node) -> int:

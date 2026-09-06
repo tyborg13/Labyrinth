@@ -393,6 +393,25 @@ static func validation_errors() -> Array[String]:
 			seen_icons[skill_icon] = skill_id
 		if effect_type(skill_id).is_empty():
 			errors.append("%s has no effect type." % skill_id)
+		var skill_effect: Dictionary = effect(skill_id)
+		if effect_type(skill_id) in ["surface", "surface_relocate"]:
+			if activation_kind(skill_id) != "manual":
+				errors.append("%s board-targeted ability must be manual." % skill_id)
+			if int(skill_effect.get("range", 0)) <= 0 or int(skill_effect.get("uses_per_combat", 0)) != 1:
+				errors.append("%s requires positive targeting range and one use per combat." % skill_id)
+			if effect_type(skill_id) == "surface":
+				var surface_options: Array = skill_effect.get("surfaces", []) as Array
+				if surface_options.size() != 4:
+					errors.append("%s must offer the four surface kinds." % skill_id)
+				for surface_kind: String in ["fire", "ice", "electrified", "rubble"]:
+					if not surface_options.has(surface_kind):
+						errors.append("%s is missing surface %s." % [skill_id, surface_kind])
+			else:
+				if int(skill_effect.get("destination_range", 0)) <= 0:
+					errors.append("%s requires a positive relocation range." % skill_id)
+				var layers: Array = skill_effect.get("layers", []) as Array
+				if layers.size() != 2 or not layers.has("elemental") or not layers.has("rubble"):
+					errors.append("%s must relocate either the elemental layer or Rubble." % skill_id)
 		var position_key: String = str(position(skill_id))
 		if seen_positions.has(position_key):
 			errors.append("%s shares a position with %s." % [skill_id, str(seen_positions[position_key])])

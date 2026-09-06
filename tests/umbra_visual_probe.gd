@@ -91,8 +91,6 @@ func _capture_umbra_stages_and_cards() -> void:
 		_assert(umbra_subtitle.visible == not expected_subtitle.is_empty(), "%s should use the expected Umbra subtitle visibility" % stage)
 		if stage != "clear":
 			_assert(umbra_subtitle.tooltip_text.contains("Hidden enemies cannot be targeted"), "%s should explain its targeting and intent rules on hover" % stage)
-		_assert(not (instance.get("_intensity_labels") as Dictionary).has("umbra"), "Umbra should not be represented as an elemental intensity")
-		_assert((instance.get("_intensity_badges") as Dictionary).size() == 5, "Intensity HUD should contain only the five elements")
 		await _save_root_screenshot("%s/stage_%s.png" % [OUTPUT_DIR, stage])
 		if stage == "deep":
 			await create_timer(0.65).timeout
@@ -159,7 +157,7 @@ func _load_stage(instance: Node, stage: String) -> void:
 	combat_state["current_actor"] = {"kind": "player", "key": "player"}
 	combat_state["traps"] = []
 	combat_state["terrain"] = []
-	combat_state["elemental_intensity"] = {"fire": 3, "ice": 3, "lightning": 3, "air": 3, "earth": 3}
+	combat_state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	var umbra: Dictionary = (combat_state.get("umbra", {}) as Dictionary).duplicate(true)
 	umbra["stage"] = stage
 	umbra["stage_reduction"] = 0
@@ -535,13 +533,7 @@ func _capture_action_group_gallery(instance: Node) -> void:
 func _capture_token_suffix_stress_gallery(instance: Node) -> void:
 	var combat := CombatEngine.new()
 	var stress_state: Dictionary = _radiance_visual_state(combat, ["duelist_whetstone"], [])
-	stress_state["elemental_intensity"] = {
-		"fire": 3,
-		"ice": 0,
-		"lightning": 0,
-		"air": 0,
-		"earth": 0
-	}
+	stress_state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	var gallery_layer := CanvasLayer.new()
 	gallery_layer.layer = 1000
 	root.add_child(gallery_layer)

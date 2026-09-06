@@ -185,7 +185,7 @@ func _capture_intent_preview_states() -> void:
 			"actions": [
 				{"type": "move_toward", "range": 3},
 				{"type": "ranged", "damage": 3, "range": 3, "shock": 1},
-				{"type": "intensity", "element": "lightning", "amount": 1}
+				{"type": "surface", "surface": "electrified", "range": 1}
 			]
 		},
 		"lightning_wisp"

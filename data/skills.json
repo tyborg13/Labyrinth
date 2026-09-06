@@ -5,11 +5,20 @@
     "description": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
     "branch": "tactics",
     "tier": "root",
-    "position": [0, 0],
-    "layout_position": [370, 60],
+    "position": [
+      0,
+      0
+    ],
+    "layout_position": [
+      370,
+      60
+    ],
     "prerequisites": [],
     "activation": "manual",
-    "effect": {"type": "discard_draw", "uses_per_combat": 1}
+    "effect": {
+      "type": "discard_draw",
+      "uses_per_combat": 1
+    }
   },
   "measured_breath": {
     "name": "Measured Breath",
@@ -17,23 +26,42 @@
     "description": "End your turn with an unused @icon(card_play) to bank it for your next turn. One banked @icon(card_play) maximum.",
     "branch": "resolve",
     "tier": "root",
-    "position": [1, 0],
-    "layout_position": [115, 60],
+    "position": [
+      1,
+      0
+    ],
+    "layout_position": [
+      115,
+      60
+    ],
     "prerequisites": [],
     "activation": "automatic",
-    "effect": {"type": "bank_unused_play", "capacity": 1}
+    "effect": {
+      "type": "bank_unused_play",
+      "capacity": 1
+    }
   },
   "ghost_stride": {
     "name": "Ghost Stride",
     "icon": "skill_ghost_stride",
-    "description": "Once per combat, arm so your next movement becomes @icon(blink) 2.",
+    "description": "Once per combat, arm so your next movement becomes @icon(blink) 2. Skip intermediate ground; landing hazards still apply.",
     "branch": "traverse",
     "tier": "root",
-    "position": [2, 0],
-    "layout_position": [885, 60],
+    "position": [
+      2,
+      0
+    ],
+    "layout_position": [
+      885,
+      60
+    ],
     "prerequisites": [],
     "activation": "manual",
-    "effect": {"type": "arm_movement_blink", "range": 2, "uses_per_combat": 1}
+    "effect": {
+      "type": "arm_movement_blink",
+      "range": 2,
+      "uses_per_combat": 1
+    }
   },
   "discerning_eye": {
     "name": "Discerning Eye",
@@ -41,23 +69,43 @@
     "description": "Once between bosses, replace every card in a combat reward.",
     "branch": "foresight",
     "tier": "root",
-    "position": [3, 0],
-    "layout_position": [630, 60],
+    "position": [
+      3,
+      0
+    ],
+    "layout_position": [
+      630,
+      60
+    ],
     "prerequisites": [],
     "activation": "contextual",
-    "effect": {"type": "reward_reroll", "uses_per_sequence": 1}
+    "effect": {
+      "type": "reward_reroll",
+      "uses_per_sequence": 1
+    }
   },
   "rehearsed_escape": {
     "name": "Rehearsed Escape",
     "icon": "skill_rehearsed_escape",
-    "description": "Once per combat, arm so your next non-item @icon(exhaust) card goes to discard.",
+    "description": "Once per combat, arm to send your next non-item @icon(exhaust) card to discard instead.",
     "branch": "tactics",
     "tier": "branch",
-    "position": [0, 1],
-    "layout_position": [315, 180],
-    "prerequisites": ["quick_wits"],
+    "position": [
+      0,
+      1
+    ],
+    "layout_position": [
+      315,
+      180
+    ],
+    "prerequisites": [
+      "quick_wits"
+    ],
     "activation": "manual",
-    "effect": {"type": "preserve_burn", "uses_per_combat": 1}
+    "effect": {
+      "type": "preserve_burn",
+      "uses_per_combat": 1
+    }
   },
   "makeshift_tool": {
     "name": "Makeshift Tool",
@@ -65,11 +113,22 @@
     "description": "Once per combat, arm so your next played item goes to discard instead of @icon(consume).",
     "branch": "tactics",
     "tier": "branch",
-    "position": [0, 2],
-    "layout_position": [400, 180],
-    "prerequisites": ["quick_wits"],
+    "position": [
+      0,
+      2
+    ],
+    "layout_position": [
+      400,
+      180
+    ],
+    "prerequisites": [
+      "quick_wits"
+    ],
     "activation": "manual",
-    "effect": {"type": "preserve_item", "uses_per_combat": 1}
+    "effect": {
+      "type": "preserve_item",
+      "uses_per_combat": 1
+    }
   },
   "carry_the_guard": {
     "name": "Carry the Guard",
@@ -77,47 +136,95 @@
     "description": "Once per combat, while you have @icon(block), arm during your turn to convert all remaining @icon(block) at turn end into @icon(stoneskin).",
     "branch": "resolve",
     "tier": "branch",
-    "position": [1, 1],
-    "layout_position": [55, 180],
-    "prerequisites": ["measured_breath"],
+    "position": [
+      1,
+      1
+    ],
+    "layout_position": [
+      55,
+      180
+    ],
+    "prerequisites": [
+      "measured_breath"
+    ],
     "activation": "manual",
-    "effect": {"type": "convert_block", "uses_per_combat": 1}
+    "effect": {
+      "type": "convert_block",
+      "uses_per_combat": 1
+    }
   },
   "pain_remembers": {
     "name": "Pain Remembers",
     "icon": "skill_pain_remembers",
-    "description": "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it.",
+    "description": "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it. Fully absorbed damage does not qualify.",
     "branch": "resolve",
     "tier": "branch",
-    "position": [1, 2],
-    "layout_position": [135, 180],
-    "prerequisites": ["measured_breath"],
+    "position": [
+      1,
+      2
+    ],
+    "layout_position": [
+      135,
+      180
+    ],
+    "prerequisites": [
+      "measured_breath"
+    ],
     "activation": "automatic",
-    "effect": {"type": "pain_recall", "uses_per_combat": 1}
+    "effect": {
+      "type": "pain_recall",
+      "uses_per_combat": 1
+    }
   },
   "sure_footed": {
     "name": "Sure-Footed",
     "icon": "skill_sure_footed",
-    "description": "Once per combat, the first @icon(traps) blast that would affect you leaves you untouched and resolves normally against everything else.",
+    "description": "Once per combat, ignore the first @icon(traps) center hit or Air @icon(traps) @icon(push) that would affect you. The wake remains; later ground hazards affect you normally.",
     "branch": "traverse",
     "tier": "branch",
-    "position": [2, 1],
-    "layout_position": [935, 180],
-    "prerequisites": ["ghost_stride"],
+    "position": [
+      2,
+      1
+    ],
+    "layout_position": [
+      935,
+      180
+    ],
+    "prerequisites": [
+      "ghost_stride"
+    ],
     "activation": "automatic",
-    "effect": {"type": "disarm_trap", "uses_per_combat": 1}
+    "effect": {
+      "type": "disarm_trap",
+      "uses_per_combat": 1,
+      "protect_center_hit": true,
+      "protect_air_push": true,
+      "preserve_wake": true
+    }
   },
   "afterimage": {
     "name": "Afterimage",
     "icon": "skill_afterimage",
-    "description": "Your first @icon(blink) each combat leaves @icon(illusion) 2 behind. You may @icon(move) through your copies; ending on one dispels it.",
+    "description": "Once per combat, your first @icon(blink) leaves an @icon(illusion) 2 at its origin. The copy arrives on the existing ground and suffers its hazards.",
     "branch": "traverse",
     "tier": "branch",
-    "position": [2, 2],
-    "layout_position": [855, 180],
-    "prerequisites": ["ghost_stride"],
+    "position": [
+      2,
+      2
+    ],
+    "layout_position": [
+      855,
+      180
+    ],
+    "prerequisites": [
+      "ghost_stride"
+    ],
     "activation": "automatic",
-    "effect": {"type": "blink_illusion", "health_visible": 2, "uses_per_combat": 1}
+    "effect": {
+      "type": "blink_illusion",
+      "health_visible": 2,
+      "uses_per_combat": 1
+    }
   },
   "deferred_choice": {
     "name": "Deferred Choice",
@@ -125,11 +232,21 @@
     "description": "Skip a card reward to save one offered card. It replaces one card in your next reward.",
     "branch": "foresight",
     "tier": "branch",
-    "position": [3, 1],
-    "layout_position": [585, 180],
-    "prerequisites": ["discerning_eye"],
+    "position": [
+      3,
+      1
+    ],
+    "layout_position": [
+      585,
+      180
+    ],
+    "prerequisites": [
+      "discerning_eye"
+    ],
     "activation": "contextual",
-    "effect": {"type": "defer_card_reward"}
+    "effect": {
+      "type": "defer_card_reward"
+    }
   },
   "salvager": {
     "name": "Salvager",
@@ -137,11 +254,22 @@
     "description": "Once between bosses, recover the first equipment drop left uncollected after victory.",
     "branch": "foresight",
     "tier": "branch",
-    "position": [3, 2],
-    "layout_position": [670, 180],
-    "prerequisites": ["discerning_eye"],
+    "position": [
+      3,
+      2
+    ],
+    "layout_position": [
+      670,
+      180
+    ],
+    "prerequisites": [
+      "discerning_eye"
+    ],
     "activation": "automatic",
-    "effect": {"type": "recover_missed_equipment", "uses_per_sequence": 1}
+    "effect": {
+      "type": "recover_missed_equipment",
+      "uses_per_sequence": 1
+    }
   },
   "borrowed_time": {
     "name": "Borrowed Time",
@@ -149,11 +277,23 @@
     "description": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
     "branch": "tactics",
     "tier": "junction",
-    "position": [0, 3],
-    "layout_position": [230, 180],
-    "prerequisites": ["quick_wits", "measured_breath"],
+    "position": [
+      0,
+      3
+    ],
+    "layout_position": [
+      230,
+      180
+    ],
+    "prerequisites": [
+      "quick_wits",
+      "measured_breath"
+    ],
     "activation": "automatic",
-    "effect": {"type": "banked_play_no_time", "uses_per_combat": 1}
+    "effect": {
+      "type": "banked_play_no_time",
+      "uses_per_combat": 1
+    }
   },
   "last_reserve": {
     "name": "Last Reserve",
@@ -161,11 +301,24 @@
     "description": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
     "branch": "resolve",
     "tier": "junction",
-    "position": [1, 3],
-    "layout_position": [95, 340],
-    "prerequisites": ["carry_the_guard", "pain_remembers"],
+    "position": [
+      1,
+      3
+    ],
+    "layout_position": [
+      95,
+      340
+    ],
+    "prerequisites": [
+      "carry_the_guard",
+      "pain_remembers"
+    ],
     "activation": "automatic",
-    "effect": {"type": "survive_fatigue", "minimum_health_visible": 1, "uses_per_combat": 1}
+    "effect": {
+      "type": "survive_fatigue",
+      "minimum_health_visible": 1,
+      "uses_per_combat": 1
+    }
   },
   "plunderers_step": {
     "name": "Plunderer's Step",
@@ -173,23 +326,54 @@
     "description": "The first @icon(move) or @icon(blink) to collect loot each combat refunds its @icon(card_play).",
     "branch": "traverse",
     "tier": "junction",
-    "position": [2, 3],
-    "layout_position": [770, 180],
-    "prerequisites": ["ghost_stride", "discerning_eye"],
+    "position": [
+      2,
+      3
+    ],
+    "layout_position": [
+      770,
+      180
+    ],
+    "prerequisites": [
+      "ghost_stride",
+      "discerning_eye"
+    ],
     "activation": "automatic",
-    "effect": {"type": "loot_refund", "uses_per_combat": 1}
+    "effect": {
+      "type": "loot_refund",
+      "uses_per_combat": 1
+    }
   },
   "prismatic_instinct": {
     "name": "Prismatic Instinct",
     "icon": "skill_prismatic_instinct",
-    "description": "Once per combat, name a card with an @icon(elemental_intensity) condition in hand. The next printed play of any copy satisfies all such conditions.",
+    "description": "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time). Placement does not trigger hazards.",
     "branch": "foresight",
     "tier": "junction",
-    "position": [3, 3],
-    "layout_position": [500, 180],
-    "prerequisites": ["quick_wits", "discerning_eye"],
+    "position": [
+      3,
+      3
+    ],
+    "layout_position": [
+      500,
+      180
+    ],
+    "prerequisites": [
+      "quick_wits",
+      "discerning_eye"
+    ],
     "activation": "manual",
-    "effect": {"type": "arm_intensity", "uses_per_combat": 1}
+    "effect": {
+      "type": "surface",
+      "range": 4,
+      "surfaces": [
+        "fire",
+        "ice",
+        "electrified",
+        "rubble"
+      ],
+      "uses_per_combat": 1
+    }
   },
   "curators_patience": {
     "name": "Curator's Patience",
@@ -197,11 +381,22 @@
     "description": "After choosing a relic, save one unchosen relic for your next relic offer.",
     "branch": "tactics",
     "tier": "junction",
-    "position": [0, 4],
-    "layout_position": [445, 340],
-    "prerequisites": ["quick_wits", "deferred_choice"],
+    "position": [
+      0,
+      4
+    ],
+    "layout_position": [
+      445,
+      340
+    ],
+    "prerequisites": [
+      "quick_wits",
+      "deferred_choice"
+    ],
     "activation": "contextual",
-    "effect": {"type": "defer_relic"}
+    "effect": {
+      "type": "defer_relic"
+    }
   },
   "living_shadow": {
     "name": "Living Shadow",
@@ -209,11 +404,23 @@
     "description": "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
     "branch": "resolve",
     "tier": "junction",
-    "position": [1, 4],
-    "layout_position": [625, 340],
-    "prerequisites": ["pain_remembers", "afterimage"],
+    "position": [
+      1,
+      4
+    ],
+    "layout_position": [
+      625,
+      340
+    ],
+    "prerequisites": [
+      "pain_remembers",
+      "afterimage"
+    ],
     "activation": "automatic",
-    "effect": {"type": "illusion_recall", "uses_per_turn": 1}
+    "effect": {
+      "type": "illusion_recall",
+      "uses_per_turn": 1
+    }
   },
   "true_bearing": {
     "name": "True Bearing",
@@ -221,11 +428,23 @@
     "description": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
     "branch": "traverse",
     "tier": "junction",
-    "position": [2, 4],
-    "layout_position": [805, 340],
-    "prerequisites": ["sure_footed", "discerning_eye"],
+    "position": [
+      2,
+      4
+    ],
+    "layout_position": [
+      805,
+      340
+    ],
+    "prerequisites": [
+      "sure_footed",
+      "discerning_eye"
+    ],
     "activation": "contextual",
-    "effect": {"type": "choose_start", "range": 2}
+    "effect": {
+      "type": "choose_start",
+      "range": 2
+    }
   },
   "layaway": {
     "name": "Layaway",
@@ -234,11 +453,23 @@
     "retired": true,
     "branch": "foresight",
     "tier": "junction",
-    "position": [3, 4],
-    "layout_position": [305, 340],
-    "prerequisites": ["measured_breath", "deferred_choice"],
+    "position": [
+      3,
+      4
+    ],
+    "layout_position": [
+      305,
+      340
+    ],
+    "prerequisites": [
+      "measured_breath",
+      "deferred_choice"
+    ],
     "activation": "contextual",
-    "effect": {"type": "reserve_merchant_offer", "uses_per_sequence": 1}
+    "effect": {
+      "type": "reserve_merchant_offer",
+      "uses_per_sequence": 1
+    }
   },
   "encore": {
     "name": "Encore",
@@ -246,13 +477,24 @@
     "description": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
     "branch": "keystone",
     "tier": "keystone",
-    "position": [0, 5],
-    "layout_position": [230, 500],
-    "prerequisites": ["borrowed_time"],
+    "position": [
+      0,
+      5
+    ],
+    "layout_position": [
+      230,
+      500
+    ],
+    "prerequisites": [
+      "borrowed_time"
+    ],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
     "activation": "manual",
-    "effect": {"type": "discard_recall", "uses_per_combat": 1}
+    "effect": {
+      "type": "discard_recall",
+      "uses_per_combat": 1
+    }
   },
   "open_arsenal": {
     "name": "Open Arsenal",
@@ -260,27 +502,54 @@
     "description": "Equip any equipment in your trinket slot, ignoring its normal slot.",
     "branch": "keystone",
     "tier": "keystone",
-    "position": [1, 5],
-    "layout_position": [625, 500],
-    "prerequisites": ["living_shadow"],
+    "position": [
+      1,
+      5
+    ],
+    "layout_position": [
+      625,
+      500
+    ],
+    "prerequisites": [
+      "living_shadow"
+    ],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
     "activation": "passive",
-    "effect": {"type": "wild_trinket_slot"}
+    "effect": {
+      "type": "wild_trinket_slot"
+    }
   },
   "confluence": {
     "name": "Confluence",
     "icon": "skill_confluence",
-    "description": "@icon(elemental_intensity) conditions use your highest value, regardless of element. @icon(draw) enabled solely by Confluence stops before it would trigger @icon(fatigue).",
+    "description": "Once per combat, @icon(surface_relocate) one elemental or @icon(surface_rubble) layer. Both tiles must be visible and within @icon(range) 4 of you; the destination also within @icon(range) 4 of the source. Placement does not trigger hazards.",
     "branch": "keystone",
     "tier": "keystone",
-    "position": [2, 5],
-    "layout_position": [500, 500],
-    "prerequisites": ["prismatic_instinct"],
+    "position": [
+      2,
+      5
+    ],
+    "layout_position": [
+      500,
+      500
+    ],
+    "prerequisites": [
+      "prismatic_instinct"
+    ],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
-    "activation": "passive",
-    "effect": {"type": "highest_intensity"}
+    "activation": "manual",
+    "effect": {
+      "type": "surface_relocate",
+      "range": 4,
+      "destination_range": 4,
+      "layers": [
+        "elemental",
+        "rubble"
+      ],
+      "uses_per_combat": 1
+    }
   },
   "last_door": {
     "name": "Last Door",
@@ -288,13 +557,25 @@
     "description": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1. Spent items stay spent.",
     "branch": "keystone",
     "tier": "keystone",
-    "position": [3, 5],
-    "layout_position": [805, 500],
-    "prerequisites": ["true_bearing"],
+    "position": [
+      3,
+      5
+    ],
+    "layout_position": [
+      805,
+      500
+    ],
+    "prerequisites": [
+      "true_bearing"
+    ],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
     "activation": "automatic",
-    "effect": {"type": "retreat_on_defeat", "minimum_health_visible": 1, "uses_per_sequence": 1}
+    "effect": {
+      "type": "retreat_on_defeat",
+      "minimum_health_visible": 1,
+      "uses_per_sequence": 1
+    }
   },
   "long_dawn": {
     "name": "Long Dawn",
@@ -302,11 +583,20 @@
     "description": "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1. Permanent and tethered effects are unchanged.",
     "branch": "radiance",
     "tier": "root",
-    "position": [4, 0],
-    "layout_position": [1100, 60],
+    "position": [
+      4,
+      0
+    ],
+    "layout_position": [
+      1100,
+      60
+    ],
     "prerequisites": [],
     "activation": "passive",
-    "effect": {"type": "extend_radiance_duration", "amount": 1}
+    "effect": {
+      "type": "extend_radiance_duration",
+      "amount": 1
+    }
   },
   "sunpath": {
     "name": "Sunpath",
@@ -314,11 +604,25 @@
     "description": "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.",
     "branch": "radiance",
     "tier": "branch",
-    "position": [4, 1],
-    "layout_position": [1055, 180],
-    "prerequisites": ["long_dawn"],
+    "position": [
+      4,
+      1
+    ],
+    "layout_position": [
+      1055,
+      180
+    ],
+    "prerequisites": [
+      "long_dawn"
+    ],
     "activation": "automatic",
-    "effect": {"type": "long_move_light_path", "minimum_distance": 3, "radius": 1, "duration": 2, "uses_per_turn": 1}
+    "effect": {
+      "type": "long_move_light_path",
+      "minimum_distance": 3,
+      "radius": 1,
+      "duration": 2,
+      "uses_per_turn": 1
+    }
   },
   "witchlight": {
     "name": "Witchlight",
@@ -326,11 +630,22 @@
     "description": "Each living @icon(illusion) adds +1 to its tethered @icon(illuminate).",
     "branch": "radiance",
     "tier": "branch",
-    "position": [4, 2],
-    "layout_position": [1145, 180],
-    "prerequisites": ["long_dawn"],
+    "position": [
+      4,
+      2
+    ],
+    "layout_position": [
+      1145,
+      180
+    ],
+    "prerequisites": [
+      "long_dawn"
+    ],
     "activation": "passive",
-    "effect": {"type": "illusion_light", "radius": 1}
+    "effect": {
+      "type": "illusion_light",
+      "radius": 1
+    }
   },
   "dawnbrand": {
     "name": "Dawnbrand",
@@ -338,11 +653,29 @@
     "description": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
     "branch": "radiance",
     "tier": "junction",
-    "position": [4, 3],
-    "layout_position": [1055, 340],
-    "prerequisites": ["sunpath"],
+    "position": [
+      4,
+      3
+    ],
+    "layout_position": [
+      1055,
+      340
+    ],
+    "prerequisites": [
+      "sunpath"
+    ],
     "activation": "automatic",
-    "effect": {"type": "light_target_expose", "amount": 1, "action_types": ["melee", "ranged", "push", "pull"], "uses_per_turn": 1}
+    "effect": {
+      "type": "light_target_expose",
+      "amount": 1,
+      "action_types": [
+        "melee",
+        "ranged",
+        "push",
+        "pull"
+      ],
+      "uses_per_turn": 1
+    }
   },
   "afterglow": {
     "name": "Afterglow",
@@ -350,11 +683,23 @@
     "description": "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.",
     "branch": "radiance",
     "tier": "junction",
-    "position": [4, 4],
-    "layout_position": [1145, 340],
-    "prerequisites": ["witchlight"],
+    "position": [
+      4,
+      4
+    ],
+    "layout_position": [
+      1145,
+      340
+    ],
+    "prerequisites": [
+      "witchlight"
+    ],
     "activation": "automatic",
-    "effect": {"type": "illusion_afterglow", "radius": 1, "duration": 2}
+    "effect": {
+      "type": "illusion_afterglow",
+      "radius": 1,
+      "duration": 2
+    }
   },
   "open_sky": {
     "name": "Open Sky",
@@ -362,12 +707,23 @@
     "description": "While you stand in @icon(illuminate), you have @icon(truesight).",
     "branch": "radiance",
     "tier": "keystone",
-    "position": [4, 5],
-    "layout_position": [1100, 500],
-    "prerequisites": ["dawnbrand", "afterglow"],
+    "position": [
+      4,
+      5
+    ],
+    "layout_position": [
+      1100,
+      500
+    ],
+    "prerequisites": [
+      "dawnbrand",
+      "afterglow"
+    ],
     "minimum_owned": 8,
     "exclusive_group": "keystone",
     "activation": "passive",
-    "effect": {"type": "light_grants_truesight"}
+    "effect": {
+      "type": "light_grants_truesight"
+    }
   }
 }

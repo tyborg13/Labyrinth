@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
@@ -160,7 +161,8 @@ static func _test_defiance_trigger_and_phoenix_payoff(expect: Callable) -> void:
 	expect.call(events.size() == 1 and int(events[0].get("restored_hp", 0)) == 6, "Defiance should append one revisioned restoration event")
 	expect.call(str(events[0].get("cause", "")) == "enemy_attack" and int(events[0].get("lethal_hp_loss", 0)) == 5, "Defiance analytics ingredients should retain the lethal cause and actual remaining HP loss")
 	var enemy: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary)
-	expect.call(int(enemy.get("burn", 0)) == 6, "Phoenix Ember should burn every live enemy for its legendary payoff when Defiance triggers")
+	expect.call(BoardSurfaceRules.unit_on(state, enemy, "fire"), "Phoenix Ember should paint Fire beneath each live enemy when Defiance triggers")
+	expect.call(int(enemy.get("hp", 0)) == int(enemy.get("max_hp", 0)), "Phoenix Fire placement should await tile entry or that enemy turn start before dealing damage")
 	state = combat.call("_damage_player", state, 7, true, true, "enemy_attack", false)
 	expect.call(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 0, "Lethal damage should end the run after all Defiance charges are spent")
 	expect.call(combat.defiance_events(state).size() == 1, "Lethal damage without a charge should not append a false Defiance event")

@@ -115,9 +115,9 @@ static func _test_equipment_pickup_reuses_equipment_card_preview(expect: Callabl
 
 static func _test_icon_tooltip_panel(expect: Callable) -> void:
 	var panel: PanelContainer = UiTooltipPanel.make_icon_lines(
-		ActionIcons.icon_texture("burn"),
-		"Burn",
-		PackedStringArray([ActionIcons.description("burn")])
+		ActionIcons.icon_texture("surface_fire"),
+		"Fire",
+		PackedStringArray([ActionIcons.description("surface_fire")])
 	)
 	var icon: TextureRect = panel.find_child("TooltipIcon", true, false) as TextureRect
 	expect.call(icon != null and icon.texture != null, "Icon-led tooltips should render the matching concept icon")
@@ -183,10 +183,7 @@ static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) 
 		ActionIcons.rows_for_card(stormstring),
 		["time"]
 	)
-	var lightning_descriptions: Array[String] = []
+	var ground_descriptions: Array[String]
 	for entry: Dictionary in storm_entries:
-		if str(entry.get("icon", "")) == "element_lightning":
-			lightning_descriptions.append(str(entry.get("description", "")))
-	expect.call(lightning_descriptions.size() == 2, "Stormstring Shot should keep Lightning gain and Lightning threshold as separate tooltips")
-	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("Raise Lightning intensity")), "Stormstring Shot should retain the Lightning-gain explanation")
-	expect.call(lightning_descriptions.any(func(text: String) -> bool: return text.contains("at least 3")), "Stormstring Shot should retain the Lightning-threshold explanation")
+		if str(entry.get("icon", "")) == "surface_electrified": ground_descriptions.append(str(entry.get("description", "")))
+	expect.call(not ground_descriptions.is_empty(), "Stormstring Shot should explain its Electrified setup")

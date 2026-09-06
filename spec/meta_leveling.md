@@ -143,12 +143,12 @@ without filling deliberately unspent points.
 
 | Skill | Requires | Effect |
 | --- | --- | --- |
-| Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Burn card instead of burning it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
+| Rehearsed Escape | Quick Wits | Once per combat, arm to discard the next non-item Exhaust card instead of exhausting it. It is offered only while a qualifying card is in hand and spends its charge when preservation resolves. |
 | Makeshift Tool | Quick Wits | Once per combat, arm to discard the next played item instead of consuming it. It is offered only while an item is in hand and spends its charge when preservation resolves. |
 | Carry the Guard | Measured Breath | Once per combat, after gaining block, arm during an activation to convert all block remaining at its end into stoneskin. |
 | Pain Remembers | Measured Breath | After the first health loss each combat, when the hand has room, return the next non-item discard to it. |
-| Sure-Footed | Ghost Stride | Once per combat, the first trap blast that would affect the player leaves them untouched and resolves normally against everything else. |
-| Afterimage | Ghost Stride | The first Blink each combat leaves a `2`-health illusion behind. The player may move through friendly illusions; ending on one dispels it. |
+| Sure-Footed | Ghost Stride | Once per combat, protect the player from a trap center hit or Air wake push. The trap still resolves against other actors and leaves its elemental wake; later ground contact remains dangerous. |
+| Afterimage | Ghost Stride | The first Blink each combat leaves a `2`-health illusion behind. Blink resolves landing hazards; the new illusion is then created at the origin and contacts any existing terrain there as an arrival. The player may move through friendly illusions; ending on one dispels it. |
 | Deferred Choice | Discerning Eye | Skip a card reward to save one offered card; it replaces a card in the next reward. |
 | Salvager | Discerning Eye | Once between bosses, recover the first equipment drop left uncollected after victory. |
 
@@ -159,7 +159,7 @@ without filling deliberately unspent points.
 | Borrowed Time | Quick Wits + Measured Breath | The first card paid for with a banked play each combat adds no Time. |
 | Last Reserve | Carry the Guard + Pain Remembers | Once per combat, lethal Fatigue leaves the player at `1` health. |
 | Plunderer's Step | Ghost Stride + Discerning Eye | The first Move or Blink to collect loot each combat refunds its play. |
-| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, name a card with an intensity condition in hand. The next printed play of any copy satisfies all its intensity conditions; basic uses do not consume it. Duplicate names appear as one choice. |
+| Prismatic Instinct | Quick Wits + Discerning Eye | Once per combat, choose Fire, Ice, Electrified, or Rubble and place one tile within range `4` on legal visible floor. Spend no card play or Time. Fire/Ice placement does not trigger contact; Electrified is immediately usable. |
 | Curator's Patience | Quick Wits + Deferred Choice | After choosing a relic, save one unchosen relic for the next relic offer. |
 | Living Shadow | Pain Remembers + Afterimage | Once between the player's activations, a destroyed or dispelled illusion returns the latest non-item discard to hand, or atop the draw pile if the hand is full. |
 | True Bearing | Sure-Footed + Discerning Eye | Before combat, choose an open starting tile within `2` tiles of the entrance. |
@@ -176,7 +176,7 @@ activate a new hold.
 | --- | --- | --- |
 | Encore | Borrowed Time | Once per combat, manually return a non-item discard to hand without spending a play or Time. |
 | Open Arsenal | Living Shadow | Passively equip any equipment in the trinket slot, ignoring its normal slot. |
-| Confluence | Prismatic Instinct | Passively let intensity conditions use the player's highest intensity, regardless of element. A draw enabled solely by Confluence stops before it would trigger Fatigue. |
+| Confluence | Prismatic Instinct | Once per combat, relocate one existing elemental layer or Rubble from a legal visible tile within range `4` to a legal destination within `4` of both the player and that source. Spend no card play or Time. Preserve the other layer; replacing ground at the destination follows ordinary placement rules. |
 | Last Door | True Bearing | Once between bosses, a non-boss defeat returns the player to the previous room at `1` health; spent items remain spent. |
 
 The small numbers inside a few effects define new objects, distances, or
@@ -216,7 +216,7 @@ one the player already earned.
 Combat-limited abilities cannot be refreshed through reset because tree
 changes are unavailable during active combat. Defensive revision reconciliation
 still preserves use flags if a newer profile reaches a saved combat snapshot,
-and clears invalid pending state such as a removed Prismatic arm, Rehearsed
+and clears invalid pending state such as a retired Prismatic card-name arm, Rehearsed
 Escape, Makeshift Tool, or Carry the Guard arm, Pain Remembers prime, or
 Measured Breath bank.
 
@@ -296,14 +296,20 @@ combat action strip.
 
 Manual abilities expose actions only when they can legally resolve. Abilities
 that target cards preserve the source zone's normal spatial and visual model:
-Quick Wits and Prismatic Instinct enter a hand-selection mode using the full
-live hand cards, while Encore opens the normal full-card discard pile and makes
+Quick Wits enters a hand-selection mode using the full live hand cards, while
+Encore opens the normal full-card discard pile and makes
 eligible non-item cards selectable there. Ineligible cards remain visible but
 inert. Full-card choices receive explicit controller focus, horizontal
 navigation, Accept, and Cancel paths. Ability activation is unavailable while a
 card preview, action-mode choice, or drag is unresolved, so a skill can never
 commit beneath a stale card simulation. These flows never replace cards with a
 name-only option list.
+Prismatic Instinct chooses a ground kind and then a legal board tile. Confluence
+chooses a source layer and then its destination; a tile with both layers presents
+a real layer choice. Cancel, invalid targets, and unchanged no-op placements do
+not consume the once-per-combat use. A successful commit records one skill event,
+uses the shared surface engine, and refreshes targeting from the new board.
+
 Trigger events pulse the SkillSigil and feed bounded,
 revisioned analytics events so redraws and save/resume cannot duplicate them.
 

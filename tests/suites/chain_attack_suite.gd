@@ -43,7 +43,7 @@ static func run(expect: Callable) -> void:
 	expect.call(trap_hits.size() == 2, "The real light relic must add a hop to Razor Gale after it pushes into a trap")
 	if trap_hits.size() == 2:
 		expect.call((trap_hits[0].get("state").get("traps") as Array).is_empty(), "Primary chain snapshot must include its forced trap activation")
-		expect.call((trap_hits[0].get("state").get("terrain") as Array).all(func(prop: Dictionary) -> bool: return int(prop.get("hp", 0)) <= 0), "Primary chain snapshot must include trap-destroyed terrain")
+		expect.call((trap_hits[0].get("state").get("terrain") as Array).all(func(prop: Dictionary) -> bool: return int(prop.get("hp", 0)) > 0), "Center-only trap damage must preserve surrounding terrain in the primary Chain snapshot")
 		expect.call(trap_hits[1].get("from") == Vector2i(5, 4), "Relic chain must leave from the selected push destination")
 	var single: Dictionary = action.duplicate(true)
 	single.erase("chain")

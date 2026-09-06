@@ -12,12 +12,12 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 
 const STATE_KEY: String = "guided_combat_scenario"
 const RUN_ELIGIBILITY_KEY: String = "guided_combat_scenario_eligible"
-const VERSION: int = 1
+const VERSION: int = 2
 const TARGET_ENEMY_ID: int = 7101
 const SUPPORT_ENEMY_ID: int = 7102
-const TARGET_HP: int = 17
+const TARGET_HP: int = 15
 const SUPPORT_FIRST_ACTIVATION_TIME: int = 13
-const PREVIEW_CARD_ID: String = "bone_dart"
+const PREVIEW_CARD_ID: String = "pale_spark"
 const KILL_CARD_ID: String = "quick_stab"
 const REFUND_CARD_ID: String = "brace"
 
@@ -92,7 +92,7 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 		_enemy_queue_entry(next_state["enemies"][1] as Dictionary, SUPPORT_FIRST_ACTIVATION_TIME, 2),
 	]
 	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = [PREVIEW_CARD_ID, KILL_CARD_ID, REFUND_CARD_ID, "guarded_step", "pale_spark"]
+	deck["hand"] = [PREVIEW_CARD_ID, KILL_CARD_ID, REFUND_CARD_ID, "guarded_step", "hamstring_shot"]
 	deck["draw"] = ["shadow_step", "dull_bolt", "ember_jab", "guarded_step", "quick_stab", "brace"]
 	deck["discard"] = []
 	deck["burned"] = []
@@ -215,13 +215,11 @@ static func _authored_crawler(enemy_id: int, tile: Vector2i, hp: int, intent_ind
 		"max_hp": hp,
 		"block": 0,
 		"stoneskin": 0,
-		"burn": 0,
 		"bleed": 0,
 		"expose": 0,
 		"freeze": 0,
 		"shock": 0,
 		"immobilize": false,
-		"poison": {"damage": 0, "delay": 0},
 		"intent": intent,
 	}
 

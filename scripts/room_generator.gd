@@ -994,17 +994,8 @@ func _trap_for_tile(tile: Vector2i, room_element: String, encounter_depth: int, 
 		"damage": base_damage,
 		"base_damage": base_damage
 	}
-	match room_element:
-		ElementData.FIRE:
-			trap["burn"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
-		ElementData.ICE:
-			trap["freeze"] = 1
-		ElementData.LIGHTNING:
-			trap["shock"] = 1
-		ElementData.AIR:
-			pass
-		ElementData.EARTH:
-			trap["poison"] = GameData.fixed_point_amount(1 if encounter_depth <= 2 else 2)
+	# Center damage is fixed. CombatEngine derives the four-cardinal surface
+	# wake (or Air push) from the element; there are no direct status riders.
 	return trap
 
 func _trap_damage_scale(encounter_depth: int, sequence_index: int) -> int:

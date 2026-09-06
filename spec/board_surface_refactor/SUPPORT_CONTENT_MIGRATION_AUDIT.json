@@ -1,0 +1,1407 @@
+{
+  "base_head": "11a62f65e4070ae397d651778b550668bda0c854",
+  "scope": "Complete support-content design audit; draft mechanics, not final numerical balance",
+  "equipment": [
+    {
+      "id": "training_sword",
+      "name": "Training Sword",
+      "cards": [
+        "quick_stab",
+        "whirlwind_slash",
+        "bloody_lunge"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "iron_cleaver",
+      "name": "Iron Cleaver",
+      "cards": [
+        "cleaver_hook",
+        "needle_flurry",
+        "butcher_chop"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "duelist_rapier",
+      "name": "Duelist Rapier",
+      "cards": [
+        "riposte_lunge",
+        "battle_rhythm",
+        "bodkin_arrow"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "grave_greatsword",
+      "name": "Grave Greatsword",
+      "cards": [
+        "grave_cleave",
+        "blood_price",
+        "tombsplitter"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "grave_cleave",
+          "dependencies": [
+            "poison"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "splintered_shield",
+      "name": "Splintered Shield",
+      "cards": [
+        "brace",
+        "guarded_step"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "ward_kite",
+      "name": "Ward-Kite",
+      "cards": [
+        "kite_bash",
+        "warded_advance"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "chain_guard",
+      "name": "Chain Guard",
+      "cards": [
+        "chain_catch",
+        "chain_lock"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "mirror_guard",
+      "name": "Mirror Guard",
+      "cards": [
+        "mirror_feint",
+        "mirror_flash"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "patched_cloak",
+      "name": "Patched Cloak",
+      "cards": [
+        "patch_up",
+        "shadow_step"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "boiled_leather",
+      "name": "Boiled Leather",
+      "cards": [
+        "leather_roll",
+        "rallying_breath"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "glassbone_cuirass",
+      "name": "Glassbone Cuirass",
+      "cards": [
+        "glassbone_guard",
+        "last_light"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "undertaker_plate",
+      "name": "Undertaker Plate",
+      "cards": [
+        "undertaker_stand",
+        "grave_sprint"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "skirmisher_boots",
+      "name": "Skirmisher Boots",
+      "cards": [
+        "sidestep_slash",
+        "hamstring_shot"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "dust_tabi",
+      "name": "Dust Tabi",
+      "cards": [
+        "dust_skip",
+        "dust_glide"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "trapdoor_spurs",
+      "name": "Trapdoor Spurs",
+      "cards": [
+        "spur_vault",
+        "hamstring_slice"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "gravewind_soles",
+      "name": "Gravewind Soles",
+      "cards": [
+        "gravewind_step",
+        "shadow_gate"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "cracked_lantern",
+      "name": "Cracked Lantern",
+      "cards": [
+        "lantern_shot"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "ember_pendant",
+      "name": "Ember Pendant",
+      "cards": [
+        "ember_tithe"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "clockwork_arrowhead",
+      "name": "Clockwork Arrowhead",
+      "cards": [
+        "clockwork_mark"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "sealed_cyclone",
+      "name": "Sealed Cyclone",
+      "cards": [
+        "unsealed_gale"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "sawtooth_knife",
+      "name": "Sawtooth Knife",
+      "cards": [
+        "sawtooth_flurry",
+        "serrated_slip",
+        "backhand_nick"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "stormstring_bow",
+      "name": "Stormstring Bow",
+      "cards": [
+        "stormstring_shot",
+        "forked_nock",
+        "far_draw"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "stormstring_shot",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "forked_nock",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "far_draw",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "hookspine_halberd",
+      "name": "Hookspine Halberd",
+      "cards": [
+        "hookspine_reap",
+        "sweeping_haft",
+        "hook_and_hold"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "phoenix_brand",
+      "name": "Phoenix Brand",
+      "cards": [
+        "phoenix_cleave",
+        "ember_guard",
+        "rekindle_edge"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "phoenix_cleave",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "ember_guard",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "rekindle_edge",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "buckler_of_nails",
+      "name": "Buckler of Nails",
+      "cards": [
+        "nail_parry",
+        "spike_check"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "lodestone_buckler",
+      "name": "Lodestone Buckler",
+      "cards": [
+        "lodestone_reversal",
+        "polar_guard"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "lodestone_reversal",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "polar_guard",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "witchglass_aegis",
+      "name": "Witchglass Aegis",
+      "cards": [
+        "witchglass_double",
+        "reflected_threat"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "sunken_anchor",
+      "name": "Sunken Anchor",
+      "cards": [
+        "anchor_slam",
+        "undertow_guard"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "stitcher_apron",
+      "name": "Stitcher Apron",
+      "cards": [
+        "field_suture",
+        "threadbare_guard"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "cinderweave_mail",
+      "name": "Cinderweave Mail",
+      "cards": [
+        "cinderweave_guard",
+        "cinder_patch"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "cinderweave_guard",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "cinder_patch",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "rimeplate_harness",
+      "name": "Rimeplate Harness",
+      "cards": [
+        "rimeplate_lock",
+        "hoarfrost_shell"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "hoarfrost_shell",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "voidsilk_carapace",
+      "name": "Voidsilk Carapace",
+      "cards": [
+        "voidsilk_molt",
+        "empty_husk"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "hobnail_grips",
+      "name": "Hobnail Grips",
+      "cards": [
+        "hobnail_drive",
+        "heel_hook"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "static_spurs",
+      "name": "Static Spurs",
+      "cards": [
+        "static_pivot",
+        "spur_spark"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "static_pivot",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "spur_spark",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "cloudstep_sandals",
+      "name": "Cloudstep Sandals",
+      "cards": [
+        "cloudstep_loop",
+        "zephyr_feint"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "cloudstep_loop",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "zephyr_feint",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "worldroot_greaves",
+      "name": "Worldroot Greaves",
+      "cards": [
+        "worldroot_stride",
+        "rooted_kick"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "worldroot_stride",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "rooted_kick",
+          "dependencies": [
+            "poison"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "bone_dice",
+      "name": "Bone Dice",
+      "cards": [
+        "loaded_toss",
+        "snake_eyes"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    },
+    {
+      "id": "rime_locket",
+      "name": "Rime Locket",
+      "cards": [
+        "locket_chill",
+        "kept_breath"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "locket_chill",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "kept_breath",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "ember_hourglass",
+      "name": "Ember Hourglass",
+      "cards": [
+        "borrowed_spark",
+        "cinder_second"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "borrowed_spark",
+          "dependencies": [
+            "intensity"
+          ]
+        },
+        {
+          "card_id": "cinder_second",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "crown_of_thorns",
+      "name": "Crown of Thorns",
+      "cards": [
+        "thorn_crown_pact",
+        "royal_bramble"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "thorn_crown_pact",
+          "dependencies": [
+            "poison"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "windlass_repeater",
+      "name": "Windlass Repeater",
+      "cards": [
+        "windlass_volley",
+        "crank_reload",
+        "far_draw"
+      ],
+      "direct_dependencies": [
+        {
+          "card_id": "far_draw",
+          "dependencies": [
+            "intensity"
+          ]
+        }
+      ],
+      "disposition": "migrate granted cards as a coherent package"
+    },
+    {
+      "id": "war_dancer_sash",
+      "name": "War-Dancer Sash",
+      "cards": [
+        "blade_dance",
+        "gathering_rhythm"
+      ],
+      "direct_dependencies": [],
+      "disposition": "review full package against surfaces; no retired dependency"
+    }
+  ],
+  "relics": [
+    {
+      "id": "iron_lung",
+      "name": "Iron Lung",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(health_cost) card you play each turn grants @icon(stoneskin) {0.reward0.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "ember_lens",
+      "name": "Brightglass Lens",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "@icon(ranged) attacks against enemies in @icon(illuminate) gain @icon(chain) +{amount}.",
+      "proposal": "Retain the Light-to-Chain rule: ranged attacks against lit enemies gain the printed Chain jump reach. This can turn a neutral ranged attack into an intrinsic Chain attack with Electrified relay use, but does not change its damage element or grant Lightning component discharge. Count actors once and preserve actual Light/visibility requirements."
+    },
+    {
+      "id": "pilgrim_boots",
+      "name": "Pilgrim Boots",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Gain @icon(move) +{0.value} each turn. Your movement leaves @icon(illuminate) {1.radius} @icon(time) {1.duration} on entered tiles; @icon(blink) covers both endpoints.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "mirror_shard",
+      "name": "Mirror Shard",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first card that creates @icon(illusion) each turn grants @icon(card_play) {0.reward0.amount} and @icon(vision) {0.reward1.amount} @icon(time) {0.reward1.duration}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Decoy creation and destruction use real surface and pathfinding outcomes. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "coffin_nails",
+      "name": "Coffin Nails",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While you have @icon(block), attacks on your cards inflict @icon(bleed) +{amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "reinforced_shield",
+      "name": "Reinforced Shield",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While you have @icon(stoneskin), @icon(block) actions grant +{amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "iron_buckler",
+      "name": "Iron Buckler",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first card each turn that defends without attacking grants @icon(draw) {0.reward0.amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "flint_edge",
+      "name": "Flint Edge",
+      "rarity": "common",
+      "dependencies": [
+        "confirmed removal of damaging Burn status"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "@icon(melee) attacks on Fire cards that also @icon(move) inflict @icon(burn) +{amount}.",
+      "proposal": "The first melee attack each turn against an actor standing on Fire gains a modest flat damage bonus. Remove the confirmed-retired unit-Burn rider; avoid a Fire-painting relic whose effect is redundant on every newly redesigned Fire melee card."
+    },
+    {
+      "id": "static_soles",
+      "name": "Static Soles",
+      "rarity": "common",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "The first Lightning card that uses @icon(move) or @icon(blink) each turn grants @icon(element_lightning) +{0.reward0.amount} and @icon(vision) {0.reward1.amount} @icon(time) {0.reward1.duration}.",
+      "proposal": "The first Move or Blink each turn leaves one Electrified tile at its origin and grants the existing brief Vision. Remove intensity and the Lightning-card restriction to support mixed decks. Placement resolves after movement, and that tile is immediately usable by a later Lightning discharge or Chain, including on the same card."
+    },
+    {
+      "id": "mossbound_wraps",
+      "name": "Mossbound Wraps",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first Earth card you play while you have @icon(block) each turn grants @icon(stoneskin) {0.reward0.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "tailwind_fletching",
+      "name": "Tailwind Fletching",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Air @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} farther.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "frost_prism",
+      "name": "Frost Prism",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Attacks deal +{0.value} damage to @icon(freeze) enemies. The first such enemy killed each turn grants @icon(draw) {1.reward0.amount}.",
+      "proposal": "A player direct attack killing an enemy that was Frozen before the hit creates Rubble on its former occupied floor and cardinal outer edge after the death event. Preserve existing elemental ground and deduplicate large footprints. No bonus damage, draw, explosion or restored enabling Ice; passive Fire kills do not qualify. The finisher changes surviving enemies' movement lanes.",
+      "proposed_name": "Shatterglass Prism",
+      "bridge": "Ice / Earth / Air positioning",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "storm_capacitor",
+      "name": "Storm Capacitor",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Lightning @icon(ranged) attacks that already @icon(chain) gain @icon(chain) +{amount}.",
+      "proposal": "Retain its focused single-element role: increase jump reach on qualifying intrinsic Lightning Chain attacks. This is a simple reach modifier, not claimed as a transformative cross-element bridge. Do not reinterpret its number as a target count or grant automatic sparse relays to non-Chain attacks."
+    },
+    {
+      "id": "gale_tabi",
+      "name": "Gale Tabi",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(blink) {threshold}+ each turn grants @icon(draw) {value} and @icon(card_play) {card_play}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "anchor_chain",
+      "name": "Anchor Chain",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While you have @icon(block), @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} tile farther.",
+      "proposal": "Retain the defense-to-displacement role: Block enhances actual Push/Pull force and printed damage. Use resolved movement, shared hazard contact and the correct starting Block state. Despite its name, this relic has no intrinsic Chain or Lightning conduction effect."
+    },
+    {
+      "id": "venom_signet",
+      "name": "Venom Signet",
+      "rarity": "rare",
+      "dependencies": [
+        "poison"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "Attacks deal +{0.value} damage to @icon(poison) enemies. Attacks that already inflict @icon(poison) apply +{1.amount}.",
+      "proposal": "Rename to Quarry Signet. Attacks gain a modest flat bonus against actors standing on Rubble. Replace Poison-damage and Poison-stack clauses entirely; it works with any element or physical attack and does not multiply per footprint tile."
+    },
+    {
+      "id": "thawing_charm",
+      "name": "Thawing Charm",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
+      "proposal": "Retain its current printed role. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "ember_siphon",
+      "name": "Ember Siphon",
+      "rarity": "rare",
+      "dependencies": [
+        "intensity",
+        "confirmed removal of damaging Burn status"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "Once per combat, when you kill an enemy with @icon(burn), gain @icon(heal) {0.reward0.amount} and @icon(element_fire) +{0.reward1.amount}.",
+      "proposal": "Once per combat, a kill caused by Fire surface damage or Detonate heals and creates a small Light at the death tile. Remove intensity and unit-Burn dependence; specify kill-credit/source attribution rather than counting every death on a Fire tile."
+    },
+    {
+      "id": "bloodglass_knife",
+      "name": "Bloodglass Knife",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While at @icon(health) 50% or less with no @icon(block) or @icon(stoneskin), your attacks deal +{value} damage.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "cold_mirror",
+      "name": "Cold Mirror",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first time you inflict @icon(freeze) while you have @icon(block) each turn, convert up to @icon(block) {0.reward0.amount} into @icon(stoneskin).",
+      "proposal": "Retain its current printed role. Use actual actor status transitions and before-hit state; Chilled activates only on actual Ice entry or a non-Frozen turn start on Ice, not placement, and ends when supporting Ice is left or removed. A freezing Ice hit consumes the enabling Ice and clears Chilled. Freeze cannot refresh or regain Chilled, including during its skipped activation; deleted Poison/Burn types never count."
+    },
+    {
+      "id": "thunder_relay",
+      "name": "Thunder Relay",
+      "rarity": "epic",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "The first time you inflict @icon(shock) while at @icon(element_lightning) {min_intensity}+ each turn, deal {0.reward0.amount} damage to all enemies.",
+      "proposal": "Optionally exchange the first and last actual enemy targets of a planned intrinsic Chain after its full attack resolves, only if both distinct actors survive and both landing footprints are legal. Show the swap before commitment. Resolve atomic forced-Blink arrivals with normal landing hazards/traps and explicit movement immunities; no path contacts, extra Chain, extra target or free play. Conduction side hits do not redefine the native Chain endpoints.",
+      "proposed_name": "Thunder Relay",
+      "bridge": "Lightning / positional control",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "thornmail_brooch",
+      "name": "Thornmail Brooch",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Whenever you gain @icon(stoneskin), deal half that much damage to adjacent enemies, up to {max_value}.",
+      "proposal": "Optionally spend Stoneskin to reshape a single-target melee attack into a cross at the primary target and create Rubble on its legal floor after damage. Initial test cost 4 Stoneskin per expanded attack is provisional. Preserve one hit per actor and normal paid card costs; no recursive expansion of AOE, Chain or Detonate and no compensating defense gain. Choose the mode before commitment; explicit repeats must each pay.",
+      "proposed_name": "Faultline Brooch",
+      "bridge": "Stoneskin / melee / Earth",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "vaulting_sigil",
+      "name": "Vaulting Sigil",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(move) or @icon(blink) {threshold}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "obsidian_heart",
+      "name": "Obsidian Heart",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Opening @icon(draw) {0.value}. At turn end, convert all remaining @icon(block) into @icon(stoneskin).",
+      "proposal": "Retain its current printed role. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "storm_crown",
+      "name": "Storm Crown",
+      "rarity": "legendary",
+      "dependencies": [],
+      "disposition": "rewrite trigger or role",
+      "current_description": "After you play a third Lightning card in one turn, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+      "proposal": "Once per player turn, the player's resolving Lightning or Chain card attack hitting at least three distinct actual enemies grants a bounded draw/play reward. Replace three-Lightning-cards sequencing with a positional payoff; tune below the old draw-3/play-3 burst. Empty relays, enemy Chain, skills and secondary relic damage never qualify."
+    },
+    {
+      "id": "phoenix_ember",
+      "name": "Phoenix Ember",
+      "rarity": "legendary",
+      "dependencies": [
+        "confirmed removal of damaging Burn status"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "Gain @icon(defiance) {0.value} this run. When it triggers, @icon(dispel_umbra) {1.reward0.amount}, inflict @icon(burn) {1.reward1.amount} on all enemies, gain @icon(draw) {1.reward2.amount}, and @icon(card_play) {1.reward3.amount}.",
+      "proposal": "Retain the run Defiance charge and recovery flow. Replace all-enemy Burn with Fire beneath enemy occupied floor tiles after Defiance resolves. Apply once per unique floor tile with the normal Fire rule: no immediate creation damage. The consumed Defiance charge cannot be triggered again by its own feedback."
+    },
+    {
+      "id": "worldroot_idol",
+      "name": "Worldroot Idol",
+      "rarity": "legendary",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Start combat with @icon(stoneskin) {0.value} per Earth card, up to {0.max_value}. The first gain each turn also grants @icon(element_earth) +{1.amount}.",
+      "proposal": "While standing on Rubble, a single-target melee or ranged card attack may originate from another visible tile in the same cardinally connected Rubble formation. Consume that origin's Rubble and use the printed range/initial line of sight from there; the player remains in place. Keep target visibility, no free attacks, and require a fresh connected origin for later repeats. Area and Detonate actions do not gain this optional mode. Legendary geometry proposal requires dedicated balance and preview review.",
+      "proposed_name": "Worldroot Idol",
+      "bridge": "Earth / melee / ranged positioning",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "cinderbrand_tongs",
+      "name": "Cinderbrand Tongs",
+      "rarity": "common",
+      "dependencies": [
+        "intensity",
+        "confirmed removal of damaging Burn status"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "The first attack each turn that applies @icon(burn) grants @icon(element_fire) +{0.amount} and creates @icon(illuminate) {1.radius} @icon(time) {1.duration} at its target.",
+      "proposal": "The first player-card action each player turn that actually changes at least one floor tile to Fire also creates the existing small Light at the primary target. Remove intensity and unit-Burn triggers. An idempotent repaint is not creation; a large painted pattern triggers only once. Skill, enemy and relic-generated placement does not recursively qualify."
+    },
+    {
+      "id": "rimecatcher_vial",
+      "name": "Rimecatcher Vial",
+      "rarity": "common",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "The first @icon(freeze) you apply each turn grants @icon(element_ice) +{0.amount}. Once each turn at @icon(element_ice) {1.threshold}+, spend {1.consume} and gain @icon(block) {1.reward0.amount}.",
+      "proposal": "When a player attack successfully Freezes and consumes supporting Ice, optionally redistribute one consumed Ice tile to a legal cardinal neighbor outside that body's footprint. All original supporting Ice is consumed; placement outside the body follows normal replacement and delayed activation. Choose the destination in the original preview. No stored charge, duplicate Ice under Frozen, immediate Chill or Block reward.",
+      "proposed_name": "Rimecatcher Vial",
+      "bridge": "Ice / displacement setup",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "ion_spool",
+      "name": "Ion Spool",
+      "rarity": "common",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "The first @icon(shock) you apply each turn grants @icon(element_lightning) +{0.amount}. Once each turn at @icon(element_lightning) {1.threshold}+, spend {1.consume} and deal {1.reward0.amount} damage to all enemies.",
+      "proposal": "The first player-card electrical use each player turn that consumes at least two distinct conductive tiles draws a card. Accept ordinary Lightning component discharge or Chain relay use; a Chain keyword is not required. This is a retained simple support relic, not counted as a transformative cross-element bridge. No automatic damage or surface regeneration."
+    },
+    {
+      "id": "updraft_bottle",
+      "name": "Updraft Bottle",
+      "rarity": "rare",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Your first @icon(blink) each turn grants @icon(element_air) +{0.amount}. Once each turn at @icon(element_air) {1.threshold}+, spend {1.consume}, gain @icon(draw) {1.reward0.amount}, and @icon(card_play) {1.reward1.amount}.",
+      "proposal": "A player Push/Pull may transport the target's surviving starting elemental footprint to its actual final position after movement. Remove the origin layer and place it at the destination; keep Rubble and do not duplicate or trail the ground. Resolve movement contacts first, then normal destination replacement; transported Ice/Fire does not immediately activate beneath the occupant. Offer the choice in the original preview.",
+      "proposed_name": "Updraft Bottle",
+      "bridge": "Air / Fire / Ice / Lightning",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "basalt_calendar",
+      "name": "Basalt Calendar",
+      "rarity": "rare",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Once per combat after your first Earth card, gain @icon(stoneskin) 1 per Earth card in your deck, up to {0.reward0.max_value}; then gain @icon(element_earth) +1 per {0.reward1.cards_per_point} Earth cards, up to {0.reward1.max_value}.",
+      "proposal": "A printed Detonate may use an optional Crush mode: consume selected Rubble instead of Fire, use the normal shared-danger union blast once per actor, then place Fire on the consumed Rubble tiles. Existing Fire is not a second fuel hit. New Fire has no immediate passive damage or recursive explosion, but a deliberately later paid action can use it. Normal Fire-fueled Detonate remains available.",
+      "proposed_name": "Basalt Kiln",
+      "bridge": "Earth / Fire",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "coalheart_crucible",
+      "name": "Coalheart Crucible",
+      "rarity": "rare",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "Once each turn at @icon(element_fire) {threshold}+, spend {consume}, gain @icon(card_play) {0.reward0.amount}, and inflict @icon(burn) {0.reward1.amount} on all enemies.",
+      "proposal": "All Fire in the encounter also behaves as conductive ground for both sides. Fire and Electrified form contiguous networks; intrinsic Chain can use individual conductive tiles across its normal gaps. Electrical use consumes the Fire itself, preserving Rubble, without also Detonating it. Fire retains passive damage and Detonate eligibility until spent. Replace the former refund with this terrain-rule transformation.",
+      "proposed_name": "Stormcoal Crucible",
+      "bridge": "Fire / Lightning",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "voltaic_tuning_fork",
+      "name": "Stormglass Beacon",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(chain) attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} beneath every enemy it hits.",
+      "proposal": "Extend its electrical-to-Light role: the first player-card Lightning or intrinsic Chain attack each player turn creates its existing small Light beneath actual opponents it hits, including conducted hits. Create no Light on empty relay nodes. Preserve one action-scoped trigger, actor deduplication, independent Light duration and visibility; remove the accidental requirement that ordinary Lightning conduction must also have Chain."
+    },
+    {
+      "id": "tectonic_abacus",
+      "name": "Captured Noon",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "At 3 active @icon(illuminate) sources, suppress @icon(umbra) 1 stage; at 6, suppress 2. Reverses as sources fade; never below Clear.",
+      "proposal": "Retain its current printed role. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "overflow_censer",
+      "name": "Overflow Censer",
+      "rarity": "epic",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "The first time {required_elements} elements reach @icon(elemental_intensity) {threshold}+ in one combat, gain @icon(stoneskin) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
+      "proposal": "Once per combat, when three distinct surface types coexist on visible floor tiles, grant a fixed defense and draw reward. Count Rubble, Fire, Ice and Electrified, not five elemental meters; layers can coexist but repeated copies of one type never count as additional types."
+    },
+    {
+      "id": "black_sun_dial",
+      "name": "Black Sun Dial",
+      "rarity": "legendary",
+      "dependencies": [
+        "intensity"
+      ],
+      "disposition": "rewrite trigger or role",
+      "current_description": "Once per combat, when all {required_elements} elements reach @icon(elemental_intensity) {threshold}+, spend {consume} from each, deal {0.reward0.amount} to all enemies, gain @icon(stoneskin) {0.reward1.amount}, @icon(draw) {0.reward2.amount}, and @icon(card_play) {0.reward3.amount}.",
+      "proposal": "Once per combat, the player's resolving card consuming an elemental surface from a tile that also carries Rubble produces one local cardinal-cross pulse plus a fixed defensive reward. Choose the first eligible tile in the declared consumption order; simultaneous tiles use stable grid order (y, then x). Show that exact origin and friendly exposure in preview. Hit each actor in the cross once, including the player if exposed. Use secondary relic damage, not a direct card attack: no attack riders, vulnerability multiplier, recursive consumption, additional relic reactions or card-play awards from its secondary kills. This replaces the five-intensity checklist with a two-layer payoff."
+    },
+    {
+      "id": "duelist_whetstone",
+      "name": "Duelist Whetstone",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Attacks on the first card each turn that also uses @icon(move) or @icon(blink) deal +{value} damage.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "hollow_die",
+      "name": "Open-Eyed Pin",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "When a card grants @icon(vision) or @icon(truesight), create @icon(illuminate) {0.reward0.radius} at you matching that effect's @icon(time).",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "chorus_mask",
+      "name": "Chorus Mask",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first elemental card played after a different element each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "hourglass_splinter",
+      "name": "Hourglass Splinter",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first card with @icon(time) {min_time}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "widow_thread",
+      "name": "Widow Thread",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While @icon(illusion) exists, your attacks inflict @icon(expose) +{amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Decoy creation and destruction use real surface and pathfinding outcomes."
+    },
+    {
+      "id": "funeral_bell",
+      "name": "Funeral Bell",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "rewrite trigger or role",
+      "current_description": "After a third statused enemy dies each combat, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+      "proposal": "Retain the status-execution identity with an explicit source rework: count only eligible enemies killed by the player's resolving card action while that enemy has an actual supported status at the lethal impact. Player-card-caused displacement/Detonate can qualify; passive start-of-turn Fire, enemy actions and secondary relic reaction damage do not count or bank future plays. Keep the once-per-combat threshold/reward structure and rebudget its values. Chilled must have actually activated; removed Poison/Burn never count. Apply the common summoned-enemy credit exclusion."
+    },
+    {
+      "id": "bloodmoon_chalice",
+      "name": "Bloodmoon Chalice",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(health_cost) card you finish at @icon(health) 50% or less each combat grants @icon(heal) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "moonless_compass",
+      "name": "Moonless Compass",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Once per combat, after one card uses @icon(move) or @icon(blink) and another creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) in the same turn, gain @icon(stoneskin) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "fivefold_knot",
+      "name": "Fivefold Knot",
+      "rarity": "legendary",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "borrowed_hourglass",
+      "name": "Borrowed Hourglass",
+      "rarity": "legendary",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first banked @icon(card_play) spent on a @icon(time) {min_time}+ card each combat grants @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "dawnbrand_filament",
+      "name": "Dawnbrand Filament",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first direct attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} at its target.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "glowstone_matrix",
+      "name": "Glowstone Matrix",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Cards containing a @icon(stoneskin) action also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
+      "proposal": "Retain its current printed role. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "briar_winch",
+      "name": "Briar Winch",
+      "rarity": "common",
+      "dependencies": [
+        "poison"
+      ],
+      "disposition": "transformative role replacement (proposal)",
+      "current_description": "@icon(push) and @icon(pull) actions force @icon(poison) enemies {amount} additional tile.",
+      "proposal": "A player Push/Pull may consume Rubble beneath its target to choose a different legal cardinal force direction, including sideways, with unchanged printed force distance and damage. Validate actual legal movement before spending. Consume the supporting footprint Rubble once, preserve the elemental layer, and resolve ordinary hazards and collisions. Replace the extra-distance bonus with directional freedom.",
+      "proposed_name": "Quarry Winch",
+      "bridge": "Earth / Air / physical displacement",
+      "detail_record": "RELIC_TRANSFORMATION_PROPOSALS.md"
+    },
+    {
+      "id": "hourglass_awl",
+      "name": "Hourglass Awl",
+      "rarity": "common",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Attacks on cards with @icon(time) {min_time}+ gain @icon(pierce).",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards."
+    },
+    {
+      "id": "beaconrunner_spurs",
+      "name": "Beaconrunner Spurs",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(move) or @icon(blink) each turn that ends in @icon(illuminate) grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "true_north",
+      "name": "True North",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While you have @icon(truesight), @icon(ranged) actions gain @icon(range) +{amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "dawnstitch_cord",
+      "name": "Dawnstitch Cord",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first card each turn that creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) grants @icon(block) {0.reward0.amount}.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    },
+    {
+      "id": "starless_astrolabe",
+      "name": "Starless Astrolabe",
+      "rarity": "rare",
+      "dependencies": [],
+      "disposition": "rewrite trigger or role",
+      "current_description": "While you have @icon(truesight), attacks that inflict @icon(freeze) or @icon(shock) create @icon(illuminate) {radius} @icon(time) {duration} beneath affected enemies.",
+      "proposal": "Retain the Truesight-to-Light identity, but trigger from actual applied Freeze or Shock events rather than old printed freeze/shock fields. Ice checks active Chilled immediately before each hit and consumes its enabling Ice when Freeze applies; Electrified-assisted Shock resolves from the shown route. Surface placement, Chilled activation alone and hits against an already Frozen target do not produce a new Freeze event."
+    },
+    {
+      "id": "witchglass_carapace",
+      "name": "Witchglass Carapace",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "@icon(ranged) enemy attacks deal at most {max_damage} damage to @icon(illusion). @icon(melee) attacks are unchanged.",
+      "proposal": "Retain its current printed role. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Decoy creation and destruction use real surface and pathfinding outcomes."
+    },
+    {
+      "id": "witchglass_lantern",
+      "name": "Witchglass Lantern",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Each living @icon(illusion) adds +{radius} to its tethered @icon(illuminate), which ends immediately when the copy is removed.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Decoy creation and destruction use real surface and pathfinding outcomes."
+    },
+    {
+      "id": "sunlit_edge",
+      "name": "Sunlit Edge",
+      "rarity": "epic",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "While you stand in @icon(illuminate), your attacks gain @icon(pierce).",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Audit new surface actions for correct attack/support classification; hazard ticks and relay visits must not replay card-hit or card-play rewards. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics."
+    },
+    {
+      "id": "glassway_compass",
+      "name": "Glassway Compass",
+      "rarity": "legendary",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "The first @icon(blink) each turn creates @icon(illusion) 2 on the tile you left.",
+      "proposal": "Retain its current printed role. Consume resolved terrain-aware paths/endpoints and distinguish ordinary movement, forced movement and Blink. Decoy creation and destruction use real surface and pathfinding outcomes."
+    },
+    {
+      "id": "unclouded_sun",
+      "name": "Unclouded Sun",
+      "rarity": "legendary",
+      "dependencies": [],
+      "disposition": "retain role; compatibility review",
+      "current_description": "Once per combat, when a room that began with @icon(umbra) first becomes Clear, gain @icon(stoneskin) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
+      "proposal": "Retain its current printed role. Preserve the independent Light/Vision/Umbra layer and its authored duration/source semantics. Stress-test flow with kill refunds, Flurry and newly persistent terrain; trigger caps remain scoped to real turns/actions."
+    }
+  ],
+  "skills": [
+    {
+      "id": "quick_wits",
+      "name": "Quick Wits",
+      "disposition": "retain tactical hand filtering",
+      "proposal": "Choose between a surface painter, displacement card and payoff in the current hand. Retain discard/draw and its once-per-combat limit; it grants no free board action."
+    },
+    {
+      "id": "measured_breath",
+      "name": "Measured Breath",
+      "disposition": "retain planned tempo",
+      "proposal": "Bank a play while waiting for enemy entry/start to activate prepared Ice or Fire. Banking does not advance a hazard or activate newly placed Ice by itself."
+    },
+    {
+      "id": "ghost_stride",
+      "name": "Ghost Stride",
+      "disposition": "retain; specify terrain traversal",
+      "proposal": "Use the armed Blink to cross Fire or Rubble and change attack angles. Intermediate tiles are ignored; arrival on Fire, Ice or a trap resolves normally. It is an escape tool, not landing immunity."
+    },
+    {
+      "id": "discerning_eye",
+      "name": "Discerning Eye",
+      "disposition": "retain reward choice",
+      "proposal": "Reroll a reward when the deck needs a painter, positioning tool or payoff. Review offer coverage under the new full card pool; do not require a rare card for basic elemental function."
+    },
+    {
+      "id": "rehearsed_escape",
+      "name": "Rehearsed Escape",
+      "disposition": "retain Exhaust preservation",
+      "proposal": "Reuse an Exhaust setup or payoff card later through discard. Preserve the internal preserve_burn effect meaning Exhaust; do not delete this skill with damaging Burn."
+    },
+    {
+      "id": "makeshift_tool",
+      "name": "Makeshift Tool",
+      "disposition": "retain item preservation",
+      "proposal": "Keep a terrain or movement item available for a later draw. The preserved item still resolves its actual printed action and pays its normal play/Time costs."
+    },
+    {
+      "id": "carry_the_guard",
+      "name": "Carry the Guard",
+      "disposition": "retain; specify passive hazard defense",
+      "proposal": "Convert remaining Block to Stoneskin at turn end, allowing defense against next-start Fire after Block expires. No damage reduction is added to the tile itself and shared hazards remain dangerous."
+    },
+    {
+      "id": "pain_remembers",
+      "name": "Pain Remembers",
+      "disposition": "retain; specify real health-loss event",
+      "proposal": "Actual Fire or trap health loss may prime its existing once-per-combat card recall. Fully absorbed damage does not. Repeated hazard steps never replenish the use or generate additional recalls."
+    },
+    {
+      "id": "sure_footed",
+      "name": "Sure-Footed",
+      "disposition": "rework trigger contract and rules text",
+      "proposal": "Ignore the first trap center hit or Air-trap outward push that would affect you, once per combat. The trap still resolves its other effects and cardinal wake. Wake placement alone neither spends the protection nor is prevented; later terrain contact/start effects follow normal rules. This lets you deliberately trigger a trap to shape the board without granting ongoing hazard immunity."
+    },
+    {
+      "id": "afterimage",
+      "name": "Afterimage",
+      "disposition": "retain; specify shared-hazard decoy behavior",
+      "proposal": "Blink leaves the existing decoy at the origin to redirect enemy attacks and routes. A decoy is a real shared-hazard occupant: spawning on Fire/Ice counts as arrival. Do not silently make copies immune or trigger this skill again when a surface destroys one."
+    },
+    {
+      "id": "deferred_choice",
+      "name": "Deferred Choice",
+      "disposition": "retain reward planning",
+      "proposal": "Carry a chosen setup or payoff card into a later offer while skipping the present reward. Preserve its card-ID remap through renamed/reworked content."
+    },
+    {
+      "id": "salvager",
+      "name": "Salvager",
+      "disposition": "retain equipment recovery",
+      "proposal": "Recover the existing eligible missed equipment after victory. Reauthored equipment grants must match the recovered item; surface damage has already stopped before the reward flow."
+    },
+    {
+      "id": "borrowed_time",
+      "name": "Borrowed Time",
+      "disposition": "retain planned burst",
+      "proposal": "Use a banked play for a prepared combo without adding Time on that one card. It is not a new play refund, and surface events do not independently consume or retrigger the skill."
+    },
+    {
+      "id": "last_reserve",
+      "name": "Last Reserve",
+      "disposition": "retain fatigue-specific defense",
+      "proposal": "Keep the lethal-Fatigue safety net. Fire, trap or enemy damage is not Fatigue and does not gain this protection."
+    },
+    {
+      "id": "plunderers_step",
+      "name": "Plunderer's Step",
+      "disposition": "retain; specify resolved movement reward",
+      "proposal": "Reward an actual Move/Blink that collects loot, once per combat. Use real movement and landing results, including Rubble cost and hazard deaths; blocked movement and surface creation are not loot collection."
+    },
+    {
+      "id": "prismatic_instinct",
+      "name": "Prismatic Instinct",
+      "disposition": "replace intensity-only skill",
+      "proposal": "Once per combat, manually place one chosen Fire, Ice, Electrified or Rubble tile on nearby visible floor. This supplies a missing setup tile or replaces hostile elemental terrain. Fire/Chill still await entry/start; Electrified and a later paid Detonate can use the new tile immediately."
+    },
+    {
+      "id": "curators_patience",
+      "name": "Curator's Patience",
+      "disposition": "retain relic planning",
+      "proposal": "Save a synergistic unchosen relic for the next offer. Preserve exact relic identity across renames and show its revised rules before committing the choice."
+    },
+    {
+      "id": "living_shadow",
+      "name": "Living Shadow",
+      "disposition": "retain; specify bounded hazard interaction",
+      "proposal": "A decoy destroyed by a surface or dispelled still qualifies for the existing one-recall window. Sacrificing a decoy can recover a needed card, but one removal emits one event and cannot refresh the window or reproduce the decoy."
+    },
+    {
+      "id": "true_bearing",
+      "name": "True Bearing",
+      "disposition": "retain; specify initial terrain preview",
+      "proposal": "Choose an open legal starting tile using the existing range. Show starting surfaces, visible threats and arrival effects before selection. Starting on a hazard is arrival under the common contract; the room generator must retain a safe legal starting option."
+    },
+    {
+      "id": "layaway",
+      "name": "Layaway",
+      "disposition": "remain retired",
+      "proposal": "Keep the retired definition out of the active skill tree. Preserve the explicit legacy-save disposition; this refactor does not reactivate the merchant reservation mechanic."
+    },
+    {
+      "id": "encore",
+      "name": "Encore",
+      "disposition": "retain tactical card recovery",
+      "proposal": "Recover a discarded painter, displacement tool or payoff at the right moment. The recovered card still needs a normal play and real board conditions; the recall itself is not a surface or attack event."
+    },
+    {
+      "id": "open_arsenal",
+      "name": "Open Arsenal",
+      "disposition": "retain equipment keystone",
+      "proposal": "Use the additional equipment slot to combine different surface, mobility and defense packages. Rebudget all granted cards together, including shared grants, without adding an elemental restriction."
+    },
+    {
+      "id": "confluence",
+      "name": "Confluence",
+      "disposition": "replace intensity-only keystone",
+      "proposal": "Change to a manual terrain manipulation: once per combat, relocate a chosen visible surface layer to a nearby visible floor tile. Clear only that layer at the origin and use ordinary replacement at the destination. This can remove hostile setup, relocate an Electrified relay, or combine Fire/Ice with Rubble. It cannot copy terrain, move the occupant, instantly activate Chill, or waive consumption. Keep the single-tile action as the initial rules prototype; its keystone budget requires explicit comparison with the other keystones."
+    },
+    {
+      "id": "last_door",
+      "name": "Last Door",
+      "disposition": "retain non-boss defeat recovery",
+      "proposal": "Recognize defeat from shared hazards through the same encounter outcome path as attacks. Resolve the complete simultaneous damage event before recovery; no duplicate victory reward or rollback of already-spent items."
+    },
+    {
+      "id": "long_dawn",
+      "name": "Long Dawn",
+      "disposition": "retain independent Light identity",
+      "proposal": "Extend only the existing timed radiance effects. Persistent surfaces have no duration and gain neither extra lifetime nor immediate occupant activation from this skill."
+    },
+    {
+      "id": "sunpath",
+      "name": "Sunpath",
+      "disposition": "retain; specify actual path semantics",
+      "proposal": "Leave Light along the resolved qualifying movement route, preserving its distinct visibility role. Rubble spending extra movement points must not count as extra distance traveled. Blink lights its existing origin/destination pattern, not crossed hazard tiles."
+    },
+    {
+      "id": "witchlight",
+      "name": "Witchlight",
+      "disposition": "retain illuminated decoys",
+      "proposal": "Decoys reveal useful routes and terrain through their tethered Light. Remove that tether when the decoy dies, including to a hazard. Fire/Electrified visual glow never independently reveals hidden actors."
+    },
+    {
+      "id": "dawnbrand",
+      "name": "Dawnbrand",
+      "disposition": "retain; rework attack-event classification",
+      "proposal": "Keep the first direct attack against an enemy in Light applying Expose. Classify newly authored direct attacks such as Detonate explicitly; passive Fire, surface placement and empty Chain relay visits do not qualify. Use one action-scoped trigger with deterministic actual recipient, not one proc per tile."
+    },
+    {
+      "id": "afterglow",
+      "name": "Afterglow",
+      "disposition": "retain; specify decoy-removal event",
+      "proposal": "Leave the existing temporary Light at a decoy removal caused by hazard, attack or dispel. Emit it once from the real final tile, without clearing or copying underlying terrain."
+    },
+    {
+      "id": "open_sky",
+      "name": "Open Sky",
+      "disposition": "retain visibility keystone",
+      "proposal": "Keep Truesight while standing in actual Light. Neither glowing surfaces nor terrain knowledge substitutes for Light or grants knowledge of unseen Chain targets."
+    }
+  ],
+  "shared_rules_followup": {
+    "terminology": "Rubble layer plus one elemental layer: Fire, Ice or Electrified. Light remains independent. Electrified replaces the earlier proposed surface name Charge; elemental replaces energy as the layer name.",
+    "burn_removal": "Confirmed: remove the damaging Burn status and Poison entirely. Preserve top-level burn: true as Exhaust.",
+    "surface_timing": "Fire and Ice trigger only on actual tile entry or the affected actor turn start, never on placement. Fire initial tuning is 1 damage on entry and 2 on its own turn start, once per actor event even for a large footprint. Rubble instead changes ordinary entry movement cost directly; Electrified is a passive conduit until explicitly used.",
+    "chilled": "Entering Ice or beginning a non-Frozen activation on Ice activates Chilled while the actor remains on Ice. Painting Ice beneath a stationary actor does not activate Chilled. Leaving Ice or removing the supporting Ice clears Chilled. Ordinary non-Ice hits do not consume it. Frozen actors cannot gain Chilled, including during their skipped activation.",
+    "damage_initial_tuning": "Initial proposal: +1 damage on every direct hit against active Chilled. If already Frozen, use the shared x2 damage multiplier instead of adding the Chilled bonus. Neither numerical value is final balance signoff.",
+    "ice_hit_order": "Immediately before each individual hit, inspect active Chilled and Frozen state. Resolve damage using that pre-hit state, then an eligible Ice hit applies Freeze and consumes the enabling Ice beneath the actor. For a large actor, consume all Ice tiles it occupies once; clear Chilled. Ice painters place Ice only after their hit; this placement cannot activate Chilled or retroactively Freeze the target.",
+    "frozen": "Frozen is nonrefreshable and cannot coexist with regained Chilled. It skips its activation and thaws after that skipped activation; that Frozen turn start does not activate Ice. Newly painted Ice waits for a later actual entry or non-Frozen turn start. There is no additional recovery state, Thawing state or recovery guardrail.",
+    "electrified_order": "Electrified is immediately usable when placed; no entry, actor turn start, next-card or next-turn eligibility delay applies. Respect printed action order: placement before a later Lightning attack or Chain can enable it on the same card. A post-hit placement rider arrives after its attack and is immediately available to subsequent actions.",
+    "lightning_v4": "Ordinary damaging Lightning discharges cardinally connected conductive ground into eligible opponent occupants; no air-gap conduction. Chain preserves normal jump reach and can relay through individual conductive tiles. One planned Chain path plus component bursts, one damage set. Whole-component discharge consumption is the recommended cost; hybrid Fire consumption is user-confirmed."
+  },
+  "ability_design": "ABILITY_MIGRATION_DESIGN.md",
+  "relic_event_contract": {
+    "turn_scope": "Player activation cycle; never reset per enemy activation.",
+    "source_scope": "Player card source required for card/action rewards. Shared ownership does not confer event ownership.",
+    "placement": "Real layer change only; identical repaint is a no-op.",
+    "reaction_damage": "Separate from direct card attacks and passive surface damage; normal defense/death resolution, no direct attack riders or vulnerability, recursive reactive rewards, or secondary-kill play awards.",
+    "relocation": "Removal plus placement, not qualifying consumption.",
+    "passive_death": "Normal death/outcome/loot accounting remains; no deferred card-play banking.",
+    "conductive_fire": "Derived conductivity changes Fire behavior without creating a second stored surface. Fire remains one actual type for placement/type-count events. Electrical consumption records actual Fire consumed with electrical reason; eligible conductive-use rewards can count it. No synthesized Electrified-placement event, automatic Detonate, or return of a consumed trait."
+  },
+  "relic_design_principle": "Many relics must transform or connect strategies through new rules, geometry, action changes or resource conversions. Preserve distinct simple/non-elemental roles; do not apply one hybrid template to every pair.",
+  "relic_transformation_proposals": "RELIC_TRANSFORMATION_PROPOSALS.md",
+  "transformative_replacements": [
+    "coalheart_crucible",
+    "updraft_bottle",
+    "briar_winch",
+    "thornmail_brooch",
+    "frost_prism",
+    "rimecatcher_vial",
+    "worldroot_idol",
+    "basalt_calendar",
+    "thunder_relay"
+  ]
+}

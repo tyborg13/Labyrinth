@@ -67,7 +67,7 @@ func _state(element_id: String) -> Dictionary:
 			"wall": [Vector2i(2, 0), Vector2i(6, 0), Vector2i(0, 4), Vector2i(8, 4)],
 			"pillar": [Vector2i(2, 3), Vector2i(6, 3), Vector2i(2, 5), Vector2i(6, 5)]
 		},
-		"elemental_intensity": {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0},
+		"surfaces": {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}},
 		"player": {},
 		"enemies": [],
 		"illusions": [],

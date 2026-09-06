@@ -108,7 +108,7 @@ The current event stream is enough to derive:
   `reward_cards`, `attuned_magic_cards`, `magic_inventory`,
   `equipped_items`, `item_inventory`, `equipment_inventory`, and
   `equipment_drops`
-- elemental intensity at combat start via `combat_started.payload.elemental_intensity`
+- `rules_version: 4` and initial surface layout at combat start; historical intensity-era records remain readable
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
 - play count via `card_played`
@@ -121,7 +121,7 @@ scalar value to a learned skill.
 
 They should likewise group or filter by `relics` when evaluating card results.
 Relic engines can mutate printed actions or add draw, play, defense, status,
-movement, and elemental-intensity payoffs during the resolved transition.
+movement, and surface creation/consumption payoffs during the resolved transition.
 
 `card_played.payload` currently logs raw observed ingredients instead of a single heuristic score:
 
@@ -130,7 +130,7 @@ movement, and elemental-intensity payoffs during the resolved transition.
 - pierce actions resolved, sunder actions resolved, and enemy defense bypassed
   by observed HP damage
 - terrain HP damage and terrain destroyed from the full resolved transition,
-  including incidental AOE and triggered-trap blast damage; traps triggered,
+  including incidental AOE damage; trap wakes create ground without adjacent direct damage; traps triggered,
   summed triggered trap damage, and battlefield pickups collected, including
   dropped ember piles reclaimed through `embers_recovered`
 - kills secured
@@ -148,12 +148,11 @@ movement, and elemental-intensity payoffs during the resolved transition.
   than multiplying it by `flurry_plays_spent`.
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
-- elemental intensity before/after resolution, gross positive per-element
-  intensity gained by the played card, and intensity spent by printed card
-  costs or relic payoffs
+- surface revision before/after, actual creation/replacement/consumption events,
+  contact and activation-start damage, Freeze fuel, and Chain/conduction routes
 - illusions created and their total created health
-- immediate status application deltas for burn, bleed, expose, freeze, shock,
-  immobilize, and poison
+- immediate status application deltas for bleed, expose, chilled, freeze, shock,
+  and immobilize
 - actual resolved action list and chosen targets
 - `play_mode`, retained as an additive compatibility field and always recorded
   as `printed` now that cards no longer have basic Attack or Move modes
@@ -202,14 +201,13 @@ resolved action as `orientation`; legal push and pull direction choices are
 additive as `force_direction`. These runtime direction fields do not change the
 card's printed-play classification.
 
-`enemy_status_tick` captures delayed enemy status resolution. Burn and poison
-use `trigger: "turn_start"` when the affected enemy's initiative activation
-starts; bleed can use `trigger: "action"` plus `action_type` when a wounded enemy
-resolves a move or attack action during that activation. It is useful for later
-value-model work, but it is not yet card-source attributed.
+`enemy_status_tick` captures remaining timed status resolution. Bleed uses
+`trigger: "action"` plus `action_type` for a resolved move or attack. Fire is
+terrain damage, recorded with `source_kind: "surface_fire"` and entry/start phase;
+it must not be mislabeled as a persistent unit status.
 
 `enemy_action_resolved` records each resolved enemy movement, attack, defense,
-heal, summon, elemental-intensity build, or authored dragon-boss mechanic step.
+heal, summon, surface creation/consumption, or authored dragon-boss mechanic step.
 Its additive `enemy_type`, `ai_role`, and `intent_id` fields identify the actor's
 authored tactical role and the revealed intent that produced the action. This
 allows playtest analysis to compare realized range closure, retreat, healing,
@@ -219,8 +217,8 @@ Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading
 separate actions.
-Its additive `elemental_intensity_gained` and `elemental_intensity_spent` maps
-capture specialist builders and attached enemy payoff costs. Boss mechanics retain the
+Surface events capture specialist setup, consumed local fuel and the causal
+actor. Boss mechanics retain the
 specific `action_type`, use `presentation_kind` for their animation family, and
 set `boss_mechanic: true`; they do not also emit misleading
 `enemy_status_tick` events. Movement payloads include the exact ordered `path`,
@@ -397,10 +395,38 @@ charge is spent.
 
 Persistent passives also record only realized benefits. Open Arsenal emits a
 run-scoped activation after a successful non-trinket equip into the trinket
-slot, never while validating a drag or repeating a no-op equip. Confluence emits
-one combat-scoped activation when another element's higher intensity first
-satisfies a committed card condition or intensity bonus that combat. Later
-Confluence benefits remain fully active without producing duplicate events.
+slot, never while validating a drag or repeating a no-op equip. Prismatic
+Instinct and Confluence emit one combat-scoped activation only after a legal
+placement or relocation actually changes the board. Cancelling aiming and
+idempotent placement do not spend or record an activation.
+
+## Surface Rules v4
+
+New records carry top-level `rules_version` and `surface_revision`. The JSONL
+schema remains append-only; old logs keep their original intensity/Poison/Burn
+fields, and readers must group mechanics comparisons by rules version. New
+construction omits retired intensity fields rather than emitting a zero meter.
+
+Combat state holds a monotonic `surface_event_sequence` and bounded recent
+`surface_events` for previews and presentation. Analytics flushes unseen events
+at resolved action/start boundaries, using combat ID plus event sequence for
+idempotency. Preview copies never append gameplay analytics. Records include
+creation, replacement, removal reason, source actor/card/relic, tile and layer;
+Fire entry/start contact; successful Freeze and consumed Ice; actor death source;
+and the native Chain route alongside connected-component side hits. A direct
+hit, conduction hit, passive hazard, trap and secondary relic pulse remain
+separate sources. Actors hit by multiple occupied tiles or overlapping branches
+appear once in the damage set. Consumption records show the actual removed
+surface, including Fire used as a conductor under Stormcoal Crucible.
+The additive `rubble_underlay` on `surface_removed` records whether Rubble
+coexisted at the instant of removal, after any earlier terrain payment in the
+same action. Layered-consumption rewards use this event-time fact rather than
+the action's initial board snapshot.
+
+Card-caused displacement can cause a hazard kill, but passive activation-start
+Fire cannot inherit a stale card instance or bank a future card play. Preserve
+placement owner separately from the immediate damage cause. Simultaneous blast
+deaths retain their individual source records before final outcome selection.
 
 ## AWS-Friendly Expectations
 
@@ -425,8 +451,8 @@ Update analytics instrumentation when changes affect:
 - combat-unit migrations or Defiance capacity, restoration, spending, or
   persistence
 - card play targeting or independent player movement rules
-- elemental intensity production, gating, spending, enemy use, trap scaling, or
-  room-start rules
+- surface production, replacement, consumption, contact timing, conduction,
+  enemy use, trap wakes, or room-start rules
 - Umbra stage progression, visibility, hidden-enemy information, or Radiance
   actions
 - card actions that create, remove, or redirect combat actors

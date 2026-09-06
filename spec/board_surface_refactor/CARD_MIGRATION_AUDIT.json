@@ -1,0 +1,2614 @@
+{
+  "metadata": {
+    "base_head": "11a62f65e4070ae397d651778b550668bda0c854",
+    "scope": "Read-only design proposal, no implementation or numerical signoff",
+    "total_cards": 159,
+    "source_counts": {
+      "starter": 14,
+      "inactive legacy": 1,
+      "reward": 56,
+      "equipment": 78,
+      "consumable": 10
+    },
+    "raw_element_counts": {
+      "neutral": 87,
+      "fire": 17,
+      "air": 11,
+      "ice": 15,
+      "lightning": 17,
+      "earth": 12
+    },
+    "custom_role_mappings": 75,
+    "retained_role_reviews": 84,
+    "intensity_cards": 59,
+    "poison_cards": 10,
+    "equipment_count": 42,
+    "relic_count": 60,
+    "shared_rules_followup": {
+      "terminology": "Rubble layer plus one elemental layer: Fire, Ice or Electrified. Light remains independent. Electrified replaces the earlier proposed surface name Charge; elemental replaces energy as the layer name.",
+      "burn_removal": "Confirmed: remove the damaging Burn status and Poison entirely. Preserve top-level burn: true as Exhaust.",
+      "surface_timing": "Fire and Ice trigger only on actual tile entry or the affected actor turn start, never on placement. Fire initial tuning is 1 damage on entry and 2 on its own turn start, once per actor event even for a large footprint. Rubble instead changes ordinary entry movement cost directly; Electrified is a passive conduit until explicitly used.",
+      "chilled": "Entering Ice or beginning a non-Frozen activation on Ice activates Chilled while the actor remains on Ice. Painting Ice beneath a stationary actor does not activate Chilled. Leaving Ice or removing the supporting Ice clears Chilled. Ordinary non-Ice hits do not consume it. Frozen actors cannot gain Chilled, including during their skipped activation.",
+      "damage_initial_tuning": "Initial proposal: +1 damage on every direct hit against active Chilled. If already Frozen, use the shared x2 damage multiplier instead of adding the Chilled bonus. Neither numerical value is final balance signoff.",
+      "ice_hit_order": "Immediately before each individual hit, inspect active Chilled and Frozen state. Resolve damage using that pre-hit state, then an eligible Ice hit applies Freeze and consumes the enabling Ice beneath the actor. For a large actor, consume all Ice tiles it occupies once; clear Chilled. Ice painters place Ice only after their hit; this placement cannot activate Chilled or retroactively Freeze the target.",
+      "frozen": "Frozen is nonrefreshable and cannot coexist with regained Chilled. It skips its activation and thaws after that skipped activation; that Frozen turn start does not activate Ice. Newly painted Ice waits for a later actual entry or non-Frozen turn start. There is no additional recovery state, Thawing state or recovery guardrail.",
+      "electrified_order": "Electrified is immediately usable after placement. A later damaging Lightning attack can discharge its connected component, and intrinsic Chain can use individual nodes. An earlier separately printed placement action may enable a later attack on the same card. Ordinary post-hit placement arrives after the complete attack and cannot recursively expand that attack.",
+      "chain": "Confirmed direction: intrinsic Chain N preserves the current maximum jump reach; there is no additional-target cap. Individual Electrified tiles may act as nodes under normal Chain reach, including air-gap jumps that ordinary conduction cannot make. A non-Lightning attack granted Chain may use this node routing without becoming Lightning.",
+      "lightning_conduction": "Confirmed direction: a damaging Lightning impact touching Electrified discharges the cardinally contiguous connected component and hits its opponent occupants. No Chain keyword is required. Diagonal contact, nearby enemies off the component and air gaps do not conduct. Lightning support, movement and placement alone do not discharge.",
+      "lightning_consumption": "Design recommendation for tuning: discharge consumes the whole touched Electrified component, including its empty branches. Chain-only relay use consumes its actually used nodes. Neither surface visits nor consumption are actor hits. The full-component consumption policy is an explicit design recommendation, not numeric or playtest signoff.",
+      "lightning_resolution": "Take one pre-attack snapshot. Plan intrinsic Chain independently; collect each touched cardinal component; union native, Chain and conduction opponent targets and hit each actor once. Conduction does not start a fresh Chain head from every affected actor. Consume the planned ground once; separate later attacks and Flurry repeats see the remaining board. Post-attack painting cannot extend its own already planned attack."
+    },
+    "lightning_contract_version": 4
+  },
+  "cards": [
+    {
+      "id": "quick_stab",
+      "name": "Quick Stab",
+      "source": "starter",
+      "equipment_sources": [
+        "training_sword"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike an adjacent enemy for 11.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "guarded_step",
+      "name": "Guarded Step",
+      "source": "starter",
+      "equipment_sources": [
+        "splintered_shield"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, gain 3 block, and gain 1 card play.",
+      "proposed_role": "positioning / defense / hand/tempo support",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "shadow_step",
+      "name": "Shadow Step",
+      "source": "starter",
+      "equipment_sources": [
+        "patched_cloak"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Blink 4, then draw 1.",
+      "proposed_role": "terrain bypass / hand/tempo support",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "bone_dart",
+      "name": "Bone Dart",
+      "source": "inactive legacy",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 6 at range 4.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. This is the only inactive legacy card: keep excluded from normal rewards, preserve save compatibility or migrate old instances explicitly."
+    },
+    {
+      "id": "pale_spark",
+      "name": "Pale Spark",
+      "source": "starter",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 4 at range 5.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "dull_bolt",
+      "name": "Dull Bolt",
+      "source": "starter",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 5 at range 5.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "waning_pulse",
+      "name": "Waning Pulse",
+      "source": "starter",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Pulse for 5 on adjacent tiles.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "sidestep_slash",
+      "name": "Sidestep Slash",
+      "source": "starter",
+      "equipment_sources": [
+        "skirmisher_boots"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 3, then strike for 6.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "whirlwind_slash",
+      "name": "Whirlwind Slash",
+      "source": "starter",
+      "equipment_sources": [
+        "training_sword"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike all adjacent tiles for 10.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "patch_up",
+      "name": "Patch Up",
+      "source": "starter",
+      "equipment_sources": [
+        "patched_cloak"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Heal 2 and gain 2 block.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "bloody_lunge",
+      "name": "Bloody Lunge",
+      "source": "starter",
+      "equipment_sources": [
+        "training_sword"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 8,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Lose 1 health. Move 3, then strike for 15.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "brace",
+      "name": "Brace",
+      "source": "starter",
+      "equipment_sources": [
+        "splintered_shield"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 1,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 8 block.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "ember_jab",
+      "name": "Ember Jab",
+      "source": "starter",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike for 6, then draw 1.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone. Naming/art review: elemental-sounding name currently has a neutral element tag. Either make neutral flavor clear or explicitly retag with a budgeted elemental role; do not add hidden terrain effects based on the name."
+    },
+    {
+      "id": "lantern_shot",
+      "name": "Lantern Shot",
+      "source": "starter",
+      "equipment_sources": [
+        "cracked_lantern"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 5 at range 6, then create radius-2 Light at the impact for 2 turns. Draw 1.",
+      "proposed_role": "direct damage / hand/tempo support / Radiance",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone. Retain authored Light/Vision duration and visibility rules independently from permanent elemental surfaces."
+    },
+    {
+      "id": "guiding_flare",
+      "name": "Guiding Flare",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Deal 5 and burn 2 at range 5, then create radius-2 Light at the impact for 2 turns.",
+      "proposed_role": "Fire and light setup",
+      "proposal": "Ranged damage, then place Fire and the existing radius-2 Light at the impact. Replace its Burn rider with Fire; trim direct damage if needed to pay for persistent territory."
+    },
+    {
+      "id": "dawnstep",
+      "name": "Dawnstep",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Move 3, then gain 2 vision for 2 turns.",
+      "proposed_role": "Reconnaissance and positioning",
+      "proposal": "Retain Move and Vision. Movement obeys Rubble costs and shared surface entry effects; Air need not manufacture a fifth surface."
+    },
+    {
+      "id": "prism_sight",
+      "name": "Prism Sight",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Gain truesight for 2 turns, gain 4 block, and draw 1.",
+      "proposed_role": "Defensive reconnaissance",
+      "proposal": "Retain Truesight, Block and draw. Its lack of terrain creation is intentional: Ice decks still need defensive and information choices."
+    },
+    {
+      "id": "storm_beacon",
+      "name": "Storm Beacon",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Chain surface interaction review"
+      ],
+      "current_description": "Raise Lightning intensity. Deal 5 with chain 2 at range 6, then create radius-2 Light at the impact for 2 turns.",
+      "proposed_role": "Visible lightning route",
+      "proposal": "Keep modest ranged Chain damage and impact Light; replace intensity generation with one Electrified tile at the primary impact AFTER the complete attack. This tile supplies an endpoint or gap filler. Ordinary Lightning conduction and intrinsic Chain follow the shared rules; empty surface nodes never count as hit rewards."
+    },
+    {
+      "id": "glowstone_ward",
+      "name": "Glowstone Ward",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Gain 4 stoneskin and place a lasting light at range 3.",
+      "proposed_role": "Persistent light and defense",
+      "proposal": "Retain Stoneskin and independently placed lasting Light. Do not attach Rubble automatically to every Earth support card."
+    },
+    {
+      "id": "daybreak",
+      "name": "Daybreak",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 7,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Reduce the Umbra by 2 stages, draw 2, and gain 1 card play.",
+      "proposed_role": "hand/tempo support / Radiance",
+      "proposal": "Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone. Retain authored Light/Vision duration and visibility rules independently from permanent elemental surfaces."
+    },
+    {
+      "id": "iron_wheel",
+      "name": "Iron Wheel",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 4, then strike for 10.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "ricochet_knife",
+      "name": "Ricochet Knife",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 8 at range 4, then draw 1.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "needle_flurry",
+      "name": "Cleaver Sweep",
+      "source": "equipment",
+      "equipment_sources": [
+        "iron_cleaver"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike all adjacent tiles for 8.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "warded_advance",
+      "name": "Warded Advance",
+      "source": "equipment",
+      "equipment_sources": [
+        "ward_kite"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then gain 7 block.",
+      "proposed_role": "positioning / defense",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "threaded_path",
+      "name": "Threaded Path",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "common",
+      "current_time": 1,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 5. Create radius-1 Light where you arrive for 2 turns, then draw 1.",
+      "proposed_role": "positioning / hand/tempo support / Radiance",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone. Retain authored Light/Vision duration and visibility rules independently from permanent elemental surfaces."
+    },
+    {
+      "id": "rallying_breath",
+      "name": "Cinch Straps",
+      "source": "equipment",
+      "equipment_sources": [
+        "boiled_leather"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 7 block, then draw 1.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "battle_rhythm",
+      "name": "Parry Rhythm",
+      "source": "equipment",
+      "equipment_sources": [
+        "duelist_rapier"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 5 block, then draw 1.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "cinderburst",
+      "name": "Cinderburst",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 9 in a cross pattern at range 3.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Naming/art review: elemental-sounding name currently has a neutral element tag. Either make neutral flavor clear or explicitly retag with a budgeted elemental role; do not add hidden terrain effects based on the name."
+    },
+    {
+      "id": "reprise",
+      "name": "Reprise",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Lose 1 health. Draw 4 and gain 5 block.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "blood_price",
+      "name": "Blood Price",
+      "source": "equipment",
+      "equipment_sources": [
+        "grave_greatsword"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Spend 1 health. Strike an adjacent enemy for 20.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "trapdoor",
+      "name": "Trapdoor",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Blink 6, gain 5 block, then gain 2 vision for 2 turns.",
+      "proposed_role": "terrain bypass / defense / Radiance",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Retain authored Light/Vision duration and visibility rules independently from permanent elemental surfaces."
+    },
+    {
+      "id": "bodkin_arrow",
+      "name": "Needle Thrust",
+      "source": "equipment",
+      "equipment_sources": [
+        "duelist_rapier"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Pierce an adjacent enemy for 9.",
+      "proposed_role": "defense bypass",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "hamstring_shot",
+      "name": "Low Sweep",
+      "source": "starter",
+      "equipment_sources": [
+        "skirmisher_boots"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then sweep an adjacent enemy for 4 and immobilize.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "hamstring_slice",
+      "name": "Spur Trip",
+      "source": "equipment",
+      "equipment_sources": [
+        "trapdoor_spurs"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then strike an adjacent enemy for 6 and immobilize.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "ember_rain",
+      "name": "Ember Rain",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 4 in a cross pattern at range 6, then create radius-2 Light at the impact for 2 turns.",
+      "proposed_role": "direct damage / Radiance",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Retain authored Light/Vision duration and visibility rules independently from permanent elemental surfaces. Naming/art review: elemental-sounding name currently has a neutral element tag. Either make neutral flavor clear or explicitly retag with a budgeted elemental role; do not add hidden terrain effects based on the name."
+    },
+    {
+      "id": "shadow_gate",
+      "name": "Gravewind Gate",
+      "source": "equipment",
+      "equipment_sources": [
+        "gravewind_soles"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Blink 5, then gain 5 block.",
+      "proposed_role": "terrain bypass / defense",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "cyclone_seal",
+      "name": "Cyclone Seal",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 7,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Deal 10 in a cross pattern at range 4.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Naming/art review: elemental-sounding name currently has a neutral element tag. Either make neutral flavor clear or explicitly retag with a budgeted elemental role; do not add hidden terrain effects based on the name."
+    },
+    {
+      "id": "last_light",
+      "name": "Glass Mending",
+      "source": "equipment",
+      "equipment_sources": [
+        "glassbone_cuirass"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Heal 3 and gain 2 stoneskin.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "grave_sprint",
+      "name": "Coffin Brace",
+      "source": "equipment",
+      "equipment_sources": [
+        "undertaker_plate"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Gain 12 block and heal 2.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "gate_gambit",
+      "name": "Gate Gambit",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 8,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Lose 1 health. Draw 3, gain 2 card plays, and gain 3 block.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "firebrand_volley",
+      "name": "Firebrand Volley",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Fire intensity by 1. Deal 5 at range 5, then create radius-1 Light at the impact for 2 turns. Fire 2+: +3 damage.",
+      "proposed_role": "Single-tile Fire setup",
+      "proposal": "Ranged damage followed by Fire on the target tile. Remove intensity generation and the threshold bonus entirely; no ordinary Burn rider."
+    },
+    {
+      "id": "cinder_bloom",
+      "name": "Cinder Bloom",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "common",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Raise Fire intensity by 1. Deal 4 in a cross pattern at range 4. Fire 2+: +4 damage and burn 2.",
+      "proposed_role": "Area Fire setup",
+      "proposal": "Modest cross-pattern damage followed by Fire on affected legal floor tiles, including empty tiles. Main common zone-building card; its direct damage must be lower than a pure damage AOE."
+    },
+    {
+      "id": "hearth_rush",
+      "name": "Hearth Rush",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "common",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Raise Fire intensity by 1. Move 2, then strike for 4. Fire 2+: +4 damage and burn 2.",
+      "proposed_role": "Melee Fire setup",
+      "proposal": "Move, melee hit, then Fire under the struck target. Remove the intensity package. Movement and the hit are separate readable steps; it cannot trigger its new surface before placement resolves."
+    },
+    {
+      "id": "cinderline_tempo",
+      "name": "Cinderline Tempo",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Raise Fire intensity by 1. Deal 4 at range 4 and gain 1 card play. Fire 2+: +3 damage and burn 2.",
+      "proposed_role": "Cheap detonation bridge",
+      "proposal": "A light ranged hit followed by Detonate on its impact tile. Remove the automatic card-play refund; retain a short Time cost. It remains a modest legal attack without Fire, with a strong local payoff when prepared."
+    },
+    {
+      "id": "inferno_ritual",
+      "name": "Inferno Ritual",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Spend 2 Fire intensity. Deal 11 and burn 3 in a cross pattern at range 4.",
+      "proposed_role": "Focused area detonation",
+      "proposal": "Modest cross-pattern damage plus Detonate on existing Fire in that pattern. Remove the intensity entry cost and Burn. It consumes real Fire; it never creates the Fire it consumes on this same action."
+    },
+    {
+      "id": "molten_reach",
+      "name": "Molten Reach",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Deal 5 along a 3-tile line at range 6. Fire 2+: +3 damage and burn 2.",
+      "proposed_role": "Lane-shaped Fire setup",
+      "proposal": "A rotatable three-tile damaging line followed by Fire along that line. Geometry distinguishes it from Cinder Bloom; remove its intensity bonus and Burn rider."
+    },
+    {
+      "id": "wildfire_halo",
+      "name": "Wildfire Halo",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "legendary",
+      "current_time": 10,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Deal 5 in a large pattern at range 5. Fire 3+: +9 damage and burn 3.",
+      "proposed_role": "Large prepared detonation",
+      "proposal": "Large-pattern damage and Detonate on existing Fire in the pattern. No global board detonation and no automatic repaint after consumption. Payoff bounded by the printed pattern; remove intensity and Burn."
+    },
+    {
+      "id": "frostbolt",
+      "name": "Frostbolt",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Raise Ice intensity by 1. Deal 4 at range 6. Ice 2+: +1 damage and freeze.",
+      "proposed_role": "Basic Ice setup",
+      "proposal": "A ranged Ice hit, then Ice beneath its target. Check active Chilled immediately before the hit: if eligible, damage resolves before Freeze consumes the supporting Ice. Newly painted Ice does not activate Chilled until a later actual entry or non-Frozen turn start. Remove intensity generation and direct gated Freeze."
+    },
+    {
+      "id": "icebound_chains",
+      "name": "Icebound Chains",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Deal 6 at range 6 and immobilize, then gain truesight for 2 turns.",
+      "proposed_role": "Hold a prepared target",
+      "proposal": "Keep ranged Ice damage, Immobilize and Truesight. An actively Chilled target can Freeze after damage, consuming all Ice it occupies. Immobilize can hold an un-Frozen target on Ice until its turn-start activation. Avoid adding free Ice placement to this dense control/information card."
+    },
+    {
+      "id": "rime_shard",
+      "name": "Rime Shard",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Ice intensity by 1. Deal 2 along a 2-tile line at range 5. Ice 2+: +2 damage.",
+      "proposed_role": "Cheap Ice lane",
+      "proposal": "Modest damage along the existing two-tile line, then Ice on that line. No intensity. Each hit checks active Chilled before damage; painting Ice afterwards neither Chills a stationary occupant nor self-enables Freeze for the completed hit."
+    },
+    {
+      "id": "cold_grasp",
+      "name": "Cold Grasp",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Raise Ice intensity by 1 and strike up to range 2 for 6. Ice 2+: +3 damage and freeze.",
+      "proposed_role": "Close-range Ice payoff",
+      "proposal": "Keep strong short-reach Ice damage. It does not lay Ice; its control payoff requires reaching a target whose Chilled was activated by actual Ice entry or a non-Frozen turn start. Eligible Freeze consumes the Ice beneath that actor and clears Chilled; ordinary hits do not consume Chilled."
+    },
+    {
+      "id": "icicle_lance",
+      "name": "Icicle Lance",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Raise Ice intensity by 1 and pierce for 5 at range 5. Ice 3+: +4 damage and freeze.",
+      "proposed_role": "Armor-piercing Ice payoff",
+      "proposal": "Keep ranged Pierce and Ice damage. Remove intensity; the shared rule checks active Chilled immediately before the hit, resolves damage, then applies eligible Freeze and consumes the enabling Ice. Do not create Ice on this specialist payoff."
+    },
+    {
+      "id": "hush_of_winter",
+      "name": "Hush of Winter",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Spend 2 Ice intensity. Deal 9 at range 7, freeze, and draw 1.",
+      "proposed_role": "Long-range control payoff",
+      "proposal": "Keep long-range Ice damage and draw, with Freeze only against active Chilled; Freeze consumes the Ice beneath its target. No resource lock; price range and draw without assuming Freeze is always available or refreshable."
+    },
+    {
+      "id": "shatterline",
+      "name": "Shatterline",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Pierce a line for 5 at range 5. Ice 3+: +5 damage and freeze.",
+      "proposed_role": "Prepared line payoff",
+      "proposal": "Keep a three-tile piercing Ice line. Each individual hit checks active Chilled immediately before damage, then applies eligible Freeze and consumes the Ice beneath that actor once. No newly generated Ice and no intensity-gated damage package; do not snapshot Chill once for the entire action."
+    },
+    {
+      "id": "glacier_pin",
+      "name": "Glacier Pin",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Raise Ice intensity by 1. Deal 4 in a two-tile pattern at range 5. Ice 3+: +4 damage and freeze.",
+      "proposed_role": "Area Ice setup",
+      "proposal": "Damage the existing short line, then lay Ice on its floor tiles. Make area/range or a bounded Immobilize rider distinguish it from Rime Shard. Painting Ice does not Chill stationary occupants: actual entry or a later non-Frozen turn start activates it for a future freezing hit."
+    },
+    {
+      "id": "white_silence",
+      "name": "White Silence",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "legendary",
+      "current_time": 9,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Deal 9 at range 7. Ice 3+: +8 damage and freeze.",
+      "proposed_role": "Premium Ice finisher",
+      "proposal": "A heavy long-range Ice finisher. Against an already Frozen target, use the shared x2 damage payoff instead of stacking Chilled +1 or another bespoke multiplier. Against active Chilled, damage resolves before Freeze consumes the enabling Ice. It never refreshes Freeze or grants Chilled to a Frozen target; rarity comes from its printed attack budget and reach."
+    },
+    {
+      "id": "spark_dart",
+      "name": "Spark Dart",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Deal 4 at range 6, then create radius-1 Light at the impact for 2 turns. Lightning 2+: +3 damage.",
+      "proposed_role": "Single-tile setup and network payoff",
+      "proposal": "Keep a straightforward ranged Lightning hit and existing impact Light, then Electrified beneath the primary impact after the complete attack. The single tile is a useful endpoint or gap filler alongside broader painters. Hitting an existing Electrified component already supplies the shared conduction payoff; no extra card-specific condition is needed."
+    },
+    {
+      "id": "chain_bolt",
+      "name": "Chain Bolt",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Chain surface interaction review"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Deal 4 at range 5 with chain 1. Lightning 2+: +3 damage and +1 chain.",
+      "proposed_role": "Basic intrinsic Chain",
+      "proposal": "Ranged Chain damage without intensity or Shock. Preserve Chain N as maximum jump reach, with no additional-target cap. It works through nearby enemies without setup and can treat individual Electrified tiles as relay nodes. Its Lightning impacts can also discharge touched contiguous components under the shared contract."
+    },
+    {
+      "id": "spark_focus",
+      "name": "Spark Focus",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 2. Deal 4 at range 5, draw 1, then gain 1 vision for 2 turns.",
+      "proposed_role": "Contiguous Electrified setup",
+      "proposal": "Place a short cardinally contiguous Electrified line on visible legal floor, then draw. Tune its length to connect useful nearby occupied tiles or complete a gap in existing ground, rather than leave two isolated nodes. Remove intensity and the redundant small attack; retain Vision only if the support budget allows. Empty-floor targeting makes this a broadly useful setup card."
+    },
+    {
+      "id": "static_lash",
+      "name": "Static Lash",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Deal 4 at range 6. Lightning 2+: +4 damage and shock.",
+      "proposed_role": "Prepared disruption",
+      "proposal": "Keep a simple ranged Lightning hit. Its specialist Shock applies to actual opponents reached through used Electrified, whether by contiguous conduction or intrinsic Chain supplied elsewhere. The ordinary connected-component payoff does not require Chain. Remove intensity and unconditional turn denial; no extra setup condition is needed for the baseline hit."
+    },
+    {
+      "id": "storm_relay",
+      "name": "Storm Relay",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Chain surface interaction review"
+      ],
+      "current_description": "Spend 2 Lightning intensity. Deal 9 at range 6 with chain 2 and shock.",
+      "proposed_role": "Premium intrinsic Chain",
+      "proposal": "A ranged Chain attack with greater printed jump reach, not a larger additional-target budget. Used Electrified can enable its explicitly priced Shock rider. Remove intensity cost. Plan its native Chain independently of component hits and deduplicate the final actor union; empty tiles are not hits or reward triggers."
+    },
+    {
+      "id": "volt_surge",
+      "name": "Volt Surge",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Deal 5 at range 6. Lightning 2+: +4 damage.",
+      "proposed_role": "Electrified lane setup",
+      "proposal": "Replace the redundant intensity shot with one coherent damaging line that leaves a cardinally contiguous Electrified lane AFTER the complete attack. Tune line coverage to connect typical nearby positions without needing several painter cards for one useful discharge. Existing Electrified touched by the attack conducts normally; newly painted ground waits only for a later attack."
+    },
+    {
+      "id": "thunderline",
+      "name": "Thunderline",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "legendary",
+      "current_time": 8,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Deal 6 in a line at range 6. Lightning 3+: +9 damage and shock.",
+      "proposed_role": "Broad Lightning line payoff",
+      "proposal": "Keep the rotatable damaging line and an explicitly rooted intrinsic Chain, with its number controlling jump reach. The line can discharge each Electrified component it touches. Snapshot the native line and Chain route independently of conduction, then hit their combined opponent union once; no fresh Chain starts from every line tile or conducted target."
+    },
+    {
+      "id": "gust_step",
+      "name": "Gust Step",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "common",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Air intensity by 1. Pull 2 at range 4 and hit for 4. Air 2+: gain 1 card play.",
+      "proposed_role": "Pull and reposition",
+      "proposal": "Directed Pull plus modest damage; replace the intensity/refund package with a small Move AFTER the pull. Resolve target movement before player movement. This is a setup bridge without free card-play churn."
+    },
+    {
+      "id": "slipstream_cut",
+      "name": "Slipstream Cut",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "common",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Air intensity by 1. Move 3, then strike for 6 and push 1. Air 2+: gain 1 card play.",
+      "proposed_role": "Move-and-push setup",
+      "proposal": "Move, melee damage, then directed Push. Remove intensity and card-play refund. Price movement and persistent-hazard access directly."
+    },
+    {
+      "id": "updraft",
+      "name": "Updraft",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Air intensity by 1. Push 2 at range 4 and hit 6. Air 2+: gain 1 card play.",
+      "proposed_role": "Basic directed push",
+      "proposal": "Keep directed Push and damage, remove intensity and card-play refund, and tune short Time to make a satisfying common setup tool. It pays for actual hazard traversal, not an automatic extra play."
+    },
+    {
+      "id": "vacuum_line",
+      "name": "Vacuum Line",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Spend 2 Air intensity. Pull 5 at range 5, hit for 11, and draw 1.",
+      "proposed_role": "Long pull payoff",
+      "proposal": "Keep long-range/long-distance directed Pull, modest damage and draw. Remove intensity cost. It can drag through prepared hazards; reduce old spender-level damage if hazard value warrants it."
+    },
+    {
+      "id": "squall_shot",
+      "name": "Squall Shot",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Air intensity by 1. Deal 5 in an odd pattern at range 5 and push 1. Air 2+: gain 1 card play.",
+      "proposed_role": "Multi-target repositioning",
+      "proposal": "Keep the unusual rotatable pattern with Push. Remove intensity and refund. Preview each actor's route, collision and surface entries before committing."
+    },
+    {
+      "id": "skybreak_current",
+      "name": "Skybreak Current",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "legendary",
+      "current_time": 8,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Deal 8 at range 6 and push 2. Air 2+: +6 damage and +2 push.",
+      "proposed_role": "Premium displacement",
+      "proposal": "A strong directed Push attack with a larger printed push distance; remove intensity gate. Optional bounded collision or hazardous-destination bonus can provide the legendary payoff instead of raw unconditional damage inflation."
+    },
+    {
+      "id": "venom_claw",
+      "name": "Venom Claw",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Raise Earth intensity by 1 and strike for 9. Earth 2+: +4 damage and poison 4.",
+      "proposed_role": "Close-range Rubble setup",
+      "proposal": "Rename to Quarry Claw. Melee damage followed by Rubble beneath its target. Remove Poison and intensity; rebalance direct damage for persistent terrain control."
+    },
+    {
+      "id": "stone_plate",
+      "name": "Stone Plate",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Earth intensity by 1. Gain 5 stoneskin, then draw 1.",
+      "proposed_role": "Reliable persistent defense",
+      "proposal": "Keep Stoneskin and draw, remove intensity generation. This is intentionally a plain defense card; do not add terrain and complexity merely because it is Earth."
+    },
+    {
+      "id": "quarry_step",
+      "name": "Quarry Step",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Raise Earth intensity by 1. Move 2, then strike for 6 and poison 1. Earth 2+: gain 3 stoneskin.",
+      "proposed_role": "Approach and obstruct",
+      "proposal": "Move, melee damage, then Rubble beneath the struck target. Remove Poison, intensity and gated Stoneskin. Make the player choose the approach rather than leaving an automatic trail across every moved tile."
+    },
+    {
+      "id": "thorn_skewer",
+      "name": "Thorn Skewer",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Raise Earth intensity by 1 and pierce an adjacent enemy for 8. Earth 2+: +3 damage and poison 4.",
+      "proposed_role": "Rubble-conditioned Pierce",
+      "proposal": "Piercing melee damage with a small local bonus against a target standing on Rubble. Remove Poison and intensity. No need to consume Rubble on every Earth payoff."
+    },
+    {
+      "id": "root_snare",
+      "name": "Root Snare",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Earth intensity by 1. Deal 5 and immobilize at range 5, then create radius-1 Light at the impact for 2 turns.",
+      "proposed_role": "Hold and reveal",
+      "proposal": "Retain ranged Immobilize and impact Light; replace intensity with Rubble beneath the target after the hit. Lower direct damage if needed to keep this layered common from dominating basic Earth setup."
+    },
+    {
+      "id": "basalt_guard",
+      "name": "Basalt Guard",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "rare",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Earth intensity by 1. Create a 4-health illusion, then gain 4 block and 3 stoneskin.",
+      "proposed_role": "Decoy and cover",
+      "proposal": "Retain a low-health illusion plus defense; place Rubble at the decoy's tile, with its normal shared-hazard spawn/contact rules explicit. Remove intensity. Do not combine a full-strength persistent Stoneskin package with free wide terrain."
+    },
+    {
+      "id": "grave_mortar",
+      "name": "Grave Mortar",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Raise Earth intensity by 1. Strike all adjacent tiles for 5 and poison 1. Earth 2+: +5 damage and poison 4.",
+      "proposed_role": "Close-area Rubble setup",
+      "proposal": "Adjacent AOE damage followed by Rubble on its affected floor tiles. Remove both Poison clauses and intensity. Distinguish this from remote Fire setup through melee commitment and terrain control."
+    },
+    {
+      "id": "spike_mantle",
+      "name": "Spike Mantle",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "epic",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Spend 3 Earth intensity. Pierce all adjacent tiles for 15 and poison 5, then gain 5 stoneskin.",
+      "proposed_role": "Local Rubble conversion",
+      "proposal": "Adjacent piercing damage gains a bounded bonus against actors standing on Rubble, then consumes Rubble in the printed pattern and grants a fixed Stoneskin reward if any was consumed. Remove Poison and intensity; no Stoneskin-per-board-tile scaling."
+    },
+    {
+      "id": "tectonic_maul",
+      "name": "Tectonic Maul",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "earth",
+      "rarity": "legendary",
+      "current_time": 8,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Poison"
+      ],
+      "current_description": "Move 1, then strike for 12 and poison 2. Earth 2+: +6 damage and poison 5.",
+      "proposed_role": "Heavy terrain-shaping hit",
+      "proposal": "Short approach plus a heavy melee hit, then a compact cross of Rubble around the impact. A local bonus for hitting an actor already on Rubble gives setup value. Remove Poison and intensity; avoid unlimited damage per tile on the board."
+    },
+    {
+      "id": "cleaver_hook",
+      "name": "Cleaver Hook",
+      "source": "equipment",
+      "equipment_sources": [
+        "iron_cleaver"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Hack an adjacent enemy for 8 and shove 1.",
+      "proposed_role": "hazard positioning",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled."
+    },
+    {
+      "id": "riposte_lunge",
+      "name": "Riposte Lunge",
+      "source": "equipment",
+      "equipment_sources": [
+        "duelist_rapier"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, strike an adjacent enemy for 6, then gain 4 block.",
+      "proposed_role": "direct damage / positioning / defense",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "grave_cleave",
+      "name": "Grave Cleave",
+      "source": "equipment",
+      "equipment_sources": [
+        "grave_greatsword"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Poison"
+      ],
+      "current_description": "Strike all adjacent tiles for 10 and poison 2.",
+      "proposed_role": "Physical multi-target setup",
+      "proposal": "Replace Poison with a modest Expose rider on the existing adjacent cleave. Preserve neutral weapon identity and the later-hit payoff; rebalance alongside Tombsplitter to avoid two equivalent AOEs."
+    },
+    {
+      "id": "kite_bash",
+      "name": "Kite Bash",
+      "source": "equipment",
+      "equipment_sources": [
+        "ward_kite"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 6 block, then bash an adjacent enemy for 4 and push 1.",
+      "proposed_role": "hazard positioning / defense",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "chain_catch",
+      "name": "Chain Catch",
+      "source": "equipment",
+      "equipment_sources": [
+        "chain_guard"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Hook a target at range 4 for 3, pull 2, then gain 5 block.",
+      "proposed_role": "hazard positioning / defense",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "mirror_feint",
+      "name": "Mirror Feint",
+      "source": "equipment",
+      "equipment_sources": [
+        "mirror_guard"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Create a 3-health illusion at range 3, then gain 5 block.",
+      "proposed_role": "defense / decoy",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Illusion spawning, hazard deaths and enemy diversion must use the same surface and pathfinding model as the real board."
+    },
+    {
+      "id": "leather_roll",
+      "name": "Leather Roll",
+      "source": "equipment",
+      "equipment_sources": [
+        "boiled_leather"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then gain 6 block.",
+      "proposed_role": "positioning / defense",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "glassbone_guard",
+      "name": "Glassbone Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "glassbone_cuirass"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Spend 1 health. Gain 4 stoneskin and draw 1.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "undertaker_stand",
+      "name": "Undertaker Stand",
+      "source": "equipment",
+      "equipment_sources": [
+        "undertaker_plate"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 10 block and 2 stoneskin.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "dust_skip",
+      "name": "Dust Skip",
+      "source": "equipment",
+      "equipment_sources": [
+        "dust_tabi"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Blink 3, then draw 1.",
+      "proposed_role": "terrain bypass / hand/tempo support",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "spur_vault",
+      "name": "Spur Vault",
+      "source": "equipment",
+      "equipment_sources": [
+        "trapdoor_spurs"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 4, then kick an adjacent enemy for 5 and push 1.",
+      "proposed_role": "hazard positioning / positioning",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "gravewind_step",
+      "name": "Gravewind Step",
+      "source": "equipment",
+      "equipment_sources": [
+        "gravewind_soles"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Blink 4, then gain 4 block.",
+      "proposed_role": "terrain bypass / defense",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "ember_tithe",
+      "name": "Ember Tithe",
+      "source": "equipment",
+      "equipment_sources": [
+        "ember_pendant"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Exhaust. Deal 4 at range 4 and burn 1, then heal 1.",
+      "proposed_role": "Small Fire utility",
+      "proposal": "Replace ordinary Burn with Fire at impact, retaining Exhaust and the small heal. Keep it as equipment utility; decide whether its element tag should become Fire while reviewing Ember Pendant's elemental access."
+    },
+    {
+      "id": "clockwork_mark",
+      "name": "Clockwork Mark",
+      "source": "equipment",
+      "equipment_sources": [
+        "clockwork_arrowhead"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 6 at range 6, then draw 1.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "unsealed_gale",
+      "name": "Unsealed Gale",
+      "source": "equipment",
+      "equipment_sources": [
+        "sealed_cyclone"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 7,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Deal 9 in a cross pattern at range 4 and push 1.",
+      "proposed_role": "direct damage / hazard positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled."
+    },
+    {
+      "id": "butcher_chop",
+      "name": "Butcher Chop",
+      "source": "equipment",
+      "equipment_sources": [
+        "iron_cleaver"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike an adjacent enemy for 15.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "tombsplitter",
+      "name": "Tombsplitter",
+      "source": "equipment",
+      "equipment_sources": [
+        "grave_greatsword"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 8,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike all adjacent tiles for 12.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "chain_lock",
+      "name": "Chain Lock",
+      "source": "equipment",
+      "equipment_sources": [
+        "chain_guard"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Snare a target at range 3 for 4 and immobilize, then gain 4 block.",
+      "proposed_role": "direct damage / defense",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "mirror_flash",
+      "name": "Mirror Flash",
+      "source": "equipment",
+      "equipment_sources": [
+        "mirror_guard"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Create a 2-health illusion at range 2, then gain 4 block.",
+      "proposed_role": "defense / decoy",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Illusion spawning, hazard deaths and enemy diversion must use the same surface and pathfinding model as the real board."
+    },
+    {
+      "id": "dust_glide",
+      "name": "Dust Glide",
+      "source": "equipment",
+      "equipment_sources": [
+        "dust_tabi"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 4, then gain 3 block.",
+      "proposed_role": "positioning / defense",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "sawtooth_flurry",
+      "name": "Sawtooth Flurry",
+      "source": "equipment",
+      "equipment_sources": [
+        "sawtooth_knife"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Fast adjacent cut for 6 and bleed 1.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "serrated_slip",
+      "name": "Serrated Slip",
+      "source": "equipment",
+      "equipment_sources": [
+        "sawtooth_knife"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then nick for 4 and expose 3.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "backhand_nick",
+      "name": "Backhand Nick",
+      "source": "equipment",
+      "equipment_sources": [
+        "sawtooth_knife"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Strike for 5, bleed 1, then draw 1.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "stormstring_shot",
+      "name": "Stormstring Shot",
+      "source": "equipment",
+      "equipment_sources": [
+        "stormstring_bow"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Chain surface interaction review"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Deal 5 at range 7 with chain 1. Lightning 3+: shock.",
+      "proposed_role": "Long-range Chain endpoint setup",
+      "proposal": "Keep long-range Chain damage; replace intensity with one Electrified tile at the primary impact AFTER the complete attack. Remove threshold Shock. Its range and endpoint placement complement the other bow cards; the shared contiguous-conduction rule also applies to its Lightning impacts."
+    },
+    {
+      "id": "forked_nock",
+      "name": "Forked Nock",
+      "source": "equipment",
+      "equipment_sources": [
+        "stormstring_bow"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Chain surface interaction review"
+      ],
+      "current_description": "Deal 4 at range 6 with chain 2 and expose 2. Lightning 2+: +3 damage.",
+      "proposed_role": "Long-range intrinsic Chain",
+      "proposal": "Keep modest Chain damage and Expose, with the printed Chain value preserving maximum jump reach. Remove intensity bonus and add no automatic painter rider. It remains useful without ground; existing relay nodes and contiguous components provide the shared positional upside."
+    },
+    {
+      "id": "far_draw",
+      "name": "Far Draw",
+      "source": "equipment",
+      "equipment_sources": [
+        "stormstring_bow",
+        "windlass_repeater"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 2,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1 and draw 1.",
+      "proposed_role": "Equipment network gap filler",
+      "proposal": "Draw and place one Electrified tile within a modest range. This cheap single tile can connect two cardinally adjacent network ends, complete an occupied endpoint, or serve intrinsic Chain as an individual relay. Remove intensity and use the same role for both Stormstring Bow and Windlass Repeater. It complements the larger contiguous painters rather than being required to build every path tile alone."
+    },
+    {
+      "id": "hookspine_reap",
+      "name": "Hookspine Reap",
+      "source": "equipment",
+      "equipment_sources": [
+        "hookspine_halberd"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Hook for 8 at range 2, pull 1, and bleed 1.",
+      "proposed_role": "hazard positioning",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled."
+    },
+    {
+      "id": "sweeping_haft",
+      "name": "Sweeping Haft",
+      "source": "equipment",
+      "equipment_sources": [
+        "hookspine_halberd"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Sweep adjacent tiles for 6, push 1, and sunder 3.",
+      "proposed_role": "direct damage / hazard positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled."
+    },
+    {
+      "id": "hook_and_hold",
+      "name": "Hook and Hold",
+      "source": "equipment",
+      "equipment_sources": [
+        "hookspine_halberd"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Reach 2 for 5, immobilize, and expose 4.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "phoenix_cleave",
+      "name": "Phoenix Cleave",
+      "source": "equipment",
+      "equipment_sources": [
+        "phoenix_brand"
+      ],
+      "element": "fire",
+      "rarity": "legendary",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Exhaust. Lose 1 health. Raise Fire intensity by 1. Cleave adjacent tiles for 9 and burn 1. Fire 3+: +4 damage and burn 2.",
+      "proposed_role": "Melee detonation payoff",
+      "proposal": "Retain Exhaust and health cost; adjacent damage plus Detonate on existing Fire in the pattern. Remove intensity and Burn, and do not also leave fresh Fire after the detonation."
+    },
+    {
+      "id": "ember_guard",
+      "name": "Ember Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "phoenix_brand"
+      ],
+      "element": "fire",
+      "rarity": "legendary",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Fire intensity by 1, gain 7 block, and draw 1.",
+      "proposed_role": "Fire setup and defense",
+      "proposal": "Retain Block; replace intensity with one deliberately chosen adjacent Fire tile. Review whether draw still fits its budget. Never silently ignite the player's occupied tile."
+    },
+    {
+      "id": "rekindle_edge",
+      "name": "Rekindle Edge",
+      "source": "equipment",
+      "equipment_sources": [
+        "phoenix_brand"
+      ],
+      "element": "fire",
+      "rarity": "legendary",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Strike for 8 and burn 2. Fire 2+: gain 1 card play.",
+      "proposed_role": "Melee fire payoff",
+      "proposal": "Melee hit plus Detonate at the target. Remove Burn and intensity. Replace the old conditional free play with a modest fixed defensive or draw benefit only if a Fire tile was actually consumed; no unconditional refund loop."
+    },
+    {
+      "id": "nail_parry",
+      "name": "Nail Parry",
+      "source": "equipment",
+      "equipment_sources": [
+        "buckler_of_nails"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 5 block, then pierce an adjacent enemy for 4 and sunder 2.",
+      "proposed_role": "defense bypass / defense",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "spike_check",
+      "name": "Spike Check",
+      "source": "equipment",
+      "equipment_sources": [
+        "buckler_of_nails"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 4 block, then bash for 4, push 1, and bleed 1.",
+      "proposed_role": "hazard positioning / defense",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "lodestone_reversal",
+      "name": "Lodestone Reversal",
+      "source": "equipment",
+      "equipment_sources": [
+        "lodestone_buckler"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Pull 2 at range 5 for 4, then gain 5 block. Lightning 2+: shock.",
+      "proposed_role": "Pull into Lightning setup",
+      "proposal": "Retain directed Pull, damage and Block; replace intensity with Electrified at the target's resolved destination AFTER movement and the attack's discharge resolution. Remove gated Shock. The destination can complete an existing contiguous component or become an individual Chain relay. Its ordinary damaging Lightning impact uses any preexisting touched component, not the tile created later by this action."
+    },
+    {
+      "id": "polar_guard",
+      "name": "Polar Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "lodestone_buckler"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Gain 6 block. Lightning 2+: gain 1 card play.",
+      "proposed_role": "Defense on Electrified ground",
+      "proposal": "Keep Block with a small extra Block benefit while standing on Electrified, without consuming it. Remove its intensity-gated card play. Support does not discharge a component merely because the card is Lightning; no repeatable free play or global Electrified count."
+    },
+    {
+      "id": "witchglass_double",
+      "name": "Witchglass Double",
+      "source": "equipment",
+      "equipment_sources": [
+        "witchglass_aegis"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Create a 3-health illusion at range 3, gain 4 block, then draw 1.",
+      "proposed_role": "defense / hand/tempo support / decoy",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone. Illusion spawning, hazard deaths and enemy diversion must use the same surface and pathfinding model as the real board."
+    },
+    {
+      "id": "reflected_threat",
+      "name": "Reflected Threat",
+      "source": "equipment",
+      "equipment_sources": [
+        "witchglass_aegis"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Create a 4-health illusion at range 5, then gain 3 block.",
+      "proposed_role": "defense / decoy",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Illusion spawning, hazard deaths and enemy diversion must use the same surface and pathfinding model as the real board."
+    },
+    {
+      "id": "anchor_slam",
+      "name": "Anchor Slam",
+      "source": "equipment",
+      "equipment_sources": [
+        "sunken_anchor"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 7,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 3 stoneskin, then pull 3 at range 4 for 6, sunder 4, and immobilize.",
+      "proposed_role": "hazard positioning / defense",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "undertow_guard",
+      "name": "Undertow Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "sunken_anchor"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 9 block, then pull 2 at range 3 for 3 and expose 4.",
+      "proposed_role": "hazard positioning / defense",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "field_suture",
+      "name": "Field Suture",
+      "source": "equipment",
+      "equipment_sources": [
+        "stitcher_apron"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Heal 2 and gain 5 block.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "threadbare_guard",
+      "name": "Threadbare Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "stitcher_apron"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Gain 6 block and draw 1.",
+      "proposed_role": "defense / hand/tempo support",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "cinderweave_guard",
+      "name": "Cinderweave Guard",
+      "source": "equipment",
+      "equipment_sources": [
+        "cinderweave_mail"
+      ],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Raise Fire intensity by 1, gain 6 block, and scorch adjacent tiles for 4 and burn 1.",
+      "proposed_role": "Defensive Fire ring",
+      "proposal": "Block and modest adjacent AOE, then Fire on those floor tiles. Remove intensity and ordinary Burn. Preserve the safe central player tile; account for escape paths on subsequent activations."
+    },
+    {
+      "id": "cinder_patch",
+      "name": "Cinder Patch",
+      "source": "equipment",
+      "equipment_sources": [
+        "cinderweave_mail"
+      ],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Exhaust. Heal 2, gain 4 block, and raise Fire intensity by 1.",
+      "proposed_role": "Emergency fire management",
+      "proposal": "Retain Exhaust, heal and Block; replace intensity with extinguishing Fire on the player's tile and adjacent chosen tile or a small fixed cross. A control valve for shared hazards, not another free generator."
+    },
+    {
+      "id": "rimeplate_lock",
+      "name": "Rimeplate Lock",
+      "source": "equipment",
+      "equipment_sources": [
+        "rimeplate_harness"
+      ],
+      "element": "ice",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Gain 4 stoneskin and 3 block, then pin at range 4 for 3 and immobilize.",
+      "proposed_role": "Defend and prepare Ice",
+      "proposal": "Retain the defensive package and modest ranged Immobilize hit; place Ice under its target after damage. Active Chilled is checked before the hit for eligible Freeze and Ice consumption. Newly painted Ice requires a later actual entry or non-Frozen turn start to activate Chilled."
+    },
+    {
+      "id": "hoarfrost_shell",
+      "name": "Hoarfrost Shell",
+      "source": "equipment",
+      "equipment_sources": [
+        "rimeplate_harness"
+      ],
+      "element": "ice",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Ice intensity by 1 and gain 6 block. Ice 2+: gain 3 stoneskin.",
+      "proposed_role": "Ice zoning defense",
+      "proposal": "Block, then place a compact, directed pair of Ice tiles near the player. Remove intensity and gated Stoneskin. Placement does not Chill existing occupants; preview the threat of their next actual entry or non-Frozen turn start. Avoid the occupied player tile unless explicitly targeted."
+    },
+    {
+      "id": "voidsilk_molt",
+      "name": "Voidsilk Molt",
+      "source": "equipment",
+      "equipment_sources": [
+        "voidsilk_carapace"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Blink 4, gain 4 block, then draw 1.",
+      "proposed_role": "terrain bypass / defense / hand/tempo support",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "empty_husk",
+      "name": "Empty Husk",
+      "source": "equipment",
+      "equipment_sources": [
+        "voidsilk_carapace"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Create a 4-health illusion at range 4 and gain 5 block.",
+      "proposed_role": "defense / decoy",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Illusion spawning, hazard deaths and enemy diversion must use the same surface and pathfinding model as the real board."
+    },
+    {
+      "id": "hobnail_drive",
+      "name": "Hobnail Drive",
+      "source": "equipment",
+      "equipment_sources": [
+        "hobnail_grips"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 3, then kick an adjacent enemy for 4 and push 2.",
+      "proposed_role": "hazard positioning / positioning",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences."
+    },
+    {
+      "id": "heel_hook",
+      "name": "Heel Hook",
+      "source": "equipment",
+      "equipment_sources": [
+        "hobnail_grips"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, then trip for 5, immobilize, and expose 2.",
+      "proposed_role": "direct damage / positioning",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "static_pivot",
+      "name": "Static Pivot",
+      "source": "equipment",
+      "equipment_sources": [
+        "static_spurs"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Lightning intensity by 1. Move 4, then gain 3 block.",
+      "proposed_role": "Movement lays a connected route",
+      "proposal": "Use Move to leave a contiguous Electrified trail on its actual walked floor, including the origin, AFTER movement. This gives Static Spurs one useful route painter rather than several isolated endpoints. Retain Block only if the full coverage fits the card's budget; reprice movement, defense and Time together. Do not paint a hypothetical path for Blink or beyond an interrupted move."
+    },
+    {
+      "id": "spur_spark",
+      "name": "Spur Spark",
+      "source": "equipment",
+      "equipment_sources": [
+        "static_spurs"
+      ],
+      "element": "lightning",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Move 2, raise Lightning intensity by 1, and gain 1 card play.",
+      "proposed_role": "Quick endpoint setup",
+      "proposal": "Short Move, then one Electrified tile at the actual destination. Keep this as a cheap endpoint/gap filler beside Static Pivot's longer trail. Remove intensity and the unconditional card-play refund; tune its Time or modest defense without adding a second payoff clause. It does not discharge ground merely by moving or placing it."
+    },
+    {
+      "id": "cloudstep_loop",
+      "name": "Cloudstep Loop",
+      "source": "equipment",
+      "equipment_sources": [
+        "cloudstep_sandals"
+      ],
+      "element": "air",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Air intensity by 1, blink 3, draw 1, and gain 1 card play.",
+      "proposed_role": "Blink-flow support",
+      "proposal": "Keep Blink and draw; remove intensity and the automatic card-play refund. Review with Gale Tabi, Vaulting Sigil and Beaconrunner Spurs rather than compensating removal with another unconditional flow engine."
+    },
+    {
+      "id": "zephyr_feint",
+      "name": "Zephyr Feint",
+      "source": "equipment",
+      "equipment_sources": [
+        "cloudstep_sandals"
+      ],
+      "element": "air",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Move 3, then draw 1. Air 2+: gain 1 card play.",
+      "proposed_role": "Mobile hand support",
+      "proposal": "Keep Move and draw, remove intensity-gated refund. Adjust Time or defensive support to distinguish it from Cloudstep Loop without making every movement card self-replacing in plays."
+    },
+    {
+      "id": "worldroot_stride",
+      "name": "Worldroot Stride",
+      "source": "equipment",
+      "equipment_sources": [
+        "worldroot_greaves"
+      ],
+      "element": "earth",
+      "rarity": "legendary",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Earth intensity by 1. Move 3, then gain 4 stoneskin. Earth 2+: +4 stoneskin.",
+      "proposed_role": "Rubble approach and defense",
+      "proposal": "Move, then Stoneskin and Rubble at the destination; the move itself is subject to terrain already present. Replace intensity bonus with a small bounded defense benefit if the move ended on PRE-EXISTING Rubble."
+    },
+    {
+      "id": "rooted_kick",
+      "name": "Rooted Kick",
+      "source": "equipment",
+      "equipment_sources": [
+        "worldroot_greaves"
+      ],
+      "element": "earth",
+      "rarity": "legendary",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Poison"
+      ],
+      "current_description": "Move 2, then kick for 6, push 1, sunder 3, and poison 1.",
+      "proposed_role": "Rubble relocation payoff",
+      "proposal": "Keep move, directed push, damage and Sunder; remove Poison and leave Rubble at the enemy's resolved destination. Actual target movement completes before painting, so the card does not charge new terrain against its own force."
+    },
+    {
+      "id": "loaded_toss",
+      "name": "Loaded Toss",
+      "source": "equipment",
+      "equipment_sources": [
+        "bone_dice"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Deal 3 at range 6, draw 1, and gain 1 card play.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "snake_eyes",
+      "name": "Snake Eyes",
+      "source": "equipment",
+      "equipment_sources": [
+        "bone_dice"
+      ],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 2,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Exhaust. Mark at range 6 for 1 and expose 6, then draw 1.",
+      "proposed_role": "direct damage / hand/tempo support",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "locket_chill",
+      "name": "Locket Chill",
+      "source": "equipment",
+      "equipment_sources": [
+        "rime_locket"
+      ],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity",
+        "Freeze semantic migration"
+      ],
+      "current_description": "Raise Ice intensity by 1. Deal 3 at range 6. Ice 3+: freeze.",
+      "proposed_role": "Portable Ice setup",
+      "proposal": "Modest ranged Ice hit, then Ice at impact. Replace intensity and gated direct Freeze. New Ice waits for actual entry or a later non-Frozen turn start before Chilled activates; a later Ice hit can then Freeze and consume the supporting Ice. Leaving or removing that Ice clears Chilled."
+    },
+    {
+      "id": "kept_breath",
+      "name": "Kept Breath",
+      "source": "equipment",
+      "equipment_sources": [
+        "rime_locket"
+      ],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Ice intensity by 1, gain 5 block, and draw 1.",
+      "proposed_role": "Ice utility defense",
+      "proposal": "Block and draw; replace intensity with a single deliberately placed Ice tile within short range. Ice placement alone does not Chill an occupant; entry or a non-Frozen turn start activates it. Review draw/defense budget and avoid mandatory player exposure on the next activation."
+    },
+    {
+      "id": "borrowed_spark",
+      "name": "Borrowed Spark",
+      "source": "equipment",
+      "equipment_sources": [
+        "ember_hourglass"
+      ],
+      "element": "fire",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Exhaust. Lose 1 health. Raise Fire intensity by 2, draw 2, and gain 1 card play.",
+      "proposed_role": "One-use Fire setup and flow",
+      "proposal": "Retain health cost and Exhaust; replace intensity with a compact two-tile Fire placement and retain a reduced draw/play package. This is an exceptional resource bridge, reviewed against all Flurry and kill-refund interactions."
+    },
+    {
+      "id": "cinder_second",
+      "name": "Cinder Second",
+      "source": "equipment",
+      "equipment_sources": [
+        "ember_hourglass"
+      ],
+      "element": "fire",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Raise Fire intensity by 1 and gain 1 card play. Fire 2+: draw 1.",
+      "proposed_role": "Small detonation support",
+      "proposal": "Detonate one chosen Fire tile and draw a card; offer a small unconditional Block fallback so it is not a dead draw without Fire. Remove intensity and free-play machinery; preview whether Fire will actually be consumed."
+    },
+    {
+      "id": "thorn_crown_pact",
+      "name": "Thorn Crown Pact",
+      "source": "equipment",
+      "equipment_sources": [
+        "crown_of_thorns"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 7,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Poison"
+      ],
+      "current_description": "Lose 1 health. Gain 5 stoneskin, then pierce for 8 at range 5, bleed 1, and poison 3.",
+      "proposed_role": "Physical thorn payoff",
+      "proposal": "Retain health cost, Stoneskin and piercing attack; remove Poison and consolidate into a slightly stronger Bleed or Sunder rider. Prefer one physical status over adding a replacement fourth rider."
+    },
+    {
+      "id": "royal_bramble",
+      "name": "Royal Bramble",
+      "source": "equipment",
+      "equipment_sources": [
+        "crown_of_thorns"
+      ],
+      "element": "neutral",
+      "rarity": "legendary",
+      "current_time": 6,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Lose 1 health. Pull 2 at range 5 for 5, bleed 1, expose 4, and sunder 4.",
+      "proposed_role": "hazard positioning",
+      "proposal": "Preview and resolve every actual forced-movement tile; Rubble does not shorten forced distance, Fire and Ice trigger on actual entry under the shared actor rules. Placement does not trigger either; leaving Ice clears Chilled."
+    },
+    {
+      "id": "crimson_draught",
+      "name": "Crimson Draught",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Heal 2.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "mossglass_elixir",
+      "name": "Mossglass Elixir",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Heal 2 and gain 1 stoneskin.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "nail_bomb",
+      "name": "Nail Bomb",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 5,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Bomb a tile within 4 for 3 and sunder 1.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze."
+    },
+    {
+      "id": "pitch_firebomb",
+      "name": "Pitch Firebomb",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "damaging Burn status (confirmed removal)"
+      ],
+      "current_description": "Consume. Hurl fire at range 4 for 3 and burn 1 in a small blast.",
+      "proposed_role": "One-use Fire setup",
+      "proposal": "Replace Burn with Fire in the existing small blast after modest direct damage. Preserve Consume. Audit its actual hazard value against ordinary reward AOEs and one-use shop pricing."
+    },
+    {
+      "id": "frost_snare",
+      "name": "Frost Snare",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "ice",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Freeze semantic migration"
+      ],
+      "current_description": "Consume. Snap a target at range 3 for 1 and freeze 1.",
+      "proposed_role": "One-use Ice setup/control",
+      "proposal": "Replace immediate Freeze with Ice under the target after a small Ice hit and a bounded Immobilize rider. A target with active Chilled before the hit can Freeze, consuming its supporting Ice. Otherwise the new Ice waits for an actual entry or non-Frozen turn start; it does not immediately Chill or Freeze an occupant."
+    },
+    {
+      "id": "storm_jar",
+      "name": "Storm Jar",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Chain surface interaction review"
+      ],
+      "current_description": "Consume. Deal 3 at range 4, shock 1, and chain 1.",
+      "proposed_role": "One-use Lightning payoff",
+      "proposal": "Retain a straightforward consumable Lightning Chain attack under the shared jump-reach convention. Its specialist Shock can require an opponent actually reached through used Electrified; both contiguous conduction and individual Chain relays qualify. Prior explicit placement is immediately usable, but this attack cannot reuse a component already consumed by an earlier attack."
+    },
+    {
+      "id": "smoke_bomb",
+      "name": "Smoke Bomb",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Blink 2 and gain 2 block.",
+      "proposed_role": "terrain bypass / defense",
+      "proposal": "Blink skips intermediate terrain and triggers only landing-tile effects, with any explicit origin effects retained. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "jaw_trap",
+      "name": "Jaw Trap",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "common",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Clamp a target at range 3 for 3 and immobilize.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Immobilize remains movement denial and gains situational value by holding a unit on hazardous terrain; re-score rather than silently add another rider."
+    },
+    {
+      "id": "bone_ward_charm",
+      "name": "Bone-Ward Charm",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Consume. Gain 2 stoneskin and 3 block.",
+      "proposed_role": "defense",
+      "proposal": "Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation."
+    },
+    {
+      "id": "grave_dust_satchel",
+      "name": "Grave Dust Satchel",
+      "source": "consumable",
+      "equipment_sources": [],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Poison"
+      ],
+      "current_description": "Consume. Dust a tile within 3 for 2, poison 2, and pierce.",
+      "proposed_role": "One-use Rubble setup",
+      "proposal": "Remove Poison, retain modest piercing small-blast damage and leave Rubble in the pattern. Consider Earth tag and a clearer Quarry Dust name; preserve Consume, with no periodic damage replacement."
+    },
+    {
+      "id": "windlass_volley",
+      "name": "Windlass Volley",
+      "source": "equipment",
+      "equipment_sources": [
+        "windlass_repeater"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Flurry. Deal 2 along a 2-tile line at range 7 for each card play spent.",
+      "proposed_role": "direct damage",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Preserve Flurry play snapshot, one Time payment and per-repeat live board resolution; cap retrigger loops at the intended event scope."
+    },
+    {
+      "id": "crank_reload",
+      "name": "Crank Reload",
+      "source": "equipment",
+      "equipment_sources": [
+        "windlass_repeater"
+      ],
+      "element": "neutral",
+      "rarity": "rare",
+      "current_time": 3,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Draw 1 and gain 1 card play.",
+      "proposed_role": "hand/tempo support",
+      "proposal": "Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "blade_dance",
+      "name": "Blade Dance",
+      "source": "equipment",
+      "equipment_sources": [
+        "war_dancer_sash"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Flurry. Gain 2 block, then strike for 5, for each card play spent.",
+      "proposed_role": "direct damage / defense",
+      "proposal": "Retain printed direct attacks; surfaces are applied only when explicitly printed, and physical direct hits benefit from active Chilled damage but do not apply Freeze. Keep defense/healing semantics; include shared Fire damage and prevention in the revised valuation. Preserve Flurry play snapshot, one Time payment and per-repeat live board resolution; cap retrigger loops at the intended event scope."
+    },
+    {
+      "id": "gathering_rhythm",
+      "name": "Gathering Rhythm",
+      "source": "equipment",
+      "equipment_sources": [
+        "war_dancer_sash"
+      ],
+      "element": "neutral",
+      "rarity": "epic",
+      "current_time": 4,
+      "disposition": "retain role; compatibility and balance review",
+      "dependencies": [],
+      "current_description": "Move 2, draw 1, and gain 2 card plays.",
+      "proposed_role": "positioning / hand/tempo support",
+      "proposal": "Printed Move and free movement spend the same terrain-weighted path cost, including Rubble and visible hazard consequences. Review card-flow and Flurry combinations against new hazard kills and surface payoffs; no automatic numerical buff just because intensity is gone."
+    },
+    {
+      "id": "cinder_fusillade",
+      "name": "Cinder Fusillade",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "fire",
+      "rarity": "rare",
+      "current_time": 5,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "intensity"
+      ],
+      "current_description": "Flurry. Gain 1 fire intensity, then deal 3 at range 6, for each card play spent.",
+      "proposed_role": "Distributed Fire Flurry",
+      "proposal": "For each snapped card play, make a modest ranged hit and leave Fire at that hit's tile AFTER resolution. Repeated hits on the same Fire do not stack tile strength, trigger entry again or refund card plays."
+    },
+    {
+      "id": "storm_salvo",
+      "name": "Storm Salvo",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "lightning",
+      "rarity": "epic",
+      "current_time": 6,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [
+        "Chain surface interaction review"
+      ],
+      "current_description": "Flurry. Deal 3 at range 6 with chain 1, then draw 1, for each card play spent.",
+      "proposed_role": "Repeated intrinsic Chain payoff",
+      "proposal": "Retain repeated modest Lightning Chain attacks and review draw per repeat. Chain N remains jump reach with no additional-target cap. Each explicit Flurry repeat takes its own pre-attack snapshot: an earlier consumed component or relay stays gone unless a later explicit placement recreates it. Deduplicate native hits, Chain and contiguous conduction within each repeat; conducted targets do not start new Chain heads."
+    },
+    {
+      "id": "razor_gale",
+      "name": "Razor Gale",
+      "source": "reward",
+      "equipment_sources": [],
+      "element": "air",
+      "rarity": "rare",
+      "current_time": 4,
+      "disposition": "mechanical rewrite / role adjustment",
+      "dependencies": [],
+      "current_description": "Flurry. Deal 3 at range 5 and push 1 for each card play spent.",
+      "proposed_role": "Repeated displacement payoff",
+      "proposal": "Retain repeated ranged damage and directed Push; every repeat shows its updated actual path and entry effects. Preserve normal Flurry commitment and review Fire traversal farming, kill refunds and exhausted movement routes."
+    }
+  ]
+}

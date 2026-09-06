@@ -20,3 +20,8 @@ Thumbs.db
 
 # Memento local memory
 /.codex/memento/local/
+
+# Reproducible surface-refactor render, scoring and playtest artifacts.
+/output/board-surface-refactor/
+/playtest/board_surface_v4_*/
+/playtest/board_surface_20260906_*/

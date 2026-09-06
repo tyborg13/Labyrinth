@@ -1,0 +1,399 @@
+{
+  "seed": 9062630,
+  "build": "mixed",
+  "recorded_from": "playtest/board_surface_v4_manual_mixed",
+  "steps": [
+    {
+      "kind": "room",
+      "tile": [
+        1,
+        0
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        1,
+        5
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "cold_grasp",
+      "targets": [
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "lantern_shot",
+      "targets": [
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        2,
+        5
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        3,
+        6
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "bloody_lunge",
+      "targets": [
+        [
+          3,
+          3
+        ],
+        [
+          3,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "shadow_step",
+      "targets": [
+        [
+          5,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "brace",
+      "targets": []
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "slipstream_cut",
+      "targets": [
+        [
+          -1,
+          -1
+        ],
+        [
+          6,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        5,
+        1
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "whirlwind_slash",
+      "targets": []
+    },
+    {
+      "kind": "reward"
+    },
+    {
+      "kind": "room",
+      "tile": [
+        1,
+        1
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "lantern_shot",
+      "targets": [
+        [
+          5,
+          4
+        ]
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "quarry_step",
+      "targets": [
+        [
+          4,
+          3
+        ],
+        [
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        2,
+        3
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "bloody_lunge",
+      "targets": [
+        [
+          2,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "brace",
+      "targets": []
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "quick_stab",
+      "targets": [
+        [
+          3,
+          1
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        2,
+        2
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "cinder_bloom",
+      "targets": [
+        [
+          4,
+          4
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "shadow_step",
+      "targets": [
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        2,
+        7
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "patch_up",
+      "targets": []
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "reward"
+    },
+    {
+      "kind": "room",
+      "tile": [
+        0,
+        1
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "cinder_bloom",
+      "targets": [
+        [
+          6,
+          5
+        ]
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "brace",
+      "targets": []
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        6,
+        5
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "slipstream_cut",
+      "targets": [
+        [
+          4,
+          6
+        ],
+        [
+          4,
+          5
+        ]
+      ],
+      "force_direction": "right"
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "cinderline_tempo",
+      "targets": [
+        [
+          5,
+          5
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "sidestep_slash",
+      "targets": [
+        [
+          3,
+          6
+        ],
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "lantern_shot",
+      "targets": [
+        [
+          2,
+          6
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "crimson_draught",
+      "targets": []
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        4,
+        5
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        5,
+        5
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "chain_bolt",
+      "targets": [
+        [
+          7,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "card",
+      "card_id": "smoke_bomb",
+      "targets": [
+        [
+          7,
+          5
+        ]
+      ]
+    },
+    {
+      "kind": "walk",
+      "tile": [
+        7,
+        4
+      ]
+    },
+    {
+      "kind": "pass"
+    },
+    {
+      "kind": "card",
+      "card_id": "cold_grasp",
+      "targets": [
+        [
+          7,
+          2
+        ]
+      ]
+    },
+    {
+      "kind": "reward"
+    },
+    {
+      "kind": "room",
+      "tile": [
+        0,
+        2
+      ]
+    },
+    {
+      "kind": "rest"
+    }
+  ]
+}

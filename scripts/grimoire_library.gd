@@ -2,6 +2,7 @@ extends RefCounted
 class_name GrimoireLibrary
 
 const GameData = preload("res://scripts/game_data.gd")
+const BoardSurfaces = preload("res://scripts/board_surface_rules.gd")
 
 const GRIMOIRE_PATH: String = "res://data/grimoire.json"
 const UNLOCKED_KEY: String = "grimoire_unlocked"
@@ -65,7 +66,10 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"dispel_umbra": "keyword:dispel_umbra",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
-	"intensity": "combat:intensity",
+	"surface": "keyword:surface",
+	"detonate": "keyword:detonate",
+	"consume_surface": "keyword:surface_consume",
+	"surface_relocate": "keyword:surface_relocate",
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
 	"raise_terrain": "combat:worldspines",
@@ -78,9 +82,8 @@ const ACTION_TYPE_ENTRY_IDS := {
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
+	"chilled": "keyword:chilled",
 	"bleed": "keyword:bleed",
-	"burn": "keyword:burn",
-	"poison": "keyword:poison",
 	"freeze": "keyword:freeze",
 	"shock": "keyword:shock",
 	"immobilize": "keyword:immobilize",
@@ -612,8 +615,6 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 		wanted["keyword:flurry"] = true
 	if int(card.get("health_cost", 0)) > 0:
 		wanted["keyword:health_cost"] = true
-	if card.has("requires_intensity") or card.has("intensity_bonus"):
-		wanted["combat:intensity"] = true
 	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
@@ -648,6 +649,9 @@ static func _collect_entry_ids_for_enemy_def(enemy: Dictionary, wanted: Dictiona
 
 static func entry_ids_for_combat_state(combat_state: Dictionary) -> Array[String]:
 	var wanted: Dictionary = {}
+	for tile: Vector2i in BoardSurfaces.tiles(combat_state):
+		_collect_surface_entry_ids(BoardSurfaces.element_at(combat_state, tile), wanted)
+		if BoardSurfaces.has_rubble(combat_state, tile): _collect_surface_entry_ids("rubble", wanted)
 	var umbra: Dictionary = combat_state.get("umbra", {}) as Dictionary
 	var umbra_stage: String = str(umbra.get("stage", "clear"))
 	if not umbra_stage.is_empty() and umbra_stage != "clear":
@@ -726,6 +730,10 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
+		_collect_surface_entry_ids(str(action.get("surface", "")), wanted)
+		if str(action.get("element", "")) == "ice" and action_type in ["melee", "ranged", "aoe"]:
+			wanted["keyword:chilled"] = true
+			wanted["keyword:freeze"] = true
 		if int(action.get("illuminate_radius", 0)) > 0:
 			wanted["keyword:illuminate"] = true
 		if action_type == "summon_minions":
@@ -739,8 +747,6 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(field_name, ""))
 			if not field_entry.is_empty():
 				wanted[field_entry] = true
-		if action.has("requires_intensity") or action.has("intensity_bonus"):
-			wanted["combat:intensity"] = true
 		_collect_nested_action_entry_ids(action, wanted)
 
 static func _entry_ids_for_nested_action_values(value: Variant) -> Array[String]:
@@ -754,6 +760,8 @@ static func _collect_nested_action_entry_ids(value: Variant, wanted: Dictionary)
 			for key_var: Variant in (value as Dictionary).keys():
 				var key: String = str(key_var)
 				var nested_value: Variant = (value as Dictionary).get(key_var)
+				if key == "surface" and typeof(nested_value) == TYPE_STRING:
+					_collect_surface_entry_ids(str(nested_value), wanted)
 				var field_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(key, ""))
 				if not field_entry.is_empty() and _truthy_value(nested_value):
 					wanted[field_entry] = true
@@ -895,3 +903,9 @@ static func _truthy_value(value: Variant) -> bool:
 		TYPE_NIL:
 			return false
 	return true
+
+static func _collect_surface_entry_ids(kind: String, wanted: Dictionary) -> void:
+	if kind not in ["fire", "ice", "electrified", "rubble"]: return
+	wanted["keyword:surface"] = true
+	wanted["keyword:surface_" + kind] = true
+	if kind == "ice": wanted["keyword:chilled"] = true

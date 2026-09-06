@@ -1,68 +1,78 @@
 # Relic Design Rubric
 
-Relics are run-scoped build engines. A good offer should ask which part of the
-current deck the player wants to amplify, not which unconditional stat is
-largest.
+Current rules: board-surface pass, 2026-09-06. This replaces the July 2026
+intensity-engine guidance. The accepted rule contract is
+[Board Surface Refactor](board_surface_refactor/DESIGN.md); the complete
+60-ID migration is recorded in its supporting content audit.
+
+Relics change what a player can do with a deck and board. Some provide a simple,
+readable benefit; others change targeting, movement, terrain, or consumption.
+Do not force the entire roster into one hybrid-element template.
 
 ## Rarity Ladder
 
-Every relic records `design_version: 2`, `condition_tier`, `upside_tier`, and at
+Every relic records `design_version: 3`, `condition_tier`, `upside_tier`, and at
 least two `build_tags`.
 
 | Rarity | Condition tier | Expected setup | Expected payoff |
 | --- | ---: | --- | --- |
-| Common | 1 | One visible card trait or an easy once-per-turn event | A small conversion, modifier, or resource nudge that points toward a build |
-| Rare | 2 | A two-step state sequence, progressive deck commitment, status target, or repeated elemental loop | A meaningful play, damage, defense, or intensity engine |
-| Epic | 3 | Cross-card sequencing, low-health risk, three-resource convergence, or a demanding per-turn state | A turn-shaping payoff worth building around |
-| Legendary | 4 | A near-combo condition such as five elements, three same-element cards in one turn, Defiance, or a skill-enabled banked play | An explosive payoff that can define the run without being automatic |
+| Common | 1 | One visible trait, local board condition, or easy turn event | A small modifier or a useful positioning rule |
+| Rare | 2 | Prepared terrain, a defense-to-attack sequence, status, or a local consumption choice | A meaningful conversion or a new tactical option |
+| Epic | 3 | Cross-card sequencing, risk, or a demanding board arrangement | A turn-shaping payoff or a substantial change to an action |
+| Legendary | 4 | A developed terrain route, layered consumption, Defiance, or a demanding card sequence | A rule or payoff that can define the run without free repetition |
 
-Rarity is not a flat efficiency multiplier. Higher rarities must combine a
-narrower or later condition with a materially higher peak. A legendary that is
-always on is a failure even when its average value is balanced.
-
-## Build Tags
-
-`build_tags` are developer-facing balance metadata. They identify the card,
-status, resource, positioning, timing, or permanent-skill packages that can
-unlock the relic. They are not player-facing rules text and do not replace an
-exact `description`.
+Rarity is not a flat efficiency multiplier. A persistent rule can be valuable
+because the player must build its board conditions on each encounter. It does
+not need a new meter, an arbitrary card-count requirement, or a larger number.
 
 ## Effect Architecture
 
-- Prefer reusable data-driven effects over relic-id branches.
-- Prefer combat state and sequencing bridges over requiring one card to print
-  every relevant trait. "While you have block, Push and Pull..." lets separate
-  defensive and control cards assemble a line.
-- Card-trait conditions may inspect the complete printed card when the card
-  itself is the point: action families, Time, health cost, Burn, element, and
-  play destination.
-- Sequencing effects may count qualifying cards, statuses, deaths, or unique
-  elements per turn or combat.
-- Rewards use the shared relic reward vocabulary: draw, card play, block,
-  stoneskin, block conversion, healing, elemental intensity, all-enemy damage,
-  and all-enemy statuses.
-- Free relic draws stop before they would trigger Fatigue. A relic payoff must
-  not turn a previously survivable card play into an involuntary defeat.
-- Draw is not a default payoff. Keep it when the condition naturally opens
-  hand space and pair larger draws with enough card plays to use them.
-- Repeatable healing is not a normal relic engine. Healing relics use a combat-
-  or run-scoped limit; repeatable defense should use block or stoneskin.
-- Deck commitment scales progressively and caps. Starting intensity must not
-  erase the element-building game at combat start.
-- Relic effects may combine with other relics and permanent skills, but they
-  must not make a previously legal action worse or consume a skill choice
-  implicitly.
+- Prefer reusable effects over relic-ID branches. Use `SurfaceRelicRules` for
+  optional transformations and event-scoped terrain rewards.
+- Keep the nine approved transformations distinct: conductive Fire, transported
+  ground, Rubble-funded redirection, Stoneskin-funded cross attacks, Frozen-kill
+  Rubble, spilled Freeze fuel, remote Rubble origins, Rubble Detonate, and Chain
+  endpoint exchange. Do not add an every-pair elemental reaction table.
+- Preserve useful simple and non-elemental relics alongside these bridges.
+- All ground is shared. Fire and Ice placement never causes contact; actual
+  entry or that unit's turn start does. Electrified is immediately usable.
+  Repainting the same surface does not count as creation or activation.
+- Costs consume real, local resources. A cancelled or invalid optional choice
+  spends nothing. A preview uses the exact action and board rules of the commit.
+- Optional transformations can create risk, change targeting, or consume terrain,
+  so the player must explicitly choose them. Owning the relic alone cannot
+  silently turn an ordinary action into the risky alternative.
+- Chain's printed number is hop reach, not a target cap. Ordinary Lightning
+  conducts through a cardinal component; only native Chain bridges air gaps.
+  Conductive Fire is consumed by electrical use and does not auto-Detonate.
+- Direct hits, passive hazards, trap damage, and secondary relic damage retain
+  distinct sources. Direct-hit modifiers do not amplify Fire contact damage.
+  A causal healing reward must not grant a passive death a banked card play.
+- Retained card-trait conditions may inspect action families, Time, health cost,
+  Exhaust, element, and destination. Top-level `burn: true` means Exhaust;
+  damaging Burn, Poison, and elemental intensity are retired.
+- Use bounded turn/combat limits where a resource reward could repeat. Do not
+  use once limits to conceal a broken consume/recreate loop. Terrain-only
+  transformations should normally be limited by their real fuel and paid action.
+- Free relic draws stop before Fatigue. Larger draws should have a usable play
+  window and hand room. Repeatable healing is not a normal relic engine.
+- Sparse tile-count or variety rewards inspect the actual visible board; do not
+  recreate a global intensity meter or uncapped passive damage scaling.
 
 ## Review Gate
 
-For a complete-set pass:
+1. Check every live relic against the current data version and exact rules text.
+2. For each transformation, prove its cost, cancellation, shared danger, legal
+   footprints, ordering, and interaction with replacement or consumed terrain.
+3. Preserve distinct 96×96 RGBA art and purpose-built mechanic icons.
+4. Check enabling card/ability density, ordinary 3–5 enemy encounters, expected
+   combat length, repeat cadence, and the strongest feasible combination in
+   [Relic Trigger Feasibility](relic_trigger_feasibility.md).
+5. Cover positive and negative trigger cases: unchanged repaint, wrong damage
+   source, passive turn-start deaths, native Chain versus conduction, and
+   first-use flags across preview, commit, and save/resume.
+6. Run focused rules tests and the full suite. Inspect actual offers, card
+   targeting, and board feedback at 1920×1080 and 100% UI scale.
 
-1. Every live relic uses the current design version and rarity tiers above.
-2. No relic's primary upside is unconditional max health, opening draw, opening
-   block/stoneskin, first-attack damage, or post-combat currency.
-3. Every new relic has a distinct 96x96 RGBA icon and direct mechanic proof.
-4. A trigger-feasibility table checks the live card/skill pool, normal encounter
-   size, expected combat length, repeat cadence, and worst-case scaling.
-5. Focused tests cover each reusable effect category, the full Godot suite
-   passes, and the treasure surface is inspected at normal and constrained
-   presentation sizes.
+`build_tags` remain developer metadata. They help audit compatible packages but
+never substitute for exact player-facing rules text.

@@ -40,9 +40,7 @@ that heal or guard the most injured/threatened nearby enemy on the same support
 scaling curve as enemy block/healing. Warden Bulwark grants its scaled Block to
 every other living enemy but not the Warden, making focus fire, Pierce, Sunder,
 and broad damage especially valuable in Warden compositions without changing
-their intrinsic coefficients. Bile bloomers join earth rooms near the
-slow attrition end at about 19 initiative and use a radius-2 poison diamond for
-their main area-denial intent. Generic enemies keep their printed intent actions
+their intrinsic coefficients. Shale bloomers join earth rooms as Rubble and Expose controllers. Generic enemies keep their printed intent actions
 instead of being rewritten to match the room element. Tunnel Crawler claw
 attacks and the Bone Harrier's spear shot now add light one-turn bleed pressure.
 Normal enemies refresh intents through explicit frontliner, artillery,
@@ -77,18 +75,18 @@ footprint makes printed reach feel larger, so Tempest Breath is capped at range
 enemies use actor-level targeting: one legal visible footprint tile makes the
 whole footprint clickable, but the action still counts as one target and one
 hit for scoring.
-Elemental combat rooms seed 2-3 traps across eligible passable floor tiles,
-including the playable edge band, and those traps blast adjacent tiles when
-stepped on or attacked. Their authored damage is multiplied by the live matching
-element's intensity curve (72/94/124/162/208/262/324 percent at intensity
-0-6), so spending intensity can also calm the battlefield. Elemental specialist
-enemies build the same shared resource, gate extra effects on it, or consume it
-for stronger intents.
-First-sequence standard trap damage is 6/7/8 natural damage at depths
-1/2/3, first-boss traps hit for 5 to avoid one-shotting full-health lightning
-wisps, and later sequences add 0/1/1/2/2/3 damage.
-Depth 1-2 fire traps use shallow burn before depth-3 fire/earth trap statuses
-cap at 2. Combat and boss rooms scatter 0/1/2 consumable item cards at
+Elemental rooms seed 2-3 single-use traps. Direct damage only hits the
+center occupant; four cardinal neighbors receive Fire, Ice, Rubble or Electrified.
+Air traps push cardinal neighbors outward. Shared permanent surfaces replace
+intensity: Fire deals 1 on entry and 2 on actor start; Ice activates Chill on entry
+or start and an Ice hit can consume it to Freeze. Rubble costs 2 to enter with a
+fresh-allowance minimum-progress rule. Electrified supports immediate cardinal
+component discharge and optional intrinsic Chain relays. Setup is finite geometry,
+not permanent uptime. The scorer values expected useful contact, connectivity,
+placement constraints and consumed fuel separately; no relics or prebuilt board
+are assumed. First-sequence trap damage remains 6/7/8 at depths 1/2/3 and 5 in
+first-boss rooms; subsequent sequences add 0/1/1/2/2/3.
+Combat and boss rooms scatter 0/1/2 consumable item cards at
 15/65/20 percent, spacing them away from equipment and each other. A free item
 slot grants the pickup to hand (or the top of draw at the seven-card hand cap);
 full item slots store it only in reserve. Pickup access is encounter context,
@@ -96,7 +94,7 @@ not an intrinsic draw or tempo bonus. Equipment drop eligibility/rates are
 unchanged. Combat rooms scatter 5-7 low-HP boxes/crates across eligible
 passable floor tiles, including edge-band tiles when connectivity stays intact.
 Those crates block movement without blocking line of sight and take damage from
-area effects, deterministic lightning strikes, and adjacent trap blasts. The
+area effects and deterministic lightning strikes; trap wakes do not directly damage them. The
 existing AOE tile multiplier represents that conditional clearing upside rather
 than adding a layout-independent terrain coefficient.
 Enemies killed by a card add a bonus card play for the turn, so large damage and
@@ -166,7 +164,7 @@ SOURCE_FILTERS = (
 BOSS_ENCOUNTER_ROLES = {
     "zekarion": "summoned lightning wisps",
     "tharokh": "attackable Worldspines and delayed rupture",
-    "vyraketh": "attackable cinder marks and forced detonation",
+    "vyraketh": "shared Fire setup and deniable telegraphed detonation",
     "vaeloryx": "arena-wide damage and forced movement",
     "iskaldra": "hit-count frost crystal armor",
     "noctyrax": "Eclipse damage against actors outside Radiance",
@@ -228,10 +226,17 @@ def encounter_assumptions() -> dict[str, Any]:
                 "score_policy": "exclude Defiance from intrinsic printed-card scores",
             },
         },
-        "elemental_intensity": {
-            "matching_room_start": 1,
-            "trap_scale_percent_at_intensity_0_to_6": [72, 94, 124, 162, 208, 262, 324],
-            "shared_with_elemental_enemies": True,
+        "board_surfaces": {
+            "rules_version": 4,
+            "shared_hazards": True,
+            "fire_entry_damage": 1,
+            "fire_start_damage": 2,
+            "chill_timing": "actual entry or eligible actor activation start",
+            "freeze_cost": "consume all Ice under the successfully Frozen actor",
+            "rubble_entry_cost": 2,
+            "lightning": "cardinal connected-ground discharge; Chain retains printed jump reach",
+            "trap_shape": "center-only direct damage; cardinal wake",
+            "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost",
         },
         "sequence_scaling": {
             "enemy_hp_multiplier_per_completed_sequence": ENEMY_HP_SCALE_PER_SEQUENCE,
@@ -256,11 +261,21 @@ class HeuristicWeights:
     flurry_saved_time_payment_value: float = 0.75
     flurry_retargeting_value: float = 0.25
     flurry_extra_play_penalty: float = 0.55
-    intensity_gain_per_point: float = 0.70
-    intensity_spend_per_point: float = 0.35
-    intensity_spend_retention_floor: float = 0.68
-    intensity_same_element_synergy: float = 0.18
-    intensity_gate_synergy: float = 0.30
+    surface_fire_per_tile: float = 0.52
+    surface_ice_per_tile: float = 0.45
+    surface_rubble_per_tile: float = 0.32
+    surface_electrified_per_tile: float = 0.30
+    surface_extra_tile_retention: float = 0.45
+    surface_effective_tile_cap: float = 4.0
+    surface_connection_value: float = 0.18
+    surface_setup_availability: float = 0.50
+    ice_contact_availability: float = 0.30
+    lightning_network_availability: float = 0.35
+    lightning_extra_occupants: float = 0.55
+    surface_fuel_cost_per_tile: float = 0.35
+    repeated_consumption_availability: float = 0.35
+    detonate_shared_hazard_cost: float = 0.45
+    displacement_hazard_value_per_tile: float = 0.16
     kill_card_play_value: float = 0.45
     illusion_health_per_point: float = 0.48
     illusion_range_per_tile: float = 0.12
@@ -314,8 +329,8 @@ class ScoreBreakdown:
     control: float = 0.0
     defense: float = 0.0
     flow: float = 0.0
-    elemental_intensity: float = 0.0
-    intensity_spend_cost: float = 0.0
+    surfaces: float = 0.0
+    surface_fuel_cost: float = 0.0
     mobility: float = 0.0
     radiance: float = 0.0
     synergy: float = 0.0
@@ -325,14 +340,6 @@ class ScoreBreakdown:
     flurry_commitment_penalty: float = 0.0
     tempo: float = 0.0
     total: float = 0.0
-
-
-def burn_effective_damage(stacks: int) -> float:
-    return 0.75 * stacks + 0.12 * stacks * stacks
-
-
-def poison_effective_damage(stacks: int) -> float:
-    return 0.70 * stacks
 
 
 def melee_playability(total_reach: int) -> float:
@@ -396,79 +403,56 @@ def immediate_damage_value(damage: int, playability: float, targets: float, weig
     return base_value + kill_proxy * weights.kill_card_play_value
 
 
-def action_intensity_requirement(action: dict[str, Any], card_element: str) -> dict[str, Any]:
-    raw = action.get("requires_intensity", {})
-    if not isinstance(raw, dict):
-        return {}
-    element = str(raw.get("element", action.get("element", card_element)))
-    threshold = int(raw.get("amount", raw.get("threshold", 0)))
-    if element not in ELEMENTS or threshold <= 0:
-        return {}
-    return {"element": element, "amount": threshold}
+def surface_kind(value: Any) -> str:
+    return {"earth": "rubble", "lightning": "electrified"}.get(str(value), str(value))
 
 
-def _intensity_requirement_availability(requirement: dict[str, Any], intensity_context: dict[str, int]) -> float:
-    if not requirement:
+def surface_footprint(action: dict[str, Any]) -> set[tuple[int, int]]:
+    if bool(action.get("surface_path", False)):
+        return {(i, 0) for i in range(max(1, int(action.get("range", 0)) + 1))}
+    pattern = action.get("surface_pattern", action.get("pattern", [[0, 0]]))
+    return {(int(v[0]), int(v[1])) for v in pattern if isinstance(v, (list, tuple)) and len(v) >= 2} or {(0, 0)}
+
+
+def surface_value(action: dict[str, Any], weights: HeuristicWeights) -> float:
+    kind = surface_kind(action.get("surface", ""))
+    coefficient = getattr(weights, f"surface_{kind}_per_tile", 0.0)
+    footprint = surface_footprint(action)
+    effective_tiles = min(weights.surface_effective_tile_cap, 1 + max(0, len(footprint) - 1) * weights.surface_extra_tile_retention)
+    # Cardinal edges are useful wiring. Diagonals and spaced dots are not a
+    # connected network, and extra branches have sharply bounded value.
+    edges = sum((x + dx, y + dy) in footprint for x, y in footprint for dx, dy in [(1, 0), (0, 1)])
+    connections = min(3, edges) * weights.surface_connection_value if kind == "electrified" else 0.0
+    return coefficient * effective_tiles + connections
+
+
+def surface_availability(condition: dict[str, Any], prepared: set[str], weights: HeuristicWeights) -> float:
+    if not condition:
         return 1.0
-    current = int(intensity_context.get(str(requirement["element"]), 0))
-    gap = int(requirement["amount"]) - current
-    if gap <= 0:
-        return 1.0
-    if gap == 1:
-        return 0.62
-    if gap == 2:
-        return 0.44
-    if gap == 3:
-        return 0.28
-    return 0.18
-
-
-def intensity_availability(action: dict[str, Any], intensity_context: dict[str, int], card_element: str) -> float:
-    return _intensity_requirement_availability(action_intensity_requirement(action, card_element), intensity_context)
-
-
-def action_intensity_bonus(action: dict[str, Any], card_element: str) -> dict[str, Any]:
-    raw = action.get("intensity_bonus", {})
-    if not isinstance(raw, dict):
-        return {}
-    element = str(raw.get("element", action.get("element", card_element)))
-    threshold = int(raw.get("threshold", raw.get("amount", raw.get("requires", 0))))
-    if element not in ELEMENTS or threshold <= 0:
-        return {}
-    bonus = dict(raw)
-    bonus["element"] = element
-    bonus["threshold"] = threshold
-    return bonus
-
-
-def intensity_bonus_availability(bonus: dict[str, Any], intensity_context: dict[str, int]) -> float:
-    if not bonus:
-        return 0.0
-    return _intensity_requirement_availability(
-        {"element": str(bonus.get("element", "")), "amount": int(bonus.get("threshold", 0))},
-        intensity_context,
-    )
-
-
-def card_intensity_cost(card: dict[str, Any], card_element: str) -> dict[str, Any]:
-    raw = card.get("intensity_cost", {})
-    if not isinstance(raw, dict):
-        return {}
-    element = str(raw.get("element", card_element))
-    amount = int(raw.get("amount", raw.get("cost", 0)))
-    if element not in ELEMENTS or amount <= 0:
-        return {}
-    return {"element": element, "amount": amount}
+    kind = surface_kind(condition.get("surface", ""))
+    if condition.get("subject") == "consumed":
+        return 1.0  # Its enclosing consumption action already pays availability.
+    base = weights.surface_setup_availability
+    if not bool(condition.get("present", True)):
+        return 1.0 - base
+    if kind in prepared:
+        return 0.80  # Earlier painting is available, but target/footprint must overlap.
+    return base
 
 
 def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) -> ScoreBreakdown:
     breakdown = ScoreBreakdown()
     actions = card.get("actions", [])
     card_element = str(card.get("element", "none"))
-    intensity_context = {element: 0 for element in ELEMENTS}
-    if card_element in ELEMENTS:
-        intensity_context[card_element] = 1
-    intensity_cost = card_intensity_cost(card, card_element)
+    prepared: set[str] = set()
+    previous_attack_playability = 0.60
+    # Extra Flurry copies can find different fuel, but cannot reuse consumed
+    # ground. Track only payoffs lacking an earlier explicit painter.
+    fuel_limited: dict[str, float] = {}
+
+    def add_fuel_limited(field: str, value: float, surface: str) -> None:
+        if surface not in prepared:
+            fuel_limited[field] = fuel_limited.get(field, 0.0) + value
 
     pre_attack_reach = 0
     move_tiles = 0.0
@@ -483,14 +467,48 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     illusion_before_move = False
     has_status = False
     has_push_pull = False
-    has_intensity_gain = False
-    has_intensity_gate = False
 
     for action in actions:
         action_type = str(action.get("type", ""))
-        action_scale = intensity_availability(action, intensity_context, card_element)
-        if action_scale < 1.0:
-            has_intensity_gate = True
+        action_scale = surface_availability(action.get("requires_surface", {}), prepared, weights)
+        action_element = str(action.get("element", action.get("_card_element", card_element)))
+        surface = surface_kind(action.get("surface", ""))
+        if surface and action_type != "consume_surface":
+            placement = ranged_playability(int(action.get("range", 0))) if int(action.get("range", 0)) > 0 else 0.60
+            breakdown.surfaces += surface_value(action, weights) * action_scale * placement
+
+        if action_type == "surface":
+            prepared.add(surface)
+            continue
+        if action_type == "consume_surface":
+            availability = surface_availability({"surface": surface}, prepared, weights)
+            reward_card = {"actions": action.get("rewards", []), "element": card_element, "time": weights.baseline_card_time}
+            reward = score_card(card_id + ":surface_reward", reward_card, weights)
+            for field in ("offense", "control", "defense", "flow", "surfaces", "mobility", "radiance", "synergy"):
+                value = getattr(reward, field) * availability
+                setattr(breakdown, field, getattr(breakdown, field) + value)
+                add_fuel_limited(field, value, surface)
+            cost = max(1, int(action.get("min_consumed", 1))) * weights.surface_fuel_cost_per_tile * availability
+            breakdown.surface_fuel_cost += cost
+            add_fuel_limited("surface_fuel_cost", cost, surface)
+            prepared.discard(surface)
+            continue
+        if action_type == "detonate":
+            availability = surface_availability({"surface": "fire"}, prepared, weights)
+            fuel = min(2.5, 1 + (len(surface_footprint(action)) - 1) * 0.25)
+            targets = min(2.0, 1.35 + (fuel - 1) * 0.25)
+            playability = ranged_playability(int(action.get("range", 0))) if int(action.get("range", 0)) > 0 else 0.60
+            if action.get("target") == "previous_target":
+                playability = previous_attack_playability
+            payoff = immediate_damage_value(int(action.get("damage", 6)), playability, targets, weights) * availability
+            cost = (fuel * weights.surface_fuel_cost_per_tile + weights.detonate_shared_hazard_cost) * availability
+            breakdown.offense += payoff
+            breakdown.surface_fuel_cost += cost
+            add_fuel_limited("offense", payoff, "fire")
+            add_fuel_limited("surface_fuel_cost", cost, "fire")
+            prepared.discard("fire")
+            has_attack = True
+            continue
 
         illuminate_radius = max(0, int(action.get("illuminate_radius", 0)))
         if illuminate_radius > 0:
@@ -507,6 +525,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             move_tiles += int(action.get("range", 0)) * action_scale
             pre_attack_reach += int(round(int(action.get("range", 0)) * action_scale))
             has_move = True
+            if surface:
+                prepared.add(surface)
             continue
 
         if action_type == "blink":
@@ -515,6 +535,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             blink_tiles += int(action.get("range", 0)) * action_scale
             pre_attack_reach += int(round((int(action.get("range", 0)) + 1) * action_scale))
             has_move = True
+            if surface:
+                prepared.add(surface)
             continue
 
         if action_type in {"melee", "ranged", "aoe", "push", "pull"}:
@@ -522,6 +544,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             base_range = int(action.get("range", 1))
             effective_reach = pre_attack_reach + (1 if action_type == "aoe" and base_range <= 0 else base_range)
             playability = playability_for_attack(action_type, effective_reach, base_range)
+            previous_attack_playability = playability
             targets = target_multiplier(action, weights)
             damage = int(action.get("damage", 0))
 
@@ -535,11 +558,6 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if sunder > 0:
                 breakdown.control += sunder * weights.sunder_value_per_point * playability * targets * action_scale
 
-            burn = int(action.get("burn", 0))
-            if burn > 0:
-                breakdown.control += burn_effective_damage(burn) * weights.damage_per_point * playability * targets * action_scale
-                has_status = True
-
             bleed = int(action.get("bleed", 0))
             if bleed > 0:
                 breakdown.control += bleed * weights.bleed_damage_value * playability * targets * action_scale
@@ -550,14 +568,12 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 breakdown.control += expose * weights.expose_value_per_point * playability * targets * action_scale
                 has_status = True
 
-            poison = int(action.get("poison", 0))
-            if poison > 0:
-                breakdown.control += poison_effective_damage(poison) * weights.damage_per_point * playability * targets * action_scale
-                has_status = True
-
-            freeze = int(action.get("freeze", 0))
+            freeze = 1 if action_element == "ice" and damage > 0 else int(action.get("freeze", 0))
             if freeze > 0:
-                breakdown.control += weights.freeze_value * freeze * playability * targets * action_scale
+                freeze_value = weights.freeze_value * freeze * weights.ice_contact_availability * playability * targets * action_scale
+                breakdown.control += freeze_value
+                # Painting during the card cannot activate fresh Chill.
+                fuel_limited["control"] = fuel_limited.get("control", 0.0) + freeze_value
                 has_status = True
 
             shock = int(action.get("shock", 0))
@@ -573,100 +589,54 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if action_type == "push":
                 push += int(action.get("amount", 0))
             if push > 0:
-                breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile) * playability * targets * action_scale
+                breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile) * playability * targets * action_scale
                 has_push_pull = True
 
             pull = int(action.get("pull", 0))
             if action_type == "pull":
                 pull += int(action.get("amount", 0))
             if pull > 0:
-                pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile
+                pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile
                 if has_move:
                     pull_value += weights.move_pull_bonus_per_tile
                 breakdown.control += pull * pull_value * playability * targets * action_scale
                 has_push_pull = True
 
-            intensity_bonus = action_intensity_bonus(action, card_element)
-            if intensity_bonus:
-                bonus_scale = intensity_bonus_availability(intensity_bonus, intensity_context) * action_scale
-                if bonus_scale < action_scale:
-                    has_intensity_gate = True
-                bonus_damage = int(intensity_bonus.get("damage", 0))
-                if bonus_damage > 0:
-                    boosted_damage_value = immediate_damage_value(damage + bonus_damage, playability, targets, weights)
-                    breakdown.offense += max(0.0, boosted_damage_value - base_damage_value) * bonus_scale
-
-                if bool(intensity_bonus.get("pierce", False)) and damage + bonus_damage > 0:
-                    breakdown.offense += weights.pierce_value * playability * targets * bonus_scale
-
-                bonus_sunder = int(intensity_bonus.get("sunder", 0))
-                if bonus_sunder > 0:
-                    breakdown.control += bonus_sunder * weights.sunder_value_per_point * playability * targets * bonus_scale
-
-                bonus_burn = int(intensity_bonus.get("burn", 0))
-                if bonus_burn > 0:
-                    breakdown.control += burn_effective_damage(bonus_burn) * weights.damage_per_point * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_bleed = int(intensity_bonus.get("bleed", 0))
-                if bonus_bleed > 0:
-                    breakdown.control += bonus_bleed * weights.bleed_damage_value * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_expose = int(intensity_bonus.get("expose", 0))
-                if bonus_expose > 0:
-                    breakdown.control += bonus_expose * weights.expose_value_per_point * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_poison = int(intensity_bonus.get("poison", 0))
-                if bonus_poison > 0:
-                    breakdown.control += poison_effective_damage(bonus_poison) * weights.damage_per_point * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_freeze = int(intensity_bonus.get("freeze", 0))
-                if bonus_freeze > 0:
-                    breakdown.control += weights.freeze_value * bonus_freeze * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_shock = int(intensity_bonus.get("shock", 0))
-                if bonus_shock > 0:
-                    breakdown.control += weights.shock_value * bonus_shock * playability * targets * bonus_scale
-                    has_status = True
-
-                if bool(intensity_bonus.get("immobilize", False)):
-                    breakdown.control += weights.immobilize_value * playability * targets * bonus_scale
-                    has_status = True
-
-                bonus_push = int(intensity_bonus.get("push", 0))
-                if action_type == "push":
-                    bonus_push += int(intensity_bonus.get("amount", 0))
-                if bonus_push > 0:
-                    breakdown.control += bonus_push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile) * playability * targets * bonus_scale
-                    has_push_pull = True
-
-                bonus_pull = int(intensity_bonus.get("pull", 0))
-                if action_type == "pull":
-                    bonus_pull += int(intensity_bonus.get("amount", 0))
-                if bonus_pull > 0:
-                    pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile
-                    if has_move:
-                        pull_value += weights.move_pull_bonus_per_tile
-                    breakdown.control += bonus_pull * pull_value * playability * targets * bonus_scale
-                    has_push_pull = True
-
-                bonus_chain = int(intensity_bonus.get("chain", 0))
-                if bonus_chain > 0:
-                    breakdown.control += bonus_chain * weights.chain_extra_targets * weights.damage_per_point * max(1, damage + bonus_damage) * playability * bonus_scale
+            if action_element == "lightning" and damage > 0:
+                extra = weights.lightning_extra_occupants * weights.lightning_network_availability
+                if int(action.get("chain", 0)) > 0:
+                    extra *= 0.5  # One union of targets, not an extra Chain per discharge hit.
+                conduction_value = immediate_damage_value(damage, playability, extra, weights) * action_scale
+                breakdown.offense += conduction_value
+                add_fuel_limited("offense", conduction_value, "electrified")
+            bonus = action.get("surface_bonus", {})
+            if bonus:
+                availability = surface_availability(bonus, prepared, weights) * action_scale
+                if bonus.get("subject") == "consumed":
+                    availability *= weights.lightning_network_availability + (0.20 if "electrified" in prepared else 0.0)
+                bonus_damage = int(bonus.get("damage", 0))
+                damage_value = max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability
+                shock_value = int(bonus.get("shock", 0)) * weights.shock_value * playability * targets * availability
+                breakdown.offense += damage_value
+                breakdown.control += shock_value
+                if bonus.get("subject") == "consumed":
+                    add_fuel_limited("offense", damage_value, "electrified")
+                    add_fuel_limited("control", shock_value, "electrified")
+                breakdown.control += int(bonus.get("amount", 0)) * weights.push_value_per_tile * playability * targets * availability if action_type in {"push", "pull"} else 0
+            if surface:
+                prepared.add(surface)
 
             continue
 
         if action_type == "block":
             breakdown.defense += int(action.get("amount", 0)) * weights.block_per_point * action_scale
+            breakdown.defense += int(action.get("surface_bonus", {}).get("amount", 0)) * weights.block_per_point * surface_availability(action.get("surface_bonus", {}), prepared, weights)
             has_defense = True
             continue
 
         if action_type == "stoneskin":
             breakdown.defense += int(action.get("amount", 0)) * weights.stoneskin_per_point * action_scale
+            breakdown.defense += int(action.get("surface_bonus", {}).get("amount", 0)) * weights.stoneskin_per_point * surface_availability(action.get("surface_bonus", {}), prepared, weights)
             has_defense = True
             continue
 
@@ -686,17 +656,6 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             card_plays = int(action.get("amount", 0))
             breakdown.flow += card_plays * weights.card_play_per_point * action_scale
             has_card_play = True
-            continue
-
-        if action_type == "intensity":
-            amount = max(0, int(action.get("amount", 0)))
-            element = str(action.get("element", card_element))
-            if element in ELEMENTS and amount > 0:
-                breakdown.elemental_intensity += amount * weights.intensity_gain_per_point
-                if element == card_element:
-                    breakdown.synergy += weights.intensity_same_element_synergy
-                intensity_context[element] = int(intensity_context.get(element, 0)) + amount
-                has_intensity_gain = True
             continue
 
         if action_type == "illusion":
@@ -761,8 +720,6 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         breakdown.synergy += weights.illusion_move_synergy
     if illusion_before_move:
         breakdown.synergy += weights.illusion_before_move_synergy
-    if has_intensity_gain and has_intensity_gate:
-        breakdown.synergy += weights.intensity_gate_synergy
 
     flurry_multiplier = weights.flurry_expected_plays if bool(card.get("flurry", False)) else 1
     if flurry_multiplier > 1:
@@ -771,37 +728,25 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             "control",
             "defense",
             "flow",
-            "elemental_intensity",
             "mobility",
             "synergy",
         ):
             setattr(breakdown, field, getattr(breakdown, field) * flurry_multiplier)
+        breakdown.surfaces *= 1.0 + 0.35 * (flurry_multiplier - 1)
+        breakdown.surface_fuel_cost *= flurry_multiplier
         extra_copies = flurry_multiplier - 1
+        for field, value in fuel_limited.items():
+            if field == "surfaces":
+                # Surface reward repeats already use reduced placement credit.
+                continue
+            correction = value * extra_copies * (1.0 - weights.repeated_consumption_availability)
+            setattr(breakdown, field, getattr(breakdown, field) - correction)
         breakdown.flurry_compression_bonus = extra_copies * (
             weights.flurry_saved_card_value
             + weights.flurry_saved_time_payment_value
             + weights.flurry_retargeting_value
         )
         breakdown.flurry_commitment_penalty = (flurry_multiplier - 1) * weights.flurry_extra_play_penalty
-
-    if intensity_cost:
-        raw_availability = _intensity_requirement_availability(intensity_cost, intensity_context)
-        retained_card_availability = weights.intensity_spend_retention_floor + (
-            1.0 - weights.intensity_spend_retention_floor
-        ) * raw_availability
-        for field in (
-            "offense",
-            "control",
-            "defense",
-            "flow",
-            "elemental_intensity",
-            "mobility",
-            "radiance",
-            "synergy",
-        ):
-            setattr(breakdown, field, getattr(breakdown, field) * retained_card_availability)
-        breakdown.flurry_compression_bonus *= retained_card_availability
-        breakdown.intensity_spend_cost = int(intensity_cost["amount"]) * weights.intensity_spend_per_point
 
     breakdown.health_cost = int(card.get("health_cost", 0)) * weights.health_cost_per_point * flurry_multiplier
     if bool(card.get("burn", False)):
@@ -817,13 +762,13 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.control
         + breakdown.defense
         + breakdown.flow
-        + breakdown.elemental_intensity
+        + breakdown.surfaces
         + breakdown.mobility
         + breakdown.radiance
         + breakdown.synergy
         + breakdown.tempo
         + breakdown.flurry_compression_bonus
-        - breakdown.intensity_spend_cost
+        - breakdown.surface_fuel_cost
         - breakdown.health_cost
         - breakdown.burn_card_penalty
         - breakdown.flurry_commitment_penalty,
@@ -867,7 +812,7 @@ def card_source_metadata(card_id: str, card: dict[str, Any], equipment_sources: 
     consume_on_play = bool(card.get("consume_on_play", False))
     is_starter = bool(card.get("starter", False)) or str(card.get("rarity", "")) == "starter"
     is_equipment = is_equipment_granted and not is_item and not is_starter
-    is_reward_pool = bool(card.get("reward_pool", True)) and not is_equipment_granted and not is_item and not is_starter
+    is_reward_pool = not bool(card.get("retired", False)) and bool(card.get("reward_pool", True)) and not is_equipment_granted and not is_item and not is_starter
     element = str(card.get("element", "none"))
     is_elemental_reward = is_reward_pool and element in ELEMENTS
     is_neutral_reward = is_reward_pool and not is_elemental_reward
@@ -923,7 +868,8 @@ def scored_rows(
                 "flurry": bool(card.get("flurry", False)),
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
-                "intensity_cost": card_intensity_cost(card, str(card.get("element", "none"))),
+                "rules_version": 4,
+                "retired": bool(card.get("retired", False)),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),
                 "score": breakdown.total,
@@ -1065,10 +1011,6 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
             tag_bits.append("flurry")
         if row["health_cost"] > 0:
             tag_bits.append(f"hp-cost={row['health_cost']}")
-        if row["intensity_cost"]:
-            tag_bits.append(
-                f"intensity-cost={row['intensity_cost']['element']}:{row['intensity_cost']['amount']}"
-            )
         tag_bits.append(f"time={row['time']}")
         tags = ", ".join(tag_bits)
         print(f"{index:>2}. {row['score']:>5.2f}  {row['card_id']}  {row['name']}  [{tags}]")
@@ -1083,8 +1025,8 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"control={breakdown['control']:.2f}",
                         f"defense={breakdown['defense']:.2f}",
                         f"flow={breakdown['flow']:.2f}",
-                        f"intensity={breakdown['elemental_intensity']:.2f}",
-                        f"intensity_spend={breakdown['intensity_spend_cost']:.2f}",
+                        f"surfaces={breakdown['surfaces']:.2f}",
+                        f"surface_fuel={breakdown['surface_fuel_cost']:.2f}",
                         f"mobility={breakdown['mobility']:.2f}",
                         f"radiance={breakdown['radiance']:.2f}",
                         f"synergy={breakdown['synergy']:.2f}",

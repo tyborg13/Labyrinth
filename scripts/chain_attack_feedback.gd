@@ -9,6 +9,8 @@ const REDUCED_HOP_SECONDS: float = 0.10
 # Each snapshot comes from the resolver at the moment it actually selected and
 # struck a target. Presentation never predicts another route or reapplies damage.
 static func play(host: Node, before_state: Dictionary, after_state: Dictionary, initial_effect: Dictionary, hits: Array, reduced_motion: bool) -> void:
+	hits = _presentation_beats(hits)
+	_stage_reserved_ground(before_state, after_state, hits)
 	var groups: Array[Dictionary]
 	var trap_groups: Array[Dictionary]
 	var previous_state: Dictionary = before_state
@@ -16,16 +18,17 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 	for index: int in range(hits.size()):
 		var hit: Dictionary = hits[index] as Dictionary
 		var hit_state: Dictionary = hit.get("state", {}) as Dictionary
-		# Final action cleanup (light, intensity, objective bookkeeping) is shown
+		# Final action cleanup (light, ground, objective bookkeeping) is shown
 		# only once all actual hits have arrived.
 		if index == hits.size() - 1:
 			hit_state = after_state
 		var effect: Dictionary = initial_effect.duplicate(true) if index == 0 else {
 			"kind": "chain", "from": hit.get("from"), "to": hit.get("to"),
-			"element": "lightning", "chain_index": index,
+			"element": "lightning", "chain_index": index, "branches": hit.get("branches", []), "path": hit.get("path", []),
+			"relay": str(hit.get("kind", "")) == "relay",
 		}
 		var frame_count: int = AttackFx.animation_frame_count(effect, 12, reduced_motion) if index == 0 else 12
-		var frame_seconds: float = AttackFx.animation_frame_seconds(effect, 0.03, reduced_motion) if index == 0 else HOP_SECONDS / float(frame_count)
+		var frame_seconds: float = AttackFx.animation_frame_seconds(effect, 0.03, reduced_motion) if index == 0 else (0.12 if str(hit.get("kind", "")) == "relay" else HOP_SECONDS) / float(frame_count)
 		var contact: float = float(host.call("_attack_feedback_start_progress", effect)) if index == 0 else HOP_CONTACT
 		if reduced_motion:
 			frame_count = 1
@@ -55,11 +58,13 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 			var display_state: Dictionary = stage_after if contacted else stage_before
 			var presentation: Dictionary = {
 				"effect": effect, "effect_progress": t,
-				"focus_actor_keys": ["enemy_%d" % int(hit.get("enemy_id", -1))],
+				"focus_actor_keys": hit_keys,
 				"focus_actor_color": Color("bcadff"),
 				"floating_texts": FloatingText.animate_timeline(groups, stage_elapsed + t * duration, reduced_motion),
 			}
 			if contacted:
+				presentation["surface_feedback_events"] = _ground_visual_changes(stage_before, stage_after)
+				presentation["surface_feedback_progress"] = clampf((t - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
 				presentation["impact_actor_keys"] = hit_keys
 				presentation["impact_progress"] = 0.18 if reduced_motion else clampf((t - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
 			presentation = host.call("_death_hold_presentation", before_state, display_state, presentation) as Dictionary
@@ -112,3 +117,55 @@ static func _append_trap_feedback(host: Node, presentation: Dictionary, groups: 
 		presentation["trap_effects"] = effects
 	if not terrain.is_empty():
 		presentation["terrain_destruction_units"] = terrain
+
+# A contiguous component discharges together. Actor-to-actor hops retain their
+# distinct beat; empty-floor relays are shorter, so setup never adds dead waits.
+static func _presentation_beats(hits: Array) -> Array:
+	var beats: Array = []
+	for value: Variant in hits:
+		var hit: Dictionary = (value as Dictionary).duplicate(false)
+		var conduction: bool = str(hit.get("kind", "")) == "conduction"
+		var native: bool = str(hit.get("kind", "")) == "actor" and hit.get("from") == hit.get("to")
+		var previous: Dictionary = beats[-1] as Dictionary if not beats.is_empty() else {}
+		var previous_native: bool = str(previous.get("kind", "")) == "actor" and previous.get("from") == previous.get("to")
+		if (conduction and str(previous.get("kind", "")) == "conduction") or (native and previous_native):
+			(previous["branches"] as Array).append(hit)
+			previous["state"] = hit.get("state", {})
+		else:
+			if conduction or native: hit["branches"] = [hit.duplicate(false)]
+			beats.append(hit)
+	return beats
+
+# The engine consumes an electrical route atomically. Retain reserved relay art
+# until its visible contact so a bolt never appears to jump through empty ground.
+static func _stage_reserved_ground(before: Dictionary, after: Dictionary, beats: Array) -> void:
+	var reserved: Dictionary = {}
+	var start_sequence: int = int(before.get("surface_event_sequence", 0))
+	for event: Dictionary in after.get("surface_events", []):
+		if int(event.get("sequence", 0)) <= start_sequence: continue
+		if str(event.get("reason", "")) in ["chain", "conduction"]:
+			var tile: Vector2i = event.get("tile", Vector2i(-1, -1))
+			reserved["%d,%d" % [tile.x, tile.y]] = true
+	for index: int in range(beats.size()):
+		var beat: Dictionary = beats[index] as Dictionary
+		var tile: Vector2i = beat.get("to", Vector2i(-1, -1))
+		if str(beat.get("kind", "")) == "relay": reserved.erase("%d,%d" % [tile.x, tile.y])
+		if str(beat.get("kind", "")) == "conduction" or index == beats.size() - 1: reserved.clear()
+		if reserved.is_empty(): continue
+		var shown: Dictionary = (beat.get("state", {}) as Dictionary).duplicate(false)
+		var surfaces: Dictionary = (shown.get("surfaces", {}) as Dictionary).duplicate(true)
+		for key: Variant in reserved:
+			if (before.get("surfaces", {}) as Dictionary).has(key): surfaces[key] = (before["surfaces"] as Dictionary)[key]
+		shown["surfaces"] = surfaces
+		beat["state"] = shown
+
+static func _ground_visual_changes(before: Dictionary, after: Dictionary) -> Array:
+	var events: Array = []
+	var old: Dictionary = before.get("surfaces", {}) as Dictionary
+	var current: Dictionary = after.get("surfaces", {}) as Dictionary
+	for key: Variant in old:
+		var kind: String = str((old[key] as Dictionary).get("elemental", ""))
+		if not kind.is_empty() and str((current.get(key, {}) as Dictionary).get("elemental", "")) != kind:
+			var parts: PackedStringArray = str(key).split(",")
+			events.append({"kind": "surface_removed", "tile": Vector2i(int(parts[0]), int(parts[1])), "surface": kind})
+	return events

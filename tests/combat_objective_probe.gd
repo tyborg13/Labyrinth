@@ -367,9 +367,6 @@ func _assert_hud_safe(instance: Node) -> void:
 	var viewport_rect := Rect2(Vector2.ZERO, PROBE_VIEWPORT)
 	if not viewport_rect.encloses(hud.get_global_rect()):
 		_fail("Combat objective HUD should remain fully on-screen at 1920x1080")
-	var intensity: Control = instance.get("_intensity_bar") as Control
-	if intensity == null or not intensity.visible or hud.get_global_rect().position.y < intensity.get_global_rect().end.y + 8.0:
-		_fail("Combat objective HUD should sit beneath the elemental intensity indicators")
 	var play_meter: Control = instance.get("_play_meter") as Control
 	if play_meter != null and play_meter.visible:
 		var dock_gap: float = play_meter.get_global_rect().position.y - hud.get_global_rect().end.y

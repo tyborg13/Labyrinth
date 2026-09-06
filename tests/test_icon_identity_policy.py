@@ -29,12 +29,11 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:targeting": "targeting",
     "combat:fatigue": "fatigue",
     "combat:traps": "traps",
-    "combat:intensity": "elemental_intensity",
     "combat:lightning_strikes": "lightning_strikes",
     "combat:summons": "summon_minions",
     "combat:umbra": "umbra",
     "combat:worldspines": "worldspines",
-    "combat:cinder_marks": "cinder_marks",
+    "combat:cinder_marks": "detonate",
     "combat:hollow_gale": "gale_force",
     "combat:crystal_armor": "frost_armor",
     "combat:boss_eclipse": "umbra_eclipse",
@@ -207,7 +206,7 @@ class IconIdentityPolicyTests(unittest.TestCase):
         registry = _action_icon_paths()
         aliases = _action_icon_aliases()
         declared_actions = _declared_action_types("cards.json") | _declared_action_types("enemies.json")
-        dynamic_action_types = {"intensity", "intensity_spend"}
+        dynamic_action_types: set[str] = set()
         self.assertFalse(
             declared_actions - aliases.keys() - dynamic_action_types,
             f"Action types lack a reviewed icon identity: {sorted(declared_actions - aliases.keys() - dynamic_action_types)}",

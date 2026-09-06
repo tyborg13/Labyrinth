@@ -428,7 +428,7 @@ func _load_combat_fixture(instance: Node, card_id: String, player_pos: Vector2i,
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = _drag_room_layout(player_pos, enemy_pos)
 	# Each probe fixture represents a fresh room. Give it a distinct coordinate so
-	# ambient intensity transitions from the preceding card cannot bleed into the
+	# ground feedback from the preceding card cannot bleed into the
 	# next independently asserted screenshot while keeping the displayed depth at 4.
 	_fixture_room_variant = 1 - _fixture_room_variant
 	layout["coord"] = Vector2i(4, _fixture_room_variant)

@@ -1,5 +1,6 @@
 extends Control
 
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const FrameSink = preload("res://tools/steam_trailer_frame_sink.gd")
 const RunScene = preload("res://scenes/run_scene.tscn")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -38,9 +39,14 @@ var _observed_impact_key: String = ""
 var _last_effect_progress: float = -1.0
 var _observed_death_running: bool = false
 var _observed_turn_order_running: bool = false
+var _capture_validation_failed: bool = false
 
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
+	if OS.get_cmdline_user_args().has("--validate-tactical-only"):
+		_validate_tactical_choreography()
+		get_tree().quit(2 if _capture_validation_failed else 0)
+		return
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--native-frame-dir="):
 			_native_frame_directory = argument.trim_prefix("--native-frame-dir=")
@@ -665,21 +671,20 @@ func _process(_delta: float) -> void:
 		_cue("impact", INVALID_TILE, {"actors": presentation.get("impact_actor_keys", [])})
 	_observed_impact_key = impact_key
 
-func _capture_tactical_sequence(sequence: String) -> void:
-	var layout: Dictionary = _generated_combat_layout(sequence)
+func _tactical_fixture(sequence: String, layout: Dictionary) -> Dictionary:
 	var offsets: Array = _tactical_offsets(sequence)
-	var hand: Array[String] = []
+	var hand: Array[String]
 	if sequence == "push_bloom":
-		hand = _string_array(["updraft", "cinder_bloom", "brace", "bone_dart", "lantern_shot"])
+		hand = _string_array(["updraft", "cinder_bloom", "brace", "pale_spark", "lantern_shot"])
 	else:
-		hand = _string_array(["root_snare", "chain_bolt", "brace", "bone_dart", "lantern_shot"])
+		hand = _string_array(["root_snare", "chain_bolt", "brace", "pale_spark", "lantern_shot"])
 	var anchor: Vector2i = _find_tactical_anchor(layout, offsets)
 	_assert_capture(anchor != INVALID_TILE, "Tactical sequence must fit a furnished generated room: " + sequence)
 	layout["player_start"] = anchor
 	var target: Vector2i = anchor + (_push_bloom_offset(Vector2i(3, 0)) if sequence == "push_bloom" else Vector2i(-2, -3))
 	var enemy_positions: Array = [target, anchor + _push_bloom_offset(Vector2i(5, -1)), anchor + _push_bloom_offset(Vector2i(6, 0))] if sequence == "push_bloom" else [target, anchor + Vector2i(-3, -3), anchor + Vector2i(-2, -4)]
 	var enemy_types: Array = ["crawler", "harrier", "acolyte"] if sequence == "push_bloom" else ["harrier", "crawler", "acolyte"]
-	var enemies: Array[Dictionary] = []
+	var enemies: Array[Dictionary]
 	var generator = RoomGeneratorScript.new()
 	for index: int in range(enemy_types.size()):
 		var enemy: Dictionary = _enemy(index + 1, str(enemy_types[index]), enemy_positions[index])
@@ -690,8 +695,20 @@ func _capture_tactical_sequence(sequence: String) -> void:
 		enemies.append(enemy)
 	layout["enemies"] = enemies
 	var state: Dictionary = _create_showcase_combat(layout, hand)
+	for card_id: String in hand:
+		_assert_capture(not GameDataScript.card_def(card_id).is_empty(), "Tactical hand must use a current card: " + card_id)
+	return {"layout": layout, "state": state, "hand": hand, "anchor": anchor, "target": target, "enemies": enemies}
+
+func _capture_tactical_sequence(sequence: String) -> void:
+	var fixture: Dictionary = _tactical_fixture(sequence, _generated_combat_layout(sequence))
+	var layout: Dictionary = fixture["layout"]
+	var state: Dictionary = fixture["state"]
+	var hand: Array[String] = _string_array(fixture["hand"])
+	var anchor: Vector2i = fixture["anchor"]
+	var target: Vector2i = fixture["target"]
+	var enemies: Array = fixture["enemies"]
 	_assert_capture(int(state.get("cards_per_turn", 0)) == 2 and _combat_engine.player_movement_remaining(state) == 2, "Tactical sequence must retain standard two plays/two movement")
-	_assert_capture(int((state.get("elemental_intensity", {}) as Dictionary).get("fire" if sequence == "push_bloom" else "lightning", 0)) == 1, "Tactical room must start at its native intensity 1")
+	_assert_capture(int(state.get("rules_version", 0)) == 4, "Tactical capture must use current shared-surface rules")
 	if sequence == "root_chain":
 		_assert_capture(_combat_engine.effective_umbra_radius(state) == 5 and _umbra_visible_enemy_count(state) == 1, "Earth-light setup must begin with one visible enemy and two hidden neighbors")
 	_apply_combat_state(layout, state)
@@ -701,14 +718,8 @@ func _capture_tactical_sequence(sequence: String) -> void:
 	_cue("tactical_setup", anchor, {"room": layout.get("coord"), "depth": layout.get("depth"), "enemies": enemies, "furnishing": _layout_furnishing_summary(layout)})
 	await _play_showcase_card(hand[0], target, target + (_push_bloom_offset(Vector2i(1, 0)) if sequence == "push_bloom" else Vector2i(1, 0)))
 	var after_setup: Dictionary = _capture_combat_result_state().duplicate(true)
-	var first_enemy: Dictionary = (after_setup.get("enemies", []) as Array)[0] as Dictionary
-	if sequence == "push_bloom":
-		_assert_capture(first_enemy.get("pos") == anchor + _push_bloom_offset(Vector2i(5, 0)), "Updraft must push the crawler two tiles into the cross")
-		_assert_capture(int(first_enemy.get("hp", 0)) == int(enemies[0].get("hp")) - 6, "Updraft must deal its printed six damage")
-		_assert_capture(_combat_engine.player_movement_remaining(after_setup) == 2, "Push must not spend the movement pool")
-	else:
-		_assert_capture(int(first_enemy.get("hp", 0)) == int(enemies[0].get("hp")) - 5 and int(first_enemy.get("immobilize", 0)) > 0, "Root Snare must hit and immobilize the visible enemy")
-		_assert_capture(_umbra_visible_enemy_count(after_setup) == 3, "Root Snare impact Light must reveal both neighbors")
+	_assert_tactical_setup(sequence, state, after_setup, anchor)
+	if sequence == "root_chain":
 		_cue("light_reveal_complete", target, {"visible_enemies": 3})
 	await _settle(0.6)
 	_assert_umbra_actor_framing(4)
@@ -722,15 +733,103 @@ func _capture_tactical_sequence(sequence: String) -> void:
 	await _hold_approved_source_frame(213 if sequence == "push_bloom" else 204)
 	await _play_showcase_card(hand[1], payoff_target)
 	var after_payoff: Dictionary = _capture_combat_result_state().duplicate(true)
-	var before_enemies: Array = before_payoff.get("enemies", []) as Array
+	_assert_tactical_payoff(sequence, before_payoff, after_payoff)
 	var after_enemies: Array = after_payoff.get("enemies", []) as Array
-	for index: int in range(3):
-		_assert_capture(int((after_enemies[index] as Dictionary).get("hp", 0)) == maxi(0, int((before_enemies[index] as Dictionary).get("hp", 0)) - (8 if sequence == "push_bloom" else 7)), "Payoff must deal its naturally enabled printed damage to all three enemies")
 	_assert_capture(_combat_engine.player_movement_remaining(before_payoff) == 0, "Two-tile walk must consume exactly the base movement pool")
 	_assert_umbra_actor_framing(_live_enemy_count(after_payoff) + 1)
-	_cue("tactical_payoff_complete", payoff_target, {"enemies": after_enemies, "intensity": after_payoff.get("elemental_intensity", {}), "natural_play": true})
+	_cue("tactical_payoff_complete", payoff_target, {"enemies": after_enemies, "rules_version": 4, "surfaces": after_payoff.get("surfaces", {}), "natural_play": true})
 	# Give the editor the full native effect release while visual cuts use cues.
 	await _settle(5.0)
+
+func _tactical_printed_action(card_id: String, expected_type: String) -> Dictionary:
+	var actions: Array = GameDataScript.card_def(card_id).get("actions", []) as Array
+	_assert_capture(actions.size() == 1, "Tactical choreography requires one printed action: " + card_id)
+	if actions.size() != 1:
+		return {}
+	var action: Dictionary = actions[0] as Dictionary
+	_assert_capture(str(action.get("type", "")) == expected_type and int(action.get("damage", 0)) > 0, "Tactical choreography must retain its damaging action type: " + card_id)
+	return action.duplicate(true)
+
+func _assert_tactical_setup(sequence: String, before: Dictionary, after: Dictionary, anchor: Vector2i) -> void:
+	var card_id: String = "updraft" if sequence == "push_bloom" else "root_snare"
+	var action: Dictionary = _tactical_printed_action(card_id, "push" if sequence == "push_bloom" else "ranged")
+	var first_before: Dictionary = (before.get("enemies", []) as Array)[0] as Dictionary
+	var first_after: Dictionary = (after.get("enemies", []) as Array)[0] as Dictionary
+	_assert_capture(int(first_after.get("hp", 0)) == maxi(0, int(first_before.get("hp", 0)) - int(action.get("damage", 0))), "%s must deal its current printed damage without unrelated hazard damage" % card_id)
+	_assert_capture(int(first_after.get("hp", 0)) > 0, "The setup target must survive for the payoff")
+	if sequence == "push_bloom":
+		_assert_capture(int(action.get("amount", 0)) == 2 and first_after.get("pos") == anchor + _push_bloom_offset(Vector2i(5, 0)), "Updraft must push the target two tiles into the cross")
+		_assert_capture(_combat_engine.player_movement_remaining(after) == 2, "Push must not spend the movement pool")
+	else:
+		_assert_capture(bool(action.get("immobilize", false)) and int(first_after.get("immobilize", 0)) > 0, "Root Snare must immobilize the visible target")
+		_assert_capture(str(action.get("surface", "")) == "rubble" and BoardSurfaceRules.has_rubble(after, first_after.get("pos", INVALID_TILE)), "Root Snare must leave its printed Rubble")
+		_assert_capture(_umbra_visible_enemy_count(after) == 3, "Root Snare impact Light must reveal both neighbors")
+
+func _assert_tactical_payoff(sequence: String, before: Dictionary, after: Dictionary) -> void:
+	var card_id: String = "cinder_bloom" if sequence == "push_bloom" else "chain_bolt"
+	var action: Dictionary = _tactical_printed_action(card_id, "aoe" if sequence == "push_bloom" else "ranged")
+	var before_enemies: Array = before.get("enemies", []) as Array
+	var after_enemies: Array = after.get("enemies", []) as Array
+	_assert_capture(before_enemies.size() == 3 and after_enemies.size() == 3, "Tactical payoff must retain all three actor records")
+	for index: int in range(mini(3, mini(before_enemies.size(), after_enemies.size()))):
+		var enemy_before: Dictionary = before_enemies[index] as Dictionary
+		var enemy_after: Dictionary = after_enemies[index] as Dictionary
+		_assert_capture(int(enemy_after.get("hp", 0)) == maxi(0, int(enemy_before.get("hp", 0)) - int(action.get("damage", 0))), "%s must deal its current printed damage once to each of the three targets" % card_id)
+		if sequence == "push_bloom":
+			_assert_capture(str(action.get("surface", "")) == "fire" and BoardSurfaceRules.element_at(after, enemy_before.get("pos", INVALID_TILE)) == "fire", "Cinder Bloom must leave Fire beneath each struck target without immediate placement damage")
+	if sequence == "root_chain":
+		_assert_capture(int(action.get("chain", 0)) > 0, "Chain Bolt must retain innate Chain for this ground-independent payoff")
+
+func _validate_tactical_choreography() -> void:
+	# Rules-only fixture proof: no viewport, PNG/audio spool, timing approval or
+	# replacement of the previously approved media. The capture shares these checks.
+	for sequence: String in ["push_bloom", "root_chain"]:
+		_clip_id = sequence
+		var target_element: String = "fire" if sequence == "push_bloom" else "lightning"
+		var target_depth: int = 2 if sequence == "push_bloom" else 10
+		var run_state: Dictionary = {}
+		var found: bool = false
+		for seed_offset: int in range(64):
+			_capture_seed = CAPTURE_SEED + seed_offset
+			run_state = _run_engine.create_new_run(_capture_seed, ProgressionStore.default_data())
+			if not _find_target_route(run_state, target_element, target_depth).is_empty():
+				found = true
+				break
+		_assert_capture(found, "Tactical validation must find its generated room: " + sequence)
+		if not found:
+			return
+		run_state = _build_target_room_state(run_state, target_element, target_depth)
+		var layout: Dictionary = (run_state.get("current_room_layout", {}) as Dictionary).duplicate(true)
+		layout["traps"] = []
+		var fixture: Dictionary = _tactical_fixture(sequence, layout)
+		var state: Dictionary = fixture["state"]
+		var anchor: Vector2i = fixture["anchor"]
+		var target: Vector2i = fixture["target"]
+		var hand: Array[String] = _string_array(fixture["hand"])
+		_assert_capture(_combat_engine.player_movement_remaining(state) == 2 and int(state.get("cards_per_turn", 0)) == 2, "Tactical proof must use the standard turn resources")
+		if sequence == "root_chain":
+			_assert_capture(_combat_engine.effective_umbra_radius(state) == 5 and _umbra_visible_enemy_count(state) == 1, "Earth-light proof must begin with two hidden neighbors")
+		var setup: Dictionary = _tactical_printed_action(hand[0], "push" if sequence == "push_bloom" else "ranged")
+		if sequence == "push_bloom":
+			setup["force_direction"] = _push_bloom_offset(Vector2i(1, 0))
+		_assert_capture(_combat_engine.valid_targets_for_player_action(state, setup).has(target), "Setup target must be legal")
+		var after_setup: Dictionary = _combat_engine.apply_player_action(state, setup, target)
+		after_setup = _combat_engine.finish_player_card(after_setup, 0)
+		_assert_tactical_setup(sequence, state, after_setup, anchor)
+		var destination: Vector2i = anchor + (_push_bloom_offset(Vector2i(2, 0)) if sequence == "push_bloom" else Vector2i(-1, 1))
+		_assert_capture(_combat_engine.player_movement_targets(after_setup).has(destination), "Tactical two-tile walk must remain legal")
+		var before_payoff: Dictionary = _combat_engine.apply_player_movement(after_setup, destination)
+		_assert_capture((before_payoff.get("player", {}) as Dictionary).get("pos") == destination and _combat_engine.player_movement_remaining(before_payoff) == 0, "Tactical walk must reach its real endpoint and spend two movement")
+		var payoff: Dictionary = _tactical_printed_action(hand[1], "aoe" if sequence == "push_bloom" else "ranged")
+		var payoff_target: Vector2i = anchor + _push_bloom_offset(Vector2i(5, 0)) if sequence == "push_bloom" else target
+		_assert_capture(_combat_engine.valid_targets_for_player_action(before_payoff, payoff).has(payoff_target), "Payoff target must remain legal after walking")
+		var after_payoff: Dictionary = _combat_engine.apply_player_action(before_payoff, payoff, payoff_target)
+		after_payoff = _combat_engine.finish_player_card(after_payoff, 0)
+		_assert_tactical_payoff(sequence, before_payoff, after_payoff)
+		_assert_capture(int(after_payoff.get("cards_played_this_turn", 0)) == 2, "Tactical proof must spend exactly two card plays")
+		print("STEAM_TRAILER_TACTICAL_VALIDATION clip=%s setup_damage=%d payoff_damage=%d rules_version=%d" % [sequence, int(setup.get("damage", 0)), int(payoff.get("damage", 0)), int(after_payoff.get("rules_version", 0))])
+	if not _capture_validation_failed:
+		print("TEST RESULT: PASS Steam tactical choreography (rules only; no media captured)")
 
 func _tactical_offsets(sequence: String) -> Array:
 	if sequence == "push_bloom":
@@ -891,7 +990,6 @@ func _capture_aoe_combo() -> void:
 	]
 	layout["traps"] = []
 	var state: Dictionary = _create_showcase_combat(layout, ["wildfire_halo", "cinder_bloom", "hearth_rush"])
-	state["elemental_intensity"] = {"fire": 3, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
 	_apply_combat_state(layout, state)
 	_show_run_scene()
 	await _settle(0.4)
@@ -940,7 +1038,6 @@ func _capture_elemental_action(element: String) -> void:
 			layout["enemies"] = [_enemy(1, "crawler", target), _enemy(2, "harrier", center + Vector2i(3, 2)), _enemy(3, "acolyte", center + Vector2i(2, 2))]
 	layout["traps"] = []
 	var state: Dictionary = _create_showcase_combat(layout, hand)
-	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 2 if element == "lightning" else 0, "air": 1 if element == "air" else 0, "earth": 0}
 	_apply_combat_state(layout, state)
 	_show_run_scene()
 	await _settle(0.4)
@@ -1610,6 +1707,7 @@ func _live_enemy_count(combat_state: Dictionary) -> int:
 func _assert_capture(condition: bool, message: String) -> void:
 	if condition:
 		return
+	_capture_validation_failed = true
 	push_error(message)
 	get_tree().quit(2)
 

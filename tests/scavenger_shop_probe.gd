@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 
 const OUTPUT_DIR := "user://scavenger_shop_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -239,7 +240,7 @@ func _capture_states() -> void:
 	if sell_source == null or not (sell_source is Button) or not str(sell_source.name).begins_with("SellMagicOffer_"):
 		_fail("Owned Magic should use the same raster-backed sell tile as Items and Gear")
 		return
-	var sell_cards: Array[Node] = sell_source.find_children("*", "CardWidget", true, false)
+	var sell_cards: Array[Node] = _canonical_cards(sell_source)
 	if sell_cards.size() != 1 or str(sell_cards[0].get("card_id")) != sell_id:
 		_fail("The raster-backed Magic sell tile should still contain its canonical real CardWidget")
 	if not ((sell_source as Button).get_theme_stylebox("normal") is StyleBoxTexture):
@@ -486,7 +487,7 @@ func _assert_unified_offer(source: Control, item_id: String, run_engine: RunEngi
 		_fail("%s should keep its ember price inside the same offer wrapper" % item_id)
 	elif not source.get_global_rect().encloses(price_label.get_global_rect()):
 		_fail("%s price should move and glow within its complete offer wrapper" % item_id)
-	var cards: Array[Node] = source.find_children("*", "CardWidget", true, false)
+	var cards: Array[Node] = _canonical_cards(source)
 	if expect_card and (cards.size() != 1 or str(cards[0].get("card_id")) != item_id):
 		_fail("%s Magic shelf wrapper should contain one canonical passive CardWidget" % item_id)
 
@@ -495,7 +496,7 @@ func _assert_detail_card(shop: Control, expected_card_id: String, context: Strin
 	if detail_host == null:
 		_fail("%s should expose the canonical detail-card host" % context)
 		return
-	var cards: Array[Node] = detail_host.find_children("*", "CardWidget", true, false)
+	var cards: Array[Node] = _canonical_cards(detail_host)
 	if cards.size() != 1:
 		_fail("%s should show exactly one readable canonical CardWidget" % context)
 		return
@@ -510,6 +511,15 @@ func _descendant_label_with_text(node: Node, expected_text: String) -> Label:
 		if label != null and label.text == expected_text:
 			return label
 	return null
+
+func _canonical_cards(node: Node) -> Array[Node]:
+	# Node's native type-name filter does not reliably include GDScript class_name
+	# registrations in a fresh --script launch. Check the actual preloaded script.
+	var result: Array[Node]
+	for child: Node in node.find_children("*", "", true, false):
+		if child is CardWidget:
+			result.append(child)
+	return result
 
 func _settle() -> void:
 	await process_frame

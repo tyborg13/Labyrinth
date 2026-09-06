@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const Surface = preload("res://scripts/board_surface_rules.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -99,29 +100,36 @@ static func _test_boss_stats_scale_with_depth(expect: Callable) -> void:
 
 static func _test_status_immunities_are_atomic(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var cases: Array[Dictionary] = [
-		{"boss_id": "tharokh", "status": "poison", "action": {"poison": 3}},
-		{"boss_id": "vyraketh", "status": "burn", "action": {"burn": 3}, "relic": "cinderbrand_tongs", "element": ElementData.FIRE},
+	for case: Dictionary in [
 		{"boss_id": "vaeloryx", "status": "immobilize", "action": {"immobilize": true}},
-		{"boss_id": "iskaldra", "status": "freeze", "action": {"freeze": 3}, "relic": "rimecatcher_vial", "element": ElementData.ICE},
-		{"boss_id": "zekarion", "status": "shock", "action": {"shock": 3}, "relic": "ion_spool", "element": ElementData.LIGHTNING}
-	]
-	for case: Dictionary in cases:
-		var boss_id: String = str(case.get("boss_id", ""))
-		var status_id: String = str(case.get("status", ""))
+		{"boss_id": "zekarion", "status": "shock", "action": {"shock": 3}}
+	]:
+		var boss_id: String = str(case["boss_id"])
 		var state: Dictionary = _boss_combat_state(boss_id)
-		var relic_id: String = str(case.get("relic", ""))
-		if not relic_id.is_empty():
-			state["relics"] = [relic_id]
-		var boss_index: int = _boss_index(state)
-		var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		var direct_result: Dictionary = combat.call("_apply_action_keywords_to_enemy", state, boss_index, case.get("action", {}) as Dictionary, player_pos, true) as Dictionary
-		expect.call(_enemy_status_amount(_boss_from_state(direct_result), status_id) == 0, "%s immunity should reject direct %s application before any trigger can observe it" % [boss_id, status_id])
-		var relic_element: String = str(case.get("element", ""))
-		if not relic_element.is_empty():
-			expect.call(combat.elemental_intensity(direct_result, relic_element) == combat.elemental_intensity(state, relic_element), "%s immunity should not fire a relic trigger for rejected %s" % [boss_id, status_id])
-		var all_result: Dictionary = combat.call("_apply_status_to_all_live_enemies", state, status_id, 3) as Dictionary
-		expect.call(_enemy_status_amount(_boss_from_state(all_result), status_id) == 0, "%s immunity should reject all-enemy %s application atomically" % [boss_id, status_id])
+		var result: Dictionary = combat.call("_apply_action_keywords_to_enemy", state, _boss_index(state), case["action"], Vector2i(2, 4), true)
+		expect.call(_enemy_status_amount(_boss_from_state(result), str(case["status"])) == 0, "%s rejects its one explicit status immunity" % boss_id)
+	var ice: Dictionary = _boss_combat_state("iskaldra")
+	ice["relics"] = ["rimecatcher_vial", "cold_mirror"]
+	ice["player"]["block"] = 8
+	var boss: Dictionary = _boss_from_state(ice)
+	var footprint: Array[Vector2i] = Surface.footprint_tiles(boss)
+	for tile: Vector2i in footprint:
+		Surface.place(ice, tile, "ice")
+	boss["chilled"] = true
+	ice = combat.call("_surface_freeze_actor", ice, "enemy", int(boss["id"]), {"element": "ice"})
+	expect.call(int(_boss_from_state(ice).get("freeze", 0)) == 0, "Iskaldra rejects a prepared Ice Freeze")
+	for tile: Vector2i in footprint:
+		expect.call(Surface.has_surface(ice, tile, "ice"), "Rejected Freeze must not consume its supporting Ice")
+	expect.call(int(ice["player"]["block"]) == 8 and int(ice["player"].get("stoneskin", 0)) == 0, "Rejected Freeze must not trigger Cold Mirror")
+	for boss_id: String in ["tharokh", "vyraketh"]:
+		var shared: Dictionary = _boss_combat_state(boss_id)
+		var target: Dictionary = _boss_from_state(shared)
+		target["block"] = 0
+		target["stoneskin"] = 0
+		var hp_before: int = int(target["hp"])
+		Surface.place(shared, target["pos"], "fire")
+		shared = combat.call("_surface_contact", shared, "enemy", int(target["id"]), target["pos"], true)
+		expect.call(int(_boss_from_state(shared)["hp"]) == hp_before - 2, "%s shares Fire terrain danger instead of elemental owner immunity" % boss_id)
 
 static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	var earth_after: Dictionary = _resolve_opening("tharokh")
@@ -132,13 +140,17 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	expect.call(earth_spires >= 3, "Tharokh should open by raising several attackable Worldspines")
 
 	var fire_after: Dictionary = _resolve_opening("vyraketh")
-	var cinder_marks: int = 0
-	for trap_var: Variant in fire_after.get("traps", []):
-		if typeof(trap_var) == TYPE_DICTIONARY and str((trap_var as Dictionary).get("boss_hazard_kind", "")) == "cinder_mark":
-			cinder_marks += 1
-	expect.call(cinder_marks >= 4, "Vyraketh should open by branding the arena with cinder marks")
+	var cinder_tiles: Array[Vector2i] = Surface.tiles(fire_after, "fire")
+	expect.call(cinder_tiles.size() >= 4, "Vyraketh opens by creating ordinary persistent Fire")
+	expect.call((fire_after.get("traps", []) as Array).all(func(trap: Variant) -> bool: return str((trap as Dictionary).get("boss_hazard_kind", "")) != "cinder_mark"), "Kindle Ground does not create legacy owner traps")
 	var fire_boss: Dictionary = _boss_from_state(fire_after)
-	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "crownfire", "Surviving cinder marks should force Crownfire as Vyraketh's next activation")
+	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "crownfire", "Kindle Ground still schedules Crownfire next")
+	if not cinder_tiles.is_empty():
+		var denied: Vector2i = cinder_tiles[0]
+		Surface.place(fire_after, denied, "ice")
+		fire_after = _resolve_boss_turn(fire_after)
+		expect.call(Surface.has_surface(fire_after, denied, "ice"), "Replacing marked Fire denies that Crownfire fuel without consuming replacement Ice")
+		expect.call(Surface.tiles(fire_after, "fire").is_empty(), "Crownfire consumes remaining selected Fire")
 
 	var air_before: Dictionary = _boss_combat_state("vaeloryx")
 	var air_hp_before: int = int((air_before.get("player", {}) as Dictionary).get("hp", 0))
@@ -148,7 +160,7 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	expect.call((air_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) != air_pos_before, "Vaeloryx's Hollow Gale should forcibly reposition the player")
 
 	var ice_after: Dictionary = _resolve_opening("iskaldra")
-	expect.call(int(_boss_from_state(ice_after).get("frost_armor", 0)) == 2, "Iskaldra should open with two hit-negating crystal armor layers")
+	expect.call(int(_boss_from_state(ice_after).get("frost_armor", 0)) == 1, "Iskaldra opens with one armor layer before any Ice fuel bonus")
 
 	var shadow_before: Dictionary = _boss_combat_state("noctyrax", 24)
 	var shadow_hp_before: int = int((shadow_before.get("player", {}) as Dictionary).get("hp", 0))
@@ -468,8 +480,6 @@ static func _maximum_terrain_health(state: Dictionary) -> int:
 static func _enemy_status_amount(enemy: Dictionary, status_id: String) -> int:
 	if status_id == "immobilize":
 		return 1 if bool(enemy.get("immobilize", false)) else 0
-	if status_id == "poison":
-		return int((enemy.get("poison", {}) as Dictionary).get("damage", 0))
 	return int(enemy.get(status_id, 0))
 
 static func _farthest_available_move(engine: RunEngine, state: Dictionary, moves: Array[Vector2i]) -> Vector2i:

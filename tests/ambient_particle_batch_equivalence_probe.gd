@@ -82,15 +82,13 @@ func _difference_metrics(reference: Image, candidate: Image) -> Dictionary:
 	}
 
 func _state(element_id: String) -> Dictionary:
-	var intensity: Dictionary = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
-	intensity[element_id] = 6
 	return {
 		"name": "Ambient %s proof" % element_id,
 		"room_coord": Vector2i(13, 17),
 		"room_element": element_id,
 		"grid": _grid(),
 		"moss": {},
-		"elemental_intensity": intensity,
+		"surfaces": {},
 		"player": {},
 		"enemies": [],
 		"illusions": [],

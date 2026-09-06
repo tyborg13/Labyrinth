@@ -26,7 +26,7 @@ func _initialize() -> void:
 	viewport.add_child(board)
 	await process_frame
 	board.call("set_combat_state", _mixed_state(), [], [], Vector2i(-1, -1), "", "", {}, {}, {"scene_props": []})
-	_expect((board.call("_ambient_active_element_ids") as PackedStringArray).size() == ElementData.all_elements().size(), "Mixed-element workload must activate every particle family")
+	_expect((board.call("_ambient_active_element_ids") as PackedStringArray).size() == 1, "Room affinity selects one ambient family while the ground carries mixed effects")
 	for _frame: int in range(WARMUP_FRAMES):
 		await RenderingServer.frame_post_draw
 	board.call("reset_render_instrumentation")
@@ -53,8 +53,8 @@ func _initialize() -> void:
 	# Newer implementations expose the element-local cache map; older bases omit
 	# this semantic counter but remain benchmark-compatible for direct comparison.
 	if not hash_caches.is_empty():
-		_expect(hash_caches.size() == ElementData.all_elements().size(), "Every active element must retain its particle hash cache")
-		for element_id: String in ElementData.all_elements():
+		_expect(hash_caches.size() == 1, "Every active element must retain its particle hash cache")
+		for element_id: String in [ElementData.ICE]:
 			_expect(not (hash_caches.get(element_id, {}) as Dictionary).is_empty(), "%s particle hashes must remain warm" % element_id)
 	# Readback happens after every timed sample so proof I/O cannot contaminate the
 	# frame-interval or ambient CPU measurements above.
@@ -65,13 +65,13 @@ func _initialize() -> void:
 
 	var results: Dictionary = {
 		"schema_version": 1,
-		"workload_id": "mixed_element_ambient_idle_v1",
+		"workload_id": "room_affinity_mixed_ground_idle_v4",
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
 		"warmup_frames": WARMUP_FRAMES,
 		"sample_frames": SAMPLE_FRAMES,
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
-		"active_elements": ElementData.all_elements().size(),
+		"active_elements": 1,
 		"frame_interval_ms": _stats(intervals_ms),
 		"process_ms": _stats(process_ms),
 		"ambient_draw_count": ambient_draws,
@@ -129,13 +129,7 @@ func _mixed_state() -> Dictionary:
 		"room_element": ElementData.ICE,
 		"grid": _grid(),
 		"moss": {},
-		"elemental_intensity": {
-			ElementData.FIRE: 3,
-			ElementData.ICE: 3,
-			ElementData.LIGHTNING: 3,
-			ElementData.AIR: 3,
-			ElementData.EARTH: 3,
-		},
+		"surfaces": {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}},
 		"player": {},
 		"enemies": [],
 		"illusions": [],

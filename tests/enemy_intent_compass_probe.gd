@@ -200,7 +200,7 @@ func _probe_state() -> Dictionary:
 			_enemy(4, "grave_surgeon", Vector2i(8, 4), "Field Dressing", [{"type": "heal_ally", "amount": 4, "range": 4}]),
 			_enemy(5, "lightning_wisp", Vector2i(3, 6), "Forked Storm", [{"type": "lightning_strikes", "damage": 4}]),
 			_enemy(6, "crawler", Vector2i(7, 6), "Withdraw", [{"type": "move_away", "range": 3}]),
-			_enemy(7, "cinder_ooze", Vector2i(5, 1), "Gathering Flame", [{"type": "intensity", "amount": 1}]),
+			_enemy(7, "cinder_ooze", Vector2i(5, 1), "Gathering Flame", [{"type": "surface", "surface": "fire", "range": 1}]),
 		],
 		"illusions": [], "npcs": [], "loot": [], "terrain": [], "traps": [],
 		"player_turn_restrictions": {},
@@ -215,7 +215,7 @@ func _probe_descriptors() -> Dictionary:
 		"enemy_4": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "heal_ally", 4),
 		"enemy_5": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "lightning_strikes", 4),
 		"enemy_6": _descriptor(EnemyIntentCompass.FAMILY_ATTACK, "move_away", 0),
-		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "intensity", 1),
+		"enemy_7": _descriptor(EnemyIntentCompass.FAMILY_SUPPORT, "surface_fire", 1),
 	}
 
 

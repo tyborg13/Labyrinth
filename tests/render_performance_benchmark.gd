@@ -365,7 +365,7 @@ func _stress_state() -> Dictionary:
 		"room_element": "ice",
 		"grid": _stress_grid(),
 		"moss": {},
-		"elemental_intensity": {"fire": 0, "ice": 6, "lightning": 0, "air": 0, "earth": 0},
+		"surfaces": {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}},
 		"player": {"pos": Vector2i(4, 4), "hp": 120, "max_hp": 120, "block": 30, "stoneskin": 12},
 		"enemies": _stress_enemies(),
 		"illusions": [],
@@ -593,7 +593,7 @@ func _verify_static_render_cache_visual_equivalence(board: Control, viewport: Su
 	state["loot"] = []
 	state["terrain"] = []
 	state["traps"] = []
-	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	var presentation: Dictionary = {"board_backdrop_visible": true}
 	board.set_process(false)
 	board.call("set_static_render_cache_enabled", false)
@@ -654,7 +654,7 @@ func _verify_umbra_multimesh_visual_equivalence(board: Control, viewport: SubVie
 	state["loot"] = []
 	state["terrain"] = []
 	state["traps"] = []
-	state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	var presentation: Dictionary = _action_presentation()
 	presentation["visible_enemy_ids"] = []
 	presentation["pulse_attack_tiles"] = false

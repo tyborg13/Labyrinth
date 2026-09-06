@@ -4,6 +4,8 @@ class_name ProgressionStore
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const LegacyCardGrowthRefunds = preload("res://scripts/legacy_card_growth_refunds.gd")
+const SURFACE_RULES_VERSION: int = 4
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"
@@ -55,6 +57,7 @@ static func default_data() -> Dictionary:
 		PROGRESSION_ANALYTICS_OUTBOX_KEY: [],
 		"progression_revision": 0,
 		"progression_schema": PROGRESSION_SCHEMA,
+		"surface_rules_version": SURFACE_RULES_VERSION,
 		"rested_at_fire": false,
 		"card_upgrades_unlocked": false,
 		"pending_fire_rest_dialogue": false,
@@ -144,6 +147,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["progression_revision"] = int(data.get("progression_revision", 0)) + 1
 	data["skill_ids"] = repaired_skill_ids
 	data["progression_schema"] = PROGRESSION_SCHEMA
+	data["surface_rules_version"] = SURFACE_RULES_VERSION
 	data["moltshards"] = maxi(0, int(data.get("moltshards", 0)))
 	var award_ids: Array = _normalized_string_array(data.get(MOLTSHARD_AWARD_IDS_KEY, []))
 	if award_ids.size() > MOLTSHARD_AWARD_LEDGER_LIMIT:
@@ -296,13 +300,13 @@ static func _migrated_legacy_card_upgrades(data: Dictionary) -> Dictionary:
 		if upgrade_id.is_empty() or seen_upgrades.has(upgrade_id):
 			continue
 		seen_upgrades[upgrade_id] = true
-		refund += maxi(0, GameData.upgrade_cost(upgrade_id))
+		refund += maxi(LegacyCardGrowthRefunds.cost(upgrade_id), GameData.upgrade_cost(upgrade_id))
 	for upgrade_id_var: Variant in (next_data.get("card_upgrades", {}) as Dictionary).values():
 		var upgrade_id: String = str(upgrade_id_var)
 		if upgrade_id.is_empty() or seen_upgrades.has(upgrade_id):
 			continue
 		seen_upgrades[upgrade_id] = true
-		refund += maxi(0, GameData.upgrade_cost(upgrade_id))
+		refund += maxi(LegacyCardGrowthRefunds.cost(upgrade_id), GameData.upgrade_cost(upgrade_id))
 	var legacy_mods_by_card: Dictionary = {}
 	if typeof(next_data.get("card_mods", {})) == TYPE_DICTIONARY:
 		legacy_mods_by_card = (next_data.get("card_mods", {}) as Dictionary).duplicate(true)
@@ -402,6 +406,8 @@ static func _normalized_progression_analytics_outbox(value: Variant) -> Array[Di
 	return result
 
 static func save_data(data: Dictionary) -> bool:
+	if not _archive_before_surface_migration(_storage_path, true) or not _archive_before_surface_migration(_profile_backup_path(), true):
+		return false
 	var temp_path: String = _profile_temp_path()
 	var backup_path: String = _profile_backup_path()
 	_remove_profile_file_if_present(temp_path)
@@ -482,6 +488,8 @@ static func _run_dictionary_is_nonempty(path: String) -> bool:
 	return typeof(data) == TYPE_DICTIONARY and not (data as Dictionary).is_empty()
 
 static func save_run_state(run_state: Dictionary) -> bool:
+	if not _archive_before_surface_migration(_run_storage_path, false) or not _archive_before_surface_migration(_run_backup_path(), false):
+		return false
 	var temp_path: String = _run_temp_path()
 	var backup_path: String = _run_backup_path()
 	_remove_run_file_if_present(temp_path)
@@ -519,12 +527,50 @@ static func save_run_state(run_state: Dictionary) -> bool:
 	return true
 
 static func clear_saved_run() -> void:
+	# A terminal legacy save can reach clearing without another combat write.
+	# Preserve its original bytes before the normal live/recovery cleanup.
+	if not _archive_before_surface_migration(_run_storage_path, false) or not _archive_before_surface_migration(_run_backup_path(), false):
+		push_warning("Could not archive the legacy run; preserving the saved run.")
+		return
 	_remove_run_file_if_present(_run_storage_path)
 	_remove_run_file_if_present(_run_temp_path())
 	_remove_run_file_if_present(_run_backup_path())
 
 static func _run_temp_path() -> String:
 	return "%s.tmp" % _run_storage_path
+
+# Unlike the rotating crash-recovery backup, this archive survives successful
+# writes and clearing a completed run. The content hash makes retries idempotent
+# while preserving different legacy saves a player may explicitly restore.
+static func _archive_before_surface_migration(path: String, profile: bool) -> bool:
+	if not FileAccess.file_exists(path):
+		return true
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return false
+	var raw: Variant = JSON.parse_string(file.get_as_text()) if profile else file.get_var(false)
+	file.close()
+	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
+		return true # Invalid live files still use the ordinary recovery path.
+	if int((raw as Dictionary).get("surface_rules_version", 0)) >= SURFACE_RULES_VERSION:
+		return true
+	var digest: String = FileAccess.get_sha256(path)
+	if digest.is_empty():
+		return false
+	var archive_path: String = "%s.pre-surfaces-v%d.%s" % [path, SURFACE_RULES_VERSION, digest.substr(0, 16)]
+	if FileAccess.file_exists(archive_path):
+		return FileAccess.get_sha256(archive_path) == digest
+	var temporary: String = "%s.tmp" % archive_path
+	var error: Error = DirAccess.copy_absolute(ProjectSettings.globalize_path(path), ProjectSettings.globalize_path(temporary))
+	if error != OK:
+		return false
+	if FileAccess.get_sha256(temporary) != digest:
+		_remove_run_file_if_present(temporary)
+		return false
+	error = DirAccess.rename_absolute(ProjectSettings.globalize_path(temporary), ProjectSettings.globalize_path(archive_path))
+	if error != OK:
+		_remove_run_file_if_present(temporary)
+	return error == OK
 
 static func _run_backup_path() -> String:
 	return "%s.backup" % _run_storage_path

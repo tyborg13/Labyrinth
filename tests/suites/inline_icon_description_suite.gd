@@ -15,6 +15,13 @@ const ICONLESS_SKILLS: Array[String] = [
 ]
 
 const DEDICATED_ICON_TERM_PATTERNS: Array[Dictionary] = [
+	{"label": "Fire", "pattern": "(?i)\\bfire\\b"},
+	{"label": "Ice", "pattern": "(?i)\\bice\\b"},
+	{"label": "Rubble", "pattern": "(?i)\\brubble\\b"},
+	{"label": "Electrified", "pattern": "(?i)\\belectrified\\b"},
+	{"label": "Chilled", "pattern": "(?i)\\bchill(?:ed)?\\b"},
+	{"label": "Detonate", "pattern": "(?i)\\bdetonat(?:e|es|ed|ing)\\b"},
+	{"label": "Relocate Ground", "pattern": "(?i)\\brelocat(?:e|es|ed|ing)\\b"},
 	{"label": "Block", "pattern": "(?i)\\bblock\\b"},
 	{"label": "Stoneskin", "pattern": "(?i)\\bstoneskin\\b"},
 	{"label": "Health", "pattern": "(?i)\\bhealth(?:-cost)?\\b"},

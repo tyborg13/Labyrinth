@@ -13,6 +13,7 @@ const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const SurfaceSaveMigration = preload("res://scripts/surface_save_migration.gd")
 
 const PLANNED_DEPTH_SEQUENCES: int = 6
 const ACTIVE_DEPTH_SEQUENCES: int = 6
@@ -125,6 +126,7 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		"run_index": int(normalized_progression.get("run_counter", 0)),
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
 		COMBAT_UNITS_SCHEMA_KEY: COMBAT_UNITS_SCHEMA,
+		SurfaceSaveMigration.VERSION_KEY: 4,
 		"mode": "room",
 		"current_room": Vector2i.ZERO,
 		"current_room_layout": start_layout,
@@ -230,6 +232,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"run_index": -1,
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
 		COMBAT_UNITS_SCHEMA_KEY: COMBAT_UNITS_SCHEMA,
+		SurfaceSaveMigration.VERSION_KEY: 4,
 		"mode": "combat",
 		"current_room": DEBUG_BOSS_COORD,
 		"current_room_layout": layout,
@@ -275,6 +278,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	if next_state.is_empty():
 		return next_state
 	next_state = migrate_combat_units(next_state)
+	next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
 	next_state = _repair_legacy_merchant_rooms(next_state)
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
 	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA

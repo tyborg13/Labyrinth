@@ -24,69 +24,26 @@ func _initialize() -> void:
 	await process_frame
 	board.set_process(false)
 
-	var initial_state: Dictionary = _state(0, 1)
 	var presentation: Dictionary = {"ambient_time_seconds": 42.0, "scene_props": []}
+	for element_id: String in ElementData.all_elements():
+		var state: Dictionary = _state()
+		state["room_element"] = element_id
+		board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+		await _settle()
+		_expect(board.call("_ambient_active_element_ids") == PackedStringArray([element_id]), "Atmosphere follows room affinity")
+		await _capture(viewport, "%s_room.png" % element_id)
+	var initial_state: Dictionary = _state()
+	board.call("set_combat_state", initial_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
+	var before_count: int = int(board.call("_ambient_particle_count", ElementData.ICE, 64))
+	initial_state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "electrified", "rubble": false}}
 	board.call("set_combat_state", initial_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	await _settle()
-	_expect(board.call("_ambient_active_element_ids") == PackedStringArray([ElementData.ICE]), "An Ice room with only Ice intensity should render only Ice atmosphere")
-	var initial_image: Image = await _capture(viewport, "ice_room_before_fire_gain.png")
-
-	var mixed_state: Dictionary = _state(5, 1)
-	board.call("set_combat_state", mixed_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
-	_expect(is_zero_approx(float(board.call("_ambient_display_intensity", ElementData.FIRE))), "A new Fire target should begin from the currently displayed zero intensity")
-	_expect((board.call("_ambient_active_element_ids") as PackedStringArray).has(ElementData.FIRE), "A newly active off-room element should join the ambient render set immediately")
-
-	board.call("_advance_ambient_intensity_transition", 0.75)
-	_expect(is_equal_approx(float(board.call("_ambient_display_intensity", ElementData.FIRE)), 2.5), "The 1.5-second transition midpoint should display half of Fire 5")
-	var midpoint_count: int = int(board.call("_ambient_particle_count", ElementData.FIRE, 81))
-	var final_count: int = int(board.call("_ambient_particle_count", ElementData.FIRE, 81, 5.0))
-	_expect(midpoint_count > 0 and midpoint_count < final_count, "Off-room particle density should rise continuously toward its final count")
-	board.call("_queue_render_layer_redraw", board.get("_ambient_render_layer"))
-	await _settle()
-	var midpoint_image: Image = await _capture(viewport, "ice_room_fire_5_halfway.png")
-
-	board.call("_advance_ambient_intensity_transition", 0.75)
-	_expect(is_equal_approx(float(board.call("_ambient_display_intensity", ElementData.FIRE)), 5.0), "The transition should reach Fire 5 after 1.5 seconds")
-	var active_elements: PackedStringArray = board.call("_ambient_active_element_ids") as PackedStringArray
-	_expect(active_elements.has(ElementData.FIRE) and active_elements.has(ElementData.ICE), "Mixed intensity should render both Fire and Ice atmosphere")
-	board.call("_queue_render_layer_redraw", board.get("_ambient_render_layer"))
-	await _settle()
-	var final_image: Image = await _capture(viewport, "ice_room_fire_5_complete.png")
-
-	var midpoint_delta: float = _mean_rgb_delta(initial_image, midpoint_image)
-	var final_delta: float = _mean_rgb_delta(initial_image, final_image)
-	_expect(midpoint_delta > 0.0001, "The halfway frame should visibly differ from the Ice-only room")
-	_expect(final_delta > midpoint_delta, "The completed Fire 5 atmosphere should differ more strongly than the halfway frame")
-
-	var all_elements_state: Dictionary = _state(3, 3)
-	all_elements_state["elemental_intensity"] = {
-		ElementData.FIRE: 3,
-		ElementData.ICE: 3,
-		ElementData.LIGHTNING: 3,
-		ElementData.AIR: 3,
-		ElementData.EARTH: 3,
-	}
-	board.call("set_combat_state", all_elements_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
-	board.call("_advance_ambient_intensity_transition", 1.5)
-	_expect((board.call("_ambient_active_element_ids") as PackedStringArray).size() == ElementData.all_elements().size(), "Every nonzero element should join the ambient render set")
-	board.call("_queue_render_layer_redraw", board.get("_ambient_render_layer"))
-	await _settle()
-	await _capture(viewport, "ice_room_all_elements_3.png")
-
-	var faded_state: Dictionary = _state(0, 1)
-	board.call("set_combat_state", faded_state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
-	board.call("_advance_ambient_intensity_transition", 1.5)
-	_expect(not (board.call("_ambient_active_element_ids") as PackedStringArray).has(ElementData.FIRE), "An off-room element should leave the ambient render set after fading to zero")
+	_expect(board.call("_ambient_active_element_ids") == PackedStringArray([ElementData.ICE]), "Off-room ground does not tint the whole arena")
+	_expect(int(board.call("_ambient_particle_count", ElementData.ICE, 64)) == before_count, "Ground does not scale ambient density")
+	await _capture(viewport, "ice_room_mixed_ground.png")
 	_verify_particle_phase_continuity(board)
 	_verify_element_hash_caches(board)
-
-	print("ELEMENTAL AMBIENT TRANSITION RESULT: %s" % JSON.stringify({
-		"semantic_errors": _errors,
-		"midpoint_mean_rgb_delta": midpoint_delta,
-		"final_mean_rgb_delta": final_delta,
-		"midpoint_fire_particles": midpoint_count,
-		"final_fire_particles": final_count,
-	}))
+	print("ELEMENTAL AMBIENT TRANSITION RESULT: %s" % JSON.stringify({"semantic_errors": _errors}))
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0 if _errors.is_empty() else 1)
 
@@ -116,17 +73,15 @@ func _verify_particle_phase_continuity(board: Control) -> void:
 	const SOURCE_TIME: float = 7200.0
 	const FRAME_DELTA: float = 1.0 / 30.0
 	const SEED: int = 9271
-	board.set("_ambient_display_intensities", {ElementData.LIGHTNING: 1.0})
 	var initial_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME))
 	var initial_cycle: float = float(board.call("_ambient_cycle", SEED, initial_motion_time, 1.0))
-	board.set("_ambient_display_intensities", {ElementData.LIGHTNING: 5.0})
 	var changed_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME))
 	var changed_cycle: float = float(board.call("_ambient_cycle", SEED, changed_motion_time, 1.0))
-	_expect(is_equal_approx(initial_cycle, changed_cycle), "Changing displayed intensity at one instant must not jump particle phase")
+	_expect(is_equal_approx(initial_cycle, changed_cycle), "Repeated sampling at one instant must not jump particle phase")
 	var next_motion_time: float = float(board.call("_ambient_motion_time", ElementData.LIGHTNING, SOURCE_TIME + FRAME_DELTA))
 	var next_cycle: float = float(board.call("_ambient_cycle", SEED, next_motion_time, 1.0))
 	var wrapped_delta: float = absf(wrapf(next_cycle - changed_cycle + 0.5, 0.0, 1.0) - 0.5)
-	_expect(wrapped_delta < 0.05, "A high-intensity particle phase must advance by a bounded amount per frame")
+	_expect(wrapped_delta < 0.05, "A room particle phase must advance by a bounded amount per frame")
 
 func _verify_element_hash_caches(board: Control) -> void:
 	board.call("_prepare_ambient_hash_cache", ElementData.FIRE)
@@ -140,20 +95,14 @@ func _verify_element_hash_caches(board: Control) -> void:
 	_expect(fire_cache.has(111), "Switching elemental passes must retain the Fire particle hash cache")
 	_expect(ice_cache.has(222), "Switching elemental passes must retain the Ice particle hash cache")
 
-func _state(fire_intensity: int, ice_intensity: int) -> Dictionary:
+func _state() -> Dictionary:
 	return {
 		"name": "Mixed elemental atmosphere proof",
 		"room_coord": Vector2i(8, 12),
 		"room_element": ElementData.ICE,
 		"grid": _grid(),
 		"moss": {},
-		"elemental_intensity": {
-			ElementData.FIRE: fire_intensity,
-			ElementData.ICE: ice_intensity,
-			ElementData.LIGHTNING: 0,
-			ElementData.AIR: 0,
-			ElementData.EARTH: 0,
-		},
+		"surfaces": {},
 		"player": {},
 		"enemies": [],
 		"illusions": [],

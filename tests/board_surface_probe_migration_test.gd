@@ -1,0 +1,23 @@
+extends SceneTree
+
+func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	assert((load("res://tests/runtime_frame_performance_benchmark.gd") as Script).can_instantiate(), "runtime_frame_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/runtime_integration_performance_benchmark.gd") as Script).can_instantiate(), "runtime_integration_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/elemental_ambient_performance_benchmark.gd") as Script).can_instantiate(), "elemental_ambient_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/elemental_ambient_transition_probe.gd") as Script).can_instantiate(), "elemental_ambient_transition_probe parses with the current presentation API")
+	assert((load("res://tests/render_performance_benchmark.gd") as Script).can_instantiate(), "render_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/enemy_shadow_dissolve_performance_benchmark.gd") as Script).can_instantiate(), "enemy_shadow_dissolve_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/elemental_room_overlays_probe.gd") as Script).can_instantiate(), "elemental_room_overlays_probe parses with the current presentation API")
+	assert((load("res://tests/combat_board_submission_performance_benchmark.gd") as Script).can_instantiate(), "combat_board_submission_performance_benchmark parses with the current presentation API")
+	assert((load("res://tests/umbra_visual_probe.gd") as Script).can_instantiate(), "umbra_visual_probe parses with the current presentation API")
+	assert((load("res://tests/ambient_particle_batch_equivalence_probe.gd") as Script).can_instantiate(), "ambient_particle_batch_equivalence_probe parses with the current presentation API")
+	assert((load("res://tests/card_proxy_pool_test.gd") as Script).can_instantiate(), "card_proxy_pool_test parses with the current presentation API")
+	assert((load("res://tests/combat_objective_probe.gd") as Script).can_instantiate(), "combat_objective_probe parses with the current presentation API")
+	assert((load("res://tests/enemy_intent_compass_probe.gd") as Script).can_instantiate(), "enemy_intent_compass_probe parses with the current presentation API")
+	assert((load("res://tests/enemy_intent_preview_probe.gd") as Script).can_instantiate(), "enemy_intent_preview_probe parses with the current presentation API")
+	assert((load("res://tests/card_drag_overlay_probe.gd") as Script).can_instantiate(), "card_drag_overlay_probe parses with the current presentation API")
+	assert((load("res://tests/relic_damage_feedback_probe.gd") as Script).can_instantiate(), "relic_damage_feedback_probe parses with the current presentation API")
+	assert((load("res://tests/board_surface_visual_probe.gd") as Script).can_instantiate(), "board_surface_visual_probe parses with the current presentation API")
+	print("TEST RESULT: PASS migrated presentation probe scripts")
+	quit()

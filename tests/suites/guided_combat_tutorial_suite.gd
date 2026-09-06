@@ -174,10 +174,10 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", []) as Array
 	expect.call(
 		hand.slice(0, 3) == [GuidedCombatScenario.PREVIEW_CARD_ID, GuidedCombatScenario.KILL_CARD_ID, GuidedCombatScenario.REFUND_CARD_ID],
-		"The authored opening hand should deterministically stage Bone Dart, Quick Stab, then Brace"
+		"The authored opening hand should deterministically stage Pale Spark, Quick Stab, then Brace"
 	)
 	var target_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID)
-	expect.call(int(target_before.get("hp", 0)) == 17, "The authored target should have the exact 17 HP needed by the scripted two-card kill")
+	expect.call(int(target_before.get("hp", 0)) == 15, "The authored target should have the exact 15 HP needed by the scripted two-card kill")
 
 	state = combat.apply_player_movement(state, move_tile)
 	expect.call((state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) == move_tile, "The authored move should resolve through the normal movement pool")
@@ -185,7 +185,7 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 	expect.call(
 		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 11
 		and combat.cards_remaining_this_turn(state) == 1,
-		"Bone Dart should deal 6 and visibly spend the first of two card plays"
+		"Pale Spark should deal 4 and visibly spend the first of two card plays"
 	)
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.KILL_CARD_ID, target_tile)
 	expect.call(
@@ -219,8 +219,8 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		and int(scheduled_order[0].get("enemy_id", -1)) == GuidedCombatScenario.SUPPORT_ENEMY_ID
 		and int(scheduled_order[0].get("time", -1)) == GuidedCombatScenario.SUPPORT_FIRST_ACTIVATION_TIME
 		and str(scheduled_order[1].get("kind", "")) == "player"
-		and int(scheduled_order[1].get("time", -1)) == 14,
-		"The support crawler should act before the player's clock-14 return without relying on exact-tie policy"
+		and int(scheduled_order[1].get("time", -1)) == 15,
+		"The support crawler should act before the player's clock-15 return without relying on exact-tie policy"
 	)
 	var phase_result: Dictionary = combat.advance_to_next_player_turn_with_steps(scheduled_state)
 	var after_enemy_turn: Dictionary = phase_result.get("state", {}) as Dictionary
@@ -446,7 +446,7 @@ static func _test_authored_reload_phase_reconstruction(expect: Callable) -> void
 	scene.call("_guided_tutorial_reconcile_phase")
 	expect.call(
 		str(scene.get("_guided_tutorial_phase_id")) == ContextualCombatTutorial.PHASE_FIRST_PLAY,
-		"Reload after Bone Dart should reconstruct the real one-play acknowledgement"
+		"Reload after Pale Spark should reconstruct the real one-play acknowledgement"
 	)
 	progression = ContextualCombatTutorial.complete_milestone(progression, ContextualCombatTutorial.MILESTONE_FIRST_PLAY)
 	scene.set("_progression", progression)

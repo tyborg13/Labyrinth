@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "generator": "OpenAI ImageGen",
+  "review": "Native-size assets and real-renderer Shale Bloomer inspection; originals retained in generation output directory.",
+  "assets": [
+    {
+      "target": "assets/art/icons/surface_fire.png",
+      "source": "exec-fcd9f9ec-3975-4473-8afb-50b26e0238df.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "057f7fed02fa25b0c3fe812212db1cbd35e225517399513253794ead35d01e6f",
+      "output_sha256": "7e127ad88fecdde0e90db4c940538bfe297c4a1d0578f5486224537eeb7ec610"
+    },
+    {
+      "target": "assets/art/icons/surface_ice.png",
+      "source": "exec-762c56e4-22a3-4c34-ae6c-c42ea901da4b.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "4fcd7a03d7b9fbb157ac4621363c5d9da58fa237b6777478c167a2081080ba44",
+      "output_sha256": "5bef16461e97860cfd555b35e7e763e94eed9beafc5b70e63bd0ac2570393ff0"
+    },
+    {
+      "target": "assets/art/icons/surface_electrified.png",
+      "source": "exec-b1a18699-d63f-4c1b-96e6-e5b10818200b.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "122ac1bd0e0a20ac061cc031404357a30f0c945e83098daf75ad83fcde937d47",
+      "output_sha256": "4b78b5b2ee0902f3c531d27e6b94d282b43d156c32ccd8631c1f2a2b462f7478"
+    },
+    {
+      "target": "assets/art/icons/surface_rubble.png",
+      "source": "exec-06a63863-caaf-4004-be93-bd9d0d89232f.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "278cbbeafb46a888205e763365bdefa9aae14fcc075e7ece5fed4a8b218b9a34",
+      "output_sha256": "fc3dd1a830421f0ae43289376bd13c30cc05b4dd1d111ad37ef05d49cdec587f"
+    },
+    {
+      "target": "assets/art/icons/chilled.png",
+      "source": "exec-4fa616d1-f4fc-4a36-868e-73182980097c.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "b4faf8ef02eceba755f3d41f9d5233932d70feea86c40769161f946b7673abbf",
+      "output_sha256": "5e5d282a4b43bc532aa4ac11c3bbb0964ef90b1d3f2fbddbabc738ff46b15014"
+    },
+    {
+      "target": "assets/art/icons/detonate.png",
+      "source": "exec-4f1ebeba-971e-4245-9e16-b7bf3c62c283.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "a93bd50c9d32fcfc8b12b1c47191914a05003f07e9c96ae32696a7d389f7e2bf",
+      "output_sha256": "055f4a3d4c2cf6fbb3fbf8ba8bf1e6965ef0a37b7c1fce5ac75ef97475b9adaf"
+    },
+    {
+      "target": "assets/art/icons/surface_relocate.png",
+      "source": "exec-e25cd16b-e872-49af-8937-26abeecbbab0.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "f7663a79900d51fedd4f8f2085992a0c3b443898e7ec31715a2be014143e32f4",
+      "output_sha256": "c29518f11daf23e5bf50a5e9da61c918d4c7c8812c250944cae89d17fc26254a"
+    },
+    {
+      "target": "assets/art/icons/surface_consume.png",
+      "source": "exec-066ccd7e-8593-4ed5-a926-f0a1c8cbf107.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "9e1525b6ca3adeb181cb5f7d365fdce0343339883da0c3411869a09d20b37cc5",
+      "output_sha256": "6aab98d05aa4dbccc33621da856bc9fc0b6253f0efa5b582a52f37276c6ecae2"
+    },
+    {
+      "target": "assets/art/icons/surface.png",
+      "source": "exec-d2a4d205-a85d-4d13-a32b-95f096d65ad6.png",
+      "size": [
+        64,
+        64
+      ],
+      "recipe": "contain",
+      "source_sha256": "dec4337bac3f8b67d3057b5d7d8d6ab32eb239abc4813438b4c27a5dabacf40e",
+      "output_sha256": "78aa202b07515b865c3a8260d20d88a10a4b68e25d82e1935744ee2c683706ca"
+    },
+    {
+      "target": "assets/art/relics/coalheart_crucible.png",
+      "source": "exec-12b38049-260d-4db0-aa65-bad061188ede.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "b73d38bc9e363d94f6ae9f8aea174769e37ace2b0af94da6c6d19967119af856",
+      "output_sha256": "be53c9c89d678626a255e6db160db131e81bcc25f85d158a00170b5f4ef022d7"
+    },
+    {
+      "target": "assets/art/relics/briar_winch.png",
+      "source": "exec-cdab005d-8740-4e40-90b6-8e226b1febee.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "737fcb6c1184b6205224145c26843696d0a104bac95bdcaca72d4faee5de432d",
+      "output_sha256": "c91f00a543e44cab7e33f8c75df67a04da31f09935f52f51479ee9aeb4bdbdd9"
+    },
+    {
+      "target": "assets/art/relics/basalt_calendar.png",
+      "source": "exec-22180d63-487b-4839-87c8-900043c38e7c.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "ed95c0f4e23d38fb87d9968e75effd2b7ab0ae7c4b55ceb0723b817f5334bcfc",
+      "output_sha256": "8ade9f983834b5b0095d3e9e4d273009a70e0f790df0c5960ba8d1d0d7fc0791"
+    },
+    {
+      "target": "assets/art/relics/venom_signet.png",
+      "source": "exec-b7e343b2-7d1c-4e40-9f32-f0f9bcec13ae.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "92a9cb76efa4f78b10bf8800a4a1147477b91414fbbcb6bc41db10ea4161454e",
+      "output_sha256": "1a3651b63ca631fb7de5a43f6c73c3549ff0b45dacd85c6336782d1f175eaffe"
+    },
+    {
+      "target": "assets/art/relics/frost_prism.png",
+      "source": "exec-15a40978-e74d-4d5c-8265-7990853e9a41.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "e3aaa3649c9604667525f792077d02ca83a741ddd5569026cf5e2833b8bcba1e",
+      "output_sha256": "8476a09594a37e9cd65a6d060cbd98c18be4fdc047897056be6f18a1a179c9e5"
+    },
+    {
+      "target": "assets/art/relics/thornmail_brooch.png",
+      "source": "exec-9bc07e44-c148-49c8-a35b-ecc4fad549c5.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "a3813d2d4bc355358a092102dc390b18fd816a594b07a107ca7a1b7768552b88",
+      "output_sha256": "5e441b6f5df4ab93e8f897db53d74ac6b9fcce6c130253ae2b62ba3c83d0f203"
+    },
+    {
+      "target": "assets/art/cards/cinderburst.png",
+      "source": "exec-91df1187-5c67-493d-b9a5-553397db332a.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "contain",
+      "source_sha256": "9b252fd969cbb1533d35a72525dc7c7bf331ecafc86d5d2526d7b4ef9ce03221",
+      "output_sha256": "68093379b568e224ec6381f455f3e5e53073f8fe1f7ca45f1f8358e793ff40f3"
+    },
+    {
+      "target": "assets/art/cards/venom_claw.png",
+      "source": "exec-acf4c97a-8dda-4582-b170-5319d9b734a3.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "fit",
+      "source_sha256": "b9b5f21b1f829bcc53aa5c1bc57cb2e929c199d123a526e29a2d42d4de62e795",
+      "output_sha256": "0fbf1a361ca0a5410c323e803fb673b58fcd1f1d73f05124ebf03fdc31c9d2bc"
+    },
+    {
+      "target": "assets/art/cards/ember_jab.png",
+      "source": "exec-c1814ea7-f238-467a-a7dd-ebf61bfcbb09.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "fit",
+      "source_sha256": "a080a6b63d7ad7a30c6217ce8cb719c60c1e30b7aef79025574e5b4d351981f8",
+      "output_sha256": "496c5923f749fc81ef151179684f1a67787f3298cf415593365224872fb07958"
+    },
+    {
+      "target": "assets/art/cards/ember_rain.png",
+      "source": "exec-6834ea77-3417-4eb5-a9e5-04425039a31f.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "fit",
+      "source_sha256": "7e565b874a8ac539019286435568931a00775f7e9a1f514c9e8ad3f41954662e",
+      "output_sha256": "ac7bd37a73dfeeb92723ca4f576fd1da0949cee4d059364b7aafb755bb090e3f"
+    },
+    {
+      "target": "assets/art/cards/cyclone_seal.png",
+      "source": "exec-bac1e5e1-22cd-4b74-8c47-52b9ea6e2f6c.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "fit",
+      "source_sha256": "8f356eb3d2f4617b18aec80c8083fdc231fc4eb5a014393a62b344058c4ede6c",
+      "output_sha256": "c1042371a1ee69a7583d1aeed8a1ca731a34633e324b86931f49a15118ff8217"
+    },
+    {
+      "target": "assets/art/cards/grave_dust_satchel.png",
+      "source": "exec-03a2fea5-e220-4b3e-b682-0d5b1d201609.png",
+      "size": [
+        256,
+        144
+      ],
+      "recipe": "contain",
+      "source_sha256": "5457bc39c9ea8f022e182d3ae17ad709993b664ecaac9d9b13598dfb3f543801",
+      "output_sha256": "4a3fbba40a7eec4d9e44a241349821ca066302f674de3fcae5945b24758de9b1"
+    },
+    {
+      "target": "assets/art/items/grave_dust_satchel.png",
+      "source": "exec-6cd48a08-ab20-44d1-8a30-2d46575cef83.png",
+      "size": [
+        96,
+        96
+      ],
+      "recipe": "contain",
+      "source_sha256": "a533c2f7b85e64d9b77db67bd4bbe440d69907cb0cb33d12aeef2a8f3d9e083f",
+      "output_sha256": "900bb59d5395f2ed3cab36763ab33ece1803e6554c823799e9325139a98e5237"
+    },
+    {
+      "target": "assets/art/enemies/bile_bloomer.png",
+      "source": "exec-169a10c8-74d6-42be-a28e-6774fcb977df.png",
+      "size": [
+        255,
+        255
+      ],
+      "recipe": "bottom",
+      "source_sha256": "3270d6d292aea6168494faf383a3ccd88351a3a95d9e9777c5677342c7d9e356",
+      "output_sha256": "263e00ef73d1671bb619ee330bb176bec9878f1609b3016041c07e9bba625aa9"
+    },
+    {
+      "target": "assets/art/portraits/bile_bloomer.png",
+      "source": "exec-1335dbc3-4630-4162-8564-1b84a98a611c.png",
+      "size": [
+        128,
+        128
+      ],
+      "recipe": "fit",
+      "source_sha256": "e334c426a60a6a535777523803afbe90d40748f29ff0a186b71e050c2a126337",
+      "output_sha256": "c5d359e837ac649f2cdbf8ffd3171ecbd86e9326388b867ba82eb2c437ee3d90"
+    },
+    {
+      "target": "assets/art/enemies/bile_bloomer_idle.png",
+      "source": "exec-849e1b3f-d411-42a2-9f02-c04202f2c099.png",
+      "size": [
+        1020,
+        510
+      ],
+      "recipe": "frames",
+      "source_sha256": "95461a00a856ede087b10dfa851a560d8830f95f0bd1ead03294ab81c7fe37d8",
+      "source_rects": [
+        [
+          20,
+          0,
+          337,
+          313
+        ],
+        [
+          337,
+          0,
+          662,
+          313
+        ],
+        [
+          662,
+          0,
+          987,
+          313
+        ],
+        [
+          987,
+          0,
+          1312,
+          313
+        ],
+        [
+          20,
+          313,
+          337,
+          615
+        ],
+        [
+          337,
+          313,
+          662,
+          615
+        ],
+        [
+          662,
+          313,
+          987,
+          615
+        ],
+        [
+          987,
+          313,
+          1312,
+          615
+        ]
+      ],
+      "standing_height": 208,
+      "baseline": 228,
+      "output_sha256": "7e6cfe0181c342dc8e9e349dd3c62cf652496ada36a83b8de49f7af197ba747c"
+    },
+    {
+      "target": "assets/art/enemies/bile_bloomer_death.png",
+      "source": "exec-d7e49175-bec0-432f-bfaf-525782d1c8cd.png",
+      "size": [
+        1020,
+        1020
+      ],
+      "recipe": "frames",
+      "source_sha256": "3f4e23336a59e986bc3e174f20f8e08362d9f5ec08dd0357959ed4d38c4e5532",
+      "source_rects": [
+        [
+          90,
+          0,
+          420,
+          278
+        ],
+        [
+          420,
+          0,
+          760,
+          278
+        ],
+        [
+          760,
+          0,
+          1100,
+          278
+        ],
+        [
+          1100,
+          0,
+          1445,
+          278
+        ],
+        [
+          90,
+          278,
+          420,
+          524
+        ],
+        [
+          420,
+          278,
+          760,
+          524
+        ],
+        [
+          760,
+          278,
+          1100,
+          524
+        ],
+        [
+          1100,
+          278,
+          1445,
+          524
+        ],
+        [
+          90,
+          524,
+          420,
+          770
+        ],
+        [
+          420,
+          524,
+          760,
+          770
+        ],
+        [
+          760,
+          524,
+          1100,
+          770
+        ],
+        [
+          1100,
+          524,
+          1445,
+          770
+        ],
+        [
+          90,
+          770,
+          420,
+          1024
+        ],
+        [
+          420,
+          770,
+          760,
+          1024
+        ],
+        [
+          760,
+          770,
+          1100,
+          1024
+        ],
+        [
+          1100,
+          770,
+          1445,
+          1024
+        ]
+      ],
+      "standing_height": 208,
+      "baseline": 228,
+      "output_sha256": "3293d6769aed51f9c3872ed5ab06547a8bbe04cc321dc93d315500db62b86ca3"
+    }
+  ]
+}

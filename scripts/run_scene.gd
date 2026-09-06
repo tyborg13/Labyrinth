@@ -10,7 +10,10 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
-const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
+const SurfaceAimFlow = preload("res://scripts/surface_aim_flow.gd")
+const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -91,12 +94,6 @@ class TooltipPanelContainer:
 		if for_text.strip_edges().is_empty():
 			return null
 		return UiTooltipPanelScript.make_text(for_text)
-
-class IntensityCharmTooltipPanel:
-	extends TooltipPanelContainer
-
-	func _has_point(point: Vector2) -> bool:
-		return ElementalIntensityHudArt.pointer_hit_test(point)
 
 class EquipmentTooltipPanelContainer:
 	extends TooltipPanelContainer
@@ -1194,7 +1191,7 @@ const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
 const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const INVALID_ROOM_COORD: Vector2i = Vector2i(999, 999)
-const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull"]
+const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 # AOE patterns can hit beyond their aim-center range, so only direct attacks use
 # the cheap distance prefilter before the exhaustive shortcut legality pass.
 const SHORTCUT_DIRECT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
@@ -1269,7 +1266,6 @@ const SKILL_CARD_SELECTION_PROMPT_SIZE: Vector2 = Vector2(620.0, 56.0)
 const SKILL_CHOICE_DIALOG_SIZE: Vector2 = Vector2(610.0, 520.0)
 const SKILL_CHOICE_DIALOG_MIN_SIZE: Vector2 = Vector2(360.0, 320.0)
 const HEADER_RELIC_WRAP_MARGIN: float = 24.0
-const ELEMENTAL_INTENSITY_HEADER_GAP: float = 3.0
 const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
 const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
@@ -1564,6 +1560,13 @@ var _hovered_card_index: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
 var _board_hover_threat_active: bool = false
 var _board_hover_room_focus_active: bool = false
+var _surface_analytics_revisions: Dictionary = {}
+var _surface_aim = SurfaceAimFlow.new()
+var _surface_skill_choice_row: HBoxContainer
+var _surface_skill_tiles: Array[Vector2i]
+var _surface_relic_origin_pending: bool = false
+var _surface_preview_cache_key: String = ""
+var _surface_preview_cache: Dictionary = {}
 var _pending_actions: Array = []
 var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
@@ -1732,7 +1735,7 @@ var _guided_tutorial_phase_id: String = ""
 var _guided_tutorial_pass_pending: bool = false
 var _guided_tutorial_started_logged: bool = false
 var _guided_tutorial_intent_enemy_tile: Vector2i = INVALID_TARGET_TILE
-var _action_context_command_bar: HBoxContainer
+var _action_context_command_bar: GridContainer
 var _action_context_connector: ColorRect
 var _action_step_tracker_position_locked: bool = false
 var _action_step_tracker_locked_position: Vector2 = Vector2.ZERO
@@ -1741,7 +1744,6 @@ var _action_step_resolution_card_id: String = ""
 var _action_step_resolution_actions: Array = []
 var _action_step_resolution_index: int = 0
 var _action_step_resolution_targets: Array[Vector2i] = []
-var _intensity_bar: Control
 var _turn_order_panel: PanelContainer
 var _turn_order_anchor: Control
 var _turn_order_bar: Control
@@ -1762,11 +1764,6 @@ var _show_all_enemy_intents: bool = false
 var _turn_order_panel_locked_width: float = -1.0
 var _turn_order_source_signature: String = "<unset>"
 var _turn_order_render_signature: String = "<unset>"
-var _intensity_badges: Dictionary = {}
-var _intensity_labels: Dictionary = {}
-var _intensity_charms: Dictionary = {}
-var _intensity_glows: Dictionary = {}
-var _intensity_content_hosts: Dictionary = {}
 var _ember_count_override: int = -1
 var _card_play_count_override: int = -1
 var _card_play_resolution_spend: int = 0
@@ -1979,7 +1976,6 @@ func _ready() -> void:
 	_setup_action_step_tracker()
 	_setup_play_meter()
 	_setup_movement_meter()
-	_setup_elemental_intensity_bar()
 	_connect_header_layout_signals()
 	_connect_choice_overlay_layout_signals()
 	_connect_board_aim_signals()
@@ -2719,6 +2715,8 @@ func _controller_enter_board(prefer_target: bool) -> void:
 		_refresh_controller_prompts()
 		return
 	var candidate_tile: Vector2i = INVALID_TARGET_TILE
+	if _surface_aim.active() and not _surface_skill_tiles.is_empty():
+		candidate_tile = _surface_skill_tiles[0]
 	if prefer_target and not _pending_target_tiles.is_empty():
 		candidate_tile = _pending_target_tiles[0]
 	if candidate_tile == INVALID_TARGET_TILE:
@@ -2833,6 +2831,15 @@ func _controller_board_candidates() -> Array[Dictionary]:
 
 func _controller_navigation_candidates() -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = _controller_board_candidates()
+	for command_host: Control in [_action_context_command_bar, _choice_button_overlay, _surface_skill_choice_row]:
+		if command_host == null or not command_host.is_visible_in_tree(): continue
+		for child: Node in command_host.get_children():
+			if child is Button:
+				var command_candidate: Dictionary = _controller_candidate_for_control(child as Control)
+				if not command_candidate.is_empty(): candidates.append(command_candidate)
+	if _surface_aim.active() and _combat_skill_card_selection_cancel_button != null:
+		var cancel_candidate: Dictionary = _controller_candidate_for_control(_combat_skill_card_selection_cancel_button)
+		if not cancel_candidate.is_empty(): candidates.append(cancel_candidate)
 	for control: Control in _controller_header_focus_controls():
 		var candidate: Dictionary = _controller_candidate_for_control(control)
 		if not candidate.is_empty():
@@ -3119,7 +3126,7 @@ func _controller_activate_current() -> void:
 		return
 	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
 		await _on_board_tile_clicked(_controller_board_tile)
-		if _selected_card_index < 0 and not _player_movement_selected:
+		if _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active() and not _surface_relic_origin_pending:
 			_controller_region = "hand"
 			_controller_set_hand_focused(true)
 			_controller_set_hand_index(maxi(0, _controller_hand_index))
@@ -3548,7 +3555,7 @@ func _notification(what: int) -> void:
 		_layout_relic_choice_overlay()
 		_layout_choice_button_overlay()
 		_layout_header_hud()
-		_layout_elemental_intensity_bar()
+		_layout_combat_objective_hud()
 		_layout_turn_order_anchor()
 		_layout_contextual_combat_prompt_overlay()
 		_layout_grimoire_dialog()
@@ -4117,9 +4124,12 @@ func _build_combat_skill_card_selection_prompt() -> void:
 	margin.add_theme_constant_override("margin_right", 8)
 	margin.add_theme_constant_override("margin_bottom", 6)
 	_combat_skill_card_selection_prompt.add_child(margin)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 8)
+	margin.add_child(stack)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	margin.add_child(row)
+	stack.add_child(row)
 	_combat_skill_card_selection_label = Label.new()
 	_combat_skill_card_selection_label.name = "SkillCardSelectionInstruction"
 	_combat_skill_card_selection_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4137,12 +4147,19 @@ func _build_combat_skill_card_selection_prompt() -> void:
 	_combat_skill_card_selection_cancel_button.pressed.connect(_cancel_combat_skill_card_selection)
 	row.add_child(_combat_skill_card_selection_cancel_button)
 
+	_surface_skill_choice_row = HBoxContainer.new()
+	_surface_skill_choice_row.name = "SurfaceChoices"
+	_surface_skill_choice_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_surface_skill_choice_row.add_theme_constant_override("separation", 10)
+	_surface_skill_choice_row.visible = false
+	stack.add_child(_surface_skill_choice_row)
+
 func _layout_combat_skill_card_selection_prompt() -> void:
 	if _combat_skill_card_selection_prompt == null or not _combat_skill_card_selection_prompt.visible:
 		return
 	var root_rect: Rect2 = ui_root.get_global_rect()
 	var available_width: float = maxf(1.0, root_rect.size.x - 16.0)
-	var prompt_size := Vector2(minf(SKILL_CARD_SELECTION_PROMPT_SIZE.x, available_width), SKILL_CARD_SELECTION_PROMPT_SIZE.y)
+	var prompt_size := Vector2(minf(720.0 if _surface_aim.active() else SKILL_CARD_SELECTION_PROMPT_SIZE.x, available_width), 110.0 if _surface_aim.active() else SKILL_CARD_SELECTION_PROMPT_SIZE.y)
 	_combat_skill_card_selection_prompt.custom_minimum_size = prompt_size
 	_combat_skill_card_selection_prompt.size = prompt_size
 	var hand_top: float = root_rect.end.y - 8.0
@@ -8718,10 +8735,6 @@ func _reset_card_proxy_widget_transients(widget: Control) -> void:
 	var time_badge: Variant = widget.get("_time_badge")
 	if time_badge is Node and (time_badge as Node).has_method("set_hovered"):
 		(time_badge as Node).call("set_hovered", false)
-	var intensity_glow: Variant = widget.get("_intensity_active_glow")
-	if intensity_glow is Node:
-		(intensity_glow as Node).set("_pulse_phase", 0.0)
-
 func _take_pooled_card_proxy() -> Control:
 	while not _card_proxy_pool.is_empty():
 		var proxy: Control = _card_proxy_pool.pop_back()
@@ -9914,10 +9927,11 @@ func _setup_action_step_tracker() -> void:
 	action_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	action_row.add_child(action_spacer)
 
-	_action_context_command_bar = HBoxContainer.new()
+	_action_context_command_bar = GridContainer.new()
 	_action_context_command_bar.name = "ActionContextCommands"
-	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
-	_action_context_command_bar.add_theme_constant_override("separation", 8)
+	_action_context_command_bar.columns = 3
+	_action_context_command_bar.add_theme_constant_override("h_separation", 8)
+	_action_context_command_bar.add_theme_constant_override("v_separation", 6)
 	action_row.add_child(_action_context_command_bar)
 
 func _schedule_action_tracker_prewarm(hand: Array) -> void:
@@ -10179,106 +10193,6 @@ func _visible_hbox_minimum_width(container: HBoxContainer) -> float:
 		width += float(container.get_theme_constant("separation")) * float(visible_children - 1)
 	return width
 
-func _setup_elemental_intensity_bar() -> void:
-	_intensity_bar = Control.new()
-	_intensity_bar.name = "ElementalIntensityBar"
-	_intensity_bar.visible = false
-	_intensity_bar.mouse_filter = Control.MOUSE_FILTER_PASS
-	_intensity_bar.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_intensity_bar.custom_minimum_size = _intensity_bar_size()
-	_intensity_bar.size = _intensity_bar_size()
-	_intensity_bar.z_index = 30
-	ui_root.add_child(_intensity_bar)
-	var rig := TextureRect.new()
-	rig.name = "AuthoredRailAndChains"
-	rig.position = ElementalIntensityHudArt.RIG_RECT.position
-	rig.size = ElementalIntensityHudArt.RIG_RECT.size
-	rig.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	rig.stretch_mode = TextureRect.STRETCH_SCALE
-	rig.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.RIG_TEXTURE_PATH), 0.025)
-	rig.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rig.z_index = -20
-	rig.set_meta("authored_raster_role", "rail_and_chains")
-	_intensity_bar.add_child(rig)
-	for element_id: String in ElementData.all_elements():
-		var badge := IntensityCharmTooltipPanel.new()
-		badge.name = "%sCharm" % ElementData.name(element_id)
-		badge.custom_minimum_size = ElementalIntensityHudArt.ITEM_SIZE
-		badge.size = ElementalIntensityHudArt.ITEM_SIZE
-		badge.mouse_filter = Control.MOUSE_FILTER_STOP
-		badge.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-		badge.tooltip_text = _intensity_tooltip(element_id)
-		badge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-		badge.set_meta("element_id", element_id)
-		badge.set_meta("charm_art_path", ElementData.intensity_charm_path(element_id))
-		_intensity_bar.add_child(badge)
-		_intensity_badges[element_id] = badge
-
-		var content := Control.new()
-		content.name = "CharmContent"
-		content.set_anchors_preset(Control.PRESET_FULL_RECT)
-		content.anchor_right = 1.0
-		content.anchor_bottom = 1.0
-		content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		badge.add_child(content)
-		_intensity_content_hosts[element_id] = content
-
-		var charm_texture: Texture2D = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementData.intensity_charm_path(element_id)))
-		var glow := TextureRect.new()
-		glow.name = "IntensityGlow"
-		glow.position = ElementalIntensityHudArt.CHARM_RECT.position
-		glow.size = ElementalIntensityHudArt.CHARM_RECT.size
-		glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		glow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		glow.texture = charm_texture
-		glow.material = ElementalIntensityHudArt.make_glow_material(element_id, 0)
-		glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		glow.visible = false
-		glow.set_meta("element_id", element_id)
-		content.add_child(glow)
-		_intensity_glows[element_id] = glow
-
-		var charm := TextureRect.new()
-		charm.name = "AuthoredCharmArt"
-		charm.position = ElementalIntensityHudArt.CHARM_RECT.position
-		charm.size = ElementalIntensityHudArt.CHARM_RECT.size
-		charm.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		charm.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		charm.texture = charm_texture
-		charm.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		charm.set_meta("authored_raster_role", "element_charm")
-		content.add_child(charm)
-		_intensity_charms[element_id] = charm
-
-		var placard := TextureRect.new()
-		placard.name = "AuthoredNumberPlacard"
-		placard.position = ElementalIntensityHudArt.PLACARD_RECT.position
-		placard.size = ElementalIntensityHudArt.PLACARD_RECT.size
-		placard.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		placard.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		placard.texture = ElementalIntensityHudArt.cropped_texture(AssetLoader.load_texture(ElementalIntensityHudArt.PLACARD_TEXTURE_PATH), 0.035)
-		placard.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		placard.set_meta("authored_raster_role", "number_placard")
-		content.add_child(placard)
-
-		var count := Label.new()
-		count.name = "IntensityValue"
-		count.position = ElementalIntensityHudArt.NUMBER_LABEL_RECT.position
-		count.size = ElementalIntensityHudArt.NUMBER_LABEL_RECT.size
-		count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		count.clip_text = true
-		count.text = "0"
-		UiTypography.set_label_size(count, UiTypography.SIZE_BODY_LARGE)
-		count.add_theme_color_override("font_color", Color("fff7df"))
-		count.add_theme_color_override("font_outline_color", Color("24160f"))
-		count.add_theme_constant_override("outline_size", 2)
-		content.add_child(count)
-		_intensity_labels[element_id] = count
-	_layout_intensity_badges()
-	_refresh_elemental_intensity_bar()
-
 func _setup_relic_bar_layout() -> void:
 	_relic_utility_bar = HBoxContainer.new()
 	_relic_utility_bar.name = "RelicUtilityLane"
@@ -10302,32 +10216,13 @@ func _connect_header_layout_signals() -> void:
 		var control: Control = control_var as Control
 		if control == null:
 			continue
-		if not control.resized.is_connected(_queue_elemental_intensity_layout):
-			control.resized.connect(_queue_elemental_intensity_layout)
+		if not control.resized.is_connected(_queue_header_hud_layout):
+			control.resized.connect(_queue_header_hud_layout)
 
-func _queue_elemental_intensity_layout() -> void:
+func _queue_header_hud_layout() -> void:
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_combat_objective_hud")
 	call_deferred("_layout_turn_order_anchor")
-
-func _intensity_bar_size() -> Vector2:
-	return ElementalIntensityHudArt.CLUSTER_SIZE
-
-func _intensity_badge_position(index: int) -> Vector2:
-	if index < 0 or index >= ElementData.all_elements().size():
-		return Vector2.ZERO
-	return ElementalIntensityHudArt.item_position(ElementData.all_elements()[index])
-
-func _layout_intensity_badges() -> void:
-	if _intensity_bar == null:
-		return
-	for index: int in range(ElementData.all_elements().size()):
-		var element_id: String = ElementData.all_elements()[index]
-		var badge: Control = _intensity_badges.get(element_id, null)
-		if badge == null:
-			continue
-		badge.position = _intensity_badge_position(index)
-		badge.size = ElementalIntensityHudArt.ITEM_SIZE
 
 func _layout_header_hud() -> void:
 	if title_box == null:
@@ -10335,11 +10230,8 @@ func _layout_header_hud() -> void:
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
 	if umbra_subtitle != null and umbra_subtitle.visible:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
-	var intensity_active: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
 	if _relic_utility_bar != null:
 		_relic_utility_bar.visible = _relic_utility_bar.get_child_count() > 0
-	if intensity_active:
-		min_width = maxf(min_width, _intensity_bar_size().x)
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
 		min_width = maxf(min_width, _desired_relic_bar_width())
 	var available_width: float = _header_title_available_width()
@@ -10404,25 +10296,6 @@ func _header_title_available_width() -> float:
 	var separation: float = float(top_bar.get_theme_constant("separation"))
 	var total_gap: float = separation * float(maxi(0, visible_children - 1))
 	return maxf(0.0, width - fixed_width - total_gap - HEADER_RELIC_WRAP_MARGIN)
-
-func _layout_elemental_intensity_bar() -> void:
-	if _intensity_bar == null or room_title == null or room_subtitle == null:
-		return
-	_layout_header_hud()
-	_intensity_bar.size = _intensity_bar_size()
-	_layout_intensity_badges()
-	var title_rect: Rect2 = room_title.get_global_rect()
-	var subtitle_bottom: float = room_subtitle.get_global_rect().end.y
-	if umbra_subtitle != null and umbra_subtitle.visible:
-		subtitle_bottom = umbra_subtitle.get_global_rect().end.y
-	var y: float = subtitle_bottom + ELEMENTAL_INTENSITY_HEADER_GAP
-	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
-		# The compact relic block owns the rows directly beneath the utility row. Keep the
-		# hanging charms after the complete block so the two readable clusters never
-		# share hit regions or cover one another.
-		y = _relic_bar_visible_bottom_y() + ELEMENTAL_INTENSITY_HEADER_GAP
-	_intensity_bar.global_position = Vector2(title_rect.position.x, y)
-	_layout_combat_objective_hud()
 
 func _relic_bar_first_row_bottom_y() -> float:
 	if relic_bar == null:
@@ -10875,6 +10748,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_reward_reveal_pending = false
 	_reward_intro_in_progress = false
 	_committed_run_state_override.clear()
+	var surface_migration_required: bool = int(next_run_state.get(preload("res://scripts/surface_save_migration.gd").VERSION_KEY, 0)) < BoardSurfaceRules.RULES_VERSION
 	var content_migration_required: bool = _run_engine.run_content_migration_required(next_run_state)
 	var combat_units_migration_required: bool = _run_engine.combat_units_migration_required(next_run_state)
 	var migrated_profile: Dictionary = _run_engine.migrate_renamed_content_ids(_progression)
@@ -10896,11 +10770,11 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_baseline_card_draw_sfx_revision(_combat_state)
 	_repair_legacy_empty_actor_transition()
 	if (
-		(content_migration_required or combat_units_migration_required)
+		(content_migration_required or combat_units_migration_required or surface_migration_required)
 		and not bool(_run_state.get("debug_boss_run", false))
 		and not ProgressionStore.save_run_state(_run_state)
 	):
-		push_error("Failed to persist migrated run content or combat units.")
+		push_error("Failed to persist migrated run content, combat units, or surface rules.")
 	_sync_analytics_combat_tracker()
 	_reset_card_resolution()
 	_victory_carry_processed = false
@@ -11004,10 +10878,8 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_objective", performance_phase_started)
 	_layout_header_hud()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_header_layout", performance_phase_started)
-	_refresh_elemental_intensity_bar()
-	performance_phase_started = _record_runtime_performance_phase("refresh_ui_elemental_intensity", performance_phase_started)
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_combat_objective_hud")
 	mini_map.set_run_state(_run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_minimap", performance_phase_started)
 	if _large_map_view != null:
@@ -11413,7 +11285,7 @@ func _refresh_relic_bar() -> void:
 	_layout_header_hud()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_layout", performance_phase_started)
 	call_deferred("_layout_header_hud")
-	call_deferred("_layout_elemental_intensity_bar")
+	call_deferred("_layout_combat_objective_hud")
 	if should_pulse and _skill_sigil != null:
 		call_deferred("_pulse_skill_sigil")
 	if should_pulse_defiance and _defiance_badge != null:
@@ -12039,6 +11911,8 @@ func _on_skill_status_action_pressed() -> void:
 		_on_combat_skill_pressed(_skill_status_selected_id)
 
 func _combat_skill_is_activatable(skill_id: String) -> bool:
+	if _surface_aim.active():
+		return false
 	return (
 		SkillTreeLibrary.activation_kind(skill_id) == "manual"
 		and _combat_skill_activation_surface_available()
@@ -12071,8 +11945,6 @@ func _skill_hud_status(skill_id: String) -> String:
 		return "SPENT"
 	if mode == "combat" and not _combat_state.is_empty():
 		var flags: Dictionary = _combat_state.get("skill_flags", {}) as Dictionary
-		if effect_type == "arm_intensity" and bool(flags.get("prismatic_armed", false)):
-			return "ARMED"
 		if effect_type == "preserve_burn" and bool(flags.get("burn_preserve_armed", false)):
 			return "ARMED"
 		if effect_type == "preserve_item" and bool(flags.get("item_preserve_armed", false)):
@@ -12346,12 +12218,7 @@ func _combat_objective_hud_target_rect() -> Rect2:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var top: float = viewport_size.y * 0.60
 	var minimum_top: float = 104.0
-	if ui_root != null and _intensity_bar != null and _intensity_bar.visible and _intensity_bar.is_inside_tree():
-		var ui_origin: Vector2 = ui_root.get_global_rect().position
-		var intensity_rect: Rect2 = _intensity_bar.get_global_rect()
-		left = intensity_rect.position.x - ui_origin.x
-		minimum_top = intensity_rect.end.y - ui_origin.y + 12.0
-	elif top_bar != null and top_bar.is_inside_tree() and ui_root != null:
+	if top_bar != null and top_bar.is_inside_tree() and ui_root != null:
 		minimum_top = maxf(minimum_top, top_bar.get_global_rect().end.y - ui_root.get_global_rect().position.y + 10.0)
 	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
 		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
@@ -13777,8 +13644,6 @@ func _layout_action_step_tracker() -> void:
 		call_deferred("_layout_contextual_combat_prompt_overlay")
 		return
 	var minimum_y: float = maxf(ACTION_CONTEXT_EDGE_MARGIN, top_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
-	if _intensity_bar != null and _intensity_bar.visible:
-		minimum_y = maxf(minimum_y, _intensity_bar.get_global_rect().end.y + CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP)
 	var safe_area := Rect2(
 		Vector2(ACTION_CONTEXT_EDGE_MARGIN, minimum_y),
 		Vector2(
@@ -13891,7 +13756,6 @@ func _action_step_tracker_protected_rects() -> Array:
 	var result: Array = []
 	for control_var: Variant in [
 		top_bar,
-		_intensity_bar,
 		_combat_objective_hud,
 		draw_pile,
 		discard_pile,
@@ -13909,6 +13773,10 @@ func _action_step_tracker_protected_rects() -> Array:
 		var rect: Rect2 = control.get_global_rect()
 		if rect.size.x > 0.0 and rect.size.y > 0.0:
 			result.append(rect.grow(ACTION_STEP_TRACKER_GAP))
+	var active_card: int = _selected_card_index if _selected_card_index >= 0 else _card_action_choice_index
+	if active_card >= 0:
+		var selected_rect: Rect2 = _hand_card_global_rect(active_card)
+		if selected_rect.has_area(): result.append(selected_rect.grow(ACTION_STEP_TRACKER_GAP))
 	return result
 
 
@@ -13987,14 +13855,16 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 		return
 	var context_mode: String = str(tracker_state.get("mode", "selection"))
 	_action_context_command_bar.size_flags_horizontal = Control.SIZE_SHRINK_END
-	_action_context_command_bar.alignment = BoxContainer.ALIGNMENT_END
-	_action_context_command_bar.add_theme_constant_override("separation", 8)
+	_action_context_command_bar.columns = 3
+	_action_context_command_bar.add_theme_constant_override("h_separation", 8)
+	_action_context_command_bar.add_theme_constant_override("v_separation", 6)
 	if context_mode == "drag":
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
 	if context_mode not in ["selection", "choice"]:
 		return
 	var alongside_mode_tabs: bool = context_mode == "choice"
+	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
 	if _current_action_can_skip():
@@ -14084,7 +13954,7 @@ func _current_action_supports_rotation() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	return str(action.get("type", "")) == "aoe" and _combat_engine.player_action_needs_orientation(action)
+	return str(action.get("type", "")) in ["aoe", "surface", "detonate"] and _combat_engine.player_action_needs_orientation(action)
 
 func _on_rotate_action_context_pressed() -> void:
 	if not _current_action_supports_rotation():
@@ -14481,7 +14351,7 @@ func _action_step_icon_key(action: Dictionary) -> String:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var as Dictionary
-		if str(token.get("kind", "")) == "intensity_requirement":
+		if str(token.get("kind", "")) == "surface_condition":
 			continue
 		return str(token.get("icon", ""))
 	return ""
@@ -14541,36 +14411,6 @@ func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
 	_card_play_budget_override = budget
 	_set_card_play_count_override(int(budget.get("total_remaining", 0)))
 
-func _refresh_elemental_intensity_bar(display_state: Dictionary = {}) -> void:
-	if _intensity_bar == null:
-		return
-	var state: Dictionary = display_state if not display_state.is_empty() else _combat_state
-	var active: bool = str(_run_state.get("mode", "room")) == "combat" and not state.is_empty()
-	_intensity_bar.visible = active
-	if not active:
-		return
-	_layout_elemental_intensity_bar()
-	var intensities: Dictionary = _combat_engine.elemental_intensities(state)
-	for element_id: String in ElementData.all_elements():
-		var value: int = int(intensities.get(element_id, 0))
-		var label: Label = _intensity_labels.get(element_id, null)
-		if label != null:
-			label.text = str(value)
-		var badge: PanelContainer = _intensity_badges.get(element_id, null)
-		if badge != null:
-			badge.tooltip_text = _intensity_tooltip(element_id)
-			badge.set_meta("intensity_value", value)
-		var charm: TextureRect = _intensity_charms.get(element_id, null)
-		if charm != null:
-			charm.modulate = Color.WHITE if value > 0 else Color(0.72, 0.72, 0.72, 0.54)
-		var glow: TextureRect = _intensity_glows.get(element_id, null)
-		if glow != null:
-			glow.visible = value > 0
-			glow.set_meta("intensity_value", value)
-			glow.set_meta("glow_strength", ElementalIntensityHudArt.glow_strength(value))
-			glow.set_meta("glow_spread", ElementalIntensityHudArt.glow_spread(value))
-			ElementalIntensityHudArt.update_glow_material(glow.material as ShaderMaterial, element_id, value)
-
 func _refresh_umbra_subtitle() -> void:
 	if umbra_subtitle == null:
 		return
@@ -14595,10 +14435,6 @@ func _refresh_umbra_subtitle() -> void:
 		radius_text
 	]
 	umbra_subtitle.visible = true
-
-func _intensity_tooltip(element_id: String) -> String:
-	var element_name: String = ElementData.name(element_id)
-	return "The intensity of %s in the room.\n%s effects are stronger when this is higher." % [element_name, element_name]
 
 func _displayed_ember_count() -> int:
 	if _ember_count_override >= 0:
@@ -14699,6 +14535,9 @@ func _refresh_choice_bar() -> void:
 	if mode == "combat" and not _combat_state.is_empty() and _combat_engine.is_player_turn(_combat_state):
 		_add_pass_preview_chip()
 	match mode:
+		"combat":
+			if _surface_aim.active():
+				_add_surface_skill_choices()
 		"room":
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
@@ -14805,8 +14644,8 @@ func _on_combat_skill_pressed(skill_id: String) -> void:
 			_begin_quick_wits_card_selection(skill_id)
 		"discard_recall":
 			_begin_encore_card_selection(skill_id)
-		"arm_intensity":
-			_begin_prismatic_card_selection(skill_id)
+		"surface", "surface_relocate":
+			_begin_surface_skill_selection(skill_id)
 		"preserve_burn":
 			_commit_combat_skill_state(_combat_engine.arm_rehearsed_escape(_combat_state), skill_id)
 		"preserve_item":
@@ -14912,17 +14751,6 @@ func _combat_skill_discard_selection_rect(discard_index: int) -> Rect2:
 			return button.get_global_rect()
 	return Rect2()
 
-func _begin_prismatic_card_selection(skill_id: String) -> void:
-	_begin_hand_skill_card_selection(
-		skill_id,
-		_combat_engine.prismatic_target_hand_indices(_combat_state),
-		"PRISMATIC INSTINCT  ·  CHOOSE A CONDITIONAL CARD"
-	)
-
-func _commit_prismatic(skill_id: String, hand_index: int) -> void:
-	_clear_combat_skill_card_selection()
-	_commit_combat_skill_state(_combat_engine.arm_prismatic_instinct(_combat_state, hand_index), skill_id)
-
 func _begin_hand_skill_card_selection(skill_id: String, valid_indices: Array[int], instruction: String) -> void:
 	if valid_indices.is_empty():
 		return
@@ -14950,10 +14778,11 @@ func _on_combat_skill_hand_card_selected(hand_index: int) -> void:
 	match SkillTreeLibrary.effect_type(skill_id):
 		"discard_draw":
 			_commit_quick_wits(skill_id, hand_index)
-		"arm_intensity":
-			_commit_prismatic(skill_id, hand_index)
 
 func _cancel_combat_skill_card_selection() -> void:
+	if _surface_aim.active():
+		_cancel_surface_skill_selection()
+		return
 	var was_discard_selection: bool = _combat_skill_card_selection_zone == "discard"
 	_clear_combat_skill_card_selection()
 	if was_discard_selection and _pile_scrim != null:
@@ -15129,6 +14958,8 @@ func _add_pass_preview_chip() -> void:
 		choice_bar.add_child(chip)
 
 func _pass_preview_action_available() -> bool:
+	if _surface_aim.active():
+		return false
 	return (
 		str(_run_state.get("mode", "room")) == "combat"
 		and not _combat_state.is_empty()
@@ -15328,7 +15159,7 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if not shortcut_plan.is_empty():
 		return _pass_preview_confirmed_shortcut_state(preview, shortcut_plan, _hovered_board_tile)
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	if str(action.get("type", "")) == "aoe":
+	if str(action.get("type", "")) in ["aoe", "surface", "detonate"]:
 		action = _action_with_aoe_aim_orientation(action)
 	elif _target_needs_force_orientation(action, _hovered_board_tile):
 		return {}
@@ -17530,7 +17361,7 @@ func _refresh_stage_view() -> void:
 				attack_tiles = _vector2i_array(_preview_shortcuts_cache.get("tiles", []))
 				if not attack_tiles.is_empty():
 					presentation["pulse_attack_tiles"] = true
-			elif action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+			elif action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 				if bool(preview.get("orientation_pending", false)):
 					attack_tiles = _vector2i_array([preview.get("orientation_target", INVALID_TARGET_TILE)])
 					presentation["ability_tiles"] = _direction_choice_tiles(preview.get("orientation_target", INVALID_TARGET_TILE))
@@ -18300,6 +18131,10 @@ func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dict
 	return preview
 
 func _active_card_preview() -> Dictionary:
+	if _surface_aim.active():
+		return {"state": _combat_state, "action": _surface_aim.action(), "target_tiles": _surface_skill_tiles, "complete": false, "playable": true, "skill_aim": true}
+	if _surface_relic_origin_pending:
+		return {"state": _preview_combat_state, "action": {"type": "surface", "surface": "rubble"}, "target_tiles": SurfaceRelicRules.origin_tiles(_preview_combat_state), "complete": false, "playable": true, "origin_aim": true}
 	if _combat_skill_card_selection_zone == "hand":
 		return {}
 	if _player_movement_selected:
@@ -18321,7 +18156,7 @@ func _active_card_preview() -> Dictionary:
 		return {}
 	if _selected_card_index >= 0:
 		if _pending_action_index < _pending_actions.size():
-			var action: Dictionary = _pending_actions[_pending_action_index]
+			var action: Dictionary = SurfaceRelicRules.resolve_action(_preview_combat_state, _pending_actions[_pending_action_index])
 			var target_tiles: Array[Vector2i] = _vector2i_array(_pending_target_tiles)
 			var orientation_pending: bool = _orientation_pending()
 			if orientation_pending:
@@ -18483,7 +18318,7 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
-	var summary_rows: Array = _annotate_intensity_spend_rows(ActionIcons.cost_rows_for_card(card), state)
+	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
 	var preview_state: Dictionary = state.duplicate(true)
 	var previous_action_row_index: int = -1
@@ -18495,7 +18330,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"melee", "ranged", "aoe":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				var attack_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(attack_damage_modifiers)
+				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": attack_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(attack_final_damage, attack_visible_modifiers, action),
@@ -18505,7 +18340,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			"push", "pull":
 				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-				var shove_visible_modifiers: Array[Dictionary] = _non_intensity_damage_modifiers(shove_damage_modifiers)
+				var shove_visible_modifiers: Array[Dictionary] = shove_damage_modifiers
 				row = ActionIcons.tokens_for_action(action, {
 					"final_damage": shove_final_damage,
 					"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers, action),
@@ -18514,13 +18349,11 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 				_consume_preview_damage_modifiers(preview_state, action)
 			_:
 				row = ActionIcons.tokens_for_action(action)
-		var annotated_row: Array = _annotate_intensity_condition_row(row, _combat_engine.action_intensity_requirement_met(preview_state, action))
+		var annotated_row: Array = row
 		previous_action_row_index = ActionIcons.append_action_row(summary_rows, action, annotated_row, previous_action_row_index)
-		if action_type == "intensity" and _combat_engine.player_action_can_resolve(preview_state, action):
-			preview_state = _combat_engine.apply_player_action(preview_state, action)
-		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
+		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
-			summary_rows.append(_annotate_intensity_condition_row(bonus_row, _combat_engine.action_intensity_bonus_requirement_met(preview_state, action)))
+			summary_rows.append(bonus_row)
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = str(card.get("description", ""))
@@ -18529,45 +18362,6 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
-
-func _annotate_intensity_condition_row(row: Array, active: bool) -> Array:
-	var annotated: Array = []
-	for token_var: Variant in row:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			annotated.append(token_var)
-			continue
-		var token: Dictionary = (token_var as Dictionary).duplicate(true)
-		if str(token.get("kind", "")) == "intensity_requirement":
-			token["condition_active"] = active
-		annotated.append(token)
-	return annotated
-
-func _annotate_intensity_spend_rows(rows: Array, state: Dictionary) -> Array:
-	var annotated_rows: Array = []
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			annotated_rows.append(row_var)
-			continue
-		var annotated_row: Array = []
-		for token_var: Variant in row_var as Array:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				annotated_row.append(token_var)
-				continue
-			var token: Dictionary = (token_var as Dictionary).duplicate(true)
-			if str(token.get("kind", "")) == "intensity_spend":
-				var element_id: String = str(token.get("element", ElementData.NONE))
-				token["condition_active"] = _combat_engine.elemental_intensity(state, element_id) >= int(token.get("amount", 0))
-			annotated_row.append(token)
-		annotated_rows.append(annotated_row)
-	return annotated_rows
-
-func _non_intensity_damage_modifiers(modifiers: Array[Dictionary]) -> Array[Dictionary]:
-	var filtered: Array[Dictionary] = []
-	for modifier: Dictionary in modifiers:
-		if str(modifier.get("kind", "")) == "elemental_intensity":
-			continue
-		filtered.append(modifier)
-	return filtered
 
 func _damage_tone_base_excluding_modifiers(
 	final_damage: int,
@@ -18585,7 +18379,7 @@ func _damage_tone_base_excluding_modifiers(
 
 func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) -> void:
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "aoe", "push", "pull"]:
+	if action_type not in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return
 	if int(action.get("damage", 0)) <= 0:
 		return
@@ -18838,18 +18632,6 @@ func _card_preview_from_state(
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
-			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-				return {
-					"card_id": card_id,
-					"state": working_state,
-					"actions": actions,
-					"action_index": cursor,
-					"target_tiles": _vector2i_array([]),
-					"complete": true,
-					"playable": false,
-					"action": action,
-					"skip_allowed": false
-				}
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -19017,8 +18799,6 @@ func _card_preview_continuation_is_playable(
 	while cursor < actions.size():
 		var action: Dictionary = actions[cursor]
 		if not _combat_engine.player_action_can_resolve(working_state, action):
-			if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-				return false
 			cursor += 1
 			continue
 		if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0:
@@ -19092,8 +18872,6 @@ func _continuation_can_finish_by_skipping_targets(actions: Array, action_index: 
 		if typeof(actions[index]) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = actions[index] as Dictionary
-		if str(action.get("type", "")) == "intensity_spend" and bool(action.get("required", false)):
-			return false
 		if _combat_engine.player_action_needs_target(action) and not _target_action_can_skip(action, actions):
 			return false
 	return true
@@ -19110,6 +18888,9 @@ func _umbra_defers_movement_followup_preview(state: Dictionary, action: Dictiona
 
 func _preview_trap_tiles_lookup(state: Dictionary) -> Dictionary:
 	var lookup: Dictionary = {}
+	# Surface entry and departure can change health, Chill and relic state.
+	for ground_tile: Vector2i in BoardSurfaceRules.tiles(state):
+		lookup[ground_tile] = true
 	for trap_var: Variant in state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -19121,7 +18902,7 @@ func _preview_trap_tiles_lookup(state: Dictionary) -> Dictionary:
 func _preview_path_hits_lookup(path_tiles: Array[Vector2i], tile_lookup: Dictionary) -> bool:
 	if tile_lookup.is_empty():
 		return false
-	for index: int in range(1, path_tiles.size()):
+	for index: int in range(path_tiles.size()):
 		if tile_lookup.has(path_tiles[index]):
 			return true
 	return false
@@ -19184,6 +18965,7 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	_record_runtime_performance_phase("preview_risk", performance_phase_started)
 	if not movement_risk_chips.is_empty():
 		result["movement_risk_chips"] = movement_risk_chips
+	_append_surface_action_preview(result, preview)
 	return result
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
@@ -19290,13 +19072,13 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 		"melee", "ranged", "push", "pull":
 			var force_tiles: Array[Vector2i] = _combat_engine.forced_movement_tiles_for_player_action(state, action, target_tile)
 			return {
-				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
+				"kind": "ranged" if action_type in ["push", "pull"] else "aoe" if action_type == "detonate" else action_type,
 				"action_type": action_type,
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
 				"target_curve_visible": _player_preview_target_curve_visible(action_type),
-				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
+				"element": str(action.get("element", action.get("_card_element", ElementData.FIRE if action_type == "detonate" else ElementData.NONE))),
 				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
 			}
@@ -19317,7 +19099,7 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 
 func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var action_type: String = str(action.get("type", ""))
-	if action_type not in ["melee", "ranged", "aoe", "push", "pull"]:
+	if action_type not in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return {}
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
@@ -19501,7 +19283,7 @@ func _preview_shortcuts_for_current_action(
 	if action_type == "move":
 		movement_plan = _combat_engine.movement_plan_for_player_action(preview_state, action, move_targets)
 	if not _remaining_actions_include_shortcut_attack(actions, action_index + 1):
-		# Ordinary movement cards with only draw/block/intensity follow-ups cannot
+		# Ordinary movement cards with only draw/block/support follow-ups cannot
 		# produce a move-and-attack shortcut. Resolving the move, every movement
 		# relic, light source, trap, loot pickup, and follow-up once per reachable
 		# tile was pure discarded work (39 full simulations for Threaded Path).
@@ -19768,6 +19550,8 @@ func _shortcut_positional_state(state: Dictionary, player_tile: Vector2i) -> Dic
 	return positional_state
 
 func _shortcut_path_has_live_trap(state: Dictionary, path_tiles: Array[Vector2i]) -> bool:
+	for tile: Vector2i in path_tiles:
+		if not BoardSurfaceRules.surface_at(state, tile).is_empty(): return true
 	for trap_var: Variant in state.get("traps", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
 			continue
@@ -20039,8 +19823,11 @@ func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dict
 	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
-	if not triggered_traps.is_empty():
-		chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
+	chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
+	if path_tiles.size() > 1:
+		var cost: int = _combat_engine.movement_cost_for_path(before_state, path_tiles)
+		if cost > path_tiles.size() - 1:
+			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % cost, "kind": "status"})
 	for loot: Dictionary in picked_loot:
 		var pickup_chip: Dictionary = _movement_pickup_chip(loot)
 		if not pickup_chip.is_empty():
@@ -20069,7 +19856,7 @@ func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictio
 	var after_player: Dictionary = after_state.get("player", {})
 	var labels := PackedStringArray()
 	var seen: Dictionary = {}
-	for key: String in ["burn", "freeze", "shock"]:
+	for key: String in ["chilled", "freeze", "shock"]:
 		if int(after_player.get(key, 0)) > int(before_player.get(key, 0)):
 			var label: String = key.capitalize()
 			labels.append(label)
@@ -20077,11 +19864,6 @@ func _movement_status_delta_labels(before_state: Dictionary, after_state: Dictio
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		labels.append("Immobilize")
 		seen["Immobilize"] = true
-	var before_poison: Dictionary = before_player.get("poison", {})
-	var after_poison: Dictionary = after_player.get("poison", {})
-	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
-		labels.append("Poison")
-		seen["Poison"] = true
 	var pending_label: String = str(after_state.get("pending_player_trap_restriction", "")).capitalize()
 	if not pending_label.is_empty() and str(after_state.get("pending_player_trap_restriction", "")) != str(before_state.get("pending_player_trap_restriction", "")) and not seen.has(pending_label):
 		labels.append(pending_label)
@@ -20205,10 +19987,10 @@ func _orientation_pending() -> bool:
 func _current_action_is_aimed_aoe() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
-	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) == "aoe"
+	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) in ["aoe", "surface", "detonate"]
 
 func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
-	if str(action.get("type", "")) != "aoe":
+	if str(action.get("type", "")) not in ["aoe", "surface", "detonate"]:
 		return action
 	var oriented: Dictionary = action.duplicate(true)
 	if _combat_engine.player_action_needs_orientation(action):
@@ -20406,6 +20188,8 @@ func _dictionary_array(values: Array) -> Array[Dictionary]:
 	return result
 
 func _on_card_pressed(index: int) -> void:
+	if _surface_aim.active():
+		return
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if not _guided_tutorial_card_allowed(index):
@@ -20447,6 +20231,8 @@ func _on_card_pressed(index: int) -> void:
 			_guided_tutorial_set_phase(finish_phase if _pending_card_requires_confirmation() else target_phase)
 
 func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	if _surface_aim.active():
+		return
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -20579,6 +20365,8 @@ func _on_confirm_card_play_pressed() -> void:
 	)
 
 func _on_card_hover_started(index: int) -> void:
+	if _surface_aim.active():
+		return
 	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	_hovered_card_index = index
@@ -20649,7 +20437,7 @@ func _board_hover_stage_refresh_needed(tile: Vector2i) -> bool:
 	if mode != "combat":
 		_board_hover_threat_active = false
 		return false
-	if _player_movement_selected or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
+	if _surface_aim.active() or _surface_relic_origin_pending or _player_movement_selected or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
 		_board_hover_threat_active = false
 		return true
 	var threat_active: bool = _hovered_tile_has_visible_enemy(tile)
@@ -20709,6 +20497,12 @@ func _on_board_tile_drag_released(start_tile: Vector2i, current_tile: Vector2i) 
 
 func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
+		return
+	if _surface_aim.active():
+		_commit_surface_skill_tile(tile)
+		return
+	if _surface_relic_origin_pending:
+		_select_surface_relic_origin(tile)
 		return
 	if not _guided_tutorial_board_tile_allowed(tile):
 		_guided_tutorial_reject()
@@ -20784,6 +20578,13 @@ func _on_board_cancel_requested() -> void:
 		await _on_cancel_requested()
 
 func _on_cancel_requested() -> void:
+	if _surface_aim.active():
+		_cancel_surface_skill_selection()
+		return
+	if _surface_relic_origin_pending:
+		_surface_relic_origin_pending = false
+		_cancel_card_selection()
+		return
 	if _dialogue_active:
 		_advance_dialogue()
 		return
@@ -21005,6 +20806,8 @@ func _cancel_card_selection() -> void:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD)
 
 func _begin_player_movement_selection() -> void:
+	if _surface_aim.active():
+		return
 	if (
 		_animation_lock
 		or str(_run_state.get("mode", "room")) != "combat"
@@ -21897,34 +21700,6 @@ func _animate_card_play_reward(displayed_card_plays: int) -> void:
 	await settle.finished
 	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
 
-func _animate_intensity_gain(element_id: String, displayed_value: int) -> void:
-	if not ElementData.is_elemental(element_id):
-		return
-	var content: Control = _intensity_content_hosts.get(element_id, null)
-	var label: Label = _intensity_labels.get(element_id, null)
-	if content == null or label == null:
-		return
-	_refresh_elemental_intensity_bar(_combat_state)
-	label.text = str(displayed_value)
-	content.pivot_offset = content.size * 0.5
-	label.add_theme_color_override("font_color", Color("fff4dc"))
-	var accent: Color = ElementData.accent(element_id).lightened(0.18)
-	var reduced_motion: bool = _reduced_motion_enabled()
-	var rise_seconds: float = 0.04 if reduced_motion else 0.08
-	var settle_seconds: float = 0.08 if reduced_motion else 0.14
-	var tween := create_tween().set_parallel(true)
-	if not reduced_motion:
-		tween.tween_property(content, "scale", Vector2(1.10, 1.10), rise_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(content, "modulate", Color(accent.r, accent.g, accent.b, 1.0), rise_seconds)
-	await tween.finished
-	var settle := create_tween().set_parallel(true)
-	if not reduced_motion:
-		settle.tween_property(content, "scale", Vector2.ONE, settle_seconds).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	settle.tween_property(content, "modulate", Color.WHITE, settle_seconds)
-	await settle.finished
-	label.add_theme_color_override("font_color", Color("fff7df"))
-
-
 func _start_overlapping_draw_cards_fx(
 	draw_entries: Array,
 	source_rect_override: Rect2,
@@ -21965,17 +21740,6 @@ func _animate_card_play_reward_and_complete(displayed_card_plays: int, completio
 	await _animate_card_play_reward(displayed_card_plays)
 	completion["done"] = true
 
-
-func _start_overlapping_intensity_gain(element_id: String, displayed_value: int) -> Dictionary:
-	var completion: Dictionary = {"done": false}
-	_player_popup_companion_states.append(completion)
-	_animate_intensity_gain_and_complete(element_id, displayed_value, completion)
-	return completion
-
-
-func _animate_intensity_gain_and_complete(element_id: String, displayed_value: int, completion: Dictionary) -> void:
-	await _animate_intensity_gain(element_id, displayed_value)
-	completion["done"] = true
 
 func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
 	await EmberRewardFeedback.play(
@@ -22663,7 +22427,16 @@ func _animate_player_trap_result(after_state: Dictionary, before_state: Dictiona
 	presentation = _death_hold_presentation(before_state, after_state, presentation)
 	await _animate_floating_text_presentation(after_state, presentation)
 
+func _has_electrical_trace(hits: Array) -> bool:
+	for hit: Dictionary in hits:
+		if str(hit.get("kind", "")) in ["relay", "conduction"]:
+			return true
+		if hit.get("from", INVALID_TARGET_TILE) != hit.get("to", INVALID_TARGET_TILE):
+			return true
+	return false
+
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
+	action = SurfaceRelicRules.resolve_action(before_state, action)
 	var action_type: String = str(action.get("type", ""))
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
 		return
@@ -22695,7 +22468,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
 				player_before_tile,
 				player_after_tile,
-				_combat_engine.path_for_player_action(before_state, action, player_after_tile)
+				_combat_engine.path_for_player_action(before_state, action, target_tile)
 			)
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var movement_presentation: Dictionary = base_presentation.duplicate(true)
@@ -22792,17 +22565,29 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -8.0
 				}]
 			}, 0.0, true)
-		"melee", "ranged", "aoe", "push", "pull":
+		"surface", "consume_surface":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_surface_change(before_state, after_state, base_presentation)
+		"melee", "ranged", "aoe", "push", "pull", "detonate":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
 				effect_target_tile = player_before_tile
 			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
 			if action_type == "aoe":
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
+			elif action_type == "detonate":
+				focus_tiles.clear()
+				for event: Dictionary in _surface_events_between(before_state, after_state):
+					if str(event.get("kind", "")) == "detonate":
+						focus_tiles.append_array(_vector2i_array(event.get("tiles", [])))
+				if focus_tiles.is_empty():
+					await _animate_surface_change(before_state, after_state, base_presentation)
+					return
+				if effect_target_tile.x < 0: effect_target_tile = focus_tiles[0]
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
-				"from": player_before_tile,
+				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
 				"center": effect_target_tile,
 				"tiles": focus_tiles,
@@ -22810,9 +22595,16 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"element": str(action.get("element", action.get("_card_element", ElementData.NONE))),
 				"force_tiles": _combat_engine.forced_movement_tiles_for_player_action(before_state, action, target_tile)
 			}
+			if action_type == "detonate":
+				# Detonation erupts on its consumed ground, with no second projectile.
+				effect["kind"] = "aoe"
+				effect["action_type"] = "aoe"
+				effect["range"] = 1
+				effect["from"] = effect_target_tile
+				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
-			if chain_hits.size() > 1:
+			if _has_electrical_trace(chain_hits):
 				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
 			else:
 				var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
@@ -22859,6 +22651,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 							_reduced_motion_enabled()
 						)
 						effect_display_state = primary_display_state
+						presentation["surface_feedback_events"] = _surface_events_between(before_state, after_state)
+						presentation["surface_feedback_progress"] = clampf(feedback_elapsed_seconds / 0.34, 0.0, 1.0)
 						presentation = _attack_feedback_death_hold_presentation(
 							before_state,
 							primary_display_state,
@@ -22987,35 +22781,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}), 0.0, true, card_play_reward_completion)
-		"intensity":
-			var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
-			var before_value: int = _combat_engine.elemental_intensity(before_state, element_id)
-			var after_value: int = _combat_engine.elemental_intensity(after_state, element_id)
-			var gained: int = maxi(0, after_value - before_value)
-			var intensity_text: String = (
-				"+%d %s" % [gained, ElementData.name(element_id)]
-				if after_value >= before_value
-				else "%s %d" % [ElementData.name(element_id), after_value]
-			)
-			_set_action_banner(_player_action_label(card_id, action, before_state))
-			var intensity_completion: Dictionary = _start_overlapping_intensity_gain(element_id, after_value)
-			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
-				"focus_actor_keys": ["player"],
-				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
-				"floating_texts": [{
-					"tile": player_after_tile,
-					"text": intensity_text,
-					"color": ElementData.accent(element_id),
-					"offset": -6.0
-				}]
-			}), 0.0, true, intensity_completion)
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
 			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
 		)
 	var terrain_destruction_presented_inline: bool = (
-		action_type in ["melee", "ranged", "aoe", "push", "pull"]
+		action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 		or not triggered_traps.is_empty()
 	)
 	# Defeat silhouettes and turn-clock cleanup already explain the kill. Reward
@@ -23259,7 +23031,12 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_render_board_state(animated_state, {})
 			"move":
 				await _animate_move_step(animated_state, step)
-			"block", "heal", "stoneskin", "status", "status_damage", "intensity":
+			"surface":
+				var before_ground: Dictionary = animated_state.duplicate(true)
+				_apply_animation_step(animated_state, step)
+				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
+				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
+			"block", "heal", "stoneskin", "status", "status_damage":
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
@@ -23686,9 +23463,20 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 
 func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, path_values: Array) -> Array[Vector2i]:
 	var path: Array[Vector2i] = _vector2i_array(path_values)
-	if path.size() < 2 or path[0] != from_tile or path[path.size() - 1] != to_tile:
-		return _vector2i_array([from_tile, to_tile])
-	return path
+	# A resolved enemy route may leave a hidden tile, cross a lit pocket and
+	# return to its origin. Its complete route remains meaningful feedback.
+	if path.size() >= 2 and path[0] == from_tile and path[-1] == to_tile:
+		return path
+	if from_tile == to_tile:
+		return _vector2i_array([from_tile])
+	if not path.is_empty() and path[0] == from_tile:
+		# A trap can paint Rubble during the walk and stop an otherwise legal
+		# request early. Retain the actual route prefix; do not animate the old
+		# destination or find a different route to the new endpoint.
+		var endpoint_index: int = path.find(to_tile)
+		if endpoint_index > 0:
+			return _vector2i_array(path.slice(0, endpoint_index + 1))
+	return _vector2i_array([from_tile, to_tile])
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
@@ -24126,6 +23914,8 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _run_state.get("equipped_equipment", {}) as Dictionary
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	if step.has("surfaces_after"):
+		animated_state["surfaces"] = (step.get("surfaces_after", {}) as Dictionary).duplicate(true)
 	match str(step.get("kind", "")):
 		"reinforcement_spawn":
 			var snapshot: Dictionary = step.get("state", {}) as Dictionary
@@ -24165,8 +23955,6 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 			else:
 				_apply_enemy_damage_by_key(animated_state, str(step.get("actor_key", "")), int(step.get("amount", 0)))
-			if step.has("elemental_intensity_after"):
-				animated_state["elemental_intensity"] = (step.get("elemental_intensity_after", {}) as Dictionary).duplicate(true)
 			if step.has("player_after"):
 				animated_state["player"] = (step.get("player_after", {}) as Dictionary).duplicate(true)
 		"status":
@@ -24176,11 +23964,6 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 				animated_state["traps"] = (step.get("traps_after", []) as Array).duplicate(true)
 			if step.has("enemy_after"):
 				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
-		"intensity":
-			var elemental_intensity: Dictionary = (animated_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
-			elemental_intensity[str(step.get("element", ElementData.NONE))] = int(step.get("value_after", 0))
-			animated_state["elemental_intensity"] = elemental_intensity
-			_apply_enemy_losses(animated_state, step.get("enemy_losses", []))
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			if target_losses.is_empty():
@@ -24247,19 +24030,6 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 			}]
 		"status_damage":
 			return _status_damage_floating_texts(step)
-		"intensity":
-			var intensity_floats: Array[Dictionary] = []
-			var intensity_before: int = int(step.get("value_before", 0))
-			var intensity_after: int = int(step.get("value_after", intensity_before))
-			if intensity_after != intensity_before:
-				intensity_floats.append({
-					"tile": step.get("tile", Vector2i.ZERO),
-					"text": "%s %d" % [ElementData.name(str(step.get("element", ElementData.NONE))), intensity_after],
-					"color": ElementData.accent(str(step.get("element", ElementData.NONE))),
-					"offset": -6.0
-				})
-			intensity_floats.append_array(_floating_texts_for_target_losses(step.get("enemy_losses", [])))
-			return intensity_floats
 		"melee", "ranged", "aoe", "push", "pull", "lightning_strikes":
 			var target_losses: Array = step.get("target_losses", [])
 			var terrain_losses: Array = step.get("terrain_losses", [])
@@ -24325,13 +24095,7 @@ func _enemy_phase_damage_feedback_element(step: Dictionary) -> String:
 	var element_id: String = str(step.get("damage_feedback_element", step.get("element", ElementData.NONE)))
 	if ElementData.is_elemental(element_id):
 		return element_id
-	match str(step.get("label", "")):
-		"Burn":
-			return ElementData.FIRE
-		"Poison":
-			return ElementData.EARTH
-		_:
-			return ElementData.NONE
+	return ElementData.NONE
 
 func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 	var enemy_losses: Array = step.get("enemy_losses", [])
@@ -24856,6 +24620,8 @@ func _board_framing_safe_global_rect() -> Rect2:
 	)
 
 func _board_status_label(preview: Dictionary) -> String:
+	if _surface_aim.active(): return ""
+	if _surface_relic_origin_pending: return "Worldroot · choose an origin"
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
 		return ""
@@ -24878,6 +24644,8 @@ func _board_status_label(preview: Dictionary) -> String:
 	return ""
 
 func _board_status_detail(preview: Dictionary) -> String:
+	if _surface_aim.active(): return ""
+	if _surface_relic_origin_pending: return "Choose visible Rubble, then choose the attack target."
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
 		return ""
@@ -24936,7 +24704,7 @@ func _secondary_player_action_enemy_loss_presentation(
 	)
 
 func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
-	if action_type in ["melee", "ranged", "aoe", "push", "pull"]:
+	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return true
 	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
 
@@ -26473,6 +26241,7 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	if not saved:
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
 	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
+	if saved: _analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
 	return {"state": state, "saved": saved}
 
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
@@ -30122,6 +29891,8 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
+	_surface_relic_origin_pending = false
+	_surface_preview_cache_key = ""
 	_selected_card_index = -1
 	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
 	_selected_card_label_override = ""
@@ -30225,6 +29996,8 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 			run_state.get(RunEngineScript.DEFIANCE_REMAINING_KEY, 0)
 		)),
 		"combat_unit_scale": 1,
+		"rules_version": BoardSurfaceRules.RULES_VERSION,
+		"surface_revision": int(combat_state.get("surface_event_sequence", 0)),
 		"progression_level": int(progression.get("level", 1)),
 		"progression_skills": ProgressionStore.selected_skill_ids(progression),
 		"relics": (combat_state.get("relics", run_state.get("relics", [])) as Array).duplicate(true),
@@ -30235,7 +30008,6 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	}
 	if not combat_state.is_empty():
 		var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
-		context["elemental_intensity"] = _combat_engine.elemental_intensities(combat_state)
 		context["umbra_stage"] = _combat_engine.effective_umbra_stage(combat_state)
 		context["umbra_radius"] = _combat_engine.effective_umbra_radius(combat_state)
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
@@ -30555,6 +30327,7 @@ func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat
 				"charges_after": int(event.get("charges_after", 0)),
 				"capacity": int(next_combat.get(RunEngineScript.DEFIANCE_CAPACITY_KEY, 0)),
 				"combat_unit_scale": 1,
+		"rules_version": BoardSurfaceRules.RULES_VERSION,
 			}
 		)
 		latest_defiance_staged_revision = maxi(latest_defiance_staged_revision, revision)
@@ -30784,7 +30557,6 @@ func _analytics_log_combat_started(reason: String) -> void:
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
 		"recovery_marker_present": _combat_recovery_marker_amount(_combat_state) > 0,
 		"recovery_marker_amount": _combat_recovery_marker_amount(_combat_state),
-		"elemental_intensity": _combat_engine.elemental_intensities(_combat_state),
 		"umbra_stage": _combat_engine.effective_umbra_stage(_combat_state),
 		"umbra_radius": _combat_engine.effective_umbra_radius(_combat_state),
 		"visible_enemy_count": _combat_engine.visible_enemy_ids(_combat_state).size(),
@@ -30808,6 +30580,7 @@ func _analytics_log_combat_started(reason: String) -> void:
 	_analytics_log_playable_cards()
 
 func _analytics_log_combat_ended(combat_state: Dictionary, reason: String) -> void:
+	_analytics_flush_surface_events(combat_state)
 	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
 	var objective_completion_tile: Vector2i = (
 		(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
@@ -31066,9 +30839,11 @@ func _analytics_log_playable_cards() -> void:
 func _analytics_log_card_played(card_id: String, card_instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	if card_id.is_empty():
 		return
+	_analytics_flush_surface_events(resolved_state)
 	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets))
 
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
+	_analytics_flush_surface_events(resolved_state)
 	var movement: Dictionary = resolved_state.get("last_player_movement", {}) as Dictionary
 	if int(movement.get("spent", 0)) <= 0:
 		return
@@ -31087,13 +30862,11 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 	var enemy_block_removed: int = 0
 	var enemy_stoneskin_removed: int = 0
 	var kills_secured: int = 0
-	var enemy_burn_applied: int = 0
 	var enemy_bleed_applied: int = 0
 	var enemy_expose_applied: int = 0
 	var enemy_freeze_applied: int = 0
 	var enemy_shock_applied: int = 0
 	var enemy_immobilize_applied: int = 0
-	var enemy_poison_applied: int = 0
 	var terrain_hp_damage: int = 0
 	var terrain_destroyed: int = 0
 	var before_enemies: Array = before_state.get("enemies", [])
@@ -31106,14 +30879,12 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		enemy_stoneskin_removed += maxi(0, int(before_enemy.get("stoneskin", 0)) - int(after_enemy.get("stoneskin", 0)))
 		if int(before_enemy.get("hp", 0)) > 0 and int(after_enemy.get("hp", 0)) <= 0:
 			kills_secured += 1
-		enemy_burn_applied += maxi(0, int(after_enemy.get("burn", 0)) - int(before_enemy.get("burn", 0)))
 		enemy_bleed_applied += maxi(0, int(after_enemy.get("bleed", 0)) - int(before_enemy.get("bleed", 0)))
 		enemy_expose_applied += maxi(0, int(after_enemy.get("expose", 0)) - int(before_enemy.get("expose", 0)))
 		enemy_freeze_applied += maxi(0, int(after_enemy.get("freeze", 0)) - int(before_enemy.get("freeze", 0)))
 		enemy_shock_applied += maxi(0, int(after_enemy.get("shock", 0)) - int(before_enemy.get("shock", 0)))
 		if bool(after_enemy.get("immobilize", false)) and not bool(before_enemy.get("immobilize", false)):
 			enemy_immobilize_applied += 1
-		enemy_poison_applied += maxi(0, int((after_enemy.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_enemy.get("poison", {}) as Dictionary).get("damage", 0)))
 	var after_terrain_by_id: Dictionary = {}
 	for after_terrain_var: Variant in resolved_state.get("terrain", []):
 		if typeof(after_terrain_var) != TYPE_DICTIONARY:
@@ -31134,13 +30905,11 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		terrain_hp_damage += terrain_loss
 		if terrain_loss > 0 and int(after_terrain.get("hp", 0)) <= 0:
 			terrain_destroyed += 1
-	var player_burn_applied: int = maxi(0, int(after_player.get("burn", 0)) - int(before_player.get("burn", 0)))
 	var player_bleed_applied: int = maxi(0, int(after_player.get("bleed", 0)) - int(before_player.get("bleed", 0)))
 	var player_expose_applied: int = maxi(0, int(after_player.get("expose", 0)) - int(before_player.get("expose", 0)))
 	var player_freeze_applied: int = maxi(0, int(after_player.get("freeze", 0)) - int(before_player.get("freeze", 0)))
 	var player_shock_applied: int = maxi(0, int(after_player.get("shock", 0)) - int(before_player.get("shock", 0)))
 	var player_immobilize_applied: int = 1 if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)) else 0
-	var player_poison_applied: int = maxi(0, int((after_player.get("poison", {}) as Dictionary).get("damage", 0)) - int((before_player.get("poison", {}) as Dictionary).get("damage", 0)))
 	var before_illusion_ids: Dictionary = {}
 	for before_illusion_var: Variant in before_state.get("illusions", []):
 		if typeof(before_illusion_var) != TYPE_DICTIONARY:
@@ -31161,12 +30930,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		illusion_health_created += maxi(0, int(after_illusion.get("max_hp", after_illusion.get("hp", 0))))
 	var printed_card: Dictionary = _card_def(card_id, before_state)
 	var printed_actions: Array = (printed_card.get("actions", []) as Array).duplicate(true)
-	var intensity_before: Dictionary = _combat_engine.elemental_intensities(before_state)
-	var intensity_after: Dictionary = _combat_engine.elemental_intensities(resolved_state)
-	var intensity_gained: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_gained_total")
-	if intensity_gained.is_empty():
-		intensity_gained = _elemental_intensity_delta(intensity_before, intensity_after)
-	var intensity_spent: Dictionary = _elemental_intensity_counter_delta(before_state, resolved_state, "elemental_intensity_spent_total")
 	var capacity_delta: int = _card_play_capacity_value(resolved_state) - _card_play_capacity_value(before_state)
 	var play_mode: String = "printed"
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
@@ -31181,6 +30944,8 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 			break
 	return {
 		"play_mode": play_mode,
+		"rules_version": BoardSurfaceRules.RULES_VERSION,
+		"surface_events": _surface_events_between(before_state, resolved_state),
 		"target_decision_count": 1,
 		"target_decision_tile": target_decision_tile,
 		"flurry": flurry_played,
@@ -31216,10 +30981,6 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"turn_time_spent_before": int(before_state.get("player_turn_time_spent", 0)),
 		"turn_time_spent_after": int(resolved_state.get("player_turn_time_spent", int(before_state.get("player_turn_time_spent", 0)) + _combat_engine.card_time_cost_from_def(printed_card))),
 		"player_base_initiative": _combat_engine.player_base_initiative(before_state),
-		"elemental_intensity_before": intensity_before,
-		"elemental_intensity_after": intensity_after,
-		"elemental_intensity_gained": intensity_gained,
-		"elemental_intensity_spent": intensity_spent,
 		"pierce_actions": _analytics_pierce_action_count(actions),
 		"sunder_actions": _analytics_attack_keyword_action_count(actions, "sunder"),
 		"illusions_created": illusions_created,
@@ -31240,22 +31001,18 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"umbra_suppression_stages_after": _combat_engine.light_source_umbra_suppression(resolved_state),
 		"umbra_movement_interruptions": maxi(0, int(after_umbra.get("movement_interrupted_total", 0)) - int(before_umbra.get("movement_interrupted_total", 0))),
 		"enemy_status_applied": {
-			"burn": enemy_burn_applied,
 			"bleed": enemy_bleed_applied,
 			"expose": enemy_expose_applied,
 			"freeze": enemy_freeze_applied,
 			"shock": enemy_shock_applied,
 			"immobilize": enemy_immobilize_applied,
-			"poison": enemy_poison_applied
 		},
 		"player_status_applied": {
-			"burn": player_burn_applied,
 			"bleed": player_bleed_applied,
 			"expose": player_expose_applied,
 			"freeze": player_freeze_applied,
 			"shock": player_shock_applied,
 			"immobilize": player_immobilize_applied,
-			"poison": player_poison_applied
 		},
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
@@ -31273,24 +31030,6 @@ func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
 		action.erase("_flurry_repeat_index")
 		action.erase("_flurry_repeat_count")
 		result.append(action)
-	return result
-
-func _elemental_intensity_delta(before_intensity: Dictionary, after_intensity: Dictionary) -> Dictionary:
-	var result: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		var gained: int = int(after_intensity.get(element_id, 0)) - int(before_intensity.get(element_id, 0))
-		if gained > 0:
-			result[element_id] = gained
-	return result
-
-func _elemental_intensity_counter_delta(before_state: Dictionary, after_state: Dictionary, counter_key: String) -> Dictionary:
-	var result: Dictionary = {}
-	var before_counter: Dictionary = _combat_engine.elemental_intensity_counter(before_state, counter_key)
-	var after_counter: Dictionary = _combat_engine.elemental_intensity_counter(after_state, counter_key)
-	for element_id: String in ElementData.all_elements():
-		var delta: int = int(after_counter.get(element_id, 0)) - int(before_counter.get(element_id, 0))
-		if delta > 0:
-			result[element_id] = delta
 	return result
 
 func _card_play_capacity_value(state: Dictionary) -> int:
@@ -31313,7 +31052,7 @@ func _analytics_attack_keyword_action_count(actions: Array, keyword: String) -> 
 			continue
 		if keyword != "pierce" and int(action.get(keyword, 0)) <= 0:
 			continue
-		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
+		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 			count += 1
 	return count
 
@@ -31402,7 +31141,7 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "intensity"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		events.append({
@@ -31428,8 +31167,6 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 				"terrain_losses": (step.get("terrain_losses", []) as Array).duplicate(true),
 				"triggered_traps": (step.get("triggered_traps", []) as Array).duplicate(true),
 				"support_targets": (step.get("targets", []) as Array).duplicate(true),
-				"elemental_intensity_gained": (step.get("elemental_intensity_gained", {}) as Dictionary).duplicate(true),
-				"elemental_intensity_spent": (step.get("elemental_intensity_spent", {}) as Dictionary).duplicate(true)
 			}
 		})
 	return events
@@ -31443,6 +31180,7 @@ func _analytics_log_enemy_actions(phase_result: Dictionary) -> void:
 	_analytics_store.write_events(_analytics_enemy_action_events(phase_result, context))
 
 func _analytics_log_enemy_phase_events(phase_result: Dictionary) -> void:
+	_analytics_flush_surface_events(phase_result.get("state", _combat_state) as Dictionary)
 	var context: Dictionary = _analytics_context_from_states(_run_state, _combat_state)
 	var events: Array[Dictionary] = _analytics_enemy_status_tick_events(phase_result, context)
 	events.append_array(_analytics_enemy_action_events(phase_result, context))
@@ -31742,3 +31480,265 @@ func _terrain_key(terrain: Dictionary) -> String:
 	if terrain_id.is_empty():
 		return ""
 	return "terrain_%s" % terrain_id
+
+func _begin_surface_skill_selection(skill_id: String) -> void:
+	_cancel_drag_play()
+	_reset_card_resolution()
+	_surface_aim.begin(skill_id, SkillTreeLibrary.effect_type(skill_id) == "surface_relocate")
+	_refresh_surface_skill_selection()
+	if _controller_is_active():
+		_controller_enter_board(true)
+
+func _refresh_surface_skill_selection() -> void:
+	_surface_skill_tiles = _surface_aim.targets(_combat_engine, _combat_state)
+	_surface_preview_cache_key = ""
+	_mark_preview_selection_changed()
+	if _combat_skill_card_selection_label != null:
+		_combat_skill_card_selection_label.text = _surface_aim.instruction()
+	if _combat_skill_card_selection_prompt != null:
+		_combat_skill_card_selection_prompt.visible = _surface_aim.active()
+	_refresh_choice_bar()
+	_refresh_stage_view()
+	_layout_combat_skill_card_selection_prompt()
+
+func _add_surface_skill_choices() -> void:
+	if _surface_skill_choice_row == null: return
+	_clear_children_now(_surface_skill_choice_row)
+	_surface_skill_choice_row.visible = _surface_aim.active()
+	var choices: Array[String]
+	choices.append_array(["elemental", "rubble"] if _surface_aim.relocating else ["fire", "ice", "electrified", "rubble"])
+	for kind: String in choices:
+		var title: String = "Elemental layer" if kind == "elemental" else BoardSurfacePresentation.title_for(kind)
+		var button := UiTooltipButton.new()
+		button.name = "SurfaceChoice%s" % kind.capitalize()
+		button.text = title
+		button.tooltip_text = "Choose %s, then select a highlighted tile." % title
+		button.custom_minimum_size = Vector2(140, 40)
+		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if _surface_aim.kind == kind else UiSkin.VARIANT_COMPACT)
+		_ui_skin.apply_button_text_overrides(button)
+		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
+		button.pressed.connect(_choose_surface_skill_kind.bind(kind))
+		_surface_skill_choice_row.add_child(button)
+
+func _choose_surface_skill_kind(kind: String) -> void:
+	_surface_aim.choose(kind)
+	_refresh_surface_skill_selection()
+	if _controller_is_active(): _controller_enter_board(true)
+
+func _cancel_surface_skill_selection() -> void:
+	_surface_aim.cancel()
+	_surface_skill_tiles.clear()
+	if _surface_skill_choice_row != null: _surface_skill_choice_row.visible = false
+	if _combat_skill_card_selection_prompt != null:
+		_combat_skill_card_selection_prompt.visible = false
+	_surface_preview_cache_key = ""
+	_refresh_ui()
+	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
+
+func _commit_surface_skill_tile(tile: Vector2i) -> void:
+	var result: Dictionary = _surface_aim.pick(_combat_engine, _combat_state, tile)
+	if result.is_empty(): return
+	if bool(result.get("selecting", false)):
+		_refresh_surface_skill_selection()
+		return
+	var skill_id: String = str(result.get("skill_id", ""))
+	var next: Dictionary = result.get("state", {}) as Dictionary
+	var before: Dictionary = _combat_state.duplicate(true)
+	_surface_aim.cancel()
+	_surface_skill_tiles.clear()
+	if _surface_skill_choice_row != null: _surface_skill_choice_row.visible = false
+	if _combat_skill_card_selection_prompt != null:
+		_combat_skill_card_selection_prompt.visible = false
+	_animation_lock = true
+	await _animate_surface_change(before, next)
+	_animation_lock = false
+	_commit_combat_skill_state(next, skill_id)
+
+func _add_surface_relic_commands() -> void:
+	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or _pending_umbra_commit_locked:
+		return
+	var action: Dictionary = _pending_actions[_pending_action_index] as Dictionary
+	var variants: Array[Dictionary] = SurfaceRelicRules.action_variants(_preview_combat_state, action)
+	var spill_added: bool = false
+	for index: int in range(1, variants.size()):
+		var variant: Dictionary = variants[index]
+		var label: String = str(variant.get("_surface_relic_label", "Technique"))
+		if variant.has("_ice_spill_direction") and label.begins_with("Spill Ice"):
+			if spill_added: continue
+			spill_added = true
+			var direction: Vector2i = action.get("_ice_spill_direction", Vector2i.ZERO)
+			var direction_name: String = "off"
+			var directions: Array[Vector2i] = _vector2i_array([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
+			var direction_index: int = directions.find(direction)
+			if direction_index >= 0: direction_name = ["north", "east", "south", "west"][direction_index]
+			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where the Ice consumed by Freeze moves. Off leaves it consumed.", true)
+			continue
+		var current_modes: Array = action.get("_surface_relic_modes", []) as Array
+		var next_modes: Array = variant.get("_surface_relic_modes", []) as Array
+		var changed_mode: String = ""
+		for mode_var: Variant in current_modes + next_modes:
+			if current_modes.has(mode_var) != next_modes.has(mode_var): changed_mode = str(mode_var)
+		var short_labels: Dictionary = {"transport": "Carry ground", "redirect": "Redirect", "cross": "Cross strike", "crush": "Crush Rubble", "swap": "Swap ends", "remote": "Worldroot"}
+		var short_label: String = str(short_labels.get(changed_mode, label))
+		var active: bool = SurfaceRelicRules.mode_enabled(action, changed_mode)
+		_add_action_context_button(("✓ " if active else "") + short_label, _select_surface_relic_variant.bind(variant), label, true)
+
+	# A prior-impact Detonate has no second target click. Expose its optional
+	# fuel choice while aiming the initiating attack, before either hit commits.
+	for future_index: int in range(_pending_action_index + 1, _pending_actions.size()):
+		var future: Dictionary = _pending_actions[future_index] as Dictionary
+		if str(future.get("type", "")) != "detonate": continue
+		for option: Dictionary in SurfaceRelicRules.action_variants(_preview_combat_state, future):
+			if str(option.get("_surface_relic_label", "")) != "Crush Rubble": continue
+			_add_action_context_button(("✓ " if SurfaceRelicRules.mode_enabled(future, "crush") else "") + "Crush Rubble", _select_surface_relic_variant.bind(option, future_index), "Use Rubble for this card's Detonate, leaving Fire behind.", true)
+
+func _cycle_surface_ice_spill() -> void:
+	if _pending_action_index >= _pending_actions.size(): return
+	var action: Dictionary = (_pending_actions[_pending_action_index] as Dictionary).duplicate(true)
+	var directions: Array[Vector2i] = _vector2i_array([Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
+	var current: int = directions.find(action.get("_ice_spill_direction", Vector2i.ZERO))
+	var next: Vector2i = directions[posmod(current + 1, directions.size())]
+	if next == Vector2i.ZERO: action.erase("_ice_spill_direction")
+	else: action["_ice_spill_direction"] = next
+	_select_surface_relic_variant(action)
+
+func _select_surface_relic_variant(variant: Dictionary, action_index: int = -1) -> void:
+	if _pending_action_index >= _pending_actions.size() or _animation_lock: return
+	if action_index >= 0 and action_index != _pending_action_index:
+		if action_index >= _pending_actions.size(): return
+		_pending_actions[action_index] = variant.duplicate(true)
+		_mark_preview_selection_changed()
+		_refresh_card_preview_ui()
+		return
+	var selected: Dictionary = variant.duplicate(true)
+	var previous: Dictionary = _pending_actions[_pending_action_index] as Dictionary
+	# The most recently chosen geometry wins. A Worldroot strike and a cross
+	# have different origins, so they cannot be composed into one action.
+	if SurfaceRelicRules.mode_enabled(selected, "cross") and SurfaceRelicRules.mode_enabled(selected, "remote"):
+		var modes: Array = (selected.get("_surface_relic_modes", []) as Array).duplicate()
+		modes.erase("remote" if not SurfaceRelicRules.mode_enabled(previous, "cross") else "cross")
+		selected["_surface_relic_modes"] = modes
+		selected.erase("_surface_relic_mode")
+	if not SurfaceRelicRules.mode_enabled(selected, "remote"):
+		selected.erase("_origin_tile")
+	_pending_actions[_pending_action_index] = selected
+	_surface_relic_origin_pending = SurfaceRelicRules.mode_enabled(selected, "remote") and not selected.has("_origin_tile")
+	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	if _surface_relic_origin_pending:
+		_pending_target_tiles = SurfaceRelicRules.origin_tiles(_preview_combat_state)
+	else:
+		_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, selected, _combat_engine.valid_targets_for_player_action(_preview_combat_state, selected))
+	_mark_preview_selection_changed()
+	_refresh_card_preview_ui()
+	if _controller_is_active(): _controller_enter_board(true)
+
+func _select_surface_relic_origin(tile: Vector2i) -> void:
+	if not SurfaceRelicRules.origin_tiles(_preview_combat_state).has(tile) or _pending_action_index >= _pending_actions.size(): return
+	var action: Dictionary = (_pending_actions[_pending_action_index] as Dictionary).duplicate(true)
+	action["_origin_tile"] = tile
+	_surface_relic_origin_pending = false
+	_select_surface_relic_variant(action)
+
+func _surface_events_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var events: Array[Dictionary]
+	var before_sequence: int = int(before_state.get("surface_event_sequence", 0))
+	for event_var: Variant in after_state.get("surface_events", []):
+		if typeof(event_var) != TYPE_DICTIONARY: continue
+		var event: Dictionary = event_var as Dictionary
+		if int(event.get("sequence", 0)) > before_sequence:
+			events.append(event.duplicate(true))
+	return events
+
+func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> void:
+	var tile: Vector2i = _hovered_board_tile
+	if tile.x < 0 or not (preview.get("target_tiles", []) as Array).has(tile) or bool(preview.get("origin_aim", false)):
+		return
+	var state: Dictionary = preview.get("state", _combat_state) as Dictionary
+	var action: Dictionary = preview.get("action", {}) as Dictionary
+	var cache_key: String = "%d:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(action), str(tile)]
+	if _surface_preview_cache_key != cache_key:
+		_surface_preview_cache_key = cache_key
+		if bool(preview.get("skill_aim", false)):
+			_surface_preview_cache = {"state": _surface_aim.resolved(_combat_engine, state, tile), "chain_hits": []}
+		else:
+			_surface_preview_cache = _combat_engine.surface_preview_for_player_action(state, action, tile)
+			# Prior-impact Detonate and consumption are part of this same click.
+			# Include automatic follow-ups, stopping before the next player choice.
+			var cursor: int = _pending_action_index + 1
+			var followup: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
+			while cursor < _pending_actions.size():
+				var next_action: Dictionary = _pending_actions[cursor] as Dictionary
+				if _combat_engine.player_action_needs_target(next_action): break
+				if _combat_engine.player_action_can_resolve(followup, next_action):
+					followup = _combat_engine.apply_player_action(followup, next_action)
+				cursor += 1
+			_surface_preview_cache["state"] = followup
+	var after: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
+	result["surface_preview_events"] = _surface_events_between(state, after)
+	var arcs: Array[Dictionary]
+	for hit: Dictionary in _surface_preview_cache.get("chain_hits", []):
+		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
+	result["surface_preview_arcs"] = arcs
+	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
+	if not losses.is_empty():
+		result["damage_preview"] = losses
+		if result.has("effect"): (result["effect"] as Dictionary)["damage_preview"] = losses
+	for event: Dictionary in result.get("surface_preview_events", []):
+		if str(event.get("kind", "")) == "detonate":
+			var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
+			for blast_tile: Vector2i in _vector2i_array(event.get("tiles", [])):
+				if not focus.has(blast_tile): focus.append(blast_tile)
+			result["focus_tiles"] = focus
+			result["focus_color"] = Color(0.95, 0.62, 0.37, 0.22)
+	var status_previews: Dictionary = {}
+	var before_units: Dictionary = _surface_preview_units_by_key(state)
+	var after_units: Dictionary = _surface_preview_units_by_key(after)
+	for key_var: Variant in before_units:
+		var key: String = str(key_var)
+		var old: Dictionary = before_units[key] as Dictionary
+		var current: Dictionary = after_units.get(key, {}) as Dictionary
+		if current.is_empty() or int(current.get("hp", 0)) <= 0: continue
+		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
+			status_previews[key] = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
+	result["surface_status_preview"] = status_previews
+
+func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}) -> void:
+	var events: Array[Dictionary] = _surface_events_between(before, after)
+	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))
+	var texts: Array[Dictionary] = _player_action_floating_texts(before, after)
+	var frames: int = 1 if _reduced_motion_enabled() else 18
+	await _play_timed_animation_frames(frames, 0.1 if _reduced_motion_enabled() else 0.02, func(frame: int) -> void:
+		var t: float = float(frame) / float(frames)
+		var shown: Dictionary = base.duplicate(true)
+		shown["surface_feedback_events"] = events
+		shown["surface_feedback_progress"] = t
+		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, t * 0.36, _reduced_motion_enabled())
+		_render_board_state(after if t >= 0.2 else before, shown)
+	)
+	_queue_player_popup_group(texts, 0.36)
+	_render_board_state(after, {})
+
+func _surface_preview_units_by_key(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {"player": state.get("player", {})}
+	for enemy: Dictionary in state.get("enemies", []): result["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for illusion: Dictionary in state.get("illusions", []): result["illusion_%d" % int(illusion.get("id", -1))] = illusion
+	return result
+
+func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -> void:
+	if combat.is_empty(): return
+	var source_run: Dictionary = _run_state if run.is_empty() else run
+	var combat_id: String = str((combat.get("analytics", {}) as Dictionary).get("combat_id", ""))
+	if combat_id.is_empty(): return
+	var logged: int = int(_surface_analytics_revisions.get(combat_id, 0))
+	for event_var: Variant in combat.get("surface_events", []):
+		if typeof(event_var) != TYPE_DICTIONARY: continue
+		var event: Dictionary = event_var as Dictionary
+		var sequence: int = int(event.get("sequence", 0))
+		if sequence <= logged: continue
+		var context: Dictionary = _analytics_context_from_states(source_run, combat)
+		context["surface_revision"] = sequence
+		var payload: Dictionary = event.duplicate(true)
+		payload["rules_version"] = BoardSurfaceRules.RULES_VERSION
+		if not _analytics_store.write_event("surface_event", context, payload, "surface_event|%s|%d" % [combat_id, sequence]): break
+		logged = sequence
+	_surface_analytics_revisions[combat_id] = logged

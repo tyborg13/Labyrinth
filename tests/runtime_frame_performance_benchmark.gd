@@ -1,5 +1,7 @@
 extends SceneTree
 
+const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -12,7 +14,7 @@ const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v13"
 const HAND: Array[String] = [
 	"threaded_path",
 	"sidestep_slash",
-	"bone_dart",
+	"pale_spark",
 	"wildfire_halo",
 	"glowstone_ward",
 	"shadow_step",
@@ -1285,7 +1287,7 @@ func _measure_umbra_stage_matrix(instance: Node) -> Dictionary:
 		instance.call("_refresh_ui")
 		await _settle_frames(2)
 		var stage_results: Dictionary = {}
-		for card_id: String in ["bone_dart", "gust_step"]:
+		for card_id: String in ["pale_spark", "gust_step"]:
 			await _select_card(instance, _hand_index(instance, card_id))
 			var preview: Dictionary = instance.call("_active_card_preview") as Dictionary
 			var targets: Array[Vector2i] = _preview_interaction_tiles(instance, preview)
@@ -1407,7 +1409,7 @@ func _measure_composition_matrix(instance: Node) -> Dictionary:
 		_install_stress_combat(instance, composition_id)
 		await _settle_frames(4)
 		var composition_result: Dictionary = {}
-		for card_id: String in ["threaded_path", "bone_dart", "wildfire_halo", "shadow_step"]:
+		for card_id: String in ["threaded_path", "pale_spark", "wildfire_halo", "shadow_step"]:
 			var hand_index: int = _hand_index(instance, card_id)
 			if hand_index < 0:
 				continue
@@ -1483,8 +1485,8 @@ func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dic
 	_expect(phase["card_budget_after"] == cards_before, "independent movement must preserve the card-play budget")
 	_expect(int(phase.get("sample_count", 0)) > 0, "independent movement must produce sampled rendered frames")
 	_expect(not bool(instance.get("_locked_hand_cache_active")), "movement completion must leave the hand live")
-	var hand_index: int = _hand_index(instance, "bone_dart")
-	_expect(hand_index >= 0, "post-movement input check requires Bone Dart")
+	var hand_index: int = _hand_index(instance, "pale_spark")
+	_expect(hand_index >= 0, "post-movement input check requires Pale Spark")
 	if hand_index >= 0:
 		await _select_card(instance, hand_index)
 		await _await_render_frame()
@@ -1788,7 +1790,7 @@ func _prepare_manual_skill_state(instance: Node, skill_id: String) -> void:
 		while hand.size() >= CombatEngine.MAX_HAND_SIZE and not hand.is_empty():
 			discard.append(hand.pop_back())
 		if discard.is_empty():
-			discard.append("bone_dart")
+			discard.append("pale_spark")
 		deck["discard"] = discard
 	elif skill_id == "rehearsed_escape" and not hand.is_empty():
 		hand[0] = "patch_up"
@@ -2110,15 +2112,15 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 	var hand_box_before: Control = instance.get("hand_box") as Control
 	var geometry_before: Dictionary = _hand_geometry_diagnostics(instance, hand_box_before)
 	var hand_before: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
-	var hand_index: int = hand_before.find("bone_dart")
-	_expect(hand_index >= 0, "ranged trap regression requires Bone Dart in hand")
+	var hand_index: int = hand_before.find("pale_spark")
+	_expect(hand_index >= 0, "ranged trap regression requires Pale Spark in hand")
 	if hand_index < 0:
 		return {}
 	await _select_card(instance, hand_index)
 	await _await_render_frame()
 	var trap_tile := Vector2i(2, 2)
 	var pending_tiles: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles"))
-	_expect(pending_tiles.has(trap_tile), "Bone Dart must be able to target the authored ranged trap")
+	_expect(pending_tiles.has(trap_tile), "Pale Spark must be able to target the authored ranged trap")
 	if not pending_tiles.has(trap_tile):
 		return {}
 	_board_pointer_click(instance, trap_tile)
@@ -2273,7 +2275,7 @@ func _install_stress_combat(instance: Node, composition_id: String) -> Dictionar
 	combat_state["skill_ids"] = SKILLS.duplicate()
 	combat_state["relics"] = RELICS.duplicate()
 	combat_state["illusions"] = _stress_illusions()
-	combat_state["elemental_intensity"] = {"fire": 6, "ice": 6, "lightning": 6, "air": 6, "earth": 6}
+	combat_state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	combat_state["current_actor"] = {"kind": "player", "key": "player"}
 	combat_state["cards_played_this_turn"] = 0
 	combat_state["death_bonus_card_plays_this_turn"] = 0
@@ -2314,7 +2316,6 @@ func _profile_initial_refresh_parts(instance: Node) -> void:
 		"_refresh_relic_bar",
 		"_refresh_turn_order_bar",
 		"_refresh_combat_objective_hud",
-		"_refresh_elemental_intensity_bar",
 		"_refresh_pile_counts",
 		"_refresh_card_play_meter",
 		"_refresh_action_step_tracker",
@@ -2691,11 +2692,10 @@ func _verify_live_render_cache_equivalence(instance: Node) -> Dictionary:
 		Vector2i(hand_rect.position - Vector2(50.0, 50.0)),
 		Vector2i(hand_rect.size + Vector2(100.0, 100.0))
 	).intersection(Rect2i(Vector2i.ZERO, _viewport_size))
-	var animated_hand_proof: Dictionary = await _verify_locked_hand_live_animations(instance, hand, capture_rect)
-	# The high-intensity hand above must remain live. Test the raster path on an
-	# actually static hand, with no active elemental conditions or hovered clocks.
+	# Ground condition labels are static. The live clock regression below verifies
+	# that genuinely animated hand content still bypasses the raster cache.
 	var combat_state: Dictionary = instance.get("_combat_state") as Dictionary
-	combat_state["elemental_intensity"] = {"fire": 0, "ice": 0, "lightning": 0, "air": 0, "earth": 0}
+	combat_state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	instance.call("_mark_combat_preview_state_changed")
 	instance.call("_refresh_hand_panel")
 	await _settle_frames(20)
@@ -2739,46 +2739,8 @@ func _verify_live_render_cache_equivalence(instance: Node) -> Dictionary:
 	_expect(not bool(instance.get("_locked_hand_cache_active")), "a real hand refresh must invalidate the frozen cache")
 	_expect(hand.get_parent() == hand_parent and hand.get_child_count() == hand_child_count, "hand refresh must retain the live hand and its real controls")
 	var clock_proof: Dictionary = await _verify_locked_hand_clock_animation(instance)
-	return {"board": board_delta, "locked_hand": hand_delta, "restored_hand": restored_delta, "animated_hand": animated_hand_proof, "animated_clock": clock_proof, "hand_rect": str(hand_rect), "capture_rect": str(capture_rect), "viewport_texture_size": root.get_texture().get_size(), "viewport_stretch": str(root.get_stretch_transform()), "hand_transform": str(hand.get_global_transform_with_canvas()), "hand_size": hand.size, "board_transform": str(board.get_global_transform_with_canvas()), "board_size": board.size}
+	return {"board": board_delta, "locked_hand": hand_delta, "restored_hand": restored_delta, "animated_clock": clock_proof, "hand_rect": str(hand_rect), "capture_rect": str(capture_rect), "viewport_texture_size": root.get_texture().get_size(), "viewport_stretch": str(root.get_stretch_transform()), "hand_transform": str(hand.get_global_transform_with_canvas()), "hand_size": hand.size, "board_transform": str(board.get_global_transform_with_canvas()), "board_size": board.size}
 
-func _verify_locked_hand_live_animations(instance: Node, hand: Control, capture_rect: Rect2i) -> Dictionary:
-	var glows: Array[Control] = []
-	for index: int in range(hand.get_child_count()):
-		var card: CardWidget = instance.call("_hand_card_control", index) as CardWidget
-		var glow: Control = card.get("_intensity_active_glow") as Control
-		if glow != null and glow.is_visible_in_tree():
-			glows.append(glow)
-			glow.set("_pulse_phase", 0.75)
-			glow.queue_redraw()
-			_expect(not card.can_cache_locked_appearance(), "an active intensity glow must make its disabled card ineligible for raster caching")
-	_expect(not glows.is_empty(), "animated hand regression must contain visible active intensity glows")
-	if glows.is_empty():
-		return {}
-	var original_parent: Node = hand.get_parent()
-	var original_children: Array[Node] = hand.get_children()
-	instance.call("_begin_locked_hand_render_cache")
-	await _render_frozen_cache_proof_frame()
-	_expect(not bool(instance.get("_locked_hand_cache_active")), "active intensity glows must keep the hand live during actions")
-	var first_frame: Image = _root_screenshot_image()
-	first_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_glow_early.png" % OUTPUT_DIR))
-	var first_phase: float = float(glows[0].get("_pulse_phase"))
-	var started: int = Time.get_ticks_usec()
-	await create_timer(0.7).timeout
-	await _render_frozen_cache_proof_frame()
-	var elapsed_seconds: float = float(Time.get_ticks_usec() - started) / 1000000.0
-	var second_phase: float = float(glows[0].get("_pulse_phase"))
-	var phase_advance: float = fposmod(second_phase - first_phase, 1.0)
-	var second_frame: Image = _root_screenshot_image()
-	second_frame.save_png(ProjectSettings.globalize_path("%s/live_locked_hand_glow_late.png" % OUTPUT_DIR))
-	var delta: Dictionary = _image_channel_difference(first_frame.get_region(capture_rect), second_frame.get_region(capture_rect))
-	_expect(phase_advance > 0.20 and phase_advance < 0.45, "disabled card glow must keep advancing at its authored 2.8-second period")
-	_expect(float(delta.get("mean_channel_delta", 0.0)) > 0.005, "native time-separated hand images must show the active glow pulse, not a frozen raster")
-	instance.call("_end_locked_hand_render_cache")
-	_expect(is_equal_approx(float(glows[0].get("_pulse_phase")), second_phase), "ending the bypassed cache must not reset or jump the live pulse phase")
-	_expect(hand.get_parent() == original_parent and hand.get_children() == original_children, "animated hand fallback must leave original parenting and overlap order untouched")
-	for glow: Control in glows:
-		_expect(glow.is_processing() and glow.is_visible_in_tree(), "every active intensity glow must remain visible and processing after restoration")
-	return {"glow_count": glows.size(), "elapsed_seconds": elapsed_seconds, "phase_advance": phase_advance, "pixel_change": delta, "cache_bypassed": not bool(instance.get("_locked_hand_cache_active"))}
 
 func _verify_locked_hand_clock_animation(instance: Node) -> Dictionary:
 	var card: CardWidget = instance.call("_hand_card_control", 0) as CardWidget

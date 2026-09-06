@@ -281,12 +281,12 @@ func _capture_combat_surfaces(
 		"defiance_remaining": 3,
 	})
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	# This hand makes every learned manual skill legal at once: a Burn card for
-	# Rehearsed Escape, an item for Makeshift Tool, an intensity card for
-	# Prismatic Instinct, any card for Quick Wits, a discard for Encore, and
-	# positive block for Carry the Guard below.
+	# This fixture makes the learned manual skills legal together: an Exhaust
+	# card for Rehearsed Escape, an item for Makeshift Tool, any card for Quick
+	# Wits, a discard for Encore, and Block for Carry the Guard. Prismatic
+	# Instinct targets legal floor; it needs no particular card in hand.
 	deck["hand"] = ["patch_up", "crimson_draught", "rime_shard", "quick_stab"]
-	deck["discard"] = ["bone_dart"]
+	deck["discard"] = ["pale_spark"]
 	deck["draw"] = ["patch_up", "frostbolt", "ember_jab"]
 	combat_state["deck"] = deck
 	combat_state["banked_play_active"] = 1
@@ -542,6 +542,7 @@ func _populated_progression() -> Dictionary:
 	_expect(skill_ids == PROGRESSION_SKILLS, "Visual progression fixture should retain its requested legal skill order")
 	_expect(SkillTreeLibrary.selection_is_valid(skill_ids), "Visual progression fixture should be a legal level-%d tree with banked points" % PROGRESSION_LEVEL)
 	var progression: Dictionary = ProgressionStore.default_data()
+	progression["guided_combat_tutorial"] = {"version": 2, "status": "dismissed", "completed_steps": []}
 	progression["level"] = PROGRESSION_LEVEL
 	progression["skill_ids"] = skill_ids
 	progression["moltshards"] = 2

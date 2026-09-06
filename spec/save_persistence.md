@@ -39,7 +39,7 @@ RunScene persists only after an irreversible mutation is internally coherent:
 - A printed card play. The checkpoint includes every resolved action in a
   compound card, the removed hand card, destination pile, health cost,
   card-play/time counters, player/enemy/terrain changes, pickups, traps, loot,
-  deck order, elemental intensity, statuses, and RNG state.
+  deck order, shared board surfaces, statuses, and RNG state.
 - Each committed use of the independent player movement pool. The checkpoint
   includes the resolved path and destination, remaining and total movement,
   player/enemy/terrain changes, pickups, traps, loot, statuses, and RNG state.
@@ -122,3 +122,11 @@ an isolated custom user directory. Running `tools/inspection_fixture.py` again
 intentionally resets that namespace to the fixture's starting moment. Merely
 quitting and relaunching its printed launch command does not rerun the generator,
 so Continue resumes the latest in-session commit exactly like a normal run.
+
+## Surface rules version 4
+
+The surface migration preserves the saved action boundary: health, clocks, partially spent movement, card piles, resources and RNG state. Retired Bone Dart maps to Pale Spark; unsupported permanent card growth is refunded before its legacy fields are removed. Numeric Burn, Poison and the elemental meter are removed, while the card Exhaust boolean remains. Old enemy intents are refreshed by stable intent ID and depth; migration itself does not activate terrain contact. Historical logs remain unchanged.
+
+Before overwriting or clearing a valid legacy run/profile, the store writes and SHA-256 verifies a durable `.pre-surfaces-v4.<digest>` archive. These archives are independent of rotating recovery files and survive normal completion and repeated saves. A conflicting/unwritable archive prevents the destructive step. A terminal legacy run is archived even if no intervening combat write occurs.
+
+The version-1 guided opening is a narrow authored-fixture exception: an untouched 17-HP tutorial target becomes 15 HP for Pale Spark (4) plus Quick Stab (11). An already-resolved old first hit leaves its remaining 11 HP unchanged, and no card, clock, movement or resource payment is replayed. The tutorial marker upgrades so saved input guidance remains visible.

@@ -216,7 +216,7 @@ func _stress_state() -> Dictionary:
 		{"id": 1, "pos": Vector2i(2, 3), "hp": 8, "max_hp": 8},
 		{"id": 2, "pos": Vector2i(6, 3), "hp": 8, "max_hp": 8},
 	]
-	state["elemental_intensity"] = {"fire": 6, "ice": 6, "lightning": 6, "air": 6, "earth": 6}
+	state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	return state
 
 func _base_presentation(state: Dictionary) -> Dictionary:

@@ -4,7 +4,6 @@ const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
-const ElementalIntensityHudArt = preload("res://scripts/elemental_intensity_hud_art.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
@@ -29,7 +28,11 @@ const InitiativeOrderSuite = preload("res://tests/suites/initiative_order_suite.
 const SkillRunSuite = preload("res://tests/suites/skill_run_suite.gd")
 const RelicSuite = preload("res://tests/suites/relic_suite.gd")
 const RadiancePackageSuite = preload("res://tests/suites/radiance_package_suite.gd")
-const ElementalIntensitySuite = preload("res://tests/suites/elemental_intensity_suite.gd")
+const BoardSurfaceSuite = preload("res://tests/suites/board_surface_suite.gd")
+const SurfaceRelicSuite = preload("res://tests/suites/surface_relic_suite.gd")
+const SurfaceCoreReviewSuite = preload("res://tests/suites/surface_core_review_suite.gd")
+const EnemySurfaceAcceptanceSuite = preload("res://tests/suites/enemy_surface_acceptance_suite.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BalancePacingSuite = preload("res://tests/suites/balance_pacing_suite.gd")
 const LethalPreviewSuite = preload("res://tests/suites/lethal_preview_suite.gd")
 const FloatingCombatTextSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
@@ -111,7 +114,9 @@ func _initialize() -> void:
 	preload("res://tests/suites/chain_attack_suite.gd").run(Callable(self, "_assert"))
 	AttackSfxSuite.run(Callable(self, "_assert"))
 	RadiancePackageSuite.run(Callable(self, "_assert"))
-	ElementalIntensitySuite.run(Callable(self, "_assert"))
+	BoardSurfaceSuite.run(Callable(self, "_assert"))
+	SurfaceCoreReviewSuite.run(Callable(self, "_assert"))
+	EnemySurfaceAcceptanceSuite.run(Callable(self, "_assert"))
 	BalancePacingSuite.run(Callable(self, "_assert"))
 	LethalPreviewSuite.run(Callable(self, "_assert"))
 	FloatingCombatTextSuite.run(Callable(self, "_assert"))
@@ -163,10 +168,7 @@ func _initialize() -> void:
 	_test_equipment_run_state_and_reward_cards(default_progression)
 	_test_equipment_collection_to_equip_deck_flow(default_progression)
 	_test_missed_equipment_resolution_and_persistence(default_progression)
-	_test_elemental_intensity_starts_from_room_element()
-	_test_elemental_intensity_actions_gate_effects()
-	_test_elemental_intensity_icons_surface_card_requirements()
-	_test_elemental_intensity_bonus_modifies_single_attack()
+	_test_surface_icons_explain_card_requirements()
 	_test_umbra_curve_tracks_dragon_sections()
 	_test_umbra_hides_targets_intents_and_turn_order_identity()
 	_test_hidden_enemy_status_steps_do_not_leak_identity_or_tile()
@@ -188,8 +190,8 @@ func _initialize() -> void:
 	_test_enemy_bleed_intents_apply_and_surface_icons()
 	_test_bleed_status_badges_and_trigger_floats()
 	_test_enemy_pierce_intents_surface_icons()
-	_test_bile_bloomer_poison_and_expose_intents_apply_to_player()
-	_test_bile_bloomer_intents_surface_poison_and_expose_icons()
+	_test_shale_bloomer_rubble_and_expose_intents_apply_to_player()
+	_test_shale_bloomer_intents_show_rubble_and_expose_icons()
 	_test_pierce_cards_stay_in_allowed_elements()
 	_test_immobilize_cards_stay_in_allowed_elements()
 	_test_healing_cards_are_burned_and_downweighted()
@@ -220,16 +222,16 @@ func _initialize() -> void:
 	_test_chain_hits_clustered_enemies()
 	_test_freeze_and_shock_control_turn_flow()
 	_test_immobilize_control_turn_flow()
-	_test_traps_trigger_and_apply_current_turn_control()
-	_test_traps_roll_control_to_next_turn_when_no_plays_remain()
+	_test_lightning_trap_wake_preserves_current_turn_actions()
+	_test_lightning_trap_wake_never_banks_obsolete_control()
 	_test_move_paths_only_cross_required_traps()
 	_test_terrain_blocks_movement_without_blocking_line_of_sight()
-	_test_attacking_trap_blasts_adjacent_tiles()
-	_test_trap_blasts_damage_incidental_terrain()
+	_test_attacking_trap_creates_delayed_cardinal_fire()
+	_test_trap_wake_preserves_incidental_terrain()
 	_test_enemy_attacks_profitable_trap_without_self_damage()
 	_test_enemy_breaks_blocking_terrain()
 	_test_enemy_moves_toward_breakable_chokepoint()
-	_test_poison_and_stoneskin_behaviors()
+	_test_rubble_and_stoneskin_behaviors()
 	_test_statuses_tick_on_affected_actor_turn()
 	_test_out_of_range_elemental_enemy_attack_skips_step()
 	_test_enemy_close_aoe_still_hits_player()
@@ -239,7 +241,7 @@ func _initialize() -> void:
 	_test_enemy_threat_tiles_follow_intent()
 	_test_run_scene_frostglass_lancer_line_threat_overlay()
 	_test_enemy_threat_tiles_assume_player_can_vacate_current_tile()
-	_test_enemy_threat_tiles_include_enemy_triggered_trap_blasts()
+	_test_enemy_threat_tiles_exclude_nonexistent_radial_trap_damage()
 	_test_large_enemy_threat_tiles_use_footprint()
 	_test_lightning_strikes_threat_tiles_are_previewed()
 	_test_lightning_strikes_damage_incidental_terrain()
@@ -291,7 +293,7 @@ func _initialize() -> void:
 	_test_lightning_wisp_uses_normal_loop_idle_sheet()
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
-	_test_final_art_units_use_16_frame_idle_sheets()
+	_test_final_art_units_use_authored_idle_sheets()
 	_test_enemy_shadow_dissolve_unifies_full_roster()
 	_test_terrain_destruction_sheets_load_for_full_prop_roster()
 	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
@@ -393,8 +395,8 @@ func _initialize() -> void:
 	await _test_run_scene_targetless_card_click_requires_confirmation()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()
-	await _test_run_scene_intensity_condition_rows_mark_activity()
-	await _test_card_widget_active_intensity_condition_glows()
+	await _test_run_scene_surface_condition_rows_mark_activity()
+	await _test_card_widget_removes_meter_glow_and_preserves_clock()
 	await _test_card_widget_flurry_icon_uses_wide_slot()
 	await _test_card_widget_debossed_role_emblems()
 	await _test_run_scene_ranged_cards_show_range()
@@ -409,7 +411,7 @@ func _initialize() -> void:
 	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
 	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
 	await _test_run_scene_displays_owned_relic_icons()
-	await _test_run_scene_relic_header_keeps_relics_and_intensity_tight()
+	await _test_run_scene_relic_header_uses_freed_board_space()
 	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
 	await _test_run_scene_auto_triggers_starting_npc_dialogue()
 	await _test_run_scene_character_stats_overlay_opens()
@@ -538,6 +540,10 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(entries.has(GrimoireLibrary.equipment_card_entry_id("lantern_shot")), "Equipment-provided Lantern Shot should have a Grimoire card entry")
 	for radiance_card_id: String in ["guiding_flare", "dawnstep", "prism_sight", "storm_beacon", "glowstone_ward", "daybreak"]:
 		_assert(entries.has(GrimoireLibrary.magick_entry_id(radiance_card_id)), "Every Radiance Magick should have a Grimoire card entry: %s" % radiance_card_id)
+	for keyword: String in ["surface", "surface_fire", "surface_ice", "surface_electrified", "surface_rubble", "chilled", "detonate", "surface_consume", "surface_relocate"]:
+		_assert(entries.has("keyword:%s" % keyword), "Grimoire includes the distinct %s mechanic" % keyword)
+	for retired_topic: String in ["combat:intensity", "keyword:burn", "keyword:poison"]:
+		_assert(not entries.has(retired_topic), "Retired rules must not remain discoverable")
 	var defaults: Array[String] = GrimoireLibrary.default_entry_ids()
 	_assert(defaults.has("basic:run"), "Grimoire defaults should include run basics")
 	_assert(defaults.has("keyword:immobilize"), "Grimoire defaults should include starting-deck keywords")
@@ -548,10 +554,10 @@ func _test_grimoire_data_and_unlocks(default_progression: Dictionary) -> void:
 	_assert(equipment_card_entries.has("keyword:bleed"), "Cards with bleed should unlock the bleed entry")
 	var spark_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("spark_dart")
 	_assert(spark_card_entries.has("magick:spark_dart"), "Elemental reward cards should unlock their Magick entry")
-	_assert(spark_card_entries.has("combat:intensity"), "Cards with intensity should unlock the intensity entry")
+	_assert(spark_card_entries.has("keyword:surface_electrified"), "Wiring cards unlock Electrified ground rules")
 	_assert(spark_card_entries.has("keyword:radiance") and spark_card_entries.has("keyword:illuminate"), "Radiance riders should unlock their school and Light action entries")
 	var static_card_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("static_lash")
-	_assert(static_card_entries.has("keyword:shock"), "Nested intensity bonus effects should unlock their keyword entry")
+	_assert(static_card_entries.has("keyword:shock"), "Conditional surface payoff effects unlock their keyword entry")
 	var lantern_entries: Array[String] = GrimoireLibrary.entry_ids_for_card_id("lantern_shot")
 	_assert(lantern_entries.has("equipment_card:lantern_shot"), "Starter Lantern Shot should unlock its equipment-provenance card entry")
 	_assert(not lantern_entries.has("magick:lantern_shot"), "Equipment-provided Lantern Shot should not be misclassified as a Magick")
@@ -753,10 +759,10 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		_assert(not description.contains("{") and not description.contains("}"), "%s description placeholders should be formatted for display" % relic_id)
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
-	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("half that much"), "Thornmail Brooch should explain its conditional stoneskin scaling")
+	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("cross"), "Faultline Brooch should explain its optional melee footprint transformation")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining @icon(block)"), "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Opening @icon(draw) -1"), "Obsidian Heart should format its negative opening draw through the draw icon")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("deal 12"), "Black Sun Dial should display its legendary all-enemy payoff")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("everyone in a cross"), "Black Sun Dial should disclose its shared local blast")
 	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -1248,8 +1254,8 @@ func _test_room_generation_populates_elemental_traps() -> void:
 	_assert(int(boss_lightning_trap.get("damage", 0)) == GameData.fixed_point_amount(5), "Boss-depth traps should beat weak ranged attacks without one-shotting healthy boss adds")
 	_assert(int(boss_lightning_trap.get("damage", 0)) < lightning_wisp_hp, "Boss-depth traps should leave full-health lightning wisps alive")
 	_assert(int(later_sequence_fire_trap.get("damage", 0)) == GameData.fixed_point_amount(7), "Later-sequence traps should follow the bounded authored sequence curve")
-	_assert(int(depth_two_fire_trap.get("burn", 0)) == GameData.fixed_point_amount(1), "Depth-two fire traps should keep shallow burn pressure")
-	_assert(int(deep_fire_trap.get("burn", 0)) > int(depth_two_fire_trap.get("burn", 0)), "Deep fire traps should still ramp their burn pressure")
+	_assert(not depth_two_fire_trap.has("burn"), "Fire traps no longer carry unit Burn")
+	_assert(not deep_fire_trap.has("burn"), "Deeper traps keep the same surface-wake contract")
 
 func _test_room_generation_adds_pickups_and_destructible_terrain() -> void:
 	var generator: RoomGenerator = RoomGenerator.new()
@@ -1920,24 +1926,22 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	]
 	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
-	_assert(actions.size() == 4, "Flurry should repeat its full printed action package once for each of the two base card plays")
+	_assert(actions.size() == 2, "Flurry should repeat its full printed action package once for each of the two base card plays")
 	_assert(combat.card_plays_spent_for_actions(actions) == 2, "Repeated Flurry actions should preserve the snapshotted spend count")
-	state = combat.apply_player_action(state, actions[0] as Dictionary)
-	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(3, 4))
-	state = combat.apply_player_action(state, actions[2] as Dictionary)
-	state = combat.apply_player_action(state, actions[3] as Dictionary, Vector2i(4, 4))
+	state = combat.apply_player_action(state, actions[0] as Dictionary, Vector2i(3, 4))
+	state = combat.apply_player_action(state, actions[1] as Dictionary, Vector2i(4, 4))
 	state = combat.finish_player_card(state, 0, combat.card_plays_spent_for_actions(actions))
 	_assert(int(state.get("cards_played_this_turn", 0)) == 2, "Flurry should spend every card play it snapshotted")
 	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
 	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
-	_assert(int((state.get("elemental_intensity", {}) as Dictionary).get("fire", 0)) == 2, "Each Flurry copy should resolve its intensity action")
+	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)) == "fire" and BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Each Flurry copy paints its actual target")
 	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 17, "Each Flurry copy should resolve its attack against the selected target")
 	var bonus_state: Dictionary = state.duplicate(true)
 	bonus_state["cards_played_this_turn"] = 0
 	bonus_state["death_bonus_card_plays_this_turn"] = 0
 	bonus_state["card_play_bonus_this_turn"] = 1
 	var bonus_actions: Array = combat.card_play_actions("cinder_fusillade", bonus_state)
-	_assert(bonus_actions.size() == 6, "Card-play bonuses should directly increase every action in a later Flurry's repeat count")
+	_assert(bonus_actions.size() == 3, "Card-play bonuses should directly increase every action in a later Flurry's repeat count")
 	var cost_state: Dictionary = combat.create_combat(15113, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
@@ -1976,7 +1980,7 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	_assert(not starting_deck.has("bone_dart"), "Bone Dart should stay out of the starting deck while retired")
 	_assert(bool(GameData.card_def("hamstring_shot").get("starter", false)), "Hamstring Shot should be marked as a starter card")
 	_assert(str(GameData.card_def("hamstring_shot").get("rarity", "")) == "common", "Starter Hamstring Shot should use common rarity plus starter metadata")
-	_assert(not bool(GameData.card_def("bone_dart").get("starter", false)), "Bone Dart should not be marked as an active starter card")
+	_assert(not bool((GameData.cards()["bone_dart"] as Dictionary).get("starter", false)) and bool((GameData.cards()["bone_dart"] as Dictionary).get("retired", false)), "Raw Bone Dart remains retired while runtime resolution returns its replacement")
 	var reward_pool: Dictionary = GameData.reward_card_pool_by_rarity()
 	for rarity: String in GameData.CARD_RARITY_TIERS:
 		var cards: Array = reward_pool.get(rarity, [])
@@ -1996,7 +2000,7 @@ func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	for card_id_var: Variant in elemental_reward_ids:
 		var card_id: String = str(card_id_var)
 		elemental_reward_times[int(GameData.card_def(card_id).get("time", 5))] = true
-	for required_time: int in [1, 2, 3, 9, 10]:
+	for required_time: int in [2, 3, 4, 5, 6, 7, 8]:
 		_assert(bool(elemental_reward_times.get(required_time, false)), "Elemental reward pool should include a time-%d card" % required_time)
 
 func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary) -> void:
@@ -2318,168 +2322,15 @@ func _test_missed_equipment_resolution_and_persistence(default_progression: Dict
 		_assert((payload.get("collected_equipment", []) as Array) == ["iron_cleaver"], "combat_ended should keep collected equipment separate from missed equipment")
 	analytics_scene.free()
 
-func _test_elemental_intensity_starts_from_room_element() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var layout: Dictionary = _simple_room_layout()
-	layout["element"] = ElementData.FIRE
-	var state: Dictionary = combat.create_combat(15121, layout, {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["firebrand_volley"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	_assert(combat.elemental_intensity(state, ElementData.FIRE) == 1, "Combat should seed the room element with baseline intensity")
-	_assert(combat.elemental_intensity(state, ElementData.ICE) == 0, "Combat should not seed off-element intensity")
-
-func _test_elemental_intensity_actions_gate_effects() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var layout: Dictionary = _simple_room_layout()
-	layout["element"] = ElementData.FIRE
-	var state: Dictionary = combat.create_combat(15122, layout, {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["firebrand_volley"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	state["player"] = {
-		"pos": Vector2i(2, 4),
-		"hp": 24,
-		"max_hp": 24,
-		"block": 0,
-		"stoneskin": 0
-	}
-	state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	var gated_action: Dictionary = {
-		"type": "melee",
-		"damage": 5,
-		"range": 1,
-		"requires_intensity": {"element": ElementData.FIRE, "amount": 2}
-	}
-	_assert(not combat.player_action_can_resolve(state, gated_action), "Intensity-gated effects should not resolve below their threshold")
-	var unchanged: Dictionary = combat.apply_player_action(state, gated_action, Vector2i(3, 4))
-	_assert(int(((unchanged.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 14, "Applying an unmet intensity-gated attack should leave state unchanged")
-	state = combat.apply_player_action(state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
-	_assert(combat.elemental_intensity(state, ElementData.FIRE) == 2, "Intensity actions should raise the matching room counter")
-	_assert(combat.player_action_can_resolve(state, gated_action), "Intensity-gated effects should resolve after the threshold is met")
-	state = combat.apply_player_action(state, gated_action, Vector2i(3, 4))
-	_assert(int(((state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 9, "Met intensity-gated attacks should deal damage normally")
-
-func _test_elemental_intensity_icons_surface_card_requirements() -> void:
-	var intensity_tokens: Array = ActionIcons.tokens_for_action({"type": "intensity", "element": ElementData.FIRE, "amount": 2})
-	_assert(not intensity_tokens.is_empty() and str((intensity_tokens[0] as Dictionary).get("kind", "")) == "elemental_intensity", "Intensity actions should render as elemental intensity tokens")
-	_assert(ActionIcons.token_value_text(intensity_tokens[0] as Dictionary) == "+2", "Intensity tokens should show the gained amount")
-	_assert(str((intensity_tokens[0] as Dictionary).get("tone", "")) == "neutral", "Intensity gain numbers should use the normal number tone")
-	var gated_tokens: Array = ActionIcons.tokens_for_action({
-		"type": "ranged",
-		"damage": 4,
-		"range": 5,
-		"requires_intensity": {"element": ElementData.FIRE, "amount": 3}
-	})
-	_assert(not gated_tokens.is_empty() and str((gated_tokens[0] as Dictionary).get("kind", "")) == "intensity_requirement", "Gated actions should lead with an elemental requirement token")
-	_assert(ActionIcons.token_value_text(gated_tokens[0] as Dictionary) == "3+:", "Intensity requirements should visually separate the gate with a colon")
-	_assert(ActionIcons.plain_text_for_tokens(gated_tokens).begins_with("Fire 3+:"), "Plain card text should expose the elemental intensity threshold")
-	var bonus_tokens: Array = ActionIcons.tokens_for_intensity_bonus({
-		"type": "ranged",
-		"damage": 4,
-		"range": 5,
-		"intensity_bonus": {"element": ElementData.FIRE, "threshold": 3, "damage": 2, "burn": 1}
-	})
-	_assert(not bonus_tokens.is_empty() and str((bonus_tokens[0] as Dictionary).get("kind", "")) == "intensity_requirement", "Intensity bonus rows should lead with an elemental requirement token")
-	_assert(ActionIcons.plain_text_for_tokens(bonus_tokens).begins_with("Fire 3+:"), "Plain bonus text should expose the elemental intensity threshold")
-	_assert(bonus_tokens.size() > 1 and str((bonus_tokens[1] as Dictionary).get("tone", "")) == "neutral", "Intensity bonus effect numbers should use the normal number tone")
-
-func _test_elemental_intensity_bonus_modifies_single_attack() -> void:
-	var combat: CombatEngine = CombatEngine.new()
-	var layout: Dictionary = _simple_room_layout()
-	layout["element"] = ElementData.FIRE
-	var state: Dictionary = combat.create_combat(15123, layout, {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["firebrand_volley"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	state["player"] = {
-		"pos": Vector2i(2, 4),
-		"hp": 24,
-		"max_hp": 24,
-		"block": 0,
-		"stoneskin": 0
-	}
-	state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 20,
-		"max_hp": 20,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	var action: Dictionary = {
-		"type": "melee",
-		"damage": 5,
-		"range": 1,
-		"intensity_bonus": {"element": ElementData.FIRE, "threshold": 2, "damage": 4, "burn": 2}
-	}
-	_assert(not combat.action_intensity_bonus_requirement_met(state, action), "Intensity bonuses should stay inactive below their threshold")
-	_assert(combat.final_damage_for_player_action(state, action) == 5, "Inactive intensity bonuses should not inflate damage previews")
-	var boosted_state: Dictionary = combat.apply_player_action(state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
-	_assert(combat.action_intensity_bonus_requirement_met(boosted_state, action), "Intensity bonuses should activate once the threshold is met")
-	_assert(combat.final_damage_for_player_action(boosted_state, action) == 9, "Active intensity bonuses should increase damage previews")
-	boosted_state = combat.apply_player_action(boosted_state, action, Vector2i(3, 4))
-	var enemy: Dictionary = ((boosted_state.get("enemies", []) as Array)[0] as Dictionary)
-	_assert(int(enemy.get("hp", 0)) == 11, "Active intensity bonuses should add damage to the same attack")
-	_assert(int(enemy.get("burn", 0)) == 2, "Active intensity bonuses should add gated statuses to the same attack")
-
-	var earth_layout: Dictionary = _simple_room_layout()
-	earth_layout["element"] = ElementData.EARTH
-	var venom_state: Dictionary = combat.create_combat(15124, earth_layout, {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	venom_state["player"] = {
-		"pos": Vector2i(2, 4),
-		"hp": 24,
-		"max_hp": 24,
-		"block": 0,
-		"stoneskin": 0
-	}
-	venom_state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 20,
-		"max_hp": 20,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	var venom_card: Dictionary = GameData.card_def("venom_claw")
-	var venom_actions: Array = venom_card.get("actions", [])
-	venom_state = combat.apply_player_action(venom_state, venom_actions[0] as Dictionary)
-	_assert(combat.elemental_intensity(venom_state, ElementData.EARTH) == 2, "Venom Claw should self-enable its Earth 2+ rider in an Earth room")
-	_assert(combat.final_damage_for_player_action(venom_state, venom_actions[1] as Dictionary) == 13, "Venom Claw's active Earth rider should increase same-attack damage")
-	venom_state = combat.apply_player_action(venom_state, venom_actions[1] as Dictionary, Vector2i(3, 4))
-	var venom_enemy: Dictionary = ((venom_state.get("enemies", []) as Array)[0] as Dictionary)
-	_assert(int(venom_enemy.get("hp", 0)) == 7, "Venom Claw should apply its conditional damage to the target")
-	var venom_poison: Dictionary = venom_enemy.get("poison", {}) as Dictionary
-	_assert(int(venom_poison.get("damage", 0)) == 4, "Venom Claw should apply its conditional poison to the target")
+func _test_surface_icons_explain_card_requirements() -> void:
+	for surface: String in ["fire", "ice", "electrified", "rubble"]:
+		var tokens: Array = ActionIcons.tokens_for_action({"type": "surface", "surface": surface, "range": 4})
+		_assert(not tokens.is_empty() and str((tokens[0] as Dictionary).get("icon", "")) == "surface_" + surface, "Each ground kind needs its own action identity")
+		_assert(not ActionIcons.tooltip("surface_" + surface).is_empty(), "Ground icons need actual rules text")
+	var gated: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 5, "requires_surface": {"surface": "fire", "subject": "target"}})
+	_assert(ActionIcons.plain_text_for_tokens(gated).begins_with("Target on Fire"), "Board conditions must describe the target ground without a meter threshold")
+	var bonus: Array = ActionIcons.tokens_for_surface_bonus({"type": "ranged", "surface_bonus": {"surface": "electrified", "subject": "consumed", "damage": 2}})
+	_assert(ActionIcons.plain_text_for_tokens(bonus).contains("After consuming Electrified"), "Electrical bonuses must describe actual consumed setup")
 
 func _test_cards_do_not_define_multiple_player_attacks() -> void:
 	var attack_types: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -2759,211 +2610,14 @@ func _test_hand_draw_caps_at_seven() -> void:
 	_assert(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 7, "Drawing for a new turn should stop once the hand reaches seven cards")
 
 func _test_relic_effect_hooks() -> void:
+	SurfaceRelicSuite.run(Callable(self, "_assert"))
 	var combat: CombatEngine = CombatEngine.new()
-	var shield_state: Dictionary = combat.create_combat(1601, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["reinforced_shield"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	_assert(int((shield_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Start-combat relic effects should apply before the first turn")
-	var thorn_state: Dictionary = combat.create_combat(1611, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["stone_plate"],
-		"relics": ["thornmail_brooch"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	thorn_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	thorn_state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	thorn_state = combat.apply_player_action(thorn_state, {"type": "stoneskin", "amount": 4})
-	_assert(int(((thorn_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 13, "Thornmail Brooch should use natural-unit thorns damage")
-	var fire_card: Dictionary = combat.card_def("hearth_rush", {"relics": ["flint_edge"]})
-	var fire_base_melee: Dictionary = {}
-	for action_var: Variant in fire_card.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var
-		if str(action.get("type", "")) != "melee":
-			continue
-		fire_base_melee = action
-	_assert(int(fire_base_melee.get("burn", 0)) == 1, "Elemental relic action mods should augment matching base card actions")
-	_assert(int((fire_base_melee.get("intensity_bonus", {}) as Dictionary).get("burn", 0)) == 2, "Elemental relic action mods should preserve matching intensity-gated bonus actions")
-	var storm_card: Dictionary = combat.card_def("spark_dart", {"relics": ["storm_crown"]})
-	var storm_actions: Array = storm_card.get("actions", [])
-	_assert(str((storm_actions[storm_actions.size() - 1] as Dictionary).get("type", "")) == "card_play", "Append-action relic effects should add reusable card actions")
-	var frost_state: Dictionary = combat.create_combat(1602, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["frost_prism"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	frost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	frost_state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
-		"block": 0,
-		"stoneskin": 0,
-		"freeze": 1
-	}]
-	frost_state = combat.apply_player_action(frost_state, {"type": "melee", "damage": 4, "range": 1}, Vector2i(3, 4))
-	_assert(int(((frost_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 0, "Target-status relic effects should add damage before existing freeze vulnerability")
-	var phoenix_state: Dictionary = combat.create_combat(1603, _simple_room_layout(), {
-		"hp": 3,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["phoenix_ember"],
-		"hand_size": 1,
-		"heal_bonus": 0,
-		"defiance_capacity": 1,
-		"defiance_remaining": 1
-	})
-	phoenix_state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(3, 4),
-		"hp": 14,
-		"max_hp": 14,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	phoenix_state = combat.call("_damage_player", phoenix_state, 9, true)
-	_assert(int((phoenix_state.get("player", {}) as Dictionary).get("hp", 0)) == 6, "Phoenix Ember's added Defiance should restore a quarter of maximum health")
-	_assert(int(phoenix_state.get("defiance_remaining", -1)) == 0, "Phoenix Ember's Defiance should spend exactly one charge")
-	_assert(int(((phoenix_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Phoenix Ember should apply its follow-up burn when Defiance triggers")
-	var cinder_state: Dictionary = combat.create_combat(1604, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["cinderbrand_tongs", "coalheart_crucible"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var cinder_intensity: Dictionary = combat.elemental_intensities(cinder_state)
-	cinder_intensity[ElementData.FIRE] = 3
-	cinder_state["elemental_intensity"] = cinder_intensity
-	cinder_state["player"] = {"pos": Vector2i(4, 2), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
-	cinder_state = combat.apply_player_action(cinder_state, {"type": "melee", "damage": 1, "range": 1, "burn": 1}, Vector2i(5, 2))
-	_assert(combat.elemental_intensity(cinder_state, ElementData.FIRE) == 2, "Fire threshold relics should be able to consume intensity after crossing")
-	_assert(int(cinder_state.get("card_play_bonus_this_turn", 0)) == 1, "Intensity threshold rewards should be able to grant card plays")
-	_assert(int(((cinder_state.get("enemies", []) as Array)[0] as Dictionary).get("burn", 0)) == 3, "Intensity threshold rewards should apply all-enemy statuses")
-	var cinder_spent: Dictionary = combat.elemental_intensity_counter(cinder_state, "elemental_intensity_spent_total")
-	_assert(int(cinder_spent.get(ElementData.FIRE, 0)) == 2, "Combat state should track gross intensity spent by relic payoffs")
-	var overflow_state: Dictionary = combat.create_combat(1610, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["overflow_censer"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var overflow_intensity: Dictionary = combat.elemental_intensities(overflow_state)
-	overflow_intensity[ElementData.ICE] = 2
-	overflow_state["elemental_intensity"] = overflow_intensity
-	overflow_state = combat.apply_player_action(overflow_state, {"type": "intensity", "element": ElementData.ICE, "amount": 1})
-	_assert(int((overflow_state.get("player", {}) as Dictionary).get("block", 0)) == 5, "Any-element threshold rewards should trigger from matching crossings")
-	var voltaic_state: Dictionary = combat.create_combat(1605, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["voltaic_tuning_fork"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var voltaic_intensity: Dictionary = combat.elemental_intensities(voltaic_state)
-	voltaic_intensity[ElementData.LIGHTNING] = 2
-	voltaic_state["elemental_intensity"] = voltaic_intensity
-	var voltaic_deck: Dictionary = (voltaic_state.get("deck", {}) as Dictionary).duplicate(true)
-	voltaic_deck["draw"] = ["quick_stab"]
-	voltaic_deck["hand"] = []
-	voltaic_deck["discard"] = []
-	voltaic_deck["burned"] = []
-	voltaic_state["deck"] = voltaic_deck
-	voltaic_state = combat.apply_player_action(voltaic_state, {"type": "intensity", "element": ElementData.LIGHTNING, "amount": 1})
-	_assert(combat.elemental_intensity(voltaic_state, ElementData.LIGHTNING) == 3, "Non-consuming threshold rewards should leave intensity in place")
-	_assert(((voltaic_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Intensity threshold rewards should be able to draw cards")
-	var basalt_room: Dictionary = _simple_room_layout()
-	basalt_room["element"] = ElementData.NONE
-	var basalt_state: Dictionary = combat.create_combat(1606, basalt_room, {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["venom_claw", "stone_plate", "quarry_step", "thorn_skewer"],
-		"relics": ["basalt_calendar"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	_assert(combat.elemental_intensity(basalt_state, ElementData.EARTH) == 1, "Deck-conditioned relics should be able to seed elemental intensity at combat start")
-	var updraft_state: Dictionary = combat.create_combat(1607, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["updraft_bottle"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	updraft_state = combat.apply_player_action(updraft_state, {"type": "blink", "range": 2}, Vector2i(3, 4))
-	updraft_state = combat.apply_player_action(updraft_state, {"type": "blink", "range": 2}, Vector2i(2, 4))
-	_assert(combat.elemental_intensity(updraft_state, ElementData.AIR) == 1, "Blink intensity relics should trigger only once per turn")
-	var tectonic_state: Dictionary = combat.create_combat(1608, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["tectonic_abacus"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var tectonic_intensity: Dictionary = combat.elemental_intensities(tectonic_state)
-	tectonic_intensity[ElementData.EARTH] = 3
-	tectonic_state["elemental_intensity"] = tectonic_intensity
-	tectonic_state = combat.apply_player_action(tectonic_state, {"type": "intensity", "element": ElementData.EARTH, "amount": 1})
-	_assert(combat.elemental_intensity(tectonic_state, ElementData.EARTH) == 2, "Earth threshold relics should consume their configured intensity")
-	_assert(int((tectonic_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 8, "Earth threshold relics should be able to grant stoneskin")
-	var black_sun_state: Dictionary = combat.create_combat(1609, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["quick_stab"],
-		"relics": ["black_sun_dial"],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var black_sun_intensity: Dictionary = combat.elemental_intensities(black_sun_state)
-	black_sun_intensity[ElementData.FIRE] = 4
-	black_sun_state["elemental_intensity"] = black_sun_intensity
-	var black_sun_deck: Dictionary = (black_sun_state.get("deck", {}) as Dictionary).duplicate(true)
-	black_sun_deck["draw"] = ["quick_stab"]
-	black_sun_deck["hand"] = []
-	black_sun_deck["discard"] = []
-	black_sun_deck["burned"] = []
-	black_sun_state["deck"] = black_sun_deck
-	black_sun_state["enemies"] = [{
-		"id": 1,
-		"type": "crawler",
-		"pos": Vector2i(5, 2),
-		"hp": 14,
-		"max_hp": 14,
-		"block": 0,
-		"stoneskin": 0
-	}]
-	black_sun_state = combat.apply_player_action(black_sun_state, {"type": "intensity", "element": ElementData.FIRE, "amount": 1})
-	_assert(combat.elemental_intensity(black_sun_state, ElementData.FIRE) == 2, "Any-element consuming relics should spend the triggering element")
-	_assert(int(((black_sun_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 10, "Any-element threshold rewards should be able to damage all enemies")
-	_assert(((black_sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1, "Any-element threshold rewards should be able to draw")
+	var state: Dictionary = combat.create_combat(1601, _simple_room_layout(), {"hp": 24, "max_hp": 24, "deck_cards": ["quick_stab"], "relics": ["reinforced_shield"], "hand_size": 1})
+	_assert(int((state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 4, "Retained start-combat Stoneskin relic applies before the first turn")
+	state = combat.create_combat(1603, _simple_room_layout(), {"hp": 3, "max_hp": 24, "deck_cards": ["quick_stab"], "relics": ["phoenix_ember"], "hand_size": 1, "defiance_capacity": 1, "defiance_remaining": 1})
+	state = combat.call("_damage_player", state, 9, true)
+	_assert(int(state["player"]["hp"]) == 6 and int(state.get("defiance_remaining")) == 0, "Phoenix spends one Defiance and restores quarter maximum health")
+	_assert(BoardSurfaceRules.element_at(state, (state["enemies"][0] as Dictionary).get("pos")) == "fire", "Phoenix paints Fire beneath enemies without old damaging Burn")
 
 func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
@@ -3384,97 +3038,30 @@ func _test_enemy_pierce_intents_surface_icons() -> void:
 		_assert(found_pierce_icon, "%s pierce intent should render with the pierce icon" % str(enemy_def.get("name", enemy_type)))
 	board.free()
 
-func _test_bile_bloomer_poison_and_expose_intents_apply_to_player() -> void:
+func _test_shale_bloomer_rubble_and_expose_intents_apply_to_player() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var poison_layout: Dictionary = _simple_room_layout()
-	poison_layout["enemies"] = [{
-		"id": 1,
-		"type": "bile_bloomer",
-		"pos": Vector2i(3, 4),
-		"hp": 160,
-		"max_hp": 160,
-		"block": 0
-	}]
-	var poison_state: Dictionary = combat.create_combat(23101, poison_layout, {
-		"hp": 240,
-		"max_hp": 240,
-		"deck_cards": ["quick_stab"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	_set_enemy_intent(poison_state, 0, _enemy_intent_by_id("bile_bloomer", "bile_burst"))
-	var poison_threat: Dictionary = combat.enemy_threat_tiles(poison_state, 0)
-	var poison_attack_tiles: Array = poison_threat.get("attack", []) as Array
-	_assert(poison_attack_tiles.has(Vector2i(2, 4)), "Bile Burst threat preview should show the player's tile before poison resolves")
-	_assert(poison_attack_tiles.has(Vector2i(1, 4)), "Bile Burst should preview the outer cardinal tile in its wider poison diamond")
-	_assert(poison_attack_tiles.has(Vector2i(2, 3)), "Bile Burst should preview the outer diagonal tile in its wider poison diamond")
-	var bile_burst: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
-	var bile_burst_actions: Array = bile_burst.get("actions", [])
-	var bile_burst_aoe: Dictionary = bile_burst_actions[1] as Dictionary
-	_assert((bile_burst_aoe.get("pattern", []) as Array).size() == 12, "Bile Burst should use a radius-2 diamond around the Bloomer")
-	var poison_result: Dictionary = combat.resolve_enemy_turn_with_steps(poison_state, 0)
-	var poisoned_player: Dictionary = (poison_result.get("state", {}) as Dictionary).get("player", {})
-	var poison: Dictionary = poisoned_player.get("poison", {})
-	_assert(int(poison.get("damage", 0)) == GameData.fixed_point_amount(2), "Bile Burst should apply poison through its revealed enemy intent")
-	_assert(int(poison.get("delay", 0)) == 2, "Bile Burst poison should use the existing delayed poison cadence")
+	for intent_id: String in ["bile_burst", "spore_mark"]:
+		var state: Dictionary = BoardSurfaceSuite.fixture(combat)
+		state["enemies"][0]["type"] = "bile_bloomer"
+		state["enemies"][0]["pos"] = Vector2i(3, 3)
+		_set_enemy_intent(state, 0, _enemy_intent_by_id("bile_bloomer", intent_id))
+		state = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+		_assert(not BoardSurfaceRules.tiles(state, "rubble").is_empty(), "Shale Bloomer creates positional Rubble through its revealed intent")
+		_assert(not (state["player"] as Dictionary).has("poison"), "Shale Bloomer never applies retired Poison")
+		if intent_id == "spore_mark":
+			_assert(int(state["player"].get("expose", 0)) == 2, "Shard Mark keeps its next-hit Expose setup")
 
-	var expose_layout: Dictionary = _simple_room_layout()
-	expose_layout["enemies"] = [{
-		"id": 1,
-		"type": "bile_bloomer",
-		"pos": Vector2i(5, 4),
-		"hp": 160,
-		"max_hp": 160,
-		"block": 0
-	}]
-	var expose_state: Dictionary = combat.create_combat(23102, expose_layout, {
-		"hp": 240,
-		"max_hp": 240,
-		"deck_cards": ["quick_stab"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	_set_enemy_intent(expose_state, 0, _enemy_intent_by_id("bile_bloomer", "spore_mark"))
-	var expose_threat: Dictionary = combat.enemy_threat_tiles(expose_state, 0)
-	_assert((expose_threat.get("attack", []) as Array).has(Vector2i(2, 4)), "Spore Mark threat preview should show the player's tile before expose resolves")
-	var expose_result: Dictionary = combat.resolve_enemy_turn_with_steps(expose_state, 0)
-	var exposed_player: Dictionary = (expose_result.get("state", {}) as Dictionary).get("player", {})
-	_assert(int(exposed_player.get("expose", 0)) == GameData.fixed_point_amount(2), "Spore Mark should apply expose through its revealed enemy intent")
-
-func _test_bile_bloomer_intents_surface_poison_and_expose_icons() -> void:
+func _test_shale_bloomer_intents_show_rubble_and_expose_icons() -> void:
 	var board := CombatBoardView.new()
-	var poison_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "bile_burst")
-	var expose_intent: Dictionary = _enemy_intent_by_id("bile_bloomer", "spore_mark")
-	var found_poison_icon: bool = false
-	var found_expose_icon: bool = false
-	var poison_tooltip: String = ""
-	var expose_tooltip: String = ""
-	for poison_row_var: Variant in board.call("_intent_rows", poison_intent):
-		if typeof(poison_row_var) != TYPE_ARRAY:
-			continue
-		for poison_token_var: Variant in poison_row_var as Array:
-			if typeof(poison_token_var) != TYPE_DICTIONARY:
-				continue
-			var poison_token: Dictionary = poison_token_var
-			if str(poison_token.get("icon", "")) == "poison":
-				found_poison_icon = true
-				poison_tooltip = ActionIcons.token_tooltip(poison_token)
-	for expose_row_var: Variant in board.call("_intent_rows", expose_intent):
-		if typeof(expose_row_var) != TYPE_ARRAY:
-			continue
-		for expose_token_var: Variant in expose_row_var as Array:
-			if typeof(expose_token_var) != TYPE_DICTIONARY:
-				continue
-			var expose_token: Dictionary = expose_token_var
-			if str(expose_token.get("icon", "")) == "expose":
-				found_expose_icon = true
-				expose_tooltip = ActionIcons.token_tooltip(expose_token)
-	_assert(found_poison_icon, "Bile Burst enemy intent rows should surface a poison icon")
-	_assert(poison_tooltip.contains("Delayed damage"), "Poison intent icon tooltip should explain delayed damage")
-	_assert(found_expose_icon, "Spore Mark enemy intent rows should surface an expose icon")
-	_assert(expose_tooltip.contains("next hit"), "Expose intent icon tooltip should explain the next-hit setup")
+	for intent_id: String in ["bile_burst", "spore_mark"]:
+		var seen: Dictionary = {}
+		for row: Array in board.call("_intent_rows", _enemy_intent_by_id("bile_bloomer", intent_id)):
+			for token: Dictionary in row:
+				seen[str(token.get("icon", ""))] = true
+		_assert(seen.has("surface_rubble"), "Shale Bloomer intent rows show Rubble")
+		_assert(not seen.has("poison"), "Shale Bloomer has no obsolete Poison icon")
+		if intent_id == "spore_mark":
+			_assert(seen.has("expose"), "Shard Mark exposes its Expose keyword")
 	board.free()
 
 func _test_pierce_cards_stay_in_allowed_elements() -> void:
@@ -3510,7 +3097,7 @@ func _test_immobilize_cards_stay_in_allowed_elements() -> void:
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue
 			var action: Dictionary = action_var as Dictionary
-			if bool(action.get("immobilize", false)) or bool((action.get("intensity_bonus", {}) as Dictionary).get("immobilize", false)):
+			if bool(action.get("immobilize", false)):
 				has_immobilize = true
 				break
 		if not has_immobilize:
@@ -4234,10 +3821,12 @@ func _test_freeze_and_shock_control_turn_flow() -> void:
 			"intent": {"name": "Claw", "actions": [{"type": "melee", "damage": 5, "range": 2}]}
 		}
 	]
-	state = combat.apply_player_action(state, {"type": "ranged", "damage": 4, "range": 6, "freeze": 1}, Vector2i(4, 4))
+	BoardSurfaceRules.place(state, Vector2i(4, 4), "ice")
+	state = combat.surface_actor_arrival(state, "enemy", 1, Vector2i(4, 3))
+	state = combat.apply_player_action(state, {"type": "ranged", "damage": 4, "range": 6, "element": "ice"}, Vector2i(4, 4))
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 3, "range": 6}, Vector2i(4, 4))
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(enemy.get("hp", 0)) == 4, "Frozen enemies should take double damage from follow-up hits")
+	_assert(int(enemy.get("hp", 0)) == 3, "Chilled setup adds one, then Frozen enemies should take double damage from follow-up hits")
 	var hp_before_enemy_turn: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	var phase_result: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_enemy_phase: Dictionary = phase_result.get("state", {})
@@ -4324,7 +3913,7 @@ func _test_immobilize_control_turn_flow() -> void:
 	_assert(not combat.player_action_can_resolve(player_state, {"type": "blink", "range": 3}), "Immobilize should block player blink actions for the turn")
 	_assert(combat.player_action_can_resolve(player_state, {"type": "block", "amount": 4}), "Immobilize should still allow non-movement player actions")
 
-func _test_traps_trigger_and_apply_current_turn_control() -> void:
+func _test_lightning_trap_wake_preserves_current_turn_actions() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
 	layout["traps"] = [{
@@ -4332,7 +3921,6 @@ func _test_traps_trigger_and_apply_current_turn_control() -> void:
 		"pos": Vector2i(3, 4),
 		"element": "lightning",
 		"damage": 2,
-		"shock": 1
 	}]
 	var state: Dictionary = combat.create_combat(161, layout, {
 		"hp": 24,
@@ -4351,13 +3939,15 @@ func _test_traps_trigger_and_apply_current_turn_control() -> void:
 	state = combat.apply_player_action(state, {"type": "move", "range": 3}, Vector2i(5, 4))
 	_assert((state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "Triggered traps should not halt movement mid-path")
 	_assert((state.get("traps", []) as Array).is_empty(), "Triggered traps should be consumed immediately")
-	_assert(str(state.get("pending_player_trap_restriction", "")) == "shock", "Trap control should wait until the current card finishes before applying this turn")
+	_assert(str(state.get("pending_player_trap_restriction", "")).is_empty(), "Lightning traps create ground without a hidden Shock rider")
+	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 4, "Lightning trap leaves four cardinal conductors")
+	_assert(int(state["player"]["hp"]) == 22, "Only the occupied trap center deals immediate damage")
 	state = combat.finish_player_card(state, 0)
-	_assert(bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Trap shock should apply to the current turn when a play remains after the card")
+	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Trap wake never applies Shock this turn")
 	_assert(combat.player_action_can_resolve(state, {"type": "move", "range": 2}), "Trap shock should still leave movement lines playable this turn")
-	_assert(not combat.player_action_can_resolve(state, {"type": "block", "amount": 4}), "Trap shock should block non-movement follow-up plays this turn")
+	_assert(combat.player_action_can_resolve(state, {"type": "block", "amount": 4}), "Electrified ground leaves ordinary follow-up cards available")
 
-func _test_traps_roll_control_to_next_turn_when_no_plays_remain() -> void:
+func _test_lightning_trap_wake_never_banks_obsolete_control() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
 	layout["traps"] = [{
@@ -4365,7 +3955,6 @@ func _test_traps_roll_control_to_next_turn_when_no_plays_remain() -> void:
 		"pos": Vector2i(3, 4),
 		"element": "lightning",
 		"damage": 2,
-		"shock": 1
 	}]
 	var state: Dictionary = combat.create_combat(162, layout, {
 		"hp": 24,
@@ -4383,11 +3972,12 @@ func _test_traps_roll_control_to_next_turn_when_no_plays_remain() -> void:
 	deck["burned"] = []
 	state["deck"] = deck
 	state = combat.apply_player_action(state, {"type": "move", "range": 3}, Vector2i(5, 4))
-	_assert(int((state.get("player", {}) as Dictionary).get("shock", 0)) == 1, "Last-play trap shock should stay on the player for next turn setup")
+	_assert(int((state.get("player", {}) as Dictionary).get("shock", 0)) == 0, "A last-play Lightning trap must not bank a Shock status")
 	state = combat.finish_player_card(state, 0)
 	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Last-play trap shock should not retroactively lock the finished turn")
 	state = combat.prepare_next_player_turn(state)
-	_assert(bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "Last-play trap shock should carry into the next turn")
+	_assert(not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("shocked", false)), "No obsolete trap control may appear at the next activation")
+	_assert(BoardSurfaceRules.tiles(state, "electrified").size() == 4, "Unconsumed Electrified ground persists across activations")
 
 func _test_move_paths_only_cross_required_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4462,7 +4052,7 @@ func _test_terrain_blocks_movement_without_blocking_line_of_sight() -> void:
 	var terrain: Dictionary = (state.get("terrain", []) as Array)[0]
 	_assert(int(terrain.get("hp", 0)) == 0, "Player attacks should be able to destroy low-HP terrain")
 
-func _test_attacking_trap_blasts_adjacent_tiles() -> void:
+func _test_attacking_trap_creates_delayed_cardinal_fire() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
 	layout["element"] = ElementData.FIRE
@@ -4491,11 +4081,16 @@ func _test_attacking_trap_blasts_adjacent_tiles() -> void:
 	})
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 0, "range": 2}, Vector2i(3, 4))
 	_assert((state.get("traps", []) as Array).is_empty(), "Attacking a trap should consume and trigger it even for zero attack damage")
-	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 17, "Trap blasts should damage the player on adjacent tiles")
+	_assert(int((state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Trap wake placement does not immediately damage an adjacent player")
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(enemy.get("hp", 0)) == 7, "Trap blasts should damage enemies on adjacent tiles")
+	_assert(int(enemy.get("hp", 0)) == 10, "Trap wake placement does not immediately damage an adjacent enemy")
+	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)).is_empty(), "Trap wake excludes its center")
+	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Cardinal occupant receives Fire beneath it")
+	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 3)).is_empty(), "Diagonals remain unaffected")
+	var enemy_turn: Dictionary = combat._resolve_enemy_start_of_turn(state, 0)
+	_assert(int(enemy_turn["state"]["enemies"][0]["hp"]) == 8, "The new Fire waits for the affected enemy activation")
 
-func _test_trap_blasts_damage_incidental_terrain() -> void:
+func _test_trap_wake_preserves_incidental_terrain() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
 	layout["element"] = ElementData.FIRE
@@ -4524,7 +4119,7 @@ func _test_trap_blasts_damage_incidental_terrain() -> void:
 	})
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 0, "range": 2}, Vector2i(3, 4))
 	var terrain: Dictionary = (state.get("terrain", []) as Array)[0]
-	_assert(int(terrain.get("hp", 0)) == 0, "Trap blasts should destroy destructible terrain on incidental blast squares")
+	_assert(int(terrain.get("hp", 0)) == 3, "Trap wake does not damage incidental adjacent crates")
 
 func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4558,10 +4153,10 @@ func _test_enemy_attacks_profitable_trap_without_self_damage() -> void:
 	_set_enemy_intent(state, 0, {"name": "Snipe", "actions": [{"type": "ranged", "damage": 1, "range": 5}]})
 	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_state: Dictionary = phase.get("state", {})
-	_assert((after_state.get("traps", []) as Array).is_empty(), "Enemies should attack a trap when its blast beats their direct attack")
-	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 16, "Enemy-triggered traps should apply their blast damage to the player")
+	_assert((after_state.get("traps", []) as Array).size() == 1, "Enemies must not value an empty trap as radial direct damage")
+	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 19, "Enemy chooses its direct shot instead of an empty trap")
 	var steps: Array = phase.get("steps", [])
-	_assert(not steps.is_empty() and not ((steps.back() as Dictionary).get("triggered_traps", []) as Array).is_empty(), "Enemy attack animation steps should report triggered traps")
+	_assert(not steps.is_empty() and ((steps.back() as Dictionary).get("triggered_traps", []) as Array).is_empty(), "Direct enemy shots must not invent trap animation events")
 
 	layout["enemies"] = [{
 		"id": 1,
@@ -4678,98 +4273,30 @@ func _test_enemy_moves_toward_breakable_chokepoint() -> void:
 	_assert(int(terrain.get("hp", 0)) == 0, "Enemies should break terrain after closing to a blocked chokepoint")
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 20, "Breaking a path through terrain should not also hit the player")
 
-func _test_poison_and_stoneskin_behaviors() -> void:
+func _test_rubble_and_stoneskin_behaviors() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(177, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["stone_plate"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
+	var state: Dictionary = BoardSurfaceSuite.fixture(combat)
 	state = combat.apply_player_action(state, {"type": "stoneskin", "amount": 6})
 	state = combat.prepare_next_player_turn(state)
-	_assert(int((state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6, "Stoneskin should persist across turn resets")
-	var poison_state: Dictionary = combat.create_combat(178, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	poison_state["enemies"] = [
-		{
-			"id": 1,
-			"type": "crawler",
-			"pos": Vector2i(3, 4),
-			"hp": 14,
-			"max_hp": 14,
-			"block": 0,
-			"intent": {"name": "Wait", "actions": []}
-		}
-	]
-	poison_state = combat.apply_player_action(poison_state, {"type": "melee", "damage": 0, "range": 1, "poison": 4}, Vector2i(3, 4))
-	var first_phase: Dictionary = combat.resolve_enemy_phase(poison_state)
-	var first_enemy: Dictionary = (first_phase.get("enemies", []) as Array)[0]
-	_assert(int(first_enemy.get("hp", 0)) == 14, "Poison should not trigger on the very next turn")
-	var second_phase: Dictionary = combat.resolve_enemy_phase(combat.prepare_next_player_turn(first_phase))
-	var second_enemy: Dictionary = (second_phase.get("enemies", []) as Array)[0]
-	_assert(int(second_enemy.get("hp", 0)) == 10, "Poison should land after waiting two turns")
+	_assert(int(state["player"]["stoneskin"]) == 6, "Stoneskin persists across activations")
+	var action: Dictionary = {"type": "ranged", "damage": 4, "range": 5, "surface_bonus": {"surface": "rubble", "subject": "target", "damage": 3}}
+	var plain: Dictionary = combat.apply_player_action(state, action, Vector2i(4, 3))
+	BoardSurfaceRules.place(state, Vector2i(4, 3), "rubble")
+	var grounded: Dictionary = combat.apply_player_action(state, action, Vector2i(4, 3))
+	_assert(int(plain["enemies"][0]["hp"]) - int(grounded["enemies"][0]["hp"]) == 3, "Earth payoff checks the struck actor's actual Rubble")
 
 func _test_statuses_tick_on_affected_actor_turn() -> void:
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(179, _simple_room_layout(), {
-		"hp": 24,
-		"max_hp": 24,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	state["enemies"] = [
-		{
-			"id": 1,
-			"type": "crawler",
-			"pos": Vector2i(3, 4),
-			"hp": 14,
-			"max_hp": 14,
-			"block": 0,
-			"intent": {"name": "Wait", "time": 1, "actions": []}
-		},
-		{
-			"id": 2,
-			"type": "harrier",
-			"pos": Vector2i(5, 4),
-			"hp": 10,
-			"max_hp": 10,
-			"block": 0,
-			"burn": 3,
-			"intent": {"name": "Wait", "time": 1, "actions": []}
-		}
-	]
-	state = combat.apply_player_action(state, {"type": "melee", "damage": 0, "range": 1, "poison": 4}, Vector2i(3, 4))
-	var other_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 1)
-	state = other_turn.get("state", {})
-	var enemies: Array = state.get("enemies", [])
-	var poisoned_enemy: Dictionary = enemies[0]
-	var burned_enemy: Dictionary = enemies[1]
-	var poison: Dictionary = poisoned_enemy.get("poison", {}) as Dictionary
-	_assert(int(poison.get("delay", 0)) == 2, "Poison should not tick when a different enemy takes a turn")
-	_assert(int(poisoned_enemy.get("hp", 0)) == 14, "Poison should only damage the actor that owns it on that actor's turn")
-	_assert(int(burned_enemy.get("hp", 0)) == 7, "Burn should tick when the burned enemy's own turn starts")
-	_assert(int(burned_enemy.get("burn", 0)) < 3, "Burn countdown should decrement on the burned enemy's own turn")
-	var burn_after_own_turn: int = int(burned_enemy.get("burn", 0))
-	var poison_turn: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)
-	state = poison_turn.get("state", {})
-	enemies = state.get("enemies", [])
-	poisoned_enemy = enemies[0]
-	burned_enemy = enemies[1]
-	poison = poisoned_enemy.get("poison", {}) as Dictionary
-	_assert(int(poison.get("delay", 0)) == 1, "Poison should advance at the start of the poisoned enemy's own turn")
-	_assert(int(poisoned_enemy.get("hp", 0)) == 14, "Poison should wait through its delay before dealing damage")
-	_assert(int(burned_enemy.get("burn", 0)) == burn_after_own_turn, "Burn should not tick again when a different enemy takes a turn")
+	var state: Dictionary = BoardSurfaceSuite.fixture(combat)
+	state["enemies"].append(BoardSurfaceSuite.enemy(2, Vector2i(6, 3)))
+	for actor: Dictionary in state["enemies"]:
+		actor["intent"] = {"name": "Wait", "time": 1, "actions": []}
+	BoardSurfaceRules.place(state, Vector2i(4, 3), "ice")
+	BoardSurfaceRules.place(state, Vector2i(6, 3), "fire")
+	state = combat.resolve_enemy_turn_with_steps(state, 1)["state"]
+	_assert(int(state["enemies"][1]["hp"]) == 998 and not bool(state["enemies"][0].get("chilled", false)), "Only the acting enemy takes Fire start damage; other Ice occupant stays un-Chilled")
+	state = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
+	_assert(bool(state["enemies"][0].get("chilled", false)) and int(state["enemies"][1]["hp"]) == 998, "Ice activates on its occupant's own start without reticking the other actor")
 
 func _test_enemy_pathfinding_avoids_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -5159,7 +4686,7 @@ func _test_enemy_threat_tiles_assume_player_can_vacate_current_tile() -> void:
 		"The regression setup should prove the enemy can actually hit that vacated-corridor square"
 	)
 
-func _test_enemy_threat_tiles_include_enemy_triggered_trap_blasts() -> void:
+func _test_enemy_threat_tiles_exclude_nonexistent_radial_trap_damage() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
 	layout["player_start"] = Vector2i(2, 4)
@@ -5192,18 +4719,18 @@ func _test_enemy_threat_tiles_include_enemy_triggered_trap_blasts() -> void:
 	})
 	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
 	_assert(
-		(threat.get("attack", []) as Array).has(Vector2i(5, 4)),
-		"Threat previews should include blast tiles from traps an enemy can safely trigger"
+		not (threat.get("attack", []) as Array).has(Vector2i(5, 4)),
+		"Threat previews must not invent radial damage beyond actual attack range"
 	)
 	var moved_state: Dictionary = state.duplicate(true)
 	var moved_player: Dictionary = (moved_state.get("player", {}) as Dictionary).duplicate(true)
 	moved_player["pos"] = Vector2i(5, 4)
 	moved_state["player"] = moved_player
 	var after_state: Dictionary = combat.resolve_enemy_phase(moved_state)
-	_assert((after_state.get("traps", []) as Array).is_empty(), "The regression setup should prove the enemy triggers the trap")
+	_assert((after_state.get("traps", []) as Array).size() == 1, "Enemy does not trigger an empty trap to deal nonexistent radial damage")
 	_assert(
-		int((after_state.get("player", {}) as Dictionary).get("hp", 0)) < 20,
-		"The regression setup should prove the trap blast can hit the moved player"
+		int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 20,
+		"The out-of-range player remains unharmed"
 	)
 
 func _test_large_enemy_threat_tiles_use_footprint() -> void:
@@ -5452,19 +4979,14 @@ func _test_zekarion_ignores_shock_status() -> void:
 
 func _test_status_badges_surface_countdowns() -> void:
 	var board := CombatBoardView.new()
-	var badges: Array = board.call("_unit_status_badges", {
-		"burn": 5,
-		"freeze": 1,
-		"shock": 1,
-		"immobilize": true,
-		"poison": {"damage": 4, "delay": 2}
-	})
-	_assert(badges.size() == 5, "Status badges should surface each active status independently")
-	_assert(str((badges[0] as Dictionary).get("icon", "")) == "burn", "Burn badges should use the shared burn icon")
-	_assert(int((badges[0] as Dictionary).get("count", 0)) == 5, "Burn badges should show their remaining countdown")
-	_assert(str((badges[3] as Dictionary).get("icon", "")) == "immobilize", "Immobilize badges should use the shared immobilize icon")
-	_assert(str((badges[4] as Dictionary).get("icon", "")) == "poison", "Poison badges should use the shared poison icon")
-	_assert(int((badges[4] as Dictionary).get("count", 0)) == 2, "Poison badges should show the turns remaining before it lands")
+	var fresh: Array = board.call("_unit_status_badges", {"key": "player", "chilled": false})
+	_assert(fresh.is_empty(), "Fresh Ice must not invent an active Chilled badge")
+	var chilled: Array = board.call("_unit_status_badges", {"key": "player", "chilled": true})
+	_assert(chilled.size() == 1 and str(chilled[0].get("icon")) == "chilled", "Active Ice contact needs its own Chilled identity")
+	_assert(int(chilled[0].get("count", 0)) == 0, "Chilled has no duration counter")
+	var frozen: Array = board.call("_unit_status_badges", {"chilled": true, "freeze": 1, "shock": 1, "immobilize": true})
+	_assert(frozen.size() == 3 and str(frozen[0].get("icon")) == "freeze", "Frozen suppresses the Chilled badge while preserving unrelated statuses")
+	board.free()
 
 func _test_player_restriction_badges_show_turn_lock() -> void:
 	var board := CombatBoardView.new()
@@ -5477,14 +4999,13 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
-	board.combat_state = {"elemental_intensity": {ElementData.AIR: 1}}
-	var tooltip: String = str(board.call("_trap_tooltip_text", {
-		"element": "air",
-		"damage": 3
-	}))
-	_assert(tooltip.contains("Air Trap"), "Trap tooltips should identify their elemental type")
-	_assert(tooltip == "Air Trap\n3 damage", "Trap tooltips should show only the trap name and live scaled damage")
-	_assert(not tooltip.contains("Burn") and not tooltip.contains("Freeze") and not tooltip.contains("Shock") and not tooltip.contains("Immobilize") and not tooltip.contains("Poison"), "Air trap tooltips should stay damage-only until the air secondary effect is decided")
+	var tooltip: String = str(board.call("_trap_tooltip_text", {"element": "air", "damage": 3}))
+	_assert(tooltip.contains("Air Trap") and tooltip.contains("3 damage only to its center occupant"), "Trap text must distinguish center impact from neighboring wake")
+	_assert(tooltip.contains("Pushes neighboring units outward 1 tile"), "Air traps must explain the cardinal force wake")
+	board.combat_state = {"grid": _simple_grid()}
+	var wake: Array = board.call("_trap_blast_tiles", {"pos": Vector2i(3, 3)})
+	_assert(wake.size() == 5 and not wake.has(Vector2i(4, 4)), "Trap preview must exclude diagonal blast tiles")
+	board.free()
 
 func _test_pickup_tooltips_describe_effects() -> void:
 	var board := CombatBoardView.new()
@@ -6441,7 +5962,7 @@ func _test_cinder_enemies_have_turn_order_portraits() -> void:
 			slot.free()
 	instance.free()
 
-func _test_final_art_units_use_16_frame_idle_sheets() -> void:
+func _test_final_art_units_use_authored_idle_sheets() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
@@ -6467,11 +5988,13 @@ func _test_final_art_units_use_16_frame_idle_sheets() -> void:
 		var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
 		var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
 		_assert(FileAccess.file_exists(idle_path), "%s idle sheet should exist beside the static art" % unit_type)
-		_assert(idle_frames.size() == 16, "%s idle sheet should load all 16 advanced-animation frames" % unit_type)
+		var expected_frame_count: int = 12 if unit_type == "bile_bloomer" else 16
+		_assert(idle_frames.size() == expected_frame_count, "%s idle sheet should load its authored loop including Shale's returning breath" % unit_type)
 		_assert((idle_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s idle frames should use native 255px source cells" % unit_type)
 		_assert(first_frame != null and last_frame != null, "%s idle frames should be atlas-backed slices" % unit_type)
 		_assert(first_frame.region.position == Vector2.ZERO, "%s idle loop should start at the first source frame" % unit_type)
-		_assert(last_frame.region.position == Vector2(765.0, 765.0), "%s idle loop should include the final 4x4 source frame" % unit_type)
+		var expected_last_origin := Vector2(255.0, 0.0) if unit_type == "bile_bloomer" else Vector2(765.0, 765.0)
+		_assert(last_frame.region.position == expected_last_origin, "%s idle loop should preserve its authored final frame without a repeated boundary hold" % unit_type)
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
 	board.free()
 
@@ -6671,18 +6194,9 @@ func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> 
 	_assert(int(board.call("_trap_activation_frame_index", 0.5, 16)) == 8, "Trap activation should advance proportionally through the one-shot sheet")
 	_assert(int(board.call("_trap_activation_frame_index", 1.0, 16)) == 15, "Trap activation should end on the final disappearance frame")
 	var base_rect: Rect2 = board.call("_trap_draw_rect", fire_trap.get("pos", Vector2i.ZERO)) as Rect2
-	board.combat_state["elemental_intensity"] = {"fire": 0}
-	var low_intensity_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
-	var low_intensity_modulate: Color = board.call("_trap_visual_modulate", fire_trap)
-	board.combat_state["elemental_intensity"] = {"fire": 8}
-	var high_intensity_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
-	var high_intensity_modulate: Color = board.call("_trap_visual_modulate", fire_trap)
-	_assert(low_intensity_rect.size.is_equal_approx(base_rect.size * 0.965), "Low-intensity idle and activation plates should share the established subtle scale reduction")
-	_assert(high_intensity_rect.size.is_equal_approx(base_rect.size * 1.18), "High-intensity idle and activation plates should share the capped scale increase")
-	_assert(low_intensity_rect.get_center().is_equal_approx(high_intensity_rect.get_center()), "Trap intensity should not shift the shared idle/activation center")
-	_assert(is_equal_approx(low_intensity_rect.size.x / low_intensity_rect.size.y, 122.0 / 80.0), "Low-intensity trap geometry should preserve the source aspect ratio")
-	_assert(is_equal_approx(high_intensity_rect.size.x / high_intensity_rect.size.y, 122.0 / 80.0), "High-intensity trap geometry should preserve the source aspect ratio")
-	_assert(low_intensity_modulate.is_equal_approx(Color.WHITE) and high_intensity_modulate.is_equal_approx(Color.WHITE), "Idle and activation plates should share neutral modulation so the approved muted palette does not snap")
+	var visual_rect: Rect2 = board.call("_trap_visual_draw_rect", fire_trap) as Rect2
+	_assert(visual_rect == base_rect, "Trap plates have fixed geometry independent of board setup")
+	_assert((board.call("_trap_visual_modulate", fire_trap) as Color).is_equal_approx(Color.WHITE), "Trap plates retain their approved muted palette")
 	board.presentation = {"reduced_motion": true}
 	_assert(not bool(board.call("_trap_idle_animation_active", fire_trap)), "Reduced motion should stop looping trap idle animation")
 	_assert(board.call("_trap_idle_texture", fire_trap) == static_textures.get("fire", null), "Reduced motion should retain the approved static pressure plate")
@@ -7283,15 +6797,15 @@ func _test_combat_board_draw_order_tracks_moving_unit_world_position() -> void:
 	board.free()
 
 func _test_keyword_icon_library_surfaces_tooltips() -> void:
-	var row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "poison": 2})
+	var row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "shock": 1})
 	_assert(row.size() == 3, "Ranged actions should tokenize into action, range, and status icons")
 	_assert(str((row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged action tokens should use the bow icon")
 	_assert(str((row[1] as Dictionary).get("icon", "")) == "range", "Ranged action tokens should include the shared range icon")
-	_assert(str((row[2] as Dictionary).get("icon", "")) == "poison", "Status keywords should use their shared icon token")
+	_assert(str((row[2] as Dictionary).get("icon", "")) == "shock", "Status keywords should use their shared icon token")
 	var immobilize_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 3, "range": 5, "immobilize": true})
 	_assert(str((immobilize_row[2] as Dictionary).get("icon", "")) == "immobilize", "Immobilize should use its shared status icon token")
 	_assert(ActionIcons.tooltip("immobilize").contains("movement"), "Immobilize tooltip should explain the movement lock")
-	var shove_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "poison": 2, "push": 1})
+	var shove_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "shock": 1, "push": 1})
 	_assert(str((shove_row[shove_row.size() - 1] as Dictionary).get("icon", "")) == "push", "Push riders should render after hit, range, and status tokens")
 	var direct_push_row: Array = ActionIcons.tokens_for_action({"type": "push", "damage": 5, "range": 4, "amount": 2})
 	_assert(str((direct_push_row[0] as Dictionary).get("icon", "")) == "melee", "Push action rows should show the hit before forced movement")
@@ -7313,7 +6827,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
-	_assert(ActionIcons.tooltip("poison").contains("Delayed damage"), "Keyword icon tooltips should include readable descriptions")
+	_assert(ActionIcons.tooltip("surface_fire").contains("entry"), "Fire ground tooltips must explain entry timing")
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
@@ -10613,7 +10127,7 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	instance.call("_refresh_ui")
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
-	_assert(int(instance.get("_pending_action_index")) == 1 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Squall Shot should expose its attackable center through one AOE target step")
+	_assert(int(instance.get("_pending_action_index")) == 0 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Squall Shot should expose its attackable center through one AOE target step")
 	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a target before its AOE attack commits")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	instance.call("_on_board_tile_hovered", target_tile)
@@ -10636,7 +10150,7 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	if not played_events.is_empty():
 		var payload: Dictionary = (played_events[played_events.size() - 1] as Dictionary).get("payload", {}) as Dictionary
 		var actions: Array = payload.get("actions", []) as Array
-		var aoe_action: Dictionary = actions[1] as Dictionary if actions.size() > 1 else {}
+		var aoe_action: Dictionary = actions[0] as Dictionary if not actions.is_empty() else {}
 		var orientation: Dictionary = aoe_action.get("orientation", {}) as Dictionary
 		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen AOE orientation")
 		var selected_targets: Array = payload.get("selected_targets", []) as Array
@@ -10801,16 +10315,14 @@ func _test_run_scene_targetless_card_click_requires_confirmation() -> void:
 	await process_frame
 	_install_combat_interaction_fixture(instance, "spark_focus", Vector2i(2, 5), [], 96)
 	await process_frame
-	var intensity_before: Dictionary = ((instance.get("_combat_state") as Dictionary).get("elemental_intensity", {}) as Dictionary).duplicate(true)
+	var ground_before: Dictionary = ((instance.get("_combat_state") as Dictionary).get("surfaces", {}) as Dictionary).duplicate(true)
 	await _choose_clicked_card_action(instance, 0, "play")
 	await process_frame
-	var intensity_armed_state: Dictionary = instance.get("_combat_state")
-	context = instance.get("_action_step_tracker") as Control
-	_assert(int(instance.get("_pending_action_index")) >= (instance.get("_pending_actions") as Array).size(), "A no-target Spark Focus should preview through its skipped ranged step")
-	_assert((intensity_armed_state.get("elemental_intensity", {}) as Dictionary) == intensity_before, "A no-target intensity card should not raise live intensity before confirmation")
+	var ground_armed_state: Dictionary = instance.get("_combat_state")
+	_assert(int(instance.get("_pending_action_index")) == 0 and not (instance.get("_pending_target_tiles") as Array).is_empty(), "Spark Focus can aim at useful empty floor without any enemy target")
+	_assert((ground_armed_state.get("surfaces", {}) as Dictionary) == ground_before, "Aiming a surface card must not create live ground before commitment")
 	board_view = instance.get_node("BoardUnderlay/CombatBoard")
-	player_tile = (intensity_armed_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
-	_assert(((board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array) == [player_tile], "A card whose target step has no valid target should confirm on the protagonist tile")
+	_assert(((board_view.get("presentation") as Dictionary).get("confirmation_target_tiles", []) as Array).is_empty(), "A surface card uses its printed board target instead of self-confirmation")
 	instance.queue_free()
 	await process_frame
 
@@ -10947,49 +10459,22 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_intensity_condition_rows_mark_activity() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	if run_scene == null:
-		_failures.append("Run scene should load for intensity display coverage")
-		return
-	var instance: Node = run_scene.instantiate()
+func _test_run_scene_surface_condition_rows_mark_activity() -> void:
+	var instance: Node = load("res://scenes/run_scene.tscn").instantiate()
 	root.add_child(instance)
 	await process_frame
-	var combat: CombatEngine = CombatEngine.new()
-	var earth_layout: Dictionary = _simple_room_layout()
-	earth_layout["element"] = ElementData.EARTH
-	var active_state: Dictionary = combat.create_combat(15124, earth_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var active_display: Dictionary = instance.call("_card_widget_display", "venom_claw", active_state)
-	var active_token: Dictionary = _first_intensity_requirement_token(active_display.get("summary_rows", []))
-	_assert(not active_token.is_empty() and bool(active_token.get("condition_active", false)), "A card that builds enough intensity before its bonus should mark that bonus active")
-	var fire_layout: Dictionary = _simple_room_layout()
-	fire_layout["element"] = ElementData.FIRE
-	var inactive_state: Dictionary = combat.create_combat(15125, fire_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
-	var inactive_token: Dictionary = _first_intensity_requirement_token(inactive_display.get("summary_rows", []))
-	_assert(not inactive_token.is_empty() and not bool(inactive_token.get("condition_active", false)), "An unmet intensity bonus should not render as active")
+	var display: Dictionary = instance.call("_card_widget_display", "venom_claw", {})
+	var text: String = ActionIcons.plain_text_for_rows(display.get("summary_rows", []))
+	_assert(text.contains("Rubble"), "Quarry Claw's actual ground setup must appear in its card rows")
+	_assert(not text.contains("Intensity") and not text.contains("Poison"), "Retired effects must not survive in display copy")
 	instance.queue_free()
 	await process_frame
 
-func _test_card_widget_active_intensity_condition_glows() -> void:
+func _test_card_widget_removes_meter_glow_and_preserves_clock() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
 	if run_scene == null or card_scene == null:
-		_failures.append("Run scene and CardWidget scene should load for intensity glow coverage")
+		_failures.append("Run scene and CardWidget scene should load for surface eligibility and card animation coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -11014,28 +10499,9 @@ func _test_card_widget_active_intensity_condition_glows() -> void:
 	widget.configure("venom_claw", false, false, true, false, false, true, GameData.card_def("venom_claw"))
 	widget.set_display_overrides(str(active_display.get("summary_bbcode", "")), active_display.get("modifier_lines", []), active_display.get("summary_rows", []))
 	await process_frame
-	var glow: Control = widget.get_node_or_null("IntensityActiveGlow") as Control
-	_assert(glow != null and glow.visible, "A card with an active elemental intensity condition should show the full-card glow")
-	_assert(glow != null and str(glow.get("element_id")) == ElementData.EARTH, "The active intensity glow should use the triggered element")
+	_assert(widget.get_node_or_null("IntensityActiveGlow") == null, "Cards no longer carry an off-board intensity glow")
 	var hand_cache := preload("res://scripts/locked_hand_render_cache.gd").new()
-	_assert(not widget.can_cache_locked_appearance(), "An active intensity glow must prevent freezing an otherwise disabled card")
-	_assert(bool(hand_cache.call("_has_live_presentation", widget)), "The hand cache must retain live rendering for active intensity glows")
-	var fire_layout: Dictionary = _simple_room_layout()
-	fire_layout["element"] = ElementData.FIRE
-	var inactive_state: Dictionary = combat.create_combat(15127, fire_layout, {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["venom_claw"],
-		"relics": [],
-		"hand_size": 1,
-		"heal_bonus": 0
-	})
-	var inactive_display: Dictionary = instance.call("_card_widget_display", "venom_claw", inactive_state)
-	widget.set_display_overrides(str(inactive_display.get("summary_bbcode", "")), inactive_display.get("modifier_lines", []), inactive_display.get("summary_rows", []))
-	await process_frame
-	_assert(glow != null and not glow.visible, "A card below its elemental intensity threshold should hide the full-card glow")
-	_assert(widget.can_cache_locked_appearance(), "An unhovered disabled card without active conditions may use the static cache")
-	_assert(not bool(hand_cache.call("_has_live_presentation", widget)), "A static card subtree should remain eligible for the hand cache")
+	_assert(widget.can_cache_locked_appearance(), "An unhovered disabled card may use the static cache")
 	var clock: Control = widget.get_node_or_null("TimeCostBadge") as Control
 	_assert(clock != null and clock.visible, "Cache eligibility coverage requires the card's visible time badge")
 	if clock != null:
@@ -11101,7 +10567,7 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("guarded_step")) == "block", "A defense/mobility card should resolve to one primary shield emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "mobility", "Shadow Step should use the mobility emblem for its restored Blink identity")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("dawnstep")) == "mobility", "A movement card with only a visibility rider should use the mobility emblem")
-	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")) == "attack_ranged", "A dense ranged card should ignore elemental, draw, and visibility riders")
+	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")).is_empty(), "A ground setup card should not inherit a weapon emblem")
 	for illusion_card_id: String in ["mirror_feint", "mirror_flash", "witchglass_double", "reflected_threat", "empty_husk"]:
 		_assert(ActionIcons.card_role_emblem_key(GameData.card_def(illusion_card_id)) == "illusion", "%s should preserve its authored illusion-first identity over secondary block or attack actions" % illusion_card_id)
 	for defense_card_id: String in ["undertow_guard", "rimeplate_lock"]:
@@ -11136,19 +10602,6 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	widget.queue_free()
 	await process_frame
 
-func _first_intensity_requirement_token(rows: Array) -> Dictionary:
-	for row_var: Variant in rows:
-		if typeof(row_var) != TYPE_ARRAY:
-			continue
-		var row: Array = row_var as Array
-		for token_var: Variant in row:
-			if typeof(token_var) != TYPE_DICTIONARY:
-				continue
-			var token: Dictionary = token_var
-			if str(token.get("kind", "")) == "intensity_requirement":
-				return token
-	return {}
-
 func _test_run_scene_ranged_cards_show_range() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
@@ -11178,7 +10631,7 @@ func _test_run_scene_ranged_cards_show_range() -> void:
 	_assert(not summary_rows.is_empty(), "Ranged cards should render icon summary rows")
 	var card_row: Array = summary_rows[0] as Array
 	_assert(str((card_row[0] as Dictionary).get("icon", "")) == "ranged", "Ranged cards should show the ranged keyword as an icon")
-	_assert(str((card_row[1] as Dictionary).get("icon", "")) == "range" and int((card_row[1] as Dictionary).get("value", 0)) == 4, "Ranged cards should show their range with the shared range icon")
+	_assert(str((card_row[1] as Dictionary).get("icon", "")) == "range" and int((card_row[1] as Dictionary).get("value", 0)) == int(((GameData.card_def_for_progression("bone_dart", combat_state).get("actions", []) as Array)[0] as Dictionary).get("range", 0)), "Ranged cards should show their range with the shared range icon")
 	var board := CombatBoardView.new()
 	var intent_rows: Array = board.call("_intent_rows", {"actions": [{"type": "ranged", "damage": 4, "range": 4}]})
 	_assert(intent_rows.size() == 1 and str(((intent_rows[0] as Array)[1] as Dictionary).get("icon", "")) == "range", "Enemy shot intents should show attack range with the shared range icon")
@@ -11809,10 +11262,10 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
+func _test_run_scene_relic_header_uses_freed_board_space() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for relic/intensity HUD layout coverage")
+		_failures.append("Run scene should load for relic HUD layout coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -11865,68 +11318,8 @@ func _test_run_scene_relic_header_keeps_relics_and_intensity_tight() -> void:
 				_assert(child_control != null and child_control.global_position.y > first_row_y, "Relics beyond five should wrap onto a lower line")
 			if index % 5 == 0:
 				_assert(child_control != null and absf(child_control.global_position.x - first_row_x) <= 1.0, "Every wrapped relic line should share the first line's left edge")
-		var first_row_end: float = (relic_grid.get_child(4) as Control).get_global_rect().end.x
-		_assert(absf((first_row_end - first_row_x) - ElementalIntensityHudArt.CLUSTER_SIZE.x) <= 12.0, "Five relics should occupy approximately the elemental intensity widget width")
-	var intensity_bar: Control = instance.get("_intensity_bar") as Control
-	_assert(intensity_bar != null and intensity_bar.visible, "Combat should show the elemental intensity HUD")
-	var intensity_badges: Dictionary = instance.get("_intensity_badges") as Dictionary
-	if intensity_bar != null and not intensity_badges.is_empty():
-		var first_badge: Control = intensity_badges.get(ElementData.FIRE, null)
-		_assert(first_badge.custom_minimum_size.x <= 76.0 and first_badge.custom_minimum_size.y <= 110.0, "Hanging elemental charms should stay compact in the top-left utility lane")
-		_assert(intensity_badges.size() == 5, "Combat intensity HUD should show only the five elements")
-		_assert(intensity_bar.find_child("AuthoredRailAndChains", false, false) is TextureRect, "Elemental intensity HUD should use the authored rail-and-chains raster")
-		var charm_paths: Dictionary = {}
-		for element_id: String in ElementData.all_elements():
-			var badge: PanelContainer = intensity_badges.get(element_id, null)
-			var charm_path: String = str(badge.get_meta("charm_art_path", "")) if badge != null else ""
-			_assert(badge != null and badge.get_theme_stylebox("panel") is StyleBoxEmpty, "%s intensity charm should not sit in a generic panel box" % element_id)
-			_assert(not charm_path.is_empty() and not charm_paths.has(charm_path), "%s intensity charm should use a distinct authored silhouette" % element_id)
-			charm_paths[charm_path] = true
-			var placard: TextureRect = badge.find_child("AuthoredNumberPlacard", true, false) as TextureRect
-			var value_label: Label = (instance.get("_intensity_labels") as Dictionary).get(element_id, null)
-			_assert(placard != null and placard.size.x <= placard.size.y, "%s intensity charm should carry a compact single-digit placard" % element_id)
-			_assert(value_label != null and value_label.clip_text and Rect2(placard.position, placard.size).encloses(Rect2(value_label.position, value_label.size)), "%s intensity value should remain contained by its placard" % element_id)
-			_assert(absf(ElementalIntensityHudArt.charm_attachment_x(element_id) - ElementalIntensityHudArt.chain_endpoint_x(element_id)) <= 0.5, "%s intensity charm should align with its authored chain" % element_id)
-		var top_y: float = first_badge.position.y
-		var second_row_y: float = (intensity_badges.get(ElementData.AIR, null) as Control).position.y
-		for element_id: String in [ElementData.FIRE, ElementData.ICE, ElementData.LIGHTNING]:
-			var badge: Control = intensity_badges.get(element_id, null)
-			_assert(absf(badge.position.y - top_y) <= 1.0, "Elemental intensity HUD should keep the first three icons on the top row")
-		for element_id: String in [ElementData.AIR, ElementData.EARTH]:
-			var badge: Control = intensity_badges.get(element_id, null)
-			_assert(absf(badge.position.y - second_row_y) <= 1.0, "Elemental intensity HUD should keep the final two icons on the second row")
-		var top_middle: Control = intensity_badges.get(ElementData.ICE, null)
-		var bottom_left: Control = intensity_badges.get(ElementData.AIR, null)
-		var bottom_right: Control = intensity_badges.get(ElementData.EARTH, null)
-		var top_middle_center: float = top_middle.position.x + top_middle.size.x * 0.5
-		var bottom_pair_center: float = (bottom_left.position.x + bottom_right.position.x + bottom_right.size.x) * 0.5
-		_assert(absf(top_middle_center - bottom_pair_center) <= 1.0, "Room-pressure HUD second row should be centered under the top row")
-		var relic_block_bottom: float = float(instance.call("_relic_bar_visible_bottom_y"))
-		var gap: float = intensity_bar.global_position.y - relic_block_bottom
-		_assert(gap >= 0.0 and gap <= 5.0, "Elemental intensity HUD should sit directly under the complete relic block without a stale layout gap")
-		_assert(absf(intensity_bar.global_position.x - relic_grid.global_position.x) <= 1.0, "Relics and elemental intensity should share the same screen-left edge")
-		if relic_grid != null:
-			for index: int in range(relic_grid.get_child_count()):
-				var relic_icon: Control = relic_grid.get_child(index) as Control
-				_assert(not relic_icon.get_global_rect().intersects(intensity_bar.get_global_rect()), "The relic block should remain completely above the elemental intensity widget")
-	# A new run reuses this RunScene. Clearing a crowded relic inventory must also
-	# clear its layout footprint immediately instead of retaining the prior run's
-	# lower intensity position until the client restarts.
-	var relic_heavy_intensity_y: float = intensity_bar.global_position.y
-	var next_run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
-	var next_combat_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
-	next_run_state["relics"] = []
-	next_combat_state["relics"] = []
-	next_run_state["combat_state"] = next_combat_state.duplicate(true)
-	instance.set("_run_state", next_run_state)
-	_set_run_scene_combat_state_for_test(instance, next_combat_state)
-	instance.call("_refresh_ui")
-	await process_frame
-	await process_frame
-	var expected_zero_relic_y: float = (instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/TitleBox/RoomSubtitle") as Control).get_global_rect().end.y + 2.0
-	_assert(not relic_bar.visible and relic_grid.get_child_count() == 0, "A new zero-relic run should clear and hide the prior run's relic HUD")
-	_assert(intensity_bar.global_position.y < relic_heavy_intensity_y, "A new zero-relic run should move elemental intensity back above its prior crowded position")
-	_assert(absf(intensity_bar.global_position.y - expected_zero_relic_y) <= 1.0, "A new zero-relic run should restore elemental intensity directly below the compact header (actual=%.1f expected=%.1f)" % [intensity_bar.global_position.y, expected_zero_relic_y])
+	_assert(instance.find_child("ElementalIntensityBar", true, false) == null, "The retired intensity widget must leave no hidden HUD tree")
+	_assert(relic_grid.get_global_rect().position.x >= 0.0, "Owned relics remain within the screen after removing the intensity cluster")
 	instance.queue_free()
 	await process_frame
 
@@ -12611,7 +12004,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
-	_assert(play_payload.has("elemental_intensity_spent"), "Card play analytics should include intensity spent by printed costs or relic payoffs")
+	_assert(play_payload.has("surface_events") and int(play_payload.get("rules_version", 0)) == 4, "Card play analytics must carry source-aware ground events and the new rules version")
 	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
@@ -12948,9 +12341,6 @@ func _chainbound_gaoler_combat_state(seed: int, player_pos: Vector2i, gaoler_pos
 		"stoneskin": 0,
 		"intent": _enemy_intent_by_id("chainbound_gaoler", intent_id)
 	}]
-	var intensity: Dictionary = combat.elemental_intensities(state)
-	intensity[ElementData.AIR] = 2
-	state["elemental_intensity"] = intensity
 	state["rng_state"] = seed
 	return state
 
@@ -13049,10 +12439,10 @@ func _test_hidden_enemy_status_steps_do_not_leak_identity_or_tile() -> void:
 	layout["umbra_stage"] = "heart"
 	var state: Dictionary = combat.create_combat(44004, layout, {"hp": 100, "max_hp": 100, "deck_cards": ["quick_stab"], "hand_size": 1})
 	var enemy: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).duplicate(true)
-	enemy["burn"] = 1
 	enemy["bleed"] = 1
 	enemy["intent"] = {"id": "hidden_test", "name": "Hidden Test", "actions": [{"type": "ranged", "damage": 1, "range": 9}]}
 	(state.get("enemies", []) as Array)[0] = enemy
+	BoardSurfaceRules.place(state, enemy.get("pos", Vector2i.ZERO), "fire")
 	var result: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0, false)
 	var hidden_status_count: int = 0
 	for step_var: Variant in result.get("steps", []):
@@ -13065,7 +12455,7 @@ func _test_hidden_enemy_status_steps_do_not_leak_identity_or_tile() -> void:
 		_assert(bool(step.get("hidden_by_umbra", false)), "Hidden enemy status damage should use the Umbra presentation guard")
 		_assert(str(step.get("actor_name", "")) == "Unknown Presence", "Hidden enemy status damage should not reveal identity")
 		_assert((step.get("tile", Vector2i.ZERO) as Vector2i).x < 0, "Hidden enemy status damage should not reveal its tile")
-	_assert(hidden_status_count >= 2, "The hidden status fixture should cover start-of-turn Burn and action-triggered Bleed")
+	_assert(hidden_status_count >= 2, "The hidden status fixture should cover start-of-turn Fire and action-triggered Bleed")
 
 func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -13510,22 +12900,26 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	_assert(lantern_target_icons == PackedStringArray(["ranged", "range", "illuminate", "time"]), "Lantern Shot's single attack action should lead with damage and range, then attach Light radius and duration")
 	_assert(lantern_range_tokens == 1, "A combined attack-and-Light action should show its inherited attack range only once")
 	_assert(ActionIcons.token_tooltip(lantern_target_row[2] as Dictionary).begins_with("After this attack resolves"), "The Light rider tooltip should disclose its post-hit timing")
-	var guiding_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("guiding_flare").get("actions", []))
-	_assert(guiding_rows.size() == 1 and (guiding_rows[0] as Array).size() == 5, "Guiding Flare should keep damage, range, Burn, and its Light rider in one action row")
-	_assert(str(((guiding_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "ranged" and str(((guiding_rows[0] as Array)[3] as Dictionary).get("icon", "")) == "illuminate", "Guiding Flare should present its core attack before the post-hit Light rider")
-	var storm_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("storm_beacon").get("actions", []))
-	_assert(storm_rows.size() == 2 and (storm_rows[1] as Array).size() == 5, "Storm Beacon should keep its intensity line separate and its combined attack-rider effects together")
-	_assert(str(((storm_rows[1] as Array)[0] as Dictionary).get("icon", "")) == "ranged" and str(((storm_rows[1] as Array)[3] as Dictionary).get("icon", "")) == "illuminate", "Storm Beacon should present damage, range, and Chain before its post-hit Light rider")
+	for rider_card: String in ["guiding_flare", "storm_beacon"]:
+		var rows: Array = ActionIcons.rows_for_actions(GameData.card_def(rider_card).get("actions", []))
+		_assert(rows.size() == 1, "%s keeps its attack and post-hit riders in one action group" % rider_card)
+		var keys: Array[String]
+		for token: Dictionary in rows[0]:
+			keys.append(str(token.get("icon", "")))
+		var surface_icon: String = "surface_fire" if rider_card == "guiding_flare" else "surface_electrified"
+		_assert(keys[0] == "ranged" and keys.has(surface_icon) and keys.find("illuminate") > keys.find("range"), "%s displays attack first, followed by its distinct Light and terrain riders" % rider_card)
+		if rider_card == "storm_beacon":
+			_assert(keys.has("chain"), "Storm Beacon retains its native Chain icon alongside the conductor rider")
 	var card_widget := CardWidget.new()
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
 	_assert(lantern_segments.size() == 1, "CardWidget should keep a four-token attack rider on one compact line")
 	card_widget.size = Vector2(250.0, 352.0)
 	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("root_snare").get("actions", []))
-	var root_attack_row: Array = root_rows[1] as Array
+	var root_attack_row: Array = root_rows[0] as Array
 	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
-	_assert(root_attack_row.size() == 5 and root_segments.size() == 2 and (root_segments[0] as Array).size() == 3 and (root_segments[1] as Array).size() == 2, "Five-token attack riders should wrap after their three core attack tokens")
+	_assert(root_attack_row.size() == 6 and root_segments.size() >= 2, "Dense attack riders retain all six concepts across wrapped rows")
 	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
-	var squall_attack_row: Array = squall_rows[1] as Array
+	var squall_attack_row: Array = squall_rows[0] as Array
 	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)
 	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Simplified Squall should keep its four fitting AOE tokens on one line")
 	var action_group_parent := VBoxContainer.new()
@@ -13533,7 +12927,7 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one action-group container")
 	var action_group_inner: Control = action_group_parent.get_child(0) as Control
 	_assert(not (action_group_inner is PanelContainer), "Ordinary wrapped actions should use only the continuation arrow, without a special-state panel background")
-	_assert(action_group_inner.get_child_count() == 2 and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
+	_assert(action_group_inner.get_child_count() == root_segments.size() and not bool(action_group_inner.get_child(0).get_meta("summary_action_continuation", true)) and bool(action_group_inner.get_child(1).get_meta("summary_action_continuation", false)), "Only the overflow row should be marked as an action continuation")
 	var continuation_row: Control = action_group_inner.get_child(1) as Control
 	_assert(continuation_row.get_child_count() > 0 and bool(continuation_row.get_child(0).get_meta("summary_continuation_glyph", false)), "An overflow row should begin with a persistent continuation glyph")
 	var boundary_segments: Array = [root_segments[1], root_segments[0]]

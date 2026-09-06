@@ -6,7 +6,11 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const BoardSurfaceFireLayer = preload("res://scripts/board_surface_fire_layer.gd")
+const BoardSurfaceIceLayer = preload("res://scripts/board_surface_ice_layer.gd")
+const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
+const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -120,13 +124,11 @@ const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
 const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
 const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
 const TERRAIN_BAR_FILL: Color = Color("d9b84f")
-const STATUS_BURN: Color = Color("f28a42")
 const STATUS_BLEED: Color = Color("b84646")
 const STATUS_EXPOSE: Color = Color("d9b36a")
 const STATUS_FREEZE: Color = Color("7dd4ff")
 const STATUS_SHOCK: Color = Color("f3d762")
 const STATUS_IMMOBILIZE: Color = Color("b8c48f")
-const STATUS_POISON: Color = Color("86bf63")
 const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(142.0, 32.0)
 const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(138.0, 34.0)
 const BOSS_INTENT_ICON_SIZE: float = 20.0
@@ -350,8 +352,6 @@ const UMBRA_SHAPE_BATCH_SEGMENTS: int = 48
 const AMBIENT_PARTICLE_DENSITY: float = 0.76
 const AMBIENT_PARTICLE_OPACITY: float = 0.68
 const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
-const AMBIENT_INTENSITY_TRANSITION_SECONDS: float = 1.5
-const AMBIENT_INTENSITY_EPSILON: float = 0.001
 const AMBIENT_BATCH_SPRITE_GROWTH: int = 64
 const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
 const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
@@ -598,12 +598,6 @@ var _projected_attack_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
-var _ambient_display_intensities: Dictionary = {}
-var _ambient_transition_starts: Dictionary = {}
-var _ambient_target_intensities: Dictionary = {}
-var _ambient_intensity_transition_elapsed: float = 0.0
-var _ambient_intensity_transition_active: bool = false
-var _ambient_intensity_room_coord: Vector2i = Vector2i(-999999, -999999)
 var _equipment_pickup_beacon_cache: bool = false
 var _preview_unit_pulse_cache: bool = false
 var _hud_health_rects_cache: Dictionary = {}
@@ -635,6 +629,9 @@ var _render_layer_kind: String = ""
 var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
 var _render_instrumentation_owner: Node = null
+var _surface_rubble_layer: Node2D
+var _surface_ice_layer: Node2D
+var _surface_fire_layer: Node2D
 var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
@@ -1047,7 +1044,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
 			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
 			"_ability_tiles_lookup_cache",
-			"_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
+			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
 			"_hud_layout_entries_cache"
@@ -1078,8 +1075,6 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 	layer.set("_idle_elapsed", _idle_elapsed)
 	layer.set("_hover_tile", _hover_tile)
 	layer.set("_controller_focus_tile", _controller_focus_tile)
-	if layer == _ambient_render_layer:
-		layer.set("_ambient_display_intensities", _ambient_display_intensities)
 	layer.queue_redraw()
 
 func render_instrumentation_snapshot() -> Dictionary:
@@ -1268,7 +1263,6 @@ func reset_render_instrumentation() -> void:
 
 func _process(delta: float) -> void:
 	_process_next_unit_shadow_prewarm()
-	_advance_ambient_intensity_transition(delta)
 	var process_frame: int = Engine.get_process_frames()
 	_last_processed_render_frame = process_frame
 	var explicit_effects_redraw_this_frame: bool = _explicit_effects_redraw_process_frame == process_frame
@@ -1345,6 +1339,10 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 		)
 
 func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
+	if not bool(presentation.get("reduced_motion", false)):
+		for surface_tile: Vector2i in BoardSurfaceRules.tiles(combat_state):
+			if _board_tile_is_visible_to_player(surface_tile):
+				_queue_scene_render_layer_for_tile(surface_tile)
 	if _campfire_atmosphere_active():
 		for prop_var: Variant in _campfire_scene_props_cache:
 			if typeof(prop_var) == TYPE_DICTIONARY:
@@ -1419,6 +1417,8 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
+	if not bool(presentation.get("reduced_motion", false)) and not BoardSurfaceRules.tiles(combat_state).is_empty():
+		return true
 	if _ambient_particles_active():
 		return true
 	if _campfire_atmosphere_active():
@@ -1592,6 +1592,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			or presentation_changes.has("preview_units")
 			or presentation_changes.has("death_animation_units")
 			or presentation_changes.has("visible_enemy_ids")
+			or presentation_changes.has("surface_status_preview")
 		)
 		if track_visible_unit_changes:
 			previous_units_by_key = _units_by_key(_visible_units())
@@ -1647,8 +1648,6 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var moss_changed: bool = next_moss_signature != _moss_signature
 	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible")
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
-	if state_changed or not _submission_cache_initialized:
-		_update_ambient_intensity_targets(next_state)
 	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
 	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
 	_submission_cache_valid = false
@@ -1749,7 +1748,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	for hud_key: String in [
 		"expanded_enemy_actor_keys", "expand_enemy_intents", "show_all_enemy_intents",
 		"unit_draw_tiles", "unit_world_positions", "preview_units", "death_animation_units",
-		"visible_enemy_ids"
+		"visible_enemy_ids", "surface_status_preview"
 	]:
 		if presentation_changes.has(hud_key):
 			hud_layout_inputs_changed = true
@@ -1777,7 +1776,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if state_changed:
 			retained_sync_fields.append_array([
 				"combat_state", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
-				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_ambient_display_intensities", "_equipment_pickup_beacon_cache",
+				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 				"_visible_units_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
 				"_hud_health_rects_cache", "_hud_layout_entries_cache", "_submission_cache_valid",
 				"_umbra_return_start_by_tile"
@@ -2031,6 +2030,12 @@ func _queue_presentation_change_redraws(
 	var effects_changed: bool = false
 	for key_var: Variant in changed_keys:
 		match str(key_var):
+			"surface_preview_events", "surface_preview_arcs", "surface_feedback_events", "surface_feedback_progress":
+				for floor_tile: Vector2i in _all_board_surface_preview_tiles():
+					_queue_scene_render_layer_for_tile(floor_tile)
+				_queue_dynamic_redraw()
+			"surface_status_preview":
+				hud_changed = true
 			"ambient_time_seconds":
 				ambient_changed = true
 			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
@@ -2044,6 +2049,8 @@ func _queue_presentation_change_redraws(
 				path_changed = true
 				effects_changed = true
 			"effect", "effect_progress":
+				if str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "chain":
+					for tile: Vector2i in _all_board_surface_preview_tiles(): _queue_scene_render_layer_for_tile(tile)
 				effects_changed = true
 				action_floor_changed = true
 				overlay_changed = true
@@ -2159,8 +2166,9 @@ func _queue_combat_state_change_redraws(
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
 	if changed_keys.has("traps"):
 		_queue_render_layer_redraw(_ground_render_layer)
-	if changed_keys.has("elemental_intensity"):
-		_queue_render_layer_redraw(_ambient_render_layer)
+	if changed_keys.has("surfaces") or changed_keys.has("relics"):
+		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
+			_queue_scene_render_layer_for_tile(tile)
 	if changed_keys.has("grid") or changed_keys.has("room_element"):
 		_queue_dynamic_redraw()
 
@@ -2361,7 +2369,9 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"terrain": source_state.get("terrain", []),
 		"loot": source_state.get("loot", []),
 		"traps": source_state.get("traps", []),
-		"elemental_intensity": source_state.get("elemental_intensity", {}),
+		"surfaces": source_state.get("surfaces", {}),
+		"relics": source_state.get("relics", []),
+		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
 		"room_element": source_state.get("room_element", ElementData.NONE),
 		"moss": source_state.get("moss", {}),
@@ -2755,7 +2765,7 @@ func _get_tooltip(at_position: Vector2) -> String:
 			var rect: Rect2 = region.get("rect", Rect2())
 			if rect.has_point(at_position):
 				return str(region.get("tooltip", ""))
-	return ""
+	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
 
 func _loot_tooltip_at_position(at_position: Vector2) -> String:
 	for loot_var: Variant in combat_state.get("loot", []):
@@ -2781,7 +2791,7 @@ func controller_tooltip_for_tile(tile: Vector2i) -> String:
 		var loot: Dictionary = loot_var as Dictionary
 		if not bool(loot.get("claimed", false)) and _board_tile_is_visible_to_player(tile):
 			return _loot_tooltip_text(loot)
-	return ""
+	return _surface_tooltip_for_tile(tile)
 
 func _make_custom_tooltip(for_text: String) -> Object:
 	if for_text.strip_edges().is_empty():
@@ -2996,6 +3006,7 @@ func _draw_scene_tile_render_layer() -> void:
 	if detailed_sections:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
+	_draw_board_surface(_render_layer_tile)
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
@@ -4003,73 +4014,16 @@ func _ambient_element_id() -> String:
 		return _ambient_element_id_cache
 	return str(combat_state.get("room_element", ElementData.NONE))
 
-func _ambient_intensity(element_id: String = "") -> int:
-	var resolved_element: String = element_id if not element_id.is_empty() else _ambient_element_id()
-	var intensities: Dictionary = combat_state.get("elemental_intensity", {}) as Dictionary
-	return maxi(0, int(intensities.get(resolved_element, 0)))
 
-func _ambient_display_intensity(element_id: String) -> float:
-	return maxf(0.0, float(_ambient_display_intensities.get(element_id, 0.0)))
+
+
 
 func _ambient_active_element_ids() -> PackedStringArray:
 	var active := PackedStringArray()
-	for element_id: String in ElementData.all_elements():
-		var visible_intensity: float = maxf(
-			_ambient_display_intensity(element_id),
-			maxf(0.0, float(_ambient_target_intensities.get(element_id, 0.0)))
-		)
-		if visible_intensity > AMBIENT_INTENSITY_EPSILON:
-			active.append(element_id)
+	var room_element: String = _ambient_element_id()
+	if ElementData.is_elemental(room_element):
+		active.append(room_element)
 	return active
-
-func _ambient_intensities_for_state(state: Dictionary) -> Dictionary:
-	var source: Dictionary = state.get("elemental_intensity", {}) as Dictionary
-	var result: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		result[element_id] = maxf(0.0, float(source.get(element_id, 0)))
-	# Lightweight room fixtures and legacy callers may omit the combat resource.
-	# Preserve the gameplay baseline: an elemental room begins at intensity one.
-	if not state.has("elemental_intensity"):
-		var room_element: String = str(state.get("room_element", ElementData.NONE))
-		if ElementData.is_elemental(room_element):
-			result[room_element] = 1.0
-	return result
-
-func _update_ambient_intensity_targets(next_state: Dictionary) -> void:
-	var next_targets: Dictionary = _ambient_intensities_for_state(next_state)
-	var next_room_coord: Vector2i = next_state.get("room_coord", Vector2i(-999999, -999999))
-	var entering_room: bool = _ambient_display_intensities.is_empty() or next_room_coord != _ambient_intensity_room_coord
-	_ambient_intensity_room_coord = next_room_coord
-	if entering_room:
-		_ambient_display_intensities = next_targets.duplicate()
-		_ambient_transition_starts = next_targets.duplicate()
-		_ambient_target_intensities = next_targets
-		_ambient_intensity_transition_elapsed = AMBIENT_INTENSITY_TRANSITION_SECONDS
-		_ambient_intensity_transition_active = false
-		return
-	if next_targets == _ambient_target_intensities:
-		return
-	_ambient_transition_starts = _ambient_display_intensities.duplicate()
-	_ambient_target_intensities = next_targets
-	_ambient_intensity_transition_elapsed = 0.0
-	_ambient_intensity_transition_active = true
-
-func _advance_ambient_intensity_transition(delta: float) -> void:
-	if not _ambient_intensity_transition_active:
-		return
-	_ambient_intensity_transition_elapsed = minf(
-		AMBIENT_INTENSITY_TRANSITION_SECONDS,
-		_ambient_intensity_transition_elapsed + maxf(0.0, delta)
-	)
-	var linear_progress: float = _ambient_intensity_transition_elapsed / AMBIENT_INTENSITY_TRANSITION_SECONDS
-	var eased_progress: float = linear_progress * linear_progress * (3.0 - 2.0 * linear_progress)
-	for element_id: String in ElementData.all_elements():
-		var start_value: float = float(_ambient_transition_starts.get(element_id, 0.0))
-		var target_value: float = float(_ambient_target_intensities.get(element_id, 0.0))
-		_ambient_display_intensities[element_id] = lerpf(start_value, target_value, eased_progress)
-	if linear_progress >= 1.0:
-		_ambient_display_intensities = _ambient_target_intensities.duplicate()
-		_ambient_intensity_transition_active = false
 
 func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 	if tiles.is_empty():
@@ -4086,17 +4040,17 @@ func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
 		if particle_count <= 0:
 			continue
 		var motion_time_seconds: float = _ambient_motion_time(element_id, time_seconds)
-		var intensity_opacity: float = _ambient_intensity_opacity(element_id)
+		var room_opacity: float = _ambient_room_opacity(element_id)
 		var templates: Array = _ambient_particle_templates(element_id, tiles, particle_count)
 		for index: int in range(particle_count):
 			var particle_template: AmbientParticleTemplate = templates[index] as AmbientParticleTemplate
-			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, intensity_opacity)
+			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, room_opacity)
 	_record_render_section_time("ambient_particle_simulation", phase_started_usec)
 	phase_started_usec = Time.get_ticks_usec()
 	_flush_ambient_particle_batch()
 	_record_render_section_time("ambient_particle_batch_flush", phase_started_usec)
 
-func _ambient_particle_count(element_id: String, tile_count: int, intensity_override: float = -1.0) -> int:
+func _ambient_particle_count(element_id: String, tile_count: int) -> int:
 	var base_count: int = 0
 	match element_id:
 		"fire":
@@ -4110,11 +4064,7 @@ func _ambient_particle_count(element_id: String, tile_count: int, intensity_over
 		"earth":
 			base_count = 88
 	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
-	var intensity: float = _ambient_display_intensity(element_id) if intensity_override < 0.0 else maxf(0.0, intensity_override)
-	# Inactive families are never submitted by _draw_ambient_particles, but the
-	# zero-level count remains useful for density-family comparisons and tooling.
-	var activation: float = 1.0 if intensity <= AMBIENT_INTENSITY_EPSILON else clampf(intensity, 0.0, 1.0)
-	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * activation * ElementalIntensityRules.ambient_density_scale_continuous(intensity))))
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * 0.72)))
 
 func _ambient_room_seed(element_id: String) -> int:
 	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
@@ -4164,27 +4114,8 @@ func _prepare_ambient_hash_cache(element_id: String) -> void:
 	_ambient_hash_cache = _ambient_hash_caches_by_element.get(element_id, {}) as Dictionary
 	_ambient_hash01_cache = _ambient_hash01_caches_by_element.get(element_id, {}) as Dictionary
 
-func _ambient_motion_time(element_id: String, source_time_seconds: float) -> float:
-	var intensity_speed_scale: float = ElementalIntensityRules.ambient_speed_scale_continuous(
-		_ambient_display_intensity(element_id)
-	)
-	if not _ambient_motion_time_by_element.has(element_id):
-		_ambient_motion_time_by_element[element_id] = source_time_seconds * intensity_speed_scale
-		_ambient_motion_source_time_by_element[element_id] = source_time_seconds
-		return float(_ambient_motion_time_by_element[element_id])
-	var previous_source_time: float = float(_ambient_motion_source_time_by_element.get(element_id, source_time_seconds))
-	var source_delta: float = source_time_seconds - previous_source_time
-	# Runtime ambient time is monotonic. A backwards jump means a deterministic
-	# probe or caller deliberately reset its clock, so reset the phase reference.
-	if source_delta < 0.0:
-		_ambient_motion_time_by_element[element_id] = source_time_seconds * intensity_speed_scale
-	else:
-		_ambient_motion_time_by_element[element_id] = (
-			float(_ambient_motion_time_by_element.get(element_id, 0.0))
-			+ source_delta * intensity_speed_scale
-		)
-	_ambient_motion_source_time_by_element[element_id] = source_time_seconds
-	return float(_ambient_motion_time_by_element[element_id])
+func _ambient_motion_time(_element_id: String, source_time_seconds: float) -> float:
+	return source_time_seconds
 
 func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
 	return wrapf(_ambient_hash01(seed) + time_seconds * speed * AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
@@ -4256,7 +4187,7 @@ func _draw_ambient_particle_from_template(
 	particle_template: AmbientParticleTemplate,
 	time_seconds: float,
 	motion_time_seconds: float,
-	intensity_opacity: float
+	room_opacity: float
 ) -> void:
 	var texture: Texture2D = particle_template.texture
 	if texture == null:
@@ -4266,7 +4197,7 @@ func _draw_ambient_particle_from_template(
 		0.0,
 		1.0
 	)
-	var alpha: float = _ambient_alpha_for_element_with_opacity(element_id, cycle, intensity_opacity)
+	var alpha: float = _ambient_alpha_for_element_with_opacity(element_id, cycle, room_opacity)
 	if alpha <= 0.04:
 		return
 	var tile_width: float = _tile_width()
@@ -4468,20 +4399,19 @@ func _ambient_particle_speed(element_id: String, seed: int) -> float:
 			return 0.10
 
 func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
-	return _ambient_alpha_for_element_with_opacity(element_id, cycle, _ambient_intensity_opacity(element_id))
+	return _ambient_alpha_for_element_with_opacity(element_id, cycle, _ambient_room_opacity(element_id))
 
-func _ambient_intensity_opacity(element_id: String) -> float:
-	var display_intensity: float = _ambient_display_intensity(element_id)
-	return ElementalIntensityRules.ambient_opacity_scale_continuous(display_intensity) * clampf(display_intensity, 0.0, 1.0)
+func _ambient_room_opacity(_element_id: String) -> float:
+	return 0.64
 
-func _ambient_alpha_for_element_with_opacity(element_id: String, cycle: float, intensity_opacity: float) -> float:
+func _ambient_alpha_for_element_with_opacity(element_id: String, cycle: float, room_opacity: float) -> float:
 	if element_id == "lightning":
 		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
-		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
+		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
 	if element_id == "air":
-		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
+		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
 	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
-	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY * intensity_opacity, 0.0, 1.0)
+	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
 
 func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_seconds: float, tile_width: float) -> Vector2:
 	var lateral: float = lerpf(-0.54, 0.54, _ambient_hash01(seed + 3)) * tile_width
@@ -5241,6 +5171,7 @@ func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 
 func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
+		_draw_board_surface(tile)
 		_draw_enemy_threat_depth_pass(tile)
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
@@ -6327,12 +6258,11 @@ func _build_visible_units() -> Array[Dictionary]:
 			"max_hp": int(player.get("max_hp", 1)),
 			"block": int(player.get("block", 0)),
 			"stoneskin": int(player.get("stoneskin", 0)),
-			"burn": int(player_statuses.get("burn", 0)),
-			"bleed": int(player_statuses.get("bleed", 0)),
+			"chilled": bool(player.get("chilled", false)),
+		"bleed": int(player_statuses.get("bleed", 0)),
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
-			"poison": player.get("poison", {}).duplicate(true)
 		})
 	for illusion_var: Variant in combat_state.get("illusions", []):
 		if typeof(illusion_var) != TYPE_DICTIONARY:
@@ -6350,12 +6280,10 @@ func _build_visible_units() -> Array[Dictionary]:
 			"max_hp": int(illusion.get("max_hp", illusion.get("hp", 1))),
 			"block": 0,
 			"stoneskin": 0,
-			"burn": 0,
 			"bleed": 0,
 			"freeze": 0,
 			"shock": 0,
 			"immobilize": false,
-			"poison": {}
 		})
 	for preview_var: Variant in presentation.get("preview_units", []):
 		if typeof(preview_var) != TYPE_DICTIONARY:
@@ -6380,12 +6308,10 @@ func _build_visible_units() -> Array[Dictionary]:
 			"max_hp": maxi(1, int(preview_unit.get("max_hp", preview_hp))),
 			"block": 0,
 			"stoneskin": 0,
-			"burn": 0,
 			"bleed": 0,
 			"freeze": 0,
 			"shock": 0,
 			"immobilize": false,
-			"poison": {},
 			"intent": {},
 			"preview": true
 		})
@@ -6412,12 +6338,11 @@ func _build_visible_units() -> Array[Dictionary]:
 			"block": int(enemy.get("block", 0)),
 			"stoneskin": int(enemy.get("stoneskin", 0)),
 			"frost_armor": int(enemy.get("frost_armor", 0)),
-			"burn": int(enemy.get("burn", 0)),
-			"bleed": int(enemy.get("bleed", 0)),
+			"chilled": bool(enemy.get("chilled", false)),
+		"bleed": int(enemy.get("bleed", 0)),
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
-			"poison": enemy.get("poison", {}).duplicate(true)
 		}
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
@@ -6477,11 +6402,9 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 		unit["max_hp"] = maxi(1, int(unit.get("max_hp", unit.get("hp", 1))))
 		unit["block"] = 0
 		unit["stoneskin"] = 0
-		unit["burn"] = 0
 		unit["freeze"] = 0
 		unit["shock"] = 0
 		unit["immobilize"] = false
-		unit["poison"] = {}
 		if not unit.has("footprint"):
 			var footprint_value: Variant = definition.get("footprint", [])
 			if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
@@ -8663,8 +8586,7 @@ func _draw_effect_overlay() -> void:
 		"aoe":
 			_draw_aoe_cast_preview(effect, from_point, center_point)
 		"chain":
-			if from_tile.x >= 0 and to_tile.x >= 0:
-				preload("res://scripts/chain_attack_fx.gd").draw_hop(self, from_point, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+			_draw_surface_chain_effect(effect, progress)
 		"lightning_strikes":
 			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
 			var bolt_alpha: float = 0.24 + progress * 0.34
@@ -9993,11 +9915,9 @@ func _blink_player_unit_snapshot() -> Dictionary:
 		"max_hp": int(player.get("max_hp", maxi(1, int(player.get("hp", 1))))),
 		"block": int(player.get("block", 0)),
 		"stoneskin": int(player.get("stoneskin", 0)),
-		"burn": int(player.get("burn", 0)),
 		"freeze": int(player.get("freeze", 0)),
 		"shock": int(player.get("shock", 0)),
 		"immobilize": bool(player.get("immobilize", false)),
-		"poison": player.get("poison", {}).duplicate(true)
 	}
 
 func _draw_action_ground_markings() -> void:
@@ -13508,31 +13428,18 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
-		var row: Array = _annotate_intensity_intent_row(ActionIcons.tokens_for_action(action))
+		var row: Array = ActionIcons.tokens_for_action(action)
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
-		var bonus_row: Array = ActionIcons.tokens_for_intensity_bonus(action)
+		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
-			rows.append(_annotate_intensity_intent_row(bonus_row))
+			rows.append(bonus_row)
 	return rows
 
-func _annotate_intensity_intent_row(row: Array) -> Array:
-	var annotated: Array = []
-	for token_var: Variant in row:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			annotated.append(token_var)
-			continue
-		var token: Dictionary = (token_var as Dictionary).duplicate(true)
-		var kind: String = str(token.get("kind", ""))
-		if kind in ["intensity_requirement", "intensity_spend"]:
-			var element_id: String = str(token.get("element", ElementData.NONE))
-			var needed: int = int(token.get("threshold", token.get("amount", 0)))
-			token["condition_active"] = _ambient_intensity(element_id) >= needed
-		annotated.append(token)
-	return annotated
+
 
 func _intent_display_name(intent: Dictionary) -> String:
 	return str(intent.get("name", "")).strip_edges()
@@ -13716,13 +13623,6 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"icon_tint": Color.WHITE,
 			"tooltip": "True Sight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
 		})
-	if int(unit.get("burn", 0)) > 0:
-		badges.append({
-			"icon": "burn",
-			"count": int(unit.get("burn", 0)),
-			"fill": STATUS_BURN,
-			"border": STATUS_BURN.lightened(0.24)
-		})
 	if int(unit.get("bleed", 0)) > 0:
 		badges.append({
 			"icon": "bleed",
@@ -13738,6 +13638,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_EXPOSE,
 			"border": STATUS_EXPOSE.lightened(0.18)
 		})
+	if bool(unit.get("chilled", false)) and int(unit.get("freeze", 0)) <= 0:
+		badges.append({"icon": "chilled", "count": 0, "fill": Color("30586c"), "border": Color("a0e6ef"), "icon_tint": Color.WHITE})
 	if int(unit.get("freeze", 0)) > 0:
 		badges.append({
 			"icon": "freeze",
@@ -13767,19 +13669,18 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_IMMOBILIZE,
 			"border": STATUS_IMMOBILIZE.lightened(0.20)
 		})
-	var poison: Dictionary = unit.get("poison", {})
-	if int(poison.get("damage", 0)) > 0 and int(poison.get("delay", 0)) > 0:
-		badges.append({
-			"icon": "poison",
-			"count": int(poison.get("delay", 0)),
-			"fill": STATUS_POISON,
-			"border": STATUS_POISON.lightened(0.22)
-		})
+	var predicted: Dictionary = (presentation.get("surface_status_preview", {}) as Dictionary).get(str(unit.get("key", "")), {}) as Dictionary
+	if not predicted.is_empty():
+		var frozen: bool = int(predicted.get("freeze", 0)) > 0
+		var chilled: bool = bool(predicted.get("chilled", false))
+		if frozen or chilled:
+			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
+
 	return badges
 
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:
 	return {
-		"burn": int(player.get("burn", 0)),
+		"chilled": bool(player.get("chilled", false)),
 		"bleed": int(player.get("bleed", 0)),
 		"expose": int(player.get("expose", 0)),
 		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
@@ -13831,17 +13732,8 @@ func _update_cursor_shape() -> void:
 		mouse_default_cursor_shape = Control.CURSOR_MOVE
 
 func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
-	var offsets: Array[Vector2i] = [
-		Vector2i.ZERO,
-		Vector2i(0, -1),
-		Vector2i(1, -1),
-		Vector2i(1, 0),
-		Vector2i(1, 1),
-		Vector2i(0, 1),
-		Vector2i(-1, 1),
-		Vector2i(-1, 0),
-		Vector2i(-1, -1)
-	]
+	var offsets: Array[Vector2i]
+	offsets.append_array([Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
 	var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
 	var tiles: Array[Vector2i] = []
 	var grid: Array = combat_state.get("grid", [])
@@ -13866,13 +13758,7 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 
 func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
-	if tile.x < 0:
-		return Rect2()
-	var trap_rect: Rect2 = _trap_draw_rect(tile)
-	var intensity: int = _ambient_intensity(str(trap.get("element", ElementData.NONE)))
-	var scale_bonus: float = clampf(float(intensity - 1) * 0.035, -0.04, 0.18)
-	var scaled_size: Vector2 = trap_rect.size * (1.0 + scale_bonus)
-	return Rect2(trap_rect.get_center() - scaled_size * 0.5, scaled_size)
+	return _trap_draw_rect(tile) if tile.x >= 0 else Rect2()
 
 func _trap_visual_modulate(_trap: Dictionary) -> Color:
 	return Color.WHITE
@@ -13884,8 +13770,135 @@ func _trap_draw_rect(tile: Vector2i) -> Rect2:
 	return Rect2(center - draw_size * 0.5, draw_size)
 
 func _trap_tooltip_text(trap: Dictionary) -> String:
-	var element_id: String = str(trap.get("element", ElementData.NONE))
-	var intensity: int = _ambient_intensity(element_id)
-	var base_damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
-	var resolved_damage: int = ElementalIntensityRules.scaled_trap_damage(base_damage, intensity)
-	return "%s Trap\n%d damage" % [ElementData.name(element_id), resolved_damage]
+	var element: String = str(trap.get("element", ElementData.NONE))
+	var damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var wake: String = "Pushes neighboring units outward 1 tile." if element == "air" else "Creates %s on the four cardinal neighbors." % ("Rubble" if element == "earth" else "Electrified" if element == "lightning" else ElementData.name(element))
+	return "%s Trap
+%d damage only to its center occupant.
+%s
+New ground has no immediate occupant effect." % [ElementData.name(element), damage, wake]
+
+
+func _surface_tooltip_for_tile(tile: Vector2i) -> String:
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		return ""
+	var text: String = BoardSurfacePresentation.tooltip(combat_state, tile)
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY and (trap_var as Dictionary).get("pos", Vector2i(-1, -1)) == tile:
+			text += ("\n\n" if not text.is_empty() else "") + _trap_tooltip_text(trap_var as Dictionary)
+	return text
+
+func _draw_board_surface(tile: Vector2i) -> void:
+	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
+	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
+	if retained_rubble:
+		var show_rubble: bool = visible_tile and BoardSurfaceRules.has_rubble(combat_state, tile)
+		if show_rubble and _surface_rubble_layer == null:
+			_surface_rubble_layer = BoardSurfaceRubbleLayer.new()
+			_surface_rubble_layer.name = "SurfaceRubble"
+			_surface_rubble_layer.show_behind_parent = true
+			add_child(_surface_rubble_layer)
+		if _surface_rubble_layer != null:
+			_surface_rubble_layer.visible = show_rubble
+			if show_rubble:
+				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
+	elif _surface_rubble_layer != null:
+		_surface_rubble_layer.visible = false
+	if not visible_tile:
+		if _surface_ice_layer != null: _surface_ice_layer.visible = false
+		if _surface_fire_layer != null: _surface_fire_layer.visible = false
+		return
+	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var retained_ice: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "ice"
+	if retained_ice and _surface_ice_layer == null:
+		_surface_ice_layer = BoardSurfaceIceLayer.new()
+		_surface_ice_layer.name = "SurfaceIce"
+		_surface_ice_layer.show_behind_parent = true
+		add_child(_surface_ice_layer)
+	if _surface_ice_layer != null:
+		_surface_ice_layer.visible = retained_ice
+		if retained_ice:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_ice_layer.configure(_tile_center(tile), _tile_width(), seed, phase)
+			# Rubble may be added after this Ice child already exists.
+			move_child(_surface_ice_layer, get_child_count() - 1)
+	var retained_fire: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "fire"
+	if retained_fire and _surface_fire_layer == null:
+		_surface_fire_layer = BoardSurfaceFireLayer.new()
+		_surface_fire_layer.name = "SurfaceFire"
+		_surface_fire_layer.show_behind_parent = true
+		add_child(_surface_fire_layer)
+	if _surface_fire_layer != null:
+		_surface_fire_layer.visible = retained_fire
+		if retained_fire:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_fire_layer.configure(_tile_center(tile), _tile_width(), seed, phase, reduced_motion)
+			move_child(_surface_fire_layer, get_child_count() - 1)
+	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire)
+	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
+	_draw_surface_connection_preview(tile)
+	_draw_surface_conduction_floor(tile)
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)))
+
+func _all_board_surface_preview_tiles() -> Array[Vector2i]:
+	var tiles: Array[Vector2i]
+	for y: int in range((combat_state.get("grid", []) as Array).size()):
+		for x: int in range((combat_state.get("grid", []) as Array)[y].size()):
+			tiles.append(Vector2i(x, y))
+	return tiles
+
+func _draw_surface_connection_preview(tile: Vector2i) -> void:
+	for arc_var: Variant in presentation.get("surface_preview_arcs", []):
+		if typeof(arc_var) != TYPE_DICTIONARY: continue
+		var arc: Dictionary = arc_var as Dictionary
+		var path: Array = arc.get("path", []) as Array
+		if path.is_empty(): path = [arc.get("from", Vector2i(-1, -1)), arc.get("to", Vector2i(-1, -1))]
+		for edge: int in range(1, path.size()):
+			_draw_surface_floor_line(tile, path[edge - 1], path[edge], true, 1.0)
+
+func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, dashed: bool, alpha: float) -> void:
+	if from.x < 0 or to.x < 0 or from == to: return
+	var steps: int = maxi(6, int(Vector2(from).distance_to(Vector2(to)) * 12.0))
+	for index: int in range(steps):
+		var t: float = (float(index) + 0.5) / float(steps)
+		if _elemental_lerp_depth_tile(from, to, t) != tile or (dashed and index % 3 == 2): continue
+		var a: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index) / float(steps))
+		var b: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index + 1) / float(steps))
+		if dashed:
+			draw_line(a, b, Color(0.79, 0.70, 1.0, alpha * 0.75), maxf(1.1, _tile_width() * 0.014), true)
+		else:
+			var middle: Vector2 = a.lerp(b, 0.5) + Vector2(0, sin(float(index) * 2.3) * _tile_width() * 0.015)
+			var bolt := PackedVector2Array([a, middle, b])
+			draw_polyline(bolt, Color(0.55, 0.34, 1.0, alpha * 0.26), _tile_width() * 0.046, true)
+			draw_polyline(bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), maxf(1.0, _tile_width() * 0.011), true)
+
+func _draw_surface_conduction_floor(tile: Vector2i) -> void:
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	if str(effect.get("kind", "")) != "chain": return
+	var t: float = float(presentation.get("effect_progress", 0.0))
+	var alpha: float = sin(clampf(t / 0.8, 0.0, 1.0) * PI)
+	var branches: Array = effect.get("branches", []) as Array
+	if branches.is_empty(): branches = [effect]
+	for branch: Dictionary in branches:
+		var path: Array = branch.get("path", []) as Array
+		for edge: int in range(1, path.size()):
+			_draw_surface_floor_line(tile, path[edge - 1], path[edge], false, alpha)
+
+func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
+	var branches: Array = effect.get("branches", []) as Array
+	if branches.is_empty(): branches = [effect]
+	for branch_var: Variant in branches:
+		var branch: Dictionary = branch_var as Dictionary
+		var path: Array = branch.get("path", []) as Array
+		if path.size() >= 2:
+			continue # Conductive paths are drawn on the depth-sorted floor.
+		else:
+			var from_tile: Vector2i = branch.get("from", Vector2i(-1, -1))
+			var to_tile: Vector2i = branch.get("to", Vector2i(-1, -1))
+			if from_tile.x < 0 or to_tile.x < 0: continue
+			var to: Vector2 = _tile_center(to_tile)
+			if bool(effect.get("relay", false)): to.y += _tile_width() * 0.23
+			preload("res://scripts/chain_attack_fx.gd").draw_hop(self, _tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))

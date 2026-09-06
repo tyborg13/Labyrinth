@@ -155,10 +155,10 @@ static func _test_redirected_ranged_previews_use_resolved_aim_tile(expect: Calla
 		"damage": 8
 	}]
 	var trap_threat: Dictionary = combat.enemy_threat_tiles(trap_state, 0)
-	expect.call(trap_threat.get("projected_attack_target", Vector2i.ZERO) == Vector2i(3, 4), "A ranged preview redirected through a stronger trap should aim at the trap rather than through it at the actor")
+	expect.call(trap_threat.get("projected_attack_target", Vector2i.ZERO) == Vector2i(2, 4), "A trap beside the actor cannot improve center-only damage, so the enemy aims directly at the actor")
 	var board := CombatBoardView.new()
 	var trap_effect: Dictionary = board.call("_enemy_threat_ranged_effect", trap_threat)
-	expect.call(trap_effect.get("to", Vector2i.ZERO) == Vector2i(3, 4), "The rendered ranged ribbon should terminate on its planned trap detonation")
+	expect.call(trap_effect.get("to", Vector2i.ZERO) == Vector2i(2, 4), "The rendered ranged ribbon terminates on the actual direct target")
 
 	var terrain_state: Dictionary = _state(
 		combat,
@@ -196,7 +196,7 @@ static func _test_ranged_preview_inherits_enemy_element(expect: Callable) -> voi
 			"actions": [
 				{"type": "move_toward", "range": 3},
 				{"type": "ranged", "damage": 3, "range": 3, "shock": 1},
-				{"type": "intensity", "element": "lightning", "amount": 1}
+				{"type": "surface", "surface": "electrified", "range": 1}
 			]
 		}
 	)

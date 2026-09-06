@@ -19,6 +19,17 @@ The default `npm run render` is the quality pipeline. `npm run render:preview` r
 
 ## Replace one gameplay scene
 
+The board-surface refactor updates the capture fixtures and validates their current printed rules; it does **not** recapture or approve replacement media. Wait for the user's post-refactor game inspection and approval before making a new gameplay capture. Existing approved footage remains historical footage of its recorded build. Lower attack damage and new persistent ground can change the visible outcome and timing, so review fresh cues and the complete new take before reusing old cuts.
+
+Check both tactical fixtures without recording media or opening the capture viewport:
+
+```sh
+python3 tools/godot_task_runner.py --task-id board-surface-refactor --stream -- \
+  godot --headless --path . tools/steam_trailer_capture.tscn -- --validate-tactical-only
+```
+
+This shared capture check reads current card damage while retaining the authored push distance, legal targets, two plays/two movement, Light reveal, three-target payoff, and Fire/Rubble riders. It proves rules choreography only; it does not approve animation timing, framing, audio, or the prior edit's kill beats.
+
 From the worktree root, replace only the affected clip. This leaves the other native scenes intact:
 
 ```sh

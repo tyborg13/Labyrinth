@@ -131,13 +131,15 @@ static func _test_status_death_creates_turn_order_boundary(expect: Callable) -> 
 		"heal_bonus": 0
 	})
 	var enemies: Array = (before_state.get("enemies", []) as Array).duplicate(true)
-	expect.call(not enemies.is_empty(), "Burn death turn-order test requires a generated enemy")
+	expect.call(not enemies.is_empty(), "Fire death turn-order test requires a generated enemy")
 	if enemies.is_empty():
 		view.free()
 		return
 	var enemy: Dictionary = (enemies[0] as Dictionary).duplicate(true)
 	enemy["hp"] = 1
-	enemy["burn"] = 5
+	enemy["block"] = 0
+	enemy["stoneskin"] = 0
+	preload("res://scripts/board_surface_rules.gd").place(before_state, enemy.get("pos", Vector2i.ZERO), "fire")
 	enemies[0] = enemy
 	before_state["enemies"] = enemies
 	before_state["current_actor"] = combat.call(
@@ -156,14 +158,14 @@ static func _test_status_death_creates_turn_order_boundary(expect: Callable) -> 
 		if typeof(step_var) != TYPE_DICTIONARY:
 			continue
 		var step: Dictionary = step_var as Dictionary
-		if str(step.get("kind", "")) == "status_damage" and str(step.get("label", "")) == "Burn":
+		if str(step.get("kind", "")) == "status_damage" and str(step.get("label", "")) == "Fire":
 			has_burn_step = true
 			break
-	expect.call(has_burn_step, "A lethal start-of-turn Burn should produce the production status-damage step")
+	expect.call(has_burn_step, "A lethal start-of-turn Fire should produce the production status-damage step")
 	var after_order: Array[Dictionary] = combat.current_turn_order(after_state, 10)
 	expect.call(
 		str(view.call("_turn_order_motion_signature", before_order)) != str(view.call("_turn_order_motion_signature", after_order)),
-		"A lethal production Burn step should create an immediate turn-order motion boundary"
+		"A lethal production Fire step should create an immediate turn-order motion boundary"
 	)
 	var removed_indices: Array = view.call("_turn_order_removed_indices", before_order, after_order) as Array
 	var expected_actor_key: String = "enemy:%s" % str((before_state.get("current_actor", {}) as Dictionary).get("actor_key", ""))
@@ -182,7 +184,7 @@ static func _test_status_death_creates_turn_order_boundary(expect: Callable) -> 
 		if index < 0 or index >= before_order.size() or str(view.call("_turn_order_actor_key", before_order[index])) != expected_actor_key:
 			all_removed_match = false
 			break
-	expect.call(all_removed_match, "A lethal Burn should remove every scheduled instance of the defeated active enemy")
+	expect.call(all_removed_match, "A lethal Fire should remove every scheduled instance of the defeated active enemy")
 	view.free()
 
 static func _turn_entry(kind: String, actor_key: String, time: int, sequence: int, active: bool) -> Dictionary:

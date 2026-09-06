@@ -3,7 +3,8 @@ class_name CombatEngine
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
-const ElementalIntensityRules = preload("res://scripts/elemental_intensity_rules.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -27,7 +28,6 @@ const DEFAULT_ENEMY_INTENT_TIME_COST: int = 4
 const DEFIANCE_RESTORE_FRACTION: float = 0.25
 const DEFIANCE_EVENT_LIMIT: int = 16
 const TURN_ORDER_PREVIEW_LIMIT: int = 8
-const ELEMENTAL_INTENSITY_ROOM_BASE: int = 1
 const DEPTHS_PER_SEQUENCE: int = 4
 const FIRST_SECTION_UMBRA_START_STEP: int = DEPTHS_PER_SEQUENCE - 2
 const UMBRA_STAGE_CLEAR: String = "clear"
@@ -66,7 +66,7 @@ const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = 0
 const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
 const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -1
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
-const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull"]
+const ATTACK_ACTION_TYPES: Array[String] = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
@@ -76,8 +76,8 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, 1),
 	Vector2i(-1, 0)
 ]
-const INTENSITY_BONUS_ADDITIVE_FIELDS := ["amount", "damage", "burn", "freeze", "shock", "poison", "bleed", "expose", "sunder", "chain", "push", "pull"]
-const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull"]
+const SURFACE_BONUS_FIELDS := ["amount", "damage", "shock", "bleed", "expose", "sunder", "chain", "push", "pull"]
+const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull", "detonate"]
 const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
@@ -96,17 +96,7 @@ const DEFAULT_AOE_PATTERN: Array = [
 	[0, 1],
 	[0, -1]
 ]
-const TRAP_BLAST_OFFSETS: Array[Vector2i] = [
-	Vector2i.ZERO,
-	Vector2i(0, -1),
-	Vector2i(1, -1),
-	Vector2i(1, 0),
-	Vector2i(1, 1),
-	Vector2i(0, 1),
-	Vector2i(-1, 1),
-	Vector2i(-1, 0),
-	Vector2i(-1, -1)
-]
+
 
 const RUN_STAT_ENEMIES_KILLED: String = "enemies_killed"
 const RUN_STAT_DAMAGE_DEALT: String = "damage_dealt"
@@ -461,12 +451,6 @@ func skill_is_ready(state: Dictionary, skill_id: String) -> bool:
 			if not is_player_turn(state) or (((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() >= MAX_HAND_SIZE):
 				return false
 			return _latest_non_item_discard_index(state) >= 0
-		"arm_intensity":
-			return (
-				is_player_turn(state)
-				and not bool((state.get("skill_flags", {}) as Dictionary).get("prismatic_armed", false))
-				and not prismatic_target_hand_indices(state).is_empty()
-			)
 		"preserve_burn":
 			return (
 				is_player_turn(state)
@@ -565,18 +549,6 @@ func use_encore(state: Dictionary, discard_index: int) -> Dictionary:
 	_mark_skill_used(next_state, skill_id, "%s returns %s to hand." % [SkillTreeLibrary.display_name(skill_id), str(card_def(card_id, next_state).get("name", card_id))])
 	return next_state
 
-func prismatic_target_hand_indices(state: Dictionary) -> Array[int]:
-	var result: Array[int]
-	var seen_card_ids: Dictionary = {}
-	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	for index: int in range(hand.size()):
-		var card_id: String = str(hand[index])
-		if seen_card_ids.has(card_id) or not _card_has_intensity_condition(card_def(card_id, state)):
-			continue
-		seen_card_ids[card_id] = true
-		result.append(index)
-	return result
-
 func _hand_has_non_item_burn(state: Dictionary) -> bool:
 	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	for card_id_var: Variant in hand:
@@ -592,28 +564,13 @@ func _hand_has_item(state: Dictionary) -> bool:
 			return true
 	return false
 
-func arm_prismatic_instinct(state: Dictionary, hand_index: int) -> Dictionary:
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("arm_intensity")
-	if not skill_is_ready(state, skill_id):
-		return state.duplicate(true)
-	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	if hand_index < 0 or hand_index >= hand.size() or not prismatic_target_hand_indices(state).has(hand_index):
-		return state.duplicate(true)
-	var next_state: Dictionary = state.duplicate(true)
-	var card_id: String = str(hand[hand_index])
-	_set_skill_flag(next_state, "prismatic_armed", true)
-	_set_skill_flag(next_state, "prismatic_target_card_id", card_id)
-	_erase_skill_flag(next_state, "prismatic_resolving")
-	_mark_skill_used(next_state, skill_id, "%s arms %s." % [SkillTreeLibrary.display_name(skill_id), str(card_def(card_id, next_state).get("name", card_id))])
-	return next_state
-
 func arm_rehearsed_escape(state: Dictionary) -> Dictionary:
 	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_burn")
 	if not skill_is_ready(state, skill_id):
 		return state.duplicate(true)
 	var next_state: Dictionary = state.duplicate(true)
 	_set_skill_flag(next_state, "burn_preserve_armed", true)
-	_log(next_state, "%s is armed for the next non-item Burn card." % SkillTreeLibrary.display_name(skill_id))
+	_log(next_state, "%s is armed for the next non-item Exhaust card." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
 func arm_makeshift_tool(state: Dictionary) -> Dictionary:
@@ -643,18 +600,9 @@ func arm_carry_the_guard(state: Dictionary) -> Dictionary:
 	_log(next_state, "%s is armed to carry block remaining at turn end." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
-func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
+func prepare_player_card(state: Dictionary, _hand_index: int, _play_mode: String = "play") -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
-	_erase_skill_flag(next_state, "prismatic_resolving")
-	if play_mode != "play":
-		return next_state
-	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
-	if hand_index < 0 or hand_index >= hand.size():
-		return next_state
-	var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
-	var card_id: String = str(hand[hand_index])
-	if bool(flags.get("prismatic_armed", false)) and str(flags.get("prismatic_target_card_id", "")) == card_id:
-		_set_skill_flag(next_state, "prismatic_resolving", true)
+	SurfaceRelicRules.configure(next_state)
 	return next_state
 
 func skill_events(state: Dictionary) -> Array[Dictionary]:
@@ -780,10 +728,11 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"boss_id": str(room_layout.get("boss_id", "")),
 		"objective": (room_layout.get("objective", {}) as Dictionary).duplicate(true),
 		"room_element": str(room_layout.get("element", ElementData.NONE)),
-		"elemental_intensity": _initial_elemental_intensity(str(room_layout.get("element", ElementData.NONE))),
-		"elemental_intensity_gained_total": _empty_elemental_intensity(),
-		"elemental_intensity_spent_total": _empty_elemental_intensity(),
 		"grid": room_layout.get("grid", []).duplicate(true),
+		"surfaces": room_layout.get("surfaces", {}).duplicate(true),
+		"surface_revision": 0,
+		"surface_events": [],
+		"rules_version": BoardSurfaceRules.RULES_VERSION,
 		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
 		"enemies": enemies,
@@ -843,7 +792,6 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 			"shocked": false,
 			"immobilized": false
 		},
-		"pending_player_trap_restriction": "",
 		"turn_flags": {
 			"first_attack_bonus_used": false,
 			"first_move_bonus_used": false
@@ -857,6 +805,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"rng_state": rng.state,
 		"log": []
 	}
+	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 		_assign_enemy_intent(state, enemy_index, rng)
@@ -884,14 +833,6 @@ func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dicti
 				if effect.has("max_value"):
 					bonus = mini(bonus, GameData.fixed_point_amount(int(effect.get("max_value", bonus))))
 				player["stoneskin"] = int(player.get("stoneskin", 0)) + bonus
-			"start_combat_intensity":
-				if not _start_combat_intensity_effect_applies(effect, deck_cards):
-					continue
-				var start_element: String = str(effect.get("element", ElementData.NONE))
-				var start_amount: int = int(effect.get("amount", effect.get("value", 0)))
-				next_state["player"] = player
-				next_state = _gain_elemental_intensity(next_state, start_element, start_amount, _relic_effect_source_name(effect))
-				player = _normalized_player(next_state.get("player", {}))
 	next_state["player"] = player
 	return next_state
 
@@ -901,16 +842,12 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = (card.get("actions", []) as Array).duplicate(true)
-	var intensity_cost: Dictionary = ElementalIntensityRules.card_cost(card)
+	# Stamp once before Flurry expands the printed sequence. The card identity is
+	# source metadata, independent of the selected target, repeat, or later actor.
+	for action_var: Variant in printed_actions:
+		if typeof(action_var) == TYPE_DICTIONARY:
+			(action_var as Dictionary)["_card_id"] = card_id
 	var leading_actions: Array = []
-	if not intensity_cost.is_empty():
-		leading_actions.append({
-			"type": "intensity_spend",
-			"element": str(intensity_cost.get("element", ElementData.NONE)),
-			"amount": int(intensity_cost.get("amount", 0)),
-			"required": true,
-			"_card_cost": true
-		})
 	if not bool(card.get("flurry", false)):
 		leading_actions.append_array(printed_actions)
 		return leading_actions
@@ -943,23 +880,23 @@ func card_plays_spent_for_actions(actions: Array) -> int:
 	return 1
 
 func player_action_needs_target(action: Dictionary) -> bool:
+	if str(action.get("target", "")) in ["previous_target", "player"]:
+		return false
 	var action_type: String = str(action.get("type", ""))
-	if action_type == "aoe":
+	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0
 	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"]
 
 func player_action_needs_orientation(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
-	if action_type == "aoe":
+	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0 and _aoe_pattern_variants(action).size() > 1
 	return _action_has_forced_movement(action)
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
-	if not action_intensity_requirement_met(state, action):
+	if not action_surface_requirement_met(state, action):
 		return false
 	var action_type: String = str(action.get("type", ""))
-	if action_type == "intensity_spend" and not action_intensity_spend_requirement_met(state, action):
-		return false
 	var restrictions: Dictionary = state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		return false
@@ -971,22 +908,35 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	return true
 
 func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> Array[Vector2i]:
-	if not player_action_can_resolve(state, action):
+	action = _resolved_surface_action(state, action)
+	if not player_action_can_resolve(state, action) or (action.has("_origin_tile") and not is_tile_visible_to_player(state, action["_origin_tile"])):
 		return []
 	var player: Dictionary = state.get("player", {})
-	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+	var player_pos: Vector2i = action.get("_origin_tile", player.get("pos", Vector2i.ZERO))
 	var action_type: String = str(action.get("type", ""))
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
+	# Faultline expands the hit footprint, not the legal primary target set.
+	# Use ordinary melee targeting, including trap/terrain and large-body clicks.
+	var targeting_type: String = str(action.get("_native_action_type", action_type)) if SurfaceRelicRules.mode_enabled(action, "cross") else action_type
 	var occupied: Dictionary = {}
 	var targets: Array[Vector2i] = []
 	var visible_lookup: Dictionary = {}
-	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull"]:
+	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		visible_lookup = umbra_visible_tile_lookup(state)
-	match action_type:
+	match targeting_type:
+		"surface", "detonate", "consume_surface":
+			var surface_range: int = int(action.get("range", 0))
+			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, surface_range, state.get("grid", [])):
+				if BoardSurfaceRules.can_place(state, tile) and is_tile_visible_to_player(state, tile) and PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+					targets.append(tile)
 		"move":
 			occupied = _known_actor_tiles_for_player(state)
 			var move_range: int = int(resolved_action.get("range", 0)) + _move_bonus_for_current_turn(state)
-			targets = PathUtils.reachable_tiles(state.get("grid", []), player_pos, move_range, occupied)
+			var minimum: bool = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
+			var navigation: Dictionary = _unit_movement_navigation(state, player, move_range, occupied, minimum)
+			for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
+				if tile != player_pos:
+					targets.append(tile)
 		"blink":
 			occupied = _player_blocking_tiles(state)
 			var max_range: int = int(resolved_action.get("range", 0))
@@ -1076,7 +1026,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			if aoe_range <= 0:
 				var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, true)
 				var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, false)
-				if _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
+				if action.has("surface") or _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
 					targets.append(player_pos)
 			else:
 				for tile: Vector2i in PathUtils.diamond_tiles(player_pos, aoe_range, state.get("grid", [])):
@@ -1102,7 +1052,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				var force_direction: Vector2i = _action_force_direction(resolved_force_action)
 				var force_amount: int = _forced_movement_amount(resolved_force_action)
 				if force_direction != Vector2i.ZERO:
-					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing):
+					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
 						continue
 				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
 					continue
@@ -1116,6 +1066,18 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					break
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
+	if targeting_type in ["ranged", "melee"] and _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0:
+		for tile: Vector2i in BoardSurfaceRules.tiles(state):
+			if BoardSurfaceRules.is_conductive(state, tile) and PathUtils.manhattan(player_pos, tile) <= int(action.get("range", 1)) and is_tile_visible_to_player(state, tile) and PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+				var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, tile, umbra_visible_tile_lookup(state))
+				for opponent: Dictionary in _live_enemies(state):
+					if is_enemy_visible_to_player(state, opponent) and _surface_unit_intersects(opponent, component) and not targets.has(tile):
+						targets.append(tile)
+	var legal: Array[Vector2i]
+	for tile: Vector2i in targets:
+		if _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile) and SurfaceRelicRules.can_prepare(state, action, tile):
+			legal.append(tile)
+	targets = legal
 	return targets
 
 func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bool:
@@ -1126,7 +1088,7 @@ func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bo
 		return false
 	if str(action.get("type", "")) != "move":
 		return not valid_targets_for_player_action(state, action).is_empty()
-	var move_range: int = int((_action_with_intensity_bonus(state, action)).get("range", 0)) + _move_bonus_for_current_turn(state)
+	var move_range: int = int((_resolved_surface_action(state, action)).get("range", 0)) + _move_bonus_for_current_turn(state)
 	if move_range <= 0:
 		return false
 	var grid: Array = state.get("grid", []) as Array
@@ -1152,7 +1114,9 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 	match action_type:
 		"move":
 			var move_range: int = _move_range_for_action(state, action)
-			return _actual_player_movement_path(state, player_pos, target_tile, move_range)
+			var navigation_state: Dictionary = state.duplicate(false)
+			navigation_state["_movement_minimum_progress"] = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
+			return _actual_player_movement_path(navigation_state, player_pos, target_tile, move_range)
 		"blink":
 			if target_tile.x >= 0:
 				return _vector2i_values([target_tile])
@@ -1160,54 +1124,21 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 		_:
 			return _vector2i_values([])
 
-func movement_plan_for_player_action(state: Dictionary, action: Dictionary, prevalidated_targets: Variant = null) -> Dictionary:
-	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var move_range: int = _move_range_for_action(state, action)
-	var target_tiles: Array[Vector2i] = []
-	if str(action.get("type", "")) != "move" or move_range <= 0 or not player_action_can_resolve(state, action):
-		return {
-			"start": player_pos,
-			"range": move_range,
-			"target_tiles": target_tiles,
-			"paths": {}
-		}
-	if typeof(prevalidated_targets) == TYPE_ARRAY:
-		target_tiles = _vector2i_values(prevalidated_targets as Array)
-	else:
-		target_tiles = valid_targets_for_player_action(state, action)
-	# The same immutable plan is also consumed by exact preview simulations. Keep
-	# the visibility boundary that produced it so those simulations do not repeat
-	# the Umbra flood fill and actor scan once per candidate path.
-	var visible_enemy_tiles: Dictionary = _occupied_visible_enemy_tiles(state)
-	var known_actor_tiles: Dictionary = visible_enemy_tiles.duplicate()
-	for terrain_tile_var: Variant in _occupied_terrain_tiles(state).keys():
-		known_actor_tiles[terrain_tile_var] = true
-	var hidden_enemy_tiles: Dictionary = _occupied_enemy_tiles(state)
-	for visible_tile_var: Variant in visible_enemy_tiles.keys():
-		hidden_enemy_tiles.erase(visible_tile_var)
-	var navigation: Dictionary = _preferred_player_navigation(
-		state.get("grid", []),
-		player_pos,
-		move_range,
-		known_actor_tiles,
-		_trap_tiles_lookup(state),
-		_preferred_pickup_scores(state)
-	)
-	var navigation_paths: Dictionary = navigation.get("paths", {})
-	var paths: Dictionary = {}
-	for target_tile: Vector2i in target_tiles:
-		var path: Array[Vector2i] = _vector2i_values(navigation_paths.get(target_tile, []))
-		if not path.is_empty():
-			paths[target_tile] = path
-	return {
-		"start": player_pos,
-		"range": move_range,
-		"target_tiles": target_tiles,
-		"paths": paths,
-		"hidden_enemy_tiles": hidden_enemy_tiles,
-		"_source_state": state,
-		"_source_action": action,
-	}
+func movement_plan_for_player_action(state: Dictionary, action: Dictionary, _prevalidated_targets: Variant = null) -> Dictionary:
+	var player: Dictionary = state.get("player", {}) as Dictionary
+	var budget: int = _move_range_for_action(state, action)
+	var visible: Dictionary = _occupied_visible_enemy_tiles(state)
+	var occupied: Dictionary = _known_actor_tiles_for_player(state)
+	var hidden: Dictionary = _occupied_enemy_tiles(state)
+	for tile: Vector2i in visible:
+		hidden.erase(tile)
+	var minimum: bool = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
+	var navigation: Dictionary = _unit_movement_navigation(state, player, budget, occupied, minimum)
+	var targets: Array[Vector2i]
+	for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
+		if tile != player.get("pos", INVALID_TILE):
+			targets.append(tile)
+	return {"start": player.get("pos", INVALID_TILE), "range": budget, "target_tiles": targets, "paths": navigation.get("paths", {}), "costs": navigation.get("costs", {}), "hidden_enemy_tiles": hidden, "_source_state": state, "_source_action": action}
 
 func path_from_player_movement_plan(plan: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var paths: Dictionary = plan.get("paths", {})
@@ -1217,54 +1148,10 @@ func path_from_player_movement_plan(plan: Dictionary, target_tile: Vector2i) -> 
 	return _vector2i_values(path_value as Array)
 
 func apply_prevalidated_player_move(state: Dictionary, action: Dictionary, target_tile: Vector2i, planned_path: Array) -> Dictionary:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var movement_path: Array[Vector2i] = _vector2i_values(planned_path)
-	if not _prevalidated_player_move_path_is_usable(state, action, target_tile, movement_path):
-		var fallback_state: Dictionary = apply_player_action(state, action, target_tile)
-		_record_runtime_performance_phase("prevalidated_move_total", performance_total_started)
-		return fallback_state
-	var performance_phase_started: int = _record_runtime_performance_phase("prevalidated_move_validate", performance_total_started)
-	var next_state: Dictionary = state.duplicate(true)
-	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_duplicate", performance_phase_started)
-	if not bool(action.get("_movement_pool", false)):
-		_mark_first_confluence_benefit(next_state, action)
-		_snapshot_pending_card_payment(next_state)
-	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_prelude", performance_phase_started)
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	performance_phase_started = _record_runtime_performance_phase("prevalidated_move_resolve_action", performance_phase_started)
-	next_state = _apply_player_move_along_path(next_state, resolved_action, target_tile, movement_path)
-	_record_runtime_performance_phase("prevalidated_move_apply_path_total", performance_phase_started)
-	_record_runtime_performance_phase("prevalidated_move_total", performance_total_started)
-	return next_state
+	return _apply_player_action(state, action, target_tile, true)
 
 func apply_planned_player_move(state: Dictionary, action: Dictionary, target_tile: Vector2i, movement_plan: Dictionary) -> Dictionary:
-	var source_state: Variant = movement_plan.get("_source_state", null)
-	var source_action: Variant = movement_plan.get("_source_action", null)
-	if typeof(source_state) != TYPE_DICTIONARY or typeof(source_action) != TYPE_DICTIONARY or not is_same(source_state, state) or not is_same(source_action, action):
-		return apply_prevalidated_player_move(state, action, target_tile, path_from_player_movement_plan(movement_plan, target_tile))
-	var movement_path: Array[Vector2i] = path_from_player_movement_plan(movement_plan, target_tile)
-	if movement_path.size() <= 1 or movement_path[0] != movement_plan.get("start", Vector2i.ZERO) or movement_path[movement_path.size() - 1] != target_tile:
-		return apply_prevalidated_player_move(state, action, target_tile, movement_path)
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var next_state: Dictionary = state.duplicate(true)
-	var performance_phase_started: int = _record_runtime_performance_phase("planned_move_duplicate", performance_total_started)
-	if not bool(action.get("_movement_pool", false)):
-		_mark_first_confluence_benefit(next_state, action)
-		_snapshot_pending_card_payment(next_state)
-	performance_phase_started = _record_runtime_performance_phase("planned_move_prelude", performance_phase_started)
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	performance_phase_started = _record_runtime_performance_phase("planned_move_resolve_action", performance_phase_started)
-	next_state = _apply_player_move_along_path(
-		next_state,
-		resolved_action,
-		target_tile,
-		movement_path,
-		movement_plan.get("hidden_enemy_tiles", {}) as Dictionary,
-		true
-	)
-	_record_runtime_performance_phase("planned_move_apply_path_total", performance_phase_started)
-	_record_runtime_performance_phase("planned_move_total", performance_total_started)
-	return next_state
+	return _apply_player_action(state, action, target_tile, true)
 
 func apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Dictionary:
 	return _apply_player_action(state, action, target_tile, true)
@@ -1285,6 +1172,12 @@ func apply_prevalidated_player_action(state: Dictionary, action: Dictionary, tar
 func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i, validate_target: bool, presentation_trace: Dictionary = {}) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)
+	SurfaceRelicRules.configure(next_state)
+	action = _resolved_surface_action(next_state, action)
+	if str(action.get("target", "")) == "previous_target":
+		target_tile = next_state.get("last_action_target", INVALID_TILE)
+	elif str(action.get("target", "")) == "player":
+		target_tile = (next_state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 	var performance_phase_started: int = _record_runtime_performance_phase("player_action_duplicate", performance_total_started)
 	if not player_action_can_resolve(next_state, action):
 		_record_runtime_performance_phase("player_action_total", performance_total_started)
@@ -1292,20 +1185,24 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	var action_needs_target: bool = player_action_needs_target(action)
 	var target_is_valid: bool = (
 		not action_needs_target
-		or not validate_target
+		or (not validate_target and not SurfaceRelicRules.mode_enabled(action, "cross"))
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
-	# Targeted actions are only committed after their chosen target validates. Keep
-	# Confluence's activation event on that same boundary so previews or stale
-	# target requests cannot claim a benefit that never resolved.
-	if target_is_valid and not bool(action.get("_movement_pool", false)):
-		_mark_first_confluence_benefit(next_state, action)
+	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
+		return next_state
+	# Keep the bounded encounter tail so multi-action cards retain every event.
+	# Consumers select deltas by sequence, never by array offset.
+	next_state["damage_context"] = _surface_source(next_state, action)
+	next_state["damage_context"]["source_kind"] = "direct_attack"
+	next_state = SurfaceRelicRules.before_action(self, next_state, action, target_tile)
+	if target_tile != INVALID_TILE and target_tile.x >= 0:
+		next_state["last_action_target"] = target_tile
 	if not bool(action.get("_movement_pool", false)):
 		_snapshot_pending_card_payment(next_state)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	performance_phase_started = _record_runtime_performance_phase("player_action_prelude", performance_phase_started)
 	match action_type:
 		"move":
@@ -1323,7 +1220,8 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				player["pos"] = target_tile
 				next_state["player"] = player
 				_collect_loot_at_player(next_state)
-				next_state = _trigger_trap_on_player(next_state)
+				next_state = surface_actor_arrival(next_state, "player", -1, blink_origin)
+				next_state = _place_action_surface(next_state, resolved_action, target_tile)
 				next_state = _trigger_blink_relics(next_state, PathUtils.manhattan(blink_origin, target_tile))
 				next_state = _dispel_illusion_at_player(next_state)
 				var afterimage_id: String = SkillTreeLibrary.skill_id_for_effect("blink_illusion")
@@ -1342,19 +1240,25 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				_log(next_state, "Blinked to %s." % str(target_tile))
 		"melee":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "melee", presentation_trace)
+				next_state = _resolve_board_attack(next_state, action, target_tile, "player", -1, presentation_trace)
 		"ranged":
 			if target_is_valid:
-				next_state = _attack_target_on_tile(next_state, action, target_tile, "ranged", presentation_trace)
+				next_state = _resolve_board_attack(next_state, action, target_tile, "player", -1, presentation_trace)
 		"aoe":
 			if target_is_valid:
-				next_state = _aoe_enemies(next_state, action, target_tile)
+				next_state = _resolve_board_attack(next_state, action, target_tile, "player", -1, presentation_trace)
 		"push":
 			if target_is_valid:
-				next_state = _push_or_pull_target(next_state, action, target_tile, true)
+				next_state = _resolve_board_attack(next_state, action, target_tile, "player", -1, presentation_trace)
 		"pull":
 			if target_is_valid:
-				next_state = _push_or_pull_target(next_state, action, target_tile, false)
+				next_state = _resolve_board_attack(next_state, action, target_tile, "player", -1, presentation_trace)
+		"surface":
+			next_state = _place_action_surface(next_state, action, target_tile)
+		"detonate":
+			next_state = _resolve_board_detonate(next_state, action, target_tile, presentation_trace)
+		"consume_surface":
+			next_state = _resolve_surface_consumer(next_state, action, target_tile)
 		"block":
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
@@ -1371,25 +1275,12 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			_log(next_state, "Recovered %d health." % heal_amount)
 		"draw":
 			var draw_amount: int = int(resolved_action.get("amount", 0))
-			if _action_condition_uses_confluence(next_state, action):
-				var safe_draws: int = ((next_state.get("deck", {}) as Dictionary).get("draw", []) as Array).size()
-				if draw_amount > safe_draws:
-					draw_amount = safe_draws
-					_log(next_state, "%s stops the conditional draw before Fatigue." % SkillTreeLibrary.display_name(SkillTreeLibrary.skill_id_for_effect("highest_intensity")))
 			next_state = _draw_cards_in_place(next_state, draw_amount)
 		"card_play":
 			var bonus_card_plays: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
 			if bonus_card_plays > 0:
 				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
-		"intensity":
-			var element_id: String = _action_intensity_element(action)
-			var amount: int = maxi(0, int(resolved_action.get("amount", 0)))
-			next_state = _gain_elemental_intensity(next_state, element_id, amount)
-		"intensity_spend":
-			var spend_element_id: String = _action_intensity_element(action)
-			var spend_amount: int = maxi(0, int(action.get("amount", 0)))
-			next_state = _consume_elemental_intensity(next_state, spend_element_id, spend_amount)
 		"illuminate":
 			if target_is_valid:
 				next_state = _create_umbra_light_source(next_state, target_tile, resolved_action)
@@ -1402,6 +1293,12 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		"illusion":
 			if target_is_valid:
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
+	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and action.has("surface"):
+		next_state = _place_action_surface(next_state, action, target_tile)
+	if action.has("clear_surface"):
+		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(next_state.get("player", {}) as Dictionary):
+			BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
+	next_state = SurfaceRelicRules.apply_events(self, state, next_state, action, target_tile, presentation_trace)
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
@@ -1425,7 +1322,11 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_bleed_outcome", performance_phase_started)
 	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
-	next_state = _move_player_along_path(next_state, resolved_path)
+	var movement_result: Dictionary = {}
+	var minimum_progress: bool = not bool(resolved_action.get("_movement_pool", false)) or player_movement_remaining(next_state) == player_movement_capacity(next_state)
+	next_state = _move_player_along_path(next_state, resolved_path, _move_range_for_action(next_state, resolved_action), minimum_progress, movement_result)
+	if bool(resolved_action.get("_movement_pool", false)):
+		next_state["last_player_movement"] = {"spent": int(movement_result.get("spent", 0))}
 	performance_phase_started = _record_runtime_performance_phase("move_path_traverse_total", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
@@ -1438,6 +1339,8 @@ func _apply_player_move_along_path(
 	if not bool(resolved_action.get("_movement_pool", false)):
 		next_state = _maybe_refund_loot_play(next_state, loot_before)
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
+	var painting_path: Array[Vector2i] = resolved_path if bool(resolved_action.get("surface_path", false)) else _vector2i_values([resolved_endpoint])
+	next_state = _place_action_surface(next_state, resolved_action, resolved_endpoint, painting_path)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	_record_runtime_performance_phase("move_path_log", performance_phase_started)
 	_record_runtime_performance_phase("move_path_total", performance_total_started)
@@ -1558,7 +1461,7 @@ func _prevalidated_player_move_path_is_usable(state: Dictionary, action: Diction
 	if movement_path[0] != player_pos or movement_path[movement_path.size() - 1] != target_tile:
 		return false
 	var move_range: int = _move_range_for_action(state, action)
-	if movement_path.size() - 1 > move_range:
+	if movement_cost_for_path(state, movement_path, move_range, not bool(action.get("_movement_pool", false)) or int(state.get("player_movement_remaining", 0)) == int(state.get("player_movement_capacity", 0))) > move_range:
 		return false
 	var grid: Array = state.get("grid", [])
 	var occupied: Dictionary = _known_actor_tiles_for_player(state)
@@ -1641,20 +1544,6 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		time_cost = 0
 		_mark_skill_used(next_state, borrowed_time_id, "%s removes this card's Time." % SkillTreeLibrary.display_name(borrowed_time_id))
 	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + time_cost
-	var flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
-	var play_mode: String = str(play_context.get("play_mode", "play"))
-	if (
-		play_mode == "play"
-		and bool(flags.get("prismatic_resolving", false))
-		and str(flags.get("prismatic_target_card_id", "")) == card_id
-	):
-		_erase_skill_flag(next_state, "prismatic_armed")
-		_erase_skill_flag(next_state, "prismatic_target_card_id")
-		_erase_skill_flag(next_state, "prismatic_resolving")
-		var prismatic_id: String = SkillTreeLibrary.skill_id_for_effect("arm_intensity")
-		_log(next_state, "%s fulfills %s's intensity conditions." % [SkillTreeLibrary.display_name(prismatic_id), str(card.get("name", card_id))])
-	else:
-		_erase_skill_flag(next_state, "prismatic_resolving")
 	next_state = _trigger_card_play_relics(
 		next_state,
 		card,
@@ -1664,7 +1553,6 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		used_banked_play,
 		cards_played_before
 	)
-	next_state = _apply_pending_player_trap_restriction(next_state)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
@@ -1700,15 +1588,6 @@ func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
 		int(budget.get("banked_remaining", 0)) > 0
 		and maxi(1, plays_spent) > int(budget.get("ordinary_remaining", 0))
 	)
-
-func _card_has_intensity_condition(card: Dictionary) -> bool:
-	for action_var: Variant in card.get("actions", []):
-		if typeof(action_var) != TYPE_DICTIONARY:
-			continue
-		var action: Dictionary = action_var as Dictionary
-		if not _action_intensity_requirement(action).is_empty() or not _action_intensity_bonus(action).is_empty():
-			return true
-	return false
 
 func is_player_turn(state: Dictionary) -> bool:
 	var current_actor: Dictionary = state.get("current_actor", {})
@@ -2154,7 +2033,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
-	intent = enemy.get("intent", {})
+	intent = _surface_pay_enemy_fuel(next_state, enemy, enemy.get("intent", {}))
 	if not intent.is_empty():
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		steps.append(_enemy_intent_step_for_player(next_state, enemy, intent))
@@ -2394,7 +2273,6 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		"shocked": false,
 		"immobilized": false
 	}
-	next_state["pending_player_trap_restriction"] = ""
 	next_state["turn_flags"] = {
 		"first_attack_bonus_used": false,
 		"first_move_bonus_used": false
@@ -2468,7 +2346,6 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 	if action.is_empty() or not valid_targets_for_player_action(movement_state, action).has(target_tile):
 		return movement_state
 	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var planned_path: Array[Vector2i] = path_for_player_action(movement_state, action, target_tile)
 	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
 	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
 	var spent: int = 0
@@ -2476,7 +2353,7 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 		if str(action.get("type", "")) == "blink":
 			spent = PathUtils.manhattan(origin, destination)
 		else:
-			spent = maxi(0, _movement_path_through_endpoint(planned_path, destination).size() - 1)
+			spent = int((next_state.get("last_player_movement", {}) as Dictionary).get("spent", 0))
 	var remaining_before: int = player_movement_remaining(movement_state)
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = maxi(0, remaining_before - spent)
@@ -2545,7 +2422,7 @@ func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_t
 	return _best_aoe_tiles_for_target(state, action, center, false)
 
 func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	var force_direction: Vector2i = _action_force_direction(resolved_action)
 	if force_direction == Vector2i.ZERO:
 		return []
@@ -2560,11 +2437,17 @@ func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictiona
 	return _enemy_direction_path(state, enemy_index, force_direction, amount)
 
 func force_directions_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
 	if enemy_index < 0:
 		return []
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
+	if bool(resolved_action.get("_allow_sideways_force", false)):
+		var sideways: Array[Vector2i]
+		for direction: Vector2i in CARDINAL_DIRECTIONS:
+			if _forced_direction_can_move_enemy(state, enemy_index, direction, player_pos, true, true):
+				sideways.append(direction)
+		return sideways
 	return _force_directions_for_enemy(
 		state,
 		enemy_index,
@@ -2574,7 +2457,7 @@ func force_directions_for_player_action(state: Dictionary, action: Dictionary, t
 	)
 
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	return _final_damage_for_resolved_player_action(state, resolved_action, _relic_effects(state))
 
 func _final_damage_for_resolved_player_action(state: Dictionary, resolved_action: Dictionary, relic_effects: Array[Dictionary]) -> int:
@@ -2602,135 +2485,15 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 			"amount": attack_bonus,
 			"detail": "First attack this turn"
 		})
-	for modifier: Dictionary in _intensity_bonus_damage_modifiers_for_action(state, action):
-		modifiers.append(modifier)
 	for modifier: Dictionary in _conditional_attack_modifiers_for_action(state, action):
 		modifiers.append(modifier)
 	return modifiers
 
-func elemental_intensities(state: Dictionary) -> Dictionary:
-	var result: Dictionary = {}
-	var raw: Variant = state.get("elemental_intensity", {})
-	var source: Dictionary = {}
-	if typeof(raw) == TYPE_DICTIONARY:
-		source = raw as Dictionary
-	for element_id: String in ElementData.all_elements():
-		result[element_id] = maxi(0, int(source.get(element_id, 0)))
-	return result
-
-func elemental_intensity(state: Dictionary, element_id: String) -> int:
-	if not ElementData.is_elemental(element_id):
-		return 0
-	return int(elemental_intensities(state).get(element_id, 0))
-
-func condition_intensity(state: Dictionary, element_id: String) -> int:
-	if not ElementData.is_elemental(element_id):
-		return 0
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return 999
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if has_skill(state, skill_id):
-		var highest: int = 0
-		for intensity_var: Variant in elemental_intensities(state).values():
-			highest = maxi(highest, int(intensity_var))
-		return highest
-	return elemental_intensity(state, element_id)
-
-func _action_condition_uses_confluence(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_requirement(action)
-	if requirement.is_empty():
-		return false
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return false
-	var element_id: String = str(requirement.get("element", ElementData.NONE))
-	var threshold: int = int(requirement.get("amount", 0))
-	if elemental_intensity(state, element_id) >= threshold:
-		return false
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	return has_skill(state, skill_id) and condition_intensity(state, element_id) >= threshold
-
-func _action_gains_confluence_benefit(state: Dictionary, action: Dictionary) -> bool:
-	var flags: Dictionary = state.get("skill_flags", {}) as Dictionary
-	if bool(flags.get("prismatic_resolving", false)):
-		return false
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if not has_skill(state, skill_id):
-		return false
-	var requirements: Array[Dictionary]
-	var action_requirement: Dictionary = _action_intensity_requirement(action)
-	if not action_requirement.is_empty():
-		requirements.append(action_requirement)
-	var bonus_requirement: Dictionary = _action_intensity_bonus_requirement(action)
-	if not bonus_requirement.is_empty():
-		requirements.append(bonus_requirement)
-	for requirement: Dictionary in requirements:
-		var element_id: String = str(requirement.get("element", ElementData.NONE))
-		var threshold: int = int(requirement.get("amount", 0))
-		if elemental_intensity(state, element_id) < threshold and condition_intensity(state, element_id) >= threshold:
-			return true
-	return false
-
-func _mark_first_confluence_benefit(state: Dictionary, action: Dictionary) -> void:
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("highest_intensity")
-	if skill_was_used(state, skill_id) or not _action_gains_confluence_benefit(state, action):
-		return
-	_mark_skill_used(
-		state,
-		skill_id,
-		"%s lets the highest elemental intensity satisfy this card." % SkillTreeLibrary.display_name(skill_id)
-	)
-
-func elemental_intensity_counter(state: Dictionary, counter_key: String) -> Dictionary:
-	var result: Dictionary = _empty_elemental_intensity()
-	var raw: Variant = state.get(counter_key, {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return result
-	var source: Dictionary = raw as Dictionary
-	for element_id: String in ElementData.all_elements():
-		result[element_id] = maxi(0, int(source.get(element_id, 0)))
-	return result
-
-func action_intensity_requirement(action: Dictionary) -> Dictionary:
-	return _action_intensity_requirement(action)
-
-func action_intensity_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_requirement(action)
-	if requirement.is_empty():
-		return true
-	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
-
-func action_intensity_spend(action: Dictionary) -> Dictionary:
-	if str(action.get("type", "")) == "intensity_spend":
-		return ElementalIntensityRules.normalized_cost(action, _action_intensity_element(action))
-	return ElementalIntensityRules.action_spend(action)
-
-func action_intensity_spend_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var spend: Dictionary = action_intensity_spend(action)
-	if spend.is_empty():
-		return true
-	return elemental_intensity(state, str(spend.get("element", ElementData.NONE))) >= int(spend.get("amount", 0))
-
 func enemy_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
-	return action_intensity_requirement_met(state, action) and action_intensity_spend_requirement_met(state, action)
+	return action_surface_requirement_met(state, action)
 
-func action_intensity_bonus(action: Dictionary) -> Dictionary:
-	return _action_intensity_bonus(action)
-
-func action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
-	return _action_intensity_bonus_requirement(action)
-
-func action_intensity_bonus_requirement_met(state: Dictionary, action: Dictionary) -> bool:
-	var requirement: Dictionary = _action_intensity_bonus_requirement(action)
-	if requirement.is_empty():
-		return false
-	return condition_intensity(state, str(requirement.get("element", ElementData.NONE))) >= int(requirement.get("amount", 0))
-
-func trap_damage(state: Dictionary, trap: Dictionary) -> int:
-	var element_id: String = str(trap.get("element", state.get("room_element", ElementData.NONE)))
-	var intensity: int = elemental_intensity(state, element_id)
-	return ElementalIntensityRules.scaled_trap_damage(int(trap.get("base_damage", trap.get("damage", 0))), intensity)
+func trap_damage(_state: Dictionary, trap: Dictionary) -> int:
+	return maxi(0, int(trap.get("base_damage", trap.get("damage", 0))))
 
 func combat_outcome(state: Dictionary) -> String:
 	if int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
@@ -2819,6 +2582,7 @@ func _resolve_enemy_intent(state: Dictionary, enemy_index: int, intent: Dictiona
 		])
 	else:
 		_log(next_state, "Something stirs in the Umbra.")
+	intent = _surface_pay_enemy_fuel(next_state, enemy, intent)
 	var actions: Array = intent.get("actions", [])
 	var activation_plan: Dictionary = enemy_intent_plan(next_state, enemy_index, intent)
 	for action_index: int in range(actions.size()):
@@ -2886,21 +2650,6 @@ func _umbra_marked_enemy_action_step(before_state: Dictionary, after_state: Dict
 		presented["enemy_type"] = enemy_type
 		presented["ai_role"] = str(ai_profile.get("role", ""))
 		presented["intent_id"] = str((acting_enemy.get("intent", {}) as Dictionary).get("id", ""))
-	var intensity_gained: Dictionary = {}
-	var intensity_spent: Dictionary = {}
-	var before_intensities: Dictionary = elemental_intensities(before_state)
-	var after_intensities: Dictionary = elemental_intensities(after_state)
-	for element_id: String in ElementData.all_elements():
-		var before_value: int = int(before_intensities.get(element_id, 0))
-		var after_value: int = int(after_intensities.get(element_id, 0))
-		if after_value > before_value:
-			intensity_gained[element_id] = after_value - before_value
-		elif after_value < before_value:
-			intensity_spent[element_id] = before_value - after_value
-	if not intensity_gained.is_empty():
-		presented["elemental_intensity_gained"] = intensity_gained
-	if not intensity_spent.is_empty():
-		presented["elemental_intensity_spent"] = intensity_spent
 	var enemy_hidden_before: bool = (
 		_enemy_is_hidden_by_id(before_state, enemy_id)
 		if enemy_hidden_before_value == null
@@ -2955,7 +2704,7 @@ func _record_hidden_umbra_attack_damage(before_state: Dictionary, after_state: D
 	umbra["hidden_attack_damage_received_total"] = int(umbra.get("hidden_attack_damage_received_total", 0)) + hp_loss
 	after_state["umbra"] = umbra
 
-func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
+func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
 	var before_enemies: Array = before_state.get("enemies", [])
 	var after_enemies: Array = after_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= before_enemies.size() or enemy_index >= after_enemies.size():
@@ -2969,6 +2718,12 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	var actor_name: String = str(enemy_definition.get("name", "Enemy"))
 	var attack_element: String = str(action.get("element", enemy_definition.get("element", ElementData.NONE)))
 	match action_type:
+		"surface":
+			var changed: Array[Vector2i]
+			for event: Dictionary in _surface_events_since(before_state, after_state):
+				if str(event.get("kind", "")) in ["surface_created", "surface_replaced"]:
+					changed.append(event.get("tile", INVALID_TILE))
+			return {"kind": "surface", "surface": str(action.get("surface", "")), "actor_key": _enemy_key(after_enemy), "actor_name": actor_name, "tile": after_enemy.get("pos", INVALID_TILE), "tiles": changed, "enemy_after": after_enemy.duplicate(true)}
 		"move_toward", "move_away":
 			var from_tile: Vector2i = before_enemy.get("pos", Vector2i.ZERO)
 			var to_tile: Vector2i = after_enemy.get("pos", Vector2i.ZERO)
@@ -2995,27 +2750,6 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 				"triggered_traps": triggered_traps,
 				"impact_actor_keys": _target_loss_keys(target_losses) + _target_loss_keys(enemy_losses),
 				"label": "Advance" if action_type == "move_toward" else "Retreat"
-			}
-		"intensity":
-			var element_id: String = _action_intensity_element(action)
-			var before_value: int = elemental_intensity(before_state, element_id)
-			var after_value: int = elemental_intensity(after_state, element_id)
-			var gained: int = maxi(0, after_value - before_value)
-			var enemy_losses: Array[Dictionary] = _enemy_target_losses(before_state, after_state)
-			if gained <= 0 and before_value == after_value and enemy_losses.is_empty():
-				return {}
-			return {
-				"kind": "intensity",
-				"actor_key": _enemy_key(after_enemy),
-				"actor_name": actor_name,
-				"tile": after_enemy.get("pos", Vector2i.ZERO),
-				"element": element_id,
-				"amount": gained,
-				"value_before": before_value,
-				"value_after": after_value,
-				"enemy_losses": enemy_losses,
-				"impact_actor_keys": _target_loss_keys(enemy_losses),
-				"label": "%s Intensity %d" % [ElementData.name(element_id), after_value]
 			}
 		"block":
 			var block_gain: int = int(after_enemy.get("block", 0)) - int(before_enemy.get("block", 0))
@@ -3155,7 +2889,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 					if str(terrain.get("kind", "")) == DRAGON_SPIRE_KIND and not _terrain_id_exists(before_state, str(terrain.get("id", ""))):
 						focus_tiles.append(terrain.get("pos", Vector2i.ZERO))
 			elif action_type == "cinder_marks":
-				for trap: Dictionary in _cinder_mark_traps(after_state, int(after_enemy.get("id", -1))):
+				for trap: Dictionary in _cinder_fire_entries(after_state, int(after_enemy.get("id", -1))):
 					if _trap_index_at_tile(before_state, trap.get("pos", INVALID_TILE)) < 0:
 						focus_tiles.append(trap.get("pos", Vector2i.ZERO))
 			else:
@@ -3618,6 +3352,8 @@ func _enemy_support_candidate_precedes(action_type: String, source_enemy: Dictio
 	return int(candidate.get("id", 0)) < int(incumbent.get("id", 0))
 
 func _enemy_action_reaches_target(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Dictionary) -> bool:
+	if _enemy_lightning_component_impact(state, enemy, action, target.get("pos", INVALID_TILE)) != INVALID_TILE:
+		return true
 	var action_type: String = str(action.get("type", ""))
 	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
 	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
@@ -3753,7 +3489,7 @@ func _best_enemy_trap_attack_index(state: Dictionary, enemy_index: int, action: 
 func _enemy_direct_player_damage_estimate(state: Dictionary, enemy: Dictionary, action: Dictionary) -> int:
 	if not enemy_action_can_resolve(state, action):
 		return -1
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	var player: Dictionary = _normalized_player(state.get("player", {}))
 	var target: Dictionary = {
 		"kind": "player",
@@ -3800,7 +3536,12 @@ func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, by
 		"player":
 			return _damage_player(state, damage, bypass_block, true, "enemy_attack")
 		"illusion":
+			var illusion: Dictionary = _surface_actor(state, "illusion", int(target.get("id", -1)))
 			var resolved_damage: int = damage
+			if int(illusion.get("freeze", 0)) > 0:
+				resolved_damage *= 2
+			elif bool(illusion.get("chilled", false)):
+				resolved_damage += GameData.fixed_point_amount(1)
 			for effect: Dictionary in _relic_effects(state):
 				if str(effect.get("type", "")) != "illusion_damage_cap":
 					continue
@@ -3812,9 +3553,11 @@ func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, by
 	return state
 
 func _apply_action_keywords_to_target(state: Dictionary, target: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
-	if str(target.get("kind", "")) != "player":
-		return state
-	return _apply_action_keywords_to_player(state, action, source_pos)
+	if str(target.get("kind", "")) == "player":
+		return _apply_action_keywords_to_player(state, action, source_pos)
+	if str(target.get("kind", "")) == "illusion" and str(action.get("element", "")) == "ice" and int(action.get("damage", 0)) > 0:
+		return _surface_freeze_actor(state, "illusion", int(target.get("id", -1)), action)
+	return state
 
 func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null, followup_action: Dictionary = {}, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
@@ -3824,18 +3567,13 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
+	action = action.duplicate(true)
+	action["_enemy_id"] = int(enemy.get("id", -1))
+	action["_origin_tile"] = enemy.get("pos", INVALID_TILE)
+	next_state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(enemy.get("id", -1)), "source_kind": "direct_attack", "player_card": false}
 	if not enemy_action_can_resolve(next_state, action):
-		var blocked_requirement: Dictionary = action_intensity_spend(action)
-		if blocked_requirement.is_empty():
-			blocked_requirement = _action_intensity_requirement(action)
-		if not blocked_requirement.is_empty():
-			_log(next_state, "%s's intent is starved of %s intensity." % [
-				_enemy_display_name(enemy),
-				ElementData.name(str(blocked_requirement.get("element", ElementData.NONE)))
-			])
 		return next_state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	var intensity_spend: Dictionary = action_intensity_spend(action)
+	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	action = resolved_action
 	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
@@ -3846,6 +3584,15 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	var target_pos: Vector2i = target.get("pos", player_pos)
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
+		"surface":
+			var surface_target: Vector2i = target_pos if int(action.get("range", 0)) > 0 else enemy.get("pos", INVALID_TILE)
+			next_state = _place_action_surface(next_state, action, surface_target)
+		"detonate":
+			next_state = _resolve_board_detonate(next_state, action, target_pos)
+		"consume_surface":
+			var fuel_target: Vector2i = enemy.get("pos", INVALID_TILE) if str(action.get("target", "player")) == "player" else target_pos
+			for tile: Vector2i in _surface_action_tiles(next_state, action, fuel_target, enemy.get("pos", INVALID_TILE)):
+				BoardSurfaceRules.remove(next_state, tile, str(action.get("surface", "")), "consume")
 		"move_toward":
 			var toward_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, true)
 			if toward_path.size() <= 1:
@@ -3853,7 +3600,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				return next_state
-			next_state = _move_enemy_along_planned_path(next_state, enemy_index, toward_path, action_context)
+			next_state = _move_enemy_along_planned_path(next_state, enemy_index, toward_path, action_context, int(action.get("range", 0)))
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"move_away":
 			var away_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, false)
@@ -3862,7 +3609,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				return next_state
-			next_state = _move_enemy_along_planned_path(next_state, enemy_index, away_path, action_context)
+			next_state = _move_enemy_along_planned_path(next_state, enemy_index, away_path, action_context, int(action.get("range", 0)))
 			_log(next_state, "%s falls back." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"block":
 			enemy["block"] = int(enemy.get("block", 0)) + int(action.get("amount", 0))
@@ -3925,15 +3672,14 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 				var guard_target: Dictionary = _normalized_enemy(enemies[guard_target_index] as Dictionary)
 				guard_target["block"] = int(guard_target.get("block", 0)) + int(action.get("amount", 0))
 				enemies[guard_target_index] = guard_target
+				if action.has("clear_surface"):
+					for tile: Vector2i in BoardSurfaceRules.footprint_tiles(guard_target):
+						BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
 				_log(next_state, "%s guards %s for %d block." % [
 					_enemy_display_name(enemy),
 					"itself" if guard_target_index == enemy_index else _enemy_display_name(guard_target),
 					int(action.get("amount", 0))
 				])
-		"intensity":
-			var intensity_element: String = _action_intensity_element(action)
-			var intensity_amount: int = maxi(0, int(action.get("amount", 0)))
-			next_state = _gain_elemental_intensity(next_state, intensity_element, intensity_amount, _enemy_display_name(enemy))
 		"melee":
 			next_state = _enemy_attack_target(next_state, enemy_index, action, "hits", rng, bleed_steps, action_context)
 		"ranged":
@@ -3962,14 +3708,12 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			next_state = _enemy_gain_frost_armor(next_state, enemy_index, action)
 		"umbra_eclipse":
 			next_state = _enemy_umbra_eclipse(next_state, enemy_index, action, bleed_steps)
-	if not intensity_spend.is_empty():
-		var resolved_step: Dictionary = _enemy_action_step(state_before_action, next_state, enemy_index, action, action_context)
-		if not resolved_step.is_empty():
-			next_state = _consume_elemental_intensity(
-				next_state,
-				str(intensity_spend.get("element", ElementData.NONE)),
-				int(intensity_spend.get("amount", 0))
-			)
+	var current_enemy: Dictionary = _surface_actor(next_state, "enemy", int(enemy.get("id", -1)))
+	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "cinder_marks", "lightning_strikes", "consume_surface"] and action.has("surface"):
+		next_state = _place_action_surface(next_state, action, current_enemy.get("pos", INVALID_TILE))
+	if action.has("clear_surface") and action_type != "guard_ally":
+		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(current_enemy):
+			BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
 	return next_state
 
 func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_index: int, action: Dictionary, followup_action: Dictionary, action_context: Dictionary, target_pos: Vector2i, toward: bool) -> Array[Vector2i]:
@@ -3987,13 +3731,10 @@ func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_in
 		destination = _best_move_away(state, enemy_index, target_pos, int(action.get("range", 0)))
 	if destination == start:
 		return _vector2i_values([start])
-	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, false)
-	var fallback_path: Array[Vector2i] = PathUtils.find_path(state.get("grid", []), start, destination, occupied)
-	if fallback_path.is_empty():
-		return _vector2i_values([start, destination])
-	return fallback_path
+	var navigation: Dictionary = _unit_movement_navigation(state, enemy, int(action.get("range", 0)), _enemy_path_blockers(state, enemy, true, false))
+	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(destination, [start]))
 
-func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary) -> Dictionary:
+func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary, allowance: int = -1) -> Dictionary:
 	var next_state: Dictionary = state
 	var resolved_path: Array[Vector2i] = _vector2i_values([])
 	var enemies: Array = next_state.get("enemies", [])
@@ -4001,21 +3742,29 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	resolved_path.append(enemy.get("pos", Vector2i.ZERO))
+	var spent: int = 0
 	for path_index: int in range(1, planned_path.size()):
 		enemies = next_state.get("enemies", [])
 		if enemy_index < 0 or enemy_index >= enemies.size():
 			break
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
+		if int(enemy.get("hp", 0)) <= 0 or enemy.get("pos", INVALID_TILE) != planned_path[path_index - 1]:
 			break
+		var cost: int = BoardSurfaceRules.entry_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
+		if path_index == 1 and allowance > 0:
+			cost = mini(cost, allowance)
+		if allowance >= 0 and spent + cost > allowance:
+			break
+		spent += cost
 		enemy["pos"] = planned_path[path_index]
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
 		resolved_path.append(planned_path[path_index])
-		next_state = _trigger_trap_on_enemy(next_state, enemy_index)
+		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), planned_path[path_index - 1])
 		if combat_outcome(next_state) != "":
 			break
 	action_context["resolved_path"] = resolved_path
+	action_context["movement_spent"] = spent
 	return next_state
 
 func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionary) -> Dictionary:
@@ -4027,126 +3776,6 @@ func _current_actor_target_for_plan(state: Dictionary, action_context: Dictionar
 			return target
 	return {}
 
-func _attack_target_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String, presentation_trace: Dictionary = {}) -> Dictionary:
-	# apply_player_action already owns a deep copy and validates the target once.
-	# Keeping this helper in-place avoids cloning the full combat snapshot twice
-	# more for every attack preview and committed attack.
-	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
-	if trap_index >= 0:
-		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-		if combat_outcome(next_state) == "defeat":
-			return next_state
-		if int(resolved_action.get("damage", 0)) > 0:
-			_mark_first_attack_used(next_state)
-		next_state = _trigger_player_trap_at_index(next_state, trap_index)
-		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
-		_log(next_state, "%s triggers a trap." % attack_kind.capitalize())
-		return next_state
-	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
-	if terrain_index >= 0:
-		var terrain_damage: int = final_damage_for_player_action(next_state, action)
-		if terrain_damage > 0:
-			next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-			if combat_outcome(next_state) == "defeat":
-				return next_state
-			_mark_first_attack_used(next_state)
-			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
-			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
-			_log(next_state, "%s splinters terrain for %d." % [attack_kind.capitalize(), terrain_damage])
-		return next_state
-	return _attack_enemy_on_tile(next_state, action, target_tile, attack_kind, presentation_trace)
-
-func _attack_enemy_on_tile(state: Dictionary, action: Dictionary, target_tile: Vector2i, attack_kind: String, presentation_trace: Dictionary = {}) -> Dictionary:
-	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
-	if enemy_index < 0:
-		return next_state
-	resolved_action = _action_with_target_state_relic_modifiers(next_state, resolved_action, enemy_index)
-	resolved_action = _action_with_light_target_skill_modifier(next_state, resolved_action, enemy_index)
-	if int(resolved_action.get("damage", 0)) > 0 or _action_has_keyword_effect(resolved_action) or _action_has_illuminate_rider(resolved_action):
-		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-		if combat_outcome(next_state) == "defeat":
-			return next_state
-		next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
-		var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
-		if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
-			_mark_first_attack_used(next_state)
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
-		if damage > 0:
-			next_state = _consume_enemy_expose(next_state, enemy_index)
-		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-		var affected_enemy_indices: Array[int] = _int_values([enemy_index])
-		if int(resolved_action.get("chain", 0)) > 0:
-			_append_chain_presentation_hit(presentation_trace, next_state, enemy_index, target_tile, target_tile)
-		next_state = _apply_chain_from_enemy(next_state, enemy_index, resolved_action, damage, affected_enemy_indices, presentation_trace)
-		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, affected_enemy_indices)
-		_mark_light_target_skill_trigger(next_state, resolved_action)
-		_log(next_state, "%s for %d." % [attack_kind.capitalize(), damage])
-	return next_state
-
-func _aoe_enemies(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	# Relic definitions cannot change while an action resolves. Reuse this immutable
-	# expansion across every AOE victim instead of rebuilding/deep-copying it twice
-	# per target. Conditions still read the current state for sequential kill/heal
-	# semantics.
-	var relic_effects: Array[Dictionary] = _relic_effects(next_state)
-	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
-	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
-	var affected_tiles: Array[Vector2i] = _best_aoe_tiles_for_target(next_state, action, center, false)
-	var performance_phase_started: int = _record_runtime_performance_phase("player_aoe_pattern", performance_total_started)
-	var affected: Array[int] = _enemy_indices_in_tiles(next_state, affected_tiles)
-	var hidden_enemy_affected: bool = false
-	for affected_enemy_index: int in affected:
-		var affected_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[affected_enemy_index] as Dictionary)
-		if not is_enemy_visible_to_player(next_state, affected_enemy):
-			hidden_enemy_affected = true
-			break
-	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
-	var affected_traps: Array[Vector2i] = _trap_tiles_in_tiles(next_state, affected_tiles)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_targets", performance_phase_started)
-	if affected.is_empty() and affected_terrain.is_empty() and affected_traps.is_empty():
-		_record_runtime_performance_phase("player_aoe_total", performance_total_started)
-		return next_state
-	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-	if combat_outcome(next_state) == "defeat":
-		_record_runtime_performance_phase("player_aoe_total", performance_total_started)
-		return next_state
-	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
-		_mark_first_attack_used(next_state)
-	var last_damage: int = 0
-	for enemy_index: int in affected:
-		next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
-		var damage: int = _damage_for_enemy_target_with_context(next_state, resolved_action, enemy_index, relic_effects)
-		last_damage = damage
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
-		if damage > 0:
-			next_state = _consume_enemy_expose(next_state, enemy_index)
-		next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, next_state.get("player", {}).get("pos", Vector2i.ZERO))
-	for terrain_index: int in affected_terrain:
-		var terrain_damage: int = _final_damage_for_resolved_player_action(next_state, resolved_action, relic_effects)
-		if terrain_damage <= 0:
-			continue
-		last_damage = terrain_damage
-		next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_damage_total", performance_phase_started)
-	next_state = _trigger_traps_on_tiles(next_state, affected_traps)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_traps_total", performance_phase_started)
-	next_state = _trigger_resolved_action_light(next_state, resolved_action, center, affected)
-	performance_phase_started = _record_runtime_performance_phase("player_aoe_light", performance_phase_started)
-	if hidden_enemy_affected:
-		_log(next_state, "Area attack strikes through the Umbra.")
-	else:
-		_log(next_state, "Area attack hits %d target(s) for %d." % [affected.size() + affected_terrain.size() + affected_traps.size(), last_damage])
-	_record_runtime_performance_phase("player_aoe_log", performance_phase_started)
-	_record_runtime_performance_phase("player_aoe_total", performance_total_started)
-	return next_state
-
 func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freeze_multiplier: bool = true, bypass_defense: bool = false) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -4154,9 +3783,12 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var hp_before: int = int(enemy.get("hp", 0))
 	var was_alive: bool = hp_before > 0
 	var total_damage: int = damage
-	if apply_freeze_multiplier and int(enemy.get("freeze", 0)) > 0:
-		total_damage *= 2
-	if total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
+	if apply_freeze_multiplier and damage > 0:
+		if int(enemy.get("freeze", 0)) > 0:
+			total_damage *= 2
+		elif bool(enemy.get("chilled", false)):
+			total_damage += GameData.fixed_point_amount(1)
+	if apply_freeze_multiplier and total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
 		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
 		enemies[enemy_index] = enemy
 		_log(next_state, "%s's crystal armor shatters a blow." % _enemy_display_name(enemy))
@@ -4179,15 +3811,18 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	if was_alive and int(enemy.get("hp", 0)) <= 0:
 		_record_run_stat(next_state, RUN_STAT_ENEMIES_KILLED, 1)
 		var reward_embers: int = int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
-		var bonus_card_plays: int = 0 if bool(enemy.get("summoned", false)) else 1
+		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
+		var bonus_card_plays: int = 1 if credit and not bool(enemy.get("summoned", false)) else 0
+		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
-		next_state = _trigger_enemy_death_relics(next_state, enemy)
-		if bool(enemy.get("is_leader", false)) and str((next_state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.KILL_LEADER:
-			next_state = _clear_remaining_enemies_for_leader_objective(next_state, int(enemy.get("id", -1)))
-		else:
-			next_state = _trigger_enemy_death_spawn(next_state, enemy)
+		var pending: Array = next_state.get("_surface_pending_deaths", [])
+		pending.append({"enemy": enemy.duplicate(true), "context": context.duplicate(true)})
+		next_state["_surface_pending_deaths"] = pending
+		if not bool(next_state.get("_surface_damage_batch", false)):
+			next_state = _flush_surface_deaths(next_state)
 		_log(next_state, "%s falls." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 	return next_state
 
@@ -4271,7 +3906,12 @@ func _damage_player(
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var hp_before: int = int(player.get("hp", 0))
 	var was_alive: bool = hp_before > 0
-	var remaining: int = damage * 2 if apply_freeze_multiplier and int(player.get("freeze", 0)) > 0 else damage
+	var remaining: int = damage
+	if apply_freeze_multiplier and damage > 0:
+		if int(player.get("freeze", 0)) > 0:
+			remaining *= 2
+		elif bool(player.get("chilled", false)):
+			remaining += GameData.fixed_point_amount(1)
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
 		var applied_to_block: int = mini(block_amount, remaining)
@@ -4291,6 +3931,9 @@ func _damage_player(
 		next_state = _trigger_prevent_lethal_relics(next_state)
 		if not defer_defiance and int((_normalized_player(next_state.get("player", {}))).get("hp", 0)) <= 0:
 			next_state = _trigger_defiance(next_state, cause, hp_before)
+	if was_alive and int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "player", "id": -1, "actor_key": "player", "source_kind": str(context.get("source_kind", cause)), "unit": player.duplicate(true), "player_card": bool(context.get("player_card", false)), "source": context.duplicate(true)})
 	var pain_id: String = SkillTreeLibrary.skill_id_for_effect("pain_recall")
 	var pain_flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
 	if health_was_lost and has_skill(next_state, pain_id) and not skill_was_used(next_state, pain_id) and not bool(pain_flags.get("pain_recall_primed", false)):
@@ -4336,6 +3979,8 @@ func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dicti
 		illusions[index] = illusion
 		next_state["illusions"] = illusions
 		if will_fade:
+			var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+			BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "illusion", "id": illusion_id, "actor_key": _illusion_key(illusion), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": illusion.duplicate(true), "player_card": bool(context.get("player_card", false)), "source": context.duplicate(true)})
 			_log(next_state, "Illusion fades.")
 			next_state = _trigger_illusion_afterglow(next_state, illusion.get("pos", INVALID_TILE))
 			next_state = _resolve_umbra_transition_relics(next_state, stage_before)
@@ -4374,6 +4019,8 @@ func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dict
 	next_state["terrain"] = terrain_entries
 	if int(terrain.get("hp", 0)) <= 0:
 		_log(next_state, "Terrain breaks.")
+		if str(terrain.get("surface_on_destroy", "")) == "rubble":
+			BoardSurfaceRules.place(next_state, terrain.get("pos", INVALID_TILE), "rubble", {"actor_kind": "terrain"})
 	return next_state
 
 func _damage_terrain_indices(state: Dictionary, terrain_indices: Array[int], damage: int) -> Dictionary:
@@ -4402,6 +4049,7 @@ func _create_illusion(state: Dictionary, pos: Vector2i, health: int) -> Dictiona
 	next_state["illusions"] = illusions
 	next_state["next_illusion_id"] = illusion_id + 1
 	_log(next_state, "Illusion appears.")
+	next_state = surface_actor_arrival(next_state, "illusion", illusion_id, INVALID_TILE)
 	return _resolve_umbra_transition_relics(next_state, stage_before)
 
 func _trigger_illusion_afterglow(state: Dictionary, pos: Vector2i) -> Dictionary:
@@ -4684,8 +4332,6 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	enemy["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
 	for status_id: String in _enemy_status_immunities(enemy):
 		match status_id:
-			"poison":
-				enemy[status_id] = {"damage": 0, "delay": 0}
 			"immobilize":
 				enemy[status_id] = false
 			_:
@@ -4693,25 +4339,11 @@ func _normalized_enemy(enemy_value: Variant) -> Dictionary:
 	return enemy
 
 func _normalized_unit(unit_value: Variant) -> Dictionary:
-	var unit: Dictionary = {}
-	if typeof(unit_value) == TYPE_DICTIONARY:
-		unit = (unit_value as Dictionary).duplicate(true)
-	unit["block"] = int(unit.get("block", 0))
-	unit["stoneskin"] = int(unit.get("stoneskin", 0))
-	unit["burn"] = int(unit.get("burn", 0))
-	unit["bleed"] = int(unit.get("bleed", 0))
-	unit["expose"] = int(unit.get("expose", 0))
-	unit["freeze"] = int(unit.get("freeze", 0))
-	unit["shock"] = int(unit.get("shock", 0))
+	var unit: Dictionary = (unit_value as Dictionary).duplicate(true) if unit_value is Dictionary else {}
+	for field: String in ["block", "stoneskin", "bleed", "expose", "freeze", "shock"]:
+		unit[field] = int(unit.get(field, 0))
 	unit["immobilize"] = bool(unit.get("immobilize", false))
-	var poison_value: Variant = unit.get("poison", {})
-	var poison: Dictionary = {}
-	if typeof(poison_value) == TYPE_DICTIONARY:
-		poison = (poison_value as Dictionary).duplicate(true)
-	unit["poison"] = {
-		"damage": int(poison.get("damage", 0)),
-		"delay": int(poison.get("delay", 0))
-	}
+	unit["chilled"] = bool(unit.get("chilled", false)) and int(unit.get("freeze", 0)) <= 0
 	return unit
 
 func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
@@ -5240,7 +4872,7 @@ func _enemy_action_time_cost(action: Dictionary) -> int:
 			return 4
 		"summon_minions", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse":
 			return 5
-		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "intensity", "raise_terrain", "cinder_marks", "frost_armor":
+		"block", "stoneskin", "heal_self", "heal_ally", "guard_ally", "surface", "consume_surface", "raise_terrain", "cinder_marks", "frost_armor":
 			return 2
 		_:
 			return DEFAULT_ENEMY_INTENT_TIME_COST
@@ -5252,7 +4884,7 @@ func _estimated_card_time_cost(card: Dictionary) -> int:
 			continue
 		var action: Dictionary = action_var
 		match str(action.get("type", "")):
-			"move", "blink", "block", "stoneskin", "draw", "card_play", "intensity", "intensity_spend", "illuminate", "vision":
+			"move", "blink", "block", "stoneskin", "draw", "card_play", "surface", "consume_surface", "illuminate", "vision":
 				total += 1
 			"heal", "illusion", "truesight", "dispel_umbra":
 				total += 2
@@ -5284,14 +4916,11 @@ func _enemy_is_immune_to_status(enemy: Dictionary, status_id: String) -> bool:
 
 func _action_has_keyword_effect(action: Dictionary) -> bool:
 	return (
-		int(action.get("burn", 0)) > 0
-		or int(action.get("bleed", 0)) > 0
+		int(action.get("bleed", 0)) > 0
 		or int(action.get("expose", 0)) > 0
 		or int(action.get("sunder", 0)) > 0
-		or int(action.get("freeze", 0)) > 0
 		or int(action.get("shock", 0)) > 0
 		or _action_applies_immobilize(action)
-		or int(action.get("poison", 0)) > 0
 		or int(action.get("push", 0)) > 0
 		or int(action.get("pull", 0)) > 0
 		or int(action.get("chain", 0)) > 0
@@ -5356,109 +4985,21 @@ func _cardinal_direction(value: Variant) -> Vector2i:
 func _action_pierces_defense(action: Dictionary) -> bool:
 	return bool(action.get("pierce", false))
 
-func _initial_elemental_intensity(room_element: String) -> Dictionary:
-	var intensities: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		intensities[element_id] = ELEMENTAL_INTENSITY_ROOM_BASE if element_id == room_element else 0
-	return intensities
-
-func _empty_elemental_intensity() -> Dictionary:
-	var intensities: Dictionary = {}
-	for element_id: String in ElementData.all_elements():
-		intensities[element_id] = 0
-	return intensities
-
-func _gain_elemental_intensity(state: Dictionary, element_id: String, amount: int, source_name: String = "") -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or amount <= 0:
-		return next_state
-	var before_value: int = elemental_intensity(next_state, element_id)
-	var intensities: Dictionary = elemental_intensities(next_state)
-	intensities[element_id] = before_value + amount
-	next_state["elemental_intensity"] = intensities
-	var gained_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_gained_total")
-	gained_total[element_id] = int(gained_total.get(element_id, 0)) + amount
-	next_state["elemental_intensity_gained_total"] = gained_total
-	if source_name.is_empty():
-		_log(next_state, "%s intensity rises by %d." % [ElementData.name(element_id), amount])
-	else:
-		_log(next_state, "%s raises %s intensity by %d." % [source_name, ElementData.name(element_id), amount])
-	return _trigger_intensity_threshold_relics(next_state, element_id, before_value, before_value + amount)
-
-func _consume_elemental_intensity(state: Dictionary, element_id: String, amount: int) -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or amount <= 0:
-		return next_state
-	var before_value: int = elemental_intensity(next_state, element_id)
-	var after_value: int = maxi(0, before_value - amount)
-	var spent: int = before_value - after_value
-	if spent <= 0:
-		return next_state
-	var intensities: Dictionary = elemental_intensities(next_state)
-	intensities[element_id] = after_value
-	next_state["elemental_intensity"] = intensities
-	var spent_total: Dictionary = elemental_intensity_counter(next_state, "elemental_intensity_spent_total")
-	spent_total[element_id] = int(spent_total.get(element_id, 0)) + spent
-	next_state["elemental_intensity_spent_total"] = spent_total
-	_log(next_state, "%s intensity is spent by %d." % [ElementData.name(element_id), spent])
-	return next_state
-
-func _action_intensity_element(action: Dictionary) -> String:
+func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
 	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
 
-func _action_intensity_requirement(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("requires_intensity", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var requirement: Dictionary = raw as Dictionary
-	var element_id: String = str(requirement.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(requirement.get("amount", requirement.get("threshold", 0)))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	return {
-		"element": element_id,
-		"amount": threshold
-	}
-
-func _action_intensity_bonus(action: Dictionary) -> Dictionary:
-	var raw: Variant = action.get("intensity_bonus", {})
-	if typeof(raw) != TYPE_DICTIONARY:
-		return {}
-	var bonus: Dictionary = (raw as Dictionary).duplicate(true)
-	var element_id: String = str(bonus.get("element", action.get("element", action.get("_card_element", ElementData.NONE))))
-	var threshold: int = int(bonus.get("threshold", bonus.get("amount", bonus.get("requires", 0))))
-	if not ElementData.is_elemental(element_id) or threshold <= 0:
-		return {}
-	bonus["element"] = element_id
-	bonus["threshold"] = threshold
-	return bonus
-
-func _action_intensity_bonus_requirement(action: Dictionary) -> Dictionary:
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if bonus.is_empty():
-		return {}
-	return {
-		"element": str(bonus.get("element", ElementData.NONE)),
-		"amount": int(bonus.get("threshold", 0))
-	}
-
-func _action_with_intensity_bonus(state: Dictionary, action: Dictionary) -> Dictionary:
-	var resolved_action: Dictionary = action.duplicate(true)
-	resolved_action.erase("intensity_bonus")
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if not bonus.is_empty():
-		var element_id: String = str(bonus.get("element", ElementData.NONE))
-		if condition_intensity(state, element_id) >= int(bonus.get("threshold", 0)):
-			for field: String in INTENSITY_BONUS_ADDITIVE_FIELDS:
-				if not bonus.has(field):
-					continue
-				resolved_action[field] = int(resolved_action.get(field, 0)) + int(bonus.get(field, 0))
-			if bool(bonus.get("pierce", false)):
-				resolved_action["pierce"] = true
-			if bool(bonus.get("immobilize", false)):
-				resolved_action["immobilize"] = true
-	return _action_with_player_state_relic_modifiers(state, resolved_action)
+func _resolved_surface_action(state: Dictionary, action: Dictionary) -> Dictionary:
+	if bool(action.get("_surface_resolved", false)):
+		return action
+	var resolved: Dictionary = action.duplicate(true) if action.has("_enemy_id") else SurfaceRelicRules.resolve_action(state, action)
+	resolved["_surface_resolved"] = true
+	var bonus: Dictionary = action.get("surface_bonus", {}) as Dictionary
+	if str(bonus.get("subject", "")) == "player" and _surface_condition_met(state, bonus, (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)):
+		for field: String in SURFACE_BONUS_FIELDS:
+			if bonus.has(field):
+				resolved[field] = int(resolved.get(field, 0)) + int(bonus[field])
+	return resolved if action.has("_enemy_id") else _action_with_player_state_relic_modifiers(state, resolved)
 
 func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictionary) -> Dictionary:
 	if bool(action.get("_player_state_relic_modifiers_applied", false)):
@@ -5525,6 +5066,14 @@ func _action_with_target_state_relic_modifiers(state: Dictionary, action: Dictio
 					target_lit = true
 					break
 			if not target_lit:
+				continue
+		if effect.has("target_surface"):
+			var matches_ground: bool = false
+			for tile: Vector2i in _enemy_footprint_tiles(enemy):
+				if BoardSurfaceRules.has_surface(state, tile, str(effect["target_surface"])):
+					matches_ground = true
+					break
+			if not matches_ground:
 				continue
 		var target_status: String = str(effect.get("target_status", ""))
 		if not target_status.is_empty() and _unit_status_amount(enemy, target_status) <= 0:
@@ -5678,23 +5227,6 @@ func _action_matches_relic_card_groups(action: Dictionary, effect: Dictionary) -
 			return false
 	return true
 
-func _intensity_bonus_damage_modifiers_for_action(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
-	var modifiers: Array[Dictionary] = []
-	var bonus: Dictionary = _action_intensity_bonus(action)
-	if bonus.is_empty() or int(bonus.get("damage", 0)) == 0:
-		return modifiers
-	var element_id: String = str(bonus.get("element", ElementData.NONE))
-	var threshold: int = int(bonus.get("threshold", 0))
-	if condition_intensity(state, element_id) < threshold:
-		return modifiers
-	modifiers.append({
-		"source": "%s Intensity" % ElementData.name(element_id),
-		"kind": "elemental_intensity",
-		"amount": int(bonus.get("damage", 0)),
-		"detail": "%s %d+" % [ElementData.name(element_id), threshold]
-	})
-	return modifiers
-
 func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, trigger_player_relics: bool = true) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -5704,20 +5236,12 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(enemy.get("hp", 0)) <= 0:
 		return next_state
 	var triggered_statuses: Array[String] = []
-	if int(action.get("burn", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "burn"):
-		enemy["burn"] = int(enemy.get("burn", 0)) + int(action.get("burn", 0))
-		triggered_statuses.append("burn")
 	if int(action.get("bleed", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "bleed"):
 		enemy["bleed"] = int(enemy.get("bleed", 0)) + int(action.get("bleed", 0))
 		triggered_statuses.append("bleed")
 	if int(action.get("expose", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "expose"):
 		enemy["expose"] = maxi(int(enemy.get("expose", 0)), int(action.get("expose", 0)))
 		triggered_statuses.append("expose")
-	if int(action.get("freeze", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "freeze"):
-		var before_freeze: int = int(enemy.get("freeze", 0))
-		enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), int(action.get("freeze", 0)))
-		if int(enemy.get("freeze", 0)) > before_freeze:
-			triggered_statuses.append("freeze")
 	if int(action.get("shock", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "shock"):
 		var before_shock: int = int(enemy.get("shock", 0))
 		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
@@ -5728,26 +5252,25 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		enemy["immobilize"] = true
 		if not before_immobilize:
 			triggered_statuses.append("immobilize")
-	if int(action.get("poison", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "poison"):
-		var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
-		poison["delay"] = 2
-		enemy["poison"] = poison
-		triggered_statuses.append("poison")
 	enemies[enemy_index] = enemy
 	next_state["enemies"] = enemies
+	var freeze_before: int = int(enemy.get("freeze", 0))
+	next_state = _surface_freeze_actor(next_state, "enemy", int(enemy.get("id", -1)), action)
+	if freeze_before == 0 and int(_surface_actor(next_state, "enemy", int(enemy.get("id", -1))).get("freeze", 0)) > 0:
+		triggered_statuses.append("freeze")
 	if trigger_player_relics:
 		for status_id: String in triggered_statuses:
 			next_state = _trigger_status_relics(next_state, status_id, action)
+			next_state = _surface_status_light(next_state, status_id, enemy.get("pos", INVALID_TILE))
 	if int(action.get("push", 0)) > 0:
 		var push_direction: Vector2i = _action_force_direction(action)
-		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true):
+		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true, bool(action.get("_allow_sideways_force", false))):
 			next_state = _move_enemy_in_direction(next_state, enemy_index, push_direction, int(action.get("push", 0)), trigger_player_relics)
 		elif push_direction == Vector2i.ZERO:
 			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true, trigger_player_relics)
 	elif int(action.get("pull", 0)) > 0:
 		var pull_direction: Vector2i = _action_force_direction(action)
-		if pull_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, pull_direction, source_pos, false):
+		if pull_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, pull_direction, source_pos, false, bool(action.get("_allow_sideways_force", false))):
 			next_state = _move_enemy_in_direction(next_state, enemy_index, pull_direction, int(action.get("pull", 0)), trigger_player_relics)
 		elif pull_direction == Vector2i.ZERO:
 			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false, trigger_player_relics)
@@ -5756,87 +5279,21 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
 	var next_state: Dictionary = state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	if int(action.get("burn", 0)) > 0:
-		player["burn"] = int(player.get("burn", 0)) + int(action.get("burn", 0))
 	if int(action.get("bleed", 0)) > 0:
 		player["bleed"] = int(player.get("bleed", 0)) + int(action.get("bleed", 0))
 	if int(action.get("expose", 0)) > 0:
 		player["expose"] = maxi(int(player.get("expose", 0)), int(action.get("expose", 0)))
-	if int(action.get("freeze", 0)) > 0:
-		player["freeze"] = maxi(int(player.get("freeze", 0)), int(action.get("freeze", 0)))
 	if int(action.get("shock", 0)) > 0:
 		player["shock"] = maxi(int(player.get("shock", 0)), int(action.get("shock", 0)))
 	if _action_applies_immobilize(action):
 		player["immobilize"] = true
-	if int(action.get("poison", 0)) > 0:
-		var poison: Dictionary = player.get("poison", {}).duplicate(true)
-		poison["damage"] = int(poison.get("damage", 0)) + int(action.get("poison", 0))
-		poison["delay"] = 2
-		player["poison"] = poison
 	next_state["player"] = player
+	next_state = _surface_freeze_actor(next_state, "player", -1, action)
 	if int(action.get("push", 0)) > 0:
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("push", 0)), true)
 	elif int(action.get("pull", 0)) > 0:
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("pull", 0)), false)
 	return next_state
-
-func _apply_chain_from_enemy(state: Dictionary, initial_enemy_index: int, action: Dictionary, damage: int, affected_enemy_indices: Array[int], presentation_trace: Dictionary = {}) -> Dictionary:
-	var max_distance: int = int(action.get("chain", 0))
-	if max_distance <= 0:
-		return state
-	var next_state: Dictionary = state
-	var visited: Dictionary = {}
-	var current_index: int = initial_enemy_index
-	visited[current_index] = true
-	while true:
-		var current_enemy: Dictionary = _normalized_enemy(((next_state.get("enemies", []) as Array)[current_index] as Dictionary))
-		var next_index: int = _nearest_chain_target(next_state, current_enemy.get("pos", Vector2i.ZERO), visited, max_distance)
-		if next_index < 0:
-			break
-		visited[next_index] = true
-		if not affected_enemy_indices.has(next_index):
-			affected_enemy_indices.append(next_index)
-		var target_enemy: Dictionary = (next_state.get("enemies", []) as Array)[next_index] as Dictionary
-		var target_tile: Vector2i = target_enemy.get("pos", Vector2i.ZERO)
-		next_state = _sunder_enemy_defense(next_state, next_index, int(action.get("sunder", 0)))
-		next_state = _damage_enemy(next_state, next_index, damage, true, _action_pierces_defense(action))
-		if damage > 0:
-			next_state = _consume_enemy_expose(next_state, next_index)
-		next_state = _apply_action_keywords_to_enemy(next_state, next_index, action, current_enemy.get("pos", Vector2i.ZERO))
-		_append_chain_presentation_hit(presentation_trace, next_state, next_index, current_enemy.get("pos", Vector2i.ZERO), target_tile)
-		current_index = next_index
-	return next_state
-
-func _append_chain_presentation_hit(trace: Dictionary, state: Dictionary, enemy_index: int, from_tile: Vector2i, to_tile: Vector2i) -> void:
-	if not trace.has("chain_hits"):
-		return
-	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index] as Dictionary
-	(trace["chain_hits"] as Array).append({
-		"enemy_id": int(enemy.get("id", -1)),
-		"from": from_tile,
-		"to": to_tile,
-		"state": state.duplicate(true),
-	})
-
-func _nearest_chain_target(state: Dictionary, from_tile: Vector2i, visited: Dictionary, max_distance: int) -> int:
-	var best_index: int = -1
-	var best_distance: int = 9999
-	var enemies: Array = state.get("enemies", [])
-	for index: int in range(enemies.size()):
-		if visited.has(index):
-			continue
-		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		if not is_enemy_visible_to_player(state, enemy):
-			continue
-		var distance: int = PathUtils.manhattan(from_tile, enemy.get("pos", Vector2i.ZERO))
-		if distance > max_distance:
-			continue
-		if distance < best_distance:
-			best_distance = distance
-			best_index = index
-	return best_index
 
 func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
@@ -5872,39 +5329,16 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 			return next_state
 		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
 		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
-	var damage: int = int(action.get("damage", 0))
-	if action_type == "aoe":
-		var center: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		var resolved_action: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", Vector2i.ZERO))
-		if int(action.get("range", 0)) > 0:
-			center = target.get("pos", Vector2i.ZERO)
-		var affected_tiles: Array[Vector2i] = _enemy_aoe_tiles_for_target(next_state, enemy, resolved_action, center, true)
-		var affected_targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, affected_tiles)
-		var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, affected_tiles)
-		if affected_targets.is_empty() and affected_terrain.is_empty():
-			return next_state
-		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-			return next_state
-		enemies = next_state.get("enemies", [])
-		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		next_state = _damage_enemy_aoe_occupants(next_state, enemy_index, action, affected_tiles)
-	else:
-		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-			return next_state
-		enemies = next_state.get("enemies", [])
-		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		if damage > 0:
-			next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action), action)
-		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
-	_log(next_state, "%s %s for %d." % [
-		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-		verb,
-		damage
-	])
-	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
-	return next_state
+	var resolved: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", INVALID_TILE))
+	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
+		return next_state
+	var impact: Vector2i = target.get("pos", INVALID_TILE)
+	if not _enemy_action_reaches_tile(next_state, enemy, action, impact):
+		impact = _enemy_lightning_component_impact(next_state, enemy, action, impact)
+	next_state = _resolve_board_attack(next_state, resolved, impact, "enemy", int(enemy.get("id", -1)))
+	_log(next_state, "%s %s." % [_enemy_display_name(enemy), verb])
+	return _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
 
 func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Dictionary, affected_tiles: Array[Vector2i]) -> Dictionary:
 	var next_state: Dictionary = state
@@ -5920,57 +5354,7 @@ func _damage_enemy_aoe_occupants(state: Dictionary, enemy_index: int, action: Di
 	return _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, affected_tiles), damage)
 
 func _enemy_push_or_pull_target(state: Dictionary, enemy_index: int, action: Dictionary, pushing: bool, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
-	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
-	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
-		target = {}
-	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
-	if planned_trap_index >= 0:
-		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-			return next_state
-		enemies = next_state.get("enemies", [])
-		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		next_state = _trigger_trap_at_index(next_state, planned_trap_index)
-		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
-		return next_state
-	if target.is_empty():
-		var trap_attack_index: int = -1 if has_plan else _best_enemy_trap_attack_index(next_state, enemy_index, action)
-		if trap_attack_index >= 0:
-			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-				return next_state
-			enemies = next_state.get("enemies", [])
-			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-			next_state = _trigger_trap_at_index(next_state, trap_attack_index)
-			_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
-			return next_state
-		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
-	var target_pos: Vector2i = target.get("pos", Vector2i.ZERO)
-	var source_pos: Vector2i = _closest_enemy_tile_to(enemy, target_pos)
-	var damage: int = int(action.get("damage", 0))
-	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-		return next_state
-	enemies = next_state.get("enemies", [])
-	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	if damage > 0:
-		next_state = _damage_actor_target(next_state, target, damage, _action_pierces_defense(action), action)
-	if str(target.get("kind", "")) == "player":
-		next_state = _move_player_from_source(next_state, source_pos, int(action.get("amount", 0)), pushing)
-	next_state = _apply_action_keywords_to_target(next_state, target, action, source_pos)
-	next_state = _apply_enemy_self_damage(next_state, enemy_index, int(action.get("self_damage", 0)))
-	_log(next_state, "%s %s." % [
-		str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-		"batters the line" if pushing else "drags inward"
-	])
-	return next_state
+	return _enemy_attack_target(state, enemy_index, action, "pushes" if pushing else "pulls", rng, bleed_steps, action_context)
 
 func _enemy_attack_blocking_terrain(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = [], terrain_index_override: int = -2) -> Dictionary:
 	var next_state: Dictionary = state
@@ -6023,27 +5407,12 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 	return -1
 
 func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary] = []) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(next_state, enemy, action)
-	var targets: Array[Dictionary] = _actor_targets_in_tiles(next_state, strike_tiles)
-	var affected_terrain: Array[int] = _terrain_indices_in_tiles(next_state, strike_tiles)
-	if targets.is_empty() and affected_terrain.is_empty():
-		return next_state
-	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-		return next_state
-	enemies = next_state.get("enemies", [])
-	enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	for target: Dictionary in targets:
-		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
-		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
-	next_state = _damage_terrain_indices(next_state, affected_terrain, int(action.get("damage", 0)))
-	_log(next_state, "%s calls down the storm." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
-	return next_state
+	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index])
+	var strike_tiles: Array[Vector2i] = _lightning_strike_tiles(state, enemy, action)
+	state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(state, enemy_index):
+		return state
+	return _resolve_board_attack(state, action, enemy.get("pos", INVALID_TILE), "enemy", int(enemy.get("id", -1)), {}, strike_tiles)
 
 func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
 	var next_state: Dictionary = state
@@ -6078,6 +5447,7 @@ func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictiona
 		intent_rng.state = int(next_state.get("rng_state", 1))
 	for minion_index: int in range(first_minion_index, first_minion_index + spawn_tiles.size()):
 		_assign_enemy_intent(next_state, minion_index, intent_rng)
+		next_state = surface_actor_arrival(next_state, "enemy", int((next_state.get("enemies", []) as Array)[minion_index].get("id", -1)), INVALID_TILE)
 	if str(enemy.get("type", "")) == ZEKARION_TYPE and not spawn_tiles.is_empty():
 		next_state["zekarion_summon_waves"] = int(next_state.get("zekarion_summon_waves", 0)) + 1
 	if rng == null:
@@ -6145,9 +5515,11 @@ func _enemy_raise_dragon_spires(state: Dictionary, enemy_index: int, action: Dic
 			continue
 		if PathUtils.manhattan(player_pos, tile) <= 1:
 			continue
+		BoardSurfaceRules.remove(next_state, tile, "all", "terrain_created")
 		terrain_entries.append({
 			"id": "dragon_spire_%d_%d_%d" % [int(enemy.get("id", 0)), int(next_state.get("turn", 1)), raised],
 			"kind": DRAGON_SPIRE_KIND,
+			"surface_on_destroy": "rubble",
 			"pos": tile,
 			"hp": health,
 			"max_hp": health,
@@ -6193,17 +5565,14 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	_log(next_state, "%s ruptures the Worldspines." % _enemy_display_name(enemy))
 	return next_state
 
-func _cinder_mark_traps(state: Dictionary, owner_enemy_id: int = -1) -> Array[Dictionary]:
+func _cinder_fire_entries(state: Dictionary, owner_enemy_id: int = -1) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
-	for trap_var: Variant in state.get("traps", []):
-		if typeof(trap_var) != TYPE_DICTIONARY:
-			continue
-		var trap: Dictionary = trap_var as Dictionary
-		if str(trap.get("boss_hazard_kind", "")) != CINDER_MARK_KIND:
-			continue
-		if owner_enemy_id >= 0 and int(trap.get("owner_enemy_id", -1)) != owner_enemy_id:
-			continue
-		result.append(trap.duplicate(true))
+	var candidates: Array[Vector2i] = BoardSurfaceRules.tiles(state, "fire")
+	if owner_enemy_id >= 0:
+		candidates = _vector2i_values(_surface_actor(state, "enemy", owner_enemy_id).get("cinder_tiles", []))
+	for tile: Vector2i in candidates:
+		if BoardSurfaceRules.element_at(state, tile) == "fire":
+			result.append({"pos": tile})
 	return result
 
 func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: int) -> Array[Vector2i]:
@@ -6232,67 +5601,40 @@ func _cinder_mark_candidate_tiles(state: Dictionary, enemy: Dictionary, count: i
 	return results
 
 func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var trap_entries: Array = next_state.get("traps", []).duplicate(true)
-	var candidates: Array[Vector2i] = _cinder_mark_candidate_tiles(next_state, enemy, maxi(1, int(action.get("count", 5))))
-	for index: int in range(candidates.size()):
-		trap_entries.append({
-			"id": "cinder_mark_%d_%d_%d" % [int(enemy.get("id", 0)), int(next_state.get("turn", 1)), index],
-			"pos": candidates[index],
-			"element": ElementData.FIRE,
-			"damage": int(action.get("damage", 0)),
-			"burn": int(action.get("burn", 0)),
-			"owner_enemy_id": int(enemy.get("id", -1)),
-			"boss_hazard_kind": CINDER_MARK_KIND,
-			"armed": true
-		})
-	next_state["traps"] = trap_entries
-	if not candidates.is_empty():
-		enemy["cinder_detonation_pending"] = true
-		enemy["boss_mechanic_opened"] = true
-		enemies[enemy_index] = enemy
-		next_state["enemies"] = enemies
-		_log(next_state, "%s brands the arena with %d cinder marks." % [_enemy_display_name(enemy), candidates.size()])
-	return next_state
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+	var candidates: Array[Vector2i] = _cinder_mark_candidate_tiles(state, enemy, maxi(1, int(action.get("count", 5))))
+	for tile: Vector2i in candidates:
+		BoardSurfaceRules.place(state, tile, "fire", _surface_source(state, action))
+	enemy["cinder_tiles"] = candidates
+	enemy["cinder_detonation_pending"] = not candidates.is_empty()
+	enemy["boss_mechanic_opened"] = true
+	(state.get("enemies", []) as Array)[enemy_index] = enemy
+	return state
 
 func _cinder_detonation_tiles(state: Dictionary, owner_enemy_id: int) -> Array[Vector2i]:
 	var lookup: Dictionary = {}
-	for trap: Dictionary in _cinder_mark_traps(state, owner_enemy_id):
-		for tile: Vector2i in _trap_blast_tiles(state, trap):
-			lookup[tile] = true
+	for entry: Dictionary in _cinder_fire_entries(state, owner_enemy_id):
+		var tile: Vector2i = entry["pos"]
+		lookup[tile] = true
+		for direction: Vector2i in PathUtils.DIRS_4:
+			if PathUtils.is_passable(state.get("grid", []), tile + direction):
+				lookup[tile + direction] = true
 	return _sorted_tiles_from_lookup(lookup)
 
 func _enemy_detonate_cinders(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return next_state
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var marks: Array[Dictionary] = _cinder_mark_traps(next_state, int(enemy.get("id", -1)))
-	if marks.is_empty():
-		enemy["cinder_detonation_pending"] = false
-		enemies[enemy_index] = enemy
-		return next_state
-	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-		return next_state
-	for mark: Dictionary in marks:
-		var trap_index: int = _trap_index_at_tile(next_state, mark.get("pos", INVALID_TILE))
-		if trap_index >= 0:
-			next_state = _trigger_trap_at_index(next_state, trap_index)
-	enemies = next_state.get("enemies", [])
-	if enemy_index < enemies.size():
-		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		enemy["cinder_detonation_pending"] = false
-		enemy["boss_mechanic_opened"] = true
-		enemies[enemy_index] = enemy
-		next_state["enemies"] = enemies
-	_log(next_state, "%s detonates every surviving cinder mark." % _enemy_display_name(enemy))
-	return next_state
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index]
+	state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
+	if _enemy_cannot_continue_after_bleed(state, enemy_index):
+		return state
+	var selected: Array[Vector2i]
+	for entry: Dictionary in _cinder_fire_entries(state, int(enemy.get("id", -1))):
+		selected.append(entry["pos"])
+	if not selected.is_empty():
+		state = _resolve_board_detonate(state, action, enemy.get("pos", INVALID_TILE), {}, selected)
+	enemy = _surface_actor(state, "enemy", int(enemy.get("id", -1)))
+	enemy["cinder_detonation_pending"] = false
+	enemy["boss_mechanic_opened"] = true
+	return state
 
 func _enemy_gale_force(state: Dictionary, enemy_index: int, action: Dictionary, bleed_steps: Array[Dictionary]) -> Dictionary:
 	var next_state: Dictionary = state
@@ -6388,65 +5730,6 @@ func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dic
 			return _umbra_eclipse_threat_tiles(state)
 	return []
 
-func _push_or_pull_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, pushing: bool) -> Dictionary:
-	var next_state: Dictionary = state
-	var resolved_action: Dictionary = _action_with_intensity_bonus(next_state, action)
-	var trap_index: int = _trap_index_at_tile(next_state, target_tile)
-	if trap_index >= 0:
-		next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-		if combat_outcome(next_state) == "defeat":
-			return next_state
-		if int(resolved_action.get("damage", 0)) > 0:
-			_mark_first_attack_used(next_state)
-		next_state = _trigger_player_trap_at_index(next_state, trap_index)
-		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
-		_log(next_state, "%s triggers a trap." % ("Push" if pushing else "Pull"))
-		return next_state
-	var terrain_index: int = _terrain_index_at_tile(next_state, target_tile)
-	if terrain_index >= 0:
-		var terrain_damage: int = final_damage_for_player_action(next_state, resolved_action)
-		if terrain_damage > 0:
-			next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-			if combat_outcome(next_state) == "defeat":
-				return next_state
-			if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
-				_mark_first_attack_used(next_state)
-			next_state = _damage_terrain(next_state, terrain_index, terrain_damage)
-			next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([]))
-			_log(next_state, "%s splinters terrain for %d." % ["Push" if pushing else "Pull", terrain_damage])
-		return next_state
-	var enemy_index: int = _enemy_index_at_tile(next_state, target_tile)
-	if enemy_index < 0:
-		return next_state
-	resolved_action = _action_with_target_state_relic_modifiers(next_state, resolved_action, enemy_index)
-	resolved_action = _action_with_light_target_skill_modifier(next_state, resolved_action, enemy_index)
-	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
-	if combat_outcome(next_state) == "defeat":
-		return next_state
-	next_state = _sunder_enemy_defense(next_state, enemy_index, int(resolved_action.get("sunder", 0)))
-	var damage: int = _damage_for_enemy_target(next_state, resolved_action, enemy_index)
-	if _attack_bonus_for_current_turn(next_state) > 0 and int(resolved_action.get("damage", 0)) > 0:
-		_mark_first_attack_used(next_state)
-	if damage > 0:
-		next_state = _damage_enemy(next_state, enemy_index, damage, true, _action_pierces_defense(resolved_action))
-		next_state = _consume_enemy_expose(next_state, enemy_index)
-	if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-		next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([enemy_index]))
-		_mark_light_target_skill_trigger(next_state, resolved_action)
-		return next_state
-	next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, resolved_action, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
-	var force_direction: Vector2i = _action_force_direction(resolved_action)
-	if force_direction != Vector2i.ZERO:
-		var player_source: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-		if _forced_direction_can_move_enemy(next_state, enemy_index, force_direction, player_source, pushing):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, force_direction, int(resolved_action.get("amount", 0)), true)
-	else:
-		next_state = _move_enemy_from_source(next_state, enemy_index, (next_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO), int(resolved_action.get("amount", 0)), pushing, true)
-	next_state = _trigger_resolved_action_light(next_state, resolved_action, target_tile, _int_values([enemy_index]))
-	_mark_light_target_skill_trigger(next_state, resolved_action)
-	_log(next_state, "%s %d." % ["Push" if pushing else "Pull", int(resolved_action.get("amount", 0))])
-	return next_state
-
 func _force_directions_for_enemy(state: Dictionary, enemy_index: int, source_pos: Vector2i, pushing: bool, amount: int) -> Array[Vector2i]:
 	var directions: Array[Vector2i] = []
 	if amount <= 0:
@@ -6457,7 +5740,7 @@ func _force_directions_for_enemy(state: Dictionary, enemy_index: int, source_pos
 		directions.append(direction)
 	return directions
 
-func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direction: Vector2i, source_pos: Vector2i, pushing: bool) -> bool:
+func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direction: Vector2i, source_pos: Vector2i, pushing: bool, sideways: bool = false) -> bool:
 	var step_direction: Vector2i = _cardinal_direction(direction)
 	if step_direction == Vector2i.ZERO:
 		return false
@@ -6471,9 +5754,9 @@ func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direc
 	var moved_enemy: Dictionary = enemy.duplicate(true)
 	moved_enemy["pos"] = enemy.get("pos", Vector2i.ZERO) + step_direction
 	var after_distance: int = _enemy_distance_to_tile(moved_enemy, source_pos)
-	if pushing and after_distance <= before_distance:
+	if not sideways and pushing and after_distance <= before_distance:
 		return false
-	if not pushing and after_distance >= before_distance:
+	if not sideways and not pushing and after_distance >= before_distance:
 		return false
 	return not _enemy_direction_path(state, enemy_index, step_direction, 1).is_empty()
 
@@ -6521,7 +5804,7 @@ func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
-		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
+		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), enemy.get("pos", Vector2i.ZERO) - step_direction)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 			break
 	return next_state
@@ -6551,7 +5834,7 @@ func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Ve
 		enemy["pos"] = candidate
 		enemies[enemy_index] = enemy
 		next_state["enemies"] = enemies
-		next_state = _trigger_trap_on_enemy(next_state, enemy_index, player_triggered_traps)
+		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), current)
 		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
 			break
 	return next_state
@@ -6574,25 +5857,36 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 		player["pos"] = next_tile
 		next_state["player"] = player
 		_collect_loot_at_player(next_state)
-		next_state = _trigger_trap_on_player(next_state)
+		next_state = surface_actor_arrival(next_state, "player", -1, current)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
 	return _dispel_illusion_at_player(next_state)
 
-func _move_player_along_path(state: Dictionary, path: Array[Vector2i]) -> Dictionary:
+func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance: int = -1, minimum_progress: bool = true, result: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
+	var spent: int = 0
+	result["spent"] = spent
 	if path.size() <= 1:
 		return next_state
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	for step_index: int in range(1, path.size()):
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
+		if player.get("pos", INVALID_TILE) != path[step_index - 1]:
+			break
+		var cost: int = BoardSurfaceRules.entry_cost(next_state, player, path[step_index - 1], path[step_index])
+		if step_index == 1 and minimum_progress and allowance > 0:
+			cost = mini(cost, allowance)
+		if allowance >= 0 and spent + cost > allowance:
+			break
+		spent += cost
+		result["spent"] = spent
 		player["pos"] = path[step_index]
 		next_state["player"] = player
 		performance_phase_started = _record_runtime_performance_phase("traverse_position", performance_phase_started)
 		_collect_loot_at_player(next_state)
 		performance_phase_started = _record_runtime_performance_phase("traverse_loot", performance_phase_started)
-		next_state = _trigger_trap_on_player(next_state)
+		next_state = surface_actor_arrival(next_state, "player", -1, path[step_index - 1])
 		performance_phase_started = _record_runtime_performance_phase("traverse_trap_total", performance_phase_started)
 		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 			break
@@ -6629,16 +5923,9 @@ func _player_path_until_hidden_collision(
 	return resolved
 
 func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vector2i, max_distance: int) -> Array[Vector2i]:
-	if max_distance <= 0:
-		return []
-	var navigation: Dictionary = _preferred_player_navigation(
-		state.get("grid", []),
-		start,
-		max_distance,
-		_known_actor_tiles_for_player(state),
-		_trap_tiles_lookup(state),
-		_preferred_pickup_scores(state)
-	)
+	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = start
+	var navigation: Dictionary = _unit_movement_navigation(state, player, max_distance, _known_actor_tiles_for_player(state), bool(state.get("_movement_minimum_progress", true)))
 	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(goal, []))
 
 func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
@@ -6784,110 +6071,54 @@ func _trigger_traps_on_tiles(state: Dictionary, trap_tiles: Array[Vector2i]) -> 
 	return next_state
 
 func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: bool = false, player_protection_prechecked: bool = false) -> Dictionary:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var next_state: Dictionary = state
-	var traps: Array = next_state.get("traps", []).duplicate(true)
+	var performance_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var traps: Array = state.get("traps", [])
 	if trap_index < 0 or trap_index >= traps.size():
-		return next_state
+		return state
 	var trap: Dictionary = (traps[trap_index] as Dictionary).duplicate(true)
 	traps.remove_at(trap_index)
-	next_state["traps"] = traps
-	var performance_phase_started: int = _record_runtime_performance_phase("trap_duplicate", performance_total_started)
-	var blast_tiles: Array[Vector2i] = _trap_blast_tiles(next_state, trap)
-	var blast_lookup: Dictionary = {}
-	for tile: Vector2i in blast_tiles:
-		blast_lookup[tile] = true
-	var damage: int = trap_damage(next_state, trap)
-	performance_phase_started = _record_runtime_performance_phase("trap_blast", performance_phase_started)
-	var player_hit: bool = blast_lookup.has((_normalized_player(next_state.get("player", {}))).get("pos", Vector2i(-1, -1)))
-	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("disarm_trap")
-	var player_protected: bool = player_hit and (
-		protect_player
-		or (not player_protection_prechecked and _skill_charge_available(next_state, skill_id))
-	)
-	if player_protected:
-		_mark_skill_used(next_state, skill_id, "%s leaves you untouched by the trap blast." % SkillTreeLibrary.display_name(skill_id))
-	elif player_hit:
-		if damage > 0:
-			next_state = _damage_player(next_state, damage, false, true, "trap")
-		next_state = _apply_trap_keywords_to_player(next_state, trap)
-	performance_phase_started = _record_runtime_performance_phase("trap_player", performance_phase_started)
-	var illusions: Array = next_state.get("illusions", [])
-	for illusion_var: Variant in illusions:
-		if typeof(illusion_var) != TYPE_DICTIONARY:
+	state["traps"] = traps
+	var center: Vector2i = trap.get("pos", INVALID_TILE)
+	var damage: int = trap_damage(state, trap)
+	var context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+	state["damage_context"] = context.duplicate(true)
+	state["damage_context"]["source_kind"] = "trap"
+	var actors: Array[Dictionary] = _surface_actor_records(state)
+	for actor: Dictionary in actors:
+		if not BoardSurfaceRules.footprint_tiles(actor["unit"] as Dictionary).has(center):
 			continue
-		var illusion: Dictionary = illusion_var as Dictionary
-		if int(illusion.get("hp", 0)) <= 0:
-			continue
-		if not blast_lookup.has(illusion.get("pos", Vector2i.ZERO)):
-			continue
-		next_state = _damage_illusion(next_state, int(illusion.get("id", -1)), damage)
-	performance_phase_started = _record_runtime_performance_phase("trap_illusions", performance_phase_started)
-	var enemies: Array = next_state.get("enemies", [])
-	for enemy_index: int in range(enemies.size()):
-		var enemy: Dictionary = enemies[enemy_index] as Dictionary
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		if int(trap.get("owner_enemy_id", -1)) == int(enemy.get("id", -2)):
-			continue
-		var enemy_hit: bool = false
-		for tile: Vector2i in _enemy_footprint_tiles(enemy):
-			if blast_lookup.has(tile):
-				enemy_hit = true
+		var skill_id: String = SkillTreeLibrary.skill_id_for_effect("disarm_trap")
+		if str(actor["kind"]) == "player" and (protect_player or (not player_protection_prechecked and _skill_charge_available(state, skill_id))):
+			_mark_skill_used(state, skill_id, "%s disarms the trap." % SkillTreeLibrary.display_name(skill_id))
+		else:
+			state = _surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), damage, false)
+	var wake: Array[Vector2i] = trap_wake_tiles(state, trap)
+	var element: String = str(trap.get("element", ""))
+	if element == "air":
+		for actor: Dictionary in actors:
+			var unit: Dictionary = _surface_actor(state, str(actor["kind"]), int(actor["id"]))
+			if int(unit.get("hp", 0)) <= 0 or BoardSurfaceRules.footprint_tiles(unit).has(center):
+				continue
+			for tile: Vector2i in wake:
+				if not BoardSurfaceRules.footprint_tiles(unit).has(tile):
+					continue
+				var direction: Vector2i = tile - center
+				if str(actor["kind"]) == "enemy":
+					state = _move_enemy_in_direction(state, _enemy_index_for_id(state, int(actor["id"])), direction, 1, false)
+				elif str(actor["kind"]) == "player":
+					state = _surface_move_player_direction(state, direction)
+				else:
+					state = _surface_move_illusion(state, int(actor["id"]), direction)
 				break
-		if not enemy_hit:
-			continue
-		if damage > 0:
-			next_state = _damage_enemy(next_state, enemy_index, damage)
-		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) > 0:
-			next_state = _apply_action_keywords_to_enemy(next_state, enemy_index, trap, trap.get("pos", Vector2i.ZERO), false)
-	performance_phase_started = _record_runtime_performance_phase("trap_enemies_total", performance_phase_started)
-	next_state = _damage_terrain_indices(next_state, _terrain_indices_in_tiles(next_state, blast_tiles), damage)
-	performance_phase_started = _record_runtime_performance_phase("trap_terrain", performance_phase_started)
-	_log(next_state, _trap_trigger_log(next_state, trap, damage))
-	_record_runtime_performance_phase("trap_log", performance_phase_started)
-	_record_runtime_performance_phase("trap_total", performance_total_started)
-	return next_state
-
-func _apply_trap_keywords_to_player(state: Dictionary, trap: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state
-	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	if int(trap.get("burn", 0)) > 0:
-		player["burn"] = int(player.get("burn", 0)) + int(trap.get("burn", 0))
-	if int(trap.get("poison", 0)) > 0:
-		var poison: Dictionary = player.get("poison", {}).duplicate(true)
-		poison["damage"] = int(poison.get("damage", 0)) + int(trap.get("poison", 0))
-		poison["delay"] = 2
-		player["poison"] = poison
-	var restriction_kind: String = _trap_action_blocker_kind(trap)
-	if restriction_kind.is_empty():
-		next_state["player"] = player
-		return next_state
-	if _player_trap_applies_this_turn(next_state):
-		next_state["player"] = player
-		next_state["pending_player_trap_restriction"] = _stronger_restriction(
-			str(next_state.get("pending_player_trap_restriction", "")),
-			restriction_kind
-		)
-		return next_state
-	if restriction_kind == "immobilize":
-		player["immobilize"] = true
 	else:
-		player[restriction_kind] = maxi(int(player.get(restriction_kind, 0)), int(trap.get(restriction_kind, 0)))
-	next_state["player"] = player
-	return next_state
-
-func _player_trap_applies_this_turn(state: Dictionary) -> bool:
-	return cards_remaining_this_turn(state) > 1
-
-func _trap_action_blocker_kind(trap: Dictionary) -> String:
-	if int(trap.get("freeze", 0)) > 0:
-		return "freeze"
-	if int(trap.get("shock", 0)) > 0:
-		return "shock"
-	if bool(trap.get("immobilize", false)):
-		return "immobilize"
-	return ""
+		for tile: Vector2i in wake:
+			BoardSurfaceRules.place(state, tile, BoardSurfaceRules.kind(element), {"actor_kind": "trap", "tile": center})
+	BoardSurfaceRules.record_event(state, {"kind": "trap_triggered", "tile": center, "element": element, "wake_tiles": wake, "damage": damage})
+	state["damage_context"] = context
+	_log(state, _trap_trigger_log(state, trap, damage))
+	_record_runtime_performance_phase("trap_resolution", performance_started)
+	_record_runtime_performance_phase("trap_total", performance_started)
+	return state
 
 func _stronger_restriction(current_kind: String, next_kind: String) -> String:
 	if current_kind.is_empty():
@@ -6900,42 +6131,8 @@ func _stronger_restriction(current_kind: String, next_kind: String) -> String:
 		return current_kind
 	return next_kind
 
-func _apply_pending_player_trap_restriction(state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state
-	var restriction_kind: String = str(next_state.get("pending_player_trap_restriction", ""))
-	if restriction_kind.is_empty():
-		return next_state
-	next_state["pending_player_trap_restriction"] = ""
-	var restrictions: Dictionary = (next_state.get("player_turn_restrictions", {}) as Dictionary).duplicate(true)
-	match restriction_kind:
-		"freeze":
-			restrictions["frozen"] = true
-		"shock":
-			restrictions["shocked"] = true
-		"immobilize":
-			restrictions["immobilized"] = true
-	next_state["player_turn_restrictions"] = restrictions
-	return next_state
-
 func _trap_trigger_log(state: Dictionary, trap: Dictionary, resolved_damage: int = -1) -> String:
-	var element_id: String = str(trap.get("element", ElementData.NONE))
-	var damage: int = trap_damage(state, trap) if resolved_damage < 0 else resolved_damage
-	var parts: PackedStringArray = ["%s trap hits for %d at intensity %d." % [
-		ElementData.name(element_id),
-		damage,
-		elemental_intensity(state, element_id)
-	]]
-	if int(trap.get("burn", 0)) > 0:
-		parts.append("Burn %d." % int(trap.get("burn", 0)))
-	if int(trap.get("freeze", 0)) > 0:
-		parts.append("Freeze.")
-	if int(trap.get("shock", 0)) > 0:
-		parts.append("Shock.")
-	if bool(trap.get("immobilize", false)):
-		parts.append("Immobilize.")
-	if int(trap.get("poison", 0)) > 0:
-		parts.append("Poison %d." % int(trap.get("poison", 0)))
-	return " ".join(parts)
+	return "%s trap: %d center damage." % [ElementData.name(str(trap.get("element", "none"))), trap_damage(state, trap) if resolved_damage < 0 else resolved_damage]
 
 func _trap_tiles_lookup(state: Dictionary) -> Dictionary:
 	var lookup: Dictionary = {}
@@ -6969,15 +6166,15 @@ func _trap_tiles_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Array[Ve
 	return trap_tiles
 
 func _trap_blast_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
-	var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	var center: Vector2i = trap.get("pos", INVALID_TILE)
+	return _vector2i_values([center]) if PathUtils.is_passable(state.get("grid", []), center) else _vector2i_values([])
+
+func trap_wake_tiles(state: Dictionary, trap: Dictionary) -> Array[Vector2i]:
 	var tiles: Array[Vector2i] = []
-	for offset: Vector2i in TRAP_BLAST_OFFSETS:
-		var tile: Vector2i = trap_pos + offset
-		if not PathUtils.is_in_bounds(state.get("grid", []), tile):
-			continue
-		if not PathUtils.is_passable(state.get("grid", []), tile):
-			continue
-		tiles.append(tile)
+	var center: Vector2i = trap.get("pos", INVALID_TILE)
+	for direction: Vector2i in PathUtils.DIRS_4:
+		if BoardSurfaceRules.can_place(state, center + direction):
+			tiles.append(center + direction)
 	return tiles
 
 func _trap_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
@@ -7027,13 +6224,9 @@ func _enemy_status_damage_step(
 	step["enemy_losses"] = enemy_losses
 	step["impact_actor_keys"] = _target_loss_keys(enemy_losses)
 	step["enemies_after"] = (after_state.get("enemies", []) as Array).duplicate(true)
-	step["elemental_intensity_after"] = (after_state.get("elemental_intensity", {}) as Dictionary).duplicate(true)
 	step["player_after"] = (after_state.get("player", {}) as Dictionary).duplicate(true)
-	for element_id: String in ElementData.all_elements():
-		if elemental_intensity(before_state, element_id) == elemental_intensity(after_state, element_id):
-			continue
-		step["damage_feedback_element"] = element_id
-		break
+	step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
+	step["surface_events"] = _surface_events_since(before_state, after_state)
 	return step
 
 func _player_action_triggers_bleed(action: Dictionary) -> bool:
@@ -7124,187 +6317,52 @@ func _clear_enemy_bleed_after_turn(state: Dictionary, enemy_index: int) -> Dicti
 	return next_state
 
 func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictionary:
-	var next_state: Dictionary = state
+	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index])
+	(state.get("enemies", []) as Array)[enemy_index] = enemy
+	var frozen: bool = int(enemy.get("freeze", 0)) > 0
+	var before: Dictionary = state.duplicate(true)
+	var old_context: Dictionary = state.get("damage_context", {}) as Dictionary
+	state["damage_context"] = {"source_kind": "surface_fire", "player_card": false, "phase": "activation_start"}
+	state = _surface_contact(state, "enemy", int(enemy.get("id", -1)), INVALID_TILE, true)
+	state["damage_context"] = old_context
+	enemy = (state.get("enemies", []) as Array)[enemy_index]
+	var shocked: bool = not frozen and int(enemy.get("shock", 0)) > 0
+	var immobilized: bool = not frozen and bool(enemy.get("immobilize", false))
+	if frozen:
+		enemy["freeze"] = 0
+	elif shocked:
+		enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
+	if immobilized:
+		enemy["immobilize"] = false
 	var steps: Array[Dictionary] = []
-	var enemies: Array = next_state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
-		return {"steps": steps, "skip_all": false, "shocked": false, "immobilized": false}
-	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	var actor_name: String = str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy"))
-	if int(enemy.get("burn", 0)) > 0:
-		var burn_amount: int = int(enemy.get("burn", 0))
-		var burn_before_state: Dictionary = next_state.duplicate(true)
-		var before_enemy: Dictionary = enemy.duplicate(true)
-		next_state = _damage_enemy(next_state, enemy_index, burn_amount)
-		enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-		enemy["burn"] = maxi(0, int(enemy.get("burn", 0)) - GameData.status_tick_reduction("burn"))
-		var burn_enemies: Array = next_state.get("enemies", [])
-		burn_enemies[enemy_index] = enemy
-		next_state["enemies"] = burn_enemies
-		steps.append(_enemy_status_damage_step({
-			"kind": "status_damage",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": actor_name,
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"amount": int(before_enemy.get("hp", 0)) - int(enemy.get("hp", 0)),
-			"label": "Burn",
-			"text": "Burn %d" % burn_amount
-		}, burn_before_state, next_state))
-		if int(enemy.get("hp", 0)) <= 0:
-			return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "state": next_state}
-	if _poison_damage(enemy) > 0:
-		var poison_before: Dictionary = enemy.duplicate(true)
-		enemy = _advance_poison(enemy)
-		var poison_enemies: Array = next_state.get("enemies", [])
-		poison_enemies[enemy_index] = enemy
-		next_state["enemies"] = poison_enemies
-		if int(enemy.get("poison", {}).get("trigger", 0)) > 0:
-			var poison_damage: int = int(enemy.get("poison", {}).get("trigger", 0))
-			var poison_damage_before_state: Dictionary = next_state.duplicate(true)
-			next_state = _damage_enemy(next_state, enemy_index, poison_damage)
-			enemy = _normalized_enemy(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary))
-			var poison_step: Dictionary = {
-				"kind": "status_damage",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"amount": int(poison_before.get("hp", 0)) - int(enemy.get("hp", 0)),
-				"label": "Poison",
-				"text": "Poison %d" % poison_damage
-			}
-			var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-			poison["trigger"] = 0
-			enemy["poison"] = poison
-			poison_enemies = next_state.get("enemies", [])
-			poison_enemies[enemy_index] = enemy
-			next_state["enemies"] = poison_enemies
-			steps.append(_enemy_status_damage_step(poison_step, poison_damage_before_state, next_state))
-			if int(enemy.get("hp", 0)) <= 0:
-				return {"steps": steps, "skip_all": true, "shocked": false, "immobilized": false, "state": next_state}
-	else:
-		enemy = _advance_poison(enemy)
-		var pending_poison_enemies: Array = next_state.get("enemies", [])
-		pending_poison_enemies[enemy_index] = enemy
-		next_state["enemies"] = pending_poison_enemies
-	var skip_all: bool = false
-	var shocked: bool = false
-	var immobilized: bool = false
-	if int(enemy.get("freeze", 0)) > 0:
-		enemy["freeze"] = maxi(0, int(enemy.get("freeze", 0)) - 1)
-		var frozen_enemies: Array = next_state.get("enemies", [])
-		frozen_enemies[enemy_index] = enemy
-		next_state["enemies"] = frozen_enemies
-		skip_all = true
-		steps.append({
-			"kind": "status",
-			"actor_key": _enemy_key(enemy),
-			"actor_name": actor_name,
-			"tile": enemy.get("pos", Vector2i.ZERO),
-			"label": "Frozen",
-			"text": "Frozen"
-		})
-	else:
-		if int(enemy.get("shock", 0)) > 0:
-			enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
-			shocked = true
-			steps.append({
-				"kind": "status",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"label": "Shocked",
-				"text": "Shocked"
-			})
-		if bool(enemy.get("immobilize", false)):
-			enemy["immobilize"] = false
-			immobilized = true
-			steps.append({
-				"kind": "status",
-				"actor_key": _enemy_key(enemy),
-				"actor_name": actor_name,
-				"tile": enemy.get("pos", Vector2i.ZERO),
-				"label": "Immobilized",
-				"text": "Immobilized"
-			})
-		var restricted_enemies: Array = next_state.get("enemies", [])
-		restricted_enemies[enemy_index] = enemy
-		next_state["enemies"] = restricted_enemies
-	return {"steps": steps, "skip_all": skip_all, "shocked": shocked, "immobilized": immobilized, "state": next_state}
+	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
+		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": GameData.fixed_point_amount(2)}, before, state))
+	if frozen or shocked or immobilized:
+		var label: String = "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
+		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label})
+	for step: Dictionary in steps:
+		step["surfaces_after"] = (state.get("surfaces", {}) as Dictionary).duplicate(true)
+		step["surface_events"] = _surface_events_since(before, state)
+	return {"state": state, "steps": steps, "skip_all": frozen or int(enemy.get("hp", 0)) <= 0, "shocked": shocked, "immobilized": immobilized}
 
 func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = state
-	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	if int(player.get("burn", 0)) > 0:
-		var burn_amount: int = int(player.get("burn", 0))
-		next_state = _damage_player(next_state, burn_amount, false, true, "burn")
-		player = _normalized_player(next_state.get("player", {}))
-		player["burn"] = maxi(0, int(player.get("burn", 0)) - GameData.status_tick_reduction("burn"))
-		next_state["player"] = player
-		_log(next_state, "Burn deals %d." % burn_amount)
-		if combat_outcome(next_state) != "":
-			return next_state
-	if _poison_damage(player) > 0:
-		player = _advance_poison(player)
-		next_state["player"] = player
-		if int(player.get("poison", {}).get("trigger", 0)) > 0:
-			var poison_damage: int = int(player.get("poison", {}).get("trigger", 0))
-			next_state = _damage_player(next_state, poison_damage, false, true, "poison")
-			player = _normalized_player(next_state.get("player", {}))
-			var poison: Dictionary = player.get("poison", {}).duplicate(true)
-			poison["trigger"] = 0
-			player["poison"] = poison
-			next_state["player"] = player
-			_log(next_state, "Poison deals %d." % poison_damage)
-			if combat_outcome(next_state) != "":
-				return next_state
-	else:
-		player = _advance_poison(player)
-		next_state["player"] = player
-	var restrictions: Dictionary = {
-		"frozen": false,
-		"shocked": false,
-		"immobilized": false
-	}
-	if int(player.get("freeze", 0)) > 0:
-		player["freeze"] = maxi(0, int(player.get("freeze", 0)) - 1)
-		restrictions["frozen"] = true
-		_log(next_state, "Frozen this turn.")
-	else:
-		if int(player.get("shock", 0)) > 0:
-			player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
-			restrictions["shocked"] = true
-			_log(next_state, "Shocked this turn.")
-		if bool(player.get("immobilize", false)):
-			player["immobilize"] = false
-			restrictions["immobilized"] = true
-			_log(next_state, "Immobilized this turn.")
-	next_state["player"] = player
-	next_state["player_turn_restrictions"] = restrictions
-	return next_state
-
-func _poison_damage(unit: Dictionary) -> int:
-	return int((unit.get("poison", {}) as Dictionary).get("damage", 0))
-
-func _advance_poison(unit: Dictionary) -> Dictionary:
-	var next_unit: Dictionary = unit.duplicate(true)
-	var poison: Dictionary = (next_unit.get("poison", {}) as Dictionary).duplicate(true)
-	var damage: int = int(poison.get("damage", 0))
-	var delay: int = int(poison.get("delay", 0))
-	poison["trigger"] = 0
-	if damage <= 0 or delay <= 0:
-		poison["damage"] = damage
-		poison["delay"] = maxi(0, delay)
-		next_unit["poison"] = poison
-		return next_unit
-	delay -= 1
-	if delay <= 0:
-		poison["trigger"] = damage
-		poison["damage"] = 0
-		poison["delay"] = 0
-	else:
-		poison["delay"] = delay
-	next_unit["poison"] = poison
-	return next_unit
+	var player: Dictionary = state.get("player", {}) as Dictionary
+	var frozen: bool = int(player.get("freeze", 0)) > 0
+	var previous_context: Dictionary = state.get("damage_context", {}) as Dictionary
+	state["damage_context"] = {"source_kind": "surface_fire", "player_card": false, "phase": "activation_start"}
+	state = _surface_contact(state, "player", -1, INVALID_TILE, true)
+	state["damage_context"] = previous_context
+	player = state.get("player", {}) as Dictionary
+	var shocked: bool = not frozen and int(player.get("shock", 0)) > 0
+	var immobilized: bool = not frozen and bool(player.get("immobilize", false))
+	if frozen:
+		player["freeze"] = 0
+	elif shocked:
+		player["shock"] = maxi(0, int(player.get("shock", 0)) - 1)
+	if immobilized:
+		player["immobilize"] = false
+	state["player_turn_restrictions"] = {"frozen": frozen, "shocked": shocked, "immobilized": immobilized}
+	return state
 
 func _enemy_action_is_movement(action: Dictionary) -> bool:
 	return str(action.get("type", "")) in ["move_toward", "move_away"]
@@ -7444,18 +6502,12 @@ func _state_with_enemy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vect
 
 func _player_status_step_text(before_player: Dictionary, after_player: Dictionary, action: Dictionary) -> String:
 	var tags: PackedStringArray = []
-	if int(after_player.get("burn", 0)) > int(before_player.get("burn", 0)):
-		tags.append("Burn")
 	if int(after_player.get("freeze", 0)) > int(before_player.get("freeze", 0)):
 		tags.append("Freeze")
 	if int(after_player.get("shock", 0)) > int(before_player.get("shock", 0)):
 		tags.append("Shock")
 	if bool(after_player.get("immobilize", false)) and not bool(before_player.get("immobilize", false)):
 		tags.append("Immobilize")
-	var before_poison: Dictionary = before_player.get("poison", {})
-	var after_poison: Dictionary = after_player.get("poison", {})
-	if int(after_poison.get("damage", 0)) > int(before_poison.get("damage", 0)):
-		tags.append("Poison")
 	if int(action.get("push", 0)) > 0 and before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO):
 		tags.append("Push")
 	if int(action.get("pull", 0)) > 0 and before_player.get("pos", Vector2i.ZERO) != after_player.get("pos", Vector2i.ZERO):
@@ -7830,6 +6882,7 @@ func _trigger_enemy_death_spawn(state: Dictionary, enemy: Dictionary) -> Diction
 	intent_rng.state = int(next_state.get("rng_state", 1))
 	for spawned_index: int in range(first_spawned_index, first_spawned_index + spawn_tiles.size()):
 		_assign_enemy_intent(next_state, spawned_index, intent_rng)
+		next_state = surface_actor_arrival(next_state, "enemy", int((next_state.get("enemies", []) as Array)[spawned_index].get("id", -1)), INVALID_TILE)
 		var spawned_enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[spawned_index] as Dictionary)
 		_schedule_enemy_after_spawn(next_state, spawned_enemy, spawned_index - first_spawned_index)
 	next_state["rng_state"] = intent_rng.state
@@ -8166,20 +7219,20 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	var enemy_type: String = str(enemy.get("type", ""))
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	if _enemy_should_summon_wisps(state, enemy):
-		enemy["intent"] = _zekarion_summon_intent()
+		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, _zekarion_summon_intent())
 		enemies[enemy_index] = enemy
 		return
 	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
 		int(state.get("room_depth", 1))
 	)
-	if enemy_type == DragonBossLibrary.FIRE_BOSS_ID and bool(enemy.get("cinder_detonation_pending", false)) and _cinder_mark_traps(state, int(enemy.get("id", -1))).is_empty():
+	if enemy_type == DragonBossLibrary.FIRE_BOSS_ID and bool(enemy.get("cinder_detonation_pending", false)) and _cinder_fire_entries(state, int(enemy.get("id", -1))).is_empty():
 		enemy["cinder_detonation_pending"] = false
 		enemies[enemy_index] = enemy
 		state["enemies"] = enemies
 	var forced_intent: Dictionary = _forced_dragon_intent(state, enemy, intents)
 	if not forced_intent.is_empty():
-		enemy["intent"] = forced_intent
+		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, forced_intent)
 		enemies[enemy_index] = enemy
 		return
 	var available_intents: Array = []
@@ -8209,7 +7262,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 			for option: Dictionary in tactical_options:
 				tactical_cursor += int(option.get("effective_weight", 0))
 				if tactical_roll <= tactical_cursor:
-					enemy["intent"] = (option.get("intent", {}) as Dictionary).duplicate(true)
+					enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, (option.get("intent", {}) as Dictionary).duplicate(true))
 					enemies[enemy_index] = enemy
 					return
 	var total_weight: int = 0
@@ -8220,10 +7273,10 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	for intent: Dictionary in intents:
 		cursor += _objective_adjusted_intent_weight(state, intent)
 		if roll <= cursor:
-			enemy["intent"] = intent.duplicate(true)
+			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, intent.duplicate(true))
 			enemies[enemy_index] = enemy
 			return
-	enemy["intent"] = (intents[0] as Dictionary).duplicate(true)
+	enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, (intents[0] as Dictionary).duplicate(true))
 	enemies[enemy_index] = enemy
 
 func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) -> int:
@@ -8542,7 +7595,7 @@ func _dragon_intent_available(state: Dictionary, enemy: Dictionary, intent: Dict
 		"faultline":
 			return not _dragon_spires(state).is_empty()
 		"kindle_ground":
-			return _cinder_mark_traps(state, int(enemy.get("id", -1))).is_empty()
+			return _cinder_fire_entries(state, int(enemy.get("id", -1))).is_empty()
 		"crystal_mantle":
 			return int(enemy.get("frost_armor", 0)) <= 0
 		"last_eclipse":
@@ -8846,41 +7899,11 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	}
 
 func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int) -> Array[Dictionary]:
-	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
-	var start_path: Array[Vector2i] = _vector2i_values([start])
+	var navigation: Dictionary = _unit_movement_navigation(state, enemy, move_range, _enemy_path_blockers(state, enemy, true, false))
 	var records: Array[Dictionary]
-	records.append({"tile": start, "path": start_path, "trap_cost": 0, "steps": 0})
-	if move_range <= 0:
-		return records
-	var occupied: Dictionary = _enemy_path_blockers(state, enemy, true, false)
-	var frontier: Array[Dictionary]
-	frontier.append(records[0].duplicate(true))
-	for step: int in range(1, move_range + 1):
-		var next_by_tile: Dictionary = {}
-		for record: Dictionary in frontier:
-			var current: Vector2i = record.get("tile", start)
-			var current_path: Array[Vector2i] = _vector2i_values(record.get("path", []))
-			for direction: Vector2i in PathUtils.DIRS_4:
-				var candidate_tile: Vector2i = current + direction
-				if current_path.has(candidate_tile):
-					continue
-				if not _enemy_can_occupy_anchor(state, enemy, candidate_tile, occupied):
-					continue
-				var candidate_path: Array[Vector2i] = current_path.duplicate()
-				candidate_path.append(candidate_tile)
-				var candidate: Dictionary = {
-					"tile": candidate_tile,
-					"path": candidate_path,
-					"trap_cost": int(record.get("trap_cost", 0)) + _enemy_anchor_trap_penalty(state, enemy, candidate_tile),
-					"steps": step
-				}
-				if not next_by_tile.has(candidate_tile) or _enemy_actual_record_precedes(candidate, next_by_tile[candidate_tile] as Dictionary):
-					next_by_tile[candidate_tile] = candidate
-		frontier.clear()
-		for tile: Vector2i in _sorted_tiles_from_lookup(next_by_tile):
-			var next_record: Dictionary = next_by_tile[tile]
-			frontier.append(next_record)
-			records.append(next_record)
+	for tile: Vector2i in _sorted_tiles_from_lookup(navigation["paths"] as Dictionary):
+		var path: Array[Vector2i] = _vector2i_values(navigation["paths"][tile])
+		records.append({"tile": tile, "path": path, "trap_cost": int(navigation["hazards"].get(tile, 0)), "steps": int(navigation["costs"].get(tile, 0))})
 	return records
 
 func _enemy_actual_record_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
@@ -9332,7 +8355,7 @@ func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) 
 func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionary, attack_action: Dictionary, move_range: int) -> int:
 	if bool(anchor_details.get("actor_target_overlap", false)):
 		return -1
-	var cost: int = 1 + int(anchor_details.get("trap_penalty", 0))
+	var cost: int = int(anchor_details.get("movement_cost", 1)) + int(anchor_details.get("trap_penalty", 0)) + int(anchor_details.get("surface_hazard", 0))
 	var terrain_indices: Array[int] = _int_values(anchor_details.get("terrain_indices", []))
 	if not terrain_indices.is_empty():
 		var damage: int = int(attack_action.get("damage", 0))
@@ -9431,7 +8454,16 @@ func _enemy_future_anchor_details(state: Dictionary, enemy: Dictionary, anchor: 
 	var blocking_enemy_count: int = _enemy_future_blocking_enemy_count(enemy, anchor, planning_context)
 	var actor_target_overlap: bool = _enemy_future_actor_target_overlap(enemy, anchor, planning_context)
 	var trap_penalty: int = _enemy_future_trap_penalty(enemy, anchor, planning_context)
+	var ground_cost: int = 1
+	var surface_hazard: int = 0
+	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
+		if BoardSurfaceRules.has_rubble(state, tile):
+			ground_cost = 2
+		if BoardSurfaceRules.element_at(state, tile) == "fire":
+			surface_hazard = 3
 	var details: Dictionary = {
+		"movement_cost": ground_cost,
+		"surface_hazard": surface_hazard,
 		"in_grid": in_grid,
 		"terrain_indices": terrain_indices,
 		"blocking_enemy_count": blocking_enemy_count,
@@ -9528,15 +8560,15 @@ func _enemy_anchor_trap_penalty(state: Dictionary, enemy: Dictionary, anchor: Ve
 func _enemy_actual_prefix_for_route(state: Dictionary, enemy: Dictionary, route: Array[Vector2i], move_range: int) -> Array[Vector2i]:
 	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
 	var path: Array[Vector2i] = _vector2i_values([start])
-	if move_range <= 0 or route.is_empty():
-		return path
-	for route_index: int in range(1, route.size()):
-		if path.size() - 1 >= move_range:
+	var remaining: int = move_range
+	for index: int in range(1, route.size()):
+		if remaining <= 0 or not _enemy_anchor_is_dynamically_open(state, enemy, route[index]):
 			break
-		var anchor: Vector2i = route[route_index]
-		if not _enemy_anchor_is_dynamically_open(state, enemy, anchor):
+		var cost: int = BoardSurfaceRules.entry_cost(state, enemy, route[index - 1], route[index])
+		if cost > remaining and index > 1:
 			break
-		path.append(anchor)
+		path.append(route[index])
+		remaining -= mini(cost, remaining)
 	return path
 
 func _planned_blocking_terrain_index(state: Dictionary, enemy: Dictionary, attack_action: Dictionary, route: Array[Vector2i]) -> int:
@@ -9559,7 +8591,17 @@ func _enemy_projected_attack_tiles(state: Dictionary, enemy: Dictionary, action:
 			if int(action.get("range", 0)) > 0:
 				center = target_pos
 			return _enemy_aoe_tiles_for_target(state, enemy, resolved_action, center, true)
-		return _vector2i_values([target_pos])
+		var impact: Vector2i = target_pos
+		if not _enemy_action_reaches_tile(state, enemy, action, impact):
+			impact = _enemy_lightning_component_impact(state, enemy, action, target_pos)
+		var footprint: Array[Vector2i] = _vector2i_values([impact])
+		var plan: Dictionary = _board_attack_plan(state, action, footprint, "enemy")
+		var lookup: Dictionary = {impact: true}
+		for tile: Vector2i in plan.get("consumed", {}):
+			lookup[tile] = true
+		for hit: Dictionary in plan.get("hits", []):
+			lookup[hit["to"]] = true
+		return _sorted_tiles_from_lookup(lookup)
 	if terrain_index >= 0:
 		var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
 		return _vector2i_values([terrain.get("pos", INVALID_TILE)])
@@ -9756,29 +8798,12 @@ func _enemy_threat_path_blockers(state: Dictionary, enemy: Dictionary, block_ter
 	return occupied
 
 func _reachable_enemy_anchor_tiles(state: Dictionary, enemy: Dictionary, max_distance: int, occupied: Dictionary, blocked_target: Vector2i) -> Array[Vector2i]:
-	var results: Array[Vector2i] = []
-	var start: Vector2i = enemy.get("pos", Vector2i.ZERO)
-	if max_distance <= 0:
-		return results
-	var queue: Array[Vector2i] = _vector2i_values([start])
-	var queue_head: int = 0
-	var distance_by_tile: Dictionary = {start: 0}
-	while queue_head < queue.size():
-		var current: Vector2i = queue[queue_head]
-		queue_head += 1
-		var current_distance: int = int(distance_by_tile.get(current, 0))
-		if current_distance > 0:
-			results.append(current)
-		if current_distance >= max_distance:
-			continue
-		for dir: Vector2i in PathUtils.DIRS_4:
-			var next_tile: Vector2i = current + dir
-			if distance_by_tile.has(next_tile):
-				continue
-			if not _enemy_can_occupy_anchor(state, enemy, next_tile, occupied, blocked_target):
-				continue
-			distance_by_tile[next_tile] = current_distance + 1
-			queue.append(next_tile)
+	var blockers: Dictionary = occupied.duplicate()
+	if blocked_target != INVALID_TILE:
+		blockers[blocked_target] = true
+	var navigation: Dictionary = _unit_movement_navigation(state, enemy, max_distance, blockers)
+	var results: Array[Vector2i] = _sorted_tiles_from_lookup(navigation["paths"] as Dictionary)
+	results.erase(enemy.get("pos", INVALID_TILE))
 	return results
 
 func _attack_bonus_for_current_turn(state: Dictionary) -> int:
@@ -9807,7 +8832,7 @@ func _move_range_for_action(state: Dictionary, action: Dictionary) -> int:
 	return move_range + _move_bonus_for_current_turn(state)
 
 func _damage_for_enemy_target(state: Dictionary, action: Dictionary, enemy_index: int) -> int:
-	var resolved_action: Dictionary = _action_with_intensity_bonus(state, action)
+	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	var relic_effects: Array[Dictionary] = _relic_effects(state)
 	return _damage_for_enemy_target_with_context(state, resolved_action, enemy_index, relic_effects)
 
@@ -10213,12 +9238,6 @@ func _trigger_blink_relics(state: Dictionary, distance: int = 0) -> Dictionary:
 				var bonus_card_plays: int = maxi(0, int(effect.get("card_play", 0)))
 				if bonus_card_plays > 0:
 					next_state = _grant_relic_card_plays(next_state, bonus_card_plays)
-			"blink_intensity_gain_once_per_turn":
-				var intensity_key: String = _turn_relic_flag_key(effect, "blink_intensity")
-				if _turn_flag(next_state, intensity_key):
-					continue
-				_set_turn_flag(next_state, intensity_key, true)
-				next_state = _gain_elemental_intensity(next_state, str(effect.get("element", ElementData.NONE)), int(effect.get("amount", effect.get("value", 1))), _relic_effect_source_name(effect))
 	return _trigger_long_move_relics(next_state, distance)
 
 func _trigger_long_move_relics(state: Dictionary, distance: int) -> Dictionary:
@@ -10251,17 +9270,6 @@ func _trigger_stoneskin_relics(state: Dictionary, gained: int) -> Dictionary:
 					if effect.has("max_value"):
 						damage = mini(damage, GameData.fixed_point_amount(int(effect.get("max_value", 0))))
 				next_state = _damage_adjacent_enemies_from_player(next_state, damage)
-			"stoneskin_intensity_gain_once_per_turn":
-				var intensity_key: String = _turn_relic_flag_key(effect, "stoneskin_intensity")
-				if _turn_flag(next_state, intensity_key):
-					continue
-				_set_turn_flag(next_state, intensity_key, true)
-				next_state = _gain_elemental_intensity(
-					next_state,
-					str(effect.get("element", ElementData.NONE)),
-					int(effect.get("amount", effect.get("value", 1))),
-					_relic_effect_source_name(effect)
-				)
 	return next_state
 
 func _trigger_status_relics(state: Dictionary, status_id: String, source_action: Dictionary = {}) -> Dictionary:
@@ -10274,23 +9282,6 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 		if not action_types.is_empty() and not action_types.has(str(source_action.get("type", ""))):
 			continue
 		matching_effects.append(effect)
-
-	# Intensity gains form the first phase of a status event. Every remaining
-	# condition then observes the same post-gain snapshot, independent of relic
-	# acquisition order.
-	for effect: Dictionary in matching_effects:
-		if str(effect.get("type", "")) != "status_intensity_gain":
-			continue
-		var intensity_key: String = _turn_relic_flag_key(effect, "status_intensity")
-		if _turn_flag(next_state, intensity_key):
-			continue
-		_set_turn_flag(next_state, intensity_key, true)
-		next_state = _gain_elemental_intensity(
-			next_state,
-			str(effect.get("element", ElementData.NONE)),
-			int(effect.get("amount", effect.get("value", 1))),
-			_relic_effect_source_name(effect)
-		)
 
 	var condition_state: Dictionary = next_state.duplicate(true)
 	var queued_resolutions: Array[Dictionary]
@@ -10311,12 +9302,6 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 			"status_count_reward":
 				if not _relic_player_state_condition_met(condition_state, effect):
 					continue
-				var intensity_element: String = str(effect.get("intensity_element", ""))
-				if (
-					ElementData.is_elemental(intensity_element)
-					and elemental_intensity(condition_state, intensity_element) < int(effect.get("min_intensity", 0))
-				):
-					continue
 				var status_count: int = _increment_relic_counter(next_state, effect, "status_count")
 				if status_count < int(effect.get("threshold", 1)):
 					continue
@@ -10335,66 +9320,17 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 				next_state = _apply_relic_rewards(next_state, reward_effect.get("rewards", []), reward_effect)
 	return next_state
 
-func _trigger_intensity_threshold_relics(state: Dictionary, element_id: String, before_value: int, after_value: int) -> Dictionary:
-	var next_state: Dictionary = state
-	if not ElementData.is_elemental(element_id) or after_value <= before_value:
-		return next_state
-	var triggered_effects: Array[Dictionary]
-	for effect: Dictionary in _relic_effects(state):
-		if str(effect.get("type", "")) != "intensity_threshold_reward":
-			continue
-		if not _relic_effect_matches_intensity_element(effect, element_id):
-			continue
-		var threshold: int = int(effect.get("threshold", effect.get("amount", 0)))
-		if threshold <= 0 or before_value >= threshold or after_value < threshold:
-			continue
-		var qualifying_elements: Array[String] = _elements_at_or_above_intensity(state, threshold)
-		if qualifying_elements.size() < int(effect.get("required_elements", 1)):
-			continue
-		if not _relic_once_available(state, effect, "intensity_threshold", element_id):
-			continue
-		triggered_effects.append({
-			"effect": effect,
-			"qualifying_elements": qualifying_elements
-		})
-
-	# Resolve every trigger from the same post-gain snapshot. Mark them before
-	# applying rewards so a reward that raises intensity cannot re-enter a
-	# trigger that is already waiting to resolve.
-	var intensity_to_consume: Dictionary = {}
-	for trigger: Dictionary in triggered_effects:
-		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
-		_mark_relic_once(next_state, effect, "intensity_threshold", element_id)
-		var consume_amount: int = int(effect.get("consume", 0))
-		if bool(effect.get("consume_all_qualifying", false)):
-			var qualifying_elements: Array[String]
-			qualifying_elements.assign(trigger.get("qualifying_elements", []))
-			for qualifying_element: String in qualifying_elements:
-				intensity_to_consume[qualifying_element] = int(intensity_to_consume.get(qualifying_element, 0)) + consume_amount
-		else:
-			intensity_to_consume[element_id] = int(intensity_to_consume.get(element_id, 0)) + consume_amount
-
-	for consumed_element_var: Variant in intensity_to_consume.keys():
-		var consumed_element: String = str(consumed_element_var)
-		next_state = _consume_elemental_intensity(next_state, consumed_element, int(intensity_to_consume[consumed_element]))
-
-	for trigger: Dictionary in triggered_effects:
-		var effect: Dictionary = trigger.get("effect", {}) as Dictionary
-		next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
-	return next_state
-
-func _elements_at_or_above_intensity(state: Dictionary, threshold: int) -> Array[String]:
-	var result: Array[String]
-	for element_id: String in ElementData.all_elements():
-		if elemental_intensity(state, element_id) >= threshold:
-			result.append(element_id)
-	return result
-
 func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
+	if bool(enemy.get("summoned", false)) or int((state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
+		return state
+	var damage_context: Dictionary = state.get("damage_context", {}) as Dictionary
+	var active_card: bool = bool(damage_context.get("player_card", false))
 	for effect: Dictionary in _relic_effects(next_state):
 		match str(effect.get("type", "")):
 			"kill_status_heal":
+				if not active_card:
+					continue
 				var status_id: String = str(effect.get("status", ""))
 				if _unit_status_amount(enemy, status_id) <= 0:
 					continue
@@ -10403,6 +9339,14 @@ func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictio
 				_mark_relic_once(next_state, effect, "kill_status_heal", status_id)
 				next_state = _heal_player(next_state, GameData.fixed_point_amount(int(effect.get("value", 0))))
 			"enemy_death_reward":
+				var sources: Array = effect.get("damage_sources", []) as Array
+				var owner: String = str(effect.get("causal_owner", ""))
+				if not sources.is_empty() and not sources.has(str(damage_context.get("source_kind", ""))):
+					continue
+				if not owner.is_empty() and str(damage_context.get("causal_owner", damage_context.get("actor_kind", ""))) != owner:
+					continue
+				if sources.is_empty() and not active_card:
+					continue
 				if not _enemy_matches_relic_status_condition(enemy, effect):
 					continue
 				var death_count: int = _increment_relic_counter(next_state, effect, "enemy_death")
@@ -10411,7 +9355,9 @@ func _trigger_enemy_death_relics(state: Dictionary, enemy: Dictionary) -> Dictio
 				if not _relic_once_available(next_state, effect, "enemy_death_reward", ""):
 					continue
 				_mark_relic_once(next_state, effect, "enemy_death_reward", "")
-				next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
+				var reward_context: Dictionary = effect.duplicate(true)
+				reward_context["pos"] = enemy.get("pos", INVALID_TILE)
+				next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), reward_context)
 	return next_state
 
 func _enemy_matches_relic_status_condition(enemy: Dictionary, effect: Dictionary) -> bool:
@@ -10428,7 +9374,7 @@ func _enemy_matches_relic_status_condition(enemy: Dictionary, effect: Dictionary
 	return false
 
 func _enemy_has_any_relic_status(enemy: Dictionary) -> bool:
-	for status_id: String in ["burn", "bleed", "expose", "freeze", "shock", "poison"]:
+	for status_id: String in ["bleed", "expose", "freeze", "shock", "chilled"]:
 		if _unit_status_amount(enemy, status_id) > 0:
 			return true
 	return bool(enemy.get("immobilize", false))
@@ -10445,9 +9391,6 @@ func _trigger_prevent_lethal_relics(state: Dictionary) -> Dictionary:
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		player["hp"] = GameData.FIXED_POINT_SCALE
 		next_state["player"] = player
-		var burn_amount: int = GameData.fixed_point_amount(int(effect.get("burn_all_enemies", 0)))
-		if burn_amount > 0:
-			next_state = _burn_all_live_enemies(next_state, burn_amount)
 		_log(next_state, "%s prevents death." % _relic_effect_source_name(effect))
 		return next_state
 	return next_state
@@ -10485,10 +9428,6 @@ func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dict
 	next_state["defiance_event_revision"] = revision
 	for effect: Dictionary in _relic_effects(next_state):
 		match str(effect.get("type", "")):
-			"defiance_trigger_burn":
-				var burn_amount: int = GameData.fixed_point_amount(int(effect.get("value", 0)))
-				if burn_amount > 0:
-					next_state = _burn_all_live_enemies(next_state, burn_amount)
 			"defiance_trigger_reward":
 				next_state = _apply_relic_rewards(next_state, effect.get("rewards", []), effect)
 	_log(
@@ -10502,12 +9441,14 @@ func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dict
 
 func _scaled_relic_reward_amount(reward: Dictionary) -> int:
 	var amount: int = int(reward.get("amount", reward.get("value", 0)))
+	if bool(reward.get("_runtime_amount", false)):
+		return amount
 	match str(reward.get("type", "")):
 		"block", "stoneskin", "heal", "all_enemies_damage", "block_to_stoneskin":
 			return GameData.fixed_point_amount(amount)
 		"all_enemies_status":
 			var status_id: String = str(reward.get("status", ""))
-			return GameData.fixed_point_amount(amount) if status_id in ["burn", "poison"] else amount
+			return amount
 		_:
 			return amount
 
@@ -10524,6 +9465,8 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 		var reward: Dictionary = reward_var as Dictionary
 		var amount: int = _scaled_relic_reward_amount(reward)
 		match str(reward.get("type", "")):
+			"surface_pulse", "cross_damage", "illuminate_event", "all_enemies_surface":
+				next_state = apply_surface_reward(next_state, reward, effect)
 			"draw":
 				if bool(reward.get("safe", true)):
 					next_state = _draw_relic_cards_in_place(next_state, amount)
@@ -10552,9 +9495,6 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 					next_state = _trigger_stoneskin_relics(next_state, converted)
 			"heal":
 				next_state = _heal_player(next_state, amount)
-			"intensity":
-				var reward_element: String = str(reward.get("element", effect.get("element", ElementData.NONE)))
-				next_state = _gain_elemental_intensity(next_state, reward_element, amount, _relic_effect_source_name(effect))
 			"vision":
 				next_state = _apply_umbra_vision(next_state, {
 					"amount": int(reward.get("amount", 0)),
@@ -10572,16 +9512,6 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 						"duration": int(reward.get("duration", 2)),
 						"silent": true
 					})
-			"intensity_per_deck_element":
-				var deck_element: String = str(reward.get("deck_element", reward.get("element", ElementData.NONE)))
-				var cards_per_point: int = maxi(1, int(reward.get("cards_per_point", 1)))
-				var deck_element_count: int = _combat_deck_element_card_count(next_state, deck_element)
-				var scaled_amount: int = deck_element_count / cards_per_point
-				if reward.has("max_value"):
-					scaled_amount = mini(scaled_amount, int(reward.get("max_value", scaled_amount)))
-				if scaled_amount > 0:
-					var scaled_element: String = str(reward.get("element", deck_element))
-					next_state = _gain_elemental_intensity(next_state, scaled_element, scaled_amount, _relic_effect_source_name(effect))
 			"stoneskin_per_deck_element":
 				var stoneskin_deck_element: String = str(reward.get("deck_element", reward.get("element", ElementData.NONE)))
 				var stoneskin_card_count: int = _combat_deck_element_card_count(next_state, stoneskin_deck_element)
@@ -10630,21 +9560,9 @@ func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amo
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
 		match status_id:
-			"burn":
-				if not _enemy_is_immune_to_status(enemy, "burn"):
-					enemy["burn"] = int(enemy.get("burn", 0)) + amount
-			"freeze":
-				if not _enemy_is_immune_to_status(enemy, "freeze"):
-					enemy["freeze"] = maxi(int(enemy.get("freeze", 0)), amount)
 			"shock":
 				if not _enemy_is_immune_to_status(enemy, "shock"):
 					enemy["shock"] = maxi(int(enemy.get("shock", 0)), amount)
-			"poison":
-				if not _enemy_is_immune_to_status(enemy, "poison"):
-					var poison: Dictionary = enemy.get("poison", {}).duplicate(true)
-					poison["damage"] = int(poison.get("damage", 0)) + amount
-					poison["delay"] = 2
-					enemy["poison"] = poison
 			_:
 				continue
 		enemies[index] = enemy
@@ -10679,20 +9597,6 @@ func _damage_adjacent_enemies_from_player(state: Dictionary, amount: int) -> Dic
 		if _enemy_distance_to_tile(enemy, player_pos) > 1:
 			continue
 		next_state = _damage_enemy(next_state, index, amount)
-	return next_state
-
-func _burn_all_live_enemies(state: Dictionary, amount: int) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", []).duplicate(true)
-	for index: int in range(enemies.size()):
-		if typeof(enemies[index]) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		enemy["burn"] = int(enemy.get("burn", 0)) + amount
-		enemies[index] = enemy
-	next_state["enemies"] = enemies
 	return next_state
 
 func _heal_player(state: Dictionary, amount: int) -> Dictionary:
@@ -10732,12 +9636,6 @@ func _heal_player(state: Dictionary, amount: int) -> Dictionary:
 		_log(next_state, "%s hardens %d excess healing into stoneskin." % [_relic_effect_source_name(effect), converted])
 	return next_state
 
-func _start_combat_intensity_effect_applies(effect: Dictionary, deck_cards: Array) -> bool:
-	var deck_element: String = str(effect.get("deck_element", ""))
-	if not ElementData.is_elemental(deck_element):
-		return true
-	return _deck_element_card_count(deck_cards, deck_element) >= int(effect.get("threshold", 1))
-
 func _deck_element_card_count(deck_cards: Array, element_id: String) -> int:
 	if not ElementData.is_elemental(element_id):
 		return 0
@@ -10757,10 +9655,6 @@ func _combat_deck_element_card_count(state: Dictionary, element_id: String) -> i
 			if GameData.card_element(str(card_id_var)) == element_id:
 				count += 1
 	return count
-
-func _relic_effect_matches_intensity_element(effect: Dictionary, element_id: String) -> bool:
-	var effect_element: String = str(effect.get("element", "any"))
-	return effect_element.is_empty() or effect_element == "any" or effect_element == element_id
 
 func _increment_relic_counter(state: Dictionary, effect: Dictionary, suffix: String) -> int:
 	var key: String = "%s:%s:%s" % [
@@ -10827,8 +9721,6 @@ func _relic_effect_source_name(effect: Dictionary) -> String:
 	return str(GameData.relic_def(relic_id).get("name", relic_id))
 
 func _unit_status_amount(unit: Dictionary, status_id: String) -> int:
-	if status_id == "poison":
-		return int((unit.get("poison", {}) as Dictionary).get("damage", 0))
 	return int(unit.get(status_id, 0))
 
 func _combat_relic_flag_key(effect: Dictionary, suffix: String) -> String:
@@ -10886,3 +9778,804 @@ func _log(state: Dictionary, message: String) -> void:
 	while log_lines.size() > MAX_LOG_LINES:
 		log_lines.remove_at(0)
 	state["log"] = log_lines
+
+func action_surface_requirement_met(state: Dictionary, action: Dictionary) -> bool:
+	var condition: Dictionary = action.get("requires_surface", {}) as Dictionary
+	if condition.is_empty() or str(condition.get("subject", "player")) == "target":
+		return true
+	return _surface_condition_met(state, condition, (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE))
+
+func _surface_condition_met(state: Dictionary, condition: Dictionary, target: Vector2i) -> bool:
+	var tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) if str(condition.get("subject", "target")) == "player" else target
+	var checked: Array[Vector2i] = _vector2i_values([tile])
+	if str(condition.get("subject", "target")) == "target":
+		var index: int = _enemy_index_at_tile(state, tile)
+		if index >= 0:
+			checked = _enemy_footprint_tiles(_normalized_enemy((state.get("enemies", []) as Array)[index]))
+	var present: bool = false
+	for candidate: Vector2i in checked:
+		if BoardSurfaceRules.has_surface(state, candidate, str(condition.get("surface", ""))):
+			present = true
+			break
+	return present == bool(condition.get("present", true))
+
+func _surface_source(state: Dictionary, action: Dictionary = {}) -> Dictionary:
+	return {"actor_kind": str((state.get("current_actor", {}) as Dictionary).get("kind", "player")), "actor_id": int(action.get("_enemy_id", -1)), "card_id": str(action.get("_card_id", "")), "action_type": str(action.get("type", "")), "player_card": not bool(action.get("_movement_pool", false)) and not action.has("_enemy_id")}
+
+func _surface_action_tiles(state: Dictionary, action: Dictionary, target: Vector2i, origin: Vector2i = INVALID_TILE) -> Array[Vector2i]:
+	var center: Vector2i = target
+	if str(action.get("target", "")) == "previous_target":
+		center = state.get("last_action_target", target)
+	elif str(action.get("target", "")) == "player" or center.x < 0:
+		center = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) if origin == INVALID_TILE else origin
+	var pattern_action: Dictionary = action.duplicate(true)
+	if action.has("surface_pattern"):
+		pattern_action["pattern"] = action["surface_pattern"]
+	if not pattern_action.has("pattern"):
+		pattern_action["pattern"] = [[0, 0]]
+	return _best_aoe_tiles_for_target(state, pattern_action, center, false)
+
+func _place_action_surface(state: Dictionary, action: Dictionary, target: Vector2i, supplied_tiles: Array[Vector2i] = []) -> Dictionary:
+	var surface: String = str(action.get("surface", ""))
+	if surface.is_empty():
+		return state
+	var footprint: Array[Vector2i] = supplied_tiles.duplicate()
+	if footprint.is_empty() or action.has("surface_pattern"):
+		footprint = _surface_action_tiles(state, action, target)
+	var source: Dictionary = _surface_source(state, action)
+	for tile: Vector2i in footprint:
+		BoardSurfaceRules.place(state, tile, surface, source)
+	return state
+
+func _surface_actor(state: Dictionary, actor_kind: String, actor_id: int) -> Dictionary:
+	if actor_kind == "player":
+		return state.get("player", {}) as Dictionary
+	var collection: String = "enemies" if actor_kind == "enemy" else "illusions"
+	for unit: Dictionary in state.get(collection, []):
+		if int(unit.get("id", -1)) == actor_id:
+			return unit
+	return {}
+
+func _surface_actor_key(actor_kind: String, actor_id: int) -> String:
+	return "player" if actor_kind == "player" else "%s_%d" % [actor_kind, actor_id]
+
+func _surface_actor_records(state: Dictionary, team: String = "all") -> Array[Dictionary]:
+	var actors: Array[Dictionary]
+	if team != "enemies":
+		var player: Dictionary = state.get("player", {}) as Dictionary
+		if int(player.get("hp", 0)) > 0:
+			actors.append({"kind": "player", "id": -1, "unit": player, "key": "player"})
+		for illusion: Dictionary in state.get("illusions", []):
+			if int(illusion.get("hp", 0)) > 0:
+				actors.append({"kind": "illusion", "id": int(illusion.get("id", -1)), "unit": illusion, "key": _illusion_key(illusion)})
+	if team != "player":
+		for enemy: Dictionary in state.get("enemies", []):
+			if int(enemy.get("hp", 0)) > 0:
+				actors.append({"kind": "enemy", "id": int(enemy.get("id", -1)), "unit": _normalized_enemy(enemy), "key": _enemy_key(enemy)})
+	return actors
+
+func _surface_damage_actor(state: Dictionary, actor_kind: String, actor_id: int, amount: int, direct: bool = false, pierce: bool = false) -> Dictionary:
+	if amount <= 0:
+		return state
+	match actor_kind:
+		"player": return _damage_player(state, amount, pierce, direct, "direct_attack" if direct else "surface")
+		"enemy":
+			var index: int = _enemy_index_for_id(state, actor_id)
+			if index >= 0:
+				return _damage_enemy(state, index, amount, direct, pierce)
+		"illusion":
+			if direct:
+				return _damage_actor_target(state, {"kind": "illusion", "id": actor_id}, amount, pierce)
+			return _damage_illusion(state, actor_id, amount)
+	return state
+
+func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, previous: Vector2i, start: bool = false, elemental_snapshot: Dictionary = {}) -> Dictionary:
+	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
+	if unit.is_empty() or int(unit.get("hp", 0)) <= 0:
+		return state
+	var footprint: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit)
+	var old_tiles: Array[Vector2i]
+	if previous != INVALID_TILE:
+		old_tiles = BoardSurfaceRules.footprint_tiles(unit, previous)
+	var entered_fire: bool = false
+	var fire_source: Dictionary = {}
+	var entered_ice: bool = false
+	for tile: Vector2i in footprint:
+		if not start and old_tiles.has(tile):
+			continue
+		if BoardSurfaceRules.element_at(state, tile) == "fire" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "fire"):
+			if not entered_fire:
+				fire_source = (BoardSurfaceRules.surface_at(state, tile).get("elemental_source", {}) as Dictionary).duplicate(true)
+			entered_fire = true
+		if BoardSurfaceRules.element_at(state, tile) == "ice" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "ice"):
+			entered_ice = true
+	if entered_fire:
+		var amount: int = GameData.fixed_point_amount(2 if start else 1)
+		var before_hp: int = int(unit.get("hp", 0))
+		var context_before: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+		state["damage_context"] = context_before.duplicate(true)
+		state["damage_context"]["source_kind"] = "surface_fire"
+		state["damage_context"]["causal_owner"] = str(fire_source.get("causal_owner", fire_source.get("actor_kind", "")))
+		state["damage_context"]["surface_source"] = fire_source
+		# The hazard belongs to the painted card even on a later activation. Keep
+		# a pushing card separately from the persistent Fire's own identity.
+		state["damage_context"]["card_id"] = str(fire_source.get("card_id", ""))
+		if not str(context_before.get("card_id", "")).is_empty():
+			state["damage_context"]["trigger_card_id"] = str(context_before["card_id"])
+		var fire_context: Dictionary = (state["damage_context"] as Dictionary).duplicate(true)
+		state = _surface_damage_actor(state, actor_kind, actor_id, amount)
+		state["damage_context"] = context_before
+		BoardSurfaceRules.record_event(state, {"kind": "surface_damage", "surface": "fire", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE), "amount": amount, "health_lost": maxi(0, before_hp - int(_surface_actor(state, actor_kind, actor_id).get("hp", 0))), "trigger": "start" if start else "entry", "source": fire_context})
+	unit = _surface_actor(state, actor_kind, actor_id)
+	if int(unit.get("hp", 0)) > 0 and entered_ice and int(unit.get("freeze", 0)) <= 0 and not bool(unit.get("chilled", false)):
+		unit["chilled"] = true
+		BoardSurfaceRules.record_event(state, {"kind": "status_applied", "surface": "ice", "status": "chilled", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE)})
+	BoardSurfaceRules.sync_chilled(state)
+	return state
+
+func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int, old_pos: Vector2i) -> Dictionary:
+	# Trap wakes are placement, not an extra entry. Snapshot both contact kinds
+	# before the trap can paint beneath a large actor's newly entered footprint.
+	var elemental_before: Dictionary = {INVALID_TILE: ""}
+	for tile: Vector2i in BoardSurfaceRules.tiles(state):
+		elemental_before[tile] = BoardSurfaceRules.element_at(state, tile)
+	if actor_kind == "player":
+		state = _trigger_trap_on_player(state)
+	elif actor_kind == "enemy":
+		state = _trigger_trap_on_enemy(state, _enemy_index_for_id(state, actor_id), bool((state.get("damage_context", {}) as Dictionary).get("player_card", false)))
+	if actor_kind == "illusion":
+		var trap_index: int = _trap_index_at_tile(state, _surface_actor(state, actor_kind, actor_id).get("pos", INVALID_TILE))
+		if trap_index >= 0:
+			state = _trigger_trap_at_index(state, trap_index)
+	return _surface_contact(state, actor_kind, actor_id, old_pos, false, elemental_before)
+
+func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int, action: Dictionary) -> Dictionary:
+	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
+	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or not bool(unit.get("chilled", false)) or _action_element(action) != "ice":
+		return state
+	if actor_kind == "enemy" and _enemy_is_immune_to_status(unit, "freeze"):
+		return state
+	var support: Array[Vector2i]
+	for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit):
+		if BoardSurfaceRules.element_at(state, tile) == "ice":
+			support.append(tile)
+	unit["freeze"] = 1
+	unit["chilled"] = false
+	for tile: Vector2i in support:
+		BoardSurfaceRules.remove(state, tile, "ice", "freeze")
+	BoardSurfaceRules.record_event(state, {"kind": "status_applied", "status": "freeze", "surface": "ice", "actor_key": _surface_actor_key(actor_kind, actor_id), "actor_kind": actor_kind, "id": actor_id, "consumed_ice": support, "tile": unit.get("pos", INVALID_TILE), "source": _surface_source(state, action)})
+	return state
+
+func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1, minimum_progress: bool = true, unit: Dictionary = {}) -> int:
+	var spent: int = 0
+	for index: int in range(1, path.size()):
+		var cost: int = BoardSurfaceRules.entry_cost(state, unit, path[index - 1], path[index])
+		if index == 1 and minimum_progress and allowance > 0 and cost > allowance:
+			cost = allowance
+		spent += cost
+	return spent
+
+func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool = true) -> Dictionary:
+	var blocked: Dictionary = occupied.duplicate()
+	var size: Vector2i = unit.get("footprint", Vector2i.ONE)
+	if size != Vector2i.ONE:
+		for anchor: Vector2i in _all_passable_tiles(state):
+			for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, anchor):
+				if not PathUtils.is_passable(state.get("grid", []), tile) or occupied.has(tile):
+					blocked[anchor] = true
+					break
+	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.entry_cost(state, unit, from, to)
+	var hazard_cost: Callable = func(to: Vector2i) -> int:
+		var harm: int = 0
+		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, to):
+			if BoardSurfaceRules.element_at(state, tile) == "fire":
+				harm = maxi(harm, 3)
+			elif BoardSurfaceRules.element_at(state, tile) == "ice":
+				harm = maxi(harm, 1)
+			var trap_index: int = _trap_index_at_tile(state, tile)
+			if trap_index >= 0:
+				harm += 4 + trap_damage(state, (state.get("traps", []) as Array)[trap_index]) / GameData.FIXED_POINT_SCALE
+		return harm
+	var pickup_scores: Dictionary = _preferred_pickup_scores(state) if not unit.has("id") else {}
+	var pickup_score: Callable = func(tile: Vector2i) -> int: return int(pickup_scores.get(tile, 0))
+	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score)
+
+func surface_preview_for_player_action(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var result: Dictionary = resolve_player_action_for_presentation(state, action, target)
+	result["surface_events"] = (result.get("state", {}) as Dictionary).get("surface_events", [])
+	return result
+
+func apply_surface_reward(state: Dictionary, reward: Dictionary, context: Dictionary = {}) -> Dictionary:
+	var type: String = str(reward.get("type", ""))
+	if type in ["surface_pulse", "cross_damage"]:
+		var origin: Vector2i = reward.get("pos", context.get("pos", (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)))
+		var action: Dictionary = reward.duplicate(true)
+		if not action.has("pattern"):
+			action["pattern"] = [[0,0],[1,0],[-1,0],[0,1],[0,-1]]
+		action["rotate"] = false
+		action["range"] = 1
+		var tiles: Array[Vector2i] = _surface_action_tiles(state, action, origin)
+		var amount: int = int(reward.get("damage", reward.get("amount", reward.get("value", 0))))
+		if not bool(reward.get("_runtime_amount", false)):
+			amount = GameData.fixed_point_amount(amount)
+		var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+		state["damage_context"] = {"actor_kind": "player", "source_kind": "relic", "player_card": false, "relic_id": context.get("relic_id", "")}
+		var batch: bool = bool(state.get("_surface_damage_batch", false))
+		state["_surface_damage_batch"] = true
+		for actor: Dictionary in _surface_actor_records(state, "all" if str(reward.get("affects", "enemies")) == "all_actors" else "enemies"):
+			if _surface_unit_intersects(actor["unit"] as Dictionary, tiles):
+				state = _surface_damage_actor(state, str(actor["kind"]), int(actor["id"]), amount, false)
+		state["_surface_damage_batch"] = batch
+		if not batch:
+			state = _flush_surface_deaths(state)
+		state["damage_context"] = previous_context
+		return state
+	if type == "illuminate_event":
+		return _create_umbra_light_source(state, reward.get("pos", context.get("pos", INVALID_TILE)), {"radius": int(reward.get("radius", 1)), "duration": int(reward.get("duration", 2)), "silent": true})
+	if type == "all_enemies_surface":
+		for actor: Dictionary in _surface_actor_records(state, "enemies"):
+			for tile: Vector2i in BoardSurfaceRules.footprint_tiles(actor["unit"] as Dictionary):
+				BoardSurfaceRules.place(state, tile, str(reward.get("surface", "")), {"actor_kind": "relic", "causal_owner": "player", "relic_id": context.get("relic_id", "")})
+		return state
+	return _apply_relic_rewards(state, [reward], context)
+
+func use_surface_skill(state: Dictionary, skill_id: String, surface: String, target: Vector2i, origin: Vector2i = INVALID_TILE) -> Dictionary:
+	var next_state: Dictionary = state.duplicate(true)
+	if BoardSurfaceRules.kind(surface) not in ["fire", "ice", "electrified", "rubble"] or not skill_is_ready(state, skill_id) or not is_player_turn(state):
+		return next_state
+	var effect: Dictionary = SkillTreeLibrary.effect(skill_id)
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+	if BoardSurfaceRules.has_surface(state, target, surface) or not BoardSurfaceRules.can_place(state, target) or not is_tile_visible_to_player(state, target) or PathUtils.manhattan(player_tile, target) > int(effect.get("range", 4)):
+		return next_state
+	if SkillTreeLibrary.effect_type(skill_id) == "surface_relocate":
+		if not BoardSurfaceRules.has_surface(state, origin, surface) or not is_tile_visible_to_player(state, origin) or PathUtils.manhattan(origin, target) > int(effect.get("range", 4)) or PathUtils.manhattan(player_tile, origin) > int(effect.get("range", 4)) or origin == target:
+			return next_state
+		BoardSurfaceRules.remove(next_state, origin, surface, "relocate")
+	elif SkillTreeLibrary.effect_type(skill_id) != "surface":
+		return next_state
+	BoardSurfaceRules.place(next_state, target, surface, {"skill_id": skill_id, "actor_kind": "player"})
+	_mark_skill_used(next_state, skill_id, "%s changes the ground." % SkillTreeLibrary.display_name(skill_id))
+	return next_state
+
+func _surface_condition_met_or_empty(state: Dictionary, condition: Dictionary, target: Vector2i) -> bool:
+	return condition.is_empty() or _surface_condition_met(state, condition, target)
+
+func _surface_unit_intersects(unit: Dictionary, tiles: Array[Vector2i]) -> bool:
+	for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit):
+		if tiles.has(tile):
+			return true
+	return false
+
+# Attacks plan against one board snapshot. Conducted hits are terminal victims,
+# never extra Chain heads, and consumption cannot change an already planned route.
+func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vector2i], actor_kind: String) -> Dictionary:
+	var opponents: Array[Dictionary] = _surface_actor_records(state, "enemies" if actor_kind == "player" else "player")
+	var native: Array[Dictionary]
+	var hits: Array[Dictionary]
+	var visited: Dictionary = {}
+	var touched: Dictionary = {}
+	var consumed: Dictionary = {}
+	for tile: Vector2i in impact:
+		touched[tile] = true
+	for actor: Dictionary in opponents:
+		if _surface_unit_intersects(actor["unit"] as Dictionary, impact):
+			var hit: Dictionary = actor.duplicate(true)
+			hit["kind_trace"] = "actor"
+			hit["to"] = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
+			hit["from"] = hit["to"]
+			hit["hidden_direct"] = actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary)
+			# AOE may hit unseen occupants, but cannot discover them as Chain
+			# heads or disclose their identity in the visible route.
+			if not bool(hit["hidden_direct"]):
+				native.append(hit)
+			hits.append(hit)
+			visited[actor["key"]] = true
+	var reach: int = int(action.get("chain", 0))
+	var conductive: Array[Vector2i]
+	var visible_ground: Dictionary = {INVALID_TILE: true}
+	for tile: Vector2i in BoardSurfaceRules.tiles(state):
+		if BoardSurfaceRules.is_conductive(state, tile) and (actor_kind != "player" or is_tile_visible_to_player(state, tile)):
+			conductive.append(tile)
+			visible_ground[tile] = true
+	var relays: Dictionary = {}
+	var served_components: Dictionary = {}
+	var geometry: Dictionary = state.duplicate(true) if _action_has_forced_movement(action) else state
+	for head: Dictionary in native:
+		var route_assisted: bool = false
+		var current: Vector2i = head["to"]
+		if reach > 0 and _action_has_forced_movement(action):
+			var forecast: Dictionary = _surface_chain_displacement(geometry, head, action, (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE))
+			geometry = forecast["state"]
+			current = forecast["pos"]
+		while reach > 0:
+			var route_opponents: Array[Dictionary]
+			for actor: Dictionary in opponents:
+				var updated: Dictionary = actor.duplicate(true)
+				updated["unit"] = _surface_actor(geometry, str(actor["kind"]), int(actor["id"]))
+				if int((updated["unit"] as Dictionary).get("hp", 0)) > 0:
+					route_opponents.append(updated)
+			var route: Array[Dictionary] = _surface_chain_useful_route(state, route_opponents, visited, relays, served_components, current, reach, conductive, actor_kind == "player", _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0)
+			if route.is_empty():
+				break
+			for node: Dictionary in route:
+				node["from"] = current
+				if str(node["kind_trace"]) == "relay":
+					route_assisted = true
+					relays[node["to"]] = true
+					consumed[node["to"]] = "chain"
+					if _action_element(action) == "lightning":
+						for member: Vector2i in BoardSurfaceRules.connected_component(state, node["to"], visible_ground):
+							served_components[member] = true
+				else:
+					visited[node["key"]] = true
+				node["electrically_assisted"] = route_assisted
+				hits.append(node)
+				current = node["to"]
+				touched[current] = true
+				if str(node["kind_trace"]) == "actor" and _action_has_forced_movement(action):
+					var forecast: Dictionary = _surface_chain_displacement(geometry, node, action, node["from"])
+					geometry = forecast["state"]
+					current = forecast["pos"]
+	# A hit's footprint can contact a component even when its anchor is elsewhere.
+	for hit: Dictionary in hits:
+		if hit.has("unit"):
+			for tile: Vector2i in BoardSurfaceRules.footprint_tiles(hit["unit"] as Dictionary):
+				touched[tile] = true
+	if _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0:
+		var networks: Dictionary = {}
+		var network_paths: Dictionary = {}
+		for tile: Vector2i in _sorted_tiles_from_lookup(touched):
+			if not visible_ground.has(tile) or networks.has(tile):
+				continue
+			var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, tile, visible_ground)
+			var paths: Dictionary = _surface_component_paths(tile, component)
+			for member: Vector2i in component:
+				networks[member] = true
+				network_paths[member] = paths.get(member, [])
+				consumed[member] = "conduction"
+		var network_tiles: Array[Vector2i] = _sorted_tiles_from_lookup(networks)
+		for hit: Dictionary in hits:
+			if hit.has("unit") and _surface_unit_intersects(hit["unit"] as Dictionary, network_tiles):
+				hit["electrically_assisted"] = true
+		for actor: Dictionary in opponents:
+			if visited.has(actor["key"]) or not _surface_unit_intersects(actor["unit"] as Dictionary, network_tiles):
+				continue
+			if actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary):
+				continue
+			var hit: Dictionary = actor.duplicate(true)
+			hit["kind_trace"] = "conduction"
+			hit["electrically_assisted"] = true
+			hit["to"] = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
+			for tile: Vector2i in BoardSurfaceRules.footprint_tiles(actor["unit"] as Dictionary):
+				if network_paths.has(tile):
+					var path: Array[Vector2i] = _vector2i_values(network_paths[tile])
+					hit["path"] = path
+					hit["from"] = path.front()
+					hit["to"] = tile
+					break
+			hits.append(hit)
+			visited[actor["key"]] = true
+	return {"hits": hits, "consumed": consumed}
+
+func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
+	var capture_states: bool = trace.has("chain_hits")
+	var origin: Vector2i = action.get("_origin_tile", (_surface_actor(state, actor_kind, actor_id)).get("pos", INVALID_TILE))
+	var resolved: Dictionary = action.duplicate(true)
+	if str(action.get("type", "")) in ["push", "pull"]:
+		resolved[str(action["type"])] = int(action.get("amount", 0))
+	var impact: Array[Vector2i] = supplied_impact.duplicate()
+	if impact.is_empty():
+		if str(action.get("type", "")) == "aoe":
+			var center: Vector2i = target if int(action.get("range", 0)) > 0 else origin
+			impact = _best_aoe_tiles_for_target(state, action, center, actor_kind != "player")
+		else:
+			impact.append(target)
+	var route_action: Dictionary = resolved.duplicate(true)
+	if actor_kind == "player":
+		for index: int in _enemy_indices_in_tiles(state, impact):
+			if not is_enemy_visible_to_player(state, (state.get("enemies", []) as Array)[index]):
+				continue
+			var target_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved, index)
+			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
+	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
+	if actor_kind == "player":
+		state = _trigger_player_bleed_for_action(state, resolved)
+		if combat_outcome(state) == "defeat":
+			return state
+	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
+	state["_surface_damage_batch"] = true
+	var consumed: Dictionary = plan["consumed"] as Dictionary
+	var capture_route: bool = int(route_action.get("chain", 0)) > 0 or not consumed.is_empty()
+	capture_states = capture_states and capture_route
+	for tile: Vector2i in _sorted_tiles_from_lookup(consumed):
+		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
+	var affected: Array[int]
+	var native_trace: Array = []
+	for hit: Dictionary in plan["hits"]:
+		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
+		if hit.has("path"):
+			trace_hit["path"] = hit["path"]
+		if hit.has("id"):
+			trace_hit["actor_kind"] = hit["kind"]
+			trace_hit["id"] = hit["id"]
+			if str(hit["kind"]) == "enemy":
+				trace_hit["enemy_id"] = hit["id"]
+		if str(hit["kind_trace"]) == "relay":
+			if capture_states:
+				trace_hit["state"] = state.duplicate(true)
+			native_trace.append(trace_hit)
+			continue
+		var hit_action: Dictionary = resolved.duplicate(true)
+		var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
+		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, hit["to"])
+		var assisted_bonus: bool = str(bonus.get("subject", "")) == "consumed" and bool(hit.get("electrically_assisted", false))
+		if target_bonus or assisted_bonus:
+			for field: String in SURFACE_BONUS_FIELDS:
+				if bonus.has(field):
+					hit_action[field] = int(hit_action.get(field, 0)) + int(bonus[field])
+		if str(hit["kind"]) == "enemy":
+			var index: int = _enemy_index_for_id(state, int(hit["id"]))
+			if index < 0 or int(_surface_actor(state, "enemy", int(hit["id"])).get("hp", 0)) <= 0:
+				continue
+			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
+			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
+			var damage: int = _damage_for_enemy_target(state, hit_action, index)
+			state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action))
+			if damage > 0:
+				state = _consume_enemy_expose(state, index)
+			state = _apply_action_keywords_to_enemy(state, index, hit_action, origin if hit["from"] == hit["to"] else hit["from"])
+			_mark_light_target_skill_trigger(state, hit_action)
+			affected.append(index)
+		else:
+			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
+			state = _apply_action_keywords_to_target(state, hit, hit_action, origin)
+		if bool(hit.get("hidden_direct", false)):
+			continue
+		if capture_states:
+			trace_hit["state"] = state.duplicate(true)
+		native_trace.append(trace_hit)
+	if actor_kind == "player":
+		var terrain_damage: int = final_damage_for_player_action(state, resolved)
+		state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, impact), terrain_damage)
+		if int(resolved.get("damage", 0)) > 0:
+			_mark_first_attack_used(state)
+		state = _trigger_resolved_action_light(state, resolved, target, affected)
+		_mark_light_target_skill_trigger(state, resolved)
+	else:
+		state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, impact), int(resolved.get("damage", 0)))
+	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, impact))
+	state = _place_action_surface(state, resolved, origin if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0 else target, impact)
+	state["_surface_damage_batch"] = previous_batch
+	if not previous_batch:
+		state = _flush_surface_deaths(state)
+	trace["chain_hits"] = native_trace if capture_route else []
+	return state
+
+func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}, selected_override: Array[Vector2i] = []) -> Dictionary:
+	var selected: Array[Vector2i] = selected_override.duplicate()
+	if selected.is_empty():
+		selected = _surface_action_tiles(state, action, target)
+	var fuel: String = str(action.get("_detonate_surface", "fire"))
+	var blast: Dictionary = {}
+	var consumed: Array[Vector2i]
+	for tile: Vector2i in selected:
+		if not BoardSurfaceRules.has_surface(state, tile, fuel):
+			continue
+		consumed.append(tile)
+		blast[tile] = true
+		for direction: Vector2i in PathUtils.DIRS_4:
+			if PathUtils.is_passable(state.get("grid", []), tile + direction):
+				blast[tile + direction] = true
+	if consumed.is_empty():
+		return state
+	var player_action: bool = not action.has("_enemy_id")
+	if player_action:
+		state = _trigger_player_bleed_for_action(state, action)
+		if combat_outcome(state) == "defeat":
+			return state
+	var victims: Array[Dictionary]
+	var blast_tiles: Array[Vector2i] = _sorted_tiles_from_lookup(blast)
+	for actor: Dictionary in _surface_actor_records(state):
+		if _surface_unit_intersects(actor["unit"] as Dictionary, blast_tiles):
+			victims.append(actor.duplicate(true))
+	for tile: Vector2i in consumed:
+		BoardSurfaceRules.remove(state, tile, fuel, "detonate")
+	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
+	var prior_damage_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+	state["damage_context"]["source_kind"] = "detonate"
+	state["damage_context"]["causal_owner"] = "player" if player_action else "enemy"
+	state["_surface_damage_batch"] = true
+	var affected: Array[int]
+	for victim: Dictionary in victims:
+		var hit_action: Dictionary = action.duplicate(true)
+		var amount: int = final_damage_for_player_action(state, action) if player_action else int(action.get("damage", GameData.fixed_point_amount(6)))
+		if player_action and str(victim["kind"]) == "enemy":
+			var index: int = _enemy_index_for_id(state, int(victim["id"]))
+			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
+			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
+			amount = _damage_for_enemy_target(state, hit_action, index)
+			state = _damage_enemy(state, index, amount, true, _action_pierces_defense(hit_action))
+			if amount > 0:
+				state = _consume_enemy_expose(state, index)
+			state = _apply_action_keywords_to_enemy(state, index, hit_action, (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE))
+			_mark_light_target_skill_trigger(state, hit_action)
+			affected.append(index)
+		else:
+			state = _surface_damage_actor(state, str(victim["kind"]), int(victim["id"]), amount, true, _action_pierces_defense(hit_action))
+	if player_action:
+		if int(action.get("damage", 0)) > 0:
+			_mark_first_attack_used(state)
+		state = _trigger_resolved_action_light(state, action, target, affected)
+	state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, blast_tiles), int(action.get("damage", GameData.fixed_point_amount(6))))
+	# Fuel was consumed before the direct-hit batch. Traps remove themselves
+	# before resolving their wake, so newly painted Fire is never detonated again.
+	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, blast_tiles))
+	BoardSurfaceRules.record_event(state, {"kind": "detonate", "surface": fuel, "consumed": consumed, "tiles": blast_tiles, "source": state.get("damage_context", {})})
+	state["_surface_damage_batch"] = previous_batch
+	if not previous_batch:
+		state = _flush_surface_deaths(state)
+	state["damage_context"] = prior_damage_context
+	trace["detonate_tiles"] = blast_tiles
+	return state
+
+func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	var selected: Array[Vector2i]
+	var surface: String = str(action.get("surface", ""))
+	for tile: Vector2i in _surface_action_tiles(state, action, target):
+		if BoardSurfaceRules.has_surface(state, tile, surface):
+			selected.append(tile)
+	if selected.size() < int(action.get("min_consumed", 1)):
+		return state
+	for tile: Vector2i in selected:
+		BoardSurfaceRules.remove(state, tile, surface, "consume")
+	for reward: Dictionary in action.get("rewards", []):
+		# Card fields have already been converted to runtime fixed point by GameData.
+		var raw_reward: Dictionary = reward.duplicate(true)
+		raw_reward["_runtime_amount"] = true
+		state = apply_surface_reward(state, raw_reward, {"source_name": "Consumed ground"})
+	return state
+
+func _flush_surface_deaths(state: Dictionary) -> Dictionary:
+	var deaths: Array = state.get("_surface_pending_deaths", []).duplicate(true)
+	state.erase("_surface_pending_deaths")
+	for death: Dictionary in deaths:
+		var enemy: Dictionary = death["enemy"]
+		var prior_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+		state["damage_context"] = death.get("context", prior_context)
+		state = _trigger_enemy_death_relics(state, enemy)
+		state["damage_context"] = prior_context
+		if bool(enemy.get("is_leader", false)) and str((state.get("objective", {}) as Dictionary).get("type", "")) == CombatObjectiveRules.KILL_LEADER:
+			state = _clear_remaining_enemies_for_leader_objective(state, int(enemy.get("id", -1)))
+		else:
+			state = _trigger_enemy_death_spawn(state, enemy)
+	return state
+
+func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> Dictionary:
+	var unit: Dictionary = _surface_actor(state, "illusion", id)
+	var origin: Vector2i = unit.get("pos", INVALID_TILE)
+	var destination: Vector2i = origin + direction
+	if not PathUtils.is_passable(state.get("grid", []), destination) or _occupied_actor_tiles(state).has(destination) or _terrain_index_at_tile(state, destination) >= 0:
+		return state
+	unit["pos"] = destination
+	return surface_actor_arrival(state, "illusion", id, origin)
+
+func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	var prepared: Dictionary = intent.duplicate(true)
+	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
+	if fuel.is_empty():
+		return prepared
+	var best: Vector2i = INVALID_TILE
+	var distance: int = int(fuel.get("range", 1)) + 1
+	for tile: Vector2i in BoardSurfaceRules.tiles(state, str(fuel.get("surface", ""))):
+		var candidate_distance: int = _enemy_distance_to_tile(enemy, tile)
+		if candidate_distance < distance:
+			best = tile
+			distance = candidate_distance
+	prepared["_surface_fuel_tile"] = best
+	return prepared
+
+func _surface_pay_enemy_fuel(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	var resolved: Dictionary = intent.duplicate(true)
+	var fuel: Dictionary = resolved.get("surface_fuel", {}) as Dictionary
+	if fuel.is_empty():
+		return resolved
+	var tile: Vector2i = resolved.get("_surface_fuel_tile", INVALID_TILE)
+	if tile == INVALID_TILE or not BoardSurfaceRules.has_surface(state, tile, str(fuel.get("surface", ""))) or _enemy_distance_to_tile(enemy, tile) > int(fuel.get("range", 1)):
+		resolved["_surface_fuel_denied"] = true
+		return resolved
+	BoardSurfaceRules.remove(state, tile, str(fuel.get("surface", "")), "enemy_fuel")
+	var actions: Array = resolved.get("actions", [])
+	for key: String in fuel.get("action_bonuses", {}):
+		var index: int = int(key)
+		if index < 0 or index >= actions.size():
+			continue
+		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
+		for field: String in fuel["action_bonuses"][key]:
+			action[field] = int(action.get(field, 0)) + int(fuel["action_bonuses"][key][field])
+		actions[index] = action
+	resolved["actions"] = actions
+	resolved["_surface_fuel_paid"] = tile
+	return resolved
+
+func refresh_surface_enemy_definitions(state: Dictionary) -> Dictionary:
+	var marks: Array = []
+	var traps: Array = []
+	for trap: Dictionary in state.get("traps", []):
+		if str(trap.get("boss_hazard_kind", "")) == CINDER_MARK_KIND:
+			marks.append(trap)
+			BoardSurfaceRules.place(state, trap.get("pos", INVALID_TILE), "fire", {"actor_kind": "migration"})
+		else:
+			traps.append(trap)
+	state["traps"] = traps
+	var enemies: Array = state.get("enemies", [])
+	for index: int in range(enemies.size()):
+		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
+		var intents: Array = _scaled_enemy_intents(GameData.enemy_def(str(enemy.get("type", ""))).get("intents", []), int(state.get("room_depth", 1)))
+		var refreshed: Dictionary = _intent_by_id(intents, str((enemy.get("intent", {}) as Dictionary).get("id", "")))
+		if refreshed.is_empty() and not intents.is_empty():
+			refreshed = intents[0]
+		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, refreshed)
+		var cinders: Array[Vector2i]
+		for mark: Dictionary in marks:
+			if int(mark.get("owner_enemy_id", -1)) == int(enemy.get("id", -2)):
+				cinders.append(mark.get("pos", INVALID_TILE))
+		if not cinders.is_empty():
+			enemy["cinder_tiles"] = cinders
+		enemies[index] = enemy
+	state["enemies"] = enemies
+	state["surface_rules_version"] = BoardSurfaceRules.RULES_VERSION
+	SurfaceRelicRules.configure(state)
+	return state
+
+func _surface_component_paths(origin: Vector2i, component: Array[Vector2i]) -> Dictionary:
+	var lookup: Dictionary = {}
+	for tile: Vector2i in component:
+		lookup[tile] = true
+	var queue: Array[Vector2i] = _vector2i_values([origin])
+	var paths: Dictionary = {origin: _vector2i_values([origin])}
+	var cursor: int = 0
+	while cursor < queue.size():
+		var tile: Vector2i = queue[cursor]
+		cursor += 1
+		for direction: Vector2i in PathUtils.DIRS_4:
+			var next: Vector2i = tile + direction
+			if not lookup.has(next) or paths.has(next):
+				continue
+			var path: Array[Vector2i] = _vector2i_values(paths[tile])
+			path.append(next)
+			paths[next] = path
+			queue.append(next)
+	return paths
+
+func _enemy_lightning_component_impact(state: Dictionary, enemy: Dictionary, action: Dictionary, target: Vector2i) -> Vector2i:
+	if str(action.get("type", "")) not in ["melee", "ranged"] or _action_element(action) != "lightning" or int(action.get("damage", 0)) <= 0 or not BoardSurfaceRules.is_conductive(state, target):
+		return INVALID_TILE
+	var closest: Vector2i = INVALID_TILE
+	var distance: int = 9999
+	for tile: Vector2i in BoardSurfaceRules.connected_component(state, target):
+		if not _enemy_action_reaches_tile(state, enemy, action, tile):
+			continue
+		var candidate_distance: int = _enemy_distance_to_tile(enemy, tile)
+		if candidate_distance < distance:
+			closest = tile
+			distance = candidate_distance
+	return closest
+
+func _surface_status_light(state: Dictionary, status: String, tile: Vector2i) -> Dictionary:
+	for effect: Dictionary in _relic_effects(state):
+		if str(effect.get("type", "")) != "status_application_light" or not (effect.get("statuses", []) as Array).has(status):
+			continue
+		if bool(effect.get("player_has_truesight", false)) and not _player_has_truesight(state):
+			continue
+		state = _create_umbra_light_source(state, tile, {"radius": int(effect.get("radius", 1)), "duration": int(effect.get("duration", 2)), "silent": true})
+	return state
+
+func _surface_events_since(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var events: Array[Dictionary]
+	var sequence: int = int(before_state.get("surface_event_sequence", 0))
+	for event: Dictionary in after_state.get("surface_events", []):
+		if int(event.get("sequence", 0)) > sequence:
+			events.append(event.duplicate(true))
+	return events
+
+func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
+	var step: Dictionary = _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
+	if not step.is_empty():
+		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
+		step["surface_events"] = _surface_events_since(before_state, after_state)
+	return step
+
+func _surface_move_player_direction(state: Dictionary, direction: Vector2i) -> Dictionary:
+	var player: Dictionary = state.get("player", {}) as Dictionary
+	var origin: Vector2i = player.get("pos", INVALID_TILE)
+	var destination: Vector2i = origin + direction
+	if not PathUtils.is_passable(state.get("grid", []), destination) or _player_blocking_tiles(state).has(destination):
+		return state
+	player["pos"] = destination
+	_collect_loot_at_player(state)
+	state = surface_actor_arrival(state, "player", -1, origin)
+	return _dispel_illusion_at_player(state)
+
+# Find useful routes only. Zero relays preserves ordinary nearest-enemy Chain;
+# extra ground is selected by relay count, distance, then stable actor/tile order.
+func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Vector2i, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool) -> Array[Dictionary]:
+	var best_route: Array[Dictionary]
+	var best_relays: int = 9999
+	var best_distance: int = 99999
+	var queue: Array[Dictionary]
+	queue.append({"pos": origin, "nodes": [], "distance": 0})
+	var cursor: int = 0
+	var best_by_tile: Dictionary = {}
+	var visible_ground: Dictionary = {INVALID_TILE: true}
+	for tile: Vector2i in conductive:
+		visible_ground[tile] = true
+	while cursor < queue.size():
+		var entry: Dictionary = queue[cursor]
+		cursor += 1
+		var at: Vector2i = entry["pos"]
+		var nodes: Array = entry["nodes"]
+		var travel: int = int(entry["distance"])
+		if nodes.size() > best_relays:
+			continue
+		for actor: Dictionary in opponents:
+			if visited.has(actor["key"]) or (player_chain and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary)):
+				continue
+			var tile: Vector2i = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
+			var gap: int = PathUtils.manhattan(at, tile)
+			var component_goal: bool = lightning and not nodes.is_empty() and not served.has(at) and _surface_unit_intersects(actor["unit"] as Dictionary, BoardSurfaceRules.connected_component(state, at, visible_ground))
+			if gap > reach and not component_goal:
+				continue
+			var distance: int = travel + (0 if component_goal and gap > reach else gap)
+			if nodes.size() > best_relays or (nodes.size() == best_relays and distance >= best_distance):
+				continue
+			best_relays = nodes.size()
+			best_distance = distance
+			best_route.clear()
+			for node: Dictionary in nodes:
+				best_route.append(node.duplicate(true))
+			if gap <= reach:
+				var hit: Dictionary = actor.duplicate(true)
+				hit["kind_trace"] = "actor"
+				hit["to"] = tile
+				best_route.append(hit)
+		if nodes.size() >= best_relays:
+			continue
+		for tile: Vector2i in conductive:
+			if tile == at or tile == origin or used.has(tile):
+				continue
+			var gap: int = PathUtils.manhattan(at, tile)
+			if gap > reach:
+				continue
+			var count: int = nodes.size() + 1
+			var distance: int = travel + gap
+			var prior: Dictionary = best_by_tile.get(tile, {}) as Dictionary
+			if not prior.is_empty() and (int(prior["count"]) < count or (int(prior["count"]) == count and int(prior["distance"]) <= distance)):
+				continue
+			best_by_tile[tile] = {"count": count, "distance": distance}
+			var path: Array = nodes.duplicate(true)
+			path.append({"kind_trace": "relay", "to": tile})
+			queue.append({"pos": tile, "nodes": path, "distance": distance})
+	return best_route
+
+func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: Dictionary, source: Vector2i) -> Dictionary:
+	if str(actor.get("kind", "")) != "enemy":
+		return {"state": state, "pos": (actor.get("unit", {}) as Dictionary).get("pos", INVALID_TILE)}
+	var index: int = _enemy_index_for_id(state, int(actor.get("id", -1)))
+	if index < 0:
+		return {"state": state, "pos": actor.get("to", INVALID_TILE)}
+	state["_surface_damage_batch"] = true
+	state["damage_context"] = {"player_card": false, "source_kind": "forecast"}
+	var hit_action: Dictionary = action.duplicate(true)
+	var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
+	if str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, _surface_actor(state, "enemy", int(actor.get("id", -1))).get("pos", INVALID_TILE)):
+		for field: String in SURFACE_BONUS_FIELDS:
+			if bonus.has(field):
+				hit_action[field] = int(hit_action.get(field, 0)) + int(bonus[field])
+	hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
+	hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+	state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
+	state = _damage_enemy(state, index, _damage_for_enemy_target(state, hit_action, index), true, _action_pierces_defense(hit_action))
+	state = _apply_action_keywords_to_enemy(state, index, hit_action, source, false)
+	return {"state": state, "pos": _surface_actor(state, "enemy", int(actor.get("id", -1))).get("pos", actor.get("to", INVALID_TILE))}

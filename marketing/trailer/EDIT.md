@@ -1,5 +1,7 @@
 # Wishlist cut — revision 3
 
+This records the previously approved capture, including its pre-refactor damage and intensity behavior. The board-surface refactor retains it as historical media; a new capture waits for post-refactor game approval and fresh cue/outcome review under [README.md](README.md#replace-one-gameplay-scene). Current Cinder Bloom leaves Fire and no longer promises the old kill beat.
+
 The promise is card-driven tactics with visible cause and effect. Two continuous turns frame the run's choices: push an enemy into a cross-shaped area attack, then in another room reveal enemies with Earth and connect them with lightning. Planning and movement stay wide; the second payoff receives one restrained camera move. Every action plays at its captured speed. The 40.6-second cut gives decisions time to register without adding inert post-action holds.
 
 The reference study in [RESEARCH.md](RESEARCH.md) preceded implementation. It covers ten official Steam trailers across deckbuilders, 2D tactics and hybrids, and separates observed frames from inferred editorial techniques. It informed both production changes and the edit.

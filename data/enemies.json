@@ -28,7 +28,8 @@
             "type": "melee",
             "damage": 4,
             "range": 1,
-            "bleed": 1
+            "bleed": 1,
+            "element": "none"
           }
         ]
       },
@@ -62,7 +63,8 @@
             "type": "melee",
             "damage": 6,
             "range": 1,
-            "bleed": 1
+            "bleed": 1,
+            "element": "none"
           }
         ]
       }
@@ -99,7 +101,8 @@
           {
             "type": "ranged",
             "damage": 5,
-            "range": 5
+            "range": 5,
+            "element": "none"
           }
         ]
       },
@@ -132,7 +135,8 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4
+            "range": 4,
+            "element": "none"
           },
           {
             "type": "heal_self",
@@ -167,7 +171,8 @@
             "damage": 4,
             "range": 4,
             "pierce": true,
-            "bleed": 1
+            "bleed": 1,
+            "element": "none"
           }
         ]
       },
@@ -200,7 +205,8 @@
           {
             "type": "melee",
             "damage": 5,
-            "range": 1
+            "range": 1,
+            "element": "none"
           }
         ]
       },
@@ -217,7 +223,8 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4
+            "range": 4,
+            "element": "none"
           }
         ]
       }
@@ -251,7 +258,8 @@
           {
             "type": "melee",
             "damage": 9,
-            "range": 1
+            "range": 1,
+            "element": "none"
           }
         ]
       },
@@ -300,7 +308,8 @@
                 0
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "element": "none"
           }
         ]
       }
@@ -347,22 +356,21 @@
             "type": "melee",
             "damage": 5,
             "range": 1,
-            "burn": 1
+            "surface": "fire",
+            "element": "fire"
           }
         ]
       },
       {
         "id": "cinder_bloom",
         "name": "Cinder Bloom",
-        "time": 5,
+        "time": 6,
         "weight": 3,
         "actions": [
           {
             "type": "aoe",
             "damage": 4,
             "range": 0,
-            "burn": 1,
-            "intensity_bonus": { "element": "fire", "threshold": 2, "damage": 3, "burn": 1 },
             "pattern": [
               [
                 0,
@@ -381,26 +389,33 @@
                 0
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "surface": "fire",
+            "element": "fire"
           }
         ]
       },
       {
         "id": "slag_shell",
-        "name": "Stoke Shell",
+        "name": "Slag Shell",
         "time": 4,
         "weight": 2,
         "actions": [
           {
             "type": "block",
-            "amount": 4
-          },
-          {
-            "type": "intensity",
-            "element": "fire",
-            "amount": 1
+            "amount": 3
           }
-        ]
+        ],
+        "surface_fuel": {
+          "surface": "fire",
+          "range": 1,
+          "max_tiles": 1,
+          "action_bonuses": {
+            "0": {
+              "amount": 3
+            }
+          }
+        }
       }
     ]
   },
@@ -436,7 +451,8 @@
             "type": "melee",
             "damage": 3,
             "range": 1,
-            "burn": 1
+            "surface": "fire",
+            "element": "fire"
           }
         ]
       },
@@ -456,10 +472,11 @@
           }
         ]
       }
-    ]
+    ],
+    "element": "fire"
   },
   "bile_bloomer": {
-    "name": "Bile Bloomer",
+    "name": "Shale Bloomer",
     "ai_profile": {
       "role": "artillery",
       "preferred_range": 4,
@@ -469,18 +486,18 @@
     "max_hp": 14,
     "base_initiative": 14,
     "reward_embers": 12,
-    "accent": "#b8b33a",
+    "accent": "#a59b76",
     "art_path": "res://assets/art/enemies/bile_bloomer.png",
     "art_scale": 0.86,
     "art_offset_y": -6,
     "idle_sheet_columns": 4,
-    "idle_sheet_rows": 4,
+    "idle_sheet_rows": 2,
     "idle_sheet_order": "row_major",
-    "idle_sheet_ping_pong": false,
+    "idle_sheet_ping_pong": true,
     "intents": [
       {
         "id": "bile_burst",
-        "name": "Bile Burst",
+        "name": "Shale Burst",
         "time": 5,
         "weight": 4,
         "actions": [
@@ -492,7 +509,6 @@
             "type": "aoe",
             "damage": 3,
             "range": 0,
-            "poison": 2,
             "pattern": [
               [
                 0,
@@ -543,13 +559,33 @@
                 2
               ]
             ],
-            "rotate": false
+            "rotate": false,
+            "surface": "rubble",
+            "surface_pattern": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                0
+              ]
+            ],
+            "element": "earth"
           }
         ]
       },
       {
         "id": "spore_mark",
-        "name": "Spore Mark",
+        "name": "Shard Mark",
         "time": 5,
         "weight": 3,
         "actions": [
@@ -559,29 +595,35 @@
           },
           {
             "type": "ranged",
-            "damage": 1,
+            "damage": 3,
             "range": 4,
             "expose": 2,
-            "intensity_bonus": { "element": "earth", "threshold": 2, "damage": 1, "poison": 2 }
+            "surface": "rubble",
+            "element": "earth"
           }
         ]
       },
       {
         "id": "pustule_shell",
-        "name": "Pustule Shell",
+        "name": "Shale Shell",
         "time": 6,
         "weight": 2,
         "actions": [
           {
             "type": "stoneskin",
-            "amount": 3
-          },
-          {
-            "type": "intensity",
-            "element": "earth",
-            "amount": 1
+            "amount": 2
           }
-        ]
+        ],
+        "surface_fuel": {
+          "surface": "rubble",
+          "range": 1,
+          "max_tiles": 1,
+          "action_bonuses": {
+            "0": {
+              "amount": 2
+            }
+          }
+        }
       }
     ]
   },
@@ -608,15 +650,15 @@
       {
         "id": "chain_reel",
         "name": "Chain Reel",
-        "time": 5,
+        "time": 6,
         "weight": 3,
         "actions": [
           {
             "type": "pull",
-            "damage": 5,
+            "damage": 4,
             "range": 4,
             "amount": 3,
-            "spend_intensity": { "element": "air", "amount": 2 }
+            "element": "air"
           }
         ]
       },
@@ -630,7 +672,8 @@
             "type": "ranged",
             "damage": 1,
             "range": 3,
-            "immobilize": true
+            "immobilize": true,
+            "element": "air"
           }
         ]
       },
@@ -647,13 +690,14 @@
           {
             "type": "melee",
             "damage": 6,
-            "range": 1
+            "range": 1,
+            "element": "air"
           }
         ]
       },
       {
         "id": "iron_guard",
-        "name": "Pressure Lock",
+        "name": "Iron Guard",
         "time": 4,
         "weight": 3,
         "actions": [
@@ -664,11 +708,6 @@
           {
             "type": "block",
             "amount": 5
-          },
-          {
-            "type": "intensity",
-            "element": "air",
-            "amount": 1
           }
         ]
       }
@@ -723,7 +762,8 @@
           {
             "type": "melee",
             "damage": 3,
-            "range": 1
+            "range": 1,
+            "element": "none"
           }
         ]
       },
@@ -740,7 +780,8 @@
           {
             "type": "guard_ally",
             "amount": 3,
-            "range": 4
+            "range": 4,
+            "clear_surface": "elemental"
           }
         ]
       }
@@ -800,7 +841,9 @@
             ],
             "rotate": true,
             "orient_toward_target": true,
-            "stop_at_blockers": true
+            "stop_at_blockers": true,
+            "element": "ice",
+            "surface": "ice"
           }
         ]
       },
@@ -813,7 +856,8 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4
+            "range": 4,
+            "element": "none"
           }
         ]
       },
@@ -829,12 +873,8 @@
           },
           {
             "type": "block",
-            "amount": 4
-          },
-          {
-            "type": "intensity",
-            "element": "ice",
-            "amount": 1
+            "amount": 4,
+            "clear_surface": "ice"
           }
         ]
       },
@@ -846,9 +886,9 @@
         "actions": [
           {
             "type": "ranged",
-            "damage": 3,
+            "damage": 5,
             "range": 4,
-            "intensity_bonus": { "element": "ice", "threshold": 2, "damage": 1, "freeze": 1 }
+            "element": "ice"
           }
         ]
       }
@@ -874,9 +914,11 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.08,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["poison"],
     "intents": [
       {
         "id": "stonewake",
@@ -884,7 +926,12 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          {"type": "raise_terrain", "count": 3, "health": 5}
+          {
+            "type": "raise_terrain",
+            "count": 3,
+            "health": 5,
+            "surface_on_destroy": "rubble"
+          }
         ]
       },
       {
@@ -893,8 +940,17 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 15, "range": 1, "sunder": 2}
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 15,
+            "range": 1,
+            "sunder": 2,
+            "element": "earth"
+          }
         ]
       },
       {
@@ -903,7 +959,12 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "terrain_burst", "damage": 10, "radius": 1}
+          {
+            "type": "terrain_burst",
+            "damage": 10,
+            "radius": 1,
+            "element": "earth"
+          }
         ]
       },
       {
@@ -912,8 +973,16 @@
         "time": 5,
         "weight": 2,
         "actions": [
-          {"type": "stoneskin", "amount": 6},
-          {"type": "raise_terrain", "count": 2, "health": 5}
+          {
+            "type": "stoneskin",
+            "amount": 6
+          },
+          {
+            "type": "raise_terrain",
+            "count": 2,
+            "health": 5,
+            "surface_on_destroy": "rubble"
+          }
         ]
       }
     ]
@@ -938,9 +1007,11 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.075,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["burn"],
     "intents": [
       {
         "id": "kindle_ground",
@@ -948,7 +1019,11 @@
         "time": 4,
         "weight": 3,
         "actions": [
-          {"type": "cinder_marks", "count": 5, "damage": 6, "burn": 2}
+          {
+            "type": "cinder_marks",
+            "count": 5,
+            "surface": "fire"
+          }
         ]
       },
       {
@@ -957,7 +1032,11 @@
         "time": 5,
         "weight": 0,
         "actions": [
-          {"type": "detonate_cinders"}
+          {
+            "type": "detonate_cinders",
+            "damage": 8,
+            "element": "fire"
+          }
         ]
       },
       {
@@ -966,8 +1045,17 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 15, "range": 1, "burn": 2}
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 15,
+            "range": 1,
+            "surface": "fire",
+            "element": "fire"
+          }
         ]
       },
       {
@@ -978,11 +1066,33 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 9,
+            "damage": 8,
             "range": 4,
-            "burn": 1,
-            "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "surface": "fire",
+            "element": "fire"
           }
         ]
       }
@@ -1008,9 +1118,14 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.075,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["immobilize"],
+    "status_immunities": [
+      "immobilize"
+    ],
     "intents": [
       {
         "id": "hollow_gale",
@@ -1018,7 +1133,12 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "gale_force", "damage": 8, "amount": 3}
+          {
+            "type": "gale_force",
+            "damage": 8,
+            "amount": 3,
+            "element": "air"
+          }
         ]
       },
       {
@@ -1027,7 +1147,13 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "pull", "damage": 9, "range": 5, "amount": 3}
+          {
+            "type": "pull",
+            "damage": 9,
+            "range": 5,
+            "amount": 3,
+            "element": "air"
+          }
         ]
       },
       {
@@ -1036,8 +1162,17 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 3},
-          {"type": "melee", "damage": 14, "range": 1, "bleed": 2}
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 14,
+            "range": 1,
+            "bleed": 2,
+            "element": "air"
+          }
         ]
       },
       {
@@ -1046,8 +1181,14 @@
         "time": 4,
         "weight": 2,
         "actions": [
-          {"type": "move_away", "range": 2},
-          {"type": "block", "amount": 6}
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 6
+          }
         ]
       }
     ]
@@ -1072,9 +1213,14 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.085,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
-    "status_immunities": ["freeze"],
+    "status_immunities": [
+      "freeze"
+    ],
     "intents": [
       {
         "id": "crystal_mantle",
@@ -1082,8 +1228,22 @@
         "time": 4,
         "weight": 3,
         "actions": [
-          {"type": "frost_armor", "amount": 2, "maximum": 3}
-        ]
+          {
+            "type": "frost_armor",
+            "amount": 1,
+            "maximum": 3
+          }
+        ],
+        "surface_fuel": {
+          "surface": "ice",
+          "range": 0,
+          "max_tiles": 1,
+          "action_bonuses": {
+            "0": {
+              "amount": 1
+            }
+          }
+        }
       },
       {
         "id": "rime_talon",
@@ -1091,8 +1251,16 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 12, "range": 1, "freeze": 1}
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 12,
+            "range": 1,
+            "element": "ice"
+          }
         ]
       },
       {
@@ -1101,7 +1269,13 @@
         "time": 5,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 9, "range": 5, "freeze": 1}
+          {
+            "type": "ranged",
+            "damage": 8,
+            "range": 5,
+            "element": "ice",
+            "surface": "ice"
+          }
         ]
       },
       {
@@ -1112,10 +1286,61 @@
         "actions": [
           {
             "type": "aoe",
-            "damage": 8,
+            "damage": 7,
             "range": 0,
-            "pattern": [[0, -2], [-1, -1], [0, -1], [1, -1], [-2, 0], [-1, 0], [1, 0], [2, 0], [-1, 1], [0, 1], [1, 1], [0, 2]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                -2
+              ],
+              [
+                -1,
+                -1
+              ],
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                2
+              ]
+            ],
+            "rotate": false,
+            "element": "ice",
+            "surface": "ice"
           }
         ]
       }
@@ -1141,7 +1366,10 @@
     "death_sheet_order": "row_major",
     "death_sheet_ping_pong": false,
     "death_frame_seconds": 0.09,
-    "footprint": [2, 2],
+    "footprint": [
+      2,
+      2
+    ],
     "boss_bar": true,
     "intents": [
       {
@@ -1150,7 +1378,12 @@
         "time": 6,
         "weight": 4,
         "actions": [
-          {"type": "umbra_eclipse", "duration": 2, "damage": 10}
+          {
+            "type": "umbra_eclipse",
+            "duration": 2,
+            "damage": 10,
+            "element": "shadow"
+          }
         ]
       },
       {
@@ -1159,8 +1392,17 @@
         "time": 5,
         "weight": 4,
         "actions": [
-          {"type": "move_toward", "range": 2},
-          {"type": "melee", "damage": 18, "range": 1, "expose": 2}
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 18,
+            "range": 1,
+            "expose": 2,
+            "element": "shadow"
+          }
         ]
       },
       {
@@ -1169,7 +1411,13 @@
         "time": 6,
         "weight": 3,
         "actions": [
-          {"type": "ranged", "damage": 12, "range": 4, "pierce": true}
+          {
+            "type": "ranged",
+            "damage": 12,
+            "range": 4,
+            "pierce": true,
+            "element": "shadow"
+          }
         ]
       },
       {
@@ -1183,8 +1431,42 @@
             "damage": 10,
             "range": 0,
             "pull": 1,
-            "pattern": [[0, -1], [1, -1], [2, 0], [1, 1], [0, 1], [-1, 1], [-2, 0], [-1, -1]],
-            "rotate": false
+            "pattern": [
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                -1,
+                -1
+              ]
+            ],
+            "rotate": false,
+            "element": "shadow"
           }
         ]
       }
@@ -1227,7 +1509,8 @@
             "type": "melee",
             "damage": 15,
             "range": 1,
-            "shock": 1
+            "surface": "electrified",
+            "element": "lightning"
           }
         ]
       },
@@ -1243,11 +1526,22 @@
           },
           {
             "type": "ranged",
-            "damage": 10,
+            "damage": 9,
             "range": 3,
-            "shock": 1
+            "chain": 2,
+            "element": "lightning"
           }
-        ]
+        ],
+        "surface_fuel": {
+          "surface": "electrified",
+          "range": 1,
+          "max_tiles": 1,
+          "action_bonuses": {
+            "1": {
+              "shock": 1
+            }
+          }
+        }
       },
       {
         "id": "skybreak",
@@ -1259,7 +1553,8 @@
             "type": "lightning_strikes",
             "damage": 9,
             "count": 6,
-            "shock": 1
+            "surface": "electrified",
+            "element": "lightning"
           }
         ]
       },
@@ -1276,7 +1571,8 @@
           }
         ]
       }
-    ]
+    ],
+    "element": "lightning"
   },
   "veilbound_acolyte": {
     "name": "Veilbound Acolyte",
@@ -1306,7 +1602,8 @@
           {
             "type": "ranged",
             "damage": 1,
-            "range": 4
+            "range": 4,
+            "element": "shadow"
           }
         ]
       },
@@ -1335,7 +1632,8 @@
           {
             "type": "melee",
             "damage": 1,
-            "range": 1
+            "range": 1,
+            "element": "shadow"
           }
         ]
       }
@@ -1374,7 +1672,8 @@
           {
             "type": "melee",
             "damage": 3,
-            "range": 1
+            "range": 1,
+            "element": "lightning"
           }
         ]
       },
@@ -1392,12 +1691,12 @@
             "type": "ranged",
             "damage": 3,
             "range": 3,
-            "shock": 1
+            "element": "lightning"
           },
           {
-            "type": "intensity",
-            "element": "lightning",
-            "amount": 1
+            "type": "surface",
+            "surface": "electrified",
+            "range": 0
           }
         ]
       },
@@ -1415,10 +1714,19 @@
             "type": "ranged",
             "damage": 4,
             "range": 4,
-            "shock": 1,
-            "spend_intensity": { "element": "lightning", "amount": 2 }
+            "element": "lightning"
           }
-        ]
+        ],
+        "surface_fuel": {
+          "surface": "electrified",
+          "range": 1,
+          "max_tiles": 1,
+          "action_bonuses": {
+            "1": {
+              "shock": 1
+            }
+          }
+        }
       }
     ]
   }

@@ -11,7 +11,7 @@ const HAND: Array[String] = [
 	"sidestep_slash",
 	"quick_stab",
 	"guarded_step",
-	"bone_dart",
+	"pale_spark",
 	"thunderline",
 	"patch_up",
 	"updraft"
@@ -119,7 +119,6 @@ func _initialize() -> void:
 		"_refresh_relic_bar",
 		"_refresh_turn_order_bar",
 		"_layout_header_hud",
-		"_refresh_elemental_intensity_bar",
 		"_refresh_pile_counts",
 		"_refresh_card_play_meter",
 		"_refresh_action_step_tracker",
@@ -180,12 +179,12 @@ func _initialize() -> void:
 	await _settle_ui()
 	# Current two-click compound targeting may resolve a uniquely determined
 	# move-plus-melee sequence from the first board click. Measure attack hover
-	# independently through Bone Dart's real routed card-selection path so this
+	# independently through Pale Spark's real routed card-selection path so this
 	# read-only integration workload never commits a card while profiling.
-	await instance.call("_on_card_pressed", HAND.find("bone_dart"))
+	await instance.call("_on_card_pressed", HAND.find("pale_spark"))
 	await _settle_ui()
 	var attack_preview: Dictionary = instance.call("_active_card_preview") as Dictionary
-	_expect(str((attack_preview.get("action", {}) as Dictionary).get("type", "")) == "ranged", "selected Bone Dart preview action is not ranged")
+	_expect(str((attack_preview.get("action", {}) as Dictionary).get("type", "")) == "ranged", "selected Pale Spark preview action is not ranged")
 	var attack_targets: Array[Vector2i] = _sorted_tiles(attack_preview.get("target_tiles", []))
 	_expect(not attack_targets.is_empty(), "selected follow-up attack produced no legal targets")
 	results["attack_hover_target_count"] = attack_targets.size()

@@ -3,6 +3,7 @@ extends SceneTree
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
@@ -281,7 +282,7 @@ func _test_newer_embedded_progression_repairs_profile_and_reset(instance: Node) 
 func _test_open_arsenal_checkpoint_is_deduplicated(instance: Node) -> void:
 	var profile_before: Dictionary = ProgressionStore.load_data()
 	var run_before: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
-	var arsenal_profile: Dictionary = ProgressionStore.default_data()
+	var arsenal_profile: Dictionary = _unguided_progression()
 	arsenal_profile["level"] = 10
 	arsenal_profile["skill_ids"] = [
 		"quick_wits", "measured_breath", "ghost_stride", "discerning_eye",
@@ -564,11 +565,11 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	_expect(str(instance.call("_skill_hud_status", "rehearsed_escape")) == "WAITING", "An unlearned manual combat ability should not appear ready")
 	var status_combat: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var status_flags: Dictionary = (status_combat.get("skill_flags", {}) as Dictionary).duplicate(true)
-	status_flags["prismatic_armed"] = true
+	status_flags["used:prismatic_instinct"] = true
 	status_combat["skill_flags"] = status_flags
 	instance.set("_combat_state", status_combat)
-	_expect(str(instance.call("_skill_hud_status", "prismatic_instinct")) == "ARMED", "Prismatic Instinct should show its pending armed state")
-	status_flags.erase("prismatic_armed")
+	_expect(str(instance.call("_skill_hud_status", "prismatic_instinct")) == "SPENT", "Prismatic Instinct should show its committed ground placement as spent")
+	status_flags.erase("used:prismatic_instinct")
 	status_flags["turn:living_shadow"] = int(status_combat.get("turn", 1))
 	status_combat["skill_flags"] = status_flags
 	instance.set("_combat_state", status_combat)
@@ -677,7 +678,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		escape_button.pressed.emit()
 	await process_frame
 	var escape_flags: Dictionary = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
-	_expect(bool(escape_flags.get("burn_preserve_armed", false)), "Rehearsed Escape should visibly arm before it changes a Burn destination")
+	_expect(bool(escape_flags.get("burn_preserve_armed", false)), "Rehearsed Escape should visibly arm before it changes an Exhaust destination")
 	_expect(str(instance.call("_skill_hud_status", "rehearsed_escape")) == "ARMED", "Rehearsed Escape should report ARMED after the player opts in")
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count, "Arming Rehearsed Escape should not log a realized skill trigger")
 	var makeshift_button: Button = await _ready_skill_button(instance, "Makeshift Tool")
@@ -701,7 +702,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var resolved_escape: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0)
 	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
 	await process_frame
-	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving a Burn card should emit exactly one realized skill trigger")
+	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving an Exhaust card should emit exactly one realized skill trigger")
 	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "play"})
 	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
 	await process_frame
@@ -718,11 +719,15 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 
 	var prismatic_combat: Dictionary = original_combat_state.duplicate(true)
 	var prismatic_skills: Array = (prismatic_combat.get("skill_ids", []) as Array).duplicate()
-	prismatic_skills.append("prismatic_instinct")
+	prismatic_skills.append_array(["prismatic_instinct", "confluence"])
 	prismatic_combat["skill_ids"] = prismatic_skills
-	var prismatic_deck: Dictionary = (prismatic_combat.get("deck", {}) as Dictionary).duplicate(true)
-	prismatic_deck["hand"] = ["rime_shard", "quick_stab"]
-	prismatic_combat["deck"] = prismatic_deck
+	var ground_origin: Vector2i = (prismatic_combat.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	BoardSurfaceRules.remove(prismatic_combat, ground_origin, "elemental", "fixture")
+	BoardSurfaceRules.place(prismatic_combat, ground_origin, "rubble")
+	var prismatic_trigger_count: int = _skill_trigger_event_count("prismatic_instinct")
+	var confluence_trigger_count: int = _skill_trigger_event_count("confluence")
+	var clock_before: int = int(prismatic_combat.get("initiative_clock", 0))
+	var plays_before: int = int(prismatic_combat.get("cards_played_this_turn", 0))
 	instance.set("_combat_state", prismatic_combat)
 	instance.set("_run_state", run_engine.set_combat_state(original_run_state, prismatic_combat))
 	instance.call("_refresh_ui")
@@ -732,30 +737,53 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	if prismatic_button != null:
 		prismatic_button.pressed.emit()
 	await process_frame
-	_expect(choice_scrim != null and not choice_scrim.visible, "Prismatic Instinct should avoid the name-only card list")
-	_expect(selection_prompt != null and selection_prompt.visible and _label_containing(selection_prompt, "CHOOSE A CONDITIONAL CARD") != null, "Prismatic Instinct should select from the live hand")
-	var rime_widget: CardWidget = _hand_card_widget(instance, 0)
-	var quick_stab_widget: CardWidget = _hand_card_widget(instance, 1)
-	var rime_selection: Button = _hand_selection_button(instance, 0)
-	var quick_stab_selection: Button = _hand_selection_button(instance, 1)
-	_expect(rime_widget != null and rime_selection != null and not rime_selection.disabled, "An eligible conditional card should remain a directly selectable full card")
-	_expect(quick_stab_widget != null and quick_stab_selection != null and quick_stab_selection.disabled, "Cards without intensity conditions should remain visible but inert in Prismatic selection mode")
-	_expect(instance.get_viewport().gui_get_focus_owner() == rime_selection, "Prismatic Instinct should focus its first eligible full-card choice")
+	var surface_choices: Control = instance.get("_surface_skill_choice_row") as Control
+	_expect(choice_scrim != null and not choice_scrim.visible, "Prismatic Instinct should avoid the retired card-name picker")
+	_expect(selection_prompt != null and selection_prompt.visible and _label_containing(selection_prompt, "PRISMATIC INSTINCT") != null, "Prismatic Instinct should show its board placement instructions")
+	_expect(surface_choices != null and surface_choices.visible and surface_choices.get_child_count() == 4, "Prismatic Instinct should offer all four named ground kinds")
+	var ice_choice: Button = surface_choices.get_node_or_null("SurfaceChoiceIce") as Button if surface_choices != null else null
+	_expect(ice_choice != null, "Ice should have a directly selectable ground-kind button")
+	if ice_choice != null:
+		ice_choice.pressed.emit()
+	_expect((instance.get("_surface_skill_tiles") as Array).has(ground_origin), "Ice placement should include legal occupied floor beneath the player")
+	await instance.call("_commit_surface_skill_tile", Vector2i(-999, -999))
+	_expect(not combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "prismatic_instinct"), "Invalid ground targeting must preserve the ready ability")
 	await _press_ui_action(&"ui_cancel")
-	_expect(selection_prompt != null and not selection_prompt.visible, "Controller Cancel should leave hand selection without spending Prismatic Instinct")
-	_expect(not combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "prismatic_instinct"), "Canceling hand selection should preserve the ready ability")
-	_expect(instance.get_viewport().gui_get_focus_owner() == instance.get("_skill_sigil"), "Canceling hand selection should restore focus to Abilities")
+	_expect(not bool(instance.get("_surface_aim").active()) and not selection_prompt.visible, "Controller Cancel should leave ground selection without spending Prismatic Instinct")
+	_expect(instance.get_viewport().gui_get_focus_owner() == instance.get("_skill_sigil"), "Canceling ground selection should restore focus to Abilities")
 	prismatic_button = await _ready_skill_button(instance, "Prismatic Instinct")
 	if prismatic_button != null:
 		prismatic_button.pressed.emit()
+	instance.call("_choose_surface_skill_kind", "ice")
+	await instance.call("_commit_surface_skill_tile", ground_origin)
 	await process_frame
-	await process_frame
-	rime_selection = _hand_selection_button(instance, 0)
-	if rime_selection != null:
-		await _press_ui_action(&"ui_accept")
-	await process_frame
-	var armed_flags: Dictionary = ((instance.get("_combat_state") as Dictionary).get("skill_flags", {}) as Dictionary)
-	_expect(bool(armed_flags.get("prismatic_armed", false)) and str(armed_flags.get("prismatic_target_card_id", "")) == "rime_shard", "Prismatic Instinct should bind its arm to the chosen card")
+	var painted: Dictionary = instance.get("_combat_state") as Dictionary
+	_expect(BoardSurfaceRules.element_at(painted, ground_origin) == "ice" and BoardSurfaceRules.has_rubble(painted, ground_origin), "Prismatic Instinct should commit the chosen ground and preserve the other layer")
+	_expect(not bool((painted.get("player", {}) as Dictionary).get("chilled", false)), "Painting Ice beneath a stationary actor must not activate Chill")
+	_expect(combat_engine.skill_was_used(painted, "prismatic_instinct") and _skill_trigger_event_count("prismatic_instinct") == prismatic_trigger_count + 1, "One ground commit should spend the ability and emit one realized trigger")
+	_expect(int(painted.get("initiative_clock", 0)) == clock_before and int(painted.get("cards_played_this_turn", 0)) == plays_before, "Board abilities must not spend card plays or Time")
+
+	var confluence_button: Button = await _ready_skill_button(instance, "Confluence")
+	_expect(confluence_button != null, "Confluence should be a ready manual ability when ground can be relocated")
+	if confluence_button != null:
+		confluence_button.pressed.emit()
+	await instance.call("_commit_surface_skill_tile", ground_origin)
+	_expect(BoardSurfaceRules.element_at(instance.get("_combat_state") as Dictionary, ground_origin) == "ice", "Selecting a Confluence source must leave its terrain intact until commit")
+	await _press_ui_action(&"ui_cancel")
+	_expect(not combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "confluence"), "Canceling after source selection must preserve Confluence")
+	confluence_button = await _ready_skill_button(instance, "Confluence")
+	if confluence_button != null:
+		confluence_button.pressed.emit()
+	await instance.call("_commit_surface_skill_tile", ground_origin)
+	var ground_destinations: Array = instance.get("_surface_skill_tiles") as Array
+	_expect(not ground_destinations.is_empty() and not ground_destinations.has(ground_origin), "Confluence should highlight legal changed destinations and reject a no-op")
+	if not ground_destinations.is_empty():
+		var ground_destination: Vector2i = ground_destinations[0]
+		await instance.call("_commit_surface_skill_tile", ground_destination)
+		var relocated: Dictionary = instance.get("_combat_state") as Dictionary
+		_expect(BoardSurfaceRules.element_at(relocated, ground_origin).is_empty() and BoardSurfaceRules.has_rubble(relocated, ground_origin) and BoardSurfaceRules.element_at(relocated, ground_destination) == "ice", "Confluence should relocate only the selected layer to the committed tile")
+		_expect(combat_engine.skill_was_used(relocated, "confluence") and _skill_trigger_event_count("confluence") == confluence_trigger_count + 1, "Confluence should consume one use and emit one realized trigger")
+		_expect(int(relocated.get("initiative_clock", 0)) == clock_before and int(relocated.get("cards_played_this_turn", 0)) == plays_before, "Relocation should preserve card plays and Time")
 
 	var encore_combat: Dictionary = original_combat_state.duplicate(true)
 	var encore_skills: Array = (encore_combat.get("skill_ids", []) as Array).duplicate()
@@ -845,7 +873,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 func _test_makeshift_tool_loadout_persistence(instance: Node) -> void:
 	var original_progression: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
 	var original_run: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
-	var item_progression: Dictionary = ProgressionStore.default_data()
+	var item_progression: Dictionary = _unguided_progression()
 	item_progression["level"] = 3
 	item_progression["skill_ids"] = ["quick_wits", "makeshift_tool"]
 	item_progression = ProgressionStore.normalized_data(item_progression)
@@ -1066,13 +1094,13 @@ func _test_run_skill_event_cursor_resets_for_new_run(instance: Node) -> void:
 	await process_frame
 	_expect(int(instance.get("_run_skill_event_revision_seen")) == 1, "The first run-side trigger in a second run should still pulse at revision one")
 	var progression_before_level_one_check: Dictionary = (instance.get("_progression") as Dictionary).duplicate(true)
-	instance.set("_progression", ProgressionStore.default_data())
+	instance.set("_progression", _unguided_progression())
 	_expect(not bool(instance.call("_skill_reset_can_apply")), "A level-one profile with no learned skills should not offer an impossible reset")
 	instance.set("_progression", progression_before_level_one_check)
 
 func _test_debug_boss_progression_is_sandboxed(instance: Node) -> void:
 	var saved_progression: Dictionary = ProgressionStore.load_data()
-	var debug_progression: Dictionary = ProgressionStore.default_data()
+	var debug_progression: Dictionary = _unguided_progression()
 	var debug_run: Dictionary = RunEngine.new().create_debug_boss_run(debug_progression)
 	var victorious_combat: Dictionary = (debug_run.get("combat_state", {}) as Dictionary).duplicate(true)
 	victorious_combat["enemies"] = []
@@ -1117,7 +1145,7 @@ func _test_content_migration_resaves_resume(instance: Node) -> void:
 	_expect(legacy_pattern.search(var_to_str(persisted_run)) == null and legacy_pattern.search(var_to_str(persisted_profile)) == null, "Persisted run and profile should contain no retired vocabulary tokens after resume")
 
 func _skill_progression() -> Dictionary:
-	var progression: Dictionary = ProgressionStore.default_data()
+	var progression: Dictionary = _unguided_progression()
 	progression["level"] = 3
 	progression["skill_ids"] = ["quick_wits", "discerning_eye"]
 	progression["moltshards"] = 2
@@ -1360,3 +1388,9 @@ func _finish() -> void:
 
 func _quit_after_cleanup(exit_code: int) -> void:
 	quit(exit_code)
+
+# These scenarios test abilities and progression, not the separately covered guide.
+func _unguided_progression() -> Dictionary:
+	var progression: Dictionary = ProgressionStore.default_data()
+	progression["guided_combat_tutorial"] = {"version": 2, "status": "dismissed", "completed_steps": []}
+	return progression

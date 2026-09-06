@@ -5,21 +5,38 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+const Tutorials = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const OUTPUT_DIR: String = "user://loadout_acquisition_probe"
 
 var _failed: bool = false
+var _proof_viewport: SubViewport
+var _progression: Dictionary
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_loadout_acquisition_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_loadout_acquisition_probe.save")
 	ProgressionStore.clear_saved_run()
+	_progression = ProgressionStore.default_data()
+	for prompt: String in Tutorials.prompt_ids():
+		_progression = Tutorials.resolve_progression(_progression, prompt)
+	if not ProgressionStore.save_data(_progression):
+		_fail("Completed tutorial fixture should save")
+	SettingsStore.set_storage_path("user://loadout_acquisition_probe_settings.json")
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["ui_scale"] = 1.0
+	SettingsStore.save_settings(settings)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_probe_output(OUTPUT_DIR)
 	root.mode = Window.MODE_WINDOWED
-	root.content_scale_size = Vector2i(1280, 720)
-	root.size = Vector2i(1280, 720)
+	root.content_scale_size = Vector2i(1920, 1080)
+	root.size = Vector2i(1920, 1080)
+	_proof_viewport = SubViewport.new()
+	_proof_viewport.size = Vector2i(1920, 1080)
+	_proof_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_proof_viewport)
 	await process_frame
 	await _capture_acquisitions()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -33,16 +50,17 @@ func _capture_acquisitions() -> void:
 		_fail("Run scene should load")
 		return
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	_proof_viewport.add_child(instance)
 	await _settle()
 	print("PROBE: run scene ready")
 	instance.call("_close_dialogue")
 
 	var engine := RunEngine.new()
-	var reward_state: Dictionary = engine.create_new_run(9137, ProgressionStore.default_data())
+	var reward_state: Dictionary = engine.create_new_run(9137, _progression)
 	reward_state["mode"] = "reward"
 	reward_state["pending_reward"] = {
 		"cards": ["spark_dart", "frostbolt", "threaded_path"],
+		"intro_pending": false,
 		"heal_amount": RunEngine.REWARD_HEAL,
 		"ember_amount": 0
 	}
@@ -77,7 +95,7 @@ func _capture_acquisitions() -> void:
 		instance.call("_close_card_upgrade_overlay")
 		print("PROBE: magic NEW hover complete")
 
-	var room_state: Dictionary = engine.create_new_run(9138, ProgressionStore.default_data())
+	var room_state: Dictionary = engine.create_new_run(9138, _progression)
 	var combat_engine := CombatEngine.new()
 	var equipment_tile := Vector2i(3, 4)
 	var layout: Dictionary = _equipment_combat_layout(equipment_tile)
@@ -138,8 +156,10 @@ func _capture_named_phase(instance: Node, kind: String, phase: String) -> void:
 	await _save_root_screenshot("%s/%s_%s.png" % [OUTPUT_DIR, kind, phase])
 
 func _reward_widget(instance: Node, card_id: String) -> Control:
-	var hand_box: Control = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox") as Control
-	for child: Node in hand_box.get_children():
+	var card_row: Control = instance.find_child("RewardCardRow", true, false) as Control
+	if card_row == null:
+		return null
+	for child: Node in card_row.get_children():
 		if str(child.get_meta("reward_card_id", "")) != card_id:
 			continue
 		return child.find_child("CardWidget", true, false) as Control
@@ -199,7 +219,9 @@ func _settle() -> void:
 
 func _save_root_screenshot(output_path: String) -> void:
 	await RenderingServer.frame_post_draw
-	var image: Image = root.get_viewport().get_texture().get_image()
+	var image: Image = _proof_viewport.get_texture().get_image()
+	if image.get_size() != Vector2i(1920, 1080):
+		_fail("Acquisition proof must render at 1920x1080")
 	var error: Error = image.save_png(ProjectSettings.globalize_path(output_path))
 	if error != OK:
 		_fail("Could not save %s" % output_path)

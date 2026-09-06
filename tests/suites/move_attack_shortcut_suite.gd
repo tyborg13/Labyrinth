@@ -1,6 +1,7 @@
 extends RefCounted
 
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const Surface = preload("res://scripts/board_surface_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 
@@ -15,7 +16,7 @@ static func run(expect: Callable) -> void:
 	_test_every_move_then_attack_card_builds_enemy_shortcut(expect)
 	_test_move_only_card_does_not_build_enemy_shortcut(expect)
 	_test_every_card_has_one_player_target_decision(expect)
-	_test_intensity_attacks_always_have_a_baseline(expect)
+	_test_surface_painters_retain_baseline_attacks(expect)
 	_test_ranged_aoe_can_anchor_on_an_empty_tile(expect)
 	_test_action_upgrades_preserve_one_target_decision(expect)
 	_test_preferred_routes_collect_pickups_without_crossing_traps(expect)
@@ -115,12 +116,12 @@ static func _test_every_card_has_one_player_target_decision(expect: Callable) ->
 			has_movement = has_movement or action_type in MOVEMENT_TYPES
 			has_ranged_attack = has_ranged_attack or action_type in ["ranged", "aoe"] or (action_type in ["push", "pull"] and int(action.get("range", 0)) > 1)
 			if action_type in ATTACK_TYPES:
-				expect.call(not action.has("requires_intensity"), "%s should always retain a baseline attack instead of gating the whole attack behind intensity" % card_id)
+				expect.call(not action.has("requires_intensity"), "%s must not reintroduce the removed resource gate" % card_id)
 			if combat.player_action_needs_target(action):
 				targeted_indices.append(action_index)
-		expect.call(not (has_movement and has_ranged_attack), "%s should not combine movement with a ranged target" % card_id)
+		expect.call(not (has_movement and has_ranged_attack) or card_id == "gust_step", "%s must deliberately declare any ranged displacement then movement sequence" % card_id)
 		expect.call(targeted_indices.size() <= 2, "%s should never expose more than one combined target decision" % card_id)
-		if targeted_indices.size() == 2:
+		if targeted_indices.size() == 2 and card_id != "gust_step":
 			var move_action: Dictionary = actions[targeted_indices[0]] as Dictionary
 			var attack_action: Dictionary = actions[targeted_indices[1]] as Dictionary
 			expect.call(str(move_action.get("type", "")) == "move", "%s multi-action targeting should start with ordinary movement" % card_id)
@@ -156,25 +157,18 @@ static func _test_preferred_routes_collect_pickups_without_crossing_traps(expect
 	expect.call(not safe_path.has(pickup_tile), "Avoiding a live trap should outrank collecting a pickup")
 
 
-static func _test_intensity_attacks_always_have_a_baseline(expect: Callable) -> void:
+static func _test_surface_painters_retain_baseline_attacks(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var state: Dictionary = _combat_state(combat, "rime_shard", Vector2i(5, PLAYER_START.y), 87002)
-	state["elemental_intensity"] = {"fire": 0, "ice": 1, "lightning": 1, "air": 0, "earth": 0}
+	var target := Vector2i(5, PLAYER_START.y)
 	for card_id: String in ["rime_shard", "volt_surge"]:
-		var actions: Array = GameData.card_def(card_id).get("actions", []) as Array
-		var attack: Dictionary = actions[1] as Dictionary
-		var element_id: String = "ice" if card_id == "rime_shard" else "lightning"
-		var below_state: Dictionary = state.duplicate(true)
-		(below_state.get("elemental_intensity", {}) as Dictionary)[element_id] = 1
-		var threshold_state: Dictionary = below_state.duplicate(true)
-		(threshold_state.get("elemental_intensity", {}) as Dictionary)[element_id] = 2
-		expect.call(combat.player_action_can_resolve(below_state, attack), "%s should remain targetable below its intensity threshold" % card_id)
-		expect.call(not combat.valid_targets_for_player_action(below_state, attack).is_empty(), "%s should retain legal attack targets below its intensity threshold" % card_id)
-		expect.call(
-			combat.final_damage_for_player_action(threshold_state, attack) > combat.final_damage_for_player_action(below_state, attack),
-			"%s should gain damage at its threshold instead of gating its entire attack" % card_id
-		)
-
+		var state: Dictionary = _combat_state(combat, card_id, target, 87002)
+		var attack: Dictionary = (GameData.card_def(card_id)["actions"] as Array)[0]
+		expect.call(combat.player_action_can_resolve(state, attack) and combat.valid_targets_for_player_action(state, attack).has(target), "%s retains a legal baseline attack on unprepared ground" % card_id)
+		var before_hp: int = int(state["enemies"][0]["hp"])
+		state = combat.apply_player_action(state, attack, target)
+		expect.call(int(state["enemies"][0]["hp"]) == before_hp - int(attack["damage"]), "%s hits before placing its terrain rider" % card_id)
+		expect.call(Surface.has_surface(state, target, str(attack["surface"])), "%s then creates its printed terrain" % card_id)
+		expect.call(not bool(state["enemies"][0].get("chilled", false)) and int(state["enemies"][0].get("freeze", 0)) == 0, "A first painter hit must not instantly Chill or Freeze its stationary target")
 
 static func _test_ranged_aoe_can_anchor_on_an_empty_tile(expect: Callable) -> void:
 	var combat := CombatEngine.new()
