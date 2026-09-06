@@ -6,7 +6,7 @@ The approved edit is 1,219 frames at 1920×1080/30 fps (40.63 seconds). It tells
 
 Work in the adopted task worktree and follow its contract/preflight/inspection workflow. Native Mac capture needs Godot, FFmpeg/ffprobe and Python3; editing needs Node/npm. Run `npm ci` once in `marketing/trailer`.
 
-For a caption change, update the owning text in `scripts/render-title-cards.py`, regenerate it, and review the changed title PNG. For a cut or camera adjustment, edit only the corresponding `SHOTS` entry in `src/Trailer.tsx`. Existing verified native footage is reused:
+For a caption change, update the owning text in `scripts/render-title-cards.py`, regenerate it, and review the changed title PNG. For a cut or camera adjustment, edit the corresponding `SHOTS` entry in `src/Trailer.tsx`. If a trim or audio tail changes, also update `REQUIRED` in `scripts/export-quality.py` to each clip’s maximum `sourceIn + frames + audioTail`. If the total duration changes, update that exporter’s `FRAMES` to `sum(SHOTS frames) - END_FADE + END_FRAMES`, matching `TRAILER_DURATION`. Camera-only and caption changes leave those export bounds unchanged. Existing verified native footage is reused:
 
 ```sh
 cd marketing/trailer
@@ -61,7 +61,7 @@ python3 marketing/trailer/scripts/copy-native-sources.py \
 
 After the final source commit, add `--reviewed-source-head <commit>` to the copy command. The helper verifies every captured script against that commit and records the reviewed binding separately from the original capture-time HEAD/dirty state. It never relabels the capture history.
 
-Copying verifies all retained bytes and preserves relative cue references. Restoring an existing archive also retains and verifies its reviewed source binding when no new override is supplied; the referenced commit must remain available in the repository. A different existing destination bank is rejected; choose a new versioned folder. Keep the source archive as well as the completed movie: the completed movie alone cannot support a clean one-scene replacement.
+Copying verifies all retained bytes and preserves relative cue references. Restoring an existing archive also retains and verifies its reviewed source binding when no new override is supplied; the referenced commits must remain available in the repository. `reviewed_source_head` binds the reviewed collection, while `reviewed_capture_heads` records the verified producing commit for each clip. After restoring and recapturing one scene, pass the new reviewed commit when copying again: the changed clip must match that commit, and unchanged clips may retain their older verified archive bindings. Never overwrite the original `capture_origin` records. A different existing destination bank is rejected; choose a new versioned folder. Keep the source archive as well as the completed movie: the completed movie alone cannot support a clean one-scene replacement.
 
 ## Export and inspect
 
@@ -79,6 +79,7 @@ Focused pipeline checks:
 
 ```sh
 python3 marketing/trailer/scripts/test-quality-guards.py
+python3 marketing/trailer/scripts/test-native-source-archive.py
 python3 tools/godot_task_runner.py --task-id wishlist-visual-polish-and-steam-trailer --stream -- \
   godot --headless --path . --script tools/test_steam_trailer_frame_sink.gd
 ```

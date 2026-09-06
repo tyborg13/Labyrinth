@@ -31,6 +31,8 @@ def main() -> None:
         source_manifest_path = source / "native-collection.json"
         source_manifest = json.loads(source_manifest_path.read_text()) if source_manifest_path.exists() else {}
         reviewed_source_head = args.reviewed_source_head or source_manifest.get("reviewed_source_head")
+        prior_capture_heads = source_manifest.get("reviewed_capture_heads", {})
+        reviewed_capture_heads: dict[str, str] = {}
         paths: list[Path] = []
         origins: dict = {}
         repo = Path(__file__).resolve().parents[3]
@@ -40,10 +42,26 @@ def main() -> None:
             clip = cue["clip"]
             origins[clip] = cue["capture_origin"]
             if reviewed_source_head:
-                for relative, expected in origins[clip]["captured_script_sha256"].items():
-                    data = subprocess.check_output(["git", "show", f"{reviewed_source_head}:{relative}"], cwd=repo)
-                    if hashlib.sha256(data).hexdigest() != expected:
-                        raise RuntimeError(f"{clip}: captured {relative} differs from reviewed source HEAD")
+                # A targeted recapture can coexist with untouched clips made at
+                # an older reviewed commit. Never infer a binding from a dirty
+                # capture origin; only verify explicit or archived reviewed refs.
+                candidates = dict.fromkeys(filter(None, [
+                    reviewed_source_head,
+                    prior_capture_heads.get(clip),
+                    source_manifest.get("reviewed_source_head"),
+                ]))
+                for candidate in candidates:
+                    matches = True
+                    for relative, expected in origins[clip]["captured_script_sha256"].items():
+                        data = subprocess.run(["git", "show", f"{candidate}:{relative}"], cwd=repo, capture_output=True)
+                        if data.returncode != 0 or hashlib.sha256(data.stdout).hexdigest() != expected:
+                            matches = False
+                            break
+                    if matches:
+                        reviewed_capture_heads[clip] = candidate
+                        break
+                if clip not in reviewed_capture_heads:
+                    raise RuntimeError(f"{clip}: captured scripts match neither the new reviewed HEAD nor an archived reviewed binding")
             native = cue["lossless"]
             if native["pattern"] != f"{clip}/frame%08d.png" or native["audio"] != f"{clip}.wav":
                 raise RuntimeError(f"{clip}: source references must be portable and relative")
@@ -77,7 +95,7 @@ def main() -> None:
         repo = Path(__file__).resolve().parents[3]
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True).strip()
         dirty = bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=repo, text=True).strip())
-        manifest = {"collection_sha256": collection_hash, "clips": clips, "files_sha256": files, "capture_origins": origins, "reviewed_source_head": reviewed_source_head, "archive_tool_repository_head": head, "archive_tool_repository_dirty_at_copy": dirty, "restore": "Run this script with the archive as source and the next task's marketing/trailer/public/footage/lossless as destination, then run npm run render in marketing/trailer. All cue references are relative and remain byte-identical."}
+        manifest = {"collection_sha256": collection_hash, "clips": clips, "files_sha256": files, "capture_origins": origins, "reviewed_source_head": reviewed_source_head, "reviewed_capture_heads": reviewed_capture_heads, "archive_tool_repository_head": head, "archive_tool_repository_dirty_at_copy": dirty, "restore": "Run this script with the archive as source and the next task's marketing/trailer/public/footage/lossless as destination, then run npm run render in marketing/trailer. All cue references are relative and remain byte-identical."}
         existing.write_text(json.dumps(manifest, indent=2) + "\n")
         print(json.dumps({"destination": str(destination), "clips": clips, "files": len(files), "collection_sha256": collection_hash, "copied_bytes_verified": True}, indent=2))
 
