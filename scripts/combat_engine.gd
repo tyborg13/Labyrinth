@@ -1067,12 +1067,28 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 	if targeting_type in ["ranged", "melee"] and _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0:
+		var known_opponents: Array[Dictionary]
+		for opponent: Dictionary in _live_enemies(state):
+			if is_enemy_visible_to_player(state, opponent, visible_lookup):
+				known_opponents.append(opponent)
+		var component_has_opponent: Dictionary = {}
 		for tile: Vector2i in BoardSurfaceRules.tiles(state):
-			if BoardSurfaceRules.is_conductive(state, tile) and PathUtils.manhattan(player_pos, tile) <= int(action.get("range", 1)) and is_tile_visible_to_player(state, tile) and PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
-				var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, tile, umbra_visible_tile_lookup(state))
-				for opponent: Dictionary in _live_enemies(state):
-					if is_enemy_visible_to_player(state, opponent) and _surface_unit_intersects(opponent, component) and not targets.has(tile):
-						targets.append(tile)
+			if BoardSurfaceRules.is_conductive(state, tile) and PathUtils.manhattan(player_pos, tile) <= int(action.get("range", 1)) and is_tile_visible_to_player(state, tile, visible_lookup) and PathUtils.has_line_of_sight(state.get("grid", []), player_pos, tile):
+				if not component_has_opponent.has(tile):
+					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, tile, visible_lookup)
+					var useful: bool = false
+					for opponent: Dictionary in known_opponents:
+						if _surface_unit_intersects(opponent, component):
+							useful = true
+							break
+					component_has_opponent[tile] = useful
+					# Passable components are symmetric. A blocked origin can leave
+					# its tile but cannot be re-entered, so never share that result.
+					if BoardSurfaceRules.can_place(state, tile):
+						for member: Vector2i in component:
+							component_has_opponent[member] = useful
+				if bool(component_has_opponent[tile]) and not targets.has(tile):
+					targets.append(tile)
 	var legal: Array[Vector2i]
 	for tile: Vector2i in targets:
 		if _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile) and SurfaceRelicRules.can_prepare(state, action, tile):
@@ -10018,8 +10034,13 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 	var pickup_score: Callable = func(tile: Vector2i) -> int: return int(pickup_scores.get(tile, 0))
 	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score)
 
-func surface_preview_for_player_action(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
-	var result: Dictionary = resolve_player_action_for_presentation(state, action, target)
+func surface_preview_for_player_action(state: Dictionary, action: Dictionary, target: Vector2i, prevalidated: bool = false) -> Dictionary:
+	# Hover needs the exact route and outcome, but never the animation's copy of
+	# the entire combat state after every hit. Public callers still validate by
+	# default; the live preview already obtained its target from the legal plan.
+	var trace: Dictionary = {"chain_hits": [], "capture_states": false}
+	var after: Dictionary = _apply_player_action(state, action, target, not prevalidated, trace)
+	var result: Dictionary = {"state": after, "chain_hits": trace["chain_hits"]}
 	result["surface_events"] = (result.get("state", {}) as Dictionary).get("surface_events", [])
 	return result
 
@@ -10088,6 +10109,7 @@ func _surface_unit_intersects(unit: Dictionary, tiles: Array[Vector2i]) -> bool:
 # never extra Chain heads, and consumption cannot change an already planned route.
 func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vector2i], actor_kind: String) -> Dictionary:
 	var opponents: Array[Dictionary] = _surface_actor_records(state, "enemies" if actor_kind == "player" else "player")
+	var visible_lookup: Dictionary = umbra_visible_tile_lookup(state) if actor_kind == "player" else {}
 	var native: Array[Dictionary]
 	var hits: Array[Dictionary]
 	var visited: Dictionary = {}
@@ -10101,7 +10123,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			hit["kind_trace"] = "actor"
 			hit["to"] = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
 			hit["from"] = hit["to"]
-			hit["hidden_direct"] = actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary)
+			hit["hidden_direct"] = actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup)
 			# AOE may hit unseen occupants, but cannot discover them as Chain
 			# heads or disclose their identity in the visible route.
 			if not bool(hit["hidden_direct"]):
@@ -10109,12 +10131,14 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			hits.append(hit)
 			visited[actor["key"]] = true
 	var reach: int = int(action.get("chain", 0))
+	var lightning: bool = _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0
 	var conductive: Array[Vector2i]
 	var visible_ground: Dictionary = {INVALID_TILE: true}
-	for tile: Vector2i in BoardSurfaceRules.tiles(state):
-		if BoardSurfaceRules.is_conductive(state, tile) and (actor_kind != "player" or is_tile_visible_to_player(state, tile)):
-			conductive.append(tile)
-			visible_ground[tile] = true
+	if reach > 0 or lightning:
+		for tile: Vector2i in BoardSurfaceRules.tiles(state):
+			if BoardSurfaceRules.is_conductive(state, tile) and (actor_kind != "player" or is_tile_visible_to_player(state, tile, visible_lookup)):
+				conductive.append(tile)
+				visible_ground[tile] = true
 	var relays: Dictionary = {}
 	var served_components: Dictionary = {}
 	var geometry: Dictionary = state.duplicate(true) if _action_has_forced_movement(action) else state
@@ -10132,7 +10156,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 				updated["unit"] = _surface_actor(geometry, str(actor["kind"]), int(actor["id"]))
 				if int((updated["unit"] as Dictionary).get("hp", 0)) > 0:
 					route_opponents.append(updated)
-			var route: Array[Dictionary] = _surface_chain_useful_route(state, route_opponents, visited, relays, served_components, current, reach, conductive, actor_kind == "player", _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0)
+			var route: Array[Dictionary] = _surface_chain_useful_route(state, route_opponents, visited, relays, served_components, current, reach, conductive, actor_kind == "player", lightning, visible_lookup)
 			if route.is_empty():
 				break
 			for node: Dictionary in route:
@@ -10159,7 +10183,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 		if hit.has("unit"):
 			for tile: Vector2i in BoardSurfaceRules.footprint_tiles(hit["unit"] as Dictionary):
 				touched[tile] = true
-	if _action_element(action) == "lightning" and int(action.get("damage", 0)) > 0:
+	if lightning:
 		var networks: Dictionary = {}
 		var network_paths: Dictionary = {}
 		for tile: Vector2i in _sorted_tiles_from_lookup(touched):
@@ -10178,7 +10202,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 		for actor: Dictionary in opponents:
 			if visited.has(actor["key"]) or not _surface_unit_intersects(actor["unit"] as Dictionary, network_tiles):
 				continue
-			if actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary):
+			if actor_kind == "player" and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup):
 				continue
 			var hit: Dictionary = actor.duplicate(true)
 			hit["kind_trace"] = "conduction"
@@ -10200,7 +10224,8 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	return {"hits": hits, "used_conductors": used_conductors, "consumed": consumed}
 
 func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
-	var capture_states: bool = trace.has("chain_hits")
+	var performance_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var capture_states: bool = trace.has("chain_hits") and bool(trace.get("capture_states", true))
 	var origin: Vector2i = action.get("_origin_tile", (_surface_actor(state, actor_kind, actor_id)).get("pos", INVALID_TILE))
 	var resolved: Dictionary = action.duplicate(true)
 	if str(action.get("type", "")) in ["push", "pull"]:
@@ -10220,6 +10245,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			var target_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved, index)
 			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
 	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
+	performance_started = _record_runtime_performance_phase("board_attack_plan_total", performance_started)
 	if actor_kind == "player":
 		state = _trigger_player_bleed_for_action(state, resolved)
 		if combat_outcome(state) == "defeat":
@@ -10237,6 +10263,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
 	var affected: Array[int]
 	var native_trace: Array = []
+	performance_started = _record_runtime_performance_phase("board_attack_conduction", performance_started)
 	for hit: Dictionary in plan["hits"]:
 		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
 		if hit.has("path"):
@@ -10281,6 +10308,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		if capture_states:
 			trace_hit["state"] = state.duplicate(true)
 		native_trace.append(trace_hit)
+	performance_started = _record_runtime_performance_phase("board_attack_hits_total", performance_started)
 	if actor_kind == "player":
 		var terrain_damage: int = final_damage_for_player_action(state, resolved)
 		state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, impact), terrain_damage)
@@ -10296,6 +10324,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	if not previous_batch:
 		state = _flush_surface_deaths(state)
 	trace["chain_hits"] = native_trace if capture_route else []
+	_record_runtime_performance_phase("board_attack_finish_total", performance_started)
 	return state
 
 func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vector2i, trace: Dictionary = {}, selected_override: Array[Vector2i] = []) -> Dictionary:
@@ -10546,7 +10575,7 @@ func _surface_move_player_direction(state: Dictionary, direction: Vector2i) -> D
 
 # Find useful routes only. Zero relays preserves ordinary nearest-enemy Chain;
 # extra ground is selected by relay count, distance, then stable actor/tile order.
-func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Vector2i, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool) -> Array[Dictionary]:
+func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Vector2i, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool, visible_lookup: Dictionary = {}) -> Array[Dictionary]:
 	var best_route: Array[Dictionary]
 	var best_relays: int = 9999
 	var best_distance: int = 99999
@@ -10557,6 +10586,15 @@ func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary]
 	var visible_ground: Dictionary = {INVALID_TILE: true}
 	for tile: Vector2i in conductive:
 		visible_ground[tile] = true
+	# Geometry and eligibility are immutable within this search. Preserve actor
+	# order while resolving visibility once, outside the relay/actor cross product.
+	var eligible: Array[Dictionary]
+	for actor: Dictionary in opponents:
+		if not visited.has(actor["key"]) and (not player_chain or is_enemy_visible_to_player(state, actor["unit"] as Dictionary, visible_lookup)):
+			eligible.append(actor)
+	# Keep components per origin: a blocked origin can exit onto passable ground
+	# even though the reverse traversal cannot enter that origin.
+	var components: Dictionary = {}
 	while cursor < queue.size():
 		var entry: Dictionary = queue[cursor]
 		cursor += 1
@@ -10565,12 +10603,15 @@ func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary]
 		var travel: int = int(entry["distance"])
 		if nodes.size() > best_relays:
 			continue
-		for actor: Dictionary in opponents:
-			if visited.has(actor["key"]) or (player_chain and not is_enemy_visible_to_player(state, actor["unit"] as Dictionary)):
-				continue
+		for actor: Dictionary in eligible:
 			var tile: Vector2i = (actor["unit"] as Dictionary).get("pos", INVALID_TILE)
 			var gap: int = PathUtils.manhattan(at, tile)
-			var component_goal: bool = lightning and not nodes.is_empty() and not served.has(at) and _surface_unit_intersects(actor["unit"] as Dictionary, BoardSurfaceRules.connected_component(state, at, visible_ground))
+			var component_goal: bool = false
+			if gap > reach and lightning and not nodes.is_empty() and not served.has(at):
+				if not components.has(at):
+					var component: Array[Vector2i] = BoardSurfaceRules.connected_component(state, at, visible_ground)
+					components[at] = component
+				component_goal = _surface_unit_intersects(actor["unit"] as Dictionary, components[at])
 			if gap > reach and not component_goal:
 				continue
 			var distance: int = travel + (0 if component_goal and gap > reach else gap)

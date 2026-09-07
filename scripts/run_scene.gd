@@ -1567,6 +1567,8 @@ var _surface_skill_tiles: Array[Vector2i]
 var _surface_relic_origin_pending: bool = false
 var _surface_preview_cache_key: String = ""
 var _surface_preview_cache: Dictionary = {}
+var _surface_resolution_cache_key: String = ""
+var _surface_resolution_cache: Dictionary = {}
 var _pending_actions: Array = []
 var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
@@ -19008,10 +19010,11 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	if not preview_units.is_empty():
 		result["preview_units"] = preview_units
 	var movement_risk_chips: Array = _movement_risk_chips_for_preview(preview, path_tiles)
-	_record_runtime_performance_phase("preview_risk", performance_phase_started)
+	performance_phase_started = _record_runtime_performance_phase("preview_risk", performance_phase_started)
 	if not movement_risk_chips.is_empty():
 		result["movement_risk_chips"] = movement_risk_chips
 	_append_surface_action_preview(result, preview)
+	_record_runtime_performance_phase("preview_surface", performance_phase_started)
 	return result
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
@@ -19149,17 +19152,37 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 		return {}
 	if action_type != "aoe" and target_tile.x < 0:
 		return {}
-	var after_state: Dictionary = _combat_engine.apply_prevalidated_player_action(state, action, target_tile)
+	var resolved: Dictionary = _surface_resolution_for_preview(state, action, target_tile)
+	var after_state: Dictionary = (resolved["actual"] as Dictionary)["state"]
 	# Stage presentation and turn-end risk both need the exact post-action state
 	# for the same hovered target. Share that immutable result within the pointer
 	# event instead of resolving dense AOEs and their relic hooks twice.
 	if _selected_card_index >= 0 and not _orientation_pending():
 		_cache_hover_resolved_preview_state(after_state)
-	var known_state: Dictionary = _surface_preview_information_state(state)
-	if known_state != state:
-		var known_after: Dictionary = _combat_engine.apply_prevalidated_player_action(known_state, action, target_tile)
-		return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(known_state, known_after))
-	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after_state))
+	var known_state: Dictionary = resolved["before"]
+	var known_after: Dictionary = (resolved["damage"] as Dictionary)["state"]
+	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(known_state, known_after))
+
+func _surface_resolution_for_preview(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	# One immutable result feeds damage, route/surface feedback and turn risk.
+	# Include the source state and action: orientation and shortcut previews can
+	# resolve a different state within the same selection revision.
+	var cache_key: String = "%d:%d:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(target)]
+	if _surface_resolution_cache_key != cache_key:
+		var actual: Dictionary = _combat_engine.surface_preview_for_player_action(state, action, target, true)
+		var known_state: Dictionary = _surface_preview_information_state(state)
+		var damage: Dictionary = actual
+		var known: Dictionary = actual
+		if known_state != state:
+			# Filtering hidden causes can change legality. Damage historically
+			# uses the prevalidated action while surface feedback validates the
+			# information-safe state; share them only when that target stays legal.
+			damage = _combat_engine.surface_preview_for_player_action(known_state, action, target, true)
+			var target_still_legal: bool = not _combat_engine.player_action_needs_target(action) or _combat_engine.valid_targets_for_player_action(known_state, action).has(target)
+			known = damage if target_still_legal else _combat_engine.surface_preview_for_player_action(known_state, action, target)
+		_surface_resolution_cache = {"actual": actual, "before": known_state, "known": known, "damage": damage}
+		_surface_resolution_cache_key = cache_key
+	return _surface_resolution_cache
 
 func _surface_preview_information_state(state: Dictionary) -> Dictionary:
 	if not _preview_umbra_is_limited(state): return state
@@ -31741,14 +31764,17 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	# Keep the route preview, but do not forecast its hidden consequences.
 	if str(action.get("type", "")) in ["move", "blink"] and _preview_umbra_is_limited(state):
 		return
-	state = _surface_preview_information_state(state)
-	var cache_key: String = "%d:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(action), str(tile)]
+	var cache_key: String = "%d:%d:%d:%d:%s:%d:%d:%s" % [_combat_preview_revision, _preview_selection_revision, hash(state), hash(action), str(tile), hash(_pending_actions), _pending_action_index, str(preview.get("skill_aim", false))]
 	if _surface_preview_cache_key != cache_key:
 		_surface_preview_cache_key = cache_key
 		if bool(preview.get("skill_aim", false)):
+			state = _surface_preview_information_state(state)
 			_surface_preview_cache = {"state": _surface_aim.resolved(_combat_engine, state, tile), "chain_hits": []}
 		else:
-			_surface_preview_cache = _combat_engine.surface_preview_for_player_action(state, action, tile)
+			var resolved: Dictionary = _surface_resolution_for_preview(state, action, tile)
+			state = resolved["before"]
+			# Follow-ups must not change the shared single-action result used for risk.
+			_surface_preview_cache = (resolved["known"] as Dictionary).duplicate(false)
 			# Prior-impact Detonate and consumption are part of this same click.
 			# Include automatic follow-ups, stopping before the next player choice.
 			var cursor: int = _pending_action_index + 1
@@ -31760,6 +31786,8 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 					followup = _combat_engine.apply_player_action(followup, next_action)
 				cursor += 1
 			_surface_preview_cache["state"] = followup
+		_surface_preview_cache["before"] = state
+	state = _surface_preview_cache.get("before", state) as Dictionary
 	var after: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
 	result["surface_preview_events"] = _surface_events_between(state, after)
 	var arcs: Array[Dictionary]

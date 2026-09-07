@@ -69,7 +69,7 @@ func _initialize() -> void:
 		"viewport": "%dx%d" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
-		"ambient_particle_count": int(board.call("_ambient_particle_count", "ice", 81, 6)),
+		"ambient_particle_count": int(board.call("_ambient_particle_count", "ice", 81)),
 		"idle": await _measure_phase(board, state, idle_presentation, "idle"),
 		"interaction": await _measure_phase(board, state, idle_presentation, "interaction"),
 		"movement": await _measure_phase(board, state, _movement_presentation(), "movement"),

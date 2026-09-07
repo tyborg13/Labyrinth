@@ -37,6 +37,28 @@ class PerformancePassTest(unittest.TestCase):
         problems = performance_pass._compatibility_problems(baseline, candidate)
         self.assertTrue(any("enemy round semantics differs" in problem for problem in problems))
 
+    def test_surface_target_or_preview_changes_reject_comparison(self):
+        import copy
+        baseline = {"benchmarks": {"surface_frame": {"result": {"hover": {"chain_bolt": {
+            "target_count": 2, "target_tiles": ["(2, 2)", "(3, 3)"],
+            "presentation_digests": [11, 12], "committed_state_digest": 42,
+        }}}}}}
+        for field, replacement in (("target_tiles", ["(2, 2)", "(4, 4)"]), ("presentation_digests", [11, 13])):
+            candidate = copy.deepcopy(baseline)
+            candidate["benchmarks"]["surface_frame"]["result"]["hover"]["chain_bolt"][field] = replacement
+            problems = performance_pass._compatibility_problems(baseline, candidate)
+            self.assertTrue(any(field in problem for problem in problems))
+
+    def test_targeted_native_selection_requires_native_flag(self):
+        args = performance_pass.build_parser().parse_args(["run", "--task-id", "proof", "--benchmark", "surface_frame"])
+        with self.assertRaisesRegex(ValueError, "requires --native"):
+            performance_pass.command_run(args)
+
+    def test_surface_cpu_route_changes_reject_comparison(self):
+        baseline = {"benchmarks": {"surface_cpu": {"result": {"cases": {"chain": {"route_digest": 11}}}}}}
+        candidate = {"benchmarks": {"surface_cpu": {"result": {"cases": {"chain": {"route_digest": 12}}}}}}
+        self.assertTrue(any("route_digest differs" in problem for problem in performance_pass._compatibility_problems(baseline, candidate)))
+
     def test_process_clock_reports_cannot_compare_to_post_draw_reports(self):
         for benchmark in ("runtime_frame", "reward_animation"):
             baseline = {"benchmarks": {benchmark: {"result": {}}}}

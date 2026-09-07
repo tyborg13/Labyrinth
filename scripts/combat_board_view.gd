@@ -12,6 +12,7 @@ const BoardSurfaceIceLayer = preload("res://scripts/board_surface_ice_layer.gd")
 const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
 const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
+const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -631,6 +632,7 @@ var _render_layer_tile: Vector2i = Vector2i(-1, -1)
 var _render_layer_scene_effect_pass: int = 0
 var _render_instrumentation_owner: Node = null
 var _surface_rubble_layer: Node2D
+var _animated_surface_tiles: Array[Vector2i]
 var _surface_ice_layer: Node2D
 var _surface_fire_layer: Node2D
 var _surface_electric_layer: Node2D
@@ -1342,7 +1344,7 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 
 func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
 	if not bool(presentation.get("reduced_motion", false)):
-		for surface_tile: Vector2i in BoardSurfaceRules.tiles(combat_state):
+		for surface_tile: Vector2i in _animated_surface_tiles:
 			if _board_tile_is_visible_to_player(surface_tile):
 				_queue_scene_render_layer_for_tile(surface_tile)
 	if _campfire_atmosphere_active():
@@ -1419,7 +1421,7 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
-	if not bool(presentation.get("reduced_motion", false)) and not BoardSurfaceRules.tiles(combat_state).is_empty():
+	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
 		return true
 	if _ambient_particles_active():
 		return true
@@ -1569,6 +1571,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# layers (unit tests and callers can submit state while the view is detached).
 	# Live views already pay this exact diff cost for selective redraw routing.
 	var presentation_changes: Dictionary = _changed_presentation_keys(presentation, next_presentation)
+	var surface_redraw_tiles: Array[Vector2i] = BoardSurfaceRenderDependencies.changed_tiles(presentation, next_presentation, presentation_changes)
 	var previous_damage_preview: Dictionary = {}
 	var moving_actor_keys: Dictionary = {}
 	var previous_unit_render_tiles: Dictionary = {}
@@ -1657,6 +1660,13 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# the caller. CombatBoardView only reads them and stores derived render data,
 	# avoiding a full recursive clone on every animation/hover submission.
 	combat_state = next_state
+	if not _submission_cache_initialized or combat_render_changes.has("surfaces"):
+		_animated_surface_tiles.clear()
+		for surface_tile: Vector2i in BoardSurfaceRules.tiles(next_state):
+			# Rubble's authored material is static. Elemental layers keep the
+			# exact existing continuous cadence, including Fire's conduction.
+			if not BoardSurfaceRules.element_at(next_state, surface_tile).is_empty():
+				_animated_surface_tiles.append(surface_tile)
 	move_tiles = _vector2i_array(next_move_tiles)
 	attack_tiles = _vector2i_array(next_attack_tiles)
 	selected_tile = next_selected_tile
@@ -1875,6 +1885,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			previous_scene_props,
 			next_presentation.get("scene_props", []) as Array
 		)
+		for surface_tile: Vector2i in surface_redraw_tiles:
+			_queue_scene_render_layer_for_tile(surface_tile)
 	_sync_enemy_shadow_dissolve_effects()
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
@@ -2033,10 +2045,9 @@ func _queue_presentation_change_redraws(
 	for key_var: Variant in changed_keys:
 		match str(key_var):
 			"surface_preview_events", "surface_preview_arcs", "surface_feedback_events", "surface_feedback_progress":
-				for floor_tile: Vector2i in _all_board_surface_preview_tiles():
-					_queue_scene_render_layer_for_tile(floor_tile)
-				_queue_dynamic_redraw()
-			"surface_status_preview":
+				# set_combat_state queues the union of old/new command owners.
+				pass
+			"surface_status_preview", "friendly_damage_chips":
 				hud_changed = true
 			"ambient_time_seconds":
 				ambient_changed = true
@@ -2051,8 +2062,6 @@ func _queue_presentation_change_redraws(
 				path_changed = true
 				effects_changed = true
 			"effect", "effect_progress":
-				if str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "chain":
-					for tile: Vector2i in _all_board_surface_preview_tiles(): _queue_scene_render_layer_for_tile(tile)
 				effects_changed = true
 				action_floor_changed = true
 				overlay_changed = true
@@ -2168,7 +2177,7 @@ func _queue_combat_state_change_redraws(
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
 	if changed_keys.has("traps"):
 		_queue_render_layer_redraw(_ground_render_layer)
-	if changed_keys.has("surfaces") or changed_keys.has("relics"):
+	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
 		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
 			_queue_scene_render_layer_for_tile(tile)
 	if changed_keys.has("grid") or changed_keys.has("room_element"):
@@ -13890,13 +13899,6 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	_draw_surface_conduction_floor(tile)
 	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)))
 
-func _all_board_surface_preview_tiles() -> Array[Vector2i]:
-	var tiles: Array[Vector2i]
-	for y: int in range((combat_state.get("grid", []) as Array).size()):
-		for x: int in range((combat_state.get("grid", []) as Array)[y].size()):
-			tiles.append(Vector2i(x, y))
-	return tiles
-
 func _draw_surface_connection_preview(tile: Vector2i) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):
 		if typeof(arc_var) != TYPE_DICTIONARY: continue
@@ -13908,10 +13910,9 @@ func _draw_surface_connection_preview(tile: Vector2i) -> void:
 
 func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, dashed: bool, alpha: float) -> void:
 	if from.x < 0 or to.x < 0 or from == to: return
-	var steps: int = maxi(6, int(Vector2(from).distance_to(Vector2(to)) * 12.0))
+	var steps: int = BoardSurfaceRenderDependencies.floor_line_steps(from, to)
 	for index: int in range(steps):
-		var t: float = (float(index) + 0.5) / float(steps)
-		if _elemental_lerp_depth_tile(from, to, t) != tile or (dashed and index % 3 == 2): continue
+		if BoardSurfaceRenderDependencies.floor_line_depth_tile(from, to, index, steps) != tile or (dashed and index % 3 == 2): continue
 		var a: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index) / float(steps))
 		var b: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index + 1) / float(steps))
 		if dashed:

@@ -465,7 +465,8 @@ func _verify_flurry_skip_suffix_preview_semantics(instance: Node, combat: Combat
 	) as Dictionary
 	var reference_usec: int = Time.get_ticks_usec() - reference_started
 	_expect(shortcut_preview == reference_preview, "Flurry skip-suffix preview shortcut must match the complete target walk")
-	_expect(actions.size() == 40, "Flurry shortcut fixture must exercise twenty complete repetitions")
+	var printed_action_count: int = (combat.card_def("cinder_fusillade", prepared_state).get("actions", []) as Array).size()
+	_expect(printed_action_count > 0 and actions.size() == 20 * printed_action_count, "Flurry shortcut fixture must exercise twenty complete repetitions of the current printed actions")
 	return {
 		"action_count": actions.size(),
 		"preview_digest": hash(shortcut_preview),

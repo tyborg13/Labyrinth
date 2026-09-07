@@ -20,6 +20,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADLESS_BENCHMARKS = {
+    "surface_cpu": ("SURFACE CPU PERF RESULT:", "tests/surface_cpu_performance_benchmark.gd"),
     "simulation": ("PERF RESULT:", "tests/performance_benchmark.gd"),
     "runtime_integration": (
         "RUNTIME INTEGRATION PERF RESULT:",
@@ -35,6 +36,7 @@ HEADLESS_BENCHMARKS = {
     ),
 }
 NATIVE_BENCHMARKS = {
+    "surface_frame": ("SURFACE FRAME PERF RESULT:", "tests/surface_frame_performance_benchmark.gd"),
     "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
     "runtime_frame": (
         "RUNTIME FRAME PERF RESULT:",
@@ -193,6 +195,26 @@ COMPARISON_METRICS.update({
     )
 })
 
+COMPARISON_METRICS.update({
+    f"surface_frame.{phase}.{workload}.{metric}": "lower"
+    for phase, workloads in (
+        ("presentation", ("sparse_preview", "sparse_feedback", "chain_path")),
+        ("idle", ("rubble", "mixed")),
+        ("hover", tuple(f"{card}.{temperature}" for card in ("chain_bolt", "wildfire_halo", "updraft", "frostbolt") for temperature in ("cold", "warm"))),
+    )
+    for workload in workloads
+    for metric in (
+        "frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.max",
+        "frames_over_16_67_ms", "frames_over_33_33_ms",
+        "board_profile.layer_draw_counts.scene_tile",
+    )
+})
+COMPARISON_METRICS.update({
+    f"surface_cpu.cases.{case}.{metric}": "lower"
+    for case in ("ranged", "chain", "conduction", "area")
+    for metric in ("preview_usec", "apply_usec")
+})
+
 COMPATIBILITY_FIELDS = {
     "report schema": ("schema_version",),
     "platform": ("environment", "platform"),
@@ -250,6 +272,15 @@ COMPATIBILITY_FIELDS = {
     "enemy dissolve cadence": ("benchmarks", "enemy_dissolve", "result", "dissolve_frame_seconds"),
     "enemy dissolve warm repetitions": ("benchmarks", "enemy_dissolve", "result", "warm_repetitions"),
 }
+for benchmark in ("surface_cpu", "surface_frame"):
+    for field in ("schema_version", "workload_id", "viewport", "ui_scale", "renderer", "rendering_method", "sample_boundary", "sample_frames"):
+        COMPATIBILITY_FIELDS[f"{benchmark} {field}"] = ("benchmarks", benchmark, "result", field)
+for card in ("chain_bolt", "wildfire_halo", "updraft", "frostbolt"):
+    for field in ("target_count", "target_tiles", "committed_state_digest", "presentation_digests"):
+        COMPATIBILITY_FIELDS[f"surface {card} {field}"] = ("benchmarks", "surface_frame", "result", "hover", card, field)
+for case in ("ranged", "conduction", "chain", "area"):
+    for field in ("state_digest", "route_digest", "route_hits"):
+        COMPATIBILITY_FIELDS[f"surface CPU {case} {field}"] = ("benchmarks", "surface_cpu", "result", "cases", case, field)
 
 
 def _command_output(command: list[str], cwd: Path, timeout: int) -> tuple[int, str, float]:
@@ -378,6 +409,9 @@ def _git_metadata() -> dict[str, Any]:
 
 
 def command_run(args: argparse.Namespace) -> int:
+    selected = set(args.benchmark or ())
+    if selected.intersection(NATIVE_BENCHMARKS) and not args.native:
+        raise ValueError("native benchmark selection requires --native")
     report: dict[str, Any] = {
         "schema_version": 1,
         "captured_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
@@ -392,11 +426,15 @@ def command_run(args: argparse.Namespace) -> int:
         "benchmarks": {},
     }
     for name, (marker, script) in HEADLESS_BENCHMARKS.items():
+        if selected and name not in selected:
+            continue
         report["benchmarks"][name] = _run_benchmark(
             name, marker, script, args.task_id, False, args.timeout
         )
     if args.native:
         for name, (marker, script) in NATIVE_BENCHMARKS.items():
+            if selected and name not in selected:
+                continue
             report["benchmarks"][name] = _run_benchmark(
                 name, marker, script, args.task_id, True, args.timeout
             )
@@ -485,6 +523,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser = subparsers.add_parser("run", help="capture a structured performance report")
     run_parser.add_argument("--task-id", required=True)
     run_parser.add_argument("--native", action="store_true", help="include the native 1920x1080 render probe")
+    run_parser.add_argument("--benchmark", action="append", choices=tuple(HEADLESS_BENCHMARKS) + tuple(NATIVE_BENCHMARKS), help="run only selected benchmarks; repeat to select several")
     run_parser.add_argument("--timeout", type=int, default=120)
     run_parser.add_argument("--output")
     run_parser.set_defaults(func=command_run)
