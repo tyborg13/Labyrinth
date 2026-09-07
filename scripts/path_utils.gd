@@ -108,7 +108,7 @@ static func has_line_of_sight(grid: Array, start: Vector2i, goal: Vector2i) -> b
 
 # Keep geometric range separate from movement cost. Each budget state is
 # considered so a slightly longer safe route can beat a short harmful route.
-static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: Dictionary = {}, step_cost: Callable = Callable(), hazard_cost: Callable = Callable(), minimum_progress: bool = true, pickup_score: Callable = Callable()) -> Dictionary:
+static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: Dictionary = {}, step_cost: Callable = Callable(), hazard_cost: Callable = Callable(), minimum_progress: bool = true, pickup_score: Callable = Callable(), stop_after_reaching: Callable = Callable()) -> Dictionary:
 	var initial_path: Array[Vector2i]
 	initial_path.append(start)
 	var paths: Dictionary = {start: initial_path}
@@ -151,6 +151,11 @@ static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: 
 				costs[next] = spent
 				hazards[next] = harm
 				pickups[next] = pickup
+			# Existence callers need a reachable destination, not the preferred
+			# route to every destination. The same blockers, costs and minimum-step
+			# rules above still decide whether this path is legal.
+			if stop_after_reaching.is_valid() and bool(stop_after_reaching.call(next)):
+				return {"paths": paths, "costs": costs, "hazards": hazards}
 			if spent < budget:
 				queue.append({"tile": next, "cost": spent, "hazard": harm, "pickups": pickup, "path": path})
 	return {"paths": paths, "costs": costs, "hazards": hazards}

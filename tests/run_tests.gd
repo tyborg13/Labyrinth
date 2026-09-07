@@ -43,6 +43,9 @@ const RunSfxSuite = preload("res://tests/suites/run_sfx_suite.gd")
 const CombatObjectiveSuite = preload("res://tests/suites/combat_objective_suite.gd")
 const GrimoireSearchSuite = preload("res://tests/suites/grimoire_search_suite.gd")
 const MoveAttackShortcutSuite = preload("res://tests/suites/move_attack_shortcut_suite.gd")
+const CardPlayabilitySummarySuite = preload("res://tests/suites/card_playability_summary_suite.gd")
+const SkillTreeCompletionEquivalenceSuite = preload("res://tests/suites/skill_tree_completion_equivalence_suite.gd")
+const TerrainConnectivityEquivalenceSuite = preload("res://tests/suites/terrain_connectivity_equivalence_suite.gd")
 const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
 const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
@@ -123,6 +126,9 @@ func _initialize() -> void:
 	CombatObjectiveSuite.run(Callable(self, "_assert"))
 	GrimoireSearchSuite.run(Callable(self, "_assert"))
 	MoveAttackShortcutSuite.run(Callable(self, "_assert"))
+	CardPlayabilitySummarySuite.run(Callable(self, "_assert"))
+	SkillTreeCompletionEquivalenceSuite.run(Callable(self, "_assert"))
+	TerrainConnectivityEquivalenceSuite.run(Callable(self, "_assert"))
 	MapUiSuite.run(Callable(self, "_assert"))
 	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
@@ -4996,6 +5002,7 @@ func _test_player_restriction_badges_show_turn_lock() -> void:
 	_assert(int(statuses.get("shock", 0)) == 1, "Shocked turns should still surface a shock badge even after the restriction consumes the stored counter")
 	statuses = board.call("_player_display_statuses", {"burn": 0, "freeze": 0, "shock": 0, "immobilize": false}, {"frozen": false, "shocked": false, "immobilized": true})
 	_assert(bool(statuses.get("immobilize", false)), "Immobilized turns should still surface an immobilize badge after the restriction consumes the stored condition")
+	board.free()
 
 func _test_air_trap_tooltip_is_damage_only() -> void:
 	var board := CombatBoardView.new()
@@ -5055,6 +5062,7 @@ func _test_pickup_tooltips_describe_effects() -> void:
 	_assert(not terrain_tooltip.contains("Blocks movement"), "Client terrain tooltips should stay concise")
 	_assert(not terrain_tooltip.contains("Line of sight open"), "Client terrain tooltips should not repeat tactical harness guidance")
 	_assert(not terrain_tooltip.contains("Attack to break"), "Client terrain tooltips should avoid instructional text")
+	board.free()
 
 func _test_terrain_health_bars_are_contextual() -> void:
 	var board := CombatBoardView.new()
@@ -5091,6 +5099,7 @@ func _test_terrain_health_bars_are_contextual() -> void:
 	var terrain_preview: Dictionary = board.call("_terrain_damage_preview", terrain)
 	_assert(bool(board.call("_should_show_terrain_health_bar", terrain)), "Terrain with a pending damage preview should show its health bar")
 	_assert(int(terrain_preview.get("hp", -1)) == 1 and int(terrain_preview.get("hp_loss", 0)) == 2, "Terrain health bars should read terrain damage previews by terrain key")
+	board.free()
 
 func _test_health_bar_segments_use_fixed_point_scale() -> void:
 	var board := CombatBoardView.new()
@@ -5098,6 +5107,7 @@ func _test_health_bar_segments_use_fixed_point_scale() -> void:
 	_assert(int(board.call("_health_bar_segment_count", 14)) == 7, "Combat board unit health bars should use the shared natural-unit segment size")
 	_assert(int(board.call("_health_bar_segment_count", 3)) == 2, "Low-HP terrain should avoid one segment per HP")
 	_assert(int(board.call("_health_bar_segment_count", 1)) == 1, "Tiny health bars should keep at least one filled segment")
+	board.free()
 
 func _test_run_scene_terrain_damage_previews_use_terrain_keys() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
@@ -5150,6 +5160,7 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
 	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
 	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
+	board.free()
 
 func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var board := CombatBoardView.new()
@@ -5161,6 +5172,7 @@ func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	_assert(tile_width > 176.0, "Combat board should use the enlarged default combat zoom on large stage space")
 	_assert(top_inner_tile.y < 220.0, "Combat board layout should use hidden-wall-free bounds and sit higher in the stage")
 	_assert(bottom_inner_tile.y < board.size.y - 24.0, "Combat board's playable lower-row centers should remain inside the stage while the hand intentionally overlays its lower edge")
+	board.free()
 
 func _test_enemy_intent_name_reserves_header_line() -> void:
 	var board := CombatBoardView.new()
@@ -5174,6 +5186,7 @@ func _test_enemy_intent_name_reserves_header_line() -> void:
 	}
 	_assert(int(board.call("_enemy_intent_line_count", attack_intent)) == 2, "Named enemy intents should reserve a header line above their action icons")
 	_assert(int(board.call("_enemy_intent_line_count", wait_intent)) == 1, "Name-only enemy intents should still render a title line")
+	board.free()
 
 func _test_enemy_intent_contour_expands_on_hover_or_toggle() -> void:
 	var board := CombatBoardView.new()
@@ -5211,6 +5224,7 @@ func _test_enemy_intent_contour_expands_on_hover_or_toggle() -> void:
 	var toggled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center, [], font)
 	var toggled_rows: Array = toggled_layout.get("rows", [])
 	_assert(toggled_rows.size() == 1, "The show-all enemy intent flag should reveal intent detail without hover")
+	board.free()
 
 func _test_enemy_intent_action_rows_use_readable_scale() -> void:
 	_assert(is_equal_approx(CombatBoardView.INTENT_POPUP_ICON_SIZE, 41.0), "Enemy intent action icons should use the ten-percent-smaller taste-pass scale")
@@ -5257,6 +5271,7 @@ func _test_enemy_intent_contour_uses_right_shoulder() -> void:
 	_assert(line_rects.size() == 2, "The intent name and action should remain independently positioned")
 	_assert(((line_rects[1] as Rect2).position.y >= (line_rects[0] as Rect2).end.y), "Action detail should descend from the intent name along the sprite contour")
 	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Freeform shoulder text should not draw an ownership tether")
+	board.free()
 
 func _test_enemy_hud_small_top_correction_stays_centered() -> void:
 	var board := CombatBoardView.new()
@@ -5268,6 +5283,7 @@ func _test_enemy_hud_small_top_correction_stays_centered() -> void:
 	_assert(is_equal_approx(offset.x, 0.0), "A small top-edge correction should remain centered when it can move down without covering the actor")
 	_assert(is_equal_approx(offset.y, 2.0), "A small top-edge correction should move only the exact amount needed to enter the viewport")
 	_assert(str((board.get("_enemy_hud_side_by_actor") as Dictionary).get("enemy_41", "")).is_empty(), "A centered top correction should not create side affinity")
+	board.free()
 
 func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
 	var board := CombatBoardView.new()
@@ -5278,6 +5294,7 @@ func _test_enemy_hud_ignores_subpixel_obstacle_slivers() -> void:
 	var sliver := Rect2(Vector2(420.0, 180.0), Vector2(0.5, 2.0))
 	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, [actor_clear_rect, sliver], actor_clear_rect, "enemy_42")
 	_assert(offset == Vector2.ZERO, "A one-square-pixel collision sliver should not push an otherwise clear mid-board enemy HUD away from its actor")
+	board.free()
 
 func _test_enemy_hud_does_not_duplicate_owning_actor_obstacle() -> void:
 	var board := CombatBoardView.new()
@@ -5291,6 +5308,7 @@ func _test_enemy_hud_does_not_duplicate_owning_actor_obstacle() -> void:
 	_assert(placement_obstacles.size() == 1, "The production reserved list should contain the owning actor obstacle exactly once")
 	var offset: Vector2 = board.call("_placed_enemy_hud_offset", base_rects, placement_obstacles, actor_clear_rect, "enemy_44")
 	_assert(offset == Vector2.ZERO, "A sub-threshold owning-actor overlap should not become material through duplicate obstacle accounting")
+	board.free()
 
 func _test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces() -> void:
 	var board := CombatBoardView.new()
@@ -5308,6 +5326,7 @@ func _test_enemy_hud_side_offset_clears_only_vertically_overlapping_pieces() -> 
 	_assert(absf(offset.x) > 1.0, "A top correction that would cover the actor should still use a side placement")
 	_assert(absf(offset.x) < absf(legacy_full_bounds_shift), "Side placement should stay closer by clearing only HUD pieces that vertically overlap the actor")
 	_assert(not shifted_intent.intersects(actor_clear_rect, false) and not shifted_health.intersects(actor_clear_rect, false), "The closer side placement should still clear the actor")
+	board.free()
 
 func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var board := CombatBoardView.new()
@@ -5337,6 +5356,7 @@ func _test_enemy_hud_layout_offsets_away_from_reserved_ui() -> void:
 	var placed_intent: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
 	_assert(not placed_intent.intersects(health_rect, false), "Expanded enemy intent should clear the anchored health bar")
 	_assert(not placed_intent.intersects(blocking_rect, false), "Expanded enemy intent should clear reserved intent space")
+	board.free()
 
 func _test_enemy_intent_contour_stays_anchored_at_top_edge() -> void:
 	var board := CombatBoardView.new()
@@ -5365,6 +5385,7 @@ func _test_enemy_intent_contour_stays_anchored_at_top_edge() -> void:
 	_assert(intent_rect.position.y >= 6.0 and intent_rect.end.x <= board.size.x - 6.0, "Top-edge contour text should remain inside the board viewport")
 	_assert((line_rects[0] as Rect2).position.y <= actor_clear_rect.position.y + 16.0, "The intent name should start at the base sprite's highest shoulder contour")
 	_assert((layout.get("tether", {}) as Dictionary).is_empty(), "Contour text should not retain the old panel ownership tether")
+	board.free()
 
 func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> void:
 	var board := CombatBoardView.new()
@@ -5395,6 +5416,7 @@ func _test_enemy_hud_side_selection_is_stable_during_small_layout_changes() -> v
 	var settled_layout: Dictionary = board.call("_enemy_hud_layout", enemy, center + Vector2(-0.35, 0.0), [], font)
 	_assert(str(settled_layout.get("side", "")) == "right", "Nearby clear layouts should always remain on the fixed right shoulder")
 	_assert((board.get("_enemy_hud_side_by_actor") as Dictionary).is_empty(), "Fixed-right contours should not retain per-enemy side affinity")
+	board.free()
 
 func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -> void:
 	var board := CombatBoardView.new()
@@ -5434,6 +5456,7 @@ func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -
 	_assert(boss_rect.size.y > door_frame.size.y, "Zekarion should remain the taller framing case than the tallest structural prop frame")
 	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > 0.0, "Tall top-corner art should activate content-aware default framing")
 	_assert(boss_rect.position.y >= safe_top - 0.01, "The tallest shipped top-corner character should remain fully inside the screen-safe top edge")
+	board.free()
 
 func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cached_room() -> void:
 	var board := CombatBoardView.new()
@@ -5480,6 +5503,7 @@ func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cach
 	board.set_combat_state(settled_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
 	board.call("_board_origin")
 	_assert(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), refreshed_offset), "Same-room visual transitions should retain earned top clearance instead of making the board chatter vertically")
+	board.free()
 
 func _test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_room() -> void:
 	var board := CombatBoardView.new()
@@ -5507,6 +5531,7 @@ func _test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_
 	var prop_rect: Rect2 = board.call("_scene_prop_rect", prop_texture, prop)
 	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > initial_offset, "A tall scene prop introduced after the room cache exists should refresh adaptive top framing")
 	_assert(prop_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room scene-prop transition should keep the new full prop onscreen")
+	board.free()
 
 func _test_boss_intent_layout_needs_no_global_board_banner() -> void:
 	var board := CombatBoardView.new()
@@ -5563,6 +5588,7 @@ func _test_enemy_art_scale_preserves_center() -> void:
 	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * crawler_scale), "Crawler art scale should shrink the fitted sprite height")
 	_assert(is_equal_approx(scaled_rect.get_center().x, fitted_rect.get_center().x), "Crawler art scaling should keep the sprite centered horizontally")
 	_assert(is_equal_approx(scaled_rect.end.y, fitted_rect.end.y), "Crawler art scaling should keep the sprite feet anchored to the same bottom edge")
+	board.free()
 
 func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
 	var board := CombatBoardView.new()
@@ -5579,6 +5605,7 @@ func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
 	_assert(is_equal_approx(draw_rect.position.x, scaled_rect.position.x + art_offset.x), "Enemy art offset should shift the sprite horizontally after fitting")
 	_assert(is_equal_approx(draw_rect.position.y, scaled_rect.position.y + art_offset.y), "Enemy art offset should shift the sprite vertically after fitting")
 	_assert(is_equal_approx(draw_rect.end.y, scaled_rect.end.y + art_offset.y), "Enemy art offset should move the sprite feet by the configured amount")
+	board.free()
 
 func _test_turn_order_portraits_cover_enemy_roster() -> void:
 	var run_scene_script: Script = load("res://scripts/run_scene.gd")
@@ -5631,6 +5658,7 @@ func _test_enemy_intent_popup_expands_for_long_titles() -> void:
 		"actions": [{"type": "melee", "damage": 4, "range": 1}]
 	}, [[{"icon": "melee"}, {"icon": "damage", "value": 4}]], font))
 	_assert(width > 136.0, "Long enemy intent titles should widen the popup instead of clipping")
+	board.free()
 
 func _test_unit_shadow_uses_alpha_silhouette() -> void:
 	var board := CombatBoardView.new()
@@ -5792,6 +5820,7 @@ func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 		_assert(first_frame.region != last_frame.region, "%s anime trial idle loop should not hold the first frame at the loop boundary" % enemy_type)
 		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
 		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
+	board.free()
 
 func _test_bile_bloomer_art_loads_for_board() -> void:
 	var board := CombatBoardView.new()
@@ -5851,6 +5880,7 @@ func _test_zekarion_uses_matching_idle_sheet() -> void:
 	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Zekarion idle frames should use 1020px 4x2 source cells")
 	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", boss_unit)), 0.1), "Zekarion idle loop should use the boss frame cadence")
 	_assert(texture != null, "Zekarion idle art should load for board rendering")
+	board.free()
 
 func _test_dragon_idle_redraw_targets_footprint_draw_layer() -> void:
 	var board := CombatBoardView.new()
@@ -5895,6 +5925,7 @@ func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
 	_assert(last_frame.region.position == Vector2(3060.0, 3060.0), "Lightning wisp normal loop should include the final source frame")
 	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", wisp_unit)), 0.15), "Lightning wisp idle loop should match the downloaded GIF cadence")
 	_assert(texture != null, "Lightning wisp idle art should load for board rendering")
+	board.free()
 
 func _test_cinder_enemies_use_final_raster_art() -> void:
 	var board := CombatBoardView.new()
@@ -6264,6 +6295,7 @@ func _test_emaciated_man_uses_matching_idle_sheet() -> void:
 	_assert(first_frame.region != last_frame.region, "Emaciated Man idle loop should not hold the first frame at the loop boundary")
 	_assert(npc_texture != null, "Emaciated Man static art should load for board rendering")
 	_assert(npc_texture != acolyte_texture, "Emaciated Man should not reuse the Dust Acolyte texture")
+	board.free()
 
 func _test_foreground_props_fade_when_covering_behind_objects() -> void:
 	var board := CombatBoardView.new()
@@ -10637,6 +10669,7 @@ func _test_run_scene_ranged_cards_show_range() -> void:
 	_assert(intent_rows.size() == 1 and str(((intent_rows[0] as Array)[1] as Dictionary).get("icon", "")) == "range", "Enemy shot intents should show attack range with the shared range icon")
 	instance.queue_free()
 	await process_frame
+	board.free()
 
 func _test_run_scene_preview_normalizes_untyped_target_tiles() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")

@@ -125,7 +125,7 @@ func _phase(action: Callable, minimum_frames: int) -> Dictionary:
 	action.call()
 	var handler_ms: float = float(Time.get_ticks_usec() - started) / 1000.0
 	var frames: int = 0
-	while frames < minimum_frames or bool(_instance.get("_animation_lock")) or bool(_instance.get("_merchant_trade_animation_active")) or bool(_instance.get("_loadout_acquisition_in_progress")):
+	while frames < minimum_frames or bool(_instance.get("_animation_lock")) or bool(_instance.get("_merchant_trade_animation_active")) or bool(_instance.get("_loadout_acquisition_in_progress")) or bool(_instance.get("_campfire_choice_action_pending")) or bool(_instance.get("_relic_claim_in_progress")) or bool(_instance.get("_equipment_swap_animation_active")) or bool(_instance.get("_item_swap_animation_active")):
 		await _probe.call("_await_render_frame")
 		frames += 1
 		if frames >= 1200:

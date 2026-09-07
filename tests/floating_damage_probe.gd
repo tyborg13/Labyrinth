@@ -16,6 +16,8 @@ const LEGACY_LOADED_TOSS_SERIAL_SECONDS: float = 3.91
 const TARGET_MULTI_EFFECT_DURATION_RATIO: float = 0.50
 
 var _failures: Array[String] = []
+var _layout_offsets: Dictionary = {}
+var _layout_records: Array[Dictionary]
 
 
 func _initialize() -> void:
@@ -30,6 +32,8 @@ func _initialize() -> void:
 	if packed != null:
 		await _capture_config(packed, {"size": Vector2i(1920, 1080), "scale": 1.0})
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	var layout_file := FileAccess.open("%s/final_popup_geometry.json" % OUTPUT_DIR, FileAccess.WRITE)
+	if layout_file != null: layout_file.store_string(JSON.stringify(_layout_records, "\t"))
 	if _failures.is_empty():
 		print("FLOATING DAMAGE PROBE: PASS")
 		quit(0)
@@ -91,6 +95,9 @@ func _capture_config(packed: PackedScene, config: Dictionary) -> void:
 	)
 	_hide_log(instance)
 	_assert_arc_continuity()
+	await _capture_popup_state(instance, viewport, combat_state,
+		[FloatingCombatText.damage_entry(Vector2i(3, 3), "-7", Color("f39779"))],
+		0.0, false, ["player"], "%s/player_damage_impact.png" % output_dir, screenshot_size)
 
 	var enemy_damage: Array = [
 		FloatingCombatText.damage_entry(Vector2i(5, 3), "-13", Color("f39779")),
@@ -481,6 +488,27 @@ func _capture_animated_popup_state(
 					allocated_width >= glyph_width + float(int(entry.get("outline_size", 0)) * 2),
 					"%s should allocate every Draw/Play glyph plus its outline at this animation state" % path
 				)
+		var effects: Control = board.get("_effects_render_layer") as Control
+		var layouts: Array = effects.get("_floating_text_last_layout") as Array
+		for popup: Dictionary in layouts:
+			var tile: Vector2i = popup["tile"]
+			var offset: Vector2 = popup["layout_offset"]
+			var target: Rect2 = effects.call("_floating_text_target_rect", tile)
+			var drawn: Rect2 = popup["rendered_rect"]
+			drawn.position += offset
+			var key: String = str(popup["key"])
+			if _layout_offsets.has(key):
+				_expect(offset.is_equal_approx(_layout_offsets[key]), "%s should keep its rendered lane through the authored arc" % path)
+			_layout_offsets[key] = offset
+			if layouts.size() == 1 and FloatingCombatText.is_damage_entry(popup["entry"]):
+				_expect(absf(offset.y) <= FloatingCombatText.SCREEN_POPUP_SOLO_VERTICAL_SHIFT, "%s must not shift a solo hit down onto another actor" % path)
+				if is_zero_approx(elapsed_seconds):
+					var target_distance: float = drawn.get_center().distance_squared_to(target.get_center())
+					for unit: Dictionary in effects.call("_visible_units"):
+						if (effects.call("_unit_footprint_tiles", unit) as Array).has(tile): continue
+						var other: Rect2 = effects.call("_unit_draw_rect", unit)
+						_expect(target_distance < drawn.get_center().distance_squared_to(other.get_center()), "%s final glyphs must be nearer the receiving actor than its neighbors" % path)
+			_layout_records.append({"capture": path.get_file(), "tile": str(tile), "key": key, "target_rect": str(target), "layout_offset": str(offset), "final_glyph_rect": str(drawn)})
 	await _save_screenshot(viewport, path, expected_size)
 
 

@@ -65,8 +65,8 @@ func _initialize() -> void:
 				if previous_offsets.has(key):
 					_expect((previous_offsets[key] as Vector2).is_equal_approx(offset), "Popup lanes must stay stable through stagger and font settling")
 				previous_offsets[key] = offset
-				_expect(absf(offset.y) <= 160.0, "Dense results must remain close to their actors")
-				_expect(absf(offset.x) <= 24.0, "Labels must stay associated with their actors")
+				_expect(absf(offset.y) <= FloatingCombatText.SCREEN_POPUP_STACK_VERTICAL_SHIFT, "Dense results must remain close to their actors")
+				_expect(absf(offset.x) <= FloatingCombatText.SCREEN_POPUP_MAX_SIDE_SHIFT, "Labels must stay associated with their actors")
 				for other_index: int in range(index):
 					var other: Dictionary = layouts[other_index]
 					var other_envelope: Rect2 = other["rendered_rect"]

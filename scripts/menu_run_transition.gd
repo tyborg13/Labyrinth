@@ -33,6 +33,7 @@ var _settings: Dictionary
 var _elapsed: float = 0.0
 var _path: String
 var _prepare_run: Callable
+var _performance_timings: Dictionary = {}
 
 func begin(menu: Control, path: String, prepare_run: Callable) -> void:
 	name = "MenuRunTransition"
@@ -100,65 +101,106 @@ func _update_dots() -> void:
 	message_label.visible_characters = -1 if SettingsStore.reduced_motion_enabled(_settings) else MESSAGE.length() + (1 + int(_elapsed / DOT_SECONDS)) % 4
 
 func _load_destination() -> void:
-	await _present_frame()
-	var error := ResourceLoader.load_threaded_request(_path, "PackedScene")
+	_load_destination_while_alive(self, get_tree())
+
+# The operation outlives an interrupted Node. Every suspension resumes into a
+# static function, which checks ownership before touching the transition again.
+static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTree) -> void:
+	await _present_frame_for(tree)
+	if not _loading_is_active(transition): return
+	var performance_started: int = Time.get_ticks_usec()
+	var error := ResourceLoader.load_threaded_request(transition._path, "PackedScene")
+	performance_started = transition._record_performance_phase("resource_request", performance_started)
 	if error != OK:
-		_fail()
+		transition._fail()
 		return
-	while ResourceLoader.load_threaded_get_status(_path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
-		await get_tree().process_frame
-	if ResourceLoader.load_threaded_get_status(_path) != ResourceLoader.THREAD_LOAD_LOADED:
-		_fail()
+	while ResourceLoader.load_threaded_get_status(transition._path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+		await tree.process_frame
+		if not _loading_is_active(transition): return
+	if ResourceLoader.load_threaded_get_status(transition._path) != ResourceLoader.THREAD_LOAD_LOADED:
+		transition._fail()
 		return
-	var packed := ResourceLoader.load_threaded_get(_path) as PackedScene
+	performance_started = transition._record_performance_phase("threaded_load_wait", performance_started)
+	var packed := ResourceLoader.load_threaded_get(transition._path) as PackedScene
+	performance_started = transition._record_performance_phase("threaded_load_get", performance_started)
 	if packed == null or not packed.can_instantiate():
-		_fail()
+		transition._fail()
 		return
-	_set_phase(&"preparing")
-	destination = packed.instantiate()
-	if destination == null:
-		_fail()
+	transition._set_phase(&"preparing")
+	if not _loading_is_active(transition): return
+	transition.destination = packed.instantiate()
+	performance_started = transition._record_performance_phase("scene_instantiate", performance_started)
+	if transition.destination == null:
+		transition._fail()
 		return
+	transition._destination_process_mode = transition.destination.process_mode
+	if transition.destination.has_method("initial_asset_preparation_target"):
+		var target: Control = transition.destination.call("initial_asset_preparation_target")
+		await target.get_script().call("prepare_initial_assets_for", target, _present_frame_for.bind(tree), tree.root.has_meta("labyrinth_performance_probe_seed"))
+		if not _loading_is_active(transition): return
+	performance_started = transition._record_performance_phase("initial_asset_preparation", performance_started)
 	# Only commit New Run replacement / resume intent after loading succeeds.
-	if _prepare_run.is_valid():
-		_prepare_run.call()
-	if destination.has_method("defer_initial_music_until_reveal"):
-		destination.call("defer_initial_music_until_reveal")
-	_destination_process_mode = destination.process_mode
-	destination.process_mode = Node.PROCESS_MODE_DISABLED
-	_menu_parent.add_child(destination)
+	if transition._prepare_run.is_valid():
+		transition._prepare_run.call()
+	performance_started = transition._record_performance_phase("prepare_run_intent", performance_started)
+	if transition.destination.has_method("defer_initial_music_until_reveal"):
+		transition.destination.call("defer_initial_music_until_reveal")
+	transition.destination.process_mode = Node.PROCESS_MODE_DISABLED
+	transition._menu_parent.add_child(transition.destination)
+	performance_started = transition._record_performance_phase("scene_add_and_ready", performance_started)
 	# RunScene._ready builds the room synchronously, then its hand layout waits
 	# two process frames before scheduling additional hand/dock fitting. Allow
 	# that first refresh to run, then use the room's live readiness contract;
 	# a frame count alone can reveal a still-hidden Pass button in reduced motion.
 	for frame: int in range(3):
-		await get_tree().process_frame
+		await tree.process_frame
+		if not _loading_is_active(transition): return
 	while true:
-		await _present_frame()
-		if not destination.has_method("initial_presentation_is_ready") or bool(destination.call("initial_presentation_is_ready")):
+		await _present_frame_for(tree)
+		if not _loading_is_active(transition): return
+		if not transition.destination.has_method("initial_presentation_is_ready") or bool(transition.destination.call("initial_presentation_is_ready")):
 			break
-		await get_tree().process_frame
-	_set_phase(&"revealing")
-	var duration := SettingsStore.motion_duration(REVEAL_SECONDS, _settings)
+		await tree.process_frame
+		if not _loading_is_active(transition): return
+	transition._record_performance_phase("presentation_ready_wait", performance_started)
+	transition._set_phase(&"revealing")
+	if not _loading_is_active(transition): return
+	var duration := SettingsStore.motion_duration(REVEAL_SECONDS, transition._settings)
 	if duration > 0.0:
-		var tween := create_tween().set_ignore_time_scale(true)
+		var tween := transition.create_tween().set_ignore_time_scale(true)
 		tween.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-		tween.tween_property(_surface, "modulate:a", 0.0, duration)
-		await tween.finished
-	_surface.hide()
-	get_tree().current_scene = destination
-	destination.process_mode = _destination_process_mode
+		tween.tween_property(transition._surface, "modulate:a", 0.0, duration)
+		# A bound tween is killed without a finished signal when its owner leaves.
+		# Frame pulses let the operation release its suspended state on teardown.
+		while tween.is_valid() and tween.is_running():
+			await tree.process_frame
+			if not _loading_is_active(transition): return
+	transition._surface.hide()
+	tree.current_scene = transition.destination
+	transition.destination.process_mode = transition._destination_process_mode
 	# The room is playable immediately; its music waits for the outgoing
 	# track to fade out completely and a brief quiet beat. Never overlap.
-	_handoff_menu_music_to_room()
-	_release_input()
-	_set_phase(&"complete")
-	finished.emit(destination)
-	queue_free()
+	transition._handoff_menu_music_to_room()
+	transition._release_input()
+	transition._set_phase(&"complete")
+	if not _loading_is_active(transition): return
+	transition.finished.emit(transition.destination)
+	if _loading_is_active(transition): transition.queue_free()
 
-func _present_frame() -> void:
+static func _loading_is_active(transition: Variant) -> bool:
+	return is_instance_valid(transition) and transition.is_inside_tree() and not transition.is_queued_for_deletion()
+
+func performance_snapshot() -> Dictionary:
+	return _performance_timings.duplicate(true)
+
+func _record_performance_phase(section: String, started_usec: int) -> int:
+	var now_usec: int = Time.get_ticks_usec()
+	_performance_timings[section + "_usec"] = now_usec - started_usec
+	return now_usec
+
+static func _present_frame_for(tree: SceneTree) -> void:
 	if DisplayServer.get_name() == "headless":
-		await get_tree().process_frame
+		await tree.process_frame
 	else:
 		await RenderingServer.frame_post_draw
 
@@ -209,4 +251,7 @@ func _exit_tree() -> void:
 	_release_input()
 	_restore_menu_music_process_mode()
 	if is_instance_valid(destination):
-		destination.process_mode = _destination_process_mode
+		if destination.get_parent() == null:
+			destination.free()
+		else:
+			destination.process_mode = _destination_process_mode

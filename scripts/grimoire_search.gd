@@ -9,20 +9,30 @@ const _ALIAS_PHRASE_BOOST: int = 430
 const _TOPIC_PHRASE_BOOST: int = 260
 const _RULES_PHRASE_BOOST: int = 180
 
+# The index owns immutable entry snapshots and query-independent normalized text.
+# Callers retain it while their visible catalog is unchanged; search() remains the
+# convenient one-shot API for tools and independent equivalence oracles.
+static func build_index(entries: Array, sections: Array) -> Array[Dictionary]:
+	var section_titles: Dictionary = _section_title_lookup(sections)
+	var index: Array[Dictionary]
+	for entry_var: Variant in entries:
+		if typeof(entry_var) == TYPE_DICTIONARY:
+			index.append(_build_document((entry_var as Dictionary).duplicate(true), section_titles))
+	return index
+
 static func search(entries: Array, sections: Array, query: String) -> Array[Dictionary]:
+	if normalize(query).is_empty(): return []
+	return search_index(build_index(entries, sections), query)
+
+static func search_index(index: Array[Dictionary], query: String) -> Array[Dictionary]:
 	var normalized_query: String = normalize(query)
-	if normalized_query.is_empty():
-		return []
+	if normalized_query.is_empty(): return []
 	var query_tokens: PackedStringArray = normalized_query.split(" ", false)
 	var allow_single_character_prefix: bool = query_tokens.size() > 1
-	var section_titles: Dictionary = _section_title_lookup(sections)
-	var results: Array[Dictionary] = []
-	for entry_var: Variant in entries:
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var scored: Dictionary = _score_entry(entry_var as Dictionary, normalized_query, query_tokens, section_titles, allow_single_character_prefix)
-		if not scored.is_empty():
-			results.append(scored)
+	var results: Array[Dictionary]
+	for document: Dictionary in index:
+		var scored: Dictionary = _score_document(document, normalized_query, query_tokens, allow_single_character_prefix)
+		if not scored.is_empty(): results.append(scored)
 	results.sort_custom(_result_before)
 	return results
 
@@ -41,7 +51,7 @@ static func normalize(value: String) -> String:
 			normalized += " "
 	return " ".join(normalized.split(" ", false))
 
-static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedStringArray, section_titles: Dictionary, allow_single_character_prefix: bool) -> Dictionary:
+static func _build_document(entry: Dictionary, section_titles: Dictionary) -> Dictionary:
 	var title: String = str(entry.get("title", entry.get("id", "")))
 	var title_text: String = normalize(title)
 	var aliases_text: String = normalize(" ".join(_string_values(entry.get("aliases", []))))
@@ -60,6 +70,17 @@ static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedS
 	var alias_words: PackedStringArray = aliases_text.split(" ", false)
 	var topic_words: PackedStringArray = topic_text.split(" ", false)
 	var rules_words: PackedStringArray = rules_text.split(" ", false)
+	return {"entry": entry, "title": title_text, "aliases": aliases_text, "topic": topic_text, "rules": rules_text, "title_words": title_words, "alias_words": alias_words, "topic_words": topic_words, "rules_words": rules_words, "breadcrumb": _breadcrumb(entry, section_titles)}
+
+static func _score_document(document: Dictionary, query: String, query_tokens: PackedStringArray, allow_single_character_prefix: bool) -> Dictionary:
+	var title_text: String = document["title"]
+	var aliases_text: String = document["aliases"]
+	var topic_text: String = document["topic"]
+	var rules_text: String = document["rules"]
+	var title_words: PackedStringArray = document["title_words"]
+	var alias_words: PackedStringArray = document["alias_words"]
+	var topic_words: PackedStringArray = document["topic_words"]
+	var rules_words: PackedStringArray = document["rules_words"]
 	var score: int = 0
 	var matched_kinds: Array[String] = []
 	var relied_on_fuzzy: bool = false
@@ -89,11 +110,11 @@ static func _score_entry(entry: Dictionary, query: String, query_tokens: PackedS
 		score += _RULES_PHRASE_BOOST
 	var match_kind: String = _match_kind(matched_kinds, relied_on_fuzzy)
 	return {
-		"entry": entry,
+		"entry": (document["entry"] as Dictionary).duplicate(true),
 		"rank_tier": _rank_tier(title_text == query, matched_kinds, relied_on_fuzzy),
 		"score": score,
 		"match_kind": match_kind,
-		"breadcrumb": _breadcrumb(entry, section_titles)
+		"breadcrumb": document["breadcrumb"]
 	}
 
 static func _best_token_match(query_token: String, title_words: PackedStringArray, alias_words: PackedStringArray, topic_words: PackedStringArray, rules_words: PackedStringArray, allow_single_character_prefix: bool) -> Dictionary:

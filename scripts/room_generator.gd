@@ -848,15 +848,14 @@ func _generate_terrain(grid: Array, room_type: String, player_start: Vector2i, r
 	var candidates: Array[Vector2i] = _terrain_candidates(grid, player_start, occupied, objective_exit_tiles)
 	var terrain_blocked: Dictionary = {}
 	while terrain.size() < target_count and not candidates.is_empty():
+		var safe_candidates: Dictionary = _terrain_safe_candidate_lookup(grid, player_start, terrain_blocked, candidates)
 		var best_index: int = -1
 		var best_score: float = -INF
 		for index: int in range(candidates.size()):
 			var tile: Vector2i = candidates[index]
 			if terrain_blocked.has(tile):
 				continue
-			var proposed_blocked: Dictionary = terrain_blocked.duplicate(true)
-			proposed_blocked[tile] = true
-			if not _terrain_layout_stays_connected(grid, player_start, proposed_blocked):
+			if not safe_candidates.has(tile):
 				continue
 			var score: float = _terrain_spawn_score(tile, player_start, terrain_blocked, rng)
 			if not objective_exit_tiles.is_empty():
@@ -907,6 +906,66 @@ func _terrain_spawn_score(tile: Vector2i, player_start: Vector2i, chosen: Dictio
 	elif neighbor_count > 1:
 		score -= float(neighbor_count) * 1.4
 	return score
+
+func _terrain_safe_candidate_lookup(grid: Array, start: Vector2i, blocked: Dictionary, candidates: Array[Vector2i]) -> Dictionary:
+	var safe_candidates: Dictionary = {}
+	if blocked.has(start):
+		return safe_candidates
+	var open_tiles: Dictionary = {}
+	for tile: Vector2i in _floor_tiles(grid):
+		if not blocked.has(tile):
+			open_tiles[tile] = true
+	if open_tiles.is_empty():
+		return safe_candidates
+	# For a connected graph, removing a non-start floor tile preserves reachability
+	# exactly when it is not an articulation point. Analyze that graph once per
+	# placement round instead of flood-filling it for every candidate. Candidate
+	# iteration and scoring stay below in their original order so RNG is unchanged.
+	var discovered: Dictionary = {}
+	var lowest: Dictionary = {}
+	var cut_tiles: Dictionary = {}
+	if open_tiles.has(start):
+		_terrain_find_cut_tiles(start, start, open_tiles, discovered, lowest, cut_tiles)
+	# Authored/disconnected grids need the original predicate: removing a lone
+	# disconnected tile can itself restore connectivity. Preserve its behavior for
+	# a non-passable start too, rather than assuming all caller inputs are valid.
+	if discovered.size() != open_tiles.size():
+		return _terrain_safe_candidates_by_flood_fill(grid, start, blocked, candidates)
+	for candidate: Vector2i in candidates:
+		if candidate == start:
+			continue
+		if not open_tiles.has(candidate) or (open_tiles.size() > 1 and not cut_tiles.has(candidate)):
+			safe_candidates[candidate] = true
+	return safe_candidates
+
+func _terrain_find_cut_tiles(tile: Vector2i, parent: Vector2i, open_tiles: Dictionary, discovered: Dictionary, lowest: Dictionary, cut_tiles: Dictionary) -> void:
+	var discovery_index: int = discovered.size()
+	discovered[tile] = discovery_index
+	lowest[tile] = discovery_index
+	var child_count: int = 0
+	for direction: Vector2i in PathUtils.DIRS_4:
+		var neighbor: Vector2i = tile + direction
+		if not open_tiles.has(neighbor):
+			continue
+		if not discovered.has(neighbor):
+			child_count += 1
+			_terrain_find_cut_tiles(neighbor, tile, open_tiles, discovered, lowest, cut_tiles)
+			lowest[tile] = mini(int(lowest[tile]), int(lowest[neighbor]))
+			if parent != tile and int(lowest[neighbor]) >= discovery_index:
+				cut_tiles[tile] = true
+		elif neighbor != parent:
+			lowest[tile] = mini(int(lowest[tile]), int(discovered[neighbor]))
+	if parent == tile and child_count > 1:
+		cut_tiles[tile] = true
+
+func _terrain_safe_candidates_by_flood_fill(grid: Array, start: Vector2i, blocked: Dictionary, candidates: Array[Vector2i]) -> Dictionary:
+	var safe_candidates: Dictionary = {}
+	for candidate: Vector2i in candidates:
+		var proposed_blocked: Dictionary = blocked.duplicate(true)
+		proposed_blocked[candidate] = true
+		if _terrain_layout_stays_connected(grid, start, proposed_blocked):
+			safe_candidates[candidate] = true
+	return safe_candidates
 
 func _terrain_layout_stays_connected(grid: Array, start: Vector2i, blocked: Dictionary) -> bool:
 	if blocked.has(start):

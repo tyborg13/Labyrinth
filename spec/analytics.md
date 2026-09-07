@@ -328,6 +328,14 @@ rely only on later `_process_victory_carry` or `_process_defeat_loss` refresh
 hooks: a save implementation may set those processed flags during committed
 terminal finalization and legitimately bypass the UI-time hooks.
 
+Victory settlement resolves the carried amount from the incoming terminal
+snapshot before recording its result. Positive held Embers are authoritative;
+when held Embers are already cleared, retain the embedded profile's banked
+amount. Canonical victories always include the final boss's Ember award, so
+this zero-held case represents a settled snapshot. Later UI refresh, Grimoire
+persistence, and terminal retry must preserve that bank and the original recap
+amount without adding it again. This does not add or repeat analytics events.
+
 `progression_level_up` fires when Draw Strength commits at a campfire. Its
 payload records `level_before`, `level_after`, the unchanged post-purchase
 `skill_ids`, `unspent_skill_points_before`,

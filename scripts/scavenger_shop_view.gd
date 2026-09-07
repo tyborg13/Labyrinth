@@ -1067,14 +1067,17 @@ func _configure_offer_row(
 		_set_focus_neighbor(offer, SIDE_BOTTOM, row_below[mini(index, row_below.size() - 1)] if not row_below.is_empty() else offer)
 
 func _buy_offer_controls(kind: String) -> Array[Control]:
+	# The rendered shelf already owns the validated stock and its order. Focus
+	# wiring must not regenerate all three merchant catalogs on each ware click.
 	var result: Array[Control]
-	for offer_var: Variant in _run_engine.call("merchant_offer_ids", _run_state, MERCHANT_KIND):
-		var item_id: String = str(offer_var)
-		if str(_run_engine.call("merchant_item_kind", item_id)) != kind:
-			continue
+	var group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
+	if group == null: return result
+	var row: Control = group.get_node_or_null("OfferRow") as Control
+	if row == null: return result
+	for slot: Node in row.get_children():
+		var item_id: String = str(slot.get_meta("shop_item_id", ""))
 		var offer: Control = _offer_sources.get("buy:%s" % item_id, null) as Control
-		if offer != null:
-			result.append(offer)
+		if offer != null: result.append(offer)
 	return result
 
 func _visible_sell_offer_controls() -> Array[Control]:

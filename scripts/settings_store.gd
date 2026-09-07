@@ -209,8 +209,13 @@ static func _apply_display_mode(display_mode: String) -> void:
 	var screen: int = DisplayServer.window_get_current_screen()
 	var usable_rect: Rect2i = DisplayServer.screen_get_usable_rect(screen)
 	var safe_size: Vector2i = safe_windowed_size(requested_size, usable_rect.size)
-	DisplayServer.window_set_size(safe_size)
-	DisplayServer.window_set_position(usable_rect.position + (usable_rect.size - safe_size) / 2)
+	# Reapplying settings during a scene transition must not ask the native
+	# window to resize/reposition when its geometry is already correct.
+	if DisplayServer.window_get_size() != safe_size:
+		DisplayServer.window_set_size(safe_size)
+	var safe_position: Vector2i = usable_rect.position + (usable_rect.size - safe_size) / 2
+	if DisplayServer.window_get_position() != safe_position:
+		DisplayServer.window_set_position(safe_position)
 
 static func _apply_bus_volume(bus_name: String, volume: float, headroom_db: float = 0.0) -> void:
 	var bus_index: int = AudioServer.get_bus_index(bus_name)

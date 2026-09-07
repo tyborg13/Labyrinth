@@ -7,6 +7,7 @@ const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 static func run(expect: Callable) -> void:
 	_test_screen_popup_collision_layout(expect)
+	_test_health_column_keeps_hit_beside_its_target(expect)
 	_test_direct_to_timeline_popup_identity(expect)
 	_test_fatigue_popup_identity(expect)
 	_test_damage_motion_curve(expect)
@@ -421,6 +422,21 @@ static func _test_screen_popup_collision_layout(expect: Callable) -> void:
 	var empty: Array[Dictionary] = []
 	FloatingCombatText.place_screen_popups(empty, bounds, cache)
 	expect.call(cache.is_empty(), "Finished popup bursts must release their layout reservations")
+
+
+static func _test_health_column_keeps_hit_beside_its_target(expect: Callable) -> void:
+	var popups: Array[Dictionary]
+	popups.append({"key": "middle_hit", "tile": Vector2i(5, 3), "envelope": Rect2(1000, 352, 104, 104)})
+	var health: Array[Rect2]
+	for y: float in [260.0, 352.0, 444.0]: health.append(Rect2(970, y, 144, 36))
+	var cache: Dictionary = {}
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, Rect2(12, 16, 1896, 1036), cache, health)
+	var offset: Vector2 = placed[0]["layout_offset"]
+	var final_rect := Rect2((placed[0]["envelope"] as Rect2).position + offset, Vector2(104, 104))
+	expect.call(absf(offset.y) <= FloatingCombatText.SCREEN_POPUP_SOLO_VERTICAL_SHIFT, "A neighboring column of health bars must not move a hit to the next actor")
+	expect.call(absf(offset.x) > 24.0, "Health avoidance should use the available side lane instead of escaping below the column")
+	for rect: Rect2 in health:
+		expect.call(not final_rect.intersects(rect), "The local side lane should keep damage legible beside health bars")
 
 
 static func _test_direct_to_timeline_popup_identity(expect: Callable) -> void:

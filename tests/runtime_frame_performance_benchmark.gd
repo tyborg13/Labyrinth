@@ -249,6 +249,21 @@ func _initialize() -> void:
 	probe_settings_store.save_settings(probe_settings)
 	await process_frame
 
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_STARTUP_ONLY") == "1":
+		var startup_sampler := FrameSampler.new()
+		startup_sampler.request_render = _render_pulse.pulse
+		startup_sampler.observe_frame = _observe_probe_focus
+		startup_sampler.measured_viewport_rid = root.get_viewport_rid()
+		RenderingServer.viewport_set_measure_render_time(startup_sampler.measured_viewport_rid, true)
+		root.add_child(startup_sampler)
+		await _acquire_probe_window_focus()
+		await _settle_render_frames(4)
+		var startup_workload = load("res://tests/startup_performance_workload.gd").new()
+		var startup_report: Dictionary = await startup_workload.run(self, startup_sampler)
+		startup_report["semantic_errors"] = _errors
+		print("STARTUP PERF RESULT: %s" % JSON.stringify(startup_report))
+		quit(0 if _errors.is_empty() else 1)
+		return
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_phase_log("scene loaded")
 	var instance: Node = packed.instantiate()
@@ -279,6 +294,27 @@ func _initialize() -> void:
 	await _settle_frames(8)
 	await _settle_probe_window()
 	await _settle_frames(8)
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_REMAINING_SURFACES_ONLY") == "1":
+		var remaining_workload = load("res://tests/remaining_surface_performance_workload.gd").new()
+		var remaining_report: Dictionary = await remaining_workload.run(self, instance, sampler)
+		instance = remaining_workload.final_instance()
+		remaining_report["semantic_errors"] = _errors
+		print("REMAINING SURFACE PERF RESULT: %s" % JSON.stringify(remaining_report))
+		if is_instance_valid(instance): instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ALL_SURFACES_ONLY") == "1":
+		var broad_workload = load("res://tests/all_surface_performance_workload.gd").new()
+		var broad_report: Dictionary = await broad_workload.run(self, instance, sampler)
+		broad_report["semantic_errors"] = _errors
+		print("ALL SURFACE PERF RESULT: %s" % JSON.stringify(broad_report))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_FLOW_ONLY") == "1":
 		var flow_workload = load("res://tests/ui_flow_performance_workload.gd").new()
 		var flow_report: Dictionary = await flow_workload.run(self, instance, sampler)
@@ -733,6 +769,8 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		if hand_index < 0:
 			continue
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		var card_click_pipelines_before: int = _canvas_pipeline_compilation_count()
 		var click_started: int = Time.get_ticks_usec()
 		var click_handler_ms: float = await _select_card(instance, hand_index)
@@ -740,15 +778,25 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		var click_frame_completion_ms: float = float(Time.get_ticks_usec() - click_started) / 1000.0
 		var card_click_pipeline_compilations: int = _canvas_pipeline_compilation_count() - card_click_pipelines_before
 		var click_stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		var click_frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		var click_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		all_card_click_handler_samples.append(click_handler_ms)
 		all_card_click_frame_completion_samples.append(click_frame_completion_ms)
-		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var cold_result: Dictionary = await _measure_current_preview_hovers(instance)
+		var cold_stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		var cold_frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		var cold_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var card_result: Dictionary = await _measure_current_preview_hovers(instance)
 		card_result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		card_result["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		card_result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		board.call("set_submission_performance_instrumentation_enabled", false)
 		var board_profile: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 		card_result["board_profile"] = board_profile
 		var hover_handler_samples: Array[float] = card_result.get("hover_handler_samples", []) as Array[float]
@@ -765,6 +813,11 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		card_result["card_click_frame_completion_ms"] = click_frame_completion_ms
 		card_result["card_click_canvas_pipeline_compilations"] = card_click_pipeline_compilations
 		card_result["card_click_stage_profile"] = click_stage_profile
+		card_result["card_click_stage_frame_profile"] = click_frame_profile
+		card_result["card_click_board_submission_profile"] = click_submission_profile
+		card_result["cold_stage_profile"] = cold_stage_profile
+		card_result["cold_stage_frame_profile"] = cold_frame_profile
+		card_result["cold_board_submission_profile"] = cold_submission_profile
 		card_result["cold_hover_handler"] = _duration_phase_result(cold_hover_handler_samples, "input_handler")
 		card_result["cold_hover_frame_completion"] = _duration_phase_result(cold_hover_frame_completion_samples, "cold_interaction_frame_completion")
 		card_result["cold_canvas_pipeline_compilations"] = int(cold_result.get("canvas_pipeline_compilations", 0))
@@ -1374,21 +1427,23 @@ func _timed_call(target: Object, method_name: String, arguments: Array = []) -> 
 	target.callv(method_name, arguments)
 	return float(Time.get_ticks_usec() - started) / 1000.0
 
-func _routed_left_click(control: Control, local_position: Vector2) -> float:
+func _routed_left_click(control: Control, local_position: Vector2, double_click: bool = false) -> float:
 	if control == null or control.get_viewport() == null:
 		return 0.0
 	# Viewport GUI input is expressed in viewport coordinates. Include CanvasLayer
 	# transforms so UiLayer controls receive the event at their rendered position.
+	var target_viewport: Viewport = control.get_viewport()
 	var global_position: Vector2 = control.get_global_transform_with_canvas() * local_position
 	var motion := InputEventMouseMotion.new()
 	motion.position = global_position
 	motion.global_position = global_position
-	control.get_viewport().push_input(motion, true)
+	target_viewport.push_input(motion, true)
 	var press := InputEventMouseButton.new()
 	press.position = global_position
 	press.global_position = global_position
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.button_mask = MOUSE_BUTTON_MASK_LEFT
+	press.double_click = double_click
 	press.pressed = true
 	var release := InputEventMouseButton.new()
 	release.position = global_position
@@ -1397,8 +1452,8 @@ func _routed_left_click(control: Control, local_position: Vector2) -> float:
 	release.button_mask = 0
 	release.pressed = false
 	var started: int = Time.get_ticks_usec()
-	control.get_viewport().push_input(press, true)
-	control.get_viewport().push_input(release, true)
+	target_viewport.push_input(press, true)
+	target_viewport.push_input(release, true)
 	return float(Time.get_ticks_usec() - started) / 1000.0
 
 func _routed_pointer_motion(control: Control, local_position: Vector2) -> void:
@@ -1519,6 +1574,7 @@ func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dic
 
 func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	for card_id: String in _benchmark_card_ids():
 		_phase_log("action %s" % card_id)
 		_install_stress_combat(instance, "specialists")
@@ -1531,6 +1587,7 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_reset_board_render_instrumentation(instance)
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
 		var interaction: Dictionary = {}
@@ -1558,6 +1615,9 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		phase["board_profile"] = _board_render_instrumentation(instance)
 		phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		phase["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		phase["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		board.call("set_submission_performance_instrumentation_enabled", false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s confirmed play must change committed combat state" % card_id)

@@ -584,6 +584,7 @@ var _explicit_impact_redraw_process_frame: int = -1
 var _submission_cache_valid: bool = false
 var _damage_preview_cache: Dictionary = {}
 var _visible_units_cache: Array[Dictionary] = []
+var _units_by_draw_tile_cache: Dictionary = {}
 var _scene_props_by_tile: Dictionary = {}
 var _terrain_by_tile: Dictionary = {}
 var _loot_by_tile: Dictionary = {}
@@ -680,8 +681,19 @@ var _retained_draw_frame_top: Array[Dictionary] = []
 var _umbra_return_start_by_tile: Dictionary = {}
 var _board_layout_content_rebuild_count: int = 0
 
+var _startup_performance_timings: Dictionary = {}
+
+func _record_startup_performance_phase(phase: String, started: int) -> int:
+	if started <= 0:
+		return 0
+	var now: int = Time.get_ticks_usec()
+	_startup_performance_timings[phase + "_usec"] = now - started
+	return now
+
 func _ready() -> void:
+	var startup_started: int = Time.get_ticks_usec() if get_tree().root.has_meta("labyrinth_performance_probe_seed") else 0
 	ElementalSpellFx.prepare()
+	startup_started = _record_startup_performance_phase("spell_fx_prepare", startup_started)
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		focus_mode = Control.FOCUS_NONE
@@ -699,10 +711,14 @@ func _ready() -> void:
 	set_process(true)
 	resized.connect(_on_board_resized)
 	get_viewport().size_changed.connect(_sync_static_render_cache)
-	_load_assets(false)
+	if not _initial_assets_prepared:
+		_load_assets(false)
+	startup_started = _record_startup_performance_phase("load_assets", startup_started)
 	_schedule_enemy_shadow_dissolve_shader_prewarm()
+	startup_started = _record_startup_performance_phase("shadow_shader_prewarm", startup_started)
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
+	_record_startup_performance_phase("retained_layers", startup_started)
 
 func _exit_tree() -> void:
 	if _unit_shadow_prewarm_thread != null and _unit_shadow_prewarm_thread.is_started():
@@ -1013,6 +1029,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_particle_textures", "_ambient_particle_glow_textures",
 			"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
+			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
 			"_unit_textures", "_unit_assets_loaded",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
@@ -1042,7 +1059,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
 			"_board_layout_cache_visual_top_offset",
 			"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
-			"_visible_units_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
+			"_visible_units_cache", "_units_by_draw_tile_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
@@ -1789,7 +1806,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			retained_sync_fields.append_array([
 				"combat_state", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
 				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
-				"_visible_units_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
+				"_visible_units_cache", "_units_by_draw_tile_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
 				"_hud_health_rects_cache", "_hud_layout_entries_cache", "_submission_cache_valid",
 				"_umbra_return_start_by_tile"
 			])
@@ -1821,7 +1838,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			if not presentation_changes.has(unit_key):
 				continue
 			retained_sync_fields.append_array([
-				"_visible_units_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
+				"_visible_units_cache", "_units_by_draw_tile_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
 				"_submission_cache_valid"
 			])
 			break
@@ -2468,6 +2485,15 @@ func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_ch
 			if _unit_is_preview_echo(unit):
 				_preview_unit_pulse_cache = true
 				break
+	if units_changed or presentation_changes.has("unit_draw_tiles"):
+		# Keep the already-authored unit order inside each tile. Animated draw-tile
+		# overrides change depth ownership without rebuilding the visible list.
+		_units_by_draw_tile_cache = {}
+		for unit: Dictionary in _visible_units_cache:
+			var draw_tile: Vector2i = _effective_unit_tile(unit)
+			var tile_units: Array = _units_by_draw_tile_cache.get(draw_tile, []) as Array
+			tile_units.append(unit)
+			_units_by_draw_tile_cache[draw_tile] = tile_units
 	# Scene props participate in foreground obstruction even though they do not
 	# affect the visible-unit list. Keep that derived cache aligned when a room
 	# prop changes without paying to rebuild it for damage-only hovers.
@@ -4873,6 +4899,7 @@ func _flush_ambient_particle_batch() -> void:
 func _ensure_ambient_combined_atlas() -> void:
 	if _ambient_combined_atlas != null:
 		return
+	var startup_started: int = Time.get_ticks_usec() if _startup_asset_profiling or (is_inside_tree() and get_tree().root.has_meta("labyrinth_performance_probe_seed")) else 0
 	_ambient_combined_atlas = null
 	_ambient_combined_atlas_regions.clear()
 	var sources: Array[Texture2D]
@@ -4908,8 +4935,11 @@ func _ensure_ambient_combined_atlas() -> void:
 		atlas_height = maxi(atlas_height, cursor.y + row_height + ATLAS_GAP)
 	var image := Image.create(atlas_width, atlas_height, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
+	# Regional AtlasTexture.get_image() rereads its parent texture for every
+	# region. Keep parent pixels only for this packing operation.
+	var parent_images: Dictionary = {}
 	for source: Texture2D in sources:
-		var source_image: Image = source.get_image()
+		var source_image: Image = _ambient_atlas_source_image(source, parent_images)
 		if source_image == null or source_image.is_empty():
 			_ambient_combined_atlas_regions.clear()
 			return
@@ -4919,6 +4949,26 @@ func _ensure_ambient_combined_atlas() -> void:
 		image.blit_rect(source_image, Rect2i(Vector2i.ZERO, source_image.get_size()), source_position)
 		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(source_position, source.get_size())
 	_ambient_combined_atlas = ImageTexture.create_from_image(image)
+	_record_startup_performance_phase("ambient_atlas_pack", startup_started)
+
+func _ambient_atlas_source_image(source: Texture2D, parent_images: Dictionary) -> Image:
+	if source is AtlasTexture:
+		var regional: AtlasTexture = source as AtlasTexture
+		var parent: Texture2D = regional.atlas
+		var region := Rect2i(regional.region)
+		# The authored ambient regions are integral, in bounds, and have no margin.
+		# Preserve AtlasTexture's own behavior for any future unsupported layout.
+		if parent != null and not parent is AtlasTexture and regional.margin == Rect2() and Rect2(region) == regional.region and region.size == Vector2i(source.get_size()) and Rect2i(Vector2i.ZERO, Vector2i(parent.get_size())).encloses(region):
+			var key: int = parent.get_instance_id()
+			if not parent_images.has(key):
+				var pixels: Image = parent.get_image()
+				if pixels != null and pixels.is_compressed() and pixels.decompress() != OK:
+					pixels = null
+				parent_images[key] = pixels
+			var pixels: Image = parent_images[key] as Image
+			if pixels != null and not pixels.is_empty():
+				return pixels.get_region(region)
+	return source.get_image()
 
 func _append_unique_ambient_atlas_source(sources: Array[Texture2D], source: Texture2D) -> void:
 	if source != null and not sources.has(source):
@@ -6340,8 +6390,8 @@ func _build_visible_units() -> Array[Dictionary]:
 			"role": "enemy",
 			"id": int(enemy.get("id", -1)),
 			"type": str(enemy.get("type", "")),
-			"name": str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")),
-			"boss_bar": bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)),
+			"name": str(_enemy_render_definition(str(enemy.get("type", ""))).get("name", "Enemy")),
+			"boss_bar": bool(_enemy_render_definition(str(enemy.get("type", ""))).get("boss_bar", false)),
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"intent": enemy.get("intent", {}),
@@ -6368,7 +6418,7 @@ func _build_visible_units() -> Array[Dictionary]:
 		var npc_id: String = str(npc.get("id", ""))
 		if npc_id.is_empty():
 			continue
-		var npc_def: Dictionary = GameData.npc_def(npc_id)
+		var npc_def: Dictionary = _npc_render_definition(npc_id)
 		units_to_draw.append({
 			"key": "npc_%s_%d" % [npc_id, npc_index],
 			"role": "npc",
@@ -6400,7 +6450,7 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 			unit["type"] = unit_type
 		if unit_type.is_empty() or unit_key.is_empty():
 			continue
-		var definition: Dictionary = GameData.enemy_def(unit_type)
+		var definition: Dictionary = _enemy_render_definition(unit_type)
 		if definition.is_empty() and not player_unit:
 			continue
 		unit["key"] = unit_key
@@ -6428,6 +6478,10 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 	return units
 
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
+	if _submission_cache_valid:
+		for unit: Dictionary in _units_by_draw_tile_cache.get(tile, []):
+			_draw_unit_body(unit)
+		return
 	for unit: Dictionary in units_to_draw:
 		if _effective_unit_tile(unit) != tile:
 			continue
@@ -6609,10 +6663,21 @@ func _intent_compass_footprint_scale(unit: Dictionary) -> float:
 	var footprint: Vector2i = _resolved_unit_footprint(unit)
 	return float(maxi(maxi(1, footprint.x), maxi(1, footprint.y)))
 
+# Rendering reads only authored identity, footprint and sprite metadata. The
+# combat definition API also clones/scales every intent and action, which must
+# never run for every sprite anchor or dirty tile. These dictionaries are borrowed
+# from GameData's catalog; callers only read them, and never retain or mutate them.
+# Keeping the lookup live also respects catalog replacement in tools and tests.
+func _enemy_render_definition(unit_type: String) -> Dictionary:
+	return GameData.enemies().get(unit_type, {}) as Dictionary
+
+func _npc_render_definition(unit_type: String) -> Dictionary:
+	return GameData.npcs().get(unit_type, {}) as Dictionary
+
 func _resolved_unit_footprint(unit: Dictionary) -> Vector2i:
 	var state_footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
 	state_footprint = Vector2i(maxi(1, state_footprint.x), maxi(1, state_footprint.y))
-	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
+	var definition: Dictionary = _enemy_render_definition(str(unit.get("type", "")))
 	var definition_value: Variant = definition.get("footprint", [])
 	if typeof(definition_value) != TYPE_ARRAY or (definition_value as Array).size() < 2:
 		return state_footprint
@@ -10115,13 +10180,12 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		popup["layout_scale"] = layout_scale
 		popup["envelope"] = envelope
 	var obstacles: Array[Rect2] = []
-	var rise_clearance: float = 0.0 if bool(presentation.get("reduced_motion", false)) else FloatingCombatText.ARC_RISE_HEIGHT
 	for rect_var: Variant in _hud_health_rects_cache.values():
 		if typeof(rect_var) != TYPE_RECT2:
 			continue
-		var rect: Rect2 = (rect_var as Rect2).grow(6.0)
-		rect.size.y += rise_clearance
-		obstacles.append(rect)
+		# Each popup envelope already reserves its complete rise and fall.
+		# Extending health bars down by that rise again displaced hits off-target.
+		obstacles.append((rect_var as Rect2).grow(6.0))
 	return FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
 
 func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
@@ -11539,7 +11603,84 @@ func _door_icon_texture(icon_id: String) -> Texture2D:
 		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
 	return _door_icon_textures.get(icon_id, null)
 
+var _initial_assets_prepared: bool = false
+var _startup_asset_profiling: bool = false
+
+static func prepare_initial_assets_for(board: Control, present_frame: Callable, instrument: bool = false) -> void:
+	if board._initial_assets_prepared:
+		return
+	board._startup_asset_profiling = instrument
+	var slice_started: int = Time.get_ticks_usec()
+	for job: Callable in board._initial_asset_jobs(false):
+		if not is_instance_valid(board): return
+		var started: int = Time.get_ticks_usec() if instrument else 0
+		job.call()
+		if instrument:
+			var jobs: Array = board._startup_performance_timings.get("asset_jobs", [])
+			jobs.append({"method": str(job.get_method()), "arguments": str(job.get_bound_arguments()), "usec": Time.get_ticks_usec() - started})
+			board._startup_performance_timings["asset_jobs"] = jobs
+		# Static continuation checks the board after suspension; transition teardown
+		# can free a detached destination without resuming a freed Node's script.
+		if Time.get_ticks_usec() - slice_started >= 4000:
+			await present_frame.call()
+			if not is_instance_valid(board): return
+			slice_started = Time.get_ticks_usec()
+	board._initial_assets_prepared = true
+
 func _load_assets(load_full_unit_roster: bool = true) -> void:
+	for job: Callable in _initial_asset_jobs(load_full_unit_roster):
+		job.call()
+	_initial_assets_prepared = true
+
+func _initial_asset_jobs(load_full_unit_roster: bool) -> Array[Callable]:
+	var jobs: Array[Callable]
+	jobs.append(ElementalSpellFx.prepare)
+	jobs.append(_load_board_style_assets)
+	jobs.append(_load_base_floor_assets)
+	for family: Array in [
+		[ElementData.EARTH, MOSS_FLOOR_OVERLAY_PATHS, MOSS_WALL_OVERLAY_PATHS, MOSS_PILLAR_OVERLAY_PATHS],
+		[ElementData.FIRE, FIRE_FLOOR_OVERLAY_PATHS, FIRE_WALL_OVERLAY_PATHS, FIRE_PILLAR_OVERLAY_PATHS],
+		[ElementData.ICE, ICE_FLOOR_OVERLAY_PATHS, ICE_WALL_OVERLAY_PATHS, ICE_PILLAR_OVERLAY_PATHS],
+		[ElementData.LIGHTNING, LIGHTNING_FLOOR_OVERLAY_PATHS, LIGHTNING_WALL_OVERLAY_PATHS, LIGHTNING_PILLAR_OVERLAY_PATHS],
+		[ElementData.AIR, AIR_FLOOR_OVERLAY_PATHS, AIR_WALL_OVERLAY_PATHS, AIR_PILLAR_OVERLAY_PATHS]
+	]:
+		for index: int in range(3):
+			jobs.append(_load_floor_overlay_assets.bind(str(family[0]), ["floor", "wall", "pillar"][index], family[index + 1]))
+	jobs.append(_load_board_prop_assets)
+	jobs.append(_load_scene_prop_assets)
+	jobs.append(_load_scene_prop_idle_assets)
+	jobs.append(_load_pillar_idle_assets)
+	jobs.append(_load_board_effect_assets)
+	jobs.append(_reset_particle_assets)
+	for source: Array in [
+		["_projectile_atlas", ELEMENTAL_PROJECTILE_ATLAS_PATH],
+		["_ambient_particle_atlas", AMBIENT_PARTICLE_ATLAS_PATH],
+		["_ambient_particle_glow_atlas", AMBIENT_PARTICLE_GLOW_ATLAS_PATH],
+		["_ambient_fire_soft_atlas", AMBIENT_FIRE_SOFT_ATLAS_PATH],
+		["_ambient_air_wisp_atlas", AMBIENT_AIR_WISP_FRAMES_PATH],
+		["_ambient_air_wisp_soft_atlas", AMBIENT_AIR_WISP_SOFT_ATLAS_PATH],
+		["_ambient_air_wisp_glow_atlas", AMBIENT_AIR_WISP_GLOW_FRAMES_PATH]
+	]:
+		jobs.append(_load_texture_property.bind(str(source[0]), str(source[1])))
+	jobs.append(_load_door_assets)
+	jobs.append(_load_loot_and_terrain_assets)
+	for kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS:
+		jobs.append(_load_terrain_destruction_asset.bind(kind))
+	for element: String in ElementData.all_elements():
+		jobs.append(_load_element_trap_assets.bind(element))
+	for icon: String in RoomIcons.all_icon_ids():
+		jobs.append(_load_door_icon_asset.bind(icon))
+	for icon: String in ActionIcons.all_icon_keys():
+		jobs.append(_load_keyword_icon_asset.bind(icon))
+	jobs.append(_load_base_unit_assets)
+	jobs.append(_ensure_unit_assets_for_type.bind("player"))
+	if load_full_unit_roster:
+		for type: String in GameData.enemies(): jobs.append(_ensure_unit_assets_for_type.bind(type))
+		for type: String in GameData.npcs(): jobs.append(_ensure_unit_assets_for_type.bind(type))
+	jobs.append(_ensure_ambient_combined_atlas)
+	return jobs
+
+func _load_board_style_assets() -> void:
 	if _pillar_torch_light_texture == null:
 		var gradient := Gradient.new()
 		gradient.offsets = PackedFloat32Array([0.0, 0.20, 0.46, 0.74, 1.0])
@@ -11561,36 +11702,21 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 		HEALTH_BAR_STYLE_LIGHT: AssetLoader.load_texture(PLAYER_HEALTH_FRAME_PATH),
 		HEALTH_BAR_STYLE_UMBRA: AssetLoader.load_texture(ENEMY_HEALTH_FRAME_PATH),
 	}
+
+func _load_base_floor_assets() -> void:
 	var stone_floor_variants: Array[Texture2D] = _load_floor_variants(STONE_FLOOR_VARIANT_PATHS)
-	var moss_floor_variants: Array[Texture2D] = _load_floor_variants(MOSS_FLOOR_OVERLAY_PATHS)
-	var moss_wall_variants: Array[Texture2D] = _load_floor_variants(MOSS_WALL_OVERLAY_PATHS)
-	var moss_pillar_variants: Array[Texture2D] = _load_floor_variants(MOSS_PILLAR_OVERLAY_PATHS)
-	var fire_floor_variants: Array[Texture2D] = _load_floor_variants(FIRE_FLOOR_OVERLAY_PATHS)
-	var fire_wall_variants: Array[Texture2D] = _load_floor_variants(FIRE_WALL_OVERLAY_PATHS)
-	var fire_pillar_variants: Array[Texture2D] = _load_floor_variants(FIRE_PILLAR_OVERLAY_PATHS)
-	var ice_floor_variants: Array[Texture2D] = _load_floor_variants(ICE_FLOOR_OVERLAY_PATHS)
-	var ice_wall_variants: Array[Texture2D] = _load_floor_variants(ICE_WALL_OVERLAY_PATHS)
-	var ice_pillar_variants: Array[Texture2D] = _load_floor_variants(ICE_PILLAR_OVERLAY_PATHS)
-	var lightning_floor_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_FLOOR_OVERLAY_PATHS)
-	var lightning_wall_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_WALL_OVERLAY_PATHS)
-	var lightning_pillar_variants: Array[Texture2D] = _load_floor_variants(LIGHTNING_PILLAR_OVERLAY_PATHS)
-	var air_floor_variants: Array[Texture2D] = _load_floor_variants(AIR_FLOOR_OVERLAY_PATHS)
-	var air_wall_variants: Array[Texture2D] = _load_floor_variants(AIR_WALL_OVERLAY_PATHS)
-	var air_pillar_variants: Array[Texture2D] = _load_floor_variants(AIR_PILLAR_OVERLAY_PATHS)
 	_tile_textures = {
 		"stone": stone_floor_variants[0] if not stone_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/stone.png"),
 		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
 	}
-	_floor_texture_variants = {
-		"stone": stone_floor_variants
-	}
-	_element_overlay_texture_variants = {
-		ElementData.EARTH: {"floor": moss_floor_variants, "wall": moss_wall_variants, "pillar": moss_pillar_variants},
-		ElementData.FIRE: {"floor": fire_floor_variants, "wall": fire_wall_variants, "pillar": fire_pillar_variants},
-		ElementData.ICE: {"floor": ice_floor_variants, "wall": ice_wall_variants, "pillar": ice_pillar_variants},
-		ElementData.LIGHTNING: {"floor": lightning_floor_variants, "wall": lightning_wall_variants, "pillar": lightning_pillar_variants},
-		ElementData.AIR: {"floor": air_floor_variants, "wall": air_wall_variants, "pillar": air_pillar_variants}
-	}
+	_floor_texture_variants = {"stone": stone_floor_variants}
+	_element_overlay_texture_variants = {}
+
+func _load_floor_overlay_assets(element: String, surface: String, paths: PackedStringArray) -> void:
+	if not _element_overlay_texture_variants.has(element): _element_overlay_texture_variants[element] = {}
+	_element_overlay_texture_variants[element][surface] = _load_floor_variants(paths)
+
+func _load_board_prop_assets() -> void:
 	var pillar_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.png"))
 	var wall_row_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/wall.png"))
 	var door_texture: Texture2D = AssetLoader.load_texture("res://assets/placeholders/tiles/door.png")
@@ -11605,11 +11731,15 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 		"column_torch_left": AssetLoader.load_texture(COLUMN_TORCH_LEFT_PATH),
 		"column_torch_right": AssetLoader.load_texture(COLUMN_TORCH_RIGHT_PATH)
 	}
+
+func _load_scene_prop_assets() -> void:
 	_scene_prop_textures = {
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
 		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
 	}
+
+func _load_scene_prop_idle_assets() -> void:
 	_scene_prop_idle_frames = {
 		"campfire_bonfire": _load_sprite_sheet_frames(
 			CAMPFIRE_BONFIRE_IDLE_PATH,
@@ -11617,6 +11747,8 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			CAMPFIRE_BONFIRE_IDLE_ROWS
 		)
 	}
+
+func _load_pillar_idle_assets() -> void:
 	_pillar_torch_idle_frames = {
 		"left": _load_sprite_sheet_frames(
 			COLUMN_TORCH_LEFT_IDLE_PATH,
@@ -11629,6 +11761,8 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			COLUMN_TORCH_IDLE_ROWS
 		)
 	}
+
+func _load_board_effect_assets() -> void:
 	_effect_textures = {
 		"lethal_death_mark": AssetLoader.load_texture(LETHAL_DEATH_MARK_EFFECT_PATH),
 		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
@@ -11645,24 +11779,28 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 			DEFENSE_HEAL_CASTS_ROWS
 		)
 	}
-	_projectile_atlas = AssetLoader.load_texture(ELEMENTAL_PROJECTILE_ATLAS_PATH)
+
+func _reset_particle_assets() -> void:
 	_projectile_textures.clear()
-	_ambient_particle_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_ATLAS_PATH)
-	_ambient_particle_glow_atlas = AssetLoader.load_texture(AMBIENT_PARTICLE_GLOW_ATLAS_PATH)
-	_ambient_fire_soft_atlas = AssetLoader.load_texture(AMBIENT_FIRE_SOFT_ATLAS_PATH)
-	_ambient_air_wisp_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_FRAMES_PATH)
-	_ambient_air_wisp_soft_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_SOFT_ATLAS_PATH)
-	_ambient_air_wisp_glow_atlas = AssetLoader.load_texture(AMBIENT_AIR_WISP_GLOW_FRAMES_PATH)
 	_ambient_particle_textures.clear()
 	_ambient_particle_glow_textures.clear()
 	_ambient_fire_soft_textures.clear()
 	_ambient_air_wisp_textures.clear()
 	_ambient_air_wisp_soft_textures.clear()
 	_ambient_air_wisp_glow_textures.clear()
-	_door_opening_frames = _load_door_opening_frames()
-	_door_opening_flipped_frames = []
-	for frame_texture: Texture2D in _door_opening_frames:
-		_door_opening_flipped_frames.append(AssetLoader.flip_texture_h(frame_texture))
+	_ambient_combined_atlas = null
+	_ambient_combined_atlas_regions.clear()
+
+func _load_texture_property(property: String, path: String) -> void:
+	set(property, AssetLoader.load_texture(path))
+
+func _load_door_assets() -> void:
+	var started: int = Time.get_ticks_usec() if _startup_asset_profiling or (is_inside_tree() and get_tree().root.has_meta("labyrinth_performance_probe_seed")) else 0
+	_door_opening_flipped_frames.clear()
+	_door_opening_frames = _load_door_opening_frames(_door_opening_flipped_frames)
+	_record_startup_performance_phase("door_frames", started)
+
+func _load_loot_and_terrain_assets() -> void:
 	_loot_textures = {
 		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
@@ -11672,35 +11810,30 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
 	}
 	_terrain_destruction_frames_by_kind.clear()
-	for terrain_kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS.keys():
-		var destruction_frames: Array[Texture2D] = _load_terrain_destruction_frames(terrain_kind)
-		if not destruction_frames.is_empty():
-			_terrain_destruction_frames_by_kind[terrain_kind] = destruction_frames
 	_element_textures.clear()
-	for element_id: String in ElementData.all_elements():
-		_element_textures[element_id] = AssetLoader.load_texture(ElementData.icon_path(element_id))
 	_trap_textures.clear()
 	_trap_idle_frames.clear()
 	_trap_activation_frames.clear()
-	for element_id: String in ElementData.all_elements():
-		_trap_textures[element_id] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element_id)
-		_trap_idle_frames[element_id] = _load_sprite_sheet_frames(
-			"res://assets/art/traps/trap_%s_idle.png" % element_id,
-			TRAP_ANIMATION_SHEET_COLUMNS,
-			TRAP_ANIMATION_SHEET_ROWS
-		)
-		_trap_activation_frames[element_id] = _load_sprite_sheet_frames(
-			"res://assets/art/traps/trap_%s_activation.png" % element_id,
-			TRAP_ANIMATION_SHEET_COLUMNS,
-			TRAP_ANIMATION_SHEET_ROWS
-		)
 	_door_icon_textures.clear()
-	for icon_id: String in RoomIcons.all_icon_ids():
-		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
 	_keyword_icon_textures.clear()
-	for icon_key_var: Variant in ActionIcons.all_icon_keys():
-		var icon_key: String = str(icon_key_var)
-		_keyword_icon_textures[icon_key] = ActionIcons.icon_texture(icon_key)
+
+func _load_terrain_destruction_asset(kind: String) -> void:
+	var frames: Array[Texture2D] = _load_terrain_destruction_frames(kind)
+	if not frames.is_empty(): _terrain_destruction_frames_by_kind[kind] = frames
+
+func _load_element_trap_assets(element: String) -> void:
+	_element_textures[element] = AssetLoader.load_texture(ElementData.icon_path(element))
+	_trap_textures[element] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element)
+	_trap_idle_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_idle.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+	_trap_activation_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_activation.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+
+func _load_door_icon_asset(icon: String) -> void:
+	_door_icon_textures[icon] = RoomIcons.icon_texture(icon)
+
+func _load_keyword_icon_asset(icon: String) -> void:
+	_keyword_icon_textures[icon] = ActionIcons.icon_texture(icon)
+
+func _load_base_unit_assets() -> void:
 	_unit_textures.clear()
 	_unit_assets_loaded.clear()
 	_idle_frames_by_type.clear()
@@ -11717,12 +11850,6 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	_unit_shadow_precomputed_loaded_keys.clear()
 	_unit_shadow_precomputed_missing_keys.clear()
 	_load_unit_shadow_precomputed_cache()
-	_ensure_unit_assets_for_type("player")
-	if load_full_unit_roster:
-		for enemy_type: String in GameData.enemies().keys():
-			_ensure_unit_assets_for_type(enemy_type)
-		for npc_id: String in GameData.npcs().keys():
-			_ensure_unit_assets_for_type(npc_id)
 
 func _ensure_unit_assets_for_submission(state: Dictionary, source_presentation: Dictionary) -> void:
 	if not (state.get("player", {}) as Dictionary).is_empty():
@@ -11834,9 +11961,9 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 	if unit_type == "player":
 		art_path = "res://assets/placeholders/units/player_reaver.png"
 	else:
-		var definition: Dictionary = GameData.npc_def(unit_type)
+		var definition: Dictionary = _npc_render_definition(unit_type)
 		if definition.is_empty():
-			definition = GameData.enemy_def(unit_type)
+			definition = _enemy_render_definition(unit_type)
 		art_path = str(definition.get("art_path", ""))
 	_unit_textures[unit_type] = _load_unit_texture_with_idle(unit_type, art_path)
 	_queue_unit_shadow_source_data(unit_type)
@@ -11909,7 +12036,9 @@ func _process_next_unit_shadow_prewarm() -> void:
 	if _unit_shadow_polygon_cache.has(texture.get_instance_id()):
 		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		return
+	var readback_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	var image: Image = texture.get_image()
+	_record_submission_performance_phase("shadow_prewarm_image_readback", readback_started)
 	if image == null or image.is_empty():
 		var empty_polygons: Array[PackedVector2Array] = []
 		var empty_triangulations: Array[PackedInt32Array] = []
@@ -11950,7 +12079,7 @@ func _load_floor_variants(paths: PackedStringArray) -> Array[Texture2D]:
 		textures.append(texture)
 	return textures
 
-func _load_door_opening_frames() -> Array[Texture2D]:
+func _load_door_opening_frames(flipped_frames: Array[Texture2D] = []) -> Array[Texture2D]:
 	var sheet: Texture2D = AssetLoader.load_texture(DOOR_OPENING_SHEET_PATH)
 	if sheet == null:
 		return []
@@ -11967,6 +12096,11 @@ func _load_door_opening_frames() -> Array[Texture2D]:
 		var frame_position := Vector2i(canvas_size.x - region.size.x, canvas_size.y - region.size.y)
 		frame_image.blit_rect(sheet_image, region, frame_position)
 		frames.append(ImageTexture.create_from_image(frame_image))
+		# Flip the owned CPU image before uploading its second orientation.
+		# Reading the just-uploaded texture back forces an avoidable GPU round trip.
+		var flipped_image: Image = frame_image.duplicate() as Image
+		flipped_image.flip_x()
+		flipped_frames.append(ImageTexture.create_from_image(flipped_image))
 	return frames
 
 func _load_sprite_sheet_frames(path: String, columns: int, rows: int) -> Array[Texture2D]:
@@ -12110,9 +12244,9 @@ func _load_death_frames_for_art_path(unit_type: String, art_path: String) -> Arr
 func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
 	var definition: Dictionary = {}
 	if unit_type != "player" and not unit_type.is_empty():
-		definition = GameData.npc_def(unit_type)
+		definition = _npc_render_definition(unit_type)
 		if definition.is_empty():
-			definition = GameData.enemy_def(unit_type)
+			definition = _enemy_render_definition(unit_type)
 	return {
 		"columns": maxi(1, int(definition.get("idle_sheet_columns", IDLE_SHEET_COLUMNS))),
 		"rows": maxi(1, int(definition.get("idle_sheet_rows", IDLE_SHEET_ROWS))),
@@ -12123,9 +12257,9 @@ func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
 func _unit_death_sheet_layout(unit_type: String) -> Dictionary:
 	var definition: Dictionary = {}
 	if unit_type != "player" and not unit_type.is_empty():
-		definition = GameData.npc_def(unit_type)
+		definition = _npc_render_definition(unit_type)
 		if definition.is_empty():
-			definition = GameData.enemy_def(unit_type)
+			definition = _enemy_render_definition(unit_type)
 	return {
 		"columns": maxi(1, int(definition.get("death_sheet_columns", DEATH_SHEET_COLUMNS))),
 		"rows": maxi(1, int(definition.get("death_sheet_rows", DEATH_SHEET_ROWS))),
@@ -12186,7 +12320,7 @@ func _unit_uses_procedural_shadow_dissolve(unit: Dictionary) -> bool:
 	var role: String = str(unit.get("role", ""))
 	if unit_type == "player" or role == "player" or str(unit.get("key", "")) == "player":
 		return false
-	return role == "enemy" or not GameData.enemy_def(unit_type).is_empty()
+	return role == "enemy" or not _enemy_render_definition(unit_type).is_empty()
 
 func _death_frame_index(unit: Dictionary) -> int:
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -12204,9 +12338,9 @@ func _unit_idle_frame_seconds(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return IDLE_FRAME_SECONDS
-	var definition: Dictionary = GameData.npc_def(unit_type)
+	var definition: Dictionary = _npc_render_definition(unit_type)
 	if definition.is_empty():
-		definition = GameData.enemy_def(unit_type)
+		definition = _enemy_render_definition(unit_type)
 	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
 
 func _unit_death_frame_seconds(unit: Dictionary) -> float:
@@ -12215,9 +12349,9 @@ func _unit_death_frame_seconds(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return DEATH_FRAME_SECONDS
-	var definition: Dictionary = GameData.npc_def(unit_type)
+	var definition: Dictionary = _npc_render_definition(unit_type)
 	if definition.is_empty():
-		definition = GameData.enemy_def(unit_type)
+		definition = _enemy_render_definition(unit_type)
 	return maxf(0.01, float(definition.get("death_frame_seconds", DEATH_FRAME_SECONDS)))
 
 func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
@@ -12460,18 +12594,18 @@ func _unit_art_scale(unit: Dictionary) -> float:
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return 1.0
-	var npc_def: Dictionary = GameData.npc_def(unit_type)
+	var npc_def: Dictionary = _npc_render_definition(unit_type)
 	if not npc_def.is_empty():
 		return float(npc_def.get("art_scale", 1.0))
-	return float(GameData.enemy_def(unit_type).get("art_scale", 1.0))
+	return float(_enemy_render_definition(unit_type).get("art_scale", 1.0))
 
 func _unit_art_offset(unit: Dictionary) -> Vector2:
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" or unit_type.is_empty():
 		return Vector2.ZERO
-	var definition: Dictionary = GameData.npc_def(unit_type)
+	var definition: Dictionary = _npc_render_definition(unit_type)
 	if definition.is_empty():
-		definition = GameData.enemy_def(unit_type)
+		definition = _enemy_render_definition(unit_type)
 	return Vector2(
 		float(definition.get("art_offset_x", 0.0)),
 		float(definition.get("art_offset_y", 0.0))
@@ -13364,8 +13498,12 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	_board_layout_cache_visual_top_offset = retained_visual_top_offset
 	_board_layout_cache_tile_centers.clear()
 	_board_layout_cache_tile_polygons.clear()
-	_unit_shadow_draw_geometry_cache.clear()
-	_unit_shadow_draw_mesh_cache.clear()
+	# Same-room visual framing moves the origin but does not change immutable
+	# foot-relative meshes. Draw size is already in their key. Keep them through
+	# actor moves/deaths/spawns; content, viewport and navigation resets retire them.
+	if content_changed or not preserve_visual_top_offset:
+		_unit_shadow_draw_geometry_cache.clear()
+		_unit_shadow_draw_mesh_cache.clear()
 	_ambient_particle_template_signature = ""
 	_ambient_particle_templates_by_element.clear()
 	_foreground_obstruction_candidates_cache_valid = false
@@ -13573,13 +13711,13 @@ func _support_target_enemy(source_enemy: Dictionary, action: Dictionary) -> Dict
 func _support_enemy_unit(enemy: Dictionary) -> Dictionary:
 	var unit: Dictionary = enemy.duplicate(true)
 	unit["id"] = int(unit.get("id", -1))
-	unit["name"] = str(GameData.enemy_def(str(unit.get("type", ""))).get("name", "Enemy"))
+	unit["name"] = str(_enemy_render_definition(str(unit.get("type", ""))).get("name", "Enemy"))
 	unit["hp"] = int(unit.get("hp", 0))
 	unit["max_hp"] = maxi(1, int(unit.get("max_hp", 1)))
 	unit["block"] = int(unit.get("block", 0))
 	unit["stoneskin"] = int(unit.get("stoneskin", 0))
 	if not unit.has("footprint"):
-		var footprint_value: Variant = GameData.enemy_def(str(unit.get("type", ""))).get("footprint", [])
+		var footprint_value: Variant = _enemy_render_definition(str(unit.get("type", ""))).get("footprint", [])
 		if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
 			unit["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
 	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)

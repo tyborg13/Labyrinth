@@ -907,7 +907,7 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 		return false
 	return true
 
-func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> Array[Vector2i]:
+func valid_targets_for_player_action(state: Dictionary, action: Dictionary, accepted_limit: int = 0, accept_target: Callable = Callable()) -> Array[Vector2i]:
 	action = _resolved_surface_action(state, action)
 	if not player_action_can_resolve(state, action) or (action.has("_origin_tile") and not is_tile_visible_to_player(state, action["_origin_tile"])):
 		return []
@@ -933,7 +933,11 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 			occupied = _known_actor_tiles_for_player(state)
 			var move_range: int = int(resolved_action.get("range", 0)) + _move_bonus_for_current_turn(state)
 			var minimum: bool = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
-			var navigation: Dictionary = _unit_movement_navigation(state, player, move_range, occupied, minimum)
+			var stop_after_reaching: Callable = Callable()
+			if accepted_limit == 1:
+				stop_after_reaching = func(tile: Vector2i) -> bool:
+					return tile != player_pos and _player_action_target_is_accepted(state, action, tile, accept_target)
+			var navigation: Dictionary = _unit_movement_navigation(state, player, move_range, occupied, minimum, stop_after_reaching)
 			for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
 				if tile != player_pos:
 					targets.append(tile)
@@ -1091,10 +1095,22 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary) -> A
 					targets.append(tile)
 	var legal: Array[Vector2i]
 	for tile: Vector2i in targets:
-		if _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile) and SurfaceRelicRules.can_prepare(state, action, tile):
+		if _player_action_target_is_accepted(state, action, tile, accept_target):
+			# Existence queries still pass every authoritative restriction before
+			# stopping. In particular, the first raw tile may fail a surface gate
+			# or the caller's committed-information predicate.
 			legal.append(tile)
+			if accepted_limit > 0 and legal.size() >= accepted_limit:
+				break
 	targets = legal
 	return targets
+
+func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
+	return (
+		_surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
+		and SurfaceRelicRules.can_prepare(state, action, tile)
+		and (not accept_target.is_valid() or bool(accept_target.call(tile)))
+	)
 
 func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bool:
 	# A move has at least one reachable destination iff its first step can enter
@@ -10009,7 +10025,7 @@ func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1,
 		spent += cost
 	return spent
 
-func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool = true) -> Dictionary:
+func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool = true, stop_after_reaching: Callable = Callable()) -> Dictionary:
 	var blocked: Dictionary = occupied.duplicate()
 	var size: Vector2i = unit.get("footprint", Vector2i.ONE)
 	if size != Vector2i.ONE:
@@ -10032,7 +10048,7 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 		return harm
 	var pickup_scores: Dictionary = _preferred_pickup_scores(state) if not unit.has("id") else {}
 	var pickup_score: Callable = func(tile: Vector2i) -> int: return int(pickup_scores.get(tile, 0))
-	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score)
+	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score, stop_after_reaching)
 
 func surface_preview_for_player_action(state: Dictionary, action: Dictionary, target: Vector2i, prevalidated: bool = false) -> Dictionary:
 	# Hover needs the exact route and outcome, but never the animation's copy of

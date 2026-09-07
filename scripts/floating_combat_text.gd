@@ -27,7 +27,9 @@ const ARC_APEX_PROGRESS: float = 0.30
 const NORMAL_STACK_STEP_Y: float = 0.0
 const REDUCED_STACK_STEP_Y: float = 36.0
 const SCREEN_POPUP_GAP: float = 8.0
-const SCREEN_POPUP_MAX_SIDE_SHIFT: float = 24.0
+const SCREEN_POPUP_MAX_SIDE_SHIFT: float = DAMAGE_WIDTH
+const SCREEN_POPUP_SOLO_VERTICAL_SHIFT: float = 48.0
+const SCREEN_POPUP_STACK_VERTICAL_SHIFT: float = 96.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
 const EFFECT_PEAK_FONT_SIZE: int = 48
@@ -350,30 +352,48 @@ static func place_screen_popups(popups: Array[Dictionary], bounds: Rect2, cache:
 		if cache.has(key):
 			continue
 		var envelope: Rect2 = popup.get("envelope", Rect2())
-		var offset: Vector2 = _nearest_clear_popup_offset(envelope, occupied, bounds)
+		var same_target_count: int = 0
+		for other: Dictionary in popups:
+			if other.get("tile", null) == popup.get("tile", null):
+				same_target_count += 1
+		var vertical_limit: float = SCREEN_POPUP_STACK_VERTICAL_SHIFT if same_target_count > 1 else SCREEN_POPUP_SOLO_VERTICAL_SHIFT
+		var offset: Vector2 = _nearest_clear_popup_offset(envelope, occupied, bounds, vertical_limit)
 		popup["layout_offset"] = offset
 		cache[key] = {"offset": offset, "scale": float(popup.get("layout_scale", 1.0))}
 		occupied.append(_offset_rect(envelope, offset).grow(SCREEN_POPUP_GAP * 0.5))
 	return popups
 
 
-static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2) -> Vector2:
+static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2, vertical_limit: float = SCREEN_POPUP_SOLO_VERTICAL_SHIFT) -> Vector2:
 	var candidates_y: Array[float] = [0.0]
+	var candidates_x: Array[float]
+	candidates_x.append_array([0.0, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT])
 	for rect: Rect2 in occupied:
 		candidates_y.append(rect.position.y - SCREEN_POPUP_GAP * 0.5 - envelope.end.y)
 		candidates_y.append(rect.end.y + SCREEN_POPUP_GAP * 0.5 - envelope.position.y)
+		candidates_x.append(rect.position.x - SCREEN_POPUP_GAP * 0.5 - envelope.end.x)
+		candidates_x.append(rect.end.x + SCREEN_POPUP_GAP * 0.5 - envelope.position.x)
+	# Neighboring bars often share edges, and distant obstacles all clamp to
+	# the same limits. Evaluate each resulting lane only once in large bursts.
+	var unique_x: Dictionary = {}
+	var unique_y: Dictionary = {}
+	for dx: float in candidates_x:
+		unique_x[clampf(clampf(dx, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT), bounds.position.x - envelope.position.x, maxf(bounds.position.x - envelope.position.x, bounds.end.x - envelope.end.x))] = true
+	for dy: float in candidates_y:
+		unique_y[clampf(clampf(dy, -vertical_limit, vertical_limit), bounds.position.y - envelope.position.y, maxf(bounds.position.y - envelope.position.y, bounds.end.y - envelope.end.y))] = true
 	var best_offset := Vector2.ZERO
 	var best_cost: float = INF
-	for dx: float in [0.0, -SCREEN_POPUP_MAX_SIDE_SHIFT * 0.5, SCREEN_POPUP_MAX_SIDE_SHIFT * 0.5, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT]:
-		for dy: float in candidates_y:
+	for dx: float in unique_x:
+		for dy: float in unique_y:
+			# A wall of neighboring health bars must never move a hit onto the
+			# actor below it. Search exact side-clearance lanes within one label
+			# width, and keep vertical displacement local even in a crowded burst.
 			var offset := Vector2(dx, dy)
-			offset.x = clampf(offset.x, bounds.position.x - envelope.position.x, maxf(bounds.position.x - envelope.position.x, bounds.end.x - envelope.end.x))
-			offset.y = clampf(offset.y, bounds.position.y - envelope.position.y, maxf(bounds.position.y - envelope.position.y, bounds.end.y - envelope.end.y))
 			var candidate: Rect2 = _offset_rect(envelope, offset).grow(SCREEN_POPUP_GAP * 0.5)
 			var overlap_area: float = 0.0
 			for rect: Rect2 in occupied:
 				overlap_area += candidate.intersection(rect).get_area()
-			var cost: float = overlap_area * 10000.0 + absf(offset.y) + absf(offset.x) * 1.5
+			var cost: float = overlap_area * 10000.0 + absf(offset.y) * 2.0 + absf(offset.x)
 			if cost < best_cost:
 				best_cost = cost
 				best_offset = offset

@@ -1512,6 +1512,7 @@ var _board_preview_display_cache_key: String = ""
 var _board_preview_display_cache: Dictionary = {}
 var _preview_selection_revision: int = 0
 var _card_preview_cache: Dictionary = {}
+var _card_playability_cache: Dictionary = {}
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
 var _card_widget_display_cache: Dictionary = {}
@@ -1622,6 +1623,11 @@ var _grimoire_selected_group: String = ""
 var _grimoire_selected_entry: String = ""
 var _grimoire_nav_scroll_revision: int = 0
 var _grimoire_search_query: String = ""
+var _grimoire_search_index: Array[Dictionary]
+var _grimoire_search_index_unlocked: Array[String]
+var _grimoire_cached_result_query: String = ""
+var _grimoire_cached_results_valid: bool = false
+var _grimoire_cached_results: Array[Dictionary]
 var _grimoire_search_results: Array[Dictionary] = []
 var _grimoire_search_result_buttons: Array[Button] = []
 var _grimoire_nav_buttons: Array[Button] = []
@@ -1871,6 +1877,7 @@ var _progression_overlay_notice_is_error: bool = false
 var _progression_overlay_cached_mode: String = ""
 var _progression_overlay_content_signature: String = "<unset>"
 var _skill_tree_view: SkillTreeView
+var _retained_skill_tree_host: Control
 var _skill_reset_button: Button
 var _skill_hud_refresh_pending: bool = false
 var _skill_reset_confirmation_scrim: ColorRect
@@ -1946,6 +1953,7 @@ var _controller_loadout_tooltip_anchor: Control
 var _controller_layout_revision: int = 0
 
 func _ready() -> void:
+	var prefix_started: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
 	_settings = SettingsStore.load_settings()
 	SettingsStore.apply_settings(_settings, get_window())
@@ -1965,15 +1973,19 @@ func _ready() -> void:
 		performance_telemetry_enabled
 		and bool(ProjectSettings.get_setting("telemetry/performance/section_instrumentation_enabled", true))
 	)
+	_record_runtime_performance_phase("startup_settings_and_prefix", prefix_started)
 	board_view.equipment_tooltip_builder = Callable(self, "_build_equipment_tooltip_panel")
 	board_view.item_tooltip_builder = Callable(self, "_build_item_pickup_tooltip_panel")
 	_sync_board_view_rect()
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
 	call_deferred("_sync_board_view_rect")
+	var ready_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_apply_style()
 	_layout_mini_map_overlay()
+	ready_started = _record_runtime_performance_phase("startup_style", ready_started)
 	_build_overlay_ui()
+	ready_started = _record_runtime_performance_phase("startup_overlays", ready_started)
 	_build_controller_interface()
 	_build_context_choice_overlay()
 	_setup_pile_widgets()
@@ -1986,9 +1998,15 @@ func _ready() -> void:
 	_connect_board_aim_signals()
 	if not get_viewport().size_changed.is_connected(_on_hand_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_hand_viewport_size_changed)
+	ready_started = _record_runtime_performance_phase("startup_controls", ready_started)
 	_boot_run()
+	_record_runtime_performance_phase("startup_boot_run", ready_started)
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 	call_deferred("_refresh_controller_interface")
+
+func initial_asset_preparation_target() -> Control:
+	# This scene is detached; @onready bindings are not available yet.
+	return get_node("BoardUnderlay/CombatBoard") as Control
 
 func initial_presentation_is_ready() -> bool:
 	# Initial viewport/hand refreshes schedule further container fitting. The
@@ -4951,6 +4969,8 @@ func _sync_pre_battle_overlay_layering() -> void:
 func _rebuild_pre_battle_overlay() -> void:
 	if _pre_battle_panel == null:
 		return
+	var total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var phase_started: int = total_started
 	_clear_children_now(_pre_battle_panel)
 	_apply_pre_battle_outer_frame()
 	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
@@ -4961,6 +4981,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
+	phase_started = _record_runtime_performance_phase("pre_battle_clear_and_context", phase_started)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_CONTENT_SIDE_INSET))
 	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
@@ -4975,6 +4996,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	vbox.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_header(room, combat_state, accent))
+	phase_started = _record_runtime_performance_phase("pre_battle_header", phase_started)
 
 	var body_margin := MarginContainer.new()
 	body_margin.name = "PreBattleBodyMargin"
@@ -4991,7 +5013,10 @@ func _rebuild_pre_battle_overlay() -> void:
 	body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
 	body_margin.add_child(body)
 	body.add_child(_build_pre_battle_enemy_section(combat_state, accent))
+	phase_started = _record_runtime_performance_phase("pre_battle_enemy_section", phase_started)
 	body.add_child(_build_pre_battle_deck_section(accent))
+	_record_runtime_performance_phase("pre_battle_deck_section", phase_started)
+	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
 
 	call_deferred("_animate_pre_battle_living_parts")
 
@@ -6788,6 +6813,7 @@ func _grimoire_search_field_style(focused: bool) -> StyleBoxFlat:
 func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	if _grimoire_section_list == null:
 		return
+	var grimoire_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_layout_grimoire_dialog()
 	var preserved_scroll_vertical: int = 0
 	if _grimoire_entry_scroll != null:
@@ -6798,12 +6824,13 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	var unlocked: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
 	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
 	var sections: Array = GrimoireLibrary.sections()
-	var entries_by_section: Dictionary = _grimoire_entries_by_section(unlocked)
 	_grimoire_search_result_buttons.clear()
 	_grimoire_nav_buttons.clear()
+	grimoire_started = _record_runtime_performance_phase("grimoire_catalog_prepare", grimoire_started)
 	if _grimoire_search_active():
 		_rebuild_grimoire_search_results(unlocked, unread, sections, preserved_scroll_vertical, scroll_revision)
 		return
+	var entries_by_section: Dictionary = _grimoire_entries_by_section(unlocked)
 	_grimoire_search_results.clear()
 	_update_grimoire_search_chrome(unlocked.size())
 	if _grimoire_selected_section.is_empty() or _grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section).is_empty():
@@ -6868,21 +6895,32 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 		call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
 	else:
 		call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
+	grimoire_started = _record_runtime_performance_phase("grimoire_browse_build", grimoire_started)
 	_refresh_grimoire_detail()
+	_record_runtime_performance_phase("grimoire_detail_build", grimoire_started)
 	_refresh_grimoire_badge()
 
 func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[String], sections: Array, preserved_scroll_vertical: int, scroll_revision: int) -> void:
-	var unlocked_entries: Array = []
-	var unlocked_lookup: Dictionary = {}
-	for entry_id: String in unlocked:
-		unlocked_lookup[entry_id] = true
-	for entry_var: Variant in GrimoireLibrary.entries():
-		if typeof(entry_var) != TYPE_DICTIONARY:
-			continue
-		var entry: Dictionary = entry_var as Dictionary
-		if bool(unlocked_lookup.get(str(entry.get("id", "")), false)):
-			unlocked_entries.append(entry)
-	_grimoire_search_results = GrimoireSearch.search(unlocked_entries, sections, _grimoire_search_query)
+	var grimoire_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if _grimoire_search_index.is_empty() or unlocked != _grimoire_search_index_unlocked:
+		var unlocked_entries: Array = []
+		var unlocked_lookup: Dictionary = {}
+		for entry_id: String in unlocked: unlocked_lookup[entry_id] = true
+		for entry_var: Variant in GrimoireLibrary.entries():
+			if typeof(entry_var) == TYPE_DICTIONARY and unlocked_lookup.has(str((entry_var as Dictionary).get("id", ""))):
+				unlocked_entries.append(entry_var)
+		_grimoire_search_index = GrimoireSearch.build_index(unlocked_entries, sections)
+		_grimoire_search_index_unlocked.assign(unlocked)
+		_grimoire_cached_results_valid = false
+	grimoire_started = _record_runtime_performance_phase("grimoire_search_catalog", grimoire_started)
+	if not _grimoire_cached_results_valid or _grimoire_cached_result_query != _grimoire_search_query:
+		_grimoire_cached_results = GrimoireSearch.search_index(_grimoire_search_index, _grimoire_search_query)
+		_grimoire_cached_result_query = _grimoire_search_query
+		_grimoire_cached_results_valid = true
+	# Browsing clears its visible array; preserve a separate owned outer array
+	# so selection/unread changes can reuse the same immutable ranking.
+	_grimoire_search_results.assign(_grimoire_cached_results)
+	grimoire_started = _record_runtime_performance_phase("grimoire_search_score", grimoire_started)
 	_clear_children_now(_grimoire_section_list)
 	var selected_still_matches: bool = false
 	for result: Dictionary in _grimoire_search_results:
@@ -6908,7 +6946,9 @@ func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[Str
 			call_deferred("_restore_grimoire_entry_list_scroll", preserved_scroll_vertical, 0, scroll_revision)
 		else:
 			call_deferred("_scroll_grimoire_entry_list_to_index", selected_index, 0, scroll_revision)
+	grimoire_started = _record_runtime_performance_phase("grimoire_result_controls", grimoire_started)
 	_refresh_grimoire_detail()
+	_record_runtime_performance_phase("grimoire_detail_build", grimoire_started)
 	_refresh_grimoire_badge()
 
 func _add_grimoire_search_result(result: Dictionary, unread: Array[String]) -> void:
@@ -7041,6 +7081,8 @@ func _clear_grimoire_search() -> void:
 	if _grimoire_search_input == null:
 		return
 	_grimoire_search_input.text = ""
+	# Programmatic LineEdit text changes do not emit text_changed.
+	_on_grimoire_search_text_changed("")
 	_grimoire_search_input.grab_focus()
 
 func _restore_grimoire_browse_selection() -> void:
@@ -9526,7 +9568,7 @@ func _guided_tutorial_playable_card_indices() -> Array[int]:
 	for index: int in range(hand.size()):
 		if not expected_card_id.is_empty() and str(hand[index]) != expected_card_id:
 			continue
-		var options: Dictionary = _card_play_options_for_index(index)
+		var options: Dictionary = _card_playability_for_index(index)
 		if bool(options.get("printed_playable", false)):
 			result.append(index)
 	return result
@@ -9951,12 +9993,12 @@ func _schedule_action_tracker_prewarm(hand: Array) -> void:
 		})
 	var action_values: Array[Dictionary]
 	for hand_index: int in range(hand.size()):
-		var options: Dictionary = _card_play_options_for_index(hand_index)
-		for mode: String in ["play"]:
-			var preview: Dictionary = options.get(mode, {}) as Dictionary
-			for action_var: Variant in preview.get("actions", []) as Array:
-				if typeof(action_var) == TYPE_DICTIONARY:
-					action_values.append((action_var as Dictionary).duplicate(true))
+		# Chips use the prepared printed actions, including generated Flurry steps
+		# and charge-dependent trap effects. Target enumeration adds no chip data.
+		var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, hand_index, "play")
+		for action_var: Variant in _combat_engine.card_play_actions(str(hand[hand_index]), prepared_state):
+			if typeof(action_var) == TYPE_DICTIONARY:
+				action_values.append((action_var as Dictionary).duplicate(true))
 	for action: Dictionary in action_values:
 		_queue_action_tracker_chip_prewarm(action, "current")
 	for status: String in ["current", "remaining", "done", "skipped"]:
@@ -12406,7 +12448,7 @@ func _turn_order_card_time_preview() -> Dictionary:
 	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
 	if index < 0:
 		return {}
-	if not bool(_card_play_options_for_index(index).get("any_playable", false)):
+	if not bool(_card_playability_for_index(index).get("any_playable", false)):
 		return {}
 	var card_id: String = _card_id_for_hand_index(index)
 	if card_id.is_empty():
@@ -16587,7 +16629,7 @@ func _queue_hand_ready_wave(reason: String = "") -> void:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	var ready_order: int = 0
 	for index: int in range(hand.size()):
-		var options: Dictionary = _card_play_options_for_index(index)
+		var options: Dictionary = _card_playability_for_index(index)
 		if not bool(options.get("any_playable", false)):
 			continue
 		_hand_ready_wave_indices[index] = ready_order
@@ -16746,7 +16788,7 @@ func _refresh_hand_panel() -> void:
 		hand_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		var card_size: Vector2 = _hand_card_size(hand.size(), false)
 		for index: int in range(hand.size()):
-			var options: Dictionary = _card_play_options_for_index(index)
+			var options: Dictionary = _card_playability_for_index(index)
 			var display: Dictionary = _card_widget_display_for_index(index)
 			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var card_id: String = str(hand[index])
@@ -16873,7 +16915,7 @@ func _update_existing_hand_interaction_state() -> bool:
 	performance_phase_started = _record_runtime_performance_phase("hand_interaction_verify", performance_phase_started)
 	for index: int in range(hand.size()):
 		var widget: CardWidget = _hand_card_control(index) as CardWidget
-		var options: Dictionary = _card_play_options_for_index(index)
+		var options: Dictionary = _card_playability_for_index(index)
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options_total", performance_phase_started)
 		var display: Dictionary = _card_widget_display_for_index(index)
 		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
@@ -18152,35 +18194,23 @@ func _preview_target_tiles_for_action(state: Dictionary, action: Dictionary, raw
 	# for the whole submission, so build it once instead of recomputing Umbra
 	# radius, light sources, and relic modifiers once per candidate tile.
 	var visible_lookup: Dictionary = _combat_engine.umbra_visible_tile_lookup(information_state)
+	var known_targets: Array[Vector2i]
+	for tile: Vector2i in target_tiles:
+		if _preview_target_is_known_for_action(tile, state, information_state, action, visible_lookup):
+			known_targets.append(tile)
+	return known_targets
+
+func _preview_target_is_known_for_action(tile: Vector2i, state: Dictionary, information_state: Dictionary, action: Dictionary, visible_lookup: Dictionary) -> bool:
 	match str(action.get("type", "")):
 		"move", "illuminate", "vision", "truesight", "dispel_umbra":
-			# Movement may intentionally scout into the Umbra. Illuminate may also
-			# target an unknown coordinate; neither preview exposes what is there.
-			return target_tiles
-		"blink", "illusion":
-			var visible_tiles: Array[Vector2i] = _vector2i_array([])
-			for tile: Vector2i in target_tiles:
-				if _combat_engine.is_tile_visible_to_player(information_state, tile, visible_lookup):
-					visible_tiles.append(tile)
-			return visible_tiles
+			# These decisions can intentionally scout an unknown coordinate.
+			return true
 		"melee", "ranged", "push", "pull":
-			var known_targets: Array[Vector2i] = _vector2i_array([])
-			for tile: Vector2i in target_tiles:
-				if _preview_target_tile_is_known(state, information_state, tile, visible_lookup):
-					known_targets.append(tile)
-			return known_targets
+			return _preview_target_tile_is_known(state, information_state, tile, visible_lookup)
 		"aoe":
-			var known_centers: Array[Vector2i] = _vector2i_array([])
-			for tile: Vector2i in target_tiles:
-				if _preview_aoe_target_is_known(state, information_state, action, tile, visible_lookup):
-					known_centers.append(tile)
-			return known_centers
+			return _preview_aoe_target_is_known(state, information_state, action, tile, visible_lookup)
 		_:
-			var visible_targets: Array[Vector2i] = _vector2i_array([])
-			for tile: Vector2i in target_tiles:
-				if _combat_engine.is_tile_visible_to_player(information_state, tile, visible_lookup):
-					visible_targets.append(tile)
-			return visible_targets
+			return _combat_engine.is_tile_visible_to_player(information_state, tile, visible_lookup)
 
 func _preview_target_tile_is_known(state: Dictionary, information_state: Dictionary, target_tile: Vector2i, visible_lookup: Dictionary = {}) -> bool:
 	for enemy_var: Variant in state.get("enemies", []):
@@ -18335,6 +18365,36 @@ func _card_play_options_for_index(index: int) -> Dictionary:
 	_record_runtime_performance_phase("card_play_options_total", performance_total_started)
 	return options
 
+func _card_playability_for_index(index: int) -> Dictionary:
+	# Hand appearance and analytics need flags, while selection needs the complete
+	# target set. Keep their caches separate so summary-first access cannot shorten
+	# a later click/drag preview. Existing full snapshots remain authoritative.
+	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+		return {"printed_playable": false, "any_playable": false}
+	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
+	if index < 0 or index >= hand.size():
+		return {}
+	var options_key: String = _card_preview_cache_key(index, "options")
+	if _card_play_options_cache.has(options_key):
+		return _card_play_options_cache[options_key] as Dictionary
+	var preview_key: String = _card_preview_cache_key(index)
+	if _card_preview_cache.has(preview_key):
+		var full_preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_cache[preview_key] as Dictionary)
+		var full_playable: bool = bool(full_preview.get("playable", false))
+		return {"printed_playable": full_playable, "any_playable": full_playable}
+	if _card_playability_cache.has(preview_key):
+		return _card_playability_cache[preview_key] as Dictionary
+	var performance_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var card_id: String = str(hand[index])
+	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, "play")
+	var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
+	var preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_from_state(card_id, prepared_state, actions, 0, false, true, true, true))
+	var playable: bool = bool(preview.get("playable", false))
+	var summary: Dictionary = {"printed_playable": playable, "any_playable": playable}
+	_card_playability_cache[preview_key] = summary
+	_record_runtime_performance_phase("card_playability_total", performance_started)
+	return summary
+
 func _show_card_action_choices(index: int, options: Dictionary) -> void:
 	if not bool(options.get("any_playable", false)):
 		return
@@ -18485,7 +18545,7 @@ func _has_playable_combat_card() -> bool:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
-		if bool(_card_play_options_for_index(index).get("printed_playable", false)):
+		if bool(_card_playability_for_index(index).get("printed_playable", false)):
 			return true
 	return false
 
@@ -18496,7 +18556,7 @@ func _has_any_playable_combat_card() -> bool:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
-		if bool(_card_play_options_for_index(index).get("any_playable", false)):
+		if bool(_card_playability_for_index(index).get("any_playable", false)):
 			return true
 	return false
 
@@ -18512,6 +18572,7 @@ func _mark_combat_preview_state_changed() -> void:
 	_stage_visibility_cache_key = ""
 	_stage_visibility_cache.clear()
 	_card_preview_cache.clear()
+	_card_playability_cache.clear()
 	_fallback_preview_cache.clear()
 	_card_play_options_cache.clear()
 	_card_widget_display_cache.clear()
@@ -18640,7 +18701,7 @@ func _warm_pass_preview_cache_across_frames(
 			var playable_slice_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			var instance_id: String = str(hand_ids[index])
 			if not bool(playable_logged.get(instance_id, false)):
-				var options: Dictionary = _card_play_options_for_index(index)
+				var options: Dictionary = _card_playability_for_index(index)
 				if bool(options.get("any_playable", false)):
 					var card_id: String = str(hand[index])
 					playable_logged[instance_id] = true
@@ -18715,7 +18776,8 @@ func _card_preview_from_state(
 	action_index: int,
 	has_effect: bool = false,
 	use_position_only_move_legality: bool = true,
-	allow_skip_suffix_shortcut: bool = true
+	allow_skip_suffix_shortcut: bool = true,
+	playability_only: bool = false
 ) -> Dictionary:
 	var working_state: Dictionary = combat_state
 	var cursor: int = action_index
@@ -18744,7 +18806,17 @@ func _card_preview_from_state(
 					effect_seen,
 					use_position_only_move_legality
 				)
-			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action)
+			var accept_target: Callable = Callable()
+			if playability_only and not skip_playable and _preview_umbra_is_limited(working_state):
+				var information_state: Dictionary = _preview_information_state(working_state)
+				accept_target = _preview_target_is_known_for_action.bind(working_state, information_state, action, _combat_engine.umbra_visible_tile_lookup(information_state))
+			var existence_only: bool = playability_only and (
+				(str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(actions, cursor + 1))
+				or _umbra_defers_movement_followup_preview(working_state, action, actions, cursor)
+				or _remaining_actions_are_targetless(actions, cursor + 1)
+				or (allow_skip_suffix_shortcut and _continuation_can_finish_by_skipping_targets(actions, cursor + 1, true))
+			)
+			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action, 1 if existence_only else 0, accept_target)
 			# A combined move-attack card has one board decision with two kinds of
 			# legal result: click an enemy to take the shortcut and attack, or click a
 			# destination to spend the movement and deliberately omit the follow-up.
@@ -18840,6 +18912,8 @@ func _card_preview_from_state(
 					use_position_only_move_legality
 				):
 					valid_targets.append(target_tile)
+					if playability_only:
+						break
 			if valid_targets.is_empty() and skip_playable:
 				cursor += 1
 				continue
@@ -25067,7 +25141,9 @@ func _hide_transient_combat_log(message: String) -> void:
 		log_overlay.visible = false
 
 func _pre_battle_preview_for_current_room() -> Dictionary:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state)
+	_record_runtime_performance_phase("pre_battle_engine_preview", started)
 	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if combat_state.is_empty():
 		return {}
@@ -26411,12 +26487,12 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
 	var state: Dictionary = run_state.duplicate(true)
 	var mode: String = str(state.get("mode", ""))
+	var victory_amount: int = _victory_ember_amount(state) if mode == "victory" else 0
 	if mode in ["victory", "defeat"]:
 		state = _terminal_state_with_recorded_run_result(state, _progression)
 		_progression = (state.get("progression", _progression) as Dictionary).duplicate(true)
 	if mode == "victory":
 		if not _victory_carry_processed:
-			var victory_amount: int = _run_engine.held_embers(state)
 			_victory_carry_amount = victory_amount
 			_progression = ProgressionStore.set_embers(_progression, victory_amount)
 			_victory_carry_processed = true
@@ -26908,6 +26984,18 @@ func _rebuild_progression_overlay() -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_sync_progression_from_run()
 	performance_phase_started = _record_runtime_performance_phase("character_sync", performance_phase_started)
+	# Preserve the graph while rebuilding the much smaller surrounding chrome.
+	# Keep it owned by this scene under a hidden host across other Character tabs.
+	if is_instance_valid(_skill_tree_view):
+		_skill_tree_view.clear_external_focus_targets()
+		if _retained_skill_tree_host == null:
+			_retained_skill_tree_host = Control.new()
+			_retained_skill_tree_host.name = "RetainedSkillTreeHost"
+			_retained_skill_tree_host.visible = false
+			_retained_skill_tree_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			add_child(_retained_skill_tree_host)
+		if _skill_tree_view.get_parent() != _retained_skill_tree_host:
+			_skill_tree_view.reparent(_retained_skill_tree_host, false)
 	_clear_children_now(_upgrade_dialog)
 	_layout_progression_dialog()
 	performance_phase_started = _record_runtime_performance_phase("character_clear_layout", performance_phase_started)
@@ -27320,10 +27408,14 @@ func _build_skill_tree_overlay_body() -> Control:
 	var earned_points: int = ProgressionStore.skill_points_for_level(int(_progression.get("level", 1)))
 	var unspent_points: int = ProgressionStore.unspent_skill_points(_progression)
 
-	_skill_tree_view = SkillTreeView.new()
-	_skill_tree_view.name = "CharacterSkillTree"
-	_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var retained_tree: bool = is_instance_valid(_skill_tree_view)
+	if not retained_tree:
+		_skill_tree_view = SkillTreeView.new()
+		_skill_tree_view.name = "CharacterSkillTree"
+		_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
+		_skill_tree_view.learn_requested.connect(_on_skill_learn_requested)
 	_skill_tree_view.configure({
 		"mode": SkillTreeView.MODE_VIEW,
 		"owned_ids": owned_ids,
@@ -27332,12 +27424,12 @@ func _build_skill_tree_overlay_body() -> Control:
 		"editing_enabled": _skill_editing_can_edit(),
 		"focused_id": _progression_focused_skill_id,
 	})
-	_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
-	_skill_tree_view.learn_requested.connect(_on_skill_learn_requested)
-	column.add_child(_skill_tree_view)
+	if retained_tree:
+		_skill_tree_view.reparent(column, false)
+	else:
+		column.add_child(_skill_tree_view)
 	_skill_tree_view.call_deferred("grab_tree_focus")
 	var skills_tab := _upgrade_dialog.find_child("CharacterSkillsTab", true, false) as Button
-	_skill_tree_view.set_external_tab_focus_target(skills_tab)
 
 	var command_row := HBoxContainer.new()
 	command_row.name = "SkillTreeViewCommands"
@@ -27359,7 +27451,7 @@ func _build_skill_tree_overlay_body() -> Control:
 	command_row.add_child(reset_button)
 	_skill_reset_button = reset_button
 	column.add_child(command_row)
-	_skill_tree_view.set_external_command_focus_target(reset_button)
+	_skill_tree_view.set_external_focus_targets(skills_tab, reset_button)
 	return _fixed_character_body_frame(column)
 
 func _on_skill_tree_focused(skill_id: String) -> void:
@@ -29977,6 +30069,10 @@ func _dialogue_trigger_key(room: Dictionary) -> String:
 	return "%d,%d|%d" % [coord.x, coord.y, int(_run_state.get("turns_spent", 0))]
 
 func _new_seed() -> int:
+	# Native performance probes enter through the actual New Run button. A
+	# process-local test seed keeps that public route comparable across builds.
+	if get_tree().root.has_meta("labyrinth_performance_probe_seed"):
+		return int(get_tree().root.get_meta("labyrinth_performance_probe_seed"))
 	return int(Time.get_unix_time_from_system()) & 0x7fffffff
 
 func _hand_card_size(card_count: int, reward_mode: bool) -> Vector2:
@@ -30979,7 +31075,7 @@ func _analytics_log_playable_cards() -> void:
 		var instance_id: String = str(hand_ids[index])
 		if bool(playable_logged.get(instance_id, false)):
 			continue
-		var options: Dictionary = _card_play_options_for_index(index)
+		var options: Dictionary = _card_playability_for_index(index)
 		performance_phase_started = _record_runtime_performance_phase("analytics_playable_options_total", performance_phase_started)
 		if not bool(options.get("any_playable", false)):
 			continue
@@ -31377,7 +31473,9 @@ func _sync_progression_from_run() -> void:
 	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
 	if run_progression.is_empty():
 		return
-	_progression = ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
+	# Victory has transferred the wallet into the embedded profile. A later
+	# discovery/save must preserve that bank after held Embers have been cleared.
+	_progression = run_progression if str(_run_state.get("mode", "")) == "victory" else ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
 func _sync_progression_analytics_outbox_to_run() -> void:
 	if _run_state.is_empty():
@@ -31561,13 +31659,21 @@ func _locked_door_tiles_for_board() -> Dictionary:
 		locked[door_tile] = true
 	return locked
 
+func _victory_ember_amount(state: Dictionary) -> int:
+	var held: int = _run_engine.held_embers(state)
+	if held > 0:
+		return held
+	# Canonical victories always award the boss's Embers. Zero held with an
+	# embedded bank is a settled terminal snapshot being resumed or retried.
+	return maxi(0, int((state.get("progression", {}) as Dictionary).get("embers", 0)))
+
 func _process_victory_carry() -> void:
 	if _is_debug_boss_run():
 		_victory_carry_amount = _run_engine.held_embers(_run_state)
 		_victory_carry_processed = true
 		return
+	var amount: int = _victory_ember_amount(_run_state)
 	_record_terminal_run_result()
-	var amount: int = _run_engine.held_embers(_run_state)
 	_victory_carry_amount = amount
 	_progression = ProgressionStore.set_embers(_progression, amount)
 	ProgressionStore.save_data(_progression)
