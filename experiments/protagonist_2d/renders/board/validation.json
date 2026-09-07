@@ -1,0 +1,110 @@
+{
+	"anchor": "(0.499023, 0.685547)",
+	"bones_detail_only": true,
+	"checked_frames": 344,
+	"enemy_art_unchanged": true,
+	"facings": [
+		"front",
+		"rear"
+	],
+	"fixed_canvas": [
+		512,
+		512
+	],
+	"health_anchor_unchanged": true,
+	"motion_frames_captured": true,
+	"native_button_focus": true,
+	"original_source_size": [
+		255,
+		255
+	],
+	"pause_step_wrap_fps": true,
+	"production_shadow_reused": true,
+	"proof_kind": "live 2D board poses and controls",
+	"rear_verified": true,
+	"retained_live_texture": true,
+	"source_offset": [
+		128,
+		128
+	],
+	"source_registration_unchanged": true,
+	"ui_scale": 1.0,
+	"video_clips": [
+		{
+			"fps": 24.0,
+			"frame_count": 48,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/front_idle",
+			"lossless": true,
+			"name": "front_idle",
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"fps": 24.0,
+			"frame_count": 32,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/front_walk",
+			"lossless": true,
+			"name": "front_walk",
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"fps": 24.0,
+			"frame_count": 32,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/front_attack",
+			"lossless": true,
+			"name": "front_attack",
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"fps": 24.0,
+			"frame_count": 36,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/front_block",
+			"lossless": true,
+			"name": "front_block",
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"fps": 24.0,
+			"frame_count": 24,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/front_hit",
+			"lossless": true,
+			"name": "front_hit",
+			"size": [
+				1920,
+				1080
+			]
+		},
+		{
+			"fps": 24.0,
+			"frame_count": 32,
+			"frame_extension": "webp",
+			"frames_path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1/motion/rear_walk",
+			"lossless": true,
+			"name": "rear_walk",
+			"size": [
+				1920,
+				1080
+			]
+		}
+	],
+	"viewport": [
+		1920,
+		1080
+	]
+}

@@ -1,0 +1,65 @@
+{
+	"cases": [
+		{
+			"action": "idle",
+			"facing": "front",
+			"frame": 0,
+			"pixel_identical": true
+		},
+		{
+			"action": "walk",
+			"facing": "front",
+			"frame": 13,
+			"pixel_identical": true
+		},
+		{
+			"action": "attack",
+			"facing": "front",
+			"frame": 13,
+			"pixel_identical": true
+		},
+		{
+			"action": "block",
+			"facing": "front",
+			"frame": 15,
+			"pixel_identical": true
+		},
+		{
+			"action": "hit",
+			"facing": "front",
+			"frame": 10,
+			"pixel_identical": true
+		},
+		{
+			"action": "idle",
+			"facing": "rear",
+			"frame": 0,
+			"pixel_identical": true
+		},
+		{
+			"action": "walk",
+			"facing": "rear",
+			"frame": 13,
+			"pixel_identical": true
+		},
+		{
+			"action": "attack",
+			"facing": "rear",
+			"frame": 13,
+			"pixel_identical": true
+		},
+		{
+			"action": "block",
+			"facing": "rear",
+			"frame": 15,
+			"pixel_identical": true
+		},
+		{
+			"action": "hit",
+			"facing": "rear",
+			"frame": 10,
+			"pixel_identical": true
+		}
+	],
+	"saved_scene_reload": true
+}

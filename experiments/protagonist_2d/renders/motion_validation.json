@@ -1,0 +1,10 @@
+{
+  "actual_layouts": true,
+  "clips": 5,
+  "failures": [],
+  "layouts": 2,
+  "max_contact_error_px": 2.15791860682657e-05,
+  "max_contact_rotation_rad": 5.96046447753906e-08,
+  "phase_samples": 129,
+  "worst_case": "front/idle/foot_l/0.3750"
+}

@@ -1,0 +1,9 @@
+{
+  "regenerated_assets": 48,
+  "changed_files": [],
+  "scripts": [
+    "prepare_rear.py",
+    "cutout_assets.py",
+    "rear_assets.py"
+  ]
+}

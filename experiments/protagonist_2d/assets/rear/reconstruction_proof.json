@@ -1,0 +1,41 @@
+{
+  "source_sha256": "3b384b1e9700df71a800b5ccda3e5bbfbdca2537a82c5b7ef5aa792353e27d23",
+  "visible_source_pixels": 15373,
+  "exclusive_base_pixels": {
+    "head": 2096,
+    "cape_full": 5823,
+    "scarf": 276,
+    "sword_hand_r": 2090,
+    "forearm_r": 687,
+    "arm_r": 520,
+    "foot_l": 415,
+    "foot_r": 626,
+    "shin_l": 393,
+    "shin_r": 685,
+    "thigh_l": 190,
+    "thigh_r": 547,
+    "hips": 539,
+    "torso": 486
+  },
+  "source_outline_assignments": {
+    "cape_full": 43,
+    "sword_hand_r": 27,
+    "forearm_r": 18,
+    "arm_r": 3,
+    "shin_r": 10,
+    "thigh_r": 18,
+    "hips": 20,
+    "torso": 1
+  },
+  "source_rgba_preserved": true,
+  "proof": {
+    "segments": {
+      "different_rgba_pixels": 0,
+      "exact_rest_reconstruction": true
+    },
+    "weighted_cape": {
+      "different_rgba_pixels": 0,
+      "exact_rest_reconstruction": true
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "status": "accepted_for_isolated_rig_study",
+  "identity_reference": "assets/placeholders/units/player_reaver.png",
+  "rejected_v1": "Cloak almost reached boot soles; painted checkerboard was opaque.",
+  "corrected_v2": "Shorter asymmetric gray-green cloak exposes both lower legs, original proportions/colors/equipment retained; generated solid magenta isolated with a deterministic key mask.",
+  "preparation": {
+    "raw_size": [
+      1254,
+      1254
+    ],
+    "key_rule": "r>g+20 and b>g+20 and b>r*0.5",
+    "background_pixels_removed": 1220175,
+    "uniform_scale": 0.20918866080156404,
+    "resampler": "nearest",
+    "translation": [
+      -4,
+      -6
+    ],
+    "result_alpha_bounds": [
+      49,
+      9,
+      241,
+      223
+    ]
+  },
+  "keyed_source_sha256": "b3e59ea7f304e40304a74e98aca2da050eda92e075c667af0a17ba5784063d4f",
+  "review_notes": "Front/rear source style and identity inspected; shorter cloak exposes both lower legs; hidden rear construction remains inferred, and armor detail is slightly more ornate than the front. Not a production art approval."
+}
