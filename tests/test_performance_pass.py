@@ -67,5 +67,26 @@ class PerformancePassTest(unittest.TestCase):
             self.assertTrue(any("sample boundary metadata missing" in problem for problem in problems))
 
 
+    def test_different_cpu_profiles_reject_comparison(self):
+        baseline = {"environment": {"cpu_profile": "normal"}}
+        candidate = {"environment": {"cpu_profile": "background"}}
+        self.assertTrue(any("CPU scheduling profile differs" in p for p in performance_pass._compatibility_problems(baseline, candidate)))
+
+    def test_ui_trade_semantics_reject_comparison(self):
+        baseline = {"benchmarks": {"ui_flow": {"result": {"interaction_semantics": {"buy": {"held_embers": 10}}}}}}
+        candidate = {"benchmarks": {"ui_flow": {"result": {"interaction_semantics": {"buy": {"held_embers": 20}}}}}}
+        self.assertTrue(any("interaction_semantics differs" in p for p in performance_pass._compatibility_problems(baseline, candidate)))
+
+    def test_profile_wraps_only_child_command(self):
+        from unittest.mock import patch
+        command = ["python3", "tools/godot_task_runner.py", "--", "godot"]
+        with patch.object(performance_pass.sys, "platform", "darwin"), patch.object(performance_pass.shutil, "which", return_value="/usr/sbin/taskpolicy"):
+            self.assertEqual(performance_pass._cpu_profile_command(command, "normal"), command)
+            self.assertEqual(performance_pass._cpu_profile_command(command, "background"), ["/usr/sbin/taskpolicy", "-c", "background", *command])
+        with patch.object(performance_pass.sys, "platform", "linux"):
+            with self.assertRaisesRegex(ValueError, "macOS"):
+                performance_pass._cpu_profile_command(command, "background")
+
+
 if __name__ == "__main__":
     unittest.main()

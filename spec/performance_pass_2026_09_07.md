@@ -2,6 +2,8 @@
 
 ## Scope and result
 
+The later [shop, reward and action follow-up](performance_pass_2026_09_07_flows.md) continues this pass from its reviewed commit, with additional cold-path and UI work plus a calibrated Mac CPU stress condition.
+
 This pass addresses the request for substantially less hitching on weaker machines without sacrificing the game's appearance or behavior. The reproducible new bottlenecks were surface/Chain preview planning and board-wide redraws for small surface updates. Both are reduced substantially. The pass also covers ordinary card actions, enemy rounds, abilities, rewards, enemy dissolves, rendering, simulation, repeated installation, and generated shadow data.
 
 The measurements below are **Apple M5 Pro / macOS 26.3.1 / Godot 4.6.1 `14d19694e` / Metal Mobile**, in a foreground **1920×1080 window at 100% UI scale**. They establish local reductions in CPU work and completed-draw frame intervals. They are not Steam Deck FPS, battery-life, compositor-presentation, or GPU-completion measurements. GPU timestamps are unavailable on this Metal backend and are excluded from the comparison. Steam fleet telemetry could not be retrieved through the available secure credential path during this pass.

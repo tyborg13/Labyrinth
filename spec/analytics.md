@@ -410,7 +410,10 @@ construction omits retired intensity fields rather than emitting a zero meter.
 Combat state holds a monotonic `surface_event_sequence` and bounded recent
 `surface_events` for previews and presentation. Analytics flushes unseen events
 at resolved action/start boundaries, using combat ID plus event sequence for
-idempotency. Preview copies never append gameplay analytics. Records include
+idempotency. A boundary derives its common context once and synchronously appends
+its ordered unseen tail in one JSONL batch. The in-memory cursor advances only
+after the batch flush succeeds; stable event keys make partial-append retries
+and restart replay idempotent. Preview copies never append gameplay analytics. Records include
 creation, replacement, removal reason, source actor/card/relic, tile and layer;
 Fire entry/start contact; successful Freeze and consumed Ice; actor death source;
 and the native Chain route alongside connected-component side hits. A direct

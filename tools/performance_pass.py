@@ -11,6 +11,8 @@ import argparse
 import datetime as dt
 import json
 import platform
+import os
+import shutil
 import subprocess
 import sys
 import time
@@ -36,6 +38,7 @@ HEADLESS_BENCHMARKS = {
     ),
 }
 NATIVE_BENCHMARKS = {
+    "ui_flow": ("UI FLOW PERF RESULT:", "tests/ui_flow_performance_benchmark.gd"),
     "surface_frame": ("SURFACE FRAME PERF RESULT:", "tests/surface_frame_performance_benchmark.gd"),
     "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
     "runtime_frame": (
@@ -216,6 +219,7 @@ COMPARISON_METRICS.update({
 })
 
 COMPATIBILITY_FIELDS = {
+    "CPU scheduling profile": ("environment", "cpu_profile"),
     "report schema": ("schema_version",),
     "platform": ("environment", "platform"),
     "machine": ("environment", "machine"),
@@ -283,11 +287,33 @@ for case in ("ranged", "conduction", "chain", "area"):
         COMPATIBILITY_FIELDS[f"surface CPU {case} {field}"] = ("benchmarks", "surface_cpu", "result", "cases", case, field)
 
 
-def _command_output(command: list[str], cwd: Path, timeout: int) -> tuple[int, str, float]:
+for field in ("schema_version", "workload_id", "viewport", "ui_scale", "renderer", "rendering_method", "sample_boundary", "interaction_semantics"):
+    COMPATIBILITY_FIELDS[f"UI flow {field}"] = ("benchmarks", "ui_flow", "result", field)
+for temperature in ("cold", "warm_1", "warm_2"):
+    for phase in ("shop_resume", "shop_idle", "inspect_grave_mortar", "inspect_boiled_leather", "inspect_duelist_rapier", "inspect_nail_bomb", "shop_buy", "shop_sell", "shop_leave", "shop_reopen", "map_open", "map_idle", "map_close", "reward_resume_reveal", "reward_idle", "reward_hover", "reward_claim", "reward_heal"):
+        for metric in ("frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.p99", "frame_interval_ms.max", "frames_over_16_67_ms", "frames_over_33_33_ms", "handler_ms"):
+            COMPARISON_METRICS[f"ui_flow.phases.{temperature}/{phase}.{metric}"] = "lower"
+
+
+def _cpu_profile_command(command: list[str], cpu_profile: str) -> list[str]:
+    if cpu_profile == "normal":
+        return command
+    if sys.platform != "darwin":
+        raise ValueError("CPU scheduling profiles currently require macOS taskpolicy")
+    taskpolicy = shutil.which("taskpolicy")
+    if not taskpolicy:
+        raise ValueError("macOS taskpolicy is unavailable")
+    # Process-local inherited QoS clamp. No global power changes, artificial
+    # sleeps or competing stress processes; it is a stress condition, not Deck emulation.
+    return [taskpolicy, "-c", cpu_profile, *command]
+
+
+def _command_output(command: list[str], cwd: Path, timeout: int, cpu_profile: str = "normal") -> tuple[int, str, float]:
     started = time.monotonic()
     process = subprocess.run(
-        command,
+        _cpu_profile_command(command, cpu_profile),
         cwd=cwd,
+        env={**os.environ, "LABYRINTH_PERF_CPU_PROFILE": cpu_profile},
         text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -316,6 +342,7 @@ def _run_benchmark(
     task_id: str,
     native: bool,
     timeout: int,
+    cpu_profile: str = "normal",
 ) -> dict[str, Any]:
     if native:
         command = [
@@ -336,7 +363,9 @@ def _run_benchmark(
             "--timeout",
             str(timeout),
             "--startup-timeout",
-            "12",
+            # The separately calibrated background profile is about 4x slower
+            # on the development Mac. Keep launch and workload budgets distinct.
+            "48" if cpu_profile == "background" else "12",
             "--min-images",
             "1",
             "--expect-size",
@@ -360,7 +389,7 @@ def _run_benchmark(
             "--script",
             f"res://{script}",
         ]
-    returncode, output, duration = _command_output(command, ROOT, timeout + 30)
+    returncode, output, duration = _command_output(command, ROOT, timeout + 30, cpu_profile)
     if returncode != 0:
         tail = "\n".join(output.splitlines()[-80:])
         raise RuntimeError(f"{name} failed with exit code {returncode}:\n{tail}")
@@ -416,6 +445,7 @@ def command_run(args: argparse.Namespace) -> int:
         "schema_version": 1,
         "captured_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "environment": {
+            "cpu_profile": args.cpu_profile,
             "platform": platform.platform(),
             "machine": platform.machine(),
             "processor": platform.processor(),
@@ -429,14 +459,14 @@ def command_run(args: argparse.Namespace) -> int:
         if selected and name not in selected:
             continue
         report["benchmarks"][name] = _run_benchmark(
-            name, marker, script, args.task_id, False, args.timeout
+            name, marker, script, args.task_id, False, args.timeout, args.cpu_profile
         )
     if args.native:
         for name, (marker, script) in NATIVE_BENCHMARKS.items():
             if selected and name not in selected:
                 continue
             report["benchmarks"][name] = _run_benchmark(
-                name, marker, script, args.task_id, True, args.timeout
+                name, marker, script, args.task_id, True, args.timeout, args.cpu_profile
             )
     output_path = Path(args.output).expanduser().resolve() if args.output else Path(
         f"/tmp/labyrinth-performance-{dt.datetime.now().strftime('%Y%m%d-%H%M%S')}.json"
@@ -526,6 +556,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--benchmark", action="append", choices=tuple(HEADLESS_BENCHMARKS) + tuple(NATIVE_BENCHMARKS), help="run only selected benchmarks; repeat to select several")
     run_parser.add_argument("--timeout", type=int, default=120)
     run_parser.add_argument("--output")
+    run_parser.add_argument("--cpu-profile", choices=("normal", "utility", "background"), default="normal", help="process-local macOS QoS stress condition; calibrate separately, never label as hardware emulation")
     run_parser.set_defaults(func=command_run)
     compare_parser = subparsers.add_parser("compare", help="print a baseline-vs-candidate metric table")
     compare_parser.add_argument("baseline")

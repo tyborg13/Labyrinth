@@ -1517,6 +1517,8 @@ var _card_play_options_cache: Dictionary = {}
 var _card_widget_display_cache: Dictionary = {}
 var _preview_shortcuts_cache_key: String = ""
 var _preview_shortcuts_cache: Dictionary = {}
+var _preview_shortcuts_content_cache: Dictionary = {}
+var _preview_shortcuts_content_order: Array[String]
 var _pass_preview_cache: Dictionary = {}
 var _pass_preview_cache_order: Array[String] = []
 var _pass_preview_warm_generation: int = 0
@@ -8163,10 +8165,10 @@ func _show_drag_overlay() -> void:
 	_refresh_stage_view()
 	_refresh_contextual_combat_tutorial()
 
-func _cancel_drag_play() -> void:
-	_finish_drag_play(false)
+func _cancel_drag_play(refresh_ui: bool = true) -> void:
+	_finish_drag_play(false, refresh_ui)
 
-func _finish_drag_play(preserve_card_preview: bool) -> void:
+func _finish_drag_play(preserve_card_preview: bool, refresh_ui: bool = true) -> void:
 	var dragged_card_index: int = _drag_card_index
 	if (
 		not preserve_card_preview
@@ -8201,7 +8203,7 @@ func _finish_drag_play(preserve_card_preview: bool) -> void:
 	_drag_card_base_scale = Vector2.ONE
 	_drag_last_pointer_position = Vector2.ZERO
 	_update_drag_overlay_hover("")
-	_refresh_card_preview_ui()
+	if refresh_ui: _refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
 	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.size.length() > 0.0 else _drag_card_source_rect
@@ -11213,7 +11215,11 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	_clear_children(_relic_icon_grid)
+	var icon_signature: int = hash(relic_ids)
+	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
+	if icons_changed:
+		_clear_children(_relic_icon_grid)
+		_relic_icon_grid.set_meta("relic_icon_signature", icon_signature)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_clear", performance_phase_started)
 	_skill_sigil = null
 	_defiance_badge = null
@@ -11228,57 +11234,58 @@ func _refresh_relic_bar() -> void:
 		_skill_sigil = _build_skill_sigil(skill_ids, skill_sigil_presentation)
 		_relic_utility_bar.add_child(_skill_sigil)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_sigil", performance_phase_started)
-	for relic_id_var: Variant in relic_ids:
-		var relic_id: String = str(relic_id_var)
-		var relic: Dictionary = GameData.relic_def(relic_id)
-		if relic.is_empty():
-			continue
-		var frame := TooltipPanelContainer.new()
-		frame.custom_minimum_size = RELIC_BADGE_SIZE
-		frame.set_meta("relic_id", relic_id)
-		frame.focus_mode = Control.FOCUS_ALL
-		frame.tooltip_text = "%s\n%s" % [
-				str(relic.get("name", relic_id)),
-				str(relic.get("description", ""))
-		]
-		frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-		frame.add_theme_stylebox_override("panel", _pile_card_style(
-				Color("261b14"),
-				Color(GameData.relic_accent(relic_id)),
-				4.0
-		))
-		var margin := MarginContainer.new()
-		margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-		margin.anchor_right = 1.0
-		margin.anchor_bottom = 1.0
-		margin.add_theme_constant_override("margin_left", 5)
-		margin.add_theme_constant_override("margin_top", 5)
-		margin.add_theme_constant_override("margin_right", 5)
-		margin.add_theme_constant_override("margin_bottom", 5)
-		frame.add_child(margin)
-		var icon := TextureRect.new()
-		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.anchor_right = 1.0
-		icon.anchor_bottom = 1.0
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		margin.add_child(icon)
-		if icon.texture == null:
-			var fallback := Label.new()
-			fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
-			fallback.anchor_right = 1.0
-			fallback.anchor_bottom = 1.0
-			fallback.text = str(relic.get("name", "?")).substr(0, 1).to_upper()
-			fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			UiTypography.set_label_size(fallback, UiTypography.SIZE_CAPTION)
-			fallback.add_theme_color_override("font_color", Color("f0e6d2"))
-			fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
-			fallback.add_theme_constant_override("outline_size", 1)
-			margin.add_child(fallback)
-		_relic_icon_grid.add_child(frame)
+	if icons_changed:
+		for relic_id_var: Variant in relic_ids:
+			var relic_id: String = str(relic_id_var)
+			var relic: Dictionary = GameData.relic_def(relic_id)
+			if relic.is_empty():
+				continue
+			var frame := TooltipPanelContainer.new()
+			frame.custom_minimum_size = RELIC_BADGE_SIZE
+			frame.set_meta("relic_id", relic_id)
+			frame.focus_mode = Control.FOCUS_ALL
+			frame.tooltip_text = "%s\n%s" % [
+					str(relic.get("name", relic_id)),
+					str(relic.get("description", ""))
+			]
+			frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+			frame.add_theme_stylebox_override("panel", _pile_card_style(
+					Color("261b14"),
+					Color(GameData.relic_accent(relic_id)),
+					4.0
+			))
+			var margin := MarginContainer.new()
+			margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+			margin.anchor_right = 1.0
+			margin.anchor_bottom = 1.0
+			margin.add_theme_constant_override("margin_left", 5)
+			margin.add_theme_constant_override("margin_top", 5)
+			margin.add_theme_constant_override("margin_right", 5)
+			margin.add_theme_constant_override("margin_bottom", 5)
+			frame.add_child(margin)
+			var icon := TextureRect.new()
+			icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+			icon.anchor_right = 1.0
+			icon.anchor_bottom = 1.0
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			margin.add_child(icon)
+			if icon.texture == null:
+				var fallback := Label.new()
+				fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
+				fallback.anchor_right = 1.0
+				fallback.anchor_bottom = 1.0
+				fallback.text = str(relic.get("name", "?")).substr(0, 1).to_upper()
+				fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				UiTypography.set_label_size(fallback, UiTypography.SIZE_CAPTION)
+				fallback.add_theme_color_override("font_color", Color("f0e6d2"))
+				fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
+				fallback.add_theme_constant_override("outline_size", 1)
+				margin.add_child(fallback)
+			_relic_icon_grid.add_child(frame)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
 	# The hidden popover refreshes itself on open. Rebuilding its full palette on
 	# every combat status revision spent a frame on nodes the player could not see.
@@ -14532,7 +14539,9 @@ func _refresh_visibility() -> void:
 	menu_button.visible = mode not in ["victory", "defeat"]
 	if mode != "combat":
 		_clear_card_action_choice_state()
-		_cancel_drag_play()
+		# This full refresh already reconciles choices/stage/hand. Cancelling
+		# stale drag state must not rebuild the just-created shop/reward a second time.
+		_cancel_drag_play(false)
 		_close_pile_view()
 	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
@@ -16715,8 +16724,17 @@ func _refresh_hand_panel() -> void:
 			_movement_meter.visible = false
 		if _pass_preview_overlay != null:
 			_pass_preview_overlay.visible = false
-	_release_hand_card_slots_to_pool()
-	_clear_children_now(hand_box)
+	# A play/draw usually changes only one slot. Keep matching plain hand cards
+	# in the live fan; pooled re-entry re-runs every descendant's layout/theme work.
+	# Skill selection owns different wrappers and retains the existing pool path.
+	var retained_entries: Dictionary = _retained_hand_entries(signature_hand) if mode == "combat" and _combat_skill_card_selection_zone.is_empty() else {}
+	var retained_slots: Dictionary = {}
+	for entry: Dictionary in retained_entries.values(): retained_slots[entry["slot"]] = true
+	_release_hand_card_slots_to_pool(retained_slots)
+	for child: Node in hand_box.get_children():
+		if not retained_slots.has(child):
+			hand_box.remove_child(child)
+			_queue_free_node_now(child)
 	if mode == "combat":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 		if hand.is_empty():
@@ -16732,7 +16750,8 @@ func _refresh_hand_panel() -> void:
 			var display: Dictionary = _card_widget_display_for_index(index)
 			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var card_id: String = str(hand[index])
-			var pool_entry: Dictionary = _acquire_hand_card_pool_entry(card_id, card_size)
+			var pool_entry: Dictionary = retained_entries.get(index, {}) as Dictionary
+			if pool_entry.is_empty(): pool_entry = _acquire_hand_card_pool_entry(card_id, card_size)
 			var widget: CardWidget = pool_entry.get("widget", null) as CardWidget
 			var card_slot: Control = pool_entry.get("slot", null) as Control
 			if widget == null or card_slot == null:
@@ -16756,7 +16775,13 @@ func _refresh_hand_panel() -> void:
 				if valid_skill_target:
 					skill_selection_buttons.append(selection_button)
 			else:
-				hand_box.add_child(card_slot)
+				if card_slot.get_parent() != hand_box:
+					hand_box.add_child(card_slot)
+				else:
+					# Restore the same post-pool interaction baseline without detaching.
+					widget.prepare_for_pool()
+					card_slot.visible = true
+				hand_box.move_child(card_slot, index)
 				_configure_scaled_card_slot_geometry(card_slot, card_size)
 			# Apply interaction pose after the retained subtree's live geometry is
 			# restored so a selected/previewed card keeps its authored lift and scale.
@@ -16950,11 +16975,27 @@ func _ensure_hand_card_pool_host() -> void:
 	_hand_card_pool_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_hand_card_pool_host)
 
-func _release_hand_card_slots_to_pool() -> void:
+func _retained_hand_entries(next_hand: Array) -> Dictionary:
+	var result: Dictionary = {}
+	var used: Dictionary = {}
+	for index: int in range(next_hand.size()):
+		for child: Node in hand_box.get_children():
+			if used.has(child): continue
+			var widget: CardWidget = _card_widget_descendant(child)
+			if widget == null or widget.card_id != str(next_hand[index]): continue
+			var scaler: Node = widget.get_parent()
+			if scaler == null or scaler.get_parent() != child: continue
+			used[child] = true
+			result[index] = {"card_id": widget.card_id, "widget": widget, "slot": child, "definition_signature": int(widget.get_meta("hand_card_definition_signature", -1))}
+			break
+	return result
+
+func _release_hand_card_slots_to_pool(retained_slots: Dictionary = {}) -> void:
 	if hand_box == null or hand_box.get_child_count() == 0:
 		return
 	_ensure_hand_card_pool_host()
 	for hand_child: Node in hand_box.get_children():
+		if retained_slots.has(hand_child): continue
 		var widget: CardWidget = _card_widget_descendant(hand_child)
 		if widget == null:
 			continue
@@ -18461,6 +18502,8 @@ func _has_any_playable_combat_card() -> bool:
 
 func _mark_combat_preview_state_changed() -> void:
 	_combat_preview_revision += 1
+	_preview_shortcuts_content_cache.clear()
+	_preview_shortcuts_content_order.clear()
 	_boss_health_candidate_revision = -1
 	_boss_health_candidate_id = -1
 	_boss_health_overlay_signature = ""
@@ -19345,6 +19388,21 @@ func _preview_shortcuts_for_current_action(
 	var cache_key: String = _preview_shortcuts_key(preview, defer_safe_move_resolution)
 	if not skip_spatial_prefilter and cache_key == _preview_shortcuts_cache_key:
 		return _preview_shortcuts_cache
+	# Keep the inexpensive revision key for repeated consumers in one selection.
+	# Only on its miss compare the actual inputs, allowing hover -> click to reuse
+	# the same exact movement simulation while all world/information changes miss.
+	var content_key: String = str(hash([
+		_combat_preview_revision, _combat_state, preview.get("state", {}), action,
+		preview.get("actions", []), preview.get("action_index", -1), preview.get("card_id", ""),
+		preview.get("target_tiles", []), preview.get("skip_allowed", false), defer_safe_move_resolution,
+	]))
+	if not skip_spatial_prefilter and _preview_shortcuts_content_cache.has(content_key):
+		_preview_shortcuts_cache_key = cache_key
+		# Active plans can be materialized/annotated during targeting; keep the
+		# bounded content snapshot isolated from those caller-owned mutations.
+		_preview_shortcuts_cache = (_preview_shortcuts_content_cache[content_key] as Dictionary).duplicate(true)
+		_record_runtime_performance_phase("shortcut_equivalent_input_hit", Time.get_ticks_usec())
+		return _preview_shortcuts_cache
 	var actions: Array = preview.get("actions", [])
 	var action_index: int = int(preview.get("action_index", -1))
 	var card_id: String = str(preview.get("card_id", ""))
@@ -19379,6 +19437,7 @@ func _preview_shortcuts_for_current_action(
 		if not skip_spatial_prefilter:
 			_preview_shortcuts_cache_key = cache_key
 			_preview_shortcuts_cache = no_shortcuts
+			_remember_preview_shortcuts(content_key, no_shortcuts)
 		return no_shortcuts
 	var immediate_attack_tiles: Array[Vector2i] = _vector2i_array([])
 	var immediate_action: Dictionary = {}
@@ -19414,6 +19473,7 @@ func _preview_shortcuts_for_current_action(
 		)
 		_preview_shortcuts_cache_key = cache_key
 		_preview_shortcuts_cache = optimized_result
+		_remember_preview_shortcuts(content_key, optimized_result)
 		return optimized_result
 	for move_target: Vector2i in move_targets:
 		var path_tiles: Array[Vector2i] = _vector2i_array([])
@@ -19448,6 +19508,7 @@ func _preview_shortcuts_for_current_action(
 		if not skip_spatial_prefilter:
 			_preview_shortcuts_cache_key = cache_key
 			_preview_shortcuts_cache = empty_result
+			_remember_preview_shortcuts(content_key, empty_result)
 		return empty_result
 	var tiles: Array[Vector2i] = []
 	for tile_var: Variant in plans.keys():
@@ -19463,7 +19524,15 @@ func _preview_shortcuts_for_current_action(
 	if not skip_spatial_prefilter:
 		_preview_shortcuts_cache_key = cache_key
 		_preview_shortcuts_cache = result
+		_remember_preview_shortcuts(content_key, result)
 	return result
+
+func _remember_preview_shortcuts(content_key: String, result: Dictionary) -> void:
+	if not _preview_shortcuts_content_cache.has(content_key):
+		_preview_shortcuts_content_order.append(content_key)
+	_preview_shortcuts_content_cache[content_key] = result.duplicate(true)
+	while _preview_shortcuts_content_order.size() > 4:
+		_preview_shortcuts_content_cache.erase(_preview_shortcuts_content_order.pop_front())
 
 func _preview_immediate_attack_shortcuts(
 	preview_state: Dictionary,
@@ -31863,24 +31932,34 @@ func _surface_preview_units_by_key(state: Dictionary) -> Dictionary:
 	return result
 
 func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -> void:
+	var flush_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if combat.is_empty(): return
 	var source_run: Dictionary = _run_state if run.is_empty() else run
 	var combat_id: String = str((combat.get("analytics", {}) as Dictionary).get("combat_id", ""))
 	if combat_id.is_empty(): return
 	var logged: int = int(_surface_analytics_revisions.get(combat_id, 0))
+	var pending: Array[Dictionary]
+	var common_context: Dictionary = {}
+	var last_sequence: int = logged
 	for event_var: Variant in combat.get("surface_events", []):
 		if typeof(event_var) != TYPE_DICTIONARY: continue
 		var event: Dictionary = event_var as Dictionary
 		var sequence: int = int(event.get("sequence", 0))
-		if sequence <= logged: continue
-		var context: Dictionary = _analytics_context_from_states(source_run, combat)
+		if sequence <= last_sequence: continue
+		# All events at this committed boundary share the same state. Deriving its
+		# progression/visibility context per tile amplified large blasts into a
+		# frame stall. Keep event-specific revision and legacy rules on each record.
+		if pending.is_empty(): common_context = _analytics_context_from_states(source_run, combat)
+		var context: Dictionary = common_context.duplicate(false)
 		context["surface_revision"] = sequence
 		var payload: Dictionary = event.duplicate(true)
-		# Migrated saves may still contain an unflushed tail from older rules.
-		# Attribute each event to the rules that produced it, not the loaded client.
 		var rules_version: int = int(event.get("rules_version", combat.get("surface_event_legacy_rules_version", BoardSurfaceRules.RULES_VERSION)))
 		payload["rules_version"] = rules_version
 		context["rules_version"] = rules_version
-		if not _analytics_store.write_event("surface_event", context, payload, "surface_event|%s|%d" % [combat_id, sequence]): break
-		logged = sequence
-	_surface_analytics_revisions[combat_id] = logged
+		pending.append({"event_type": "surface_event", "context": context, "payload": payload, "idempotency_key": "surface_event|%s|%d" % [combat_id, sequence]})
+		last_sequence = sequence
+	# Keep append/flush synchronous at the existing saved boundary. A failed or
+	# partial append retains the cursor; stable keys make its entire retry safe.
+	if not pending.is_empty() and _analytics_store.write_events(pending):
+		_surface_analytics_revisions[combat_id] = last_sequence
+	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)

@@ -279,6 +279,16 @@ func _initialize() -> void:
 	await _settle_frames(8)
 	await _settle_probe_window()
 	await _settle_frames(8)
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_FLOW_ONLY") == "1":
+		var flow_workload = load("res://tests/ui_flow_performance_workload.gd").new()
+		var flow_report: Dictionary = await flow_workload.run(self, instance, sampler)
+		flow_report["semantic_errors"] = _errors
+		print("UI FLOW PERF RESULT: %s" % JSON.stringify(flow_report))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_SURFACE_ONLY") == "1":
 		var surface_workload = load("res://tests/surface_performance_workload.gd").new()
 		var surface_report: Dictionary = await surface_workload.run(self, instance, sampler)
