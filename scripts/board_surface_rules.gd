@@ -3,7 +3,11 @@ class_name BoardSurfaceRules
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ELEMENTAL_KINDS: Array = ["fire", "ice", "electrified"]
-const RULES_VERSION: int = 4
+const RULES_VERSION: int = 5
+const FIRE_ENTRY_DAMAGE: int = 2
+const FIRE_START_DAMAGE: int = 3
+const CHILLED_BONUS: int = 2
+const FROZEN_MULTIPLIER: int = 3
 const EVENT_LIMIT: int = 256
 
 static func kind(value: String) -> String:
@@ -55,6 +59,7 @@ static func can_place(state: Dictionary, tile: Vector2i) -> bool:
 static func record_event(state: Dictionary, event: Dictionary) -> void:
 	var events: Array = state.get("surface_events", []) as Array
 	var entry: Dictionary = event.duplicate(true)
+	entry["rules_version"] = RULES_VERSION
 	entry["sequence"] = int(state.get("surface_event_sequence", 0)) + 1
 	state["surface_event_sequence"] = entry["sequence"]
 	events.append(entry)
@@ -144,10 +149,10 @@ static func sync_chilled(state: Dictionary) -> void:
 			if int(unit.get("freeze", 0)) > 0 or not unit_on(state, unit, "ice"):
 				unit["chilled"] = false
 
-static func entry_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i) -> int:
-	var previous: Array[Vector2i] = footprint_tiles(unit, from)
-	for tile: Vector2i in footprint_tiles(unit, to):
-		if not previous.has(tile) and has_rubble(state, tile):
+static func movement_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i) -> int:
+	var destination: Array[Vector2i] = footprint_tiles(unit, to)
+	for tile: Vector2i in footprint_tiles(unit, from):
+		if not destination.has(tile) and has_rubble(state, tile):
 			return 2
 	return 1
 

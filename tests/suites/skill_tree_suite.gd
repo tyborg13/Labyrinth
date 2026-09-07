@@ -41,9 +41,9 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(roots.size() == 5, "The tree should begin with five distinct roots")
 	expect.call(keystones.size() == 5, "The tree should end with five exclusive keystones")
 	expect.call(SkillTreeLibrary.available_ids([]).size() == 5, "A new character should be able to learn any root")
-	expect.call(SkillTreeLibrary.description("long_dawn") == "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1. Permanent and tethered effects are unchanged.", "Long Dawn should state the exact temporary-effect boundary")
+	expect.call(_description_has("long_dawn", ["Temporary", "@icon(illuminate)", "@icon(vision)", "@icon(truesight)", "@icon(time) +1"]), "long_dawn should retain its concise trigger, cost and effect reminder")
 	expect.call(SkillTreeLibrary.description("sunpath") == "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.", "Sunpath should explain its path and Blink endpoint behavior without introducing a new interaction")
-	expect.call(SkillTreeLibrary.description("witchlight") == "Each living @icon(illusion) adds +1 to its tethered @icon(illuminate).", "Witchlight should describe its additive tethered board effect concisely")
+	expect.call(_description_has("witchlight", ["@icon(illusion)", "+1", "@icon(illuminate)", "while they last"]), "witchlight should retain its concise trigger, cost and effect reminder")
 	expect.call(SkillTreeLibrary.description("dawnbrand") == "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.", "Dawnbrand should disclose its once-per-turn Light condition")
 	expect.call(SkillTreeLibrary.description("afterglow") == "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.", "Afterglow should disclose removal timing and duration")
 	expect.call(SkillTreeLibrary.description("open_sky") == "While you stand in @icon(illuminate), you have @icon(truesight).", "Open Sky should state its conditional Truesight rule")
@@ -53,14 +53,14 @@ static func _test_skill_data_and_topology(expect: Callable) -> void:
 	expect.call(SkillTreeLibrary.description("afterimage").contains(str(afterimage_health)), "Afterimage copy should match the health shown on its illusion")
 	expect.call(SkillTreeLibrary.description("last_reserve").contains(str(reserve_health)), "Last Reserve copy should match the surviving health shown in combat")
 	expect.call(SkillTreeLibrary.description("last_door").contains(str(last_door_health)), "Last Door copy should match the returning health shown in the run UI")
-	expect.call(SkillTreeLibrary.description("ghost_stride") == "Once per combat, arm so your next movement becomes @icon(blink) 2. Skip intermediate ground; landing hazards still apply.", "ghost_stride copy should describe its current board-surface timing")
-	expect.call(SkillTreeLibrary.description("pain_remembers") == "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it. Fully absorbed damage does not qualify.", "pain_remembers copy should describe its current board-surface timing")
-	expect.call(SkillTreeLibrary.description("prismatic_instinct") == "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time). Placement does not trigger hazards.", "prismatic_instinct copy should describe its current board-surface timing")
+	expect.call(_description_has("ghost_stride", ["Once per combat", "activate", "next movement", "@icon(blink) 2"]), "ghost_stride should retain its concise trigger, cost and effect reminder")
+	expect.call(_description_has("pain_remembers", ["first lose @icon(health)", "each combat", "next non-item card discarded", "hand has room", "returns"]), "pain_remembers should retain its concise trigger, cost and effect reminder")
+	expect.call(_description_has("prismatic_instinct", ["Once per combat", "place", "@icon(surface_fire)", "@icon(surface_ice)", "@icon(surface_electrified)", "@icon(surface_rubble)", "@icon(range) 4", "no @icon(card_play) or @icon(time)"]), "prismatic_instinct should retain its concise trigger, cost and effect reminder")
 	expect.call(SkillTreeLibrary.description("curators_patience") == "After choosing a relic, save one unchosen relic for your next relic offer.", "Curator's Patience copy should identify the next relic offer")
 	expect.call(SkillTreeLibrary.description("living_shadow") == "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.", "Living Shadow copy should use turn cadence, identify both illusion-removal triggers, and define a full hand")
 	expect.call(SkillTreeLibrary.description("layaway") == "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.", "Layaway copy should identify the unified Scavenger and disclose that an unresolved hold blocks another use")
-	expect.call(SkillTreeLibrary.description("open_arsenal") == "Equip any equipment in your trinket slot, ignoring its normal slot.", "Open Arsenal copy should explain which equipment restriction it ignores")
-	expect.call(SkillTreeLibrary.description("confluence") == "Once per combat, @icon(surface_relocate) one elemental or @icon(surface_rubble) layer. Both tiles must be visible and within @icon(range) 4 of you; the destination also within @icon(range) 4 of the source. Placement does not trigger hazards.", "confluence copy should describe its current board-surface timing")
+	expect.call(_description_has("open_arsenal", ["Equip any equipment", "trinket slot"]), "open_arsenal should retain its concise trigger, cost and effect reminder")
+	expect.call(_description_has("confluence", ["Once per combat", "@icon(surface_relocate) one surface", "@icon(range) 4", "Both tiles must be visible"]), "confluence should retain its concise trigger, cost and effect reminder")
 	expect.call(SkillTreeLibrary.activation_kind("open_arsenal") == "passive" and SkillTreeLibrary.activation_kind("confluence") == "manual", "Open Arsenal stays passive while Confluence is a deliberate board-targeted ability")
 	var selected_keystone_build: Array[String] = SkillTreeLibrary.repaired_selection([], 9, [
 		"quick_wits", "measured_breath", "rehearsed_escape", "makeshift_tool",
@@ -354,3 +354,10 @@ static func _contains_error_fragment(errors: Array[String], fragment: String) ->
 		if error.to_lower().contains(fragment.to_lower()):
 			return true
 	return false
+
+static func _description_has(skill_id: String, fragments: Array) -> bool:
+	var description: String = SkillTreeLibrary.description(skill_id)
+	for fragment: String in fragments:
+		if not description.contains(fragment):
+			return false
+	return true

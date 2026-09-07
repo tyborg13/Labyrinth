@@ -58,7 +58,7 @@ static func _test_hidden_conductive_bridge(combat: Combat, expect: Callable) -> 
 	var result: Dictionary = combat.resolve_player_action_for_presentation(state, action, Vector2i(4, 3))
 	var separate: Dictionary = combat.resolve_player_action_for_presentation(disconnected, action, Vector2i(4, 3))
 	expect.call(_route(result) == _route(separate), "Adding a hidden conductive bridge must not alter the visible Chain preview route")
-	expect.call(Ground.element_at(result["state"], Vector2i(5, 3)) == "electrified", "A relay useful only through hidden ground must not be spent as a visible dead end")
+	expect.call(Ground.element_at(result["state"], Vector2i(5, 3)) == "electrified", "A hidden bridge cannot change reusable relay ground")
 	expect.call(int(result["state"]["enemies"][1]["hp"]) == 1000, "The distant lit enemy remains unreachable through hidden conducting ground")
 
 static func _route(result: Dictionary) -> Array:
@@ -71,13 +71,17 @@ static func _test_mid_move_rubble_cost(combat: Combat, expect: Callable) -> void
 	var state: Dictionary = Base.fixture(combat)
 	state["enemies"][0]["pos"] = Vector2i(7, 3)
 	state["traps"] = [{"id": "movement_earth", "pos": Vector2i(3, 3), "element": "earth", "damage": 0}]
-	# The two-step request initially fits. Its first step creates Rubble on the
-	# second step, so remaining allowance must be checked against the changed board.
-	var grouped: Dictionary = combat.apply_player_movement(state, Vector2i(4, 3))
+	# The three-step request initially fits. Its first step paints Rubble on
+	# the second tile, so leaving that tile costs the final two points.
+	state["relics"] = ["pilgrim_boots"]
+	state["player_movement_capacity"] = 3
+	state["player_movement_remaining"] = 3
+	var grouped: Dictionary = combat.apply_player_movement(state, Vector2i(5, 3))
 	var split: Dictionary = combat.apply_player_movement(state, Vector2i(3, 3))
 	split = combat.apply_player_movement(split, Vector2i(4, 3))
+	split = combat.apply_player_movement(split, Vector2i(5, 3))
 	expect.call(grouped["player"]["pos"] == split["player"]["pos"] and grouped["player_movement_remaining"] == split["player_movement_remaining"], "A trap creating Rubble mid-move must cost the same for one movement request and split clicks")
-	expect.call(grouped["player"]["pos"] == Vector2i(3, 3) and int(grouped["player_movement_remaining"]) == 1, "The already-spent two-point pool must stop before a newly created two-cost Rubble step")
+	expect.call(grouped["player"]["pos"] == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 1, "The already-spent pool must stop before leaving newly created Rubble")
 
 static func _test_hidden_aoe_chain_head(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -124,26 +128,26 @@ static func _test_invalid_paid_technique(combat: Combat, expect: Callable) -> vo
 
 static func _test_authored_specialist_shock_fuel(combat: Combat, expect: Callable) -> void:
 	var reviewed: Dictionary = {"zekarion": ["storm_claw", "skybreak", "tempest_breath"], "lightning_wisp": ["static_lash", "blinding_arc"]}
+	var specialists: int = 0
 	for enemy_id: String in reviewed:
 		for intent: Dictionary in GameData.enemy_def(enemy_id).get("intents", []):
-			if not (reviewed[enemy_id] as Array).has(str(intent.get("id", ""))):
-				continue
+			if not (reviewed[enemy_id] as Array).has(str(intent.get("id", ""))): continue
 			for action: Dictionary in intent.get("actions", []):
 				expect.call(int(action.get("shock", 0)) == 0, "%s/%s has no free baseline Shock" % [enemy_id, intent["id"]])
-			if not intent.has("surface_fuel"):
-				continue
-			var state: Dictionary = Base.fixture(combat)
-			state["enemies"][0]["type"] = enemy_id
-			Ground.place(state, Vector2i(4, 3), "electrified")
-			var prepared: Dictionary = combat._surface_prepare_enemy_intent(state, state["enemies"][0], intent)
-			var paid_state: Dictionary = state.duplicate(true)
-			var paid: Dictionary = combat._surface_pay_enemy_fuel(paid_state, paid_state["enemies"][0], prepared)
-			paid_state = combat._resolve_enemy_action(paid_state, 0, paid["actions"][1])
-			expect.call(int(paid_state["player"].get("shock", 0)) == 1 and Ground.element_at(paid_state, Vector2i(4, 3)).is_empty(), "%s gains exactly one Shock only after consuming its selected fuel" % enemy_id)
-			Ground.remove(state, Vector2i(4, 3), "electrified", "denied_by_player")
-			var denied: Dictionary = combat._surface_pay_enemy_fuel(state, state["enemies"][0], prepared)
-			state = combat._resolve_enemy_action(state, 0, denied["actions"][1])
-			expect.call(int(state["player"].get("shock", 0)) == 0 and int(state["player"]["hp"]) < 1000, "%s denied fuel retains its direct attack but loses all specialist Shock" % enemy_id)
+				var bonus: Dictionary = action.get("surface_bonus", {})
+				if int(bonus.get("shock", 0)) == 0: continue
+				specialists += 1
+				expect.call(str(bonus.get("subject", "")) == "conducted" and not intent.has("surface_fuel"), "Specialist Shock requires real conduction, not a separate electrical fuel payment")
+				var state: Dictionary = Base.fixture(combat)
+				state["enemies"][0]["type"] = enemy_id
+				Ground.place(state, Vector2i(2,3), "electrified")
+				Ground.place(state, Vector2i(3,3), "electrified")
+				var connected: Dictionary = combat._resolve_enemy_action(state, 0, action)
+				expect.call(int(connected["player"].get("shock", 0)) == 1 and Ground.tiles(connected, "electrified").size() == 2, "%s gains specialist Shock through a reusable component" % enemy_id)
+				Ground.remove(state, Vector2i(2,3), "electrified", "denied_by_player")
+				var denied: Dictionary = combat._resolve_enemy_action(state, 0, action)
+				expect.call(int(denied["player"].get("shock", 0)) == 0 and int(denied["player"]["hp"]) < 1000, "%s retains direct damage but loses Shock when the player is no longer electrically assisted" % enemy_id)
+	expect.call(specialists == 2, "Both authored electrical specialists are covered by the conduction requirement")
 
 static func _pursuit_fixture(combat: Combat, hp: int = 1) -> Dictionary:
 	var state: Dictionary = Base.fixture(combat)
@@ -164,7 +168,7 @@ static func _test_enemy_attack_route_survival(combat: Combat, expect: Callable) 
 	expect.call(int(after["enemies"][0]["hp"]) == 1 and int(after["player"]["hp"]) < 1000, "The safe authored pursuit survives and resolves its melee attack")
 	for defense: String in ["block", "stoneskin"]:
 		state = _pursuit_fixture(combat)
-		state["enemies"][0][defense] = 1
+		state["enemies"][0][defense] = GameData.fixed_point_amount(2)
 		plan = combat.enemy_intent_plan(state, 0)
 		expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Current %s makes the direct Fire route survivable and cheaper than detouring" % defense)
 		# Block is deliberately tested within a live movement action: normal turn
@@ -174,7 +178,7 @@ static func _test_enemy_attack_route_survival(combat: Combat, expect: Callable) 
 		after = combat._resolve_enemy_action(state, 0, {"type": "move_toward", "range": 3}, null, {}, [], live_context)
 		expect.call(int(after["enemies"][0]["hp"]) == 1 and int(after["enemies"][0][defense]) == 0, "The predicted %s absorption matches actual Fire entry" % defense)
 	# An unavoidable hazard stays a legal route, even when it is lethal.
-	for hp: int in [1, 2]:
+	for hp: int in [1, 3]:
 		state = _pursuit_fixture(combat, hp)
 		for y: int in range((state["grid"] as Array).size()):
 			if y != 3:
@@ -183,21 +187,20 @@ static func _test_enemy_attack_route_survival(combat: Combat, expect: Callable) 
 		plan = combat.enemy_intent_plan(state, 0)
 		expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Unavoidable Fire never becomes an impassable AI wall")
 		after = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
-		expect.call(int(after["enemies"][0]["hp"]) == hp - 1, "An unavoidable route resolves its actual entry damage")
+		expect.call(int(after["enemies"][0]["hp"]) == maxi(0, hp - GameData.fixed_point_amount(2)), "An unavoidable route resolves its actual entry damage")
 	# A healthy actor can choose bounded damage over a substantially longer route.
 	state = _pursuit_fixture(combat, 10)
-	state["grid"][2][3] = "wall"
-	state["grid"][4][3] = "wall"
-	state["enemies"][0]["intent"]["actions"][0]["range"] = 7
+	for y: int in [1, 2, 4, 5]: state["grid"][y][3] = "wall"
+	state["enemies"][0]["intent"]["actions"][0]["range"] = 11
 	plan = combat.enemy_intent_plan(state, 0)
 	expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)], "Finite hazard cost permits a healthy crawler's short damaging route over a long safe detour")
 	# Two newly entered burning footprint tiles still deal one contact packet.
-	state = _pursuit_fixture(combat, 2)
+	state = _pursuit_fixture(combat, 3)
 	state["enemies"][0]["footprint"] = Vector2i(2, 2)
 	Ground.place(state, Vector2i(3, 4), "fire")
 	var record: Dictionary = {"tile": Vector2i(3, 3), "path": [Vector2i(4, 3), Vector2i(3, 3)], "steps": 1, "trap_cost": 3}
 	var prediction: Dictionary = combat._enemy_attack_route_prediction(state, state["enemies"][0], record, 3)
-	expect.call(bool(prediction["survives"]) and int(prediction["health_lost"]) == 1, "Large-body route survival predicts one Fire contact per entry step, not one per burning footprint tile")
+	expect.call(bool(prediction["survives"]) and int(prediction["health_lost"]) == GameData.fixed_point_amount(2), "Large-body route survival predicts one Fire contact per entry step, not one per burning footprint tile")
 
 static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = Base.fixture(combat)
@@ -232,7 +235,7 @@ static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Call
 	expect.call(resolved["enemies"][0]["pos"] == Vector2i(2, 2) and int(resolved["enemies"][0]["hp"]) == 8 and int(resolved["player"]["hp"]) < int(state["player"]["hp"]), "The selected full-budget dynamic route arrives alive and resolves melee")
 	state = _pursuit_fixture(combat, 10)
 	state["enemies"][0]["intent"]["actions"][0]["range"] = 1
-	Ground.place(state, Vector2i(3, 3), "rubble")
+	Ground.place(state, Vector2i(4, 3), "rubble")
 	plan = combat.enemy_intent_plan(state, 0)
 	resolved = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
-	expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)] and resolved["enemies"][0]["pos"] == Vector2i(3, 3) and int(resolved["enemies"][0]["hp"]) == 9, "A fresh Move 1 allowance still permits its first Rubble step and forecasts the accompanying Fire contact")
+	expect.call(plan["path"] == [Vector2i(4, 3), Vector2i(3, 3)] and resolved["enemies"][0]["pos"] == Vector2i(3, 3) and int(resolved["enemies"][0]["hp"]) == 8, "A fresh Move 1 allowance still permits its first step leaving Rubble and forecasts the accompanying Fire contact")

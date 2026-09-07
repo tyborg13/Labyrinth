@@ -134,3 +134,28 @@ A separate practical-density measurement uses the same harness, HUD, five actors
 | Reduced motion | 8.328 ms | 8.330 ms | 8.500 ms | 8.657 ms | 0 / 180 |
 
 This case has 5,079 draw calls, 1,949 nodes, zero orphan nodes and approximately 157.2 MB static memory. Its receipt is `material-24-tile-timing-final-01.json`; the isolated fixture source is retained at `output/board-surface-refactor/board_surface_24_tile_probe.gd`. It demonstrates the practical-density cost on this Mac without claiming a framerate guarantee on other hardware. `MATERIAL_PROOF_INDEX.json` indexes the final image, pixel, motion and timing receipts. Final standalone electrical proof (`electric-native-final-02.json` / `electric-native-final-pixels-02.json`) differs by at most 1/255 and has zero pixels over 2/255.
+
+## Inspection feedback: material texture
+
+The September 7 feedback pass keeps the detailed silhouettes, layered geometry and authored animation above, and brings their surface detail closer to the surrounding pixel art. Stone and Ice now have visible native-scale stepped grain plus sparse light/dark clusters contained within each actual face. Fire has a charred floor crust and small hot seams; its noise volumes and the electrical corona use a clustered sample of the same seeded spell cloud field. Texture contrast was reduced after the first native inspection so it supports the block faces and fractured sheets instead of covering their shape. Rubble and Ice texture stays fixed. Fire and the electrical field retain their existing full cadence and supplied-clock animation, including reduced motion.
+
+This is an intentional art change. Fidelity checks compare the retained renderer against the **new direct procedural reference**, not against superseded art. No imported ground assets, new particle nodes, independent shader clocks, screen-resolution reduction or frame skipping were introduced. Only the material functions and the retained layers' two cloud lookups changed; the particle, electrical mesh and static batching implementations remain intact.
+
+Fresh local evidence is isolated under `output/board-surface-refactor/feedback-pass/art/`:
+
+- `material-02.json`: all 100 native 1920×1080/100% images pass, with no engine errors. `material-02/` contains clear/mixed, reduced-motion, Stormcoal and large-footprint stills, selected clock frames, and `material-loop.mp4`. Native frames were inspected across the complete cycle; props/actors remain in front of ground and every material stays distinct in mixed layers.
+- `cache-02.json` and `cache-02-pixels.json`: all four normal/reduced one-frame pairs pass the unchanged strict guard. Maximum channel error is 2/255, zero pixels exceed 2/255, and mean error is at most 0.00001463 in 0–255 units. All 12 replacement/removal/visibility/room cycles restore exactly 2,357 board-subtree nodes. Pinned-phase Ice resize/reseed and next-frame Fire phase assertions pass.
+- `furnished-02.json`: five native frames from the real Crooked Passage saved inspection scene pass with no engine errors. `furnished-02/` retains the start, movement/Lightning decisions, ability choice and cancellation. This is material/occlusion proof; final card text and balance proof is recorded separately because content work continued during this art capture.
+
+The existing material and cache commands above reproduce this pass by using a fresh result-manifest path under the feedback directory. The material loop uses 96 native frames at 24 fps; its MP4 is an inspection preview, while native PNGs remain the fidelity evidence. `LABYRINTH_MATERIAL_STILLS_ONLY=1` captures the four material views without rebuilding a loop when a small static art adjustment is being reviewed.
+
+Final feedback-pass timing uses the unchanged 60-frame warmup/180-sample harness, native renderer and two workloads. Fresh receipts are `dense-before.json`/`dense-after.json` and `practical-before.json`/`practical-after.json`; their sibling folders retain native frames and raw timing. Art/helper/harness hashes match before and after the final measurement and are recorded in `PROOF_INDEX.json`.
+
+| Textured feedback renderer | Normal median / p95 | Reduced median / p95 | Normal max | Normal frames >16.67 ms |
+| --- | ---: | ---: | ---: | ---: |
+| 72 elemental + 36 Rubble | 25.937 / 27.039 ms | 8.326 / 9.328 ms | 27.433 ms | 90 / 180 |
+| 24 elemental + 12 Rubble | 8.145 / 11.579 ms | 8.315 / 9.945 ms | 12.118 ms | 0 / 180 |
+
+The fresh pre-edit normal measurements were 27.693/31.739 ms for 72 tiles and 8.222/10.451 ms for 24 tiles. Its reduced-motion windows had markedly slower alternating intervals despite static ground, unlike both the earlier final pass and these final measurements. Those receipts remain visible; this pass claims no performance improvement from that host variance. Content/UI work also continued between the fresh baseline and final samples, so these are same-harness workload checks, not a pure isolated art optimization experiment. The fully covered board still has the previously reported roughly 27 ms tail. The lighter case remains below 16.67 ms throughout its measured window.
+
+No extra scene nodes were added: the dense/practical fixtures remain at 3,365/1,949 nodes with zero orphans and approximately 203.9/157.4 MB of static memory. Normal draw calls are 14,235/5,087. Added mineral clusters increase retained triangles, while preserving material cadence and geometry; the existing coarse `process_ms` limitation still applies. These current-Mac idle samples include vsync/scheduling and are not an action-heavy or other-hardware framerate guarantee.

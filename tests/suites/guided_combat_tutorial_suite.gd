@@ -177,20 +177,20 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 		"The authored opening hand should deterministically stage Pale Spark, Quick Stab, then Brace"
 	)
 	var target_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID)
-	expect.call(int(target_before.get("hp", 0)) == 15, "The authored target should have the exact 15 HP needed by the scripted two-card kill")
+	expect.call(int(target_before.get("hp", 0)) == 12, "The authored target should have the exact 12 HP needed by the scripted two-card kill")
 
 	state = combat.apply_player_movement(state, move_tile)
 	expect.call((state.get("player", {}) as Dictionary).get("pos", INVALID_TILE) == move_tile, "The authored move should resolve through the normal movement pool")
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.PREVIEW_CARD_ID, target_tile)
 	expect.call(
-		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 11
+		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 9
 		and combat.cards_remaining_this_turn(state) == 1,
-		"Pale Spark should deal 4 and visibly spend the first of two card plays"
+		"Pale Spark should deal 3 and visibly spend the first of two card plays"
 	)
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.KILL_CARD_ID, target_tile)
 	expect.call(
 		int(_enemy_for_id(state, GuidedCombatScenario.TARGET_ENEMY_ID).get("hp", 0)) == 0,
-		"Quick Stab should deal the exact remaining 11 damage and kill the authored target"
+		"Quick Stab should deal the exact remaining 9 damage and kill the authored target"
 	)
 	expect.call(
 		int(state.get("death_bonus_card_plays_this_turn", 0)) == 1

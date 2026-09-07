@@ -1,5 +1,13 @@
 # Abilities and progression — complete design pass
 
+> Historical design record from the initial surface refactor. The current rules
+> are in [DESIGN.md](DESIGN.md), version 5. In the feedback pass, Fire became
+> 2 damage on entry / 3 at turn start, Chilled +2 attack damage, Frozen triple
+> attack damage, and Rubble charges on departure. Ordinary Electrified survives
+> conduction and Chain; Stormcoal Fire is still consumed. Lightning specialist
+> Shock now requires an Electrified-assisted hit instead of separately paid fuel.
+> The proposals below retain their original rationale and are not current rules.
+
 Design only. Shared rules in DESIGN.md take precedence. This record covers all 30 skill definitions: 29 active, plus the retired Layaway entry. Enemy abilities are covered separately in ENEMY_MIGRATION_DESIGN.md; equipment-granted actions remain in the complete card/equipment manifests.
 
 The pass includes deliberate ability reworks and a concrete interaction review of every retained skill. Existing hand management, defense, Light and reward identities remain valuable. A useful retained skill does not need an extra surface clause merely to be counted as reviewed.

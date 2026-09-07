@@ -13416,7 +13416,7 @@ func _refresh_card_play_meter() -> void:
 	var ordinary_left: int = int(budget.get("ordinary_remaining", 0))
 	var banked_left: int = int(budget.get("banked_remaining", 0))
 	var cards_left: int = int(budget.get("total_remaining", ordinary_left + banked_left))
-	_play_meter_count.text = "%d card plays" % ordinary_left
+	_play_meter_count.text = "%d card %s" % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
 	# The default plaque is a single centered line. It only becomes a two-line
 	# layout when the banked-play state is actually present.
 	_play_meter_count.position = Vector2(50.0, 4.0) if banked_left > 0 else Vector2(50.0, 0.0)
@@ -19624,8 +19624,6 @@ func _shortcut_path_has_live_trap(state: Dictionary, path_tiles: Array[Vector2i]
 func _shortcut_move_bleed_is_survivable(state: Dictionary) -> bool:
 	var player: Dictionary = state.get("player", {}) as Dictionary
 	var bleed_damage: int = int(player.get("bleed", 0))
-	if int(player.get("freeze", 0)) > 0:
-		bleed_damage *= 2
 	return bleed_damage < (
 		int(player.get("hp", 0))
 		+ int(player.get("block", 0))
@@ -21087,7 +21085,9 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	var movement_result: Dictionary = committed_combat_state.get("last_player_movement", {}) as Dictionary
 	var previous_position: Vector2i = (previous_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	var committed_position: Vector2i = (committed_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
-	if int(movement_result.get("spent", 0)) <= 0 or committed_position == previous_position:
+	# A validated walk can end before its first step: Bleed may defeat the
+	# player, or hidden occupancy may interrupt it. Those outcomes still commit.
+	if not bool(movement_result.get("resolved", int(movement_result.get("spent", 0)) > 0)):
 		return
 	_animation_lock = true
 	_cancel_player_movement_selection(false)
@@ -21124,7 +21124,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_analytics_log_player_moved(previous_combat_state, committed_combat_state)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "player_movement", transition_combat_state)
-	if _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
+	if committed_position != previous_position and _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_MOVE)
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_INSPECT_ENEMY, false)
 	if _reward_intro_pending():
@@ -22843,6 +22843,16 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}), 0.0, true, card_play_reward_completion)
+	if action_type in ["move", "blink"] and triggered_traps.is_empty() and _player_took_loss(before_state, after_state):
+		# Movement's player damage (Bleed or a surface) has no attack impact beat.
+		# Present it even when a lethal pre-step effect leaves the actor in place.
+		var movement_loss_presentation: Dictionary = base_presentation.duplicate(true)
+		movement_loss_presentation["floating_texts"] = _player_loss_floating_texts(before_state, after_state)
+		movement_loss_presentation["impact_actor_keys"] = ["player"]
+		await _animate_floating_text_presentation(
+			after_state,
+			_death_hold_presentation(before_state, after_state, movement_loss_presentation)
+		)
 	if not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
@@ -28250,12 +28260,23 @@ func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
 	return chip
 
 func _build_item_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
+	return _build_loadout_card_proxy_panel(proxy_size, _item_card_accent(card_id), _build_item_card_tile_body(card_id))
+
+func _build_loadout_card_proxy_panel(proxy_size: Vector2, accent: Color, content: Control) -> PanelContainer:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size = proxy_size
 	panel.size = proxy_size
 	panel.clip_contents = true
-	panel.add_theme_stylebox_override("panel", _equipment_drag_ghost_style(_item_card_accent(card_id)))
-	panel.add_child(_build_item_card_tile_body(card_id))
+	panel.add_theme_stylebox_override("panel", _equipment_drag_ghost_style(accent))
+	# A free-floating PanelContainer cannot shrink itself after wrapped labels
+	# briefly report a tall minimum at width zero. Isolate their minimum size
+	# from the proxy, whose bounds belong to the drag source and animation.
+	var bounds := Control.new()
+	bounds.name = "DragContentBounds"
+	bounds.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(bounds)
+	bounds.add_child(content)
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return panel
 
 func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
@@ -28576,6 +28597,9 @@ func _spawn_equipment_icon_proxy(equipment_id: String, global_rect: Rect2, alpha
 func _animate_equipment_proxy_to_rect(tween: Tween, proxy: Control, global_target_rect: Rect2, duration: float, delay: float = 0.0) -> void:
 	if proxy == null or global_target_rect.size.x <= 0.0 or global_target_rect.size.y <= 0.0:
 		return
+	# Proxies animate between inventory and slot sizes; source dimensions must
+	# not remain a minimum that prevents the final shrink.
+	proxy.custom_minimum_size = Vector2.ZERO
 	var target_rect: Rect2 = _equipment_fx_local_rect(global_target_rect)
 	tween.tween_property(proxy, "position", target_rect.position, duration).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(proxy, "size", target_rect.size, duration).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
@@ -28666,13 +28690,7 @@ func _spawn_magic_held_proxy(card_id: String, mouse_position: Vector2) -> void:
 func _build_magic_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
 	var card: Dictionary = GameData.card_def(card_id)
 	var accent: Color = ElementData.accent(GameData.card_element(card_id))
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = proxy_size
-	panel.size = proxy_size
-	panel.clip_contents = true
-	panel.add_theme_stylebox_override("panel", _equipment_drag_ghost_style(accent))
-	panel.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
-	return panel
+	return _build_loadout_card_proxy_panel(proxy_size, accent, _build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
 
 func _update_magic_overlay_drag(mouse_position: Vector2) -> void:
 	if _magic_drag_card_id.is_empty() or not _node_is_alive(_magic_held_proxy):
@@ -30907,10 +30925,11 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
 	_analytics_flush_surface_events(resolved_state)
 	var movement: Dictionary = resolved_state.get("last_player_movement", {}) as Dictionary
-	if int(movement.get("spent", 0)) <= 0:
+	var moved: bool = int(movement.get("spent", 0)) > 0
+	if not moved and not bool(movement.get("resolved", false)):
 		return
 	_analytics_store.write_event(
-		"player_moved",
+		"player_moved" if moved else "player_movement_interrupted",
 		_analytics_context_from_states(_run_state, before_state),
 		movement.duplicate(true)
 	)
@@ -31633,7 +31652,7 @@ func _add_surface_relic_commands() -> void:
 			var directions: Array[Vector2i] = _vector2i_array([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
 			var direction_index: int = directions.find(direction)
 			if direction_index >= 0: direction_name = ["north", "east", "south", "west"][direction_index]
-			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where the Ice consumed by Freeze moves. Off leaves it consumed.", true)
+			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where to place the Ice consumed by Freeze.", true)
 			continue
 		var current_modes: Array = action.get("_surface_relic_modes", []) as Array
 		var next_modes: Array = variant.get("_surface_relic_modes", []) as Array
@@ -31829,7 +31848,11 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 		var context: Dictionary = _analytics_context_from_states(source_run, combat)
 		context["surface_revision"] = sequence
 		var payload: Dictionary = event.duplicate(true)
-		payload["rules_version"] = BoardSurfaceRules.RULES_VERSION
+		# Migrated saves may still contain an unflushed tail from older rules.
+		# Attribute each event to the rules that produced it, not the loaded client.
+		var rules_version: int = int(event.get("rules_version", combat.get("surface_event_legacy_rules_version", BoardSurfaceRules.RULES_VERSION)))
+		payload["rules_version"] = rules_version
+		context["rules_version"] = rules_version
 		if not _analytics_store.write_event("surface_event", context, payload, "surface_event|%s|%d" % [combat_id, sequence]): break
 		logged = sequence
 	_surface_analytics_revisions[combat_id] = logged

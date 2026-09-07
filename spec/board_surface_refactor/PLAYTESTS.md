@@ -1,5 +1,8 @@
 # Board surfaces v4 — runtime and playtest synthesis
 
+Historical v4 receipt. Current feedback-pass results are in PLAYTESTS_V5.md;
+the recorded outcomes below have not been relabeled as v5 verification.
+
 The core smoke test covers all 159 cards, 249 legal action executions, and all 62 intents across 18 enemies. Ordinary resolution equals presentation-trace resolution and preserves the input state in every case. Focused semantics cover independent layers, shared contact, large footprints, Freeze support consumption, Chain reach/relays, cardinal discharge, atomic Detonate, exact enemy fuel denial, weighted movement, source-aware rewards, and multi-action event retention.
 
 ## Seeded controlled runs

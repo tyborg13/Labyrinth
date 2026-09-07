@@ -48,7 +48,7 @@ func _test_curriculum_catalog() -> void:
 	var choose_move: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_CHOOSE_MOVE)
 	_assert(str(choose_move.get("pointer_text", "")) == "You begin each turn with 2 movement. Use 1 to move onto the glowing tile.", "The destination prompt should teach the movement allowance before the action")
 	var select_bone_dart: Dictionary = ContextualCombatTutorial.phase_definition(ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL)
-	_assert(str(select_bone_dart.get("title", "")) == "Select Bone Dart", "Step three should directly tell the player to select Bone Dart")
+	_assert(str(select_bone_dart.get("title", "")) == "Select Pale Spark", "Step three should directly tell the player to select Pale Spark")
 	_assert(ContextualCombatTutorial.phase_definition("unknown_phase").is_empty(), "Unknown phases should not synthesize tutorial content")
 
 func _test_new_and_returning_profile_migration() -> void:

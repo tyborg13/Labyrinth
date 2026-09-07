@@ -55,7 +55,7 @@
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Gain @icon(move) +{0.value} each turn. Your movement leaves @icon(illuminate) {1.radius} @icon(time) {1.duration} on entered tiles; @icon(blink) covers both endpoints.",
+    "description": "Gain @icon(move) +{0.value} each turn. Your movement creates @icon(illuminate) {1.radius} @icon(time) {1.duration} along its path; @icon(blink) covers both endpoints.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -186,7 +186,7 @@
   "iron_buckler": {
     "name": "Iron Buckler",
     "rarity": "common",
-    "description": "The first card each turn that defends without attacking grants @icon(draw) {0.reward0.amount}.",
+    "description": "The first card each turn with @icon(block) or @icon(stoneskin) and no attacks grants @icon(draw) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -349,7 +349,7 @@
   "frost_prism": {
     "name": "Shatterglass Prism",
     "rarity": "rare",
-    "description": "An enemy killed by your direct attack while @icon(freeze) shatters into @icon(surface_rubble) beneath its footprint and around its four sides.",
+    "description": "Enemies you kill with attacks while @icon(freeze) leave @icon(surface_rubble) beneath and beside them.",
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -376,7 +376,7 @@
   "storm_capacitor": {
     "name": "Storm Capacitor",
     "rarity": "rare",
-    "description": "Lightning @icon(ranged) attacks that already @icon(chain) gain @icon(chain) +{amount}.",
+    "description": "Your Lightning @icon(ranged) attacks with @icon(chain) gain @icon(chain) +{amount}.",
     "icon_path": "res://assets/art/relics/storm_capacitor.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -424,7 +424,7 @@
   "anchor_chain": {
     "name": "Anchor Chain",
     "rarity": "rare",
-    "description": "While you have @icon(block), @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} tile farther.",
+    "description": "While you have @icon(block), @icon(push) and @icon(pull) deal +{0.amount} damage and send targets {1.amount} tile farther.",
     "icon_path": "res://assets/art/relics/anchor_chain.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -522,7 +522,7 @@
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "Once per combat, when your @icon(surface_fire) or @icon(detonate) kills an enemy, @icon(heal) {0.reward0.amount} and create @icon(illuminate) 1 for 2 turns at its death tile.",
+    "description": "Once per combat, an enemy killed by your @icon(surface_fire) or @icon(detonate) grants @icon(heal) {0.reward0.amount} and leaves @icon(illuminate) 1 @icon(time) 2.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -580,7 +580,7 @@
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "The first time you inflict @icon(freeze) while you have @icon(block) each turn, convert up to @icon(block) {0.reward0.amount} into @icon(stoneskin).",
+    "description": "Once per turn, inflicting @icon(freeze) while you have @icon(block) converts up to @icon(block) {0.reward0.amount} into @icon(stoneskin).",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -610,7 +610,7 @@
   "thunder_relay": {
     "name": "Thunder Relay",
     "rarity": "epic",
-    "description": "When aiming @icon(chain), you may exchange its first and last enemy targets after the attack. Both must survive and have legal destinations; landing hazards apply.",
+    "description": "Your @icon(chain) attacks can swap their first and last enemy targets if both survive.",
     "icon_path": "res://assets/art/relics/thunder_relay.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -632,7 +632,7 @@
   "thornmail_brooch": {
     "name": "Faultline Brooch",
     "rarity": "epic",
-    "description": "Spend @icon(stoneskin) {cost} to expand a single-target @icon(melee) into a cross. After the hit, leave @icon(surface_rubble) in that cross.",
+    "description": "You may spend @icon(stoneskin) {cost} to turn a single-target @icon(melee) into a cross that leaves @icon(surface_rubble).",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -810,7 +810,7 @@
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "While on @icon(surface_rubble), consume another visible connected @icon(surface_rubble) tile to use it as the origin of a single-target @icon(melee) or @icon(ranged) attack.",
+    "description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -837,7 +837,7 @@
   "cinderbrand_tongs": {
     "name": "Cinderbrand Tongs",
     "rarity": "common",
-    "description": "Your first card each turn to create new @icon(surface_fire) also creates @icon(illuminate) 1 @icon(time) 2 at its primary tile. Repainting @icon(surface_fire) does not count.",
+    "description": "Your first card each turn to create new @icon(surface_fire) also creates @icon(illuminate) 1 @icon(time) 2 at its target.",
     "icon_path": "res://assets/art/relics/cinderbrand_tongs.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -869,7 +869,7 @@
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "When your attack applies @icon(freeze), you may @icon(surface_relocate) one consumed @icon(surface_ice) tile to a cardinal floor neighbor outside the target.",
+    "description": "When your attack applies @icon(freeze), you may @icon(surface_relocate) one consumed @icon(surface_ice) tile beside the target.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -893,7 +893,7 @@
   "ion_spool": {
     "name": "Ion Spool",
     "rarity": "common",
-    "description": "The first @icon(element_lightning) attack each turn consuming {threshold}+ @icon(surface_electrified) or conductive @icon(surface_fire) tiles grants @icon(draw) {0.reward0.amount}.",
+    "description": "The first @icon(element_lightning) attack each turn to conduct through {threshold}+ surface tiles grants @icon(draw) {0.reward0.amount}.",
     "icon_path": "res://assets/art/relics/ion_spool.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -902,12 +902,12 @@
     "build_tags": [
       "lightning",
       "conduction",
-      "surface_consumption",
+      "surface_conduction",
       "draw"
     ],
     "effects": [
       {
-        "type": "surface_consumption_reward",
+        "type": "surface_conduction_reward",
         "threshold": 2,
         "once": "turn",
         "owner": "player",
@@ -917,15 +917,14 @@
             "type": "draw",
             "amount": 1
           }
-        ],
-        "consumption_kind": "conduction"
+        ]
       }
     ]
   },
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "When aiming @icon(push) or @icon(pull), you may carry the target\u2019s elemental ground to its destination after displacement. Leave @icon(surface_rubble) behind.",
+    "description": "Your @icon(push) and @icon(pull) can carry the elemental surface beneath the target to its destination.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -951,7 +950,7 @@
   "basalt_calendar": {
     "name": "Basalt Kiln",
     "rarity": "rare",
-    "description": "Your @icon(detonate) can consume @icon(surface_rubble) instead of @icon(surface_fire). After that blast, leave @icon(surface_fire) on the consumed tiles.",
+    "description": "Your @icon(detonate) can consume @icon(surface_rubble) instead of @icon(surface_fire), leaving @icon(surface_fire) on the consumed tiles.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -975,7 +974,7 @@
   "coalheart_crucible": {
     "name": "Stormcoal Crucible",
     "rarity": "rare",
-    "description": "All @icon(surface_fire) also conducts @icon(element_lightning). Each discharge consumes the @icon(surface_fire) it uses without @icon(detonate). Both sides can use this ground.",
+    "description": "@icon(surface_fire) tiles also conduct @icon(element_lightning). Attacks conducted through them consume them.",
     "icon_path": "res://assets/art/relics/coalheart_crucible.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -1029,7 +1028,7 @@
   "tectonic_abacus": {
     "name": "Captured Noon",
     "rarity": "epic",
-    "description": "At 3 active @icon(illuminate) sources, suppress @icon(umbra) 1 stage; at 6, suppress 2. Reverses as sources fade; never below Clear.",
+    "description": "While you have 3 active @icon(illuminate) sources, lower @icon(umbra) by 1 stage; with 6 sources, lower it by 2.",
     "icon_path": "res://assets/art/relics/captured_noon.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1058,7 +1057,7 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "Once per combat, when {required_types} different ground types coexist in visible tiles, gain @icon(stoneskin) {0.reward0.amount} and @icon(draw) {0.reward1.amount}.",
+    "description": "Once per combat, having {required_types} different surface types in view grants @icon(stoneskin) {0.reward0.amount} and @icon(draw) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1097,7 +1096,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Once per combat, your first elemental @icon(surface_consume) on @icon(surface_rubble) deals {0.reward0.damage} to everyone in a cross around the first consumed tile. Then gain @icon(stoneskin) {0.reward1.amount}.",
+    "description": "Once per combat, your first elemental @icon(surface_consume) on @icon(surface_rubble) deals {0.reward0.damage} to everyone in a cross around the first consumed tile and grants @icon(stoneskin) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1323,7 +1322,7 @@
   "funeral_bell": {
     "name": "Funeral Bell",
     "rarity": "epic",
-    "description": "After your actions kill a third statused enemy this combat, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}. Passive turn-start deaths do not count.",
+    "description": "When your actions kill the third enemy with a status effect this combat, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
     "icon_path": "res://assets/art/relics/funeral_bell.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1529,7 +1528,7 @@
   "glowstone_matrix": {
     "name": "Glowstone Matrix",
     "rarity": "common",
-    "description": "Cards containing a @icon(stoneskin) action also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
+    "description": "Cards that grant @icon(stoneskin) also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
     "icon_path": "res://assets/art/relics/glowstone_matrix.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -1555,7 +1554,7 @@
   "briar_winch": {
     "name": "Quarry Winch",
     "rarity": "common",
-    "description": "Consume @icon(surface_rubble) beneath a @icon(push) or @icon(pull) target to choose any legal cardinal direction. Distance stays unchanged.",
+    "description": "Consume @icon(surface_rubble) beneath a target to aim @icon(push) or @icon(pull) in any cardinal direction.",
     "icon_path": "res://assets/art/relics/briar_winch.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -1703,7 +1702,7 @@
   "starless_astrolabe": {
     "name": "Starless Astrolabe",
     "rarity": "rare",
-    "description": "While you have @icon(truesight), actually applying @icon(freeze) or @icon(shock) creates @icon(illuminate) {radius} for {duration} turns beneath that enemy.",
+    "description": "While you have @icon(truesight), applying @icon(freeze) or @icon(shock) creates @icon(illuminate) {radius} @icon(time) {duration} beneath that enemy.",
     "icon_path": "res://assets/art/relics/starless_astrolabe.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -1732,7 +1731,7 @@
   "witchglass_carapace": {
     "name": "Witchglass Carapace",
     "rarity": "epic",
-    "description": "@icon(ranged) enemy attacks deal at most {max_damage} damage to @icon(illusion). @icon(melee) attacks are unchanged.",
+    "description": "Enemy @icon(ranged) attacks deal at most {max_damage} damage to @icon(illusion).",
     "icon_path": "res://assets/art/relics/witchglass_carapace.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1756,7 +1755,7 @@
   "witchglass_lantern": {
     "name": "Witchglass Lantern",
     "rarity": "epic",
-    "description": "Each living @icon(illusion) adds +{radius} to its tethered @icon(illuminate), which ends immediately when the copy is removed.",
+    "description": "Your @icon(illusion) have +{radius} @icon(illuminate) radius while they last.",
     "icon_path": "res://assets/art/relics/witchglass_lantern.png",
     "accent": "#9b62d6",
     "design_version": 3,

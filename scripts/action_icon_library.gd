@@ -8,15 +8,15 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
-	"surface": {"label": "Shape Ground", "description": "Creates a persistent surface in the printed area. New ground does not immediately affect occupants.", "path": "%s/surface.png" % ICON_ROOT},
-	"surface_fire": {"label": "Fire", "description": "Deals 1 damage on entry and 2 at turn start. Shared ground; no damage merely from placement.", "path": "%s/surface_fire.png" % ICON_ROOT},
-	"surface_ice": {"label": "Ice", "description": "Entry or turn start activates Chilled while on Ice. An Ice hit Freezes a Chilled unit and consumes its supporting Ice.", "path": "%s/surface_ice.png" % ICON_ROOT},
-	"surface_electrified": {"label": "Electrified", "description": "Lightning discharges a connected cardinal patch into its opponents and consumes it. Chain can also use relay tiles.", "path": "%s/surface_electrified.png" % ICON_ROOT},
-	"surface_rubble": {"label": "Rubble", "description": "Costs 2 movement to enter. A fresh movement allowance can always take its first passable step. Push, Pull and Blink ignore the cost.", "path": "%s/surface_rubble.png" % ICON_ROOT},
-	"chilled": {"label": "Chilled", "description": "Takes +1 direct damage while on Ice. An Ice hit Freezes this unit and consumes its supporting Ice. Leaving Ice removes Chilled.", "path": "%s/chilled.png" % ICON_ROOT},
-	"detonate": {"label": "Detonate", "description": "Consumes selected Fire. Each consumed tile blasts itself and its four cardinal neighbors. Each unit, including you, is hit once.", "path": "%s/detonate.png" % ICON_ROOT},
-	"surface_consume": {"label": "Consume Ground", "description": "Consumes the printed ground to gain the stated reward. More tiles do not multiply a fixed reward.", "path": "%s/surface_consume.png" % ICON_ROOT},
-	"surface_relocate": {"label": "Relocate Ground", "description": "Moves one real surface layer. Other ground and occupants remain. Placement does not immediately activate Fire or Chill.", "path": "%s/surface_relocate.png" % ICON_ROOT},
+	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
+	"surface_fire": {"label": "Fire", "description": "Deals 3 damage on turn start and 2 damage when entered.", "path": "%s/surface_fire.png" % ICON_ROOT},
+	"surface_ice": {"label": "Ice", "description": "Entering or starting a turn on Ice applies Chilled.", "path": "%s/surface_ice.png" % ICON_ROOT},
+	"surface_electrified": {"label": "Electrified", "description": "Lightning spreads through connected Electrified tiles. Chain can jump through these tiles to reach other targets.", "path": "%s/surface_electrified.png" % ICON_ROOT},
+	"surface_rubble": {"label": "Rubble", "description": "Costs 2 movement to leave.", "path": "%s/surface_rubble.png" % ICON_ROOT},
+	"chilled": {"label": "Chilled", "description": "Takes +2 attack damage. An Ice hit Freezes this character and consumes the Ice beneath them.", "path": "%s/chilled.png" % ICON_ROOT},
+	"detonate": {"label": "Detonate", "description": "Consumes Fire tiles to damage targets on them and their four neighboring tiles.", "path": "%s/detonate.png" % ICON_ROOT},
+	"surface_consume": {"label": "Consume Ground", "description": "Consumes the shown surface to gain its reward.", "path": "%s/surface_consume.png" % ICON_ROOT},
+	"surface_relocate": {"label": "Relocate Ground", "description": "Moves a surface to another tile.", "path": "%s/surface_relocate.png" % ICON_ROOT},
 	"melee": {
 		"label": "Melee",
 		"description": "Deals damage up close.",
@@ -54,7 +54,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"block": {
 		"label": "Block",
-		"description": "Absorbs incoming damage before health.",
+		"description": "Absorbs damage until your next turn.",
 		"path": "%s/block.png" % ICON_ROOT
 	},
 	"stoneskin": {
@@ -79,7 +79,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"flurry": {
 		"label": "Flurry",
-		"description": "Spends all current card plays. Repeats printed actions and health cost once per play spent; pays Time once.",
+		"description": "Repeats this card once per remaining card play, spending them all. Pays Time once.",
 		"path": "%s/flurry.png" % ICON_ROOT
 	},
 	"time": {
@@ -119,7 +119,7 @@ const KEYWORDS: Dictionary = {
 	},
 	"bleed": {
 		"label": "Bleed",
-		"description": "Physical wound damage. Triggers before actual move or attack actions, then clears after the next turn.",
+		"description": "Deals damage before moving or attacking. Lasts through the next turn.",
 		"path": "%s/bleed.png" % ICON_ROOT
 	},
 	"expose": {
@@ -144,22 +144,22 @@ const KEYWORDS: Dictionary = {
 	},
 	"freeze": {
 		"label": "Freeze",
-		"description": "Skips the next turn and doubles direct attack damage. Ice hits Freeze an actively Chilled unit, consuming its supporting Ice. Cannot refresh.",
+		"description": "Skips the next turn and takes triple attack damage.",
 		"path": "%s/freeze.png" % ICON_ROOT
 	},
 	"shock": {
 		"label": "Shock",
-		"description": "Disrupts the affected unit's next action.",
+		"description": "Cancels the next non-movement action.",
 		"path": "%s/shock.png" % ICON_ROOT
 	},
 	"immobilize": {
 		"label": "Immobilize",
-		"description": "Stops movement for the rest of the turn.",
+		"description": "Prevents movement and Blink next turn.",
 		"path": "%s/immobilize.png" % ICON_ROOT
 	},
 	"chain": {
 		"label": "Chain",
-		"description": "Jumps to unvisited visible enemies within the printed distance. Electrified tiles can relay the bolt. Each enemy is hit once per attack.",
+		"description": "Jumps between targets within the shown range. Electrified tiles extend its reach.",
 		"path": "%s/chain.png" % ICON_ROOT
 	},
 	"push": {
@@ -209,12 +209,12 @@ const KEYWORDS: Dictionary = {
 	},
 	"cinder_marks": {
 		"label": "Kindle Ground",
-		"description": "Creates Fire at selected positions. Fire remains until consumed or replaced.",
+		"description": "Creates Fire on the marked tiles.",
 		"path": "%s/cinder_marks.png" % ICON_ROOT
 	},
 	"detonate_cinders": {
 		"label": "Crownfire",
-		"description": "Consumes Fire in the selected area and explodes its blast footprint.",
+		"description": "Consumes Fire to damage targets on it and its four neighboring tiles.",
 		"path": "%s/detonate_cinders.png" % ICON_ROOT
 	},
 	"gale_force": {
@@ -527,7 +527,11 @@ static func tooltip_entries_for_rows(
 			if typeof(token_var) != TYPE_DICTIONARY:
 				continue
 			var token: Dictionary = token_var as Dictionary
-			if str(token.get("kind", "")) in ["text", "surface_condition"]:
+			if str(token.get("kind", "")) == "surface_condition":
+				var surface_key: String = str(token.get("icon", "surface"))
+				_append_tooltip_entry(entries, seen, surface_key, tooltip(surface_key))
+				continue
+			if str(token.get("kind", "")) == "text":
 				continue
 			var icon_key: String = str(token.get("icon", ""))
 			if str(token.get("kind", "")) == "aoe_pattern":
@@ -726,10 +730,10 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 static func append_action_row(rows: Array, action: Dictionary, row: Array, previous_action_row_index: int = -1) -> int:
 	if row.is_empty():
 		return previous_action_row_index
-	if bool(action.get("reuse_previous_target", false)) and previous_action_row_index >= 0 and previous_action_row_index < rows.size():
+	if (bool(action.get("reuse_previous_target", false)) or str(action.get("target", "")) == "previous_target") and previous_action_row_index >= 0 and previous_action_row_index < rows.size():
 		var shared_row: Array = (rows[previous_action_row_index] as Array).duplicate(true)
 		for token_var: Variant in row:
-			if typeof(token_var) == TYPE_DICTIONARY and _duplicates_shared_range(shared_row, token_var as Dictionary):
+			if typeof(token_var) == TYPE_DICTIONARY and _duplicates_shared_target_token(shared_row, token_var as Dictionary):
 				continue
 			shared_row.append(token_var)
 		for token_index: int in range(shared_row.size()):
@@ -743,16 +747,24 @@ static func append_action_row(rows: Array, action: Dictionary, row: Array, previ
 	rows.append(row)
 	return rows.size() - 1
 
-static func _duplicates_shared_range(row: Array, candidate: Dictionary) -> bool:
-	if str(candidate.get("icon", "")) != "range":
-		return false
+static func _duplicates_shared_target_token(row: Array, candidate: Dictionary) -> bool:
 	for existing_var: Variant in row:
 		if typeof(existing_var) != TYPE_DICTIONARY:
 			continue
 		var existing: Dictionary = existing_var
-		if str(existing.get("icon", "")) == "range" and existing.get("value", null) == candidate.get("value", null):
+		if str(candidate.get("icon", "")) == "range" and str(existing.get("icon", "")) == "range" and existing.get("value", null) == candidate.get("value", null):
+			return true
+		if str(candidate.get("kind", "")) == "aoe_pattern" and str(existing.get("kind", "")) == "aoe_pattern" and _same_pattern(candidate.get("pattern", []), existing.get("pattern", [])):
 			return true
 	return false
+
+static func _same_pattern(left: Array, right: Array) -> bool:
+	if left.size() != right.size():
+		return false
+	for offset: Variant in left:
+		if not right.has(offset):
+			return false
+	return true
 
 static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
 	var rows: Array = cost_rows_for_card(card)
@@ -792,45 +804,37 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(token_for("health_cost", "-%d" % health_cost))
 		"move", "move_toward":
 			tokens.append(_token_for_action_field(action, "move", "range", int(action.get("range", 0))))
-			_append_illuminate_rider_tokens(tokens, action)
 		"move_away":
 			tokens.append(_token_for_action_field(action, "retreat", "range", int(action.get("range", 0))))
-			_append_illuminate_rider_tokens(tokens, action)
 		"blink":
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 0))))
-			_append_illuminate_rider_tokens(tokens, action)
 		"melee":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "melee"), action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
-			_append_illuminate_rider_tokens(tokens, action)
 		"ranged":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
-			_append_illuminate_rider_tokens(tokens, action)
 		"aoe":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
-			_append_illuminate_rider_tokens(tokens, action)
 		"push":
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
-			_append_illuminate_rider_tokens(tokens, action)
 		"pull":
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 			tokens.append(_token_for_action_field(action, "pull", "amount", int(action.get("amount", 0))))
-			_append_illuminate_rider_tokens(tokens, action)
 		"surface":
 			tokens.append(surface_token(str(action.get("surface", ""))))
 			if int(action.get("range", 0)) > 0:
@@ -894,11 +898,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "melee", action, options)
 			tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":
-			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates persistent Fire at selected positions. Crownfire consumes nearby Fire to explode its area."))
+			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates Fire on the marked tiles."))
 			_append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
-			tokens.append(token_for("detonate_cinders", null, "warning", "Consumes selected Fire and detonates the union of its blast tiles."))
+			tokens.append(token_for("detonate_cinders", null, "warning", "Consumes Fire to damage targets on it and its four neighboring tiles."))
 		"gale_force":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", "Pushes the player away from the dragon through arena hazards."))
@@ -908,9 +912,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
-		tokens.append(surface_token(str(action.get("surface", "")), "Create ground along the walked path." if bool(action.get("surface_path", false)) else "After the action, create this ground in its printed area."))
+		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
-		if action.has("surface_pattern"): tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": 1}))
+		if action.has("surface_pattern") and not _same_pattern(action.get("surface_pattern", []), action.get("pattern", [])):
+			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0))}))
+	if action_type in ["move", "move_toward", "move_away", "blink", "melee", "ranged", "aoe", "push", "pull"]:
+		_append_illuminate_rider_tokens(tokens, action)
 	if not str(action.get("clear_surface", "")).is_empty():
 		tokens.append(token_for("surface_consume", null, "neutral", "Remove %s beneath you." % str(action.get("clear_surface", ""))))
 	var requirement: Dictionary = action.get("requires_surface", {}) as Dictionary
@@ -1027,11 +1034,11 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 	if radius <= 0:
 		return
 	var action_type: String = str(action.get("type", ""))
-	var radius_tooltip: String = "After this attack resolves, create Light at its impact within this radius."
-	var duration_tooltip: String = "Player turns this light remains at the impact."
+	var radius_tooltip: String = "Creates Light at the target. Radius in tiles."
+	var duration_tooltip: String = "Turns this Light lasts."
 	if action_type in ["move", "move_toward", "move_away", "blink"]:
-		radius_tooltip = "After this movement resolves, create Light where you arrive within this radius."
-		duration_tooltip = "Player turns this light remains at your destination."
+		radius_tooltip = "Creates Light where you land. Radius in tiles."
+		duration_tooltip = "Turns this Light lasts."
 	tokens.append(_token_for_action_field(
 		action,
 		"illuminate",
@@ -1040,6 +1047,7 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 		"neutral",
 		radius_tooltip
 	))
+	(tokens[tokens.size() - 1] as Dictionary)["row_group"] = "light"
 	var duration: int = int(action.get("illuminate_duration", 1))
 	tokens.append(_token_for_action_field(
 		action,
@@ -1049,6 +1057,8 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 		"neutral",
 		duration_tooltip
 	))
+
+	(tokens[tokens.size() - 1] as Dictionary)["row_group"] = "light"
 
 static func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
@@ -1076,11 +1086,14 @@ static func surface_token(kind: String, detail: String = "") -> Dictionary:
 static func surface_condition_token(condition: Dictionary) -> Dictionary:
 	var kind: String = str(condition.get("surface", ""))
 	var subject: String = str(condition.get("subject", "target"))
-	var condition_text: String = "After consuming %s" % label(surface_icon_key(kind)) if subject == "consumed" else "%s on %s" % ["You" if subject == "player" else "Target", label(surface_icon_key(kind))]
-	if not bool(condition.get("present", true)):
-		condition_text = "%s off %s" % ["You" if subject == "player" else "Target", label(surface_icon_key(kind))]
-	var token: Dictionary = text_token(condition_text, "condition", condition_text)
-	token["kind"] = "text"
+	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", "on" if bool(condition.get("present", true)) else "off"]
+	var suffix: String = "consumed:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
+	var condition_text: String = ("%s %s %s" % [prefix, label(surface_icon_key(kind)), suffix]).replace(" :", ":")
+	var token: Dictionary = text_token(condition_text, "neutral", condition_text)
+	token["kind"] = "surface_condition"
+	token["icon"] = surface_icon_key(kind)
+	token["prefix"] = prefix
+	token["suffix"] = suffix
 	token["surface_condition"] = condition.duplicate(true)
 	return token
 

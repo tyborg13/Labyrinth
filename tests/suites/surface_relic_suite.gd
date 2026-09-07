@@ -21,7 +21,7 @@ static func run(check: Callable) -> void:
 	Ground.place(state, Vector2i(4, 3), "rubble")
 	Ground.place(state, Vector2i(5, 3), "fire")
 	state = engine.apply_player_action(state, {"type": "push", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i.RIGHT, "_surface_relic_modes": ["transport"]}, Vector2i(4, 3))
-	check.call(state["enemies"][0]["pos"] == Vector2i(5, 3) and int(state["enemies"][0]["hp"]) == 999, "Transport first resolves the landing Fire contact")
+	check.call(state["enemies"][0]["pos"] == Vector2i(5, 3) and int(state["enemies"][0]["hp"]) == 998, "Transport first resolves the landing Fire contact")
 	check.call(Ground.element_at(state, Vector2i(4, 3)).is_empty() and Ground.element_at(state, Vector2i(5, 3)) == "ice" and Ground.has_rubble(state, Vector2i(4, 3)), "Updraft moves one elemental layer, leaves Rubble")
 	check.call(not bool(state["enemies"][0].get("chilled", false)), "Transporting Ice beneath an occupant is placement, not immediate Chill")
 	state = fixture(engine, ["briar_winch"])
@@ -69,6 +69,8 @@ static func run(check: Callable) -> void:
 	_test_faultline_native_primary(engine, check)
 	_test_black_sun_event_time_underlay(engine, check)
 	_test_updraft_original_ground_survival(engine, check)
+	_test_stormcoal_mixed_reuse(engine, check)
+	_test_ion_spool_reuse_limit(engine, check)
 
 static func _test_faultline_native_primary(engine: Combat, check: Callable) -> void:
 	var state: Dictionary = fixture(engine, ["thornmail_brooch"])
@@ -108,21 +110,21 @@ static func _test_faultline_native_primary(engine: Combat, check: Callable) -> v
 
 static func _test_black_sun_event_time_underlay(engine: Combat, check: Callable) -> void:
 	for surviving_underlay: bool in [false, true]:
-		var state: Dictionary = fixture(engine, ["worldroot_idol", "black_sun_dial"])
+		var state: Dictionary = fixture(engine, ["worldroot_idol", "black_sun_dial", "coalheart_crucible"])
 		state["enemies"][0]["pos"] = Vector2i(6, 3)
 		for x: int in range(2, 5):
 			Ground.place(state, Vector2i(x, 3), "rubble")
 		for x: int in range(4, 7):
-			Ground.place(state, Vector2i(x, 3), "electrified")
+			Ground.place(state, Vector2i(x, 3), "fire")
 		if surviving_underlay:
 			Ground.place(state, Vector2i(5, 3), "rubble")
 		var action: Dictionary = {"type": "ranged", "range": 2, "damage": 5, "element": "lightning", "_surface_relic_modes": ["remote"], "_origin_tile": Vector2i(4, 3)}
 		state = engine.apply_player_action(state, action, Vector2i(6, 3))
-		check.call(not Ground.has_rubble(state, Vector2i(4, 3)) and Ground.tiles(state, "electrified").is_empty(), "Worldroot spends origin Rubble before the remote Lightning component discharge")
+		check.call(not Ground.has_rubble(state, Vector2i(4, 3)) and Ground.tiles(state, "fire").is_empty(), "Worldroot spends origin Rubble before the remote Lightning consumes conductive Fire")
 		var origin_fact_seen: bool = false
 		var surviving_fact_seen: bool = false
 		for event: Dictionary in state.get("surface_events", []):
-			if str(event.get("kind", "")) != "surface_removed" or str(event.get("surface", "")) != "electrified":
+			if str(event.get("kind", "")) != "surface_removed" or str(event.get("surface", "")) != "fire":
 				continue
 			if event.get("tile") == Vector2i(4, 3):
 				origin_fact_seen = event.has("rubble_underlay") and not bool(event["rubble_underlay"])
@@ -157,3 +159,41 @@ static func fixture(engine: Combat, relics: Array) -> Dictionary:
 	result["relics"] = relics.duplicate()
 	Relics.configure(result)
 	return result
+
+
+static func _test_stormcoal_mixed_reuse(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = fixture(engine, ["coalheart_crucible"])
+	state["enemies"].append(Base.enemy(2, Vector2i(6,3)))
+	Ground.place(state, Vector2i(4,3), "electrified")
+	Ground.place(state, Vector2i(5,3), "fire")
+	Ground.place(state, Vector2i(5,3), "rubble")
+	Ground.place(state, Vector2i(6,3), "electrified")
+	var attack: Dictionary = {"type":"ranged", "range":5, "damage":5, "element":"lightning"}
+	state = engine.apply_player_action(state, attack, Vector2i(4,3))
+	check.call(int(state["enemies"][0]["hp"]) == 995 and int(state["enemies"][1]["hp"]) == 995, "A mixed Fire/Electrified component conducts across Stormcoal's bridge")
+	check.call(Ground.tiles(state, "electrified").size() == 2 and Ground.tiles(state, "fire").is_empty() and Ground.has_rubble(state, Vector2i(5,3)), "Stormcoal consumes only Fire from a mixed network and preserves Electrified/Rubble")
+	state = engine.apply_player_action(state, attack, Vector2i(4,3))
+	check.call(int(state["enemies"][0]["hp"]) == 990 and int(state["enemies"][1]["hp"]) == 995, "The next ordinary Lightning attack cannot reuse the consumed Fire bridge")
+
+static func _test_ion_spool_reuse_limit(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = fixture(engine, ["ion_spool"])
+	state["deck"]["hand"] = ["quick_stab"]
+	state["deck"]["draw"] = ["brace", "brace", "brace", "brace"]
+	state["enemies"].append(Base.enemy(2, Vector2i(6,3)))
+	for x: int in range(4,7): Ground.place(state, Vector2i(x,3), "electrified")
+	var attack: Dictionary = {"type":"ranged", "range":5, "damage":5, "element":"lightning"}
+	var hand_count: int = (state["deck"]["hand"] as Array).size()
+	state = engine.apply_player_action(state, {"type":"ranged", "range":5, "damage":5, "element":"none", "chain":1}, Vector2i(4,3))
+	check.call((state["deck"]["hand"] as Array).size() == hand_count, "Neutral Chain's use of relays does not claim Ion Spool's Lightning reward")
+	state = engine.apply_player_action(state, attack, Vector2i(4,3))
+	check.call((state["deck"]["hand"] as Array).size() == hand_count + 1, "Ion Spool draws once when Lightning uses at least two conductive tiles")
+	state = engine.apply_player_action(state, attack, Vector2i(4,3))
+	check.call((state["deck"]["hand"] as Array).size() == hand_count + 1 and Ground.tiles(state, "electrified").size() == 3, "Reusing the same network cannot farm Ion Spool twice in a turn")
+	state["turn"] = int(state["turn"]) + 1
+	state = engine.apply_player_action(state, attack, Vector2i(4,3))
+	check.call((state["deck"]["hand"] as Array).size() == hand_count + 2, "Ion Spool can reward the same surviving network on the following turn")
+	state = fixture(engine, ["ion_spool"])
+	for x: int in range(2,5): Ground.place(state, Vector2i(x,3), "electrified")
+	hand_count = (state["deck"]["hand"] as Array).size()
+	state = engine._resolve_enemy_action(state, 0, attack)
+	check.call((state["deck"]["hand"] as Array).size() == hand_count and not (state.get("surface_relic_flags", {}) as Dictionary).has("ion_spool:surface_conduction_reward"), "Enemy use of the shared network neither draws for the player nor claims their Ion Spool")

@@ -129,7 +129,7 @@ static func _test_status_immunities_are_atomic(expect: Callable) -> void:
 		var hp_before: int = int(target["hp"])
 		Surface.place(shared, target["pos"], "fire")
 		shared = combat.call("_surface_contact", shared, "enemy", int(target["id"]), target["pos"], true)
-		expect.call(int(_boss_from_state(shared)["hp"]) == hp_before - 2, "%s shares Fire terrain danger instead of elemental owner immunity" % boss_id)
+		expect.call(int(_boss_from_state(shared)["hp"]) == hp_before - 3, "%s shares Fire terrain danger instead of elemental owner immunity" % boss_id)
 
 static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	var earth_after: Dictionary = _resolve_opening("tharokh")

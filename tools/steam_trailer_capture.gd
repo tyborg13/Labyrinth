@@ -708,7 +708,7 @@ func _capture_tactical_sequence(sequence: String) -> void:
 	var target: Vector2i = fixture["target"]
 	var enemies: Array = fixture["enemies"]
 	_assert_capture(int(state.get("cards_per_turn", 0)) == 2 and _combat_engine.player_movement_remaining(state) == 2, "Tactical sequence must retain standard two plays/two movement")
-	_assert_capture(int(state.get("rules_version", 0)) == 4, "Tactical capture must use current shared-surface rules")
+	_assert_capture(int(state.get("rules_version", 0)) == 5, "Tactical capture must use current shared-surface rules")
 	if sequence == "root_chain":
 		_assert_capture(_combat_engine.effective_umbra_radius(state) == 5 and _umbra_visible_enemy_count(state) == 1, "Earth-light setup must begin with one visible enemy and two hidden neighbors")
 	_apply_combat_state(layout, state)
@@ -737,7 +737,7 @@ func _capture_tactical_sequence(sequence: String) -> void:
 	var after_enemies: Array = after_payoff.get("enemies", []) as Array
 	_assert_capture(_combat_engine.player_movement_remaining(before_payoff) == 0, "Two-tile walk must consume exactly the base movement pool")
 	_assert_umbra_actor_framing(_live_enemy_count(after_payoff) + 1)
-	_cue("tactical_payoff_complete", payoff_target, {"enemies": after_enemies, "rules_version": 4, "surfaces": after_payoff.get("surfaces", {}), "natural_play": true})
+	_cue("tactical_payoff_complete", payoff_target, {"enemies": after_enemies, "rules_version": 5, "surfaces": after_payoff.get("surfaces", {}), "natural_play": true})
 	# Give the editor the full native effect release while visual cuts use cues.
 	await _settle(5.0)
 

@@ -1,5 +1,15 @@
 # Enemy surface acceptance receipt
 
+The receipt below records the completed **v4** implementation. Its historical
+PASS is not a claim that these same fixtures already passed against v5. The
+feedback pass updates the current suites for Fire 2/3, Rubble departure cost,
+Chilled +2, Frozen ×3, and reusable ordinary Electrified. Zekarion/Wisp Shock now
+requires a conducted hit; replacing a useful connection still denies the setup.
+Stormcoal Fire remains consumable. Current v5 receipts are recorded with the
+feedback-pass verification, preserving this original result for comparison.
+
+## Historical v4 receipt
+
 All ten proof-encounter themes from `spec/board_surface_refactor/ENEMY_MIGRATION_DESIGN.md` now have focused executable coverage. These are constructed rule/interaction fixtures, supplemented by generated playtests; they do not claim a complete human-played boss campaign. The new suite invokes current authored intents through the real core action resolver and checks resulting board state.
 
 Run the new cases with:

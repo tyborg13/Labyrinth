@@ -50,7 +50,7 @@ static func _test_ooze_denial_and_split(combat: Combat, expect: Callable) -> voi
 	for enemy: Dictionary in result["enemies"]:
 		if bool(enemy.get("summoned", false)):
 			children += 1
-			expect.call(int(enemy["hp"]) == int(enemy["max_hp"]) - GameData.fixed_point_amount(1), "Ooze children receive arrival Fire once and never the completed lethal AOE")
+			expect.call(int(enemy["hp"]) == int(enemy["max_hp"]) - GameData.fixed_point_amount(2), "Ooze children receive arrival Fire once and never the completed lethal AOE")
 	expect.call(children == 2 and int(result.get("death_bonus_card_plays_this_turn", 0)) == 1, "Ooze split creates two children after its one ordinary kill refund")
 	result = combat.apply_player_action(result, action, Vector2i(4, 3))
 	expect.call(int(result.get("death_bonus_card_plays_this_turn", 0)) == 1, "Killing summoned droplets cannot farm ordinary enemy-death card plays")
@@ -72,7 +72,7 @@ static func _test_bloomer_gaoler_angle(combat: Combat, expect: Callable) -> void
 	var straight: Dictionary = combat._resolve_enemy_action(state, 0, pull)
 	angled = combat._resolve_enemy_action(angled, 0, pull)
 	expect.call(straight["player"]["pos"] == Vector2i(3, 3), "Gaoler pull crosses Rubble without charging voluntary movement allowance")
-	expect.call(int(straight["player"]["hp"]) + GameData.fixed_point_amount(1) == int(angled["player"]["hp"]), "Changing the pull angle keeps the direct attack but avoids the prepared Fire crossing")
+	expect.call(int(straight["player"]["hp"]) + GameData.fixed_point_amount(2) == int(angled["player"]["hp"]), "Changing the pull angle keeps the direct attack but avoids the prepared Fire crossing")
 
 static func _test_surgeon_ice_counterplay(combat: Combat, expect: Callable) -> void:
 	var initial: Dictionary = _state(combat, "grave_surgeon")
@@ -162,19 +162,14 @@ static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> voi
 	for record: Array in [["lightning_wisp", "blinding_arc"], ["zekarion", "tempest_breath"]]:
 		var id: String = str(record[0])
 		var initial: Dictionary = _state(combat, id)
-		Ground.place(initial, Vector2i(4,3), "electrified")
-		var prepared: Dictionary = combat._surface_prepare_enemy_intent(initial, initial["enemies"][0], _intent(combat, id, str(record[1])))
-		var paid_state: Dictionary = initial.duplicate(true)
-		var paid: Dictionary = combat._surface_pay_enemy_fuel(paid_state, paid_state["enemies"][0], prepared)
-		Ground.remove(initial, Vector2i(4,3), "electrified", "denied")
+		Ground.place(initial, Vector2i(2,3), "electrified")
 		Ground.place(initial, Vector2i(3,3), "electrified")
-		var denied: Dictionary = combat._surface_pay_enemy_fuel(initial, initial["enemies"][0], prepared)
-		var denied_attack: Dictionary = denied["actions"][-1]
-		var paid_attack: Dictionary = paid["actions"][-1]
-		expect.call(int(denied_attack.get("shock", 0)) == 0 and int(paid_attack.get("shock", 0)) == 1, "%s specialist Shock exists only when its exact shown Electrified fuel was paid" % id)
-		initial = combat._resolve_enemy_action(initial, 0, denied_attack)
-		paid_state = combat._resolve_enemy_action(paid_state, 0, paid_attack)
-		expect.call(int(initial["player"].get("shock", 0)) == 0 and int(paid_state["player"].get("shock", 0)) == 1, "%s actual baseline shot loses Shock when fuel is denied" % id)
+		var attack: Dictionary = _intent(combat, id, str(record[1]))["actions"][-1]
+		var connected: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
+		expect.call(int(connected["player"].get("shock", 0)) == 1 and Ground.tiles(connected, "electrified").size() == 2, "%s's actual specialist shot gains Shock through shared conductive ground without consuming it" % id)
+		initial["player"]["pos"] = Vector2i(2,4)
+		var avoided: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
+		expect.call(int(avoided["player"].get("shock", 0)) == 0 and int(avoided["player"]["hp"]) < 1000, "Leaving %s's conducting ground avoids Shock while its baseline attack remains threatening" % id)
 
 static func _test_eclipse_ground_and_air_cascade(combat: Combat, expect: Callable) -> void:
 	var initial: Dictionary = _state(combat, "noctyrax")
@@ -209,7 +204,7 @@ static func _test_physical_approach(combat: Combat, expect: Callable) -> void:
 		Ground.place(state, Vector2i(3,3), "rubble")
 		Ground.place(state, Vector2i(3,3), "fire")
 		state = combat._resolve_enemy_action(state, 0, {"type":"move_toward","range":1})
-		expect.call(state["enemies"][0]["pos"] == Vector2i(3,3) and int(state["enemies"][0]["hp"]) == 999, "%s makes minimum progress through Rubble while paying shared Fire entry" % id)
+		expect.call(state["enemies"][0]["pos"] == Vector2i(3,3) and int(state["enemies"][0]["hp"]) == 998, "%s enters Rubble freely while paying shared Fire entry" % id)
 
 static func _test_electrical_opponent_sets(combat: Combat, expect: Callable) -> void:
 	var initial: Dictionary = _state(combat, "lightning_wisp")
@@ -220,6 +215,8 @@ static func _test_electrical_opponent_sets(combat: Combat, expect: Callable) -> 
 		Ground.place(initial, Vector2i(x,3), "electrified")
 	var network: Dictionary = combat._resolve_enemy_action(initial, 0, {"type":"ranged","range":5,"damage":10,"element":"lightning"})
 	expect.call(int(network["player"]["hp"]) == 990 and int(network["illusions"][0]["hp"]) == 90 and int(network["enemies"][1]["hp"]) == 1000, "Enemy conduction hits player and illusions once while excluding allied actors")
+	network = combat._resolve_enemy_action(network, 0, {"type":"ranged","range":5,"damage":10,"element":"lightning"})
+	expect.call(int(network["player"]["hp"]) == 980 and int(network["illusions"][0]["hp"]) == 80 and int(network["enemies"][1]["hp"]) == 1000 and Ground.tiles(network, "electrified").size() == 3, "Enemy Lightning reuses surviving ground while preserving the same opponent set")
 	initial = _state(combat, "lightning_wisp")
 	initial["enemies"][0]["pos"] = Vector2i(7,3)
 	initial["enemies"].append(Base.enemy(2, Vector2i(3,3)))

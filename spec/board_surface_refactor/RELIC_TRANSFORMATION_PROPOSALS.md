@@ -1,5 +1,13 @@
 # Nine relic transformations for the surface refactor
 
+> Historical design record from the initial surface refactor. The current rules
+> are in [DESIGN.md](DESIGN.md), version 5. In the feedback pass, Fire became
+> 2 damage on entry / 3 at turn start, Chilled +2 attack damage, Frozen triple
+> attack damage, and Rubble charges on departure. Ordinary Electrified survives
+> conduction and Chain; Stormcoal Fire is still consumed. Lightning specialist
+> Shock now requires an Electrified-assisted hit instead of separately paid fuel.
+> The proposals below retain their original rationale and are not current rules.
+
 Design proposals only. No game data, art or approved numerical balance changes. These replace nine existing relic roles; they are not nine additional relics. Stable IDs preserve ownership and save mappings. The owning `DESIGN.md` v4 supplies the common combat contract.
 
 The user's direction is to make a substantial part of the relic pool change how a build plays, especially across elemental strategies. A bridge should change a route, targeting rule, resource conversion or terrain decision. It need not end with bonus damage, draw, Block or another generic reward. These nine use different mechanisms; they are not a template to apply to every relic.

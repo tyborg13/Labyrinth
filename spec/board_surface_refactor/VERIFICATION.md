@@ -1,5 +1,9 @@
 # Implementation verification
 
+The rules-v5 inspection follow-up is tracked in [FEEDBACK_V5.md](FEEDBACK_V5.md) and [VERIFICATION_V5.md](VERIFICATION_V5.md). The receipts below describe the previously reviewed v4 implementation.
+
+## Historical v4 verification
+
 The integrated Godot suite passed on September 6, 2026, after the movement-presentation, relic and independent release-review fixes. Subsequent renderer-only refinements passed fresh focused and native checks. Reproduction commands and scope are in [IMPLEMENTATION.md](IMPLEMENTATION.md); the exact reviewed commit is recorded in the task handoff.
 
 All local evidence paths below are relative to `output/board-surface-refactor/` in the task worktree. Generated logs, images and isolated saves are intentionally excluded from the game commit.

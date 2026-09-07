@@ -95,7 +95,7 @@ func _build() -> void:
 	for i: int in range(5):
 		var angle: float = float(i) * 2.399963 + float(_seed % 7) * 0.21
 		var at: Vector2 = Vector2(cos(angle), sin(angle) * 0.44) * _width * 0.23
-		_clouds.append(_sprite(Fx._clouds[posmod(_seed + i, Fx._clouds.size())], at, Vector2(_width * 0.28, _width * 0.10), angle * 0.1))
+		_clouds.append(_sprite(Art.surface_cloud(_seed + i), at, Vector2(_width * 0.28, _width * 0.10), angle * 0.1))
 	if _meshes.is_empty():
 		for i: int in range(6): _meshes.append(_build_mesh(i))
 	for i: int in range(6):

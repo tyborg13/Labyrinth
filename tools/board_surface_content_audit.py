@@ -42,7 +42,7 @@ def walk_rules(value, path: str, errors: list[str]) -> None:
         if "surface" in value and value["surface"] not in SURFACES:
             errors.append(f"{path}: unknown surface {value['surface']}")
         for condition_key in ("surface_bonus", "requires_surface"):
-            if condition_key in value and value[condition_key].get("subject") not in {"player", "target", "consumed"}:
+            if condition_key in value and value[condition_key].get("subject") not in {"player", "target", "consumed", "conducted"}:
                 errors.append(f"{path}: missing/unknown conditional subject")
         for key, child in value.items():
             walk_rules(child, f"{path}.{key}", errors)
@@ -140,7 +140,7 @@ def main() -> int:
         card_id = proposal["id"]
         card = cards[card_id]
         rows.append({"id": card_id, "name": card["name"], "source": proposal["source"], "equipment_sources": proposal["equipment_sources"], "rarity": card["rarity"], "element": card.get("element", "none"), "disposition": proposal["disposition"], "reviewed_role": proposal["proposed_role"], "implemented_rules": card["description"], "time": card["time"], "score": scores[card_id]["score"], "breakdown": scores[card_id]["breakdown"], "exhaust": card.get("burn", False), "health_cost": card.get("health_cost", 0), "flurry": card.get("flurry", False), "retired": card.get("retired", False), "replacement_id": card.get("replacement_id")})
-    metadata = {"counts": counts, "source_counts": dict(collections.Counter(row["source"] for row in rows)), "rules_version": 4, "limitations": "Heuristic plus role review; scores do not prove encounter win rates. Combat, save, targeting and visual verification remain separate.", "errors": errors}
+    metadata = {"counts": counts, "source_counts": dict(collections.Counter(row["source"] for row in rows)), "rules_version": 5, "limitations": "Heuristic plus role review; scores do not prove encounter win rates. Combat, save, targeting and visual verification remain separate.", "errors": errors}
     metadata["support_card_counts"] = support_card_counts(cards)
     (args.output_dir / "relic-support-counts.json").write_text(json.dumps(metadata["support_card_counts"], indent=2) + "\n")
     (args.output_dir / "card-roster-review.json").write_text(json.dumps({"metadata": metadata, "cards": rows}, indent=2) + "\n")

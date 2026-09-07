@@ -6,14 +6,14 @@
     "health_cost": 0,
     "time": 2,
     "starter": true,
-    "description": "Strike an adjacent enemy for 11.",
+    "description": "Strike an adjacent enemy for 9.",
     "accent": "#b74d3d",
     "art_path": "res://assets/art/cards/quick_stab.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 11,
+        "damage": 9,
         "range": 1,
         "element": "none"
       }
@@ -73,14 +73,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "description": "Deal 6 at range 4.",
+    "description": "Deal 5 at range 4.",
     "accent": "#8e6843",
     "art_path": "res://assets/art/cards/bone_dart.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 6,
+        "damage": 5,
         "range": 4,
         "element": "none"
       }
@@ -95,14 +95,14 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Deal 4 at range 5.",
+    "description": "Deal 3 at range 5.",
     "accent": "#b8ad9a",
     "art_path": "res://assets/art/cards/pale_spark.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 5,
         "element": "none"
       }
@@ -115,14 +115,14 @@
     "health_cost": 0,
     "time": 4,
     "starter": true,
-    "description": "Deal 5 at range 5.",
+    "description": "Deal 4 at range 5.",
     "accent": "#a99f8d",
     "art_path": "res://assets/art/cards/dull_bolt.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "element": "none"
       }
@@ -135,14 +135,14 @@
     "health_cost": 0,
     "time": 4,
     "starter": true,
-    "description": "Pulse for 5 on adjacent tiles.",
+    "description": "Pulse for 4 on adjacent tiles.",
     "accent": "#9c9385",
     "art_path": "res://assets/art/cards/waning_pulse.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 4,
         "range": 0,
         "pattern": [
           [
@@ -174,7 +174,7 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Move 3, then strike for 6.",
+    "description": "Move 3, then strike for 5.",
     "accent": "#b9844c",
     "art_path": "res://assets/art/cards/sidestep_slash.png",
     "reward_pool": false,
@@ -185,7 +185,7 @@
       },
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "required": true,
         "element": "none"
@@ -199,14 +199,14 @@
     "health_cost": 0,
     "time": 5,
     "starter": true,
-    "description": "Strike all adjacent tiles for 10.",
+    "description": "Strike all adjacent tiles for 8.",
     "accent": "#b8694a",
     "art_path": "res://assets/art/cards/whirlwind_slash.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 10,
+        "damage": 8,
         "range": 0,
         "pattern": [
           [
@@ -260,7 +260,7 @@
     "health_cost": 1,
     "time": 8,
     "starter": true,
-    "description": "Lose 1 health. Move 3, then strike for 15.",
+    "description": "Lose 1 health. Move 3, then strike for 12.",
     "accent": "#8e2f2f",
     "art_path": "res://assets/art/cards/bloody_lunge.png",
     "reward_pool": false,
@@ -271,7 +271,7 @@
       },
       {
         "type": "melee",
-        "damage": 15,
+        "damage": 12,
         "range": 1,
         "required": true,
         "element": "none"
@@ -303,14 +303,14 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Strike for 6, then draw 1.",
+    "description": "Strike for 5, then draw 1.",
     "accent": "#bb5e34",
     "art_path": "res://assets/art/cards/ember_jab.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "element": "none"
       },
@@ -327,7 +327,7 @@
     "health_cost": 0,
     "time": 3,
     "starter": true,
-    "description": "Deal 5 at range 6, then create radius-2 Light at the impact for 2 turns. Draw 1.",
+    "description": "Deal 4 at range 6, then create radius-2 Light at the impact for 2 turns. Draw 1.",
     "accent": "#d49b42",
     "art_path": "res://assets/art/cards/lantern_shot.png",
     "reward_pool": false,
@@ -335,7 +335,7 @@
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 6,
         "illuminate_radius": 2,
         "illuminate_duration": 2,
@@ -354,14 +354,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 4 at range 5, then leave Fire and radius-2 Light for 2 turns.",
+    "description": "Deal 3 at range 5, then leave Fire and radius-2 Light for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/guiding_flare.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 5,
         "surface": "fire",
         "illuminate_radius": 2,
@@ -426,14 +426,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 4 Lightning damage with Chain 2 at range 6, then leave Electrified and radius-2 Light for 2 turns at the impact.",
+    "description": "Deal 3 Lightning damage with Chain 2 at range 6, then leave Electrified and radius-2 Light for 2 turns at the impact.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_beacon.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 6,
         "chain": 2,
         "surface": "electrified",
@@ -498,7 +498,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 4, then strike for 10.",
+    "description": "Move 4, then strike for 8.",
     "accent": "#8c6b4e",
     "art_path": "res://assets/art/cards/iron_wheel.png",
     "actions": [
@@ -508,7 +508,7 @@
       },
       {
         "type": "melee",
-        "damage": 10,
+        "damage": 8,
         "range": 1,
         "required": true,
         "element": "none"
@@ -521,13 +521,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 8 at range 4, then draw 1.",
+    "description": "Deal 6 at range 4, then draw 1.",
     "accent": "#9b7e58",
     "art_path": "res://assets/art/cards/ricochet_knife.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 8,
+        "damage": 6,
         "range": 4,
         "element": "none"
       },
@@ -543,14 +543,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike all adjacent tiles for 8.",
+    "description": "Strike all adjacent tiles for 6.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/needle_flurry.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 8,
+        "damage": 6,
         "range": 0,
         "pattern": [
           [
@@ -669,13 +669,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 9 in a cross pattern at range 3.",
+    "description": "Deal 7 in a cross pattern at range 3.",
     "accent": "#cb6a39",
     "art_path": "res://assets/art/cards/cinderburst.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 9,
+        "damage": 7,
         "range": 3,
         "pattern": [
           [
@@ -730,14 +730,14 @@
     "burn": false,
     "health_cost": 1,
     "time": 6,
-    "description": "Spend 1 health. Strike an adjacent enemy for 20.",
+    "description": "Spend 1 health. Strike an adjacent enemy for 16.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blood_price.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 20,
+        "damage": 16,
         "range": 1,
         "element": "none"
       }
@@ -775,14 +775,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Pierce an adjacent enemy for 9.",
+    "description": "Pierce an adjacent enemy for 7.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/bodkin_arrow.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 9,
+        "damage": 7,
         "range": 1,
         "pierce": true,
         "element": "none"
@@ -796,7 +796,7 @@
     "health_cost": 0,
     "time": 4,
     "starter": true,
-    "description": "Move 2, then sweep an adjacent enemy for 4 and immobilize.",
+    "description": "Move 2, then sweep an adjacent enemy for 3 and immobilize.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/hamstring_shot.png",
     "reward_pool": false,
@@ -807,7 +807,7 @@
       },
       {
         "type": "melee",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "immobilize": true,
         "required": true,
@@ -821,7 +821,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, then strike an adjacent enemy for 6 and immobilize.",
+    "description": "Move 2, then strike an adjacent enemy for 5 and immobilize.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/hamstring_slice.png",
     "reward_pool": false,
@@ -832,7 +832,7 @@
       },
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "immobilize": true,
         "required": true,
@@ -846,14 +846,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 4 in a cross pattern at range 6, then create radius-2 Light at the impact for 2 turns.",
+    "description": "Deal 3 in a cross pattern at range 6, then create radius-2 Light at the impact for 2 turns.",
     "accent": "#db7a3e",
     "art_path": "res://assets/art/cards/ember_rain.png",
     "radiance": true,
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 3,
         "range": 6,
         "pattern": [
           [
@@ -911,13 +911,13 @@
     "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Exhaust. Deal 10 in a cross pattern at range 4.",
+    "description": "Exhaust. Deal 8 in a cross pattern at range 4.",
     "accent": "#9d5a39",
     "art_path": "res://assets/art/cards/cyclone_seal.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 10,
+        "damage": 8,
         "range": 4,
         "pattern": [
           [
@@ -1019,14 +1019,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Deal 5 at range 5, then leave Fire and radius-1 Light for 2 turns.",
+    "description": "Deal 4 at range 5, then leave Fire and radius-1 Light for 2 turns.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/firebrand_volley.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "surface": "fire",
         "element": "fire",
@@ -1042,13 +1042,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 3 in a cross at range 4, then leave Fire in the pattern.",
+    "description": "Deal 2 in a cross at range 4, then leave Fire in the pattern.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_bloom.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "pattern": [
           [
@@ -1085,7 +1085,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 2, then strike for 8 and leave Fire beneath the target.",
+    "description": "Move 2, then strike for 6 and leave Fire beneath the target.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/hearth_rush.png",
     "actions": [
@@ -1095,7 +1095,7 @@
       },
       {
         "type": "melee",
-        "damage": 8,
+        "damage": 6,
         "range": 1,
         "required": true,
         "surface": "fire",
@@ -1110,13 +1110,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 3 at range 4, then Detonate 6 at the impact.",
+    "description": "Deal 2 at range 4, then Detonate 6 at the impact.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinderline_tempo.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "element": "fire"
       },
@@ -1143,13 +1143,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 4 in a cross at range 4, then Detonate 9 in that pattern.",
+    "description": "Deal 3 in a cross at range 4, then Detonate 9 in that pattern.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/inferno_ritual.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 3,
         "range": 4,
         "pattern": [
           [
@@ -1215,13 +1215,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 5 along a three-tile line at range 5, then leave Fire along it.",
+    "description": "Deal 4 along a three-tile line at range 5, then leave Fire along it.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/molten_reach.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "pattern": [
           [
@@ -1250,13 +1250,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 5 in a large pattern at range 5, then Detonate 10 in that pattern.",
+    "description": "Deal 4 in a large pattern at range 5, then Detonate 10 in that pattern.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/wildfire_halo.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "pattern": [
           [
@@ -1386,13 +1386,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 5 Ice damage at range 6, then leave Ice.",
+    "description": "Deal 4 Ice damage at range 6, then leave Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/frostbolt.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 6,
         "surface": "ice",
         "element": "ice"
@@ -1406,14 +1406,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 6 Ice damage at range 6 and immobilize. Gain truesight for 2 turns.",
+    "description": "Deal 5 Ice damage at range 6 and immobilize. Gain truesight for 2 turns.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/icebound_chains.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 6,
+        "damage": 5,
         "range": 6,
         "immobilize": true,
         "element": "ice"
@@ -1431,13 +1431,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Deal 3 Ice damage along a two-tile line at range 5, then leave Ice.",
+    "description": "Deal 2 Ice damage along a two-tile line at range 5, then leave Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rime_shard.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 2,
         "range": 5,
         "pattern": [
           [
@@ -1462,13 +1462,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike up to range 2 for 9 Ice damage.",
+    "description": "Strike up to range 2 for 7 Ice damage.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/cold_grasp.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 9,
+        "damage": 7,
         "range": 2,
         "element": "ice"
       }
@@ -1481,13 +1481,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Pierce for 7 Ice damage at range 5.",
+    "description": "Pierce for 6 Ice damage at range 5.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/icicle_lance.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 7,
+        "damage": 6,
         "range": 5,
         "pierce": true,
         "element": "ice"
@@ -1501,13 +1501,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 8 Ice damage at range 7, then draw 1.",
+    "description": "Deal 6 Ice damage at range 7, then draw 1.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hush_of_winter.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 8,
+        "damage": 6,
         "range": 7,
         "element": "ice"
       },
@@ -1524,13 +1524,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Pierce a three-tile line for 6 Ice damage at range 5.",
+    "description": "Pierce a three-tile line for 5 Ice damage at range 5.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/shatterline.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 6,
+        "damage": 5,
         "range": 5,
         "pattern": [
           [
@@ -1559,13 +1559,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 4 Ice damage along a two-tile line at range 6 and immobilize. Leave Ice in the line.",
+    "description": "Deal 3 Ice damage along a two-tile line at range 6 and immobilize. Leave Ice in the line.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/glacier_pin.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 3,
         "range": 6,
         "pattern": [
           [
@@ -1591,13 +1591,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Deal 12 Ice damage at range 7. Frozen targets take the normal doubled direct damage.",
+    "description": "Deal 10 Ice damage at range 7.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/white_silence.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 12,
+        "damage": 10,
         "range": 7,
         "element": "ice"
       }
@@ -1610,14 +1610,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 5 Lightning damage at range 6, then leave Electrified and radius-1 Light for 2 turns.",
+    "description": "Deal 4 Lightning damage at range 6, then leave Electrified and radius-1 Light for 2 turns.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spark_dart.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 6,
         "surface": "electrified",
         "illuminate_radius": 1,
@@ -1633,13 +1633,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 5 Lightning damage with Chain 2 at range 5.",
+    "description": "Deal 4 Lightning damage with Chain 2 at range 5.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/chain_bolt.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "chain": 2,
         "element": "lightning"
@@ -1696,17 +1696,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 5 Lightning damage at range 6. Electrified-assisted hits also Shock.",
+    "description": "Deal 4 Lightning damage at range 6. Electrified-assisted hits also Shock.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/static_lash.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
+        "damage": 4,
         "range": 6,
         "surface_bonus": {
           "surface": "electrified",
-          "subject": "consumed",
+          "subject": "conducted",
           "shock": 1
         },
         "element": "lightning"
@@ -1720,18 +1720,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 6 Lightning damage with Chain 2 at range 6. Electrified-assisted hits also Shock.",
+    "description": "Deal 5 Lightning damage with Chain 2 at range 6. Electrified-assisted hits also Shock.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_relay.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 6,
+        "damage": 5,
         "range": 6,
         "chain": 2,
         "surface_bonus": {
           "surface": "electrified",
-          "subject": "consumed",
+          "subject": "conducted",
           "shock": 1
         },
         "element": "lightning"
@@ -1745,13 +1745,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 4 Lightning damage along a three-tile line at range 5, then leave Electrified.",
+    "description": "Deal 3 Lightning damage along a three-tile line at range 5, then leave Electrified.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/volt_surge.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
+        "damage": 3,
         "range": 5,
         "pattern": [
           [
@@ -1780,13 +1780,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Deal 7 Lightning damage along a three-tile line at range 6 with Chain 1. Electrified-assisted hits also Shock.",
+    "description": "Deal 6 Lightning damage along a three-tile line at range 6 with Chain 1. Electrified-assisted hits also Shock.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/thunderline.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 7,
+        "damage": 6,
         "range": 6,
         "pattern": [
           [
@@ -1806,7 +1806,7 @@
         "chain": 1,
         "surface_bonus": {
           "surface": "electrified",
-          "subject": "consumed",
+          "subject": "conducted",
           "shock": 1
         },
         "element": "lightning"
@@ -1820,13 +1820,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Pull 2 at range 4 for 4 damage, then Move 1.",
+    "description": "Pull 2 at range 4 for 3 damage, then Move 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
       {
         "type": "pull",
-        "damage": 4,
+        "damage": 3,
         "range": 4,
         "amount": 2,
         "element": "air"
@@ -1844,7 +1844,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 3, then strike for 6 and Push 1.",
+    "description": "Move 3, then strike for 5 and Push 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/slipstream_cut.png",
     "actions": [
@@ -1854,7 +1854,7 @@
       },
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "push": 1,
         "required": true,
@@ -1869,13 +1869,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Push 2 at range 4 for 5 damage.",
+    "description": "Push 2 at range 4 for 4 damage.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/updraft.png",
     "actions": [
       {
         "type": "push",
-        "damage": 5,
+        "damage": 4,
         "range": 4,
         "amount": 2,
         "element": "air"
@@ -1889,13 +1889,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Pull 5 at range 5 for 7 damage, then draw 1.",
+    "description": "Pull 5 at range 5 for 6 damage, then draw 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/vacuum_line.png",
     "actions": [
       {
         "type": "pull",
-        "damage": 7,
+        "damage": 6,
         "range": 5,
         "amount": 5,
         "element": "air"
@@ -1913,13 +1913,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 5 in a rotatable pattern at range 5 and Push 1.",
+    "description": "Deal 4 in a rotatable pattern at range 5 and Push 1.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "pattern": [
           [
@@ -1948,13 +1948,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Deal 8 at range 6 and Push 4.",
+    "description": "Deal 6 at range 6 and Push 4.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/skybreak_current.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 8,
+        "damage": 6,
         "range": 6,
         "push": 4,
         "element": "air"
@@ -1968,13 +1968,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike for 10, then leave Rubble beneath the target.",
+    "description": "Strike for 8, then leave Rubble beneath the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/venom_claw.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 10,
+        "damage": 8,
         "range": 1,
         "surface": "rubble",
         "element": "earth"
@@ -2009,7 +2009,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 2, then strike for 7 and leave Rubble beneath the target.",
+    "description": "Move 2, then strike for 6 and leave Rubble beneath the target.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/quarry_step.png",
     "actions": [
@@ -2019,7 +2019,7 @@
       },
       {
         "type": "melee",
-        "damage": 7,
+        "damage": 6,
         "range": 1,
         "surface": "rubble",
         "required": true,
@@ -2034,13 +2034,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Pierce an adjacent enemy for 8. Deal 3 more if it stands on Rubble.",
+    "description": "Pierce an adjacent enemy for 6. Deal 3 more if it stands on Rubble.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/thorn_skewer.png",
     "actions": [
       {
         "type": "melee",
-        "damage": 8,
+        "damage": 6,
         "range": 1,
         "pierce": true,
         "surface_bonus": {
@@ -2059,17 +2059,16 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 5,
-    "description": "Deal 3 at range 5 and immobilize, then leave Rubble and radius-1 Light for 2 turns.",
+    "time": 4,
+    "description": "Deal 2 at range 5, then leave Rubble and radius-1 Light for 2 turns.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/root_snare.png",
     "radiance": true,
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 5,
-        "immobilize": true,
         "surface": "rubble",
         "illuminate_radius": 1,
         "illuminate_duration": 2,
@@ -2111,13 +2110,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Strike adjacent tiles for 11, then leave Rubble there.",
+    "description": "Strike adjacent tiles for 9, then leave Rubble there.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/grave_mortar.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 11,
+        "damage": 9,
         "range": 0,
         "pattern": [
           [
@@ -2150,13 +2149,13 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Pierce adjacent tiles for 10, or 14 against targets on Rubble. Consume adjacent Rubble to gain 4 Stoneskin.",
+    "description": "Pierce adjacent tiles for 8, or 12 against targets on Rubble. Consume adjacent Rubble to gain 4 Stoneskin.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/spike_mantle.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 10,
+        "damage": 8,
         "range": 0,
         "pattern": [
           [
@@ -2225,7 +2224,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Move 1, then strike for 14, or 18 against a target on Rubble. Leave a cross of Rubble at the impact.",
+    "description": "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/tectonic_maul.png",
     "actions": [
@@ -2235,7 +2234,7 @@
       },
       {
         "type": "melee",
-        "damage": 14,
+        "damage": 11,
         "range": 1,
         "required": true,
         "surface": "rubble",
@@ -2277,14 +2276,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Hack an adjacent enemy for 8 and shove 1.",
+    "description": "Hack an adjacent enemy for 6 and shove 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/cleaver_hook.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "push",
-        "damage": 8,
+        "damage": 6,
         "range": 1,
         "amount": 1,
         "element": "none"
@@ -2297,7 +2296,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 2, strike an adjacent enemy for 6, then gain 4 block.",
+    "description": "Move 2, strike an adjacent enemy for 5, then gain 4 block.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/riposte_lunge.png",
     "reward_pool": false,
@@ -2308,7 +2307,7 @@
       },
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "required": true,
         "element": "none"
@@ -2325,14 +2324,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Strike adjacent tiles for 8 and Expose 2.",
+    "description": "Strike adjacent tiles for 6 and Expose 2.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/grave_cleave.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 8,
+        "damage": 6,
         "range": 0,
         "pattern": [
           [
@@ -2364,7 +2363,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Gain 6 block, then bash an adjacent enemy for 4 and push 1.",
+    "description": "Gain 6 block, then bash an adjacent enemy for 3 and push 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/kite_bash.png",
     "reward_pool": false,
@@ -2375,7 +2374,7 @@
       },
       {
         "type": "push",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "amount": 1,
         "element": "none"
@@ -2388,14 +2387,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Hook a target at range 4 for 3, pull 2, then gain 5 block.",
+    "description": "Hook a target at range 4 for 2, pull 2, then gain 5 block.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/chain_catch.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "pull",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "amount": 2,
         "element": "none"
@@ -2519,7 +2518,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 4, then kick an adjacent enemy for 5 and push 1.",
+    "description": "Move 4, then kick an adjacent enemy for 4 and push 1.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/spur_vault.png",
     "reward_pool": false,
@@ -2530,7 +2529,7 @@
       },
       {
         "type": "push",
-        "damage": 5,
+        "damage": 4,
         "range": 1,
         "amount": 1,
         "required": true,
@@ -2565,14 +2564,14 @@
     "burn": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Exhaust. Deal 4 at range 4, leave Fire, then heal 1.",
+    "description": "Exhaust. Deal 3 at range 4, leave Fire, then heal 1.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/ember_tithe.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 4,
         "surface": "fire",
         "element": "fire"
@@ -2590,14 +2589,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 6 at range 6, then draw 1.",
+    "description": "Deal 5 at range 6, then draw 1.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/clockwork_mark.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 6,
+        "damage": 5,
         "range": 6,
         "element": "none"
       },
@@ -2613,14 +2612,14 @@
     "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Exhaust. Deal 9 in a cross pattern at range 4 and push 1.",
+    "description": "Exhaust. Deal 7 in a cross pattern at range 4 and push 1.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/unsealed_gale.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 9,
+        "damage": 7,
         "range": 4,
         "amount": 1,
         "pattern": [
@@ -2657,14 +2656,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Strike an adjacent enemy for 15.",
+    "description": "Strike an adjacent enemy for 12.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/butcher_chop.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 15,
+        "damage": 12,
         "range": 1,
         "element": "none"
       }
@@ -2676,14 +2675,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Strike all adjacent tiles for 12.",
+    "description": "Strike all adjacent tiles for 10.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/tombsplitter.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 12,
+        "damage": 10,
         "range": 0,
         "pattern": [
           [
@@ -2714,14 +2713,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Snare a target at range 3 for 4 and immobilize, then gain 4 block.",
+    "description": "Snare a target at range 3 for 3 and immobilize, then gain 4 block.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/chain_lock.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 3,
         "immobilize": true,
         "element": "none"
@@ -2782,14 +2781,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Fast adjacent cut for 6 and bleed 1.",
+    "description": "Fast adjacent cut for 5 and bleed 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/sawtooth_flurry.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "bleed": 1,
         "element": "none"
@@ -2802,7 +2801,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Move 2, then nick for 4 and expose 3.",
+    "description": "Move 2, then nick for 3 and expose 3.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/serrated_slip.png",
     "reward_pool": false,
@@ -2813,7 +2812,7 @@
       },
       {
         "type": "melee",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "expose": 3,
         "required": true,
@@ -2827,14 +2826,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Strike for 5, bleed 1, then draw 1.",
+    "description": "Strike for 4, bleed 1, then draw 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/backhand_nick.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 5,
+        "damage": 4,
         "range": 1,
         "bleed": 1,
         "element": "none"
@@ -2852,14 +2851,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Deal 4 Lightning damage with Chain 1 at range 7, then leave Electrified at the impact.",
+    "description": "Deal 3 Lightning damage with Chain 1 at range 7, then leave Electrified at the impact.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/stormstring_shot.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 7,
         "chain": 1,
         "surface": "electrified",
@@ -2874,14 +2873,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Deal 4 Lightning damage with Chain 2 at range 6 and Expose 2.",
+    "description": "Deal 3 Lightning damage with Chain 2 at range 6 and Expose 2.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/forked_nock.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 6,
         "chain": 2,
         "expose": 2,
@@ -2918,14 +2917,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Hook for 8 at range 2, pull 1, and bleed 1.",
+    "description": "Hook for 6 at range 2, pull 1, and bleed 1.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/hookspine_reap.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "pull",
-        "damage": 8,
+        "damage": 6,
         "range": 2,
         "amount": 1,
         "bleed": 1,
@@ -2939,14 +2938,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Sweep adjacent tiles for 6, push 1, and sunder 3.",
+    "description": "Sweep adjacent tiles for 5, push 1, and sunder 3.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/sweeping_haft.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 6,
+        "damage": 5,
         "range": 0,
         "pattern": [
           [
@@ -2979,14 +2978,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Reach 2 for 5, immobilize, and expose 4.",
+    "description": "Reach 2 for 4, immobilize, and expose 4.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/hook_and_hold.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 5,
+        "damage": 4,
         "range": 2,
         "immobilize": true,
         "expose": 4,
@@ -3001,14 +3000,14 @@
     "burn": true,
     "health_cost": 1,
     "time": 5,
-    "description": "Exhaust. Lose 1 health. Strike adjacent tiles for 12, then Detonate 10 on those tiles.",
+    "description": "Exhaust. Lose 1 health. Strike adjacent tiles for 10, then Detonate 10 on those tiles.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/phoenix_cleave.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 12,
+        "damage": 10,
         "range": 0,
         "pattern": [
           [
@@ -3088,14 +3087,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike for 10, then Detonate 8 at the impact.",
+    "description": "Strike for 8, then Detonate 8 at the impact.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/rekindle_edge.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 10,
+        "damage": 8,
         "range": 1,
         "element": "fire"
       },
@@ -3121,7 +3120,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 block, then pierce an adjacent enemy for 4 and sunder 2.",
+    "description": "Gain 5 block, then pierce an adjacent enemy for 3 and sunder 2.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/nail_parry.png",
     "reward_pool": false,
@@ -3132,7 +3131,7 @@
       },
       {
         "type": "melee",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "pierce": true,
         "sunder": 2,
@@ -3146,7 +3145,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Gain 4 block, then bash for 4, push 1, and bleed 1.",
+    "description": "Gain 4 block, then bash for 3, push 1, and bleed 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/spike_check.png",
     "reward_pool": false,
@@ -3157,7 +3156,7 @@
       },
       {
         "type": "push",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "amount": 1,
         "bleed": 1,
@@ -3172,14 +3171,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Pull 2 at range 5 for 4 Lightning damage, leave Electrified at the destination, then gain 5 Block.",
+    "description": "Pull 2 at range 5 for 3 Lightning damage, leave Electrified at the destination, then gain 5 Block.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/lodestone_reversal.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "pull",
-        "damage": 4,
+        "damage": 3,
         "range": 5,
         "amount": 2,
         "surface": "electrified",
@@ -3271,7 +3270,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 7,
-    "description": "Gain 3 stoneskin, then pull 3 at range 4 for 6, sunder 4, and immobilize.",
+    "description": "Gain 3 stoneskin, then pull 3 at range 4 for 5, sunder 4, and immobilize.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/anchor_slam.png",
     "reward_pool": false,
@@ -3282,7 +3281,7 @@
       },
       {
         "type": "pull",
-        "damage": 6,
+        "damage": 5,
         "range": 4,
         "amount": 3,
         "sunder": 4,
@@ -3298,7 +3297,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Gain 9 block, then pull 2 at range 3 for 3 and expose 4.",
+    "description": "Gain 9 block, then pull 2 at range 3 for 2 and expose 4.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/undertow_guard.png",
     "reward_pool": false,
@@ -3309,7 +3308,7 @@
       },
       {
         "type": "pull",
-        "damage": 3,
+        "damage": 2,
         "range": 3,
         "amount": 2,
         "expose": 4,
@@ -3366,7 +3365,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Gain 5 Block, then strike adjacent tiles for 3 and leave Fire there.",
+    "description": "Gain 5 Block, then strike adjacent tiles for 2 and leave Fire there.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinderweave_guard.png",
     "reward_pool": false,
@@ -3377,7 +3376,7 @@
       },
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 2,
         "range": 0,
         "pattern": [
           [
@@ -3434,7 +3433,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Gain 3 Stoneskin and 3 Block, then deal 3 Ice damage at range 4, immobilize, and leave Ice.",
+    "description": "Gain 3 Stoneskin and 3 Block, then deal 2 Ice damage at range 4, immobilize, and leave Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/rimeplate_lock.png",
     "reward_pool": false,
@@ -3449,7 +3448,7 @@
       },
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "immobilize": true,
         "surface": "ice",
@@ -3545,7 +3544,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Move 3, then kick an adjacent enemy for 4 and push 2.",
+    "description": "Move 3, then kick an adjacent enemy for 3 and push 2.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/hobnail_drive.png",
     "reward_pool": false,
@@ -3556,7 +3555,7 @@
       },
       {
         "type": "push",
-        "damage": 4,
+        "damage": 3,
         "range": 1,
         "amount": 2,
         "required": true,
@@ -3570,7 +3569,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, then trip for 5, immobilize, and expose 2.",
+    "description": "Move 2, then trip for 4, immobilize, and expose 2.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/heel_hook.png",
     "reward_pool": false,
@@ -3581,7 +3580,7 @@
       },
       {
         "type": "melee",
-        "damage": 5,
+        "damage": 4,
         "range": 1,
         "immobilize": true,
         "expose": 2,
@@ -3720,7 +3719,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, then strike for 6, Push 1 and Sunder 3. Leave Rubble at the target's destination.",
+    "description": "Move 2, then strike for 5, Push 1 and Sunder 3. Leave Rubble at the target's destination.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/rooted_kick.png",
     "reward_pool": false,
@@ -3731,7 +3730,7 @@
       },
       {
         "type": "push",
-        "damage": 6,
+        "damage": 5,
         "range": 1,
         "amount": 1,
         "sunder": 3,
@@ -3747,14 +3746,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Deal 3 at range 6, draw 1, and gain 1 card play.",
+    "description": "Deal 2 at range 6, draw 1, and gain 1 card play.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/loaded_toss.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 6,
         "element": "none"
       },
@@ -3799,14 +3798,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 4 Ice damage at range 6, then leave Ice.",
+    "description": "Deal 3 Ice damage at range 6, then leave Ice.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/locket_chill.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 4,
+        "damage": 3,
         "range": 6,
         "surface": "ice",
         "element": "ice"
@@ -3919,7 +3918,7 @@
     "burn": false,
     "health_cost": 1,
     "time": 7,
-    "description": "Lose 1 health. Gain 5 Stoneskin, then Pierce for 8 at range 5, Bleed 1 and Sunder 2.",
+    "description": "Lose 1 health. Gain 5 Stoneskin, then Pierce for 6 at range 5, Bleed 1 and Sunder 2.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/thorn_crown_pact.png",
     "reward_pool": false,
@@ -3930,7 +3929,7 @@
       },
       {
         "type": "ranged",
-        "damage": 8,
+        "damage": 6,
         "range": 5,
         "pierce": true,
         "bleed": 1,
@@ -3945,14 +3944,14 @@
     "burn": false,
     "health_cost": 1,
     "time": 6,
-    "description": "Lose 1 health. Pull 2 at range 5 for 5, bleed 1, expose 4, and sunder 4.",
+    "description": "Lose 1 health. Pull 2 at range 5 for 4, bleed 1, expose 4, and sunder 4.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/royal_bramble.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "pull",
-        "damage": 5,
+        "damage": 4,
         "range": 5,
         "amount": 2,
         "bleed": 1,
@@ -4014,14 +4013,14 @@
     "item": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Consume. Bomb a tile within 4 for 3 and sunder 1.",
+    "description": "Consume. Bomb a tile within 4 for 2 and sunder 1.",
     "accent": "#a16d4a",
     "art_path": "res://assets/art/cards/nail_bomb.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "pattern": [
           [
@@ -4133,19 +4132,19 @@
     "item": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Consume. Deal 3 Lightning damage with Chain 1 at range 4. Electrified-assisted hits also Shock.",
+    "description": "Consume. Deal 2 Lightning damage with Chain 1 at range 4. Electrified-assisted hits also Shock.",
     "accent": "#d2b65f",
     "art_path": "res://assets/art/cards/storm_jar.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 4,
         "chain": 1,
         "surface_bonus": {
           "surface": "electrified",
-          "subject": "consumed",
+          "subject": "conducted",
           "shock": 1
         },
         "element": "lightning"
@@ -4185,14 +4184,14 @@
     "item": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Consume. Clamp a target at range 3 for 3 and immobilize.",
+    "description": "Consume. Clamp a target at range 3 for 2 and immobilize.",
     "accent": "#9b4f43",
     "art_path": "res://assets/art/cards/jaw_trap.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 3,
         "immobilize": true,
         "element": "none"
@@ -4232,14 +4231,14 @@
     "item": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Consume. Pierce a small blast for 3 at range 3, then leave Rubble.",
+    "description": "Consume. Pierce a small blast for 2 at range 3, then leave Rubble.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/grave_dust_satchel.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 3,
+        "damage": 2,
         "range": 3,
         "pattern": [
           [
@@ -4331,7 +4330,7 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Gain 2 block, then strike for 5, for each card play spent.",
+    "description": "Flurry. Gain 2 block, then strike for 4, for each card play spent.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blade_dance.png",
     "reward_pool": false,
@@ -4342,7 +4341,7 @@
       },
       {
         "type": "melee",
-        "damage": 5,
+        "damage": 4,
         "range": 1,
         "element": "none"
       }
@@ -4381,13 +4380,13 @@
     "flurry": true,
     "health_cost": 0,
     "time": 5,
-    "description": "Flurry. Deal 3 at range 6 and leave Fire for each play spent.",
+    "description": "Flurry. Deal 2 at range 6 and leave Fire for each play spent.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_fusillade.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 6,
         "surface": "fire",
         "element": "fire"
@@ -4402,13 +4401,13 @@
     "flurry": true,
     "health_cost": 0,
     "time": 6,
-    "description": "Flurry. Deal 3 at range 6 with chain 1, then draw 1, for each card play spent.",
+    "description": "Flurry. Deal 2 at range 6 with chain 1, then draw 1, for each card play spent.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/storm_salvo.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 6,
         "chain": 1,
         "element": "lightning"
@@ -4427,13 +4426,13 @@
     "flurry": true,
     "health_cost": 0,
     "time": 4,
-    "description": "Flurry. Deal 3 at range 5 and push 1 for each card play spent.",
+    "description": "Flurry. Deal 2 at range 5 and push 1 for each card play spent.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/razor_gale.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 3,
+        "damage": 2,
         "range": 5,
         "push": 1,
         "element": "air"

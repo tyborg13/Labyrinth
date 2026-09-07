@@ -1403,5 +1403,6 @@
     "worldroot_idol",
     "basalt_calendar",
     "thunder_relay"
-  ]
+  ],
+  "historical_design_notice": "Initial v4 design/proposal inventory. DESIGN.md v5 is authoritative; current definitions are in data/*.json. Original proposed values and descriptions below are preserved, not current runtime rules."
 }

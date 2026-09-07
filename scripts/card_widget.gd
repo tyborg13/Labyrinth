@@ -97,12 +97,13 @@ class AoePatternView:
 			_draw_tile(_iso_center(offset) + shift, fill, border)
 
 	func _desired_size() -> Vector2:
-		var draw_offsets: Array[Vector2i] = _draw_offsets()
-		if draw_offsets.is_empty():
-			return Vector2(34.0, 24.0) * tile_scale
-		var bounds: Rect2 = _bounds_for_offsets(draw_offsets)
-		var padding: float = _tile_padding()
-		return Vector2(maxf(34.0 * tile_scale, bounds.size.x + padding * 2.0), maxf(24.0 * tile_scale, bounds.size.y + padding * 2.0))
+		return measured_size(pattern_offsets, show_origin, tile_scale)
+
+	static func measured_size(raw_pattern: Variant, include_origin: bool, scale_factor: float) -> Vector2:
+		var offsets: Array[Vector2i] = _parse_offsets(raw_pattern)
+		if include_origin and not offsets.has(Vector2i.ZERO): offsets.append(Vector2i.ZERO)
+		var bounds: Rect2 = _bounds_at_scale(offsets, scale_factor)
+		return Vector2(maxf(34.0 * scale_factor, bounds.size.x + TILE_PADDING * scale_factor * 2.0), maxf(24.0 * scale_factor, bounds.size.y + TILE_PADDING * scale_factor * 2.0))
 
 	func _draw_offsets() -> Array[Vector2i]:
 		var lookup: Dictionary = {}
@@ -122,11 +123,15 @@ class AoePatternView:
 		return offsets
 
 	func _bounds_for_offsets(offsets: Array[Vector2i]) -> Rect2:
+		return _bounds_at_scale(offsets, tile_scale)
+
+	static func _bounds_at_scale(offsets: Array[Vector2i], scale_factor: float) -> Rect2:
 		var first: bool = true
 		var rect := Rect2()
+		var tile_size := Vector2(TILE_WIDTH, TILE_HEIGHT) * scale_factor
 		for offset: Vector2i in offsets:
-			var center: Vector2 = _iso_center(offset)
-			var tile_rect := Rect2(center - Vector2(_tile_width() * 0.5, _tile_height() * 0.5), Vector2(_tile_width(), _tile_height()))
+			var center := Vector2(float(offset.x - offset.y) * tile_size.x * 0.5, float(offset.x + offset.y) * tile_size.y * 0.5)
+			var tile_rect := Rect2(center - tile_size * 0.5, tile_size)
 			if first:
 				rect = tile_rect
 				first = false
@@ -159,7 +164,7 @@ class AoePatternView:
 	func _tile_padding() -> float:
 		return TILE_PADDING * tile_scale
 
-	func _parse_offsets(raw_pattern: Variant) -> Array[Vector2i]:
+	static func _parse_offsets(raw_pattern: Variant) -> Array[Vector2i]:
 		var parsed: Array[Vector2i] = []
 		if typeof(raw_pattern) != TYPE_ARRAY:
 			parsed.append(Vector2i.ZERO)
@@ -1046,7 +1051,6 @@ func _render_summary_icon_rows(rows: Array) -> void:
 	for row_var: Variant in rows:
 		if typeof(row_var) != TYPE_ARRAY:
 			continue
-		var raw_row: Array = row_var as Array
 		var segments: Array = []
 		for segment: Array in _summary_token_segments(row_var as Array):
 			if not segment.is_empty():
@@ -1054,8 +1058,7 @@ func _render_summary_icon_rows(rows: Array) -> void:
 				rendered_rows.append(segment)
 		if not segments.is_empty():
 			row_groups.append({
-				"segments": segments,
-				"condition": _row_condition_data(raw_row)
+				"segments": segments
 			})
 	if rendered_rows.is_empty():
 		return
@@ -1067,46 +1070,8 @@ func _render_summary_icon_rows(rows: Array) -> void:
 		if typeof(group_var) != TYPE_DICTIONARY:
 			continue
 		var group: Dictionary = group_var
-		var condition: Dictionary = group.get("condition", {})
-		var condition_element: String = str(condition.get("element", ""))
-		var condition_active: bool = bool(condition.get("active", false))
 		var segments: Array = group.get("segments", [])
-		if condition_element.is_empty():
-			_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
-			continue
-		var block := PanelContainer.new()
-		block.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		block.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		block.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		block.add_theme_stylebox_override("panel", _conditional_summary_style(condition_element, condition_active))
-		_summary_icon_box.add_child(block)
-		var margin := MarginContainer.new()
-		margin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		margin.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		margin.add_theme_constant_override("margin_left", 1)
-		margin.add_theme_constant_override("margin_top", 1)
-		margin.add_theme_constant_override("margin_right", 1)
-		margin.add_theme_constant_override("margin_bottom", 1)
-		block.add_child(margin)
-		var inner := VBoxContainer.new()
-		inner.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		inner.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		inner.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		inner.alignment = BoxContainer.ALIGNMENT_CENTER
-		inner.add_theme_constant_override("separation", maxi(0, row_gap - 4))
-		margin.add_child(inner)
-		for segment_index: int in range(segments.size()):
-			var segment_var: Variant = segments[segment_index]
-			if typeof(segment_var) == TYPE_ARRAY:
-				var segment: Array = segment_var as Array
-				var conditional_icon_size: float = icon_size
-				var conditional_label_size: int = label_size
-				var conditional_row_gap: int = maxi(0, row_gap - 2)
-				if _segment_should_compact_conditional(segment):
-					conditional_icon_size = maxf(15.0, icon_size - 3.0)
-					conditional_label_size = maxi(10, label_size - 2)
-					conditional_row_gap = maxi(0, row_gap - 3)
-				_add_summary_segment(inner, segment, conditional_icon_size, conditional_label_size, conditional_row_gap, true, segment_index > 0)
+		_add_summary_action_group(_summary_icon_box, segments, icon_size, label_size, row_gap)
 
 func _add_summary_action_group(parent: Node, segments: Array, icon_size: float, label_size: int, row_gap: int) -> void:
 	if segments.is_empty():
@@ -1155,59 +1120,29 @@ func _add_summary_segment(parent: Node, segment: Array, icon_size: float, label_
 	if row.get_child_count() > 0:
 		parent.add_child(row)
 
-func _segment_should_compact_conditional(segment: Array) -> bool:
-	var valued_tokens: int = 0
-	for token_var: Variant in segment:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			continue
-		var token: Dictionary = token_var
-		if token.has("value") and str(token.get("kind", "")) != "aoe_pattern":
-			valued_tokens += 1
-	return valued_tokens >= 3
-
-func _row_condition_data(row: Array) -> Dictionary:
-	for token_var: Variant in row:
-		if typeof(token_var) != TYPE_DICTIONARY:
-			continue
-		var token: Dictionary = token_var
-		if token.has("surface_condition"):
-			return {
-				"element": str((token.get("surface_condition", {}) as Dictionary).get("surface", "")).replace("electrified", "lightning").replace("rubble", "earth"),
-				"active": bool(token.get("condition_active", false))
-			}
-	return {}
-
-func _conditional_summary_style(element_id: String, active: bool = false) -> StyleBoxFlat:
-	var accent: Color = ElementData.accent(element_id)
-	var style := StyleBoxFlat.new()
-	var fill: Color = Color(0.09, 0.065, 0.052).lerp(accent.darkened(0.38), 0.58)
-	style.bg_color = Color(fill.r, fill.g, fill.b, 0.92)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.98 if active else 0.78)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	if active:
-		style.bg_color = Color(fill.r, fill.g, fill.b, 0.97).lightened(0.08)
-		style.shadow_color = Color(accent.r, accent.g, accent.b, 0.36)
-		style.shadow_size = 4
-		style.shadow_offset = Vector2.ZERO
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_right = 4
-	style.corner_radius_bottom_left = 4
-	style.content_margin_left = 0
-	style.content_margin_top = 0
-	style.content_margin_right = 0
-	style.content_margin_bottom = 0
-	return style
-
 func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size: float, label_size: int, conditional: bool = false) -> void:
 	var tooltip: String = ActionIcons.token_tooltip(token)
 	if str(token.get("kind", "")) == "aoe_pattern":
 		var pattern_view := AoePatternView.new()
 		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
 		row.add_child(pattern_view)
+		return
+	if str(token.get("kind", "")) == "surface_condition":
+		var condition_group := HBoxContainer.new()
+		condition_group.name = "SurfaceCondition"
+		condition_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		condition_group.add_theme_constant_override("separation", 3)
+		condition_group.add_child(_summary_value_label(str(token.get("prefix", "if")), tooltip, label_size, token))
+		var surface_icon := TextureRect.new()
+		surface_icon.custom_minimum_size = Vector2(icon_size, icon_size)
+		surface_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		surface_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		surface_icon.texture = ActionIcons.icon_texture(str(token.get("icon", "surface")))
+		surface_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		surface_icon.tooltip_text = ActionIcons.tooltip(str(token.get("icon", "surface")))
+		condition_group.add_child(surface_icon)
+		condition_group.add_child(_summary_value_label(str(token.get("suffix", ":")), tooltip, label_size, token))
+		row.add_child(condition_group)
 		return
 	if str(token.get("kind", "")) == "text":
 		var text_label := _summary_value_label(ActionIcons.token_value_text(token), tooltip, label_size, token, conditional)
@@ -1290,7 +1225,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var compact: bool = width <= COMPACT_CARD_WIDTH
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
-	var available_width: float = maxf(_scaled_card_value(52.0, 28.0), width - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0))
+	var available_width: float = _summary_available_width()
 	var base_candidates: Array = [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
 	for candidate_var: Variant in base_candidates:
@@ -1326,6 +1261,10 @@ func _summary_row_gap(icon_size: float, row_count: int) -> int:
 func _summary_min_label_size() -> int:
 	return _scaled_card_font_size(13, 8)
 
+func _summary_available_width() -> float:
+	# The frame occupies both edges. Keep glyphs and their outline on parchment.
+	return maxf(_scaled_card_value(52.0, 28.0), _card_visual_width() - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - 6.0)
+
 func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
 	var label_height: float = _summary_text_height(label_size)
 	var total_height: float = 0.0
@@ -1337,6 +1276,7 @@ func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size
 					continue
 				var token: Dictionary = token_var
 				if str(token.get("kind", "")) == "aoe_pattern":
+					row_height = maxf(row_height, _summary_pattern_size(token, icon_size).y)
 					continue
 				row_height = maxf(row_height, (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).y)
 		total_height += row_height
@@ -1395,15 +1335,20 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			continue
 		var token: Dictionary = token_var
 		if str(token.get("kind", "")) == "aoe_pattern":
-			child_width += maxf(_scaled_card_value(34.0, 18.0), icon_size * 1.5)
+			child_width += _summary_pattern_size(token, icon_size).x
 			child_count += 1
 			continue
-		if str(token.get("kind", "")) == "text":
+		if str(token.get("kind", "")) == "surface_condition":
+			child_width += _summary_text_width(str(token.get("prefix", "if")), label_size) + icon_size + _summary_text_width(str(token.get("suffix", ":")), label_size) + 6.0
+		elif str(token.get("kind", "")) == "text":
 			child_width += _summary_text_width(ActionIcons.token_value_text(token), label_size)
 		else:
 			child_width += (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).x
 		child_count += 1
 	return child_width + float(maxi(0, child_count - 1) * row_gap)
+
+func _summary_pattern_size(token: Dictionary, icon_size: float) -> Vector2:
+	return AoePatternView.measured_size(token.get("pattern", []), bool(token.get("show_origin", false)), _aoe_pattern_scale(icon_size))
 
 func _summary_token_layout(token: Dictionary, icon_size: float, label_size: int) -> Dictionary:
 	var icon_box: Vector2 = _summary_icon_box_size(token, icon_size)
@@ -1478,19 +1423,35 @@ func _summary_token_segments(tokens: Array) -> Array:
 	var preferred_icon_size: float = _summary_icon_size()
 	var preferred_label_size: int = maxi(_summary_min_label_size(), int(round(preferred_icon_size * 0.58)))
 	var preferred_gap: int = _summary_row_gap(preferred_icon_size, 1)
-	var available_width: float = maxf(
-		_scaled_card_value(52.0, 28.0),
-		_card_visual_width() - _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - _scaled_card_value(12.0, 4.0)
-	)
+	var available_width: float = _summary_available_width()
 	if clean_tokens.size() <= 4 and _summary_segment_width_estimate(clean_tokens, preferred_icon_size, preferred_label_size, preferred_gap) <= available_width:
 		return [clean_tokens]
+	# Keep the attack (including its ground rider) above the paired Light
+	# radius/duration when the complete action needs a continuation row.
+	for index: int in range(1, clean_tokens.size()):
+		if str((clean_tokens[index] as Dictionary).get("row_group", "")) != "light":
+			continue
+		var primary: Array = clean_tokens.slice(0, index)
+		if _summary_segment_width_estimate(primary, preferred_icon_size, preferred_label_size, preferred_gap) <= available_width:
+			return [primary, clean_tokens.slice(index)]
+		break
+	var units: Array = []
+	for token_var: Variant in clean_tokens:
+		var token: Dictionary = token_var
+		var group: String = str(token.get("row_group", ""))
+		if not group.is_empty() and not units.is_empty() and str(((units.back() as Array).back() as Dictionary).get("row_group", "")) == group:
+			(units.back() as Array).append(token)
+		else:
+			units.append([token])
 	var segments: Array = []
 	var current: Array = []
-	for token_var: Variant in clean_tokens:
-		current.append(token_var)
-		if current.size() >= 3:
+	for unit_var: Variant in units:
+		var unit: Array = unit_var
+		var candidate: Array = current + unit
+		if not current.is_empty() and (candidate.size() > 3 or _summary_segment_width_estimate(candidate, preferred_icon_size, preferred_label_size, preferred_gap) > available_width):
 			segments.append(current)
 			current = []
+		current.append_array(unit)
 	if not current.is_empty():
 		segments.append(current)
 	return segments

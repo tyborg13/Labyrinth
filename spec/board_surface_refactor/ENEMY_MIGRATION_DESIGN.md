@@ -1,10 +1,18 @@
 # Enemy migration design — complete roster
 
+> Historical design record from the initial surface refactor. The current rules
+> are in [DESIGN.md](DESIGN.md), version 5. In the feedback pass, Fire became
+> 2 damage on entry / 3 at turn start, Chilled +2 attack damage, Frozen triple
+> attack damage, and Rubble charges on departure. Ordinary Electrified survives
+> conduction and Chain; Stormcoal Fire is still consumed. Lightning specialist
+> Shock now requires an Electrified-assisted hit instead of separately paid fuel.
+> The proposals below retain their original rationale and are not current rules.
+
 Design-only companion to `DESIGN.md` v4, 2026-09-06. Covers all **18 current definitions** in `data/enemies.json`, including six bosses and three summoned/minion definitions. No implementation or numeric balance approval is implied. Keep internal IDs stable; displayed names and intent text can change where the old Poison/Burn identity no longer fits.
 
 This is a full enemy design pass. Physical attackers, artillery and support retain distinct jobs; they do not all gain surface creation. Their new interaction comes from routes, defensive choices, displacement and denying prepared ground. Elemental specialists create or consume local board opportunities. Exact HP, damage, area size, Time, weights and encounter composition will be rescored together.
 
-The v4 rules are binding: Rubble plus one elemental layer (Fire, Ice or Electrified); Fire/Ice occupant effects activate on entry or eligible turn start, never placement; successful Freeze consumes every supporting Ice tile under the target; Electrified is immediately usable and consumed only by explicit effects; shared hazards apply to every actor without owner exemptions. No Burn, Poison or intensity remains. Ordinary direct attacks retain their normal targets. Trap damage is center-only with a cardinal wake; Air traps push outward.
+The original v4 design used: Rubble plus one elemental layer (Fire, Ice or Electrified); Fire/Ice occupant effects activate on entry or eligible turn start, never placement; successful Freeze consumes every supporting Ice tile under the target; Electrified is immediately usable and consumed only by explicit effects; shared hazards apply to every actor without owner exemptions. No Burn, Poison or intensity remains. Ordinary direct attacks retain their normal targets. Trap damage is center-only with a cardinal wake; Air traps push outward.
 
 ## Complete roster disposition
 

@@ -11,6 +11,7 @@ static var retained_electric_enabled: bool = true
 static var retained_static_batch_enabled: bool = true
 static var _ribbon_templates: Dictionary = {}
 static var _mineral_grain: Texture2D
+static var _surface_clouds: Array[Texture2D]
 static var _flame_templates: Dictionary = {}
 # Geometry2D's convex-quad triangle order, matching the original draw_polygon.
 static var _quad_indices := PackedInt32Array([3, 0, 1, 1, 2, 3])
@@ -35,24 +36,18 @@ static func tooltip(state: Dictionary, tile: Vector2i) -> String:
 		lines.append(title_for(kind))
 		match kind:
 			"fire":
-				lines.append("Entry: 1 damage. Turn start: 2 damage.
-Creation deals no immediate damage.")
-				lines.append("Detonate consumes it. Harms any unit.")
+				lines.append("Deals 3 damage at turn start and 2 damage when entered.")
 				if Rules.is_conductive(state, tile):
-					lines.append("Stormcoal: also conducts Lightning and relays Chain. Electrical use consumes it.")
+					lines.append("Stormcoal: also conducts Lightning. Attacks conducted through it consume it.")
 			"ice":
-				lines.append("Entry or turn start: Chilled (+1 direct damage).
-Creation alone does not Chill.")
-				lines.append("An Ice hit Freezes a Chilled unit and consumes its supporting Ice.")
+				lines.append("Entering or starting a turn on Ice applies Chilled.")
 			"electrified":
-				lines.append("Lightning discharges the connected cardinal patch, striking its opponents and consuming the ground.")
-				lines.append("Chain may also use these tiles as relay nodes. Ready immediately; no entry effect.")
+				lines.append("Lightning attacks travel through connected Electrified tiles, hitting enemies on them.")
+				lines.append("Chain can also jump through individual Electrified tiles.")
 	if Rules.has_rubble(state, tile):
 		if not lines.is_empty(): lines.append("")
 		lines.append("Rubble")
-		lines.append("Entry costs 2 movement. If a fresh movement allowance is only 1, you can enter one adjacent Rubble tile. Push, Pull and Blink ignore the cost. Does not block sight or attacks.")
-	if not lines.is_empty():
-		lines.append("Persists until removed, consumed or the encounter ends.")
+		lines.append("Walking out of Rubble costs 2 movement.")
 	return "\n".join(lines)
 
 static func draw_tile(canvas: CanvasItem, state: Dictionary, tile: Vector2i, center: Vector2, width: float, time: float, reduced_motion: bool, draw_rubble: bool = true, draw_elemental: bool = true, draw_electric: bool = true) -> void:
@@ -127,13 +122,14 @@ static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int
 		var face := PackedVector2Array([top[edge], top[next], foot_b, foot_a])
 		var shade: float = 0.43 if edge < 4 else 0.66
 		_material_polygon(c, batch, face, PackedColorArray([stone.darkened(1.0 - shade), stone.darkened(0.37), stone.darkened(0.56), stone.darkened(0.68)]))
-		_draw_mineral_grain(c, face, Color(stone.lightened(0.20), 0.32), seed + edge * 13, batch)
+		_draw_mineral_grain(c, face, Color(stone.lightened(0.38), 0.44), seed + edge * 13, batch)
 	var colors := PackedColorArray()
 	for vertex: int in range(top.size()):
 		colors.append(stone.lightened(0.04 + SpellFx._hash(seed + vertex * 11) * 0.20))
 	_material_polygon(c, batch, top, colors)
-	_draw_mineral_grain(c, top, Color(stone.lightened(0.30), 0.37), seed, batch)
+	_draw_mineral_grain(c, top, Color(stone.lightened(0.44), 0.49), seed, batch)
 	var hub: Vector2 = (top[0] + top[3]) * 0.5
+	_draw_material_clusters(c, batch, top, hub, size * 0.13, seed, Color(stone.lightened(0.32), 0.72), Color(stone.darkened(0.56), 0.62), 15)
 	# Chipped secondary planes and mineral flecks follow each block's lighting.
 	for flake: int in range(5):
 		var at: Vector2 = hub.lerp(top[flake], 0.28 + SpellFx._hash(seed + flake * 19) * 0.45)
@@ -156,8 +152,11 @@ static func _prepare_mineral_grain() -> void:
 		for y: int in range(64):
 			for x: int in range(64):
 				var n: float = noise.get_noise_2d(float(x), float(y)) * 0.5 + 0.5
-				var shade: float = 0.46 + n * 0.54
-				texture.set_pixel(x, y, Color(shade, shade, shade, 0.35 + n * 0.65))
+				# A small stepped value range forms stable mineral clusters. At
+				# native scale each texel covers roughly one screen pixel; it
+				# must not be squeezed into imperceptible subpixel noise.
+				var shade: float = floorf(n * 5.0) / 4.0
+				texture.set_pixel(x, y, Color(shade, shade, shade, 0.82))
 		_mineral_grain = ImageTexture.create_from_image(texture)
 static func _draw_mineral_grain(c: CanvasItem, polygon: PackedVector2Array, tint: Color, seed: int, batch: StaticBatch = null) -> void:
 	_prepare_mineral_grain()
@@ -166,11 +165,54 @@ static func _draw_mineral_grain(c: CanvasItem, polygon: PackedVector2Array, tint
 	var uv := PackedVector2Array()
 	var offset := Vector2(SpellFx._hash(seed), SpellFx._hash(seed + 4)) * 0.25
 	for point: Vector2 in polygon:
-		uv.append((point - bounds.position) / bounds.size.max(Vector2.ONE) * 0.70 + offset)
+		uv.append((point - bounds.position) / maxf(90.0, maxf(bounds.size.x, bounds.size.y) / 0.69) + offset)
 	if batch != null:
 		batch.polygon(polygon, PackedColorArray([tint]), uv)
 	else:
 		c.draw_polygon(polygon, PackedColorArray([tint]), uv, _mineral_grain)
+
+static func _draw_material_clusters(c: CanvasItem, batch: StaticBatch, polygon: PackedVector2Array, hub: Vector2, pixel: float, seed: int, light: Color, dark: Color, count: int) -> void:
+	# Sparse, directional clusters sit on the actual material face. They are
+	# geometry, so no floor stamp, UV scroll or random sparkle can detach them.
+	var step: float = maxf(0.65, pixel)
+	for index: int in range(count):
+		var edge: int = posmod(seed + index * 7, polygon.size())
+		var outer: Vector2 = polygon[edge].lerp(polygon[(edge + 1) % polygon.size()], SpellFx._hash(seed + index * 31))
+		var at: Vector2 = hub.lerp(outer, 0.25 + SpellFx._hash(seed + index * 73) * 0.63)
+		at = (at / step).floor() * step
+		var width: float = step * (2.0 if index % 4 == 0 else 1.0)
+		var cluster := PackedVector2Array([at, at + Vector2(width, 0), at + Vector2(width, step), at + Vector2(0, step)])
+		# Keeping all corners inside prevents chips crossing a fracture or edge.
+		var inside: bool = true
+		for point: Vector2 in cluster:
+			if not Geometry2D.is_point_in_polygon(point, polygon):
+				inside = false
+				break
+		if inside: _material_polygon(c, batch, cluster, PackedColorArray([light if index % 3 != 0 else dark]))
+
+static func surface_cloud(index: int) -> Texture2D:
+	if _surface_clouds.is_empty():
+		# The spell cloud's same seeded field, sampled into authored-size value
+		# clusters. Enlarged texel groups keep a crisp core and a fine soft rim.
+		# These are reusable procedural primitives, never illustrated tile art.
+		for variant: int in range(4):
+			var noise := FastNoiseLite.new()
+			noise.seed = 617 + variant * 139
+			noise.frequency = 0.09
+			noise.fractal_octaves = 3
+			var cloud := Image.create(96, 96, false, Image.FORMAT_RGBA8)
+			for y: int in range(24):
+				for x: int in range(24):
+					var sample_at := Vector2(x * 4 + 2, y * 4 + 2)
+					var unit: Vector2 = (sample_at - Vector2.ONE * 48.0) / 48.0
+					var n: float = noise.get_noise_2d(sample_at.x, sample_at.y) * 0.5 + 0.5
+					var density: float = maxf(0.0, 1.0 - unit.length() - n * 0.26)
+					var opacity: float = smoothstep(0.0, 0.42, density) * (0.36 + n * 0.64)
+					opacity = floorf(opacity * 7.0 + 0.35) / 7.0
+					var shade: float = 0.48 + floorf(n * 5.0) * 0.105
+					cloud.fill_rect(Rect2i(x * 4, y * 4, 4, 4), Color(shade, shade, shade, opacity))
+			_surface_clouds.append(ImageTexture.create_from_image(cloud))
+	return _surface_clouds[posmod(index, _surface_clouds.size())]
 
 static func _material_batch(c: CanvasItem) -> StaticBatch:
 	if not retained_cache_enabled or not retained_static_batch_enabled: return null
@@ -204,6 +246,20 @@ static func _draw_fire_bed(c: CanvasItem, p: Vector2, w: float, seed: int) -> vo
 		var at: Vector2 = p + Vector2(cos(a), sin(a) * 0.43) * r
 		_floor_puff(c, at, Vector2(w * 0.17, w * 0.055), a * 0.1, Color(0.95, 0.16, 0.018, 0.68), seed + i)
 		_floor_glow(c, at, Vector2(w * 0.09, w * 0.035), Color(1.0, 0.59, 0.10, 0.72))
+	# Dark crust and short hot seams anchor the moving tongues to the floor.
+	# Cluster size follows tile scale, like the mineral detail on nearby props.
+	var batch: StaticBatch = _material_batch(c)
+	for index: int in range(23):
+		var angle: float = float(index) * 2.399963 + float(seed % 11) * 0.21
+		var radius: float = w * (0.06 + SpellFx._hash(seed + index * 53) * 0.28)
+		var at: Vector2 = p + Vector2(cos(angle), sin(angle) * 0.43) * radius
+		var step: float = maxf(0.65, w * 0.007)
+		at = (at / step).floor() * step
+		var crust := PackedVector2Array([at, at + Vector2(step * 3.0, 0), at + Vector2(step * 3.0, step), at + Vector2(step, step), at + Vector2(step, step * 2.0), at + Vector2(0, step * 2.0)])
+		_material_polygon(c, batch, crust, PackedColorArray([Color(0.24, 0.075, 0.031, 0.88)]))
+		var hot: Color = Color(1.0, 0.60, 0.12, 0.83) if index % 3 == 0 else Color(0.90, 0.24, 0.036, 0.76)
+		_material_polygon(c, batch, PackedVector2Array([at, at + Vector2(step * 2.0, 0), at + Vector2(step * 2.0, step), at + Vector2(0, step)]), PackedColorArray([hot]))
+	if batch != null: batch.flush()
 
 static func _draw_fire_tongue(c: CanvasItem, at: Vector2, w: float, height_base: float, i: int, phase: float) -> void:
 	# Authored combustion beats: gather, climb, curl over, then shed the tip.
@@ -273,7 +329,7 @@ static func _draw_flame_volume(c: CanvasItem, points: PackedVector2Array, width:
 		var breadth: float = taper[row] * (0.74 + sin(u * 6.0 + curl * 2.1 + seed) * 0.12)
 		var left: float = width * breadth * (0.83 + sin(u * 9.0 + seed * 2.3 - curl * 3.0) * 0.20)
 		var right: float = width * breadth * (0.70 + sin(u * 7.0 + seed * 1.7 + curl * 2.0) * 0.16)
-		var hot: float = (1.0 - u * 0.52) * (0.84 + sin(u * 11.0 + curl * 4.0 + seed) * 0.16)
+		var hot: float = floorf((1.0 - u * 0.52) * (0.84 + sin(u * 11.0 + curl * 4.0 + seed) * 0.16) * 5.0) / 5.0
 		var life: float = alpha * tip_alpha[row]
 		var at: int = row * 5
 		vertices[at] = points[row] + normal * left
@@ -281,11 +337,11 @@ static func _draw_flame_volume(c: CanvasItem, points: PackedVector2Array, width:
 		vertices[at + 2] = points[row] + normal * width * sin(u * 5.2 + seed + curl) * 0.12
 		vertices[at + 3] = points[row] - normal * right * 0.66
 		vertices[at + 4] = points[row] - normal * right
-		colors[at] = Color(0.86, 0.11, 0.008, 0.0)
+		colors[at] = Color(0.67, 0.08, 0.008, life * 0.10)
 		colors[at + 1] = Color(0.98, 0.25 + hot * 0.20, 0.025, life * 0.78)
 		colors[at + 2] = Color(1.0, 0.63 + hot * 0.28, 0.15 + hot * 0.19, life * 0.94)
 		colors[at + 3] = Color(0.96, 0.18 + hot * 0.18, 0.020, life * 0.72)
-		colors[at + 4] = Color(0.79, 0.09, 0.006, 0.0)
+		colors[at + 4] = Color(0.68, 0.07, 0.006, life * 0.08)
 	RenderingServer.canvas_item_add_triangle_array(c.get_canvas_item(), template["indices"], vertices, colors)
 
 static func _draw_fire(c: CanvasItem, p: Vector2, w: float, phase: float, seed: int, reduced: bool) -> void:
@@ -375,7 +431,8 @@ static func _draw_ice_material(c: CanvasItem, p: Vector2, w: float, seed: int) -
 			var b: Vector2 = poly[(facet + 1) % poly.size()]
 			var reflection: float = 0.06 + SpellFx._hash(grain + facet * 31) * 0.18
 			_material_polygon(c, batch, PackedVector2Array([a, b, hub]), PackedColorArray([Color(0.72, 0.89, 0.94, reflection), Color(0.39, 0.69, 0.79, reflection * 0.38), Color(0.10, 0.31, 0.42, 0.11)]))
-		_draw_mineral_grain(c, poly, Color(0.73, 0.90, 0.95, 0.22), grain, batch)
+		_draw_mineral_grain(c, poly, Color(0.74, 0.93, 0.99, 0.32), grain, batch)
+		_draw_material_clusters(c, batch, poly, hub, w * 0.0065, grain, Color(0.78, 0.95, 0.97, 0.62), Color(0.12, 0.37, 0.47, 0.38), 16)
 		var vein: Vector2 = poly[0].lerp(hub, 0.70)
 		_material_polygon(c, batch, PackedVector2Array([poly[0], poly[1], vein]), PackedColorArray([Color(0.78, 0.94, 0.98, 0.29), Color(0.67, 0.84, 0.91, 0.08), Color(0.37, 0.71, 0.85, 0.06)]))
 		if batch != null: batch.flush()
@@ -452,11 +509,7 @@ static func _floor_glow(c: CanvasItem, p: Vector2, size: Vector2, tint: Color) -
 		_floor_sprite(c, SpellFx._light, p, size, 0.0, tint)
 
 static func _floor_puff(c: CanvasItem, p: Vector2, size: Vector2, angle: float, tint: Color, index: int) -> void:
-	if not retained_cache_enabled:
-		SpellFx._puff(c, p, size, angle, tint, index)
-		return
-	if not SpellFx._clouds.is_empty():
-		_floor_sprite(c, SpellFx._clouds[posmod(index, SpellFx._clouds.size())], p, size, angle, tint)
+	_floor_sprite(c, surface_cloud(index), p, size, angle, tint)
 
 static func _floor_sprite(c: CanvasItem, texture: Texture2D, p: Vector2, size: Vector2, angle: float, tint: Color) -> void:
 	if tint.a <= 0.001 or size.x <= 0.01 or size.y <= 0.01:

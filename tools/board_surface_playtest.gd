@@ -85,7 +85,7 @@ func _repl() -> void:
 	if manual:
 		super._repl()
 		return
-	while decisions < 900:
+	while decisions < 900 and end_reason.is_empty():
 		decisions += 1
 		var mode: String = str(_run_state.get("mode", ""))
 		match mode:
@@ -155,7 +155,11 @@ func _fight() -> void:
 	var walk: Dictionary = _best_walk(_combat_state, score)
 	if not walk.is_empty():
 		_append_note("- Policy walk: %s, score %.2f vs immediate card %.2f.\n" % [walk["tile"], float(walk["score"]), score])
+		var before_walk: Dictionary = _combat_state.duplicate(true)
 		_command_walk("%d,%d" % [(walk["tile"] as Vector2i).x, (walk["tile"] as Vector2i).y])
+		if _combat_state == before_walk and str(_run_state.get("mode", "")) == "combat":
+			end_reason = "rejected_policy_movement"
+			_save_session()
 		return
 	if not plan.is_empty() and score > 0.45:
 		_append_note("- Policy card: %s; evaluated gain %.2f, targets %s.\n" % [plan["card_id"], score, str(plan["targets"])])

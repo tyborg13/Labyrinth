@@ -291,8 +291,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_FIRST_TARGET: {
 		"id": PHASE_SELECT_FIRST_TARGET, "lesson": 4, "lesson_total": 10,
 		"icon": "", "kicker": "TARGETING", "title": "Aim at the Crawler",
-		"pointer_text": "Click the glowing crawler. Pale Spark will deal 4 damage.",
-		"controller_text": "Select the glowing crawler. Pale Spark will deal 4 damage.",
+		"pointer_text": "Click the glowing crawler. Pale Spark will deal 3 damage.",
+		"controller_text": "Select the glowing crawler. Pale Spark will deal 3 damage.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_FIRST_CARD: {
@@ -320,8 +320,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_KILL_TARGET: {
 		"id": PHASE_SELECT_KILL_TARGET, "lesson": 5, "lesson_total": 10,
 		"icon": "", "kicker": "LETHAL", "title": "Strike the Wounded Crawler",
-		"pointer_text": "Click the glowing crawler. Quick Stab deals the final 11 damage.",
-		"controller_text": "Select the glowing crawler. Quick Stab deals the final 11 damage.",
+		"pointer_text": "Click the glowing crawler. Quick Stab deals the final 9 damage.",
+		"controller_text": "Select the glowing crawler. Quick Stab deals the final 9 damage.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_KILL_CARD: {

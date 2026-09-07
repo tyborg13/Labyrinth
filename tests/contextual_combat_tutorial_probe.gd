@@ -125,9 +125,9 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await _save_root_screenshot("%s/06_two_card_plays.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, true, "preview Bone Dart")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, true, "preview Pale Spark")
 	var bone_index: int = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
-	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [bone_index], "Only Bone Dart should be selectable during its authored rail")
+	_assert((instance.call("_guided_tutorial_playable_card_indices") as Array) == [bone_index], "Only Pale Spark should be selectable during its authored rail")
 	var bone_control: Control = instance.call("_hand_card_control", bone_index) as Control
 	instance.call("_on_card_hover_started", bone_index)
 	await _settle_ui()
@@ -138,12 +138,12 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 		guided_card_rects.size() == 1
 		and guided_bone_rect.position.distance_to(live_bone_rect.position) <= 1.0
 		and guided_bone_rect.size.distance_to(live_bone_rect.size) <= 1.0,
-		"The Bone Dart border should follow the card's live hovered position and size (border=%s, card=%s)" % [guided_bone_rect, live_bone_rect]
+		"The Pale Spark border should follow the card's live hovered position and size (border=%s, card=%s)" % [guided_bone_rect, live_bone_rect]
 	)
 	await _save_root_screenshot("%s/07_bone_dart_live_border.png" % OUTPUT_DIR)
 	await instance.call("_on_card_pressed", bone_index)
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "cancel Bone Dart safely")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_CANCEL_CARD, true, "cancel Pale Spark safely")
 	await _save_root_screenshot("%s/08_bone_dart_cancel.png" % OUTPUT_DIR)
 	var blocked_before: int = int(prompt.get_meta("blocked_count", 0))
 	await instance.call("_on_board_tile_clicked", Vector2i(1, 1))
@@ -152,21 +152,21 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await _save_root_screenshot("%s/09_wrong_click_feedback.png" % OUTPUT_DIR)
 	await instance.call("_on_cancel_requested")
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, true, "play Bone Dart for real")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, true, "play Pale Spark for real")
 
-	# First attack: 2 -> 1 play and 17 -> 11 HP.
+	# First attack: 2 -> 1 play and 12 -> 9 HP.
 	bone_index = _card_index(instance, GuidedCombatScenario.PREVIEW_CARD_ID)
 	await instance.call("_on_card_pressed", bone_index)
 	await _settle_ui()
-	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, true, "aim Bone Dart at the authored crawler")
+	_assert_prompt(instance, ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, true, "aim Pale Spark at the authored crawler")
 	var target_tile: Vector2i = GuidedCombatScenario.target_tile(instance.get("_combat_state") as Dictionary)
 	await _save_root_screenshot("%s/10_bone_dart_target.png" % OUTPUT_DIR)
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await _settle_ui()
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_FIRST_PLAY, true, "read the one-play counter")
 	var first_state: Dictionary = instance.get("_combat_state") as Dictionary
-	_assert(int(combat.call("cards_remaining_this_turn", first_state)) == 1, "Bone Dart should spend exactly one real card play")
-	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 11, "Bone Dart should leave the authored crawler at 11 HP")
+	_assert(int(combat.call("cards_remaining_this_turn", first_state)) == 1, "Pale Spark should spend exactly one real card play")
+	_assert(_enemy_hp(first_state, GuidedCombatScenario.TARGET_ENEMY_ID) == 9, "Pale Spark should leave the authored crawler at 9 HP")
 	await _save_root_screenshot("%s/11_first_play_spent.png" % OUTPUT_DIR)
 	prompt.call("_on_completed_pressed")
 	await _settle_ui()

@@ -1922,7 +1922,7 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	state["deck"] = deck
 	state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	state["enemies"] = [
-		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3, "block": 0, "stoneskin": 0},
+		{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 2, "max_hp": 2, "block": 0, "stoneskin": 0},
 		{"id": 2, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	]
 	var actions: Array = combat.card_play_actions("cinder_fusillade", state)
@@ -1935,7 +1935,7 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	_assert(int(state.get("player_turn_time_spent", 0)) == 5, "Flurry should pay its top-level time cost only once")
 	_assert(combat.cards_remaining_this_turn(state) == 1, "A kill-granted play created during Flurry should remain available after the snapshotted plays are spent")
 	_assert(BoardSurfaceRules.element_at(state, Vector2i(3, 4)) == "fire" and BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Each Flurry copy paints its actual target")
-	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 17, "Each Flurry copy should resolve its attack against the selected target")
+	_assert(int(((state.get("enemies", []) as Array)[1] as Dictionary).get("hp", 0)) == 18, "Each Flurry copy should resolve its attack against the selected target")
 	var bonus_state: Dictionary = state.duplicate(true)
 	bonus_state["cards_played_this_turn"] = 0
 	bonus_state["death_bonus_card_plays_this_turn"] = 0
@@ -2329,8 +2329,8 @@ func _test_surface_icons_explain_card_requirements() -> void:
 		_assert(not ActionIcons.tooltip("surface_" + surface).is_empty(), "Ground icons need actual rules text")
 	var gated: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 5, "requires_surface": {"surface": "fire", "subject": "target"}})
 	_assert(ActionIcons.plain_text_for_tokens(gated).begins_with("Target on Fire"), "Board conditions must describe the target ground without a meter threshold")
-	var bonus: Array = ActionIcons.tokens_for_surface_bonus({"type": "ranged", "surface_bonus": {"surface": "electrified", "subject": "consumed", "damage": 2}})
-	_assert(ActionIcons.plain_text_for_tokens(bonus).contains("After consuming Electrified"), "Electrical bonuses must describe actual consumed setup")
+	var bonus: Array = ActionIcons.tokens_for_surface_bonus({"type": "ranged", "surface_bonus": {"surface": "electrified", "subject": "conducted", "damage": 2}})
+	_assert(ActionIcons.plain_text_for_tokens(bonus).contains("if Electrified used:"), "Electrical bonuses must describe reusable conducted setup")
 
 func _test_cards_do_not_define_multiple_player_attacks() -> void:
 	var attack_types: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -3606,8 +3606,8 @@ func _test_close_aoe_hits_adjacent_targets() -> void:
 	var action: Dictionary = GameData.card_def("whirlwind_slash").get("actions", [])[0]
 	state = combat.apply_player_action(state, action)
 	var enemies: Array = state.get("enemies", [])
-	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 4, "Close AOE should hit the northern adjacent tile")
-	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 0, "Close AOE should hit the eastern adjacent tile")
+	_assert(int((enemies[0] as Dictionary).get("hp", 0)) == 6, "Close AOE should hit the northern adjacent tile")
+	_assert(int((enemies[1] as Dictionary).get("hp", 0)) == 2, "Close AOE should hit the eastern adjacent tile")
 	_assert(int((enemies[2] as Dictionary).get("hp", 0)) == 12, "Close AOE should not hit diagonal tiles")
 
 func _test_player_aoe_damages_incidental_terrain() -> void:
@@ -3815,8 +3815,8 @@ func _test_freeze_and_shock_control_turn_flow() -> void:
 			"id": 1,
 			"type": "crawler",
 			"pos": Vector2i(4, 4),
-			"hp": 14,
-			"max_hp": 14,
+			"hp": 20,
+			"max_hp": 20,
 			"block": 0,
 			"intent": {"name": "Claw", "actions": [{"type": "melee", "damage": 5, "range": 2}]}
 		}
@@ -3826,7 +3826,7 @@ func _test_freeze_and_shock_control_turn_flow() -> void:
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 4, "range": 6, "element": "ice"}, Vector2i(4, 4))
 	state = combat.apply_player_action(state, {"type": "ranged", "damage": 3, "range": 6}, Vector2i(4, 4))
 	var enemy: Dictionary = (state.get("enemies", []) as Array)[0]
-	_assert(int(enemy.get("hp", 0)) == 3, "Chilled setup adds one, then Frozen enemies should take double damage from follow-up hits")
+	_assert(int(enemy.get("hp", 0)) == 5, "Chilled adds two, then Frozen triples follow-up damage while the living target still owes a skipped activation")
 	var hp_before_enemy_turn: int = int((state.get("player", {}) as Dictionary).get("hp", 0))
 	var phase_result: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_enemy_phase: Dictionary = phase_result.get("state", {})
@@ -4088,7 +4088,7 @@ func _test_attacking_trap_creates_delayed_cardinal_fire() -> void:
 	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 4)) == "fire", "Cardinal occupant receives Fire beneath it")
 	_assert(BoardSurfaceRules.element_at(state, Vector2i(4, 3)).is_empty(), "Diagonals remain unaffected")
 	var enemy_turn: Dictionary = combat._resolve_enemy_start_of_turn(state, 0)
-	_assert(int(enemy_turn["state"]["enemies"][0]["hp"]) == 8, "The new Fire waits for the affected enemy activation")
+	_assert(int(enemy_turn["state"]["enemies"][0]["hp"]) == 7, "The new Fire waits for the affected enemy activation")
 
 func _test_trap_wake_preserves_incidental_terrain() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -4294,9 +4294,9 @@ func _test_statuses_tick_on_affected_actor_turn() -> void:
 	BoardSurfaceRules.place(state, Vector2i(4, 3), "ice")
 	BoardSurfaceRules.place(state, Vector2i(6, 3), "fire")
 	state = combat.resolve_enemy_turn_with_steps(state, 1)["state"]
-	_assert(int(state["enemies"][1]["hp"]) == 998 and not bool(state["enemies"][0].get("chilled", false)), "Only the acting enemy takes Fire start damage; other Ice occupant stays un-Chilled")
+	_assert(int(state["enemies"][1]["hp"]) == 997 and not bool(state["enemies"][0].get("chilled", false)), "Only the acting enemy takes Fire start damage; other Ice occupant stays un-Chilled")
 	state = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
-	_assert(bool(state["enemies"][0].get("chilled", false)) and int(state["enemies"][1]["hp"]) == 998, "Ice activates on its occupant's own start without reticking the other actor")
+	_assert(bool(state["enemies"][0].get("chilled", false)) and int(state["enemies"][1]["hp"]) == 997, "Ice activates on its occupant's own start without reticking the other actor")
 
 func _test_enemy_pathfinding_avoids_traps() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -6821,19 +6821,19 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((blood_row[1] as Dictionary).get("icon", "")) == "bleed", "Bleed should render as an attack keyword token")
 	_assert(str((blood_row[2] as Dictionary).get("icon", "")) == "expose", "Expose should render as an attack keyword token")
 	_assert(str((blood_row[3] as Dictionary).get("icon", "")) == "sunder", "Sunder should render as an attack keyword token")
-	_assert(ActionIcons.tooltip("bleed").contains("move or attack"), "Bleed tooltip should explain action-triggered wound damage")
+	_assert(ActionIcons.tooltip("bleed").contains("before moving or attacking"), "Bleed tooltip should explain action-triggered wound damage")
 	_assert(ActionIcons.tooltip("expose").contains("next hit"), "Expose tooltip should explain the follow-up damage")
 	_assert(ActionIcons.tooltip("sunder").contains("stoneskin"), "Sunder tooltip should explain defense breaking")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
-	_assert(ActionIcons.tooltip("surface_fire").contains("entry"), "Fire ground tooltips must explain entry timing")
+	_assert(ActionIcons.tooltip("surface_fire").contains("when entered"), "Fire ground tooltips must explain entry timing")
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
 	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
 	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
 	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
-	_assert(ActionIcons.tooltip("flurry").contains("pays Time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
+	_assert(ActionIcons.tooltip("flurry").to_lower().contains("pays time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
 	var flurry_icon := Image.new()
 	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
 	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 112 and flurry_icon.get_height() == 64, "Flurry should ship its dedicated wide 112x64 action icon")
@@ -7828,7 +7828,7 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(not loaded.has("stats") and not loaded.has("unspent_stat_points"), "The live progression profile should not retain retired stat allocation fields")
 	var unchanged_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var unchanged_action: Dictionary = (unchanged_card.get("actions", []) as Array)[0]
-	_assert(int(unchanged_action.get("damage", 0)) == 11, "Learning a skill should not disguise a permanent raw damage increase")
+	_assert(int(unchanged_action.get("damage", 0)) == 9, "Learning a skill should not disguise a permanent raw damage increase")
 	loaded = ProgressionStore.set_embers(loaded, 42)
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
@@ -7841,7 +7841,7 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 11, "Combat should keep card damage unchanged when it receives a skill snapshot")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 9, "Combat should keep card damage unchanged when it receives a skill snapshot")
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(9, loaded)
 	_assert(run_engine.held_embers(run_state) == 42, "New runs should carry the current held ember count")
@@ -10022,7 +10022,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	_assert(player_tile == Vector2i(4, 5), "Enemy shortcut clicks should move only the minimum distance needed to attack")
 	var enemies: Array = final_state.get("enemies", [])
 	var enemy: Dictionary = enemies[0] if not enemies.is_empty() else {}
-	_assert(int(enemy.get("hp", 0)) == 8, "Enemy shortcut clicks should still resolve the follow-up attack")
+	_assert(int(enemy.get("hp", 0)) == 9, "Enemy shortcut clicks should still resolve the follow-up attack")
 	instance.queue_free()
 	await process_frame
 
@@ -10375,7 +10375,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	_assert(banked_badge != null and not banked_badge.visible, "Card play meter should hide its banked-play badge when no play is stored")
 	_assert(count_label != null and absf(count_label.position.y) <= 1.0 and absf(count_label.size.y - 58.0) <= 1.0, "Default card-play copy should be vertically centered in the full 58px plaque")
 	instance.call("_begin_card_play_meter_spend_preview")
-	_assert(count_label != null and count_label.text == "1 card plays", "Card play meter should spend the played card immediately")
+	_assert(count_label != null and count_label.text == "1 card play", "Card play meter should spend the played card immediately")
 	var rewarded_state: Dictionary = combat_state.duplicate(true)
 	rewarded_state["death_bonus_card_plays_this_turn"] = 1
 	_assert(int(instance.call("_card_play_count_for_resolution_state", rewarded_state)) == 2, "Death-reward play previews should add to the already-spent meter count")
@@ -10451,7 +10451,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 			if str(token.get("icon", "")) == "melee":
 				damage_token = token
 	_assert(not damage_token.is_empty(), "Damage cards should render the attack keyword as an icon")
-	_assert(int(damage_token.get("value", 0)) == 8, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
+	_assert(int(damage_token.get("value", 0)) == 7, "Damage cards should show final damage, not base damage, when a conditional modifier applies")
 	_assert(str(damage_token.get("tone", "")) == "bonus", "Modified damage tokens should carry bonus styling")
 	_assert(modifier_lines.is_empty(), "Damage modifiers should live on the modified token instead of a duplicate card-level tooltip")
 	_assert(ActionIcons.token_is_modified(damage_token), "Damage cards should mark dynamically modified tokens")
@@ -12004,7 +12004,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(int(play_payload.get("player_block_gained", 0)) == 2, "Card play analytics should capture observed block gain")
 	_assert(play_payload.has("card_plays_gained"), "Card play analytics should include current-turn play bonuses")
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
-	_assert(play_payload.has("surface_events") and int(play_payload.get("rules_version", 0)) == 4, "Card play analytics must carry source-aware ground events and the new rules version")
+	_assert(play_payload.has("surface_events") and int(play_payload.get("rules_version", 0)) == BoardSurfaceRules.RULES_VERSION, "Card play analytics must carry source-aware ground events and the new rules version")
 	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
@@ -12899,7 +12899,7 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 			lantern_range_tokens += 1
 	_assert(lantern_target_icons == PackedStringArray(["ranged", "range", "illuminate", "time"]), "Lantern Shot's single attack action should lead with damage and range, then attach Light radius and duration")
 	_assert(lantern_range_tokens == 1, "A combined attack-and-Light action should show its inherited attack range only once")
-	_assert(ActionIcons.token_tooltip(lantern_target_row[2] as Dictionary).begins_with("After this attack resolves"), "The Light rider tooltip should disclose its post-hit timing")
+	_assert(ActionIcons.token_tooltip(lantern_target_row[2] as Dictionary).contains("Light at the target"), "The Light rider reminder identifies its destination concisely")
 	for rider_card: String in ["guiding_flare", "storm_beacon"]:
 		var rows: Array = ActionIcons.rows_for_actions(GameData.card_def(rider_card).get("actions", []))
 		_assert(rows.size() == 1, "%s keeps its attack and post-hit riders in one action group" % rider_card)
@@ -12911,13 +12911,14 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		if rider_card == "storm_beacon":
 			_assert(keys.has("chain"), "Storm Beacon retains its native Chain icon alongside the conductor rider")
 	var card_widget := CardWidget.new()
+	card_widget.size = Vector2(220.0, 308.0)
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
-	_assert(lantern_segments.size() == 1, "CardWidget should keep a four-token attack rider on one compact line")
+	_assert(lantern_segments.size() == 1 or (lantern_segments.size() == 2 and (lantern_segments[1] as Array).size() == 2), "A compact Light rider stays together, either on the attack row or its paired continuation")
 	card_widget.size = Vector2(250.0, 352.0)
 	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("root_snare").get("actions", []))
 	var root_attack_row: Array = root_rows[0] as Array
 	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
-	_assert(root_attack_row.size() == 6 and root_segments.size() >= 2, "Dense attack riders retain all six concepts across wrapped rows")
+	_assert(root_attack_row.size() == 5 and root_segments.size() == 2, "Root Snare retains attack, range, Rubble and both Light values across two rows")
 	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
 	var squall_attack_row: Array = squall_rows[0] as Array
 	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)

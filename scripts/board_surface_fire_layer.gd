@@ -86,8 +86,8 @@ func _build() -> void:
 	for source: Dictionary in Art.fire_pockets(_width, _seed):
 		var pocket: Dictionary = source.duplicate()
 		var i: int = int(pocket["index"])
-		pocket["puff"] = _sprite(Fx._clouds[posmod(_seed + i, Fx._clouds.size())])
-		pocket["core"] = _sprite(Fx._clouds[posmod(_seed + i + 1, Fx._clouds.size())])
+		pocket["puff"] = _sprite(Art.surface_cloud(_seed + i))
+		pocket["core"] = _sprite(Art.surface_cloud(_seed + i + 1))
 		var tongue := Tongue.new()
 		tongue.origin = pocket["at"]
 		tongue.width = _width

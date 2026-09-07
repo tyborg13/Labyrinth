@@ -561,24 +561,6 @@
             ],
             "rotate": false,
             "surface": "rubble",
-            "surface_pattern": [
-              [
-                0,
-                -1
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                -1,
-                0
-              ]
-            ],
             "element": "earth"
           }
         ]
@@ -1529,19 +1511,14 @@
             "damage": 9,
             "range": 3,
             "chain": 2,
-            "element": "lightning"
-          }
-        ],
-        "surface_fuel": {
-          "surface": "electrified",
-          "range": 1,
-          "max_tiles": 1,
-          "action_bonuses": {
-            "1": {
+            "element": "lightning",
+            "surface_bonus": {
+              "surface": "electrified",
+              "subject": "conducted",
               "shock": 1
             }
           }
-        }
+        ]
       },
       {
         "id": "skybreak",
@@ -1714,19 +1691,14 @@
             "type": "ranged",
             "damage": 4,
             "range": 4,
-            "element": "lightning"
-          }
-        ],
-        "surface_fuel": {
-          "surface": "electrified",
-          "range": 1,
-          "max_tiles": 1,
-          "action_bonuses": {
-            "1": {
+            "element": "lightning",
+            "surface_bonus": {
+              "surface": "electrified",
+              "subject": "conducted",
               "shock": 1
             }
           }
-        }
+        ]
       }
     ]
   }

@@ -67,7 +67,7 @@ const SUPPORTED_EFFECT_TYPES := [
   "status_application_light",
   "status_count_reward",
   "stoneskin_melee_cross",
-  "surface_consumption_reward",
+  "surface_conduction_reward",
   "surface_creation_reward",
   "target_state_action_mod",
   "transport_surface",
@@ -175,9 +175,9 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	var duelist_state: Dictionary = _state(combat, ["duelist_whetstone"])
 	var duelist_card: Dictionary = GameData.card_def_for_progression("iron_wheel", {})
 	var duelist_attack: Dictionary = _first_action_of_type(duelist_card, "melee")
-	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 12, "Duelist Whetstone should add two damage to the first move-attack card")
+	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 10, "Duelist Whetstone should add two damage to the first move-attack card")
 	duelist_state = _trigger_card(combat, duelist_state, duelist_card, "iron_wheel")
-	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 10, "Duelist Whetstone should apply only once per turn")
+	expect.call(combat.final_damage_for_player_action(duelist_state, duelist_attack) == 8, "Duelist Whetstone should apply only once per turn")
 
 	var pin_state: Dictionary = _state(combat, ["hollow_die"])
 	var pin_card: Dictionary = GameData.card_def("prism_sight")
@@ -535,7 +535,7 @@ static func _test_surface_engines(expect: Callable) -> void:
 		Surface.place(ion, Vector2i(5, 4), conductor)
 		ion = combat.apply_player_action(ion, {"type": "ranged", "damage": 1, "range": 5, "element": "lightning"}, Vector2i(4, 4))
 		expect.call((ion["deck"]["hand"] as Array).size() == 1, "Ion Spool counts both native and hybrid conductive tiles")
-		expect.call(not Surface.has_surface(ion, Vector2i(4, 4), conductor) and not Surface.has_surface(ion, Vector2i(5, 4), conductor), "Lightning consumes its connected conductor")
+		expect.call(Surface.has_surface(ion, Vector2i(4, 4), conductor) == (conductor == "electrified") and Surface.has_surface(ion, Vector2i(5, 4), conductor) == (conductor == "electrified"), "Lightning preserves Electrified and consumes Stormcoal Fire")
 		Surface.place(ion, Vector2i(4, 4), conductor)
 		Surface.place(ion, Vector2i(5, 4), conductor)
 		ion = combat.apply_player_action(ion, {"type": "ranged", "damage": 1, "range": 5, "element": "lightning"}, Vector2i(4, 4))
@@ -721,13 +721,13 @@ static func _test_state_sequence_bridges(expect: Callable) -> void:
 	var anchor_state: Dictionary = _state(combat, ["anchor_chain"])
 	var chain_catch: Dictionary = GameData.card_def_for_progression("chain_catch", {})
 	var pull_action: Dictionary = _first_action_of_type(chain_catch, "pull")
-	expect.call(combat.final_damage_for_player_action(anchor_state, pull_action) == 3, "Anchor Chain should stay dormant without prior block")
+	expect.call(combat.final_damage_for_player_action(anchor_state, pull_action) == 2, "Anchor Chain should stay dormant without prior block")
 	var anchor_player: Dictionary = (anchor_state.get("player", {}) as Dictionary).duplicate(true)
 	anchor_player["block"] = 1
 	anchor_state["player"] = anchor_player
 	var anchored_pull: Dictionary = combat.call("_resolved_surface_action", anchor_state, pull_action)
 	expect.call(
-		combat.final_damage_for_player_action(anchor_state, pull_action) == 5
+		combat.final_damage_for_player_action(anchor_state, pull_action) == 4
 		and int(anchored_pull.get("amount", 0)) == 3,
 		"Anchor Chain should let a separate Block card empower later Push or Pull"
 	)

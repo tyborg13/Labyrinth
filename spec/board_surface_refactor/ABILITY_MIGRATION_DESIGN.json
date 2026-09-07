@@ -275,5 +275,6 @@
       "disposition": "retain visibility keystone",
       "proposal": "Keep Truesight while standing in actual Light. Neither glowing surfaces nor terrain knowledge substitutes for Light or grants knowledge of unseen Chain targets."
     }
-  ]
+  ],
+  "historical_design_notice": "Initial v4 design/proposal inventory. DESIGN.md v5 is authoritative; current definitions are in data/*.json. Original proposed values and descriptions below are preserved, not current runtime rules."
 }

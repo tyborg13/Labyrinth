@@ -418,7 +418,7 @@ func _command_walk(raw: String) -> void:
 	var before_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var transition_state: Dictionary = _combat_engine.apply_player_movement(_combat_state, target)
 	var movement: Dictionary = transition_state.get("last_player_movement", {}) as Dictionary
-	if int(movement.get("spent", 0)) <= 0:
+	if not bool(movement.get("resolved", false)):
 		print("Movement produced no effect.")
 		_print_player_movement()
 		return
@@ -426,7 +426,7 @@ func _command_walk(raw: String) -> void:
 	_analytics_reconcile_combat_tracker(before_combat_state, _combat_state)
 	_log_item_pickups(before_combat_state, _combat_state)
 	_log_card_draws(before_combat_state, _combat_state, before_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
-	_analytics_store.write_event("player_moved", _analytics_context(before_combat_state), movement.duplicate(true))
+	_analytics_store.write_event("player_moved" if int(movement.get("spent", 0)) > 0 else "player_movement_interrupted", _analytics_context(before_combat_state), movement.duplicate(true))
 	var outcome: String = _combat_engine.combat_outcome(_combat_state)
 	if outcome.is_empty():
 		_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
@@ -2704,7 +2704,7 @@ func _player_status_delta_text(before_player: Dictionary, after_player: Dictiona
 func _player_status_gain_text(status: String, amount: int) -> String:
 	match status:
 		"freeze":
-			return "+%d freeze (next turn locked; incoming damage doubled while active)" % amount
+			return "+%d freeze (next turn locked; incoming attack damage tripled while active)" % amount
 		"shock":
 			return "+%d shock (next turn action-limited)" % amount
 		_:

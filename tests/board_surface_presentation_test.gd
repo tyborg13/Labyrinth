@@ -49,7 +49,7 @@ func _initialize() -> void:
 	scene.call("_analytics_flush_surface_events", state)
 	var events: Array = analytics.load_all_events()
 	assert(events.size() == 1, "Repeated committed snapshots emit each ground event once")
-	assert(int(events[0]["rules_version"]) == 4)
+	assert(int(events[0]["rules_version"]) == 5)
 	assert(str(events[0]["payload"]["source"]["card_id"]) == "proof_card")
 	ground.remove(state, Vector2i(3, 4), "fire", "detonate")
 	scene.call("_analytics_flush_surface_events", state)
@@ -59,8 +59,33 @@ func _initialize() -> void:
 	resumed.call("_analytics_flush_surface_events", state)
 	assert(analytics.load_all_events().size() == 2, "Reopening the same combat retains durable deduplication")
 	resumed.free()
+	_test_legacy_surface_event_versions(combat)
 	print("TEST RESULT: PASS board surface presentation")
 	quit()
+
+func _test_legacy_surface_event_versions(combat: RefCounted) -> void:
+	var analytics = preload("res://scripts/analytics_store.gd")
+	analytics.set_storage_dir("user://surface_presentation_legacy_analytics")
+	analytics.clear_storage()
+	var state: Dictionary = preload("res://tests/suites/chain_attack_suite.gd").fixture(combat)
+	state["analytics"] = {"combat_id": "legacy_surface_tail_proof"}
+	state["surface_event_legacy_rules_version"] = 4
+	state["surface_events"] = [
+		{"sequence": 1, "kind": "create", "surface": "fire"},
+		{"sequence": 2, "kind": "remove", "surface": "electrified", "rules_version": 4}
+	]
+	state["surface_event_sequence"] = 2
+	preload("res://scripts/board_surface_rules.gd").place(state, Vector2i(3, 4), "fire")
+	var scene := Scene.new()
+	scene.call("_analytics_flush_surface_events", state)
+	scene.call("_analytics_flush_surface_events", state)
+	var events: Array = analytics.load_all_events()
+	assert(events.size() == 3, "Legacy tail and new event each flush once")
+	for index: int in range(events.size()):
+		var expected: int = 4 if index < 2 else 5
+		assert(int(events[index].get("rules_version", 0)) == expected, "Surface event context retains the producer's rules version")
+		assert(int(events[index]["payload"].get("rules_version", 0)) == expected, "Surface event payload retains the producer's rules version")
+	scene.free()
 
 func _test_board_surface_cancel(combat: RefCounted) -> void:
 	var view := SubViewport.new()
@@ -101,7 +126,7 @@ func _test_board_surface_cancel(combat: RefCounted) -> void:
 	scene.call("_refresh_ui")
 	await scene.call("_on_card_pressed", 0)
 	var strip: Node = scene.get("_action_step_tracker_steps")
-	assert(strip.get_node("ActionStepChip1").get_meta("action_value_text") == "17", "Actual active strip uses modified melee damage")
+	assert(strip.get_node("ActionStepChip1").get_meta("action_value_text") == "15", "Actual active strip uses modified melee damage")
 	assert(strip.get_node("ActionStepChip2").get_meta("action_value_text") == "15", "Actual active strip uses modified Detonate damage")
 	scene.call("_reset_card_resolution")
 	state = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
@@ -204,14 +229,17 @@ func _test_rubble_stop_presentation(scene: Node, combat: RefCounted) -> void:
 	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
 	state["enemies"][0]["pos"] = Vector2i(7, 3)
 	state["traps"] = [{"id": "presentation_earth", "pos": Vector2i(3, 3), "element": "earth", "damage": 0}]
-	var requested := Vector2i(4, 3)
+	state["relics"] = ["pilgrim_boots"]
+	state["player_movement_capacity"] = 3
+	state["player_movement_remaining"] = 3
+	var requested := Vector2i(5, 3)
 	var action: Dictionary = combat.player_movement_action(state)
 	var planned: Array = combat.path_for_player_action(state, action, requested)
 	var grouped: Dictionary = combat.apply_player_movement(state, requested)
 	var endpoint: Vector2i = grouped["player"]["pos"]
-	assert(endpoint == Vector2i(3, 3) and int(grouped["player_movement_remaining"]) == 1)
+	assert(endpoint == Vector2i(4, 3) and int(grouped["player_movement_remaining"]) == 1)
 	var shown: Array = scene.call("_resolved_movement_animation_path", state["player"]["pos"], endpoint, planned)
-	assert(shown == [Vector2i(2, 3), Vector2i(3, 3)], "Grouped walk presentation must stop at the Earth trap before its newly painted Rubble")
+	assert(shown == [Vector2i(2, 3), Vector2i(3, 3), Vector2i(4, 3)], "Grouped walk presentation stops on newly created Rubble before an unaffordable departure")
 	var bent: Array = [Vector2i(2, 2), Vector2i(3, 2), Vector2i(3, 3), Vector2i(3, 4)]
 	assert(scene.call("_resolved_movement_animation_path", Vector2i(2, 2), Vector2i(3, 3), bent) == bent.slice(0, 3), "Early-stop trimming must preserve intermediate corners for player and enemy paths")
 	assert(scene.call("_resolved_movement_animation_path", Vector2i(2, 2), Vector2i(2, 2), bent) == [Vector2i(2, 2)], "A stopped actor must not animate a zero-distance segment")
@@ -322,7 +350,7 @@ func _test_hidden_attack_preview(scene: Node, combat: RefCounted) -> void:
 		if stage == "eclipse":
 			assert(boards[0] == boards[1], "A visible AOE center must not disclose a hidden trap through friendly damage or surface feedback")
 		else:
-			assert(int(boards[1]["damage_preview"]["illusion_1"]["hp_loss"]) == 1, "Revealed trap and Fire must retain the accurate friendly contact forecast")
+			assert(int(boards[1]["damage_preview"]["illusion_1"]["hp_loss"]) == 2, "Revealed trap and Fire must retain the accurate friendly contact forecast")
 	# Limited Umbra still previews an entirely known shared blast.
 	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
 	state["umbra"]["stage"] = "eclipse"

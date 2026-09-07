@@ -1,5 +1,13 @@
 # Complete card migration proposal
 
+> Historical design record from the initial surface refactor. The current rules
+> are in [DESIGN.md](DESIGN.md), version 5. In the feedback pass, Fire became
+> 2 damage on entry / 3 at turn start, Chilled +2 attack damage, Frozen triple
+> attack damage, and Rubble charges on departure. Ordinary Electrified survives
+> conduction and Chain; Stormcoal Fire is still consumed. Lightning specialist
+> Shock now requires an Electrified-assisted hit instead of separately paid fuel.
+> The proposals below retain their original rationale and are not current rules.
+
 Read-only design audit at `11a62f65e4070ae397d651778b550668bda0c854`. No card data has been changed. This is a complete disposition of all **159** definitions, including every starter, gear card, consumable, neutral reward and inactive legacy entry. Retaining an already useful role means reviewing it against the new terrain rules, not skipping it.
 
 **Counts:** 56 normal rewards; 78 nonstarter equipment cards; 14 starters; 10 consumables; one inactive legacy card. Reward elements: Fire 9, Ice 10, Lightning 9, Air 9, Earth 10, neutral 9. All definitions: Fire 17, Ice 15, Lightning 17, Air 11, Earth 12, neutral 87. There are 42 equipment definitions granting 88 distinct cards, including 10 starter definitions; `far_draw` is shared by two weapons.

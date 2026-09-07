@@ -1,5 +1,13 @@
 # Runtime feasibility audit — board surfaces
 
+> Historical design record from the initial surface refactor. The current rules
+> are in [DESIGN.md](DESIGN.md), version 5. In the feedback pass, Fire became
+> 2 damage on entry / 3 at turn start, Chilled +2 attack damage, Frozen triple
+> attack damage, and Rubble charges on departure. Ordinary Electrified survives
+> conduction and Chain; Stormcoal Fire is still consumed. Lightning specialist
+> Shock now requires an Electrified-assisted hit instead of separately paid fuel.
+> The proposals below retain their original rationale and are not current rules.
+
 Read-only audit, 2026-09-06. No game or source changes made.
 
 Update after user follow-up: `DESIGN.md` supersedes the initial recommendations below for trap footprints (center damage plus cardinal wake), Fire creation (no immediate damage), Charge layering, and causal card-kill credit. The descriptions of the current runtime remain historical observations. Numbers below marked recommendations are proposed rules, not observed existing behavior.

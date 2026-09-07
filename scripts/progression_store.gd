@@ -5,7 +5,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const LegacyCardGrowthRefunds = preload("res://scripts/legacy_card_growth_refunds.gd")
-const SURFACE_RULES_VERSION: int = 4
+const SURFACE_RULES_VERSION: int = 5
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
 const DEFAULT_RUN_STORAGE_PATH: String = "user://current_run.save"

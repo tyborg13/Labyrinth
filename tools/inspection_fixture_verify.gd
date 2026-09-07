@@ -79,7 +79,7 @@ func _fixture_state_contract(run_state: Dictionary, progression: Dictionary) -> 
 		"enemy_types": enemy_types,
 		"trap_elements": trap_elements,
 		"trap_positions": trap_positions,
-		"surface_rules_version": int(combat_state.get("rules_version", 4)),
+		"surface_rules_version": int(combat_state.get("rules_version", 5)),
 		"surfaces": (combat_state.get("surfaces", {}) as Dictionary).duplicate(true),
 		"reward_cards": _string_array(reward.get("cards", [])),
 		"relic_choices": _string_array(run_state.get("pending_relics", [])),

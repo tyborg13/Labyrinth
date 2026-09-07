@@ -108,7 +108,7 @@ The current event stream is enough to derive:
   `reward_cards`, `attuned_magic_cards`, `magic_inventory`,
   `equipped_items`, `item_inventory`, `equipment_inventory`, and
   `equipment_drops`
-- `rules_version: 4` and initial surface layout at combat start; historical intensity-era records remain readable
+- `rules_version: 5` and initial surface layout at combat start; historical intensity-era records remain readable
 - draw count via `card_drawn`
 - playable count via `card_became_playable`
 - play count via `card_played`
@@ -459,3 +459,19 @@ Update analytics instrumentation when changes affect:
 - combat outcome flow
 - status timing or turn sequencing
 - any fields used by the balance heuristic or future card-performance dashboards
+
+### Surface rules v5
+
+New surface events carry rules_version 5. `surface_conducted` records each
+unique conductor tile used by an attack, with its surface, tile, route reason
+(`chain` or `conduction`) and attack source. It does not imply removal.
+Ordinary Electrified persists; Stormcoal Fire also emits `surface_removed`.
+Existing sequence-based append-only event deduplication applies unchanged.
+Historical v4 events and source metadata are preserved when a save upgrades.
+
+A validated independent movement request now includes `resolved: true` in
+`last_player_movement`. A request can resolve without a step when Bleed kills
+the player first or an unseen actor interrupts travel. Commit that state; do
+not infer non-resolution from zero distance. These zero-spend requests emit
+`player_movement_interrupted`; successful movement still emits `player_moved`.
+Both include the requested target, actual endpoint and movement expenditure.

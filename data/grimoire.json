@@ -199,9 +199,7 @@
       "default": true,
       "icon": "traps",
       "body": [
-        "Entering or striking a trap triggers its printed damage only on the trap tile. The center hit resolves once per actor, including large actors.",
-        "The four cardinal neighbors receive the trap’s elemental surface. An Air trap instead pushes adjacent actors outward. Creating Fire or Ice beneath a stationary actor does not deal damage or apply Chilled.",
-        "The preview shows center danger separately from the surrounding terrain wake. All actors share these hazards."
+        "Entering or striking a trap triggers damage on its tile and creates surfaces on its four cardinal neighbors. Air traps instead push adjacent characters outward."
       ]
     },
     {
@@ -210,8 +208,7 @@
       "title": "Lightning Strikes",
       "icon": "lightning_strikes",
       "body": [
-        "Lightning strikes resolve direct Lightning hits at previewed tiles.",
-        "A Lightning attack can conduct through cardinally connected Electrified terrain, hitting enemy occupants once and consuming the connected region. Gaps require an explicit Chain route."
+        "Calls Lightning attacks down on the displayed tiles. Lightning can reach additional enemies through connected Electrified tiles."
       ]
     },
     {
@@ -220,8 +217,7 @@
       "title": "Summons",
       "icon": "summon_minions",
       "body": [
-        "Summon actions create additional enemy units of the configured minion type.",
-        "Summoned units enter the normal turn clock, occupy board tiles, and use their own intent definitions."
+        "Creates additional enemies on the board."
       ]
     },
     {
@@ -246,7 +242,7 @@
       "default": true,
       "icon": "melee",
       "body": [
-        "Melee actions use short-range target rules, usually adjacent to the acting unit."
+        "Attacks targets at close range."
       ]
     },
     {
@@ -256,7 +252,7 @@
       "default": true,
       "icon": "ranged",
       "body": [
-        "Ranged actions target distant tiles that pass the action's range and line-of-sight checks."
+        "Attacks distant targets within range and line of sight."
       ]
     },
     {
@@ -266,8 +262,7 @@
       "default": true,
       "icon": "aoe",
       "body": [
-        "Area actions resolve over every legal target tile in their configured pattern.",
-        "Some area patterns can rotate around the origin before the action is committed."
+        "Attacks targets in the displayed pattern. Some patterns can be rotated before attacking."
       ]
     },
     {
@@ -277,8 +272,7 @@
       "default": true,
       "icon": "move",
       "body": [
-        "Move walks through reachable passable tiles. Each Rubble tile costs 2 movement to enter; ordinary floor costs 1.",
-        "Entering Fire or Ice triggers its surface effect. Previewed paths include movement cost and hazard events. A fresh positive movement allowance always permits one legal first step."
+        "Walks across reachable tiles using the displayed movement allowance. Walking out of Rubble costs 2 movement instead of 1."
       ]
     },
     {
@@ -288,8 +282,7 @@
       "default": true,
       "icon": "blink",
       "body": [
-        "Blink relocates directly to a legal destination without crossing intervening tiles.",
-        "Only the landing tile triggers surface and trap entry effects. Rubble does not increase Blink range cost."
+        "Teleports to a destination without crossing the tiles between. Landing triggers the destination’s surfaces and traps."
       ]
     },
     {
@@ -299,8 +292,7 @@
       "default": true,
       "icon": "block",
       "body": [
-        "Block absorbs non-piercing damage before stoneskin and health.",
-        "Block is cleared when that unit begins its next turn."
+        "Absorbs damage before Stoneskin and Health. Clears at the start of your next turn."
       ]
     },
     {
@@ -310,8 +302,7 @@
       "default": true,
       "icon": "stoneskin",
       "body": [
-        "Stoneskin absorbs non-piercing damage after block and before health.",
-        "Stoneskin persists across turns until damage or sunder removes it."
+        "Absorbs damage after Block and before Health. Remains between turns."
       ]
     },
     {
@@ -321,8 +312,7 @@
       "default": true,
       "icon": "heal",
       "body": [
-        "Heal increases health up to maximum health.",
-        "Card persistence after a heal is determined by the card's exhaust or consume fields."
+        "Restores Health up to your maximum."
       ]
     },
     {
@@ -332,7 +322,7 @@
       "default": true,
       "icon": "draw",
       "body": [
-        "Draw moves cards from draw pile to hand up to the requested amount and hand-size limit."
+        "Adds cards from your draw pile to your hand."
       ]
     },
     {
@@ -342,7 +332,7 @@
       "default": true,
       "icon": "card_play",
       "body": [
-        "Card play effects increase current-turn card play capacity by the printed amount."
+        "Grants additional card plays this turn."
       ]
     },
     {
@@ -352,8 +342,7 @@
       "default": true,
       "icon": "flurry",
       "body": [
-        "Flurry snapshots every card play available when the card begins.",
-        "It repeats the card's printed actions and health cost once per play spent, but pays the card's Time only once. Card plays gained during resolution remain available afterward."
+        "Spends all available card plays to repeat the card once per play spent. Each repeat pays its Health cost; Time is paid once."
       ]
     },
     {
@@ -363,8 +352,7 @@
       "default": true,
       "icon": "illusion",
       "body": [
-        "Illusion creates an allied decoy with its printed health. Enemies may target it.",
-        "A decoy’s arrival counts as entry for surfaces and traps. Illusions share terrain danger with other actors."
+        "Creates a stationary decoy with the displayed Health. Enemies can target it."
       ]
     },
     {
@@ -374,8 +362,7 @@
       "default": true,
       "icon": "immobilize",
       "body": [
-        "Immobilize prevents move and blink actions on the affected unit's next turn.",
-        "The immobilize flag clears after that turn is processed."
+        "Prevents Move and Blink on the affected character’s next turn."
       ]
     },
     {
@@ -385,8 +372,7 @@
       "default": true,
       "icon": "exhaust",
       "body": [
-        "Exhaust moves the played card to the burned pile instead of discard.",
-        "Burned cards do not return to draw or discard for the rest of the combat."
+        "Removes the card from your deck for the rest of combat."
       ]
     },
     {
@@ -396,8 +382,7 @@
       "default": true,
       "icon": "health_cost",
       "body": [
-        "Health cost is paid when the card is committed.",
-        "Health-cost loss bypasses block and stoneskin."
+        "Health paid when you play the card. Ignores Block and Stoneskin."
       ]
     },
     {
@@ -406,8 +391,7 @@
       "title": "Pierce",
       "icon": "pierce",
       "body": [
-        "Pierce damage bypasses block and stoneskin.",
-        "Bypassed defenses are not reduced by the pierced damage."
+        "Deals damage through Block and Stoneskin, leaving those defenses intact."
       ]
     },
     {
@@ -416,8 +400,7 @@
       "title": "Bleed",
       "icon": "bleed",
       "body": [
-        "Bleed stores a damage value on the affected unit.",
-        "Before that unit resolves a real move or attack action, bleed deals its stored damage. The bleed value clears after that unit's next turn."
+        "Deals its displayed damage before each movement or attack action. Clears after the affected character’s next turn."
       ]
     },
     {
@@ -426,9 +409,7 @@
       "title": "Freeze",
       "icon": "freeze",
       "body": [
-        "An Ice attack against an actively Chilled actor applies Freeze after that hit. It consumes all Ice beneath the actor and clears Chilled.",
-        "Freeze skips the actor’s next turn and doubles direct attack damage received while Frozen. This replaces the Chilled damage bonus. Passive terrain damage is not doubled.",
-        "A Frozen actor cannot refresh Freeze or regain Chilled during its skipped turn. It thaws afterward. Later entry onto Ice or a later normal turn start can activate Chilled again."
+        "Skips the next turn and takes triple damage from attacks until thawing."
       ]
     },
     {
@@ -437,8 +418,7 @@
       "title": "Shock",
       "icon": "shock",
       "body": [
-        "Shock disrupts the affected unit's next non-movement action.",
-        "The shock value decrements during that unit's turn setup."
+        "Cancels the affected character’s next non-movement action."
       ]
     },
     {
@@ -447,8 +427,7 @@
       "title": "Expose",
       "icon": "expose",
       "body": [
-        "Expose adds its stored value to the next damage hit against the affected unit.",
-        "Expose clears after being consumed by a hit."
+        "The next hit against the target deals additional damage equal to Expose."
       ]
     },
     {
@@ -457,8 +436,7 @@
       "title": "Sunder",
       "icon": "sunder",
       "body": [
-        "Sunder removes block first, then stoneskin, up to the printed sunder value.",
-        "Sunder resolves before the damage portion of the action."
+        "Removes the displayed amount of Block, then Stoneskin, before dealing attack damage."
       ]
     },
     {
@@ -467,9 +445,7 @@
       "title": "Chain",
       "icon": "chain",
       "body": [
-        "Chain N can jump up to N tiles from each struck enemy or Electrified relay. N is the reach of each jump. Each enemy is struck at most once.",
-        "Electrified tiles can bridge a route even when empty. Used relay tiles are consumed. The preview shows the chosen route before the attack resolves.",
-        "A damaging Lightning hit can also conduct through one connected Electrified region, reaching its enemy occupants without requiring Chain. Only Chain can cross a gap between conductors."
+        "Jumps between enemies and Electrified tiles within the displayed distance. Each enemy is hit once per attack."
       ]
     },
     {
@@ -478,8 +454,7 @@
       "title": "Push",
       "icon": "push",
       "body": [
-        "Push moves the target away from the action source up to the printed distance.",
-        "Forced movement ignores Rubble’s movement surcharge but triggers Fire, Ice and traps on each tile entered. Blockers and occupied tiles can stop it."
+        "Forces the target away from the attack’s origin until it reaches the displayed distance or a blocked tile."
       ]
     },
     {
@@ -488,8 +463,7 @@
       "title": "Pull",
       "icon": "pull",
       "body": [
-        "Pull moves the target toward the action source up to the printed distance.",
-        "Forced movement ignores Rubble’s movement surcharge but triggers Fire, Ice and traps on each tile entered. Blockers and occupied tiles can stop it."
+        "Forces the target toward the attack’s origin until it reaches the displayed distance or a blocked tile."
       ]
     },
     {
@@ -498,7 +472,7 @@
       "title": "Consume",
       "icon": "consume",
       "body": [
-        "Consume removes the played item card from the run after resolution."
+        "Removes the item card from the run after use."
       ]
     },
     {
@@ -507,8 +481,7 @@
       "title": "Radiance",
       "icon": "radiance",
       "body": [
-        "Radiance cards carry light into the Umbra. Their effects include Illuminate, Vision, Truesight, and Dispel Umbra.",
-        "Radiance cards still follow their printed element, targeting, time, and card-play rules."
+        "Radiance reveals the Umbra through Illuminate, Vision, Truesight and Dispel Umbra."
       ]
     },
     {
@@ -517,8 +490,7 @@
       "title": "Illuminate",
       "icon": "illuminate",
       "body": [
-        "Illuminate places a light source on the targeted tile and reveals Umbra within its printed radius.",
-        "Its counter shows how many player turns remain. A lasting light displays an infinity symbol instead."
+        "Creates light that reveals nearby Umbra within the displayed radius. Its duration counts down on player turns."
       ]
     },
     {
@@ -527,8 +499,7 @@
       "title": "Vision",
       "icon": "vision",
       "body": [
-        "Vision temporarily increases the radius of light centered on the player by the printed amount.",
-        "The bonus counts down on player turns; when it ends, the Umbra gradually closes over newly hidden tiles."
+        "Expands the light around you for the displayed number of turns."
       ]
     },
     {
@@ -537,8 +508,7 @@
       "title": "Truesight",
       "icon": "truesight",
       "body": [
-        "Truesight reveals enemies through the Umbra and permits direct attacks against them even while their tiles remain dark.",
-        "Its player-HUD counter shows how many player turns remain. Truesight does not illuminate board tiles."
+        "Reveals enemies through the Umbra and lets you target them. Lasts for the displayed number of turns."
       ]
     },
     {
@@ -547,8 +517,7 @@
       "title": "Dispel Umbra",
       "icon": "dispel_umbra",
       "body": [
-        "Dispel Umbra reduces the room's effective Umbra stage by the printed number of steps for the rest of combat.",
-        "It cannot reduce the effective stage below Clear."
+        "Reduces the room’s Umbra stage for the rest of combat."
       ]
     },
     {
@@ -597,8 +566,7 @@
       "enemy_id": "cinder_ooze",
       "title": "Cinder Ooze",
       "body": [
-        "Fire ooze whose attacks leave persistent Fire. It can split into smaller droplets when killed.",
-        "Slag Shell consumes one revealed nearby Fire tile for extra Block. You can use or replace that Fire first."
+        "Fire ooze whose attacks leave Fire tiles. Slag Shell consumes nearby Fire for extra Block; killing the ooze can split it into droplets."
       ]
     },
     {
@@ -607,8 +575,7 @@
       "enemy_id": "cinder_droplet",
       "title": "Cinder Droplet",
       "body": [
-        "Small Fire fragment spawned by a Cinder Ooze. Its attacks can leave Fire.",
-        "Droplets occupy normal board tiles and share the same terrain danger as other actors."
+        "Small Fire fragment spawned by a Cinder Ooze. Its attacks leave Fire tiles."
       ]
     },
     {
@@ -617,8 +584,7 @@
       "enemy_id": "bile_bloomer",
       "title": "Shale Bloomer",
       "body": [
-        "Earth controller that places Rubble and exposes targets. Its narrow terrain patterns obstruct routes without filling the room.",
-        "Shale Shell consumes one revealed nearby Rubble tile for additional Stoneskin. Remove that selected tile to deny the bonus."
+        "Earth controller whose attacks cover the struck tiles in Rubble and Expose targets. Shale Shell consumes nearby Rubble for additional Stoneskin."
       ]
     },
     {
@@ -637,8 +603,7 @@
       "enemy_id": "grave_surgeon",
       "title": "Grave Surgeon",
       "body": [
-        "Support enemy that heals or guards injured allies.",
-        "Its guard clears elemental terrain under the chosen ally, opening a safer position without removing Rubble."
+        "Support enemy that heals and guards allies. Its guard clears elemental surfaces beneath its target."
       ]
     },
     {
@@ -647,8 +612,7 @@
       "enemy_id": "frostglass_lancer",
       "title": "Frostglass Lancer",
       "body": [
-        "Long-range Ice striker that creates Ice and threatens later Freeze.",
-        "New Ice does not immediately Chill a stationary target. Move away before your next turn starts to deny setup. Its spear strike is physical; Refract Guard clears Ice beneath the Lancer."
+        "Ice striker that creates Ice tiles and follows up with Freeze. Refract Guard clears Ice beneath the Lancer."
       ]
     },
     {
@@ -657,8 +621,7 @@
       "enemy_id": "zekarion",
       "title": "Zekarion, the Raging Tempest",
       "body": [
-        "Storm dragon whose Lightning attacks create and exploit Electrified terrain. Chain links enemies and relay tiles across gaps.",
-        "Its stronger Shock attack reveals a chosen Electrified fuel tile. Remove that tile to deny the added disruption; the base attack still resolves."
+        "Storm dragon whose Lightning attacks create and use Electrified tiles. Tempest Breath inflicts Shock when conducted through Electrified."
       ]
     },
     {
@@ -667,8 +630,7 @@
       "enemy_id": "lightning_wisp",
       "title": "Lightning Wisp",
       "body": [
-        "Lightning minion that seeds Electrified tiles as relays.",
-        "Capacitor Arc consumes selected nearby Electrified fuel to add Shock. Its exposed fuel can be replaced or used first."
+        "Lightning minion that creates Electrified tiles. Capacitor Arc inflicts Shock when conducted through Electrified."
       ]
     },
     {
@@ -677,8 +639,7 @@
       "title": "Worldspines",
       "icon": "worldspines",
       "body": [
-        "Tharokh raises attackable stone spires at fixed arena positions.",
-        "Faultline ruptures tiles around surviving Worldspines and then breaks the spires. Destroying a spire leaves local Rubble: a cleared blast threat can still constrain movement."
+        "Tharokh raises stone spires that can be attacked. Faultline blasts around surviving spires, then breaks them into Rubble."
       ]
     },
     {
@@ -687,8 +648,7 @@
       "title": "Kindle Ground and Crownfire",
       "icon": "detonate",
       "body": [
-        "Vyraketh’s Kindle Ground creates normal Fire tiles and marks their positions for the next Crownfire. Placement causes no immediate terrain damage.",
-        "Crownfire detonates marked Fire that remains. Replace or consume the Fire before it resolves, or leave the previewed blast area. Overlapping blasts hit each actor once."
+        "Kindle Ground creates Fire and marks it for the next Crownfire. Crownfire detonates any Fire remaining on the marked tiles."
       ]
     },
     {
@@ -697,8 +657,7 @@
       "title": "The Hollow Gale",
       "icon": "gale_force",
       "body": [
-        "Vaeloryx's Hollow Gale reaches across the entire arena.",
-        "It damages the player, then pushes them away from the dragon one tile at a time; hazards encountered along the route still trigger."
+        "Vaeloryx’s Hollow Gale damages the player and pushes them away from the dragon across the arena."
       ]
     },
     {
@@ -787,9 +746,7 @@
       "title": "Board Surfaces",
       "icon": "surface",
       "body": [
-        "Tiles can hold Rubble and one elemental surface: Fire, Ice or Electrified. Light remains independent.",
-        "Surfaces persist until consumed, replaced, removed or combat ends. Painting the same surface again does not stack its strength. A new elemental surface replaces the old one.",
-        "Terrain is shared by every actor. Placing Fire or Ice beneath a stationary actor has no immediate hazard effect; entry or that actor’s eligible turn start activates it."
+        "A tile can hold Rubble and one elemental surface: Fire, Ice or Electrified. Surfaces remain until consumed, replaced, removed or combat ends."
       ]
     },
     {
@@ -798,8 +755,7 @@
       "title": "Fire Tiles",
       "icon": "surface_fire",
       "body": [
-        "Entering Fire deals 1 damage. Starting an turn on Fire deals 2 damage after Block clears. Large actors take one event per step or start, regardless of how many Fire tiles they occupy.",
-        "Fire persists until consumed or replaced. Placement alone causes no damage. Detonate converts selected Fire into a single direct blast."
+        "Deals 3 damage at turn start and 2 damage when entered."
       ]
     },
     {
@@ -808,9 +764,7 @@
       "title": "Ice Tiles",
       "icon": "surface_ice",
       "body": [
-        "Entering Ice or beginning a non-Frozen turn on Ice applies Chilled while the actor remains supported by Ice.",
-        "Fresh Ice placed beneath a stationary actor does not activate Chilled. Leaving all supporting Ice or removing it clears Chilled.",
-        "An Ice hit against active Chilled applies Freeze after damage and consumes all Ice beneath the actor."
+        "Entering or starting a turn on Ice applies Chilled. Leaving Ice removes Chilled."
       ]
     },
     {
@@ -819,9 +773,7 @@
       "title": "Electrified Tiles",
       "icon": "surface_electrified",
       "body": [
-        "Electrified is a conductor, not an entry hazard. It is ready as soon as it is placed, including for a later action on the same card.",
-        "A damaging Lightning attack can travel through a cardinally connected Electrified region, striking its enemy occupants once and consuming that region.",
-        "Chain can additionally jump through individual relay tiles across gaps within its printed jump reach. Only used relay tiles are consumed."
+        "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles."
       ]
     },
     {
@@ -830,8 +782,7 @@
       "title": "Rubble",
       "icon": "surface_rubble",
       "body": [
-        "Rubble increases walking entry cost to 2. Forced movement ignores this surcharge; Blink only checks its landing.",
-        "Rubble can coexist with any elemental surface. It persists until consumed or removed. A first step with fresh positive movement remains possible even when its full cost exceeds the allowance."
+        "Walking out of Rubble costs 2 movement instead of 1. With movement remaining, the first step is always allowed."
       ]
     },
     {
@@ -840,9 +791,7 @@
       "title": "Chilled",
       "icon": "chilled",
       "body": [
-        "Chilled becomes active when an actor enters Ice or starts a non-Frozen turn on Ice. Painting Ice underneath an actor does not immediately activate it.",
-        "While actively Chilled, each direct hit deals +1 damage. Hits do not consume Chilled; leaving or removing all supporting Ice does.",
-        "An Ice hit against active Chilled applies Freeze after damage and consumes supporting Ice. Frozen actors use the doubled direct-damage rule instead."
+        "Takes +2 damage from attacks while on Ice. An Ice attack applies Freeze and consumes the Ice beneath the target."
       ]
     },
     {
@@ -851,8 +800,7 @@
       "title": "Detonate",
       "icon": "detonate",
       "body": [
-        "Detonate consumes selected Fire and attacks the union of those tiles and their four cardinal neighbors. Each actor is hit once, even where blast areas overlap.",
-        "Detonate is direct Fire damage and can harm the player and illusions as well as enemies. Only selected Fire is consumed; nearby Fire does not automatically cause a room-wide reaction."
+        "Consumes selected Fire tiles to damage targets on them and their four cardinal neighbors. Overlapping blasts hit each target once."
       ]
     },
     {
@@ -861,8 +809,7 @@
       "title": "Consume Surface",
       "icon": "surface_consume",
       "body": [
-        "Consume Surface removes the selected matching terrain as an explicit cost. Its printed reward requires successful consumption.",
-        "Enemy fuel tiles are chosen when their intent is revealed. Removing that specific fuel denies its bonus; the enemy does not secretly select another tile."
+        "Removes the displayed surface to gain the stated effect."
       ]
     },
     {
@@ -871,8 +818,7 @@
       "title": "Relocate Surface",
       "icon": "surface_relocate",
       "body": [
-        "Relocation moves an existing surface from its source tile to a chosen legal destination, keeping its layer.",
-        "An elemental surface replaces the destination’s old elemental surface. Rubble remains independent. Moving Fire or Ice beneath a stationary actor does not trigger a hazard immediately."
+        "Moves a surface from one tile to another."
       ]
     }
   ]

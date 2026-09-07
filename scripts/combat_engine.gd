@@ -2348,16 +2348,16 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
 	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
-	var spent: int = 0
-	if destination != origin:
-		if str(action.get("type", "")) == "blink":
-			spent = PathUtils.manhattan(origin, destination)
-		else:
-			spent = int((next_state.get("last_player_movement", {}) as Dictionary).get("spent", 0))
+	# A resolved request can die from Bleed before its first step, or collide
+	# with an unseen actor. Consumers must still commit that resulting state.
+	var spent: int = int((next_state.get("last_player_movement", {}) as Dictionary).get("spent", 0))
+	if str(action.get("type", "")) == "blink":
+		spent = PathUtils.manhattan(origin, destination)
 	var remaining_before: int = player_movement_remaining(movement_state)
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = maxi(0, remaining_before - spent)
 	next_state["last_player_movement"] = {
+		"resolved": true,
 		"action_type": str(action.get("type", "move")),
 		"origin": origin,
 		"target": target_tile,
@@ -3543,9 +3543,9 @@ func _damage_actor_target(state: Dictionary, target: Dictionary, damage: int, by
 			var illusion: Dictionary = _surface_actor(state, "illusion", int(target.get("id", -1)))
 			var resolved_damage: int = damage
 			if int(illusion.get("freeze", 0)) > 0:
-				resolved_damage *= 2
+				resolved_damage *= BoardSurfaceRules.FROZEN_MULTIPLIER
 			elif bool(illusion.get("chilled", false)):
-				resolved_damage += GameData.fixed_point_amount(1)
+				resolved_damage += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
 			for effect: Dictionary in _relic_effects(state):
 				if str(effect.get("type", "")) != "illusion_damage_cap":
 					continue
@@ -3754,7 +3754,7 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0 or enemy.get("pos", INVALID_TILE) != planned_path[path_index - 1]:
 			break
-		var cost: int = BoardSurfaceRules.entry_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
+		var cost: int = BoardSurfaceRules.movement_step_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
 		if path_index == 1 and allowance > 0:
 			cost = mini(cost, allowance)
 		if allowance >= 0 and spent + cost > allowance:
@@ -3789,9 +3789,9 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	var total_damage: int = damage
 	if apply_freeze_multiplier and damage > 0:
 		if int(enemy.get("freeze", 0)) > 0:
-			total_damage *= 2
+			total_damage *= BoardSurfaceRules.FROZEN_MULTIPLIER
 		elif bool(enemy.get("chilled", false)):
-			total_damage += GameData.fixed_point_amount(1)
+			total_damage += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
 	if apply_freeze_multiplier and total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
 		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
 		enemies[enemy_index] = enemy
@@ -3913,9 +3913,9 @@ func _damage_player(
 	var remaining: int = damage
 	if apply_freeze_multiplier and damage > 0:
 		if int(player.get("freeze", 0)) > 0:
-			remaining *= 2
+			remaining *= BoardSurfaceRules.FROZEN_MULTIPLIER
 		elif bool(player.get("chilled", false)):
-			remaining += GameData.fixed_point_amount(1)
+			remaining += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
 		var applied_to_block: int = mini(block_amount, remaining)
@@ -5878,7 +5878,7 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 		var player: Dictionary = _normalized_player(next_state.get("player", {}))
 		if player.get("pos", INVALID_TILE) != path[step_index - 1]:
 			break
-		var cost: int = BoardSurfaceRules.entry_cost(next_state, player, path[step_index - 1], path[step_index])
+		var cost: int = BoardSurfaceRules.movement_step_cost(next_state, player, path[step_index - 1], path[step_index])
 		if step_index == 1 and minimum_progress and allowance > 0:
 			cost = mini(cost, allowance)
 		if allowance >= 0 and spent + cost > allowance:
@@ -6247,7 +6247,7 @@ func _trigger_player_bleed_for_action(state: Dictionary, action: Dictionary) -> 
 	var bleed_amount: int = int(player.get("bleed", 0))
 	if bleed_amount <= 0:
 		return next_state
-	next_state = _damage_player(next_state, bleed_amount, false, true, "bleed")
+	next_state = _damage_player(next_state, bleed_amount, false, false, "bleed")
 	_log(next_state, "Bleed opens for %d." % bleed_amount)
 	return next_state
 
@@ -6263,7 +6263,7 @@ func _trigger_enemy_bleed_for_action(state: Dictionary, enemy_index: int, action
 		return {"state": next_state, "step": empty_step}
 	var before_state: Dictionary = next_state.duplicate(true)
 	var before_enemy: Dictionary = enemy.duplicate(true)
-	next_state = _damage_enemy(next_state, enemy_index, bleed_amount)
+	next_state = _damage_enemy(next_state, enemy_index, bleed_amount, false)
 	var after_enemies: Array = next_state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= after_enemies.size():
 		return {"state": next_state, "step": empty_step}
@@ -6340,7 +6340,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		enemy["immobilize"] = false
 	var steps: Array[Dictionary] = []
 	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
-		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": GameData.fixed_point_amount(2)}, before, state))
+		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE)}, before, state))
 	if frozen or shocked or immobilized:
 		var label: String = "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
 		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label})
@@ -8146,7 +8146,7 @@ func _enemy_attack_route_prediction(state: Dictionary, enemy: Dictionary, record
 	var arrived: Dictionary = _surface_actor(forecast, "enemy", int(enemy.get("id", -1)))
 	var health_lost: int = maxi(0, int(enemy.get("hp", 0)) - int(arrived.get("hp", 0)))
 	var defense_spent: int = maxi(0, int(enemy.get("block", 0)) + int(enemy.get("stoneskin", 0)) - int(arrived.get("block", 0)) - int(arrived.get("stoneskin", 0)))
-	var chill_cost: int = 1 if bool(arrived.get("chilled", false)) and not bool(enemy.get("chilled", false)) else 0
+	var chill_cost: int = BoardSurfaceRules.CHILLED_BONUS if bool(arrived.get("chilled", false)) and not bool(enemy.get("chilled", false)) else 0
 	return {"destination": arrived.get("pos", destination), "survives": int(arrived.get("hp", 0)) > 0, "hazard_cost": health_lost * 3 + defense_spent + chill_cost, "health_lost": health_lost, "defense_spent": defense_spent}
 
 func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: Dictionary, movement_type: String) -> bool:
@@ -8314,7 +8314,7 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 			var next_anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, next_tile, planning_context)
 			if not bool(next_anchor_details.get("in_grid", false)):
 				continue
-			var step_cost: int = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range)
+			var step_cost: int = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range, BoardSurfaceRules.movement_step_cost(state, enemy, current_tile, next_tile))
 			if step_cost < 0:
 				continue
 			var route: Array[Vector2i] = _vector2i_values(current.get("route", []))
@@ -8394,10 +8394,10 @@ func _enemy_route_record_precedes(candidate: Dictionary, incumbent: Dictionary) 
 		return _tile_precedes(candidate_tile, incumbent_tile)
 	return _enemy_path_precedes(_vector2i_values(candidate.get("route", [])), _vector2i_values(incumbent.get("route", [])))
 
-func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionary, attack_action: Dictionary, move_range: int) -> int:
+func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionary, attack_action: Dictionary, move_range: int, movement_cost: int = 1) -> int:
 	if bool(anchor_details.get("actor_target_overlap", false)):
 		return -1
-	var cost: int = int(anchor_details.get("movement_cost", 1)) + int(anchor_details.get("trap_penalty", 0)) + int(anchor_details.get("surface_hazard", 0))
+	var cost: int = movement_cost + int(anchor_details.get("trap_penalty", 0)) + int(anchor_details.get("surface_hazard", 0))
 	var terrain_indices: Array[int] = _int_values(anchor_details.get("terrain_indices", []))
 	if not terrain_indices.is_empty():
 		var damage: int = int(attack_action.get("damage", 0))
@@ -8496,15 +8496,11 @@ func _enemy_future_anchor_details(state: Dictionary, enemy: Dictionary, anchor: 
 	var blocking_enemy_count: int = _enemy_future_blocking_enemy_count(enemy, anchor, planning_context)
 	var actor_target_overlap: bool = _enemy_future_actor_target_overlap(enemy, anchor, planning_context)
 	var trap_penalty: int = _enemy_future_trap_penalty(enemy, anchor, planning_context)
-	var ground_cost: int = 1
 	var surface_hazard: int = 0
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
-		if BoardSurfaceRules.has_rubble(state, tile):
-			ground_cost = 2
 		if BoardSurfaceRules.element_at(state, tile) == "fire":
-			surface_hazard = 3
+			surface_hazard = BoardSurfaceRules.FIRE_ENTRY_DAMAGE + BoardSurfaceRules.FIRE_START_DAMAGE
 	var details: Dictionary = {
-		"movement_cost": ground_cost,
 		"surface_hazard": surface_hazard,
 		"in_grid": in_grid,
 		"terrain_indices": terrain_indices,
@@ -8606,7 +8602,7 @@ func _enemy_actual_prefix_for_route(state: Dictionary, enemy: Dictionary, route:
 	for index: int in range(1, route.size()):
 		if remaining <= 0 or not _enemy_anchor_is_dynamically_open(state, enemy, route[index]):
 			break
-		var cost: int = BoardSurfaceRules.entry_cost(state, enemy, route[index - 1], route[index])
+		var cost: int = BoardSurfaceRules.movement_step_cost(state, enemy, route[index - 1], route[index])
 		if cost > remaining and index > 1:
 			break
 		path.append(route[index])
@@ -8639,7 +8635,7 @@ func _enemy_projected_attack_tiles(state: Dictionary, enemy: Dictionary, action:
 		var footprint: Array[Vector2i] = _vector2i_values([impact])
 		var plan: Dictionary = _board_attack_plan(state, action, footprint, "enemy")
 		var lookup: Dictionary = {impact: true}
-		for tile: Vector2i in plan.get("consumed", {}):
+		for tile: Vector2i in plan.get("used_conductors", {}):
 			lookup[tile] = true
 		for hit: Dictionary in plan.get("hits", []):
 			lookup[hit["to"]] = true
@@ -9932,7 +9928,7 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 		if BoardSurfaceRules.element_at(state, tile) == "ice" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "ice"):
 			entered_ice = true
 	if entered_fire:
-		var amount: int = GameData.fixed_point_amount(2 if start else 1)
+		var amount: int = GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE)
 		var before_hp: int = int(unit.get("hp", 0))
 		var context_before: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 		state["damage_context"] = context_before.duplicate(true)
@@ -9991,7 +9987,7 @@ func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int,
 func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1, minimum_progress: bool = true, unit: Dictionary = {}) -> int:
 	var spent: int = 0
 	for index: int in range(1, path.size()):
-		var cost: int = BoardSurfaceRules.entry_cost(state, unit, path[index - 1], path[index])
+		var cost: int = BoardSurfaceRules.movement_step_cost(state, unit, path[index - 1], path[index])
 		if index == 1 and minimum_progress and allowance > 0 and cost > allowance:
 			cost = allowance
 		spent += cost
@@ -10006,14 +10002,14 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 				if not PathUtils.is_passable(state.get("grid", []), tile) or occupied.has(tile):
 					blocked[anchor] = true
 					break
-	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.entry_cost(state, unit, from, to)
+	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.movement_step_cost(state, unit, from, to)
 	var hazard_cost: Callable = func(to: Vector2i) -> int:
 		var harm: int = 0
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, to):
 			if BoardSurfaceRules.element_at(state, tile) == "fire":
-				harm = maxi(harm, 3)
+				harm = maxi(harm, BoardSurfaceRules.FIRE_ENTRY_DAMAGE + BoardSurfaceRules.FIRE_START_DAMAGE)
 			elif BoardSurfaceRules.element_at(state, tile) == "ice":
-				harm = maxi(harm, 1)
+				harm = maxi(harm, BoardSurfaceRules.CHILLED_BONUS)
 			var trap_index: int = _trap_index_at_tile(state, tile)
 			if trap_index >= 0:
 				harm += 4 + trap_damage(state, (state.get("traps", []) as Array)[trap_index]) / GameData.FIXED_POINT_SCALE
@@ -10096,7 +10092,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 	var hits: Array[Dictionary]
 	var visited: Dictionary = {}
 	var touched: Dictionary = {}
-	var consumed: Dictionary = {}
+	var used_conductors: Dictionary = {}
 	for tile: Vector2i in impact:
 		touched[tile] = true
 	for actor: Dictionary in opponents:
@@ -10144,7 +10140,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 				if str(node["kind_trace"]) == "relay":
 					route_assisted = true
 					relays[node["to"]] = true
-					consumed[node["to"]] = "chain"
+					used_conductors[node["to"]] = "chain"
 					if _action_element(action) == "lightning":
 						for member: Vector2i in BoardSurfaceRules.connected_component(state, node["to"], visible_ground):
 							served_components[member] = true
@@ -10174,7 +10170,7 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 			for member: Vector2i in component:
 				networks[member] = true
 				network_paths[member] = paths.get(member, [])
-				consumed[member] = "conduction"
+				used_conductors[member] = "conduction"
 		var network_tiles: Array[Vector2i] = _sorted_tiles_from_lookup(networks)
 		for hit: Dictionary in hits:
 			if hit.has("unit") and _surface_unit_intersects(hit["unit"] as Dictionary, network_tiles):
@@ -10197,7 +10193,11 @@ func _board_attack_plan(state: Dictionary, action: Dictionary, impact: Array[Vec
 					break
 			hits.append(hit)
 			visited[actor["key"]] = true
-	return {"hits": hits, "consumed": consumed}
+	var consumed: Dictionary = {}
+	for tile: Vector2i in used_conductors:
+		if BoardSurfaceRules.element_at(state, tile) == "fire":
+			consumed[tile] = used_conductors[tile]
+	return {"hits": hits, "used_conductors": used_conductors, "consumed": consumed}
 
 func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector2i, actor_kind: String = "player", actor_id: int = -1, trace: Dictionary = {}, supplied_impact: Array[Vector2i] = []) -> Dictionary:
 	var capture_states: bool = trace.has("chain_hits")
@@ -10227,8 +10227,12 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
 	var consumed: Dictionary = plan["consumed"] as Dictionary
-	var capture_route: bool = int(route_action.get("chain", 0)) > 0 or not consumed.is_empty()
+	var used_conductors: Dictionary = plan["used_conductors"] as Dictionary
+	var capture_route: bool = int(route_action.get("chain", 0)) > 0 or not used_conductors.is_empty()
 	capture_states = capture_states and capture_route
+	# Ordinary Electrified is reusable. Stormcoal Fire pays for conduction.
+	for tile: Vector2i in _sorted_tiles_from_lookup(used_conductors):
+		BoardSurfaceRules.record_event(state, {"kind": "surface_conducted", "surface": BoardSurfaceRules.element_at(state, tile), "tile": tile, "reason": str(used_conductors[tile]), "source": _surface_source(state, action)})
 	for tile: Vector2i in _sorted_tiles_from_lookup(consumed):
 		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
 	var affected: Array[int]
@@ -10250,7 +10254,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		var hit_action: Dictionary = resolved.duplicate(true)
 		var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
 		var target_bonus: bool = str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, hit["to"])
-		var assisted_bonus: bool = str(bonus.get("subject", "")) == "consumed" and bool(hit.get("electrically_assisted", false))
+		var assisted_bonus: bool = str(bonus.get("subject", "")) == "conducted" and bool(hit.get("electrically_assisted", false))
 		if target_bonus or assisted_bonus:
 			for field: String in SURFACE_BONUS_FIELDS:
 				if bonus.has(field):

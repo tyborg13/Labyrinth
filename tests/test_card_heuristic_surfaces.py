@@ -33,7 +33,7 @@ class SurfaceHeuristicTests(unittest.TestCase):
         self.assertGreater(painted.offense, existing.offense)
         self.assertGreater(painted.surface_fuel_cost, existing.surface_fuel_cost)
 
-    def test_flurry_repeats_direct_damage_but_not_the_same_consumed_network(self):
+    def test_flurry_reuses_electrified_network_for_each_copy(self):
         direct = {'type': 'ranged', 'damage': 4, 'range': 5}
         normal = self.score([direct])
         repeat = self.score([direct], flurry=True)
@@ -41,7 +41,7 @@ class SurfaceHeuristicTests(unittest.TestCase):
         charged = self.score([direct], element='lightning')
         charged_repeat = self.score([direct], element='lightning', flurry=True)
         self.assertGreater(charged_repeat.offense, repeat.offense)
-        self.assertLess(charged_repeat.offense - repeat.offense, 2 * (charged.offense - normal.offense))
+        self.assertAlmostEqual(charged_repeat.offense - repeat.offense, 2 * (charged.offense - normal.offense))
 
     def test_explicit_repaint_restores_each_detonate_but_unpaid_fuel_does_not(self):
         blast = {'type': 'detonate', 'damage': 6, 'range': 4}

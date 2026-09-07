@@ -352,19 +352,21 @@ static func _event_rewards(engine: RefCounted, before: Dictionary, state: Dictio
 						matched = true
 						if position == INVALID:
 							position = event.get("tile", INVALID)
-			"surface_consumption_reward", "layered_surface_consumption_reward":
+			"surface_conduction_reward":
+				var conducted: Dictionary = {}
+				for event: Dictionary in events:
+					if str(event.get("kind", "")) == "surface_conducted":
+						conducted[event.get("tile", INVALID)] = true
+				matched = conducted.size() >= int(entry.get("threshold", 2))
+			"layered_surface_consumption_reward":
 				var consumed: Dictionary = {}
 				for event: Dictionary in events:
 					if str(event.get("kind", "")) != "surface_removed" or str(event.get("reason", "")) not in ["chain", "conduction", "detonate", "freeze"]:
 						continue
-					var tile: Vector2i = event.get("tile", INVALID)
-					if type == "layered_surface_consumption_reward":
-						if str(event.get("surface", "")) != "rubble" and bool(event.get("rubble_underlay", false)):
-							consumed[tile] = true
-					elif str(event.get("reason", "")) in ["chain", "conduction"] and Surface.is_conductive(before, tile):
-						consumed[tile] = true
-				matched = consumed.size() >= int(entry.get("min_consumed", entry.get("threshold", 2 if type == "surface_consumption_reward" else 1)))
-				if type == "layered_surface_consumption_reward" and not consumed.is_empty():
+					if str(event.get("surface", "")) != "rubble" and bool(event.get("rubble_underlay", false)):
+						consumed[event.get("tile", INVALID)] = true
+				matched = consumed.size() >= int(entry.get("min_consumed", entry.get("threshold", 1)))
+				if not consumed.is_empty():
 					var sorted: Array[Vector2i]
 					for tile: Vector2i in consumed:
 						sorted.append(tile)

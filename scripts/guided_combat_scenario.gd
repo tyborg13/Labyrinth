@@ -12,10 +12,10 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 
 const STATE_KEY: String = "guided_combat_scenario"
 const RUN_ELIGIBILITY_KEY: String = "guided_combat_scenario_eligible"
-const VERSION: int = 2
+const VERSION: int = 3
 const TARGET_ENEMY_ID: int = 7101
 const SUPPORT_ENEMY_ID: int = 7102
-const TARGET_HP: int = 15
+const TARGET_HP: int = 12
 const SUPPORT_FIRST_ACTIVATION_TIME: int = 13
 const PREVIEW_CARD_ID: String = "pale_spark"
 const KILL_CARD_ID: String = "quick_stab"

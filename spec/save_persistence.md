@@ -24,7 +24,9 @@ profiles from an older schema that have already begun runs or contain the retire
 `combat_micro_prompt_states` notes. The retired `legacy_exempt` status also
 migrates to `active`, so every player receives the authored guide once after its
 rollout. Completion and dismissal are the only automatic suppression flags and
-remain permanent profile choices; explicit replay resets just this record. Every
+remain persistent; explicit replay resets just this record. The narrow legacy
+combat fallback described below may dismiss an incompatible paid opening while
+preserving its real milestones. Every
 runtime tutorial mutation increments `progression_revision` and is mirrored into
 the resumable run at the next committed persistence boundary. Starting a new run
 with an active, partially completed tutorial restarts its milestones at step one,
@@ -123,10 +125,47 @@ intentionally resets that namespace to the fixture's starting moment. Merely
 quitting and relaunching its printed launch command does not rerun the generator,
 so Continue resumes the latest in-session commit exactly like a normal run.
 
-## Surface rules version 4
+## Surface rules version 5
 
-The surface migration preserves the saved action boundary: health, clocks, partially spent movement, card piles, resources and RNG state. Retired Bone Dart maps to Pale Spark; unsupported permanent card growth is refunded before its legacy fields are removed. Numeric Burn, Poison and the elemental meter are removed, while the card Exhaust boolean remains. Old enemy intents are refreshed by stable intent ID and depth; migration itself does not activate terrain contact. Historical logs remain unchanged.
+Migration preserves the saved action boundary: health, defenses, clocks, partially
+spent movement, card piles, resources and RNG state. Saves older than version 4
+remove the retired elemental meter, Poison and numeric Burn; the card Exhaust
+boolean remains. Bone Dart maps to Pale Spark, and permanent card-growth refunds
+remain idempotent. Legacy enemy intents are refreshed without applying terrain
+contact. Historical logs remain unchanged.
 
-Before overwriting or clearing a valid legacy run/profile, the store writes and SHA-256 verifies a durable `.pre-surfaces-v4.<digest>` archive. These archives are independent of rotating recovery files and survive normal completion and repeated saves. A conflicting/unwritable archive prevents the destructive step. A terminal legacy run is archived even if no intervening combat write occurs.
+Version 4 already stores contact-based Chilled and durable terrain history. Its
+upgrade preserves active Chilled on every character, surface layers and their
+source metadata, the full saved event tail, event sequence, surface revision and
+analytics deduplication watermarks. It does not refresh the whole enemy state or
+rewrite old damage amounts in paid/copied actions. Historical events without an
+event-level version use a preserved board-level v4 fallback;
+new events carry their own v5 version. Copied Electrified-assisted
+bonuses change their condition from consumption to conduction. Unpaid legacy
+electric-fuel intents receive the same conduction condition; paid or denied
+fuel checkpoints keep their resolved outcome and cannot pay again. Ion Spool’s
+once-per-turn claim follows its renamed effect, preventing a second reward on
+resume.
 
-The version-1 guided opening is a narrow authored-fixture exception: an untouched 17-HP tutorial target becomes 15 HP for Pale Spark (4) plus Quick Stab (11). An already-resolved old first hit leaves its remaining 11 HP unchanged, and no card, clock, movement or resource payment is replayed. The tutorial marker upgrades so saved input guidance remains visible.
+Before overwriting or clearing an older run/profile, the store writes and SHA-256
+verifies a durable `.pre-surfaces-v5.<digest>` archive. Existing v4 archives remain
+untouched. These archives are independent of rotating recovery files and survive
+normal completion and repeated saves. A conflicting or unwritable archive
+prevents replacement or deletion, including a terminal run cleared before its
+first migrated save.
+
+The guided scenario is version 3 and starts with a 12-HP target for Pale Spark
+(3) followed by Quick Stab (9). Tutorial progression stays at version 2, so the
+balance update does not reset its committed milestones. An untouched version-1
+or version-2 authored target may change from 17 or 15 HP to 12 only when it is
+still at full authored health and no card/payment or spent pile indicates a paid
+opening. Movement and all other state remain intact.
+
+An older opening that has already paid for cards and cannot follow the scripted
+kill resumes as ordinary combat: the active guide is dismissed, its existing
+milestones remain, and no later lesson is fabricated. The same fallback handles
+a saved kill whose UI milestone had not yet been written. A killed target with
+its kill milestone already recorded continues the later lessons. This fallback
+never changes remaining enemy HP, heals a character, grants a card play, replays
+an action or restores a spent item. Players can replay the tutorial from the
+normal tutorial controls.

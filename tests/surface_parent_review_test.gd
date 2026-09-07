@@ -15,6 +15,7 @@ func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	_test_legacy_clear_archives()
 	_test_legacy_guide_has_no_invisible_gate()
+	_test_paid_v4_guide_releases_controls()
 	_test_direct_detonate_shatter_and_passive_exclusion()
 	_test_ember_siphon_source_filter()
 	_test_tongs_excludes_relic_fire()
@@ -31,7 +32,7 @@ func _test_legacy_clear_archives() -> void:
 	file.close()
 	var digest: String = FileAccess.get_sha256(path)
 	Store.clear_saved_run()
-	var archive: String = "%s.pre-surfaces-v4.%s" % [path, digest.substr(0, 16)]
+	var archive: String = "%s.pre-surfaces-v%d.%s" % [path, Store.SURFACE_RULES_VERSION, digest.substr(0, 16)]
 	check(FileAccess.file_exists(archive) and FileAccess.get_sha256(archive) == digest, "Clearing an old terminal run before its first migrated save must preserve the exact legacy archive")
 
 func _test_legacy_guide_has_no_invisible_gate() -> void:
@@ -51,6 +52,29 @@ func _test_legacy_guide_has_no_invisible_gate() -> void:
 	var visible: bool = bool(scene.call("_guided_tutorial_phase_displayable", phase))
 	check(not restricted or visible, "Resuming a v1 authored fight must not leave an invisible guide restricting abilities, loadout and Grimoire")
 	check(int(migrated["combat_state"]["enemies"][0]["hp"]) == int(board["enemies"][0]["hp"]), "Guide compatibility must preserve already-committed enemy HP")
+	scene.free()
+
+func _test_paid_v4_guide_releases_controls() -> void:
+	var combat: Combat = Combat.new()
+	var board: Dictionary = Base.fixture(combat)
+	board["rules_version"] = 4
+	board["cards_played_this_turn"] = 1
+	board["guided_combat_scenario"] = {"version": 2, "player_tile": Vector2i(2, 3), "move_tile": Vector2i(3, 3), "target_tile": Vector2i(4, 3), "target_enemy_id": Scenario.TARGET_ENEMY_ID}
+	board["enemies"][0]["id"] = Scenario.TARGET_ENEMY_ID
+	board["enemies"][0]["hp"] = 11
+	board["enemies"][0]["max_hp"] = 15
+	var profile: Dictionary = Store.default_data()
+	profile[Tutorial.PROGRESSION_KEY]["completed_steps"] = [Tutorial.MILESTONE_MOVE, Tutorial.MILESTONE_INTENT, Tutorial.MILESTONE_PLAYS, Tutorial.MILESTONE_CANCEL, Tutorial.MILESTONE_FIRST_CARD]
+	var migrated: Dictionary = Migration.migrate_run({"surface_rules_version": 4, "mode": "combat", "combat_state": board, "progression": profile}, combat)
+	var merged_profile: Dictionary = profile.duplicate(true)
+	merged_profile[Tutorial.PROGRESSION_KEY] = Tutorial.merged_state(profile, migrated["progression"])
+	var scene: RunSceneScript = RunSceneScript.new()
+	scene.set("_run_state", migrated)
+	scene.set("_combat_state", migrated["combat_state"])
+	scene.set("_progression", merged_profile)
+	scene.call("_guided_tutorial_reconcile_phase")
+	check(str(scene.get("_guided_tutorial_phase_id")).is_empty() and not bool(scene.call("_guided_tutorial_action_restricted")), "A paid v4 opening resumes with ordinary controls even when the separate profile still has an active guide")
+	check(migrated["combat_state"]["enemies"][0]["hp"] == 11 and migrated["combat_state"]["cards_played_this_turn"] == 1, "Releasing tutorial controls cannot fabricate a kill or refund its paid card")
 	scene.free()
 
 func _test_direct_detonate_shatter_and_passive_exclusion() -> void:

@@ -56,17 +56,18 @@ These assumptions are baked into the current coefficients:
   plays. The physical card's top-level Time cost is paid once. Plays gained
   during resolution remain available after the Flurry commits.
 - Fatigue starts at `2` health and increases by `1` health each reshuffle.
-- Rules v4 uses shared board surfaces, with Rubble under one elemental layer.
-  Fire deals 1 per actual entry step and 2 per affected actor start, without
+- Rules v5 uses shared board surfaces, with Rubble under one elemental layer.
+  Fire deals 2 per actual entry step and 3 per affected actor start, without
   direct-attack riders. Ice activates Chill on entry or eligible start, never
-  on placement. Chilled adds 1 direct hit damage while supported by Ice.
+  on placement. Chilled adds 2 direct hit damage while supported by Ice.
   A subsequent Ice attack can Freeze and consume every Ice tile under that actor.
-  Rubble costs 2 movement to enter; a fresh positive allowance permits a first
+  Rubble costs 2 movement to leave; a fresh positive allowance permits a first
   adjacent step even when only 1 movement remains. Splitting movement does not
   refresh that exception. Electrified is immediately usable as cardinally
-  connected ground or as relay nodes for intrinsic Chain.
+  connected ground or as relay nodes for intrinsic Chain. Ordinary Electrified survives use;
+  Stormcoal conductive Fire is consumed.
 - Enemy preview block matters immediately during the player turn.
-- Freeze doubles direct damage instead of stacking Chill, skips the next activation, and cannot refresh. Start hazards still resolve; Chill is suppressed during the skipped start.
+- Freeze triples direct damage instead of stacking Chill, skips the next activation, and cannot refresh. Start hazards still resolve; Chill is suppressed during the skipped start.
 - Pierce attacks deal HP damage through block and stoneskin without removing
   those defenses.
 - Shock lets the enemy keep movement, but strips non-movement actions for that
@@ -345,7 +346,7 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Bleed one-turn action pressure: `0.65` per stack
 - Expose next-hit setup: `0.32` per point
 - Sunder defense removal: `0.20` per point
-- Freeze: `3.8`, discounted by `0.30` for a previously activated Ice contact
+- Freeze: `4.8`, discounted by `0.30` for a previously activated Ice contact
 - Shock: `2.5`
 - Immobilize one-turn movement lock: `1.7`
 - Push: `0.28` per tile
@@ -369,8 +370,8 @@ Synergy bonuses:
 
 Permanent terrain receives bounded expected useful-contact value, never a
 turn count multiplied by arbitrary encounter duration. For `n` distinct authored
-cells, effective coverage is `min(4, 1 + (n-1) * 0.45)`. Fire is `0.52`, Ice
-`0.45`, Rubble `0.32` and Electrified `0.30` per effective cell. Fire's coefficient
+cells, effective coverage is `min(4, 1 + (n-1) * 0.45)`. Fire is `0.84`, Ice
+`0.60`, Rubble `0.44` and Electrified `0.45` per effective cell. Fire's coefficient
 represents roughly one useful contact weighted for shared hazard risk and local
 setup value; it does not assume every tile hits every turn. Placement at range
 uses the existing reach availability; self placement uses `0.60`.
@@ -567,4 +568,20 @@ When reviewing or adding cards:
 
 ### Repeated consuming payoffs
 
-A Flurry copy cannot reuse Fire, Ice or Electrified ground consumed by an earlier copy. Extra copies receive 35% availability for an additional consuming payoff (and its matching fuel cost), representing a different prepared target or component. An explicit painter earlier in each repeated action sequence restores ordinary availability for Detonate and conduction. Ice painting does not activate Chill, so repeated Freeze remains discounted even with fresh paint. Ordinary direct hits and native Chain continue to repeat normally. This is a conservative availability model, not a simulation of an infinite supply of ground.
+A Flurry copy cannot reuse Fire or Ice consumed by an earlier copy. Ordinary Electrified remains available for every copy. Extra copies receive 35% availability for an additional consuming payoff (and its matching fuel cost), representing a different prepared target or component. An explicit painter earlier in each repeated action sequence restores ordinary availability for Detonate. Ice painting does not activate Chill, so repeated Freeze remains discounted even with fresh paint. Ordinary direct hits and native Chain continue to repeat normally. This is a conservative availability model, not a simulation of an infinite supply of ground.
+
+### Rules v5 feedback calibration
+
+Printed direct attack damage across the card pool is 80% of its prior value,
+rounded half up with a minimum of 1. Detonate remains unchanged because it
+already pays for real setup. Root Snare retains Rubble and loses Immobilize;
+its Time is 4. Enemy baseline damage is unchanged.
+
+Surface coefficients rise with the stronger contact payoff: Fire 0.84 follows
+the 3→5 combined entry/start damage; Ice 0.60 reflects +2 Chill and ×3 Frozen;
+Rubble 0.44 credits leaving-cost control after a melee painter; Electrified
+0.45 credits reusable geometry. Freeze value rises to 4.8, still discounted by
+0.30 for activated Ice, and displacement hazard value rises to 0.24 per tile.
+Geometry/contact availability remains bounded. Reusable conduction no longer
+receives a repeated-consumption penalty; Fire/Ice consumption still does.
+Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.

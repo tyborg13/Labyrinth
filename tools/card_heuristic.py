@@ -78,8 +78,8 @@ hit for scoring.
 Elemental rooms seed 2-3 single-use traps. Direct damage only hits the
 center occupant; four cardinal neighbors receive Fire, Ice, Rubble or Electrified.
 Air traps push cardinal neighbors outward. Shared permanent surfaces replace
-intensity: Fire deals 1 on entry and 2 on actor start; Ice activates Chill on entry
-or start and an Ice hit can consume it to Freeze. Rubble costs 2 to enter with a
+intensity: Fire deals 2 on entry and 3 on actor start; Ice activates Chill on entry
+or start and an Ice hit can consume it to Freeze. Rubble costs 2 to leave with a
 fresh-allowance minimum-progress rule. Electrified supports immediate cardinal
 component discharge and optional intrinsic Chain relays. Setup is finite geometry,
 not permanent uptime. The scorer values expected useful contact, connectivity,
@@ -227,14 +227,16 @@ def encounter_assumptions() -> dict[str, Any]:
             },
         },
         "board_surfaces": {
-            "rules_version": 4,
+            "rules_version": 5,
             "shared_hazards": True,
-            "fire_entry_damage": 1,
-            "fire_start_damage": 2,
+            "fire_entry_damage": 2,
+            "fire_start_damage": 3,
             "chill_timing": "actual entry or eligible actor activation start",
             "freeze_cost": "consume all Ice under the successfully Frozen actor",
-            "rubble_entry_cost": 2,
-            "lightning": "cardinal connected-ground discharge; Chain retains printed jump reach",
+            "rubble_exit_cost": 2,
+            "chilled_direct_damage_bonus": 2,
+            "frozen_direct_damage_multiplier": 3,
+            "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; Stormcoal Fire is consumed",
             "trap_shape": "center-only direct damage; cardinal wake",
             "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost",
         },
@@ -261,10 +263,10 @@ class HeuristicWeights:
     flurry_saved_time_payment_value: float = 0.75
     flurry_retargeting_value: float = 0.25
     flurry_extra_play_penalty: float = 0.55
-    surface_fire_per_tile: float = 0.52
-    surface_ice_per_tile: float = 0.45
-    surface_rubble_per_tile: float = 0.32
-    surface_electrified_per_tile: float = 0.30
+    surface_fire_per_tile: float = 0.84
+    surface_ice_per_tile: float = 0.60
+    surface_rubble_per_tile: float = 0.44
+    surface_electrified_per_tile: float = 0.45
     surface_extra_tile_retention: float = 0.45
     surface_effective_tile_cap: float = 4.0
     surface_connection_value: float = 0.18
@@ -275,7 +277,7 @@ class HeuristicWeights:
     surface_fuel_cost_per_tile: float = 0.35
     repeated_consumption_availability: float = 0.35
     detonate_shared_hazard_cost: float = 0.45
-    displacement_hazard_value_per_tile: float = 0.16
+    displacement_hazard_value_per_tile: float = 0.24
     kill_card_play_value: float = 0.45
     illusion_health_per_point: float = 0.48
     illusion_range_per_tile: float = 0.12
@@ -301,7 +303,7 @@ class HeuristicWeights:
     bleed_damage_value: float = 0.65
     expose_value_per_point: float = 0.32
     sunder_value_per_point: float = 0.20
-    freeze_value: float = 3.8
+    freeze_value: float = 4.8
     shock_value: float = 2.5
     immobilize_value: float = 1.7
     push_value_per_tile: float = 0.28
@@ -430,7 +432,7 @@ def surface_availability(condition: dict[str, Any], prepared: set[str], weights:
     if not condition:
         return 1.0
     kind = surface_kind(condition.get("surface", ""))
-    if condition.get("subject") == "consumed":
+    if condition.get("subject") in {"consumed", "conducted"}:
         return 1.0  # Its enclosing consumption action already pays availability.
     base = weights.surface_setup_availability
     if not bool(condition.get("present", True)):
@@ -608,20 +610,16 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                     extra *= 0.5  # One union of targets, not an extra Chain per discharge hit.
                 conduction_value = immediate_damage_value(damage, playability, extra, weights) * action_scale
                 breakdown.offense += conduction_value
-                add_fuel_limited("offense", conduction_value, "electrified")
             bonus = action.get("surface_bonus", {})
             if bonus:
                 availability = surface_availability(bonus, prepared, weights) * action_scale
-                if bonus.get("subject") == "consumed":
+                if bonus.get("subject") == "conducted":
                     availability *= weights.lightning_network_availability + (0.20 if "electrified" in prepared else 0.0)
                 bonus_damage = int(bonus.get("damage", 0))
                 damage_value = max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability
                 shock_value = int(bonus.get("shock", 0)) * weights.shock_value * playability * targets * availability
                 breakdown.offense += damage_value
                 breakdown.control += shock_value
-                if bonus.get("subject") == "consumed":
-                    add_fuel_limited("offense", damage_value, "electrified")
-                    add_fuel_limited("control", shock_value, "electrified")
                 breakdown.control += int(bonus.get("amount", 0)) * weights.push_value_per_tile * playability * targets * availability if action_type in {"push", "pull"} else 0
             if surface:
                 prepared.add(surface)
@@ -868,7 +866,7 @@ def scored_rows(
                 "flurry": bool(card.get("flurry", False)),
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
-                "rules_version": 4,
+                "rules_version": 5,
                 "retired": bool(card.get("retired", False)),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),

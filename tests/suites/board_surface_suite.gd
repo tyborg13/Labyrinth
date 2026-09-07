@@ -21,9 +21,9 @@ static func run(expect: Callable) -> void:
 	state["player"]["pos"] = Vector2i(3, 3)
 	Rules.place(state, Vector2i(3, 3), "fire")
 	state = engine.surface_actor_arrival(state, "player", -1, Vector2i(2, 3))
-	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(1), "Each newly entered burning tile deals one")
+	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(2), "Each newly entered burning tile deals two")
 	state = engine._resolve_player_start_of_turn(state)
-	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(3), "Fire own start deals two once")
+	expect.call(int(state["player"]["hp"]) == 1000 - GameData.fixed_point_amount(5), "Fire own start deals three once after two on entry")
 	# Ice arrival gives Chilled; an Ice hit consumes support and freezes once.
 	state = fixture(engine)
 	Rules.place(state, Vector2i(4, 3), "ice")
@@ -31,7 +31,7 @@ static func run(expect: Callable) -> void:
 	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4, 2))
 	expect.call(bool(state["enemies"][0].get("chilled", false)), "Ice entry activates Chill")
 	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"ice"}, Vector2i(4, 3))
-	expect.call(int(state["enemies"][0]["hp"]) == 1000 - 20 - GameData.fixed_point_amount(1), "Pre-hit Chill adds one natural direct damage")
+	expect.call(int(state["enemies"][0]["hp"]) == 1000 - 20 - GameData.fixed_point_amount(2), "Pre-hit Chill adds two natural direct damage")
 	expect.call(int(state["enemies"][0]["freeze"]) == 1 and Rules.element_at(state, Vector2i(4, 3)).is_empty(), "Ice hit freezes and consumes Ice")
 	Rules.place(state, Vector2i(4, 3), "ice")
 	var turn: Dictionary = engine._resolve_enemy_start_of_turn(state, 0)
@@ -45,13 +45,13 @@ static func run(expect: Callable) -> void:
 		Rules.place(state,tile,"electrified")
 	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"lightning"}, Vector2i(4,3))
 	expect.call(int(state["enemies"][0]["hp"]) == 980 and int(state["enemies"][1]["hp"]) == 980 and int(state["enemies"][2]["hp"]) == 1000, "Ordinary Lightning hits cardinal component once, no air gap")
-	expect.call(Rules.tiles(state,"electrified").size() == 1, "Discharge consumes empty component branches as well")
+	expect.call(Rules.tiles(state,"electrified").size() == 5, "Discharge preserves the complete reusable network, including empty branches")
 	state = fixture(engine)
 	state["enemies"].append(enemy(2,Vector2i(7,3)))
 	Rules.place(state,Vector2i(5,3),"electrified")
 	Rules.place(state,Vector2i(6,3),"electrified")
 	state = engine.apply_player_action(state,{"type":"ranged","damage":20,"range":5,"element":"none","chain":1},Vector2i(4,3))
-	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.tiles(state,"electrified").is_empty(), "Neutral Chain1 can relay multiple hops without target cap")
+	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.tiles(state,"electrified").size() == 2, "Neutral Chain1 relays multiple hops without a target cap or consuming Electrified")
 	# Atomic Detonate union includes the player, ignores overlapping blasts.
 	state = fixture(engine)
 	state["player"]["pos"] = Vector2i(3,3)
@@ -62,12 +62,12 @@ static func run(expect: Callable) -> void:
 	expect.call(Rules.tiles(state,"fire").is_empty(), "Detonate consumes selected fuel atomically")
 	# Weighted movement and minimum progress are allowance-scoped.
 	state = fixture(engine)
-	Rules.place(state,Vector2i(3,3),"rubble")
+	Rules.place(state,Vector2i(2,3),"rubble")
 	var path: Array[Vector2i]
 	path.assign([Vector2i(2,3),Vector2i(3,3)])
 	expect.call(engine.movement_cost_for_path(state,path,1,true) == 1 and engine.movement_cost_for_path(state,path,1,false) == 2, "Fresh allowance minimum progress does not reset per click")
 	state["player_movement_remaining"] = 1
-	expect.call(not engine.player_movement_targets(state).has(Vector2i(3,3)), "Spent movement allowance cannot enter Rubble with last point")
+	expect.call(not engine.player_movement_targets(state).has(Vector2i(3,3)), "Spent movement allowance cannot leave Rubble with its last point")
 	# Traps hit the center, then place four disjoint wake tiles.
 	state = fixture(engine)
 	state["traps"] = [{"pos":Vector2i(4,3),"element":"lightning","damage":30}]
@@ -88,6 +88,9 @@ static func run(expect: Callable) -> void:
 	_test_event_tail_and_illusion_contact(engine, expect)
 	_test_real_card_source_survives_saved_ground(engine, expect)
 	_test_dynamic_movement_allowance(engine, expect)
+	_test_reusable_conduction(engine, expect)
+	_test_leaving_rubble(engine, expect)
+	_test_surface_damage_payoffs(engine, expect)
 
 static func _test_large_actors_and_sources(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = fixture(engine)
@@ -97,8 +100,10 @@ static func _test_large_actors_and_sources(engine: CombatEngine, expect: Callabl
 		Rules.place(state,tile,"fire")
 		Rules.place(state,tile,"rubble")
 	state = engine.surface_actor_arrival(state,"enemy",1,Vector2i(4,3))
-	expect.call(int(state["enemies"][0]["hp"]) == 1000-GameData.fixed_point_amount(1), "Large actor entering two Fire tiles receives one hazard per step")
-	expect.call(Rules.entry_cost(state,state["enemies"][0],Vector2i(4,3),Vector2i(5,3)) == 2,"Large actor Rubble cost is maximum newly entered tile cost")
+	expect.call(int(state["enemies"][0]["hp"]) == 1000-GameData.fixed_point_amount(2), "Large actor entering two Fire tiles receives one two-damage hazard per step")
+	expect.call(Rules.movement_step_cost(state,state["enemies"][0],Vector2i(4,3),Vector2i(5,3)) == 1,"Entering Rubble does not increase large-body movement cost")
+	Rules.place(state, Vector2i(4,3), "rubble")
+	expect.call(Rules.movement_step_cost(state,state["enemies"][0],Vector2i(4,3),Vector2i(5,3)) == 2,"A large body pays once when leaving any Rubble tile")
 	for tile: Vector2i in [Vector2i(5,3),Vector2i(6,4)]:
 		Rules.place(state,tile,"ice")
 	state = engine.surface_actor_arrival(state,"enemy",1,Vector2i(4,3))
@@ -142,7 +147,7 @@ static func _test_enemy_and_trace_integration(engine: CombatEngine, expect: Call
 	var state: Dictionary = fixture(engine)
 	state["enemies"].append(enemy(2,Vector2i(4,4)))
 	Rules.place(state,Vector2i(4,3),"electrified")
-	state = engine.apply_player_action(state,{"type":"aoe","damage":20,"range":5,"pattern":[[0,0],[0,1]],"rotate":false,"element":"lightning","surface_bonus":{"surface":"electrified","subject":"consumed","shock":1}},Vector2i(4,3))
+	state = engine.apply_player_action(state,{"type":"aoe","damage":20,"range":5,"pattern":[[0,0],[0,1]],"rotate":false,"element":"lightning","surface_bonus":{"surface":"electrified","subject":"conducted","shock":1}},Vector2i(4,3))
 	expect.call(int(state["enemies"][0]["shock"]) == 1 and int(state["enemies"][1].get("shock",0)) == 0,"Specialist Shock only applies to electrically assisted victims")
 	state = fixture(engine)
 	state["enemies"].append(enemy(2,Vector2i(6,4)))
@@ -165,19 +170,19 @@ static func _test_enemy_and_trace_integration(engine: CombatEngine, expect: Call
 	var shot: Dictionary = {"type":"ranged","damage":20,"range":1,"element":"lightning"}
 	expect.call(engine._enemy_action_reaches_target(state,state["enemies"][0],shot,{"kind":"player","pos":Vector2i(2,3)}),"Enemy Lightning recognizes a reachable network impact beyond direct target range")
 	state = engine._resolve_enemy_action(state,0,shot)
-	expect.call(int(state["player"]["hp"]) == 980 and Rules.tiles(state,"electrified").is_empty(),"Enemy ordinary Lightning uses and consumes the same connected network")
+	expect.call(int(state["player"]["hp"]) == 980 and Rules.tiles(state,"electrified").size() == 5,"Enemy ordinary Lightning uses and preserves the shared connected network")
 
 	state = fixture(engine)
 	state["enemies"].append(enemy(2,Vector2i(7,3)))
 	for tile: Vector2i in [Vector2i(3,3),Vector2i(5,3),Vector2i(6,3)]:
 		Rules.place(state,tile,"electrified")
 	state = engine.apply_player_action(state,{"type":"ranged","range":5,"damage":20,"element":"none","chain":1},Vector2i(4,3))
-	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.element_at(state,Vector2i(3,3)) == "electrified","Chain rejects nearby dead-end relay and consumes only useful route")
+	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.element_at(state,Vector2i(3,3)) == "electrified","Chain rejects the nearby dead-end relay and preserves reusable ground")
 	state = fixture(engine)
 	state["enemies"].append(enemy(2,Vector2i(6,3)))
 	Rules.place(state,Vector2i(5,3),"electrified")
 	state = engine.apply_player_action(state,{"type":"ranged","range":5,"damage":20,"element":"none","chain":2},Vector2i(4,3))
-	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.element_at(state,Vector2i(5,3)) == "electrified","Chain prefers a direct valid hop over spending unnecessary relay")
+	expect.call(int(state["enemies"][1]["hp"]) == 980 and Rules.element_at(state,Vector2i(5,3)) == "electrified","Chain prefers a direct valid hop over an unnecessary relay")
 
 static func fixture(engine: CombatEngine) -> Dictionary:
 	var grid: Array = []
@@ -205,7 +210,7 @@ static func _test_event_tail_and_illusion_contact(engine: CombatEngine, expect: 
 	var target: Dictionary = {"kind": "illusion", "id": 10, "pos": Vector2i(3, 4)}
 	state = engine._damage_actor_target(state, target, 3, false, {"type": "ranged", "element": "ice"})
 	state = engine._apply_action_keywords_to_target(state, target, {"type": "ranged", "element": "ice", "damage": 3}, Vector2i(4, 3))
-	expect.call(int(state["illusions"][0]["hp"]) == 97 - GameData.fixed_point_amount(1), "Ice-supported illusions share Chilled direct-damage vulnerability")
+	expect.call(int(state["illusions"][0]["hp"]) == 97 - GameData.fixed_point_amount(2), "Ice-supported illusions share Chilled direct-damage vulnerability")
 	expect.call(int(state["illusions"][0].get("freeze", 0)) == 1 and Rules.element_at(state, Vector2i(3, 4)).is_empty(), "An Ice hit on a chilled illusion consumes its supporting Ice")
 
 static func _test_real_card_source_survives_saved_ground(engine: CombatEngine, expect: Callable) -> void:
@@ -260,18 +265,121 @@ static func _test_dynamic_movement_allowance(engine: CombatEngine, expect: Calla
 	initial["player_movement_capacity"] = 3
 	initial["player_movement_remaining"] = 3
 	initial["traps"] = [{"id": "ground_changes_cost", "pos": Vector2i(3, 3), "element": "earth", "damage": 0}]
-	var player_result: Dictionary = engine.apply_player_movement(initial, Vector2i(4, 3))
-	expect.call(player_result["player"]["pos"] == Vector2i(4, 3) and int(player_result["last_player_movement"]["spent"]) == 3, "Walk charges the actual increased cost of Rubble painted earlier in the same request")
-	var card_result: Dictionary = engine.apply_player_action(initial, {"type": "move", "range": 2}, Vector2i(4, 3))
-	expect.call(card_result["player"]["pos"] == Vector2i(3, 3), "Card movement stops before a trap-created Rubble step that exceeds its allowance")
+	var player_result: Dictionary = engine.apply_player_movement(initial, Vector2i(5, 3))
+	expect.call(player_result["player"]["pos"] == Vector2i(4, 3) and int(player_result["last_player_movement"]["spent"]) == 2, "Walk stops before leaving trap-painted Rubble when the surcharge exceeds its remaining allowance")
+	var card_result: Dictionary = engine.apply_player_action(initial, {"type": "move", "range": 3}, Vector2i(5, 3))
+	expect.call(card_result["player"]["pos"] == Vector2i(4, 3), "Card movement stops before a trap-created Rubble step that exceeds its allowance")
 	var enemy_initial: Dictionary = fixture(engine)
 	enemy_initial["enemies"][0]["pos"] = Vector2i(4, 3)
 	enemy_initial["traps"] = [{"id": "enemy_ground_changes_cost", "pos": Vector2i(5, 3), "element": "earth", "damage": 0}]
 	var path: Array[Vector2i]
-	path.assign([Vector2i(4, 3), Vector2i(5, 3), Vector2i(6, 3)])
+	path.assign([Vector2i(4, 3), Vector2i(5, 3), Vector2i(6, 3), Vector2i(7, 3)])
 	var context: Dictionary = {}
-	var enemy_result: Dictionary = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 2)
-	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(5, 3) and int(context["movement_spent"]) == 1, "Enemy walking stops before newly painted Rubble beyond its remaining allowance")
+	var enemy_result: Dictionary = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 3)
+	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(6, 3) and int(context["movement_spent"]) == 2, "Enemy walking stops before newly painted Rubble beyond its remaining allowance")
 	context = {}
-	enemy_result = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 3)
-	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(6, 3) and int(context["movement_spent"]) == 3, "Enemy walking spends the same actual changing-ground costs as player movement")
+	enemy_result = engine._move_enemy_along_planned_path(enemy_initial.duplicate(true), 0, path, context, 4)
+	expect.call(enemy_result["enemies"][0]["pos"] == Vector2i(7, 3) and int(context["movement_spent"]) == 4, "Enemy walking spends the same actual changing-ground costs as player movement")
+
+
+static func _test_reusable_conduction(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = fixture(engine)
+	state["enemies"].append(enemy(2, Vector2i(6, 3)))
+	var network: Array[Vector2i]
+	network.assign([Vector2i(4,3), Vector2i(5,3), Vector2i(6,3), Vector2i(5,2)])
+	for tile: Vector2i in network: Rules.place(state, tile, "electrified")
+	var ground: Dictionary = state["surfaces"].duplicate(true)
+	var revision: int = int(state["surface_revision"])
+	var attack: Dictionary = {"type":"ranged", "damage":20, "range":5, "element":"lightning"}
+	for repetition: int in range(3):
+		var before: Dictionary = state.duplicate(true)
+		var preview: Dictionary = engine.resolve_player_action_for_presentation(state, attack, Vector2i(4,3))
+		state = engine.apply_player_action(state, attack, Vector2i(4,3))
+		expect.call(state == preview["state"], "Repeated conduction preview matches the next real attack")
+		expect.call(int(state["enemies"][0]["hp"]) == 1000 - (repetition + 1) * 20 and int(state["enemies"][1]["hp"]) == 1000 - (repetition + 1) * 20, "Each reuse hits both connected opponents exactly once")
+		expect.call(state["surfaces"] == ground and int(state["surface_revision"]) == revision, "Conduction leaves reusable ground and its placement revision unchanged")
+		var used: Dictionary = {}
+		var removals: int = 0
+		for event: Dictionary in engine._surface_events_since(before, state):
+			if str(event.get("kind", "")) == "surface_conducted":
+				used[event["tile"]] = int(used.get(event["tile"], 0)) + 1
+			if str(event.get("kind", "")) == "surface_removed": removals += 1
+		expect.call(used.size() == 4 and removals == 0, "A discharge reports its complete conductive component without consumption events")
+		for count: int in used.values(): expect.call(count == 1, "A shared component reports each tile only once per attack")
+	state = fixture(engine)
+	state["enemies"].append(enemy(2, Vector2i(7,3)))
+	for tile: Vector2i in [Vector2i(3,3), Vector2i(5,3), Vector2i(6,3)]: Rules.place(state, tile, "electrified")
+	attack = {"type":"ranged", "damage":20, "range":5, "element":"none", "chain":1}
+	for repetition: int in range(2):
+		var before: Dictionary = state.duplicate(true)
+		state = engine.apply_player_action(state, attack, Vector2i(4,3))
+		expect.call(int(state["enemies"][1]["hp"]) == 1000 - (repetition + 1) * 20 and Rules.tiles(state, "electrified").size() == 3, "Native Chain can reuse an empty-floor relay route")
+		var dead_end_used: bool = false
+		for event: Dictionary in engine._surface_events_since(before, state):
+			if str(event.get("kind", "")) == "surface_conducted" and event.get("tile") == Vector2i(3,3): dead_end_used = true
+		expect.call(not dead_end_used, "Reusable relays do not make a dead-end tile part of the reported attack route")
+
+static func _test_leaving_rubble(engine: CombatEngine, expect: Callable) -> void:
+	var initial: Dictionary = fixture(engine)
+	initial["enemies"][0]["pos"] = Vector2i(7,3)
+	Rules.place(initial, Vector2i(3,3), "rubble")
+	var entered: Dictionary = engine.apply_player_movement(initial, Vector2i(3,3))
+	expect.call(entered["player"]["pos"] == Vector2i(3,3) and int(entered["player_movement_remaining"]) == 1, "Walking into Rubble costs one movement")
+	var blocked: Dictionary = engine.apply_player_movement(entered, Vector2i(4,3))
+	expect.call(blocked["player"]["pos"] == Vector2i(3,3) and int(blocked["player_movement_remaining"]) == 1, "A spent pool cannot restart minimum progress when leaving Rubble")
+	initial["player"]["pos"] = Vector2i(3,3)
+	var exited: Dictionary = engine.apply_player_movement(initial, Vector2i(4,3))
+	expect.call(exited["player"]["pos"] == Vector2i(4,3) and int(exited["player_movement_remaining"]) == 0, "Walking out of Rubble spends two movement")
+	var exit_path: Array[Vector2i]
+	exit_path.assign([Vector2i(3,3), Vector2i(4,3)])
+	var exit_result: Dictionary = {}
+	exited = engine._move_player_along_path(initial.duplicate(true), exit_path, 1, true, exit_result)
+	expect.call(exited["player"]["pos"] == Vector2i(4,3) and int(exit_result["spent"]) == 1, "A fresh one-point Move allowance can always leave adjacent Rubble")
+	var moved: Dictionary = engine.apply_player_action(blocked, {"type":"move", "range":1}, Vector2i(4,3))
+	expect.call(moved["player"]["pos"] == Vector2i(4,3), "A separate Move card supplies its own fresh minimum-progress allowance")
+	var large: Dictionary = enemy(1, Vector2i(4,3))
+	large["footprint"] = Vector2i(2,2)
+	initial = fixture(engine)
+	Rules.place(initial, Vector2i(5,3), "rubble")
+	expect.call(Rules.movement_step_cost(initial, large, Vector2i(4,3), Vector2i(5,3)) == 1, "Rubble still beneath a large body's overlapping footprint does not count as departed")
+	Rules.place(initial, Vector2i(4,3), "rubble")
+	Rules.place(initial, Vector2i(4,4), "rubble")
+	expect.call(Rules.movement_step_cost(initial, large, Vector2i(4,3), Vector2i(5,3)) == 2, "Leaving two Rubble footprint tiles charges one surcharge, not two")
+	initial = fixture(engine)
+	for x: int in range(4,7): Rules.place(initial, Vector2i(x,3), "rubble")
+	for x: int in range(5,7): Rules.place(initial, Vector2i(x,3), "fire")
+	moved = engine.apply_player_action(initial, {"type":"push", "range":5, "amount":2, "force_direction":Vector2i.RIGHT}, Vector2i(4,3))
+	expect.call(moved["enemies"][0]["pos"] == Vector2i(6,3) and int(moved["enemies"][0]["hp"]) == 1000 - GameData.fixed_point_amount(4), "Forced movement ignores departure cost but pays Fire contact on every entered step")
+	initial = fixture(engine)
+	initial["enemies"][0]["pos"] = Vector2i(7,3)
+	Rules.place(initial, Vector2i(2,3), "rubble")
+	Rules.place(initial, Vector2i(3,3), "fire")
+	Rules.place(initial, Vector2i(4,3), "fire")
+	moved = engine.apply_player_action(initial, {"type":"blink", "range":3}, Vector2i(4,3))
+	expect.call(moved["player"]["pos"] == Vector2i(4,3) and int(moved["player"]["hp"]) == 1000 - GameData.fixed_point_amount(2), "Blink ignores departure Rubble and contacts only its Fire landing")
+
+static func _test_surface_damage_payoffs(engine: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = fixture(engine)
+	Rules.place(state, Vector2i(4,3), "ice")
+	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4,2))
+	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"ice"}, Vector2i(4,3))
+	var hp: int = int(state["enemies"][0]["hp"])
+	state = engine.apply_player_action(state, {"type":"ranged", "damage":20, "range":5, "element":"none"}, Vector2i(4,3))
+	expect.call(int(state["enemies"][0]["hp"]) == hp - 60, "Frozen triples the next direct hit without also adding Chilled damage")
+	state = fixture(engine)
+	state["enemies"][0]["freeze"] = 1
+	Rules.place(state, Vector2i(4,3), "fire")
+	state = engine._resolve_enemy_start_of_turn(state, 0)["state"]
+	expect.call(int(state["enemies"][0]["hp"]) == 1000 - GameData.fixed_point_amount(3), "Frozen does not multiply passive Fire start damage")
+
+	# Bleed is status damage, even while the character occupies prepared Ice.
+	state = fixture(engine)
+	state["enemies"][0]["bleed"] = 3
+	state["player"]["bleed"] = 3
+	Rules.place(state, Vector2i(4,3), "ice")
+	Rules.place(state, Vector2i(2,3), "ice")
+	state = engine.surface_actor_arrival(state, "enemy", 1, Vector2i(4,2))
+	state = engine.surface_actor_arrival(state, "player", -1, Vector2i(2,2))
+	state = engine._trigger_enemy_bleed_for_action(state, 0, {"type":"melee"})["state"]
+	state = engine._trigger_player_bleed_for_action(state, {"type":"melee"})
+	expect.call(int(state["enemies"][0]["hp"]) == 997 and int(state["player"]["hp"]) == 997, "Chilled never amplifies either side's raw Bleed damage")
