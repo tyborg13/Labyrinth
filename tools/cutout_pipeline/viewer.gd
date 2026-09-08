@@ -109,8 +109,13 @@ func _label(text: String, at: Vector2, extent: Vector2, role: String) -> Label:
 	return label
 
 func set_playing(value: bool) -> void:
+	var spec: Dictionary = rig.config["clips"][animation]
+	if value and not bool(spec["loop"]) and frame_index >= int(spec["frames"]) - 1:
+		frame_index = 0
+		elapsed = 0.0
 	playing = value
 	pause_button.text = "Pause" if value else "Play"
+	_apply_frame()
 
 func select(facing: String, clip_name: String) -> void:
 	if not rig.set_facing(facing):
@@ -151,6 +156,8 @@ func _process(delta: float) -> void:
 		next_frame = mini(next_frame, int(spec["frames"]) - 1)
 	if next_frame != frame_index:
 		show_frame(next_frame)
+	if not bool(spec["loop"]) and elapsed >= float(spec["duration"]):
+		set_playing(false)
 
 func _input(event: InputEvent) -> void:
 	# Timeline shortcuts must run before button focus-navigation consumes arrows.

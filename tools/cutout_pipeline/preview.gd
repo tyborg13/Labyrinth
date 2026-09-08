@@ -6,7 +6,7 @@ const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/cutout_workflow"
 var viewer: Viewer
 var surface: SubViewport
-var failures: Array[String] = []
+var failures: Array[String]
 var manifest: Dictionary = {"size": [1920, 1080], "ui_scale": 1.0, "clips": [], "roundtrip": [], "errors": []}
 
 func _initialize() -> void:

@@ -120,30 +120,30 @@ _data = {
 &"drift": SubResource("Animation_8jkm6")
 }
 
-[node name="@Node2D@7" type="Node2D" unique_id=1521204640]
+[node name="@Node2D@7" type="Node2D" unique_id=1836944551]
 texture_filter = 1
 position = Vector2(128, 128)
 script = ExtResource("1_lfyao")
 case_file = "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment/experiments/cutouts/workflow_validation/nonhumanoid_case/cutout.json"
 metadata/cutout_facing = "side"
 
-[node name="Skeleton" type="Skeleton2D" parent="." unique_id=1820103060]
+[node name="Skeleton" type="Skeleton2D" parent="." unique_id=1441177437]
 
-[node name="carrier" type="Bone2D" parent="Skeleton" unique_id=1908182843]
+[node name="carrier" type="Bone2D" parent="Skeleton" unique_id=968076375]
 position = Vector2(128, 180)
 rest = Transform2D(1, 0, 0, 1, 128, 180)
 auto_calculate_length_and_angle = false
 length = 12.0
 bone_angle = 0.0
 
-[node name="sigil" type="Bone2D" parent="Skeleton/carrier" unique_id=762202076]
+[node name="sigil" type="Bone2D" parent="Skeleton/carrier" unique_id=555141473]
 position = Vector2(0, -40)
 rest = Transform2D(1, 0, 0, 1, 0, -40)
 auto_calculate_length_and_angle = false
 length = 12.0
 bone_angle = 0.0
 
-[node name="sigil" type="Sprite2D" parent="Skeleton/carrier/sigil" unique_id=936603347]
+[node name="sigil" type="Sprite2D" parent="Skeleton/carrier/sigil" unique_id=1716526313]
 z_index = 1
 z_as_relative = false
 position = Vector2(-17, -19)
@@ -151,6 +151,6 @@ texture = SubResource("ImageTexture_al6wo")
 centered = false
 metadata/equipment_slot = ""
 
-[node name="Animations" type="AnimationPlayer" parent="." unique_id=1978641694]
+[node name="Animations" type="AnimationPlayer" parent="." unique_id=772640309]
 callback_mode_process = 2
 libraries/ = SubResource("AnimationLibrary_vhdyd")

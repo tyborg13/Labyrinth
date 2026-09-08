@@ -1,7 +1,7 @@
 {
-  "capture_input_sha256.json": "4c4e7ae5e9e5252f992bb8ce2b0ca6333fb92587b511cd697266c1670465ec30",
+  "capture_input_sha256.json": "87da20f31231173094dc531c39f5dc1b58645110cc89315c6b3ddce65a4f7168",
   "case_validation.json": "7e237d1f1bdf8d26720f5ffdf22d856ee5bd42cc41af859b87a2039c01e3cee5",
-  "front.tscn": "e6ca9bff03703c0b4edfb02987303552fc71063c28d06978148c371cfc427f67",
+  "front.tscn": "c8259d30f8373f453d95beb2e645f686a708be6f46d5f75ba56e6f4d3a2c3635",
   "front_attack/board_0000.jpg": "3fb1a9030df18eb1975a3a92dec999e0d4d5917820e72874665b3c8f381a0d14",
   "front_attack/board_0001.jpg": "6604c0dde48f261f3ea4b7ff67634b282432b80726a1f10ed65e75636808a5a9",
   "front_attack/board_0002.jpg": "bd378ba5bab1858cd06212c0ea84e99f6c5f8d8cd1ff25529f2f134d26f6d83c",
@@ -371,8 +371,8 @@
   "front_walk_0053.png": "fd7b27417dd55ac14ffc2bd724ad0acdc64444c1aa32f6ceec18e1251c0dd680",
   "front_without_cloak.png": "b54fc7dfaace23b7bb463403ce954c8fda5fad4655ead8ed4309dd350e8aa506",
   "keyboard_focus.png": "74cc993385d11f02c856c53aad8a854f5941ce3b4460c6d46dbe19c0e27f91fa",
-  "native_probe.log": "91337d0eb1fa9e790ff1dd756dc3cbfe7a2357bc214d6e339fa09ee9e8169bd7",
-  "rear.tscn": "f6b3c5dbb885d6f8170a51f27062ad7cf443bddcea84c54b0e4a83e57a141c16",
+  "native_probe.log": "add153b092c1d668021f434b959792862a13351ab73892bef159b26e0974af07",
+  "rear.tscn": "4cb8baa0949ff7601cb657405231a8c1b26f594cf0a0082ba604e5e1fcff828c",
   "rear_attack/board_0000.jpg": "84e4140c7e3b42025913b8fd75c7f18ac5f9c8941353d17a4b57ba46528c27f3",
   "rear_attack/board_0001.jpg": "af37191057a2f13437baa5d28077c19cf4a661ebaa8083dfff5689168abddb9f",
   "rear_attack/board_0002.jpg": "e3979081de5bc06fa88028938cb8ab82ab2b8c37c88fd9bc2d413cc3644c6dbb",
@@ -753,5 +753,5 @@
   "videos/rear_idle.mp4": "09deee374ae95fbaf63083c311d530024885c33ae1f0598223009fe1645589fa",
   "videos/rear_salute.mp4": "f9bd432f35a8622908ffdaef84a01c06f85b16225150dbdec4ebb34be88519e0",
   "videos/rear_walk.mp4": "239118dd6c9345d36113d5e8e4fcf379d6052d8612d0d924060543c64a6fa3e4",
-  "visual_probe_result.json": "686a1db25d471739965437116bef2c6e73df23762ac135f3ed4365a5b86443ab"
+  "visual_probe_result.json": "e99899a9241a2c2dc5f9875d5b38317052ffd6f48bae56406db70c063c41eb41"
 }

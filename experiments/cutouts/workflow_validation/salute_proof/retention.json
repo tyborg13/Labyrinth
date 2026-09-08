@@ -1,16 +1,16 @@
 {
-  "complete_raw_directory": "/private/tmp/cutout-forward-proof-v3",
+  "complete_raw_directory": "/private/tmp/cutout-forward-proof-v4",
   "verification": {
     "ok": true,
     "inputs": 919,
     "outputs": 755,
     "errors": []
   },
-  "original_proof_manifest_sha256": "bd7f4797e88cf80341983e2a0ffe7c1355a9d4978c3ca2fae382b553899f67a8",
+  "original_proof_manifest_sha256": "ffe5f4c15b31a436ffe330524a0c6f814e22d045ff6fc042c04b2dc04cc2b35c",
   "retained_files_sha256": {
-    "capture_input_sha256.json": "4c4e7ae5e9e5252f992bb8ce2b0ca6333fb92587b511cd697266c1670465ec30",
+    "capture_input_sha256.json": "87da20f31231173094dc531c39f5dc1b58645110cc89315c6b3ddce65a4f7168",
     "case_validation.json": "7e237d1f1bdf8d26720f5ffdf22d856ee5bd42cc41af859b87a2039c01e3cee5",
-    "front.tscn": "e6ca9bff03703c0b4edfb02987303552fc71063c28d06978148c371cfc427f67",
+    "front.tscn": "c8259d30f8373f453d95beb2e645f686a708be6f46d5f75ba56e6f4d3a2c3635",
     "front_attack/pose_0000.png": "542a9a1ff69a53c671bf3af6360236d6122bb85335e570e6a6c3c8d86c997f26",
     "front_attack/pose_0001.png": "342c499e9451ef20f96bdf70dd85339b2bb14957ffd89b490335ad1971c69d83",
     "front_attack/pose_0002.png": "33ce93d1f5b98f311bd72a7535a7b43589704a9130eb51d53025c8f6b7c49df5",
@@ -213,9 +213,9 @@
     "front_walk/pose_without_cloak_0016.png": "64aabe8b63d10f9001b4f787053d7092efe584f2ca33b4686f426e1180e0e111",
     "front_walk/pose_without_cloak_0017.png": "f634b50c5f5b7cf9ad6991f878958536010471350593442f8ee8fcc5afcaa936",
     "keyboard_focus.png": "74cc993385d11f02c856c53aad8a854f5941ce3b4460c6d46dbe19c0e27f91fa",
-    "native_probe.log": "91337d0eb1fa9e790ff1dd756dc3cbfe7a2357bc214d6e339fa09ee9e8169bd7",
-    "proof_sha256.json": "bd7f4797e88cf80341983e2a0ffe7c1355a9d4978c3ca2fae382b553899f67a8",
-    "rear.tscn": "f6b3c5dbb885d6f8170a51f27062ad7cf443bddcea84c54b0e4a83e57a141c16",
+    "native_probe.log": "add153b092c1d668021f434b959792862a13351ab73892bef159b26e0974af07",
+    "proof_sha256.json": "ffe5f4c15b31a436ffe330524a0c6f814e22d045ff6fc042c04b2dc04cc2b35c",
+    "rear.tscn": "4cb8baa0949ff7601cb657405231a8c1b26f594cf0a0082ba604e5e1fcff828c",
     "rear_attack/pose_0000.png": "e980c80d8137a756ca8dcf4bc91b9fa6aeee28470fae7b59475f4a4ce19c8e67",
     "rear_attack/pose_0001.png": "61d272d7f094ecab09c08630f4515c52978030b706855f4f619b14d55170738c",
     "rear_attack/pose_0002.png": "e3772902f103723fcee88059af4bf9c996209465cb9cb7e8826af6ed27aa1454",
@@ -428,7 +428,7 @@
     "videos/rear_idle.mp4": "09deee374ae95fbaf63083c311d530024885c33ae1f0598223009fe1645589fa",
     "videos/rear_salute.mp4": "f9bd432f35a8622908ffdaef84a01c06f85b16225150dbdec4ebb34be88519e0",
     "videos/rear_walk.mp4": "239118dd6c9345d36113d5e8e4fcf379d6052d8612d0d924060543c64a6fa3e4",
-    "visual_probe_result.json": "686a1db25d471739965437116bef2c6e73df23762ac135f3ed4365a5b86443ab"
+    "visual_probe_result.json": "e99899a9241a2c2dc5f9875d5b38317052ffd6f48bae56406db70c063c41eb41"
   },
   "omission_policy": "Complete pose cycles, selected full board PNGs, saved scenes, videos and logs retained; raw board JPEGs and some other board stills omitted. Original full manifest is unchanged. Run verify-render on the complete raw directory or a fresh render."
 }

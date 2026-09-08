@@ -911,11 +911,11 @@
   "project:tools/cutout_pipeline/assets.py": "b8a18fc28852f473f925df72b7d9b6214ca19c703c1d6c638c26ce576a805618",
   "project:tools/cutout_pipeline/board.gd": "d0489f95c098ed150d4a936d4cf0897fca251c25872d7aa604a4ab315ab044ae",
   "project:tools/cutout_pipeline/cases.py": "237817e318cf93b264060b308860b247e8068968bcec2e8ecf4ef21377510cac",
-  "project:tools/cutout_pipeline/preview.gd": "378ab973eed2d061c2a872650561df1e95b677f13b69d578dc2d6761f9ffdd56",
+  "project:tools/cutout_pipeline/preview.gd": "c5bb60acdba53af45ec54834916eedfd44d60c63e77001d3e80b7cb4ae0699a5",
   "project:tools/cutout_pipeline/proof.py": "71e6b2467eff8e41d7a9a3b9ee8e4a1bf7d867e4c624b07b19e740fd84d5341b",
   "project:tools/cutout_pipeline/rest_motion.gd": "46ad64a75178d54a0ee378810f36bd9a8811a22b82a11c4652318b6f146fc4d1",
   "project:tools/cutout_pipeline/rig.gd": "676910432d78f731df14cdae4d7239a4b9c067f62eab086b45306933088cfd40",
   "project:tools/cutout_pipeline/validation.py": "3bcc4d40d73737f4b4bfcee167597b34e8b80821461c65f2fa6ca8c5bdd79789",
-  "project:tools/cutout_pipeline/viewer.gd": "239382de059533564932c262dc063f069966989da5261b52052fa1d1d1e9f009",
+  "project:tools/cutout_pipeline/viewer.gd": "de3c6919db8865d1be1dbfcb136550ee74fa4a414be5b5d267309e778d891a37",
   "project:tools/cutout_workflow.py": "cb73c2b933ca1ad5b7ba6b3941efe993425d5c893a714503a2c7f5150e5fd374"
 }
