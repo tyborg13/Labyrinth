@@ -48,7 +48,7 @@ Run from this task worktree with Python 3/Pillow, Godot 4.6 and ffmpeg:
 ```bash
 python3 experiments/protagonist_2d/registered_assets.py
 LABYRINTH_CUTOUT_POSE_MATRICES=/private/tmp/reaver-2d-v6-poses.json python3 tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- godot --headless --path . --script experiments/protagonist_2d/motion_contract_probe.gd
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-v6-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment
+python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-v6-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment -- --capture-uncloaked
 ```
 
 Pass the last probe's printed directory to `pack_renders.py '<directory>' --require-both` and `registered_contract_probe.py --pose-matrices /private/tmp/reaver-2d-v6-poses.json --renders '<directory>'`. The packer creates the eight sheets (including cloak-off poses), saved rigs and previews in `renders/pass6`. Use a fresh result manifest path for each capture. Then run `roundtrip_probe.gd` through `visual_probe_runner.py` at 512×512. [Board capture and encoding commands](inspection.md) provide the final UI proof.
