@@ -1,0 +1,36 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "side",
+  "joints": {
+    "carrier": {
+      "parent": null,
+      "position": [
+        128,
+        180
+      ]
+    },
+    "sigil": {
+      "parent": "carrier",
+      "position": [
+        128,
+        140
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "sigil",
+      "file": "borrowed_test_paint.png",
+      "bone": "sigil",
+      "offset": [
+        111,
+        121
+      ],
+      "z_index": 1
+    }
+  ],
+  "joint_meshes": []
+}

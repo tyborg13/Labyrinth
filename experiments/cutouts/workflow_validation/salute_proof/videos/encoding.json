@@ -1,0 +1,73 @@
+{
+  "clips": [
+    {
+      "file": "videos/front_idle.mp4",
+      "source_frames": 42,
+      "source_seconds": 1.68,
+      "encoded_frames": 101,
+      "encoded_seconds": 1.6833333333333333,
+      "duration_error_seconds": 0.0033333333333334103
+    },
+    {
+      "file": "videos/front_walk.mp4",
+      "source_frames": 54,
+      "source_seconds": 0.9000000000000019,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": -1.887379141862766e-15
+    },
+    {
+      "file": "videos/front_attack.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.500000000000001,
+      "encoded_frames": 30,
+      "encoded_seconds": 0.5,
+      "duration_error_seconds": -9.992007221626409e-16
+    },
+    {
+      "file": "videos/front_salute.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.8999999999999999,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": 1.1102230246251565e-16
+    },
+    {
+      "file": "videos/rear_idle.mp4",
+      "source_frames": 42,
+      "source_seconds": 1.68,
+      "encoded_frames": 101,
+      "encoded_seconds": 1.6833333333333333,
+      "duration_error_seconds": 0.0033333333333334103
+    },
+    {
+      "file": "videos/rear_walk.mp4",
+      "source_frames": 54,
+      "source_seconds": 0.9000000000000019,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": -1.887379141862766e-15
+    },
+    {
+      "file": "videos/rear_attack.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.500000000000001,
+      "encoded_frames": 30,
+      "encoded_seconds": 0.5,
+      "duration_error_seconds": -9.992007221626409e-16
+    },
+    {
+      "file": "videos/rear_salute.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.8999999999999999,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": 1.1102230246251565e-16
+    }
+  ],
+  "reel": "videos/cutout_review.mp4",
+  "timing": "Case-declared playback speed; 60fps frame repetition, no synthesized poses; per-clip boundary rounding is at most one 60fps frame",
+  "full_decode": "PASS",
+  "source_seconds": 7.960000000000006,
+  "encoded_seconds": 7.966666666666668
+}

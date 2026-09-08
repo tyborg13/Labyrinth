@@ -1,0 +1,408 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.21458103050743,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 37.365238003340565,
+          "path": "keyboard_focus.png",
+          "width": 1920
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0000.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0001.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0002.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0003.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0004.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_0005.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0000.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0001.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0002.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0003.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0004.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 246.988,
+          "luma_mean": 0.6551115527665983,
+          "luma_min": 0.0,
+          "luma_range": 246.988,
+          "luma_stdev": 7.842053663105435,
+          "path": "side_drift/pose_without_cloak_0005.png",
+          "width": 512
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.010739880555,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 37.10433193879545,
+          "path": "side_drift_0000.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 32.98338753556919,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 37.04973165545477,
+          "path": "side_drift_0003.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.04281499918832,
+          "luma_min": 1.0,
+          "luma_range": 253.99999999999997,
+          "luma_stdev": 37.18960327856159,
+          "path": "side_drift_0011.png",
+          "width": 1920
+        },
+        {
+          "height": 255,
+          "luma_max": 250.9238,
+          "luma_mean": 2.6353644505959144,
+          "luma_min": 0.0,
+          "luma_range": 250.9238,
+          "luma_stdev": 15.535989427993437,
+          "path": "side_rest.png",
+          "width": 255
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.010739880555,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 37.10433193879545,
+          "path": "side_without_cloak.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "protagonist-2d-skeletal-experiment-1788897870410172000-38438-preview-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment",
+    "--script",
+    "tools/cutout_pipeline/preview.gd",
+    "--",
+    "--case",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment/experiments/cutouts/workflow_validation/nonhumanoid_case/cutout.json"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      512,
+      512
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.21458103050743,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 37.365238003340565,
+      "path": "keyboard_focus.png",
+      "width": 1920
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0000.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0001.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0002.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0003.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0004.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_0005.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0000.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0001.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0002.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0003.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0004.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 246.988,
+      "luma_mean": 0.6551115527665983,
+      "luma_min": 0.0,
+      "luma_range": 246.988,
+      "luma_stdev": 7.842053663105435,
+      "path": "side_drift/pose_without_cloak_0005.png",
+      "width": 512
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.010739880555,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 37.10433193879545,
+      "path": "side_drift_0000.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 32.98338753556919,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 37.04973165545477,
+      "path": "side_drift_0003.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.04281499918832,
+      "luma_min": 1.0,
+      "luma_range": 253.99999999999997,
+      "luma_stdev": 37.18960327856159,
+      "path": "side_drift_0011.png",
+      "width": 1920
+    },
+    {
+      "height": 255,
+      "luma_max": 250.9238,
+      "luma_mean": 2.6353644505959144,
+      "luma_min": 0.0,
+      "luma_range": 250.9238,
+      "luma_stdev": 15.535989427993437,
+      "path": "side_rest.png",
+      "width": 255
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.010739880555,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 37.10433193879545,
+      "path": "side_without_cloak.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "protagonist-2d-skeletal-experiment-1788897870410172000-38438-preview-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tools/cutout_pipeline/preview.gd"
+}

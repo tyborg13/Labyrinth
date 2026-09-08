@@ -1,0 +1,181 @@
+{
+	"case_file": "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment/experiments/cutouts/workflow_validation/nonhumanoid_case/cutout.json",
+	"character_id": "nonhumanoid_contract",
+	"clips": [
+		{
+			"clip": "drift",
+			"cycle_frames": 6,
+			"facing": "side",
+			"folder": "side_drift",
+			"frame_seconds": 0.05,
+			"frames": 12,
+			"poses": [
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 0,
+					"phase": 0.0,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				},
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 1,
+					"phase": 0.166666666666667,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				},
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 2,
+					"phase": 0.333333333333333,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				},
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 3,
+					"phase": 0.5,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				},
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 4,
+					"phase": 0.666666666666667,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				},
+				{
+					"bones": {
+						"carrier": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							180.0
+						],
+						"sigil": [
+							1.0,
+							0.0,
+							0.0,
+							1.0,
+							128.0,
+							140.0
+						]
+					},
+					"frame": 5,
+					"phase": 0.833333333333333,
+					"rigid_basis_error": 0.0,
+					"support_drift": 0.0,
+					"target_error": 0.0
+				}
+			]
+		}
+	],
+	"errors": [],
+	"roundtrip": [
+		{
+			"clip": "drift",
+			"facing": "side",
+			"frame": 2,
+			"pixel_identical": true
+		}
+	],
+	"size": [
+		1920,
+		1080
+	],
+	"timing_basis": "sampled native poses at case-declared playback duration; character study, not real-action gameplay capture",
+	"ui_scale": 1.0
+}

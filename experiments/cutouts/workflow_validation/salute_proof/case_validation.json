@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "protagonist_salute",
+  "layouts": {
+    "front": {
+      "joints": 21,
+      "parts": 20,
+      "meshes": 5,
+      "vertices": 4954
+    },
+    "rear": {
+      "joints": 21,
+      "parts": 20,
+      "meshes": 11,
+      "vertices": 10191
+    }
+  },
+  "errors": []
+}

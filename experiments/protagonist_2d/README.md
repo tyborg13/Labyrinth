@@ -1,4 +1,10 @@
-# Protagonist 2D skeletal animation experiment
+# Protagonist 2D skeletal animation history
+
+**The approved current character is pass nine in `assets/units/protagonist_cutout` and `scripts/protagonist_cutout`.** Start new characters and variants with `$create-labyrinth-cutout` and [the maintained workflow](../../spec/cutout_workflow.md). [Current integration and proof](../../spec/protagonist_cutout_runtime.md) supersede the historical runtime notes below.
+
+This directory retains the development passes. Its saved rigs, old builders and inspection view remain the pass-seven standalone study; running those builders can restore that older revision. Use their recipes as references, not as initialization commands for new work.
+
+## Archived pass-seven study
 
 The seventh pass refines the sixth-pass character's garment connections: closed boot openings and overlapping trouser cuffs, a rear cloak attached at the neckline, and rounded knee joins with small painted covers. The arms, glove/sword grip, sword art and all bone pose curves remain unchanged. Each facing has 21 art attachments on the existing editable 21-bone rig, with **walk and attack only**. Production integration waits for the user's visual acceptance.
 

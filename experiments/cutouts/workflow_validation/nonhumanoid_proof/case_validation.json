@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "character_id": "nonhumanoid_contract",
+  "layouts": {
+    "side": {
+      "joints": 2,
+      "parts": 1,
+      "meshes": 0,
+      "vertices": 0
+    }
+  },
+  "errors": []
+}

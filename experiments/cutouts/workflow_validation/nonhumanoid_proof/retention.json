@@ -1,0 +1,41 @@
+{
+  "complete_raw_directory": "/private/tmp/cutout-nonhumanoid-proof-v2",
+  "verification": {
+    "ok": true,
+    "inputs": 875,
+    "outputs": 40,
+    "errors": []
+  },
+  "original_proof_manifest_sha256": "7b0d419c5606ff8a1e6c147519b646687efe5a3d9c57e9d202aa2954d3436a95",
+  "retained_files_sha256": {
+    "capture_input_sha256.json": "30b1e468d236a90a1a1e623bd043eb6b707a4e09fa85d74372db9fc3ec77b84c",
+    "case_validation.json": "af9a70b0e4aa1416540ee4d06a1d37ad7e5a75317819f1fd11d3beee980fd46e",
+    "keyboard_focus.png": "7056d8231897c727535bd305ae755974adfd73d65f64730990f9d66ec76bccd5",
+    "native_probe.log": "f43c2cd61c45244b6107277c1cb13921848a4814bc5c8d4bf9b142f6079cc9a9",
+    "proof_sha256.json": "7b0d419c5606ff8a1e6c147519b646687efe5a3d9c57e9d202aa2954d3436a95",
+    "render_manifest.json": "aa3f629d69a904542e5f270b92dd36e86065153926750d240d9bc63a96d4d6d3",
+    "side.tscn": "19614f5e7e2da6fd3f42cf0dd4af571bdf09c00ab494711d1eb90080ebd949e9",
+    "side_drift/pose_0000.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_0001.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_0002.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_0003.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_0004.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_0005.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0000.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0001.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0002.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0003.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0004.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift/pose_without_cloak_0005.png": "5d156a03d8598878dec0a6b46616d2d1d7ed30c91a066d95a306199d52f34fc7",
+    "side_drift_0000.png": "c16e8f8fdab3439aee33ad057598c4c5204514527fcbeb1dc72bd0651ea5a394",
+    "side_drift_0003.png": "7436e95f05ecd2565b4ba1a03bb748857366fab879aef2e541116c9c3e891ed0",
+    "side_drift_0011.png": "518ee0fe0d0bb827ea104aef1ebd8257d292a92ff43888b2a7ee5942dc4de3c1",
+    "side_rest.png": "18380feb40c9aa5b21d2aab78b271125a4dfc1921c278465132619c0e0ffbe87",
+    "side_without_cloak.png": "c16e8f8fdab3439aee33ad057598c4c5204514527fcbeb1dc72bd0651ea5a394",
+    "videos/cutout_review.mp4": "77d041ea3c5de5afdd51a8b31e1093c2fd009f66e6f941e3e2e0f5f6fba4b958",
+    "videos/encoding.json": "3aadb48a92713deb8c87af92858ffc85ab026a73d4a2dd27bbdf46fd7ea49fc7",
+    "videos/side_drift.mp4": "f48656749aa1cddb300a959c50dda3667d8adaf2d6e4c4c3ce3aa130defbd54f",
+    "visual_probe_result.json": "b29c7a81c9347594f8fb8afbcef4ec00571b488bd09f2a88b4f52eee1e24c823"
+  },
+  "omission_policy": "Complete pose cycles, selected full board PNGs, saved scenes, videos and logs retained; raw board JPEGs and some other board stills omitted. Original full manifest is unchanged. Run verify-render on the complete raw directory or a fresh render."
+}

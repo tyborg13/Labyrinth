@@ -56,6 +56,8 @@ description: Create, balance, illustrate, or review Escape the Umbra equipment a
 
 ## Visual Production
 
+- For equipment drawn on a skeletal character, use `$create-labyrinth-cutout` to fork/register the new part and verify its attachment through motion. Art slots do not automatically implement live inventory swapping.
+
 - Equipment icons should use the relic icon format unless a task explicitly changes the UI surface: `96x96` PNG, RGBA, transparent background, centered object, compact dark-fantasy pixel-painted style, high contrast, no text, no border frame.
 - Equipment card art follows `$create-labyrinth-card` rules: final card art lives under `assets/art/cards/<card_id>.png`, uses the transparent ragged art-window treatment, and needs fresh `CardWidget` visual proof for new or changed art.
 - Use the `imagegen` skill for final equipment icons or card art. Every finished equipment identity needs a distinct purpose-built icon. Reuse is permitted only for a user-requested temporary prototype, never for finished handoff.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Labyrinth Character Cutouts"
+  short_description: "Build and extend editable character cutouts"
+  default_prompt: "Use $create-labyrinth-cutout to create or extend an editable character cutout and inspect its animation on the board."

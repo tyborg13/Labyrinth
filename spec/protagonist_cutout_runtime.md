@@ -6,6 +6,8 @@ The player must read their position, facing, travel and melee contact on the exi
 
 The primary proof is actual 1920×1080 gameplay at 100% UI scale: idle, four directions of movement/melee, other action transitions, equipment, reduced motion and save/resume. The full Godot suite and focused animation tests must pass, followed by independent review and a playable combat Continue fixture. Publication requires separate user approval.
 
+For new character cutouts and animation/equipment variants, use [the maintained cutout workflow](cutout_workflow.md) and `$create-labyrinth-cutout`. The experimental recipes remain historical references.
+
 ## Ownership and rendering
 
 `assets/units/protagonist_cutout` and `scripts/protagonist_cutout` own the production rig, motion and accepted paint. The experiment remains a frozen inspection reference. Layout JSON is included explicitly in every export preset; painted PNGs use the existing `keep` import convention and load through AssetLoader in source and exported builds. Experiment/reference/proof assets are excluded from shipped packages.

@@ -1,0 +1,33 @@
+--- original_motion.gd
++++ protagonist_salute/v01/motion.gd
+@@ -24,6 +24,8 @@
+ 
+ 
+ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
++	if clip == "salute":
++		return _sample_salute(phase, layout, facing)
+ 	var pose := _rest_pose(layout)
+ 	var specs := clip_specs()
+ 	if not specs.has(clip):
+@@ -386,3 +388,21 @@
+ 	if t <= start or t >= finish:
+ 		return 0.0
+ 	return _ease((t - start) / (full - start)) * (1.0 - _ease((t - release) / (finish - release)))
++
++
++## A short ceremonial sword salute: raise, hold the upright blade, recover.
++## Reuses the accepted attack preparation's arm excursion and source paint.
++## The hips and legs remain in the unchanged assembled pose throughout.
++static func _sample_salute(phase: float, layout: Dictionary, facing: String) -> Dictionary:
++	var pose := _rest_pose(layout)
++	var t: float = clampf(phase, 0.0, 1.0)
++	var lift: float = _hold(t, 0.0, 0.30, 0.62, 1.0)
++	if facing == "rear":
++		_rotate(pose, "arm_r", -1.35 * lift)
++		_rotate(pose, "forearm_r", -0.75 * lift)
++		_rotate(pose, "hand_r", -0.18 * lift)
++	else:
++		_rotate(pose, "arm_r", 1.30 * lift)
++		_rotate(pose, "forearm_r", 0.65 * lift)
++		_rotate(pose, "hand_r", 0.25 * lift)
++	return _separate_grip(pose)

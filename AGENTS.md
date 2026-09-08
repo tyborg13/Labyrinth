@@ -26,6 +26,8 @@ Assignments to `Array[T]` must use a typed helper or explicitly typed temporary.
 
 For player-facing UI, use `$create-labyrinth-ui` and the relevant [UI rubric](spec/game_ui_rubric.md) sections. Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
 
+For segmented character art, skeletal cutouts, or new cutout animations/equipment variants, use `$create-labyrinth-cutout`. Start from the current production baseline or a fresh creature case; historical experiment builders are revision-specific.
+
 Distinct player-facing concepts require purpose-built, distinct icons under [the icon identity policy](spec/icon_identity_policy.md). Run `python3 tests/test_icon_identity_policy.py` when identities or registries change.
 
 For card balance or combat/encounter assumptions, consult [the heuristic](spec/card_balance_heuristic.md). Score changed mechanics; update its specification and scorer together when assumptions change. Art-only changes do not require balance scoring.

@@ -1,0 +1,17 @@
+{
+  "clips": [
+    {
+      "file": "videos/side_drift.mp4",
+      "source_frames": 12,
+      "source_seconds": 0.6000000000000001,
+      "encoded_frames": 36,
+      "encoded_seconds": 0.6,
+      "duration_error_seconds": -1.1102230246251565e-16
+    }
+  ],
+  "reel": "videos/cutout_review.mp4",
+  "timing": "Case-declared playback speed; 60fps frame repetition, no synthesized poses; per-clip boundary rounding is at most one 60fps frame",
+  "full_decode": "PASS",
+  "source_seconds": 0.6000000000000001,
+  "encoded_seconds": 0.6
+}

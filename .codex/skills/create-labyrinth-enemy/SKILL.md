@@ -11,7 +11,7 @@ description: Create, balance, animate, or review Escape the Umbra enemies and en
    - **Data-only enemy using existing verbs**: usually touch `data/enemies.json`, `scripts/room_generator.gd`, tests, and enemy art.
    - **New enemy mechanic**: touch `scripts/combat_engine.gd`, `scripts/combat_board_view.gd` or `scripts/run_scene.gd` if previews/presentation change, `tests/run_tests.gd`, and balance docs/tooling if enemy assumptions change.
    - **Spawn-pool tuning**: touch `scripts/room_generator.gd`, `spec/card_balance_heuristic.md`, `tools/card_heuristic.py`, and tests.
-   - **Visual-only enemy work**: use the `imagegen` skill and current unit sprites as style references.
+   - **Visual-only enemy work**: use the `imagegen` skill and current unit sprites as style references. For segmented/skeletal cutouts or cutout animation, use `$create-labyrinth-cutout`; its new-creature mode preserves the enemy’s own anatomy.
 2. Define the enemy's tactical job before editing: pressure pattern, counterplay, depth band, visual silhouette, and why this enemy earns a roster slot beside crawler, acolyte, harrier, warden, lightning wisp, and Zekarion.
 3. Implement data, mechanics, spawn integration, visuals, turn-clock presentation, previews, and tests together. A new normal enemy that never appears in encounter pools is unfinished unless the task explicitly asks for a staged prototype.
 4. Validate changed data with JSON parsing and affected behavior with focused checks. Use risk-tier breadth for integration/full suites; these examples apply when data and shared runtime change:
