@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": 7,
   "facing": "front",
   "canvas_size": [
     255,
@@ -8,7 +8,7 @@
   "source": "../../assets/placeholders/units/player_reaver.png",
   "source_sha256": "162d297a1b469ac9c55dbb50109272246a04ec407caa4144c2485b6946ba9ba5",
   "identity_source": "../../assets/placeholders/units/player_reaver.png",
-  "rest_source": "references/pass6/front_assembled_rest.png",
+  "rest_source": "references/pass7/front_assembled_rest.png",
   "joints": {
     "root": {
       "parent": null,
@@ -239,7 +239,7 @@
     {
       "equipment_slot": "legs",
       "name": "thigh_r",
-      "file": "assets/pass6/front/thigh_r.png",
+      "file": "assets/pass7/front/thigh_r.png",
       "offset": [
         96,
         134
@@ -250,10 +250,10 @@
     {
       "equipment_slot": "legs",
       "name": "shin_r",
-      "file": "assets/pass6/front/shin_r.png",
+      "file": "assets/pass7/front/shin_r.png",
       "offset": [
         101,
-        159
+        160
       ],
       "bone": "shin_r",
       "z_index": 11
@@ -267,7 +267,7 @@
         178
       ],
       "bone": "foot_r",
-      "z_index": 12
+      "z_index": 9
     },
     {
       "equipment_slot": "chest",
@@ -294,7 +294,7 @@
     {
       "equipment_slot": "legs",
       "name": "thigh_l",
-      "file": "assets/pass6/front/thigh_l.png",
+      "file": "assets/pass7/front/thigh_l.png",
       "offset": [
         128,
         140
@@ -305,10 +305,10 @@
     {
       "equipment_slot": "legs",
       "name": "shin_l",
-      "file": "assets/pass6/front/shin_l.png",
+      "file": "assets/pass7/front/shin_l.png",
       "offset": [
-        134,
-        168
+        136,
+        167
       ],
       "bone": "shin_l",
       "z_index": 21
@@ -316,13 +316,13 @@
     {
       "equipment_slot": "boots",
       "name": "foot_l",
-      "file": "assets/pass6/front/foot_l.png",
+      "file": "assets/pass7/front/foot_l.png",
       "offset": [
         134,
-        189
+        199
       ],
       "bone": "foot_l",
-      "z_index": 22
+      "z_index": 19
     },
     {
       "equipment_slot": "cloak",
@@ -356,6 +356,28 @@
       ],
       "bone": "weapon_r",
       "z_index": 66
+    },
+    {
+      "name": "knee_cover_r",
+      "equipment_slot": "legs",
+      "bone": "shin_r",
+      "z_index": 12,
+      "file": "assets/pass7/front/knee_cover_r.png",
+      "offset": [
+        103,
+        161
+      ]
+    },
+    {
+      "name": "knee_cover_l",
+      "equipment_slot": "legs",
+      "bone": "shin_l",
+      "z_index": 22,
+      "file": "assets/pass7/front/knee_cover_l.png",
+      "offset": [
+        137,
+        168
+      ]
     }
   ],
   "joint_meshes": [
@@ -100166,7 +100188,9 @@
       "thigh_r",
       "shin_r",
       "thigh_l",
-      "shin_l"
+      "shin_l",
+      "knee_cover_r",
+      "knee_cover_l"
     ],
     "gloves": [
       "hand_r",
@@ -100203,5 +100227,35 @@
     "Separately generated shoulder caps, hidden pants, cloak, sword and alternate rear knee/boot views are fitted to recorded landmarks.",
     "The source ownership reconstruction proves segmentation, not the quality of the modified assembled character."
   ],
-  "rest_source_sha256": "7b211354e6bd56a529d7611959e1c1e76756e1daf6b45a541c46b8b8c384166f"
+  "rest_source_sha256": "4fb7620cbbffa8f6e30bf8b2d1b812066ad690f2daa97d29e6acfe87b79375f6",
+  "seam_refinement": {
+    "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
+    "changes": [
+      {
+        "joint": "knee_r",
+        "method": "rounded overlapping cutouts and rigid painted joint cover",
+        "center": [
+          112,
+          167
+        ],
+        "radii": [
+          12,
+          9
+        ]
+      },
+      {
+        "joint": "knee_l",
+        "method": "rounded overlapping cutouts and rigid painted joint cover",
+        "center": [
+          151,
+          176
+        ],
+        "radii": [
+          17,
+          11
+        ]
+      }
+    ],
+    "existing_pose_curves_unchanged": true
+  }
 }

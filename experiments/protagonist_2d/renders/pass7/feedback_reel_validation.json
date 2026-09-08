@@ -1,0 +1,143 @@
+{
+  "pass": 7,
+  "fps": 72,
+  "size": [
+    1560,
+    848
+  ],
+  "shared_source_crop": [
+    76,
+    78,
+    436,
+    372
+  ],
+  "source_pixel_scale": 2,
+  "facings_left_to_right": [
+    "front",
+    "rear"
+  ],
+  "per_frame_camera_fitting": false,
+  "pose_interpolation": false,
+  "source_fps": {
+    "attack": 24,
+    "walk": 36
+  },
+  "half_speed_method": "Hold each actual source frame twice as long; output cadence preserves both 24fps and 36fps inputs",
+  "builder_sha256": "adea550ce3bf2abf03dad0dbc7f9a3375b0d471bac378f481aa6bf089cafbfff",
+  "font_sha256": "83f0f49b4178e1c5bdaf40a7174f510b9bc52c9563095d23cf3c46486a8a8035",
+  "source_sha256": {
+    "front_attack.png": "b7cbfeaab3a918c9606302a9969a1fab55cde30e21d54ea998a4c0e04ecb2fb8",
+    "front_walk.png": "236f2ad9208110d388e9e1861f4682b185dcef63f3eb866957d126bd3f37e58f",
+    "rear_attack.png": "6f516954371a98d4988dbc47e7ef956a1229f73cea8ecb27b0c46a4481b99570",
+    "rear_walk.png": "061a9705e207b294889fd70d5a2138a092077b8666346050fa3ee7056aca019a"
+  },
+  "videos": [
+    {
+      "file": "animation_showcase.mp4",
+      "sha256": "35a887bf6fc51b63a441a98ae98c6d901295da8ed1f101f844c28736a970b2d9",
+      "frames": 144,
+      "duration_seconds": 2.0,
+      "segments": [
+        {
+          "action": "walk",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 0,
+          "frame_count": 48,
+          "start_seconds": 0.0,
+          "end_seconds": 0.6666666666666666
+        },
+        {
+          "action": "attack",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 32,
+          "start_frame": 48,
+          "frame_count": 96,
+          "start_seconds": 0.6666666666666666,
+          "end_seconds": 2.0
+        }
+      ],
+      "complete_decode": true,
+      "metadata": {
+        "width": 1560,
+        "height": 848,
+        "avg_frame_rate": "72/1",
+        "duration": "2.000000",
+        "nb_frames": "144"
+      },
+      "proof_frames": []
+    },
+    {
+      "file": "walk_attack_feedback.mp4",
+      "sha256": "e427858066cd5ec76555b50556f738534cf356717d88b7170616c9e0a19e9388",
+      "frames": 576,
+      "duration_seconds": 8.0,
+      "segments": [
+        {
+          "action": "walk",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 24,
+          "start_frame": 0,
+          "frame_count": 96,
+          "start_seconds": 0.0,
+          "end_seconds": 1.3333333333333333
+        },
+        {
+          "action": "walk",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 96,
+          "frame_count": 96,
+          "start_seconds": 1.3333333333333333,
+          "end_seconds": 2.6666666666666665
+        },
+        {
+          "action": "attack",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 32,
+          "start_frame": 192,
+          "frame_count": 192,
+          "start_seconds": 2.6666666666666665,
+          "end_seconds": 5.333333333333333
+        },
+        {
+          "action": "attack",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 32,
+          "start_frame": 384,
+          "frame_count": 192,
+          "start_seconds": 5.333333333333333,
+          "end_seconds": 8.0
+        }
+      ],
+      "complete_decode": true,
+      "metadata": {
+        "width": 1560,
+        "height": 848,
+        "avg_frame_rate": "72/1",
+        "duration": "8.000000",
+        "nb_frames": "576"
+      },
+      "proof_frames": [
+        "walk_normal_000.png",
+        "walk_normal_012.png",
+        "walk_normal_023.png",
+        "walk_half_000.png",
+        "walk_half_012.png",
+        "walk_half_023.png",
+        "attack_normal_000.png",
+        "attack_normal_016.png",
+        "attack_normal_031.png",
+        "attack_half_000.png",
+        "attack_half_016.png",
+        "attack_half_031.png"
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Live 2D protagonist inspection
 
-The sixth-pass scene shows newly painted composable Reaver art inside the existing `CombatBoardView`. It exposes two editable 21-bone rigs, walk and attack, source comparison and cloak removal. This standalone fixture is the inspection surface for the experiment.
+The seventh-pass scene shows the refined boot, knee and rear-cloak connections inside the existing `CombatBoardView`. It exposes two editable 21-bone rigs, walk and attack, source comparison and cloak removal. This standalone fixture is the inspection surface for the experiment.
 
 ## Launch
 
@@ -27,7 +27,7 @@ The rig API is `load_rig()`, `has_facing()`, `set_facing()`, `set_clip()`, `seek
 Use the real renderer at 1920×1080, 100% UI scale:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 420 --expect-size 1920x1080 --proof-contract experiments/protagonist_2d/inspection_proof_contract.json --result-manifest /private/tmp/protagonist-2d-full-v6-result.json experiments/protagonist_2d/inspection_probe.gd --task-id protagonist-2d-skeletal-experiment -- --capture-motion
+cd /Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 420 --expect-size 1920x1080 --proof-contract experiments/protagonist_2d/inspection_proof_contract.json --result-manifest /private/tmp/protagonist-2d-full-v7-result.json experiments/protagonist_2d/inspection_probe.gd --task-id protagonist-2d-skeletal-experiment -- --capture-motion
 ```
 
 The timeout allows lossless full-HD capture/encoding of 208 source frames; startup behavior is unchanged. The probe saves 39 PNGs: references, both actions and overhead preparation, eight gait poses per facing, travel endpoints/midpoints, cloak-off poses, and focus/detail states. It checks 256 authored/travel states, pause/step/wrap/FPS, registration, health placement, enemy art, detail-only bones, native focus and cloak toggle persistence.
@@ -43,14 +43,14 @@ The first command verifies every lossless WebP frame at 1920×1080 and encodes f
 
 `videos/walk_attack_board.mp4` is the primary 936×540, 72fps, 13.33-second reel: walk for eight seconds, then attack for 5.33 seconds. Each action appears twice at normal speed and once at half speed. Integer frame duplication preserves the original 36fps walk and 24fps attack; there is no pose interpolation. `board_feedback_reel_validation.json` records source hashes, framing, 960 output frames, exact timing and complete decoding.
 
-Current retained proof is under `renders/pass6/board/`; use its versioned URLs. Raw lossless motion frames remain at the original isolated capture path in `renders/pass6/proof_manifest.json`. Prior `renders/board/` contains fifth-pass evidence.
+Current retained proof is under `renders/pass7/board/`; use its versioned URLs. Raw lossless motion frames remain at the original isolated capture path in `renders/pass7/proof_manifest.json`. Sixth-pass proof is preserved in `renders/pass6/`; prior `renders/board/` contains fifth-pass evidence.
 
-## Sixth-pass inspection record
+## Seventh-pass inspection record
 
-The real Metal/Mobile capture passed at 1920×1080, 100% UI scale. Visual review covers every authored pose with and without cloak, every native board screenshot region and all 72 paired travel phases. Full-surface inspection covers action preparation, references, controls, focus, cloak-off and detail states. The reel's decoded proof frames preserve its labels and full actor bounds. All 886 captured runtime input hashes were unchanged before/after recording and at packaging.
+The real Metal/Mobile capture passed at 1920×1080, 100% UI scale. Visual review covers every authored pose with and without cloak, every native board screenshot region and all 72 paired travel phases. Full-surface inspection covers action preparation, references, controls, focus, cloak-off and detail states. The reel's decoded proof frames preserve its labels and full actor bounds. All 901 captured runtime input hashes were unchanged before/after recording and at packaging.
 
 The board remains the primary surface; existing `UiSkin` and `UiTypography` keep controls legible. Action/facing state and pause/frame-step are exposed through native buttons; cloak removal enables direct shoulder/chest inspection. Detail and skeleton overlays do not obscure gameplay. These are the applicable UI rubric checks for this surface; no new gameplay icon identities or rules text are introduced.
 
-No detached limb, exposed torso gap or opaque inverted joint was found in the final authored-pose review. The fixed hand/boot views and warmer rear leather remain visible art limitations, recorded in [iteration_6.md](iteration_6.md). Two fixed views do not establish arbitrary turning or production-ready animation.
+The boot opening cuts now sit behind overlapping calf paint. The rear cloak presents one connected neckline through the overhead attack, and rounded painted knee covers soften the old segment cuts. Dark cloth bands and the fixed hand/boot views remain visible limitations, recorded in [iteration_7.md](iteration_7.md). These visual judgments are separate from connectivity checks and remain subject to user inspection. Production integration is explicitly deferred.
 
 The saved rigs passed four pixel-identical reload cases. The playable inspection fixture is this standalone scene. A production Continue save is not applicable because production gameplay does not select the experiment. A post-review task-runner startup check is recorded in the final handoff.

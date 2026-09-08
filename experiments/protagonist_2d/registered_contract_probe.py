@@ -1,4 +1,4 @@
-"""Verify sixth-pass segmentation, editable assets and every actual rendered pose.
+"""Verify registered-art segmentation, editable assets and actual rendered poses.
 
 Connectivity and transform bounds are mechanical checks. They supplement the
 separate native-scale art and board review; they do not score artistic quality.
@@ -40,8 +40,9 @@ def check_layout(path, pose_dump=None):
     data = json.loads(path.read_text())
     facing = data["facing"]
     failures, attachment_proof = [], []
-    if data.get("version") != 6 or not data.get("new_registered_anatomy"):
-        failures.append("Expected the sixth-pass registered-art layout")
+    version = data.get("version")
+    if version not in (6, 7) or not data.get("new_registered_anatomy"):
+        failures.append("Expected a registered-art layout (pass six or its garment refinement)")
     if len(data["joints"]) != 21 or data["joints"]["weapon_r"]["parent"] != "hand_r":
         failures.append("Missing body bones or independent weapon grip")
     if set(data.get("equipment_slots", {})) != SLOTS:
@@ -56,7 +57,8 @@ def check_layout(path, pose_dump=None):
     if sorted(listed) != sorted(names):
         failures.append("Equipment bundles omit or duplicate a painted attachment")
     for part in entries:
-        if not part["file"].startswith(f"assets/pass6/{facing}/"):
+        allowed_roots = (f"assets/pass6/{facing}/",) if version == 6 else (f"assets/pass6/{facing}/", f"assets/pass7/{facing}/")
+        if not part["file"].startswith(allowed_roots):
             failures.append("Runtime part reuses prior-revision character art: " + part["file"])
         if part.get("equipment_slot") not in SLOTS:
             failures.append("Attachment lacks its equipment slot: " + part["file"])
@@ -129,8 +131,10 @@ def check_layout(path, pose_dump=None):
         failures.append("Shoulder coverings and hanging cloak cannot be removed together")
     if facing == "front" and cape["z_index"] >= parts["torso"]["z_index"]:
         failures.append("Front hanging cloak no longer sits behind the body")
-    if facing == "rear" and not parts["torso"]["z_index"] < cape["z_index"] < parts["arm_r"]["z_index"] < parts["mantle_near"]["z_index"]:
-        failures.append("Rear cloak/arm/shoulder layers are inconsistent")
+    if facing == "rear":
+        valid_order = (parts["torso"]["z_index"] < cape["z_index"] < parts["arm_r"]["z_index"] < parts["mantle_near"]["z_index"]) if version == 6 else (parts["torso"]["z_index"] < parts["arm_r"]["z_index"] < parts["mantle_near"]["z_index"] < cape["z_index"] < parts["scarf"]["z_index"])
+        if not valid_order:
+            failures.append("Rear cloak/arm/shoulder layers are inconsistent")
     posed = None
     if pose_dump is not None:
         samples = [s for s in pose_dump["samples"] if s["facing"] == facing]
@@ -184,8 +188,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--pose-matrices", type=Path, required=True)
     parser.add_argument("--renders", type=Path, required=True)
-    parser.add_argument("--output", type=Path, default=HERE / "renders/pass6/registered_art_validation.json")
+    parser.add_argument("--output", type=Path, default=None)
     args = parser.parse_args()
+    version = json.loads((HERE / "cutout_layout.json").read_text())["version"]
+    if args.output is None:
+        args.output = HERE / f"renders/pass{version}/registered_art_validation.json"
     poses = json.loads(args.pose_matrices.read_text())
     stale = []
     if poses.get("matrix_order") != ["xx", "xy", "yx", "yy", "ox", "oy"]:
@@ -196,7 +203,7 @@ def main():
     layouts = [check_layout(HERE / name, poses) for name in ("cutout_layout.json", "cutout_layout_rear.json")]
     renders = check_renders(args.renders)
     failures = stale + [f for layout in layouts for f in layout["failures"]] + renders["failures"]
-    report = {"pass": 6, "pose_input_sha256": poses["input_sha256"], "layouts": layouts,
+    report = {"pass": version, "pose_input_sha256": poses["input_sha256"], "layouts": layouts,
               "rendered_attachments": renders, "failures": failures, "passed": not failures}
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")

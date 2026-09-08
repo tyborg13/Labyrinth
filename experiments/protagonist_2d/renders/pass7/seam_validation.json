@@ -1,0 +1,65 @@
+{
+  "pass": 7,
+  "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
+  "motion_sha256": "3b0c8bd147658f94dc27c63f47477e2130dce015f177dda814964e48816cd44c",
+  "pose_input_sha256": {
+    "res://experiments/protagonist_2d/cutout_layout.json": "e18fb59ee3336741342ab1316fc28065416574551fc2a0ddee23b47fd1d89b68",
+    "res://experiments/protagonist_2d/cutout_layout_rear.json": "4258f834e8269052d152a6720866540e0b10c275c92d496df5e8e6a93ac41efc",
+    "res://experiments/protagonist_2d/cutout_motion.gd": "3b0c8bd147658f94dc27c63f47477e2130dce015f177dda814964e48816cd44c"
+  },
+  "identical_existing_bone_poses": 112,
+  "coverage": [
+    {
+      "facing": "front",
+      "joint": "ankle_r",
+      "rest_overlap_pixels": 127,
+      "foreground": "trouser cuff"
+    },
+    {
+      "facing": "front",
+      "joint": "ankle_l",
+      "rest_overlap_pixels": 119,
+      "foreground": "trouser cuff"
+    },
+    {
+      "facing": "front",
+      "empty_boot_collar_rect": [
+        153,
+        190,
+        169,
+        198
+      ],
+      "remaining_rigid_boot_pixels": 0
+    },
+    {
+      "facing": "rear",
+      "joint": "ankle_r",
+      "rest_overlap_pixels": 75,
+      "foreground": "trouser cuff"
+    },
+    {
+      "facing": "rear",
+      "joint": "ankle_l",
+      "rest_overlap_pixels": 168,
+      "foreground": "trouser cuff"
+    },
+    {
+      "facing": "rear",
+      "empty_boot_collar_rect": [
+        88,
+        181,
+        102,
+        188
+      ],
+      "remaining_rigid_boot_pixels": 0
+    },
+    {
+      "facing": "rear",
+      "joint": "cloak_shoulder",
+      "overlapping_pixels_at_or_above_shoulder": 745
+    }
+  ],
+  "failures": [],
+  "passed": true,
+  "limits": "Coverage and exact preservation support, but cannot replace, visual review of dressed anatomy."
+}

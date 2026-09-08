@@ -18,7 +18,7 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('frames_dir',type=Path)
-    ap.add_argument('--output',type=Path,default=HERE/'renders/pass6')
+    ap.add_argument('--output',type=Path,default=HERE/'renders/pass7')
     ap.add_argument('--require-both',action='store_true')
     args=ap.parse_args();output=args.output;output.mkdir(parents=True,exist_ok=True)
     source=json.loads((args.frames_dir/'render_manifest.json').read_text())
@@ -61,7 +61,7 @@ def main():
     (output/'render_validation.json').write_text(json.dumps(source,indent=2)+'\n')
     facings=list(source['facings'])
     source_fps={action:int(meta["fps"]) for action,meta in source["facings"]["front"].items()}
-    walk_frames,n=write_previews(clips,output,pass_number=6,source_fps=source_fps)
+    walk_frames,n=write_previews(clips,output,pass_number=7,source_fps=source_fps)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
         gif_size=(960,round(walk_frames[0].height*960/walk_frames[0].width))

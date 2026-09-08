@@ -118,7 +118,7 @@ def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_f
             'segments': segments, 'complete_decode': True, 'metadata': metadata, 'proof_frames': proof_frames}
 
 
-def write_previews(clips, output, pass_number=6, source_fps=None):
+def write_previews(clips, output, pass_number=7, source_fps=None):
     source_fps = source_fps or {action: 24 for action in ACTIONS}
     for action in ACTIONS:
         if not all((facing, action) in clips for facing in FACINGS):

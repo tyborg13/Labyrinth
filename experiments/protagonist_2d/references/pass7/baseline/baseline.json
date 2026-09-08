@@ -1,0 +1,16 @@
+{
+  "commit": "a01366412c8dd9263044751ac63bce6c556b9544",
+  "protected_sha256": {
+    "cutout_motion.gd": "3b0c8bd147658f94dc27c63f47477e2130dce015f177dda814964e48816cd44c",
+    "assets/pass6/front/arm_r.png": "2cfc2d034171e633304617ba7c614bcc226d0e3fa0625116984852120ece1e2f",
+    "assets/pass6/front/arm_l.png": "a466cf356af9d874ee12cfb805827e04fe23ab4f4c5ece7b191fc156dbf80bea",
+    "assets/pass6/front/hand_r.png": "2102bef6561af5230b9a311c10adc8a890e1e66ec6f1da1e7e27093364e8bbc9",
+    "assets/pass6/front/hand_l.png": "0110cde158674baf266b4d92f873b63a105fead426bef1fc4e0c3dea2c3c3b90",
+    "assets/pass6/front/weapon_r.png": "adb3b5536509bbc941cd8aed42df2b266aae5e52277791e787b396e18dfd5bf5",
+    "assets/pass6/rear/arm_r.png": "fd20b006e568e531c6479c3e43b38fb23f33491905b6f8afd83e8ca62663b86a",
+    "assets/pass6/rear/arm_l.png": "3c4b22a52c2b5c6e60b46a7f99493b806c3f9564e770667d0dbd36d8af8e8f8a",
+    "assets/pass6/rear/hand_r.png": "5c0a99c5000ae75890ad9c645cdc2d868008eb3337842c56a1895a993a927427",
+    "assets/pass6/rear/hand_l.png": "f5fbeb116ac5902e8498d789306e1163d997c7715171eeaa51e6b07011a284c6",
+    "assets/pass6/rear/weapon_r.png": "e6577212530fcce51a3dd4656ccb2d18e6725e72282f8e0796502e6ce8c85512"
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "pass": 7,
+  "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
+  "source_frame_sha256": {
+    "pass6/front_walk_without_cloak/000.png": "2aa87a8b001c16a811f7d1549b2b29c3e8e9778e37ea129267c5ac6ece138a4f",
+    "pass6/front_walk_without_cloak/004.png": "a076a5e3497ac905772c4e710709e87f5c41901c23ada2b01e132176275129bd",
+    "pass6/front_walk_without_cloak/008.png": "81a042d94cce0c229a06972fe95204317b203c75b3a7601a25f4e39b6d6e6951",
+    "pass6/front_walk_without_cloak/012.png": "c3affe4ad9f8c15e96acd32f95b90923eb368764ff6c1b905c3c2065b16ce7ab",
+    "pass6/front_walk_without_cloak/016.png": "79553d71cd6a9f3f13e9b7e65b0ae8d898171dfb5e828677226410c7d96a01dc",
+    "pass6/front_walk_without_cloak/020.png": "8cf677bbff760c6fb250a2919c12a43065e578c63ae79e5c03ec4c4d85ff59bc",
+    "pass6/rear_walk_without_cloak/000.png": "d796abd8eee2e6293bb984b49c44641cf4de982f5f836b6cdd5c57879ee8284b",
+    "pass6/rear_walk_without_cloak/004.png": "54646609b24805e4a47a99878916e84bfc438dbb5adc6a6ecf3bba4702f055b1",
+    "pass6/rear_walk_without_cloak/008.png": "8287590c63f78b37b28bdb88089a30f48d6293677c476bf8c0d92d4c28c10345",
+    "pass6/rear_walk_without_cloak/012.png": "d857ffd2132c0edd395cd3a13b9da0d32b55a81417267d43301fee779daa3285",
+    "pass6/rear_walk_without_cloak/016.png": "9ffcabd38311e4085cf235c6e838a7366c1d18870e75009439b780f0bccbe3f2",
+    "pass6/rear_walk_without_cloak/020.png": "935870beb0b179a2645261c2889f8ca356874ead2284a09578c2dee7899b20db",
+    "pass6/rear_attack/000.png": "a4d20efcb9c3b0f696d4b990e3a166e472ff7e6628757910ea5ac69def0a8c1d",
+    "pass6/rear_attack/004.png": "ae51a9149eabef57067024ae524880ea7f3386bbc83d3e98b5ee60b6e2c15738",
+    "pass6/rear_attack/009.png": "8b53bc28b69cdf50d9c793078c52016e25c79c1b3c8a1532dbe84a87d3828aa7",
+    "pass6/rear_attack/013.png": "d3d3b2ab37d9880e8c0f0838f100ff211e65ba93fff665e503800281a1170de4",
+    "pass6/rear_attack/020.png": "e8097c8b6e29db6ccfde0f3c67be135eaad623bb30e5ab3618dacafe19fd4029",
+    "pass7/front_walk_without_cloak/000.png": "842c88a9e7bf48ef9669335d86fcf527f82aec14db5b61dd3237ab88b4000a78",
+    "pass7/front_walk_without_cloak/004.png": "24e7c7015e3354d634e8e463a04d026bd29cca09154d33925b38dba4570a3df7",
+    "pass7/front_walk_without_cloak/008.png": "948ee57e244a41e706a6c719d509f927f4a046cc8787948903d1324794b40e3c",
+    "pass7/front_walk_without_cloak/012.png": "1c2ec426667aac5ddda3de76706710f551e63a1f3b54ad555d514ab139ed4e13",
+    "pass7/front_walk_without_cloak/016.png": "59ca339701f1686b1da59dc29430e4d0e7e5dc15adbd9dd68a60564cd3e0d03a",
+    "pass7/front_walk_without_cloak/020.png": "83356618a597a5a658cdcd377da041ae876557a3b1d813c31fe65a400c94ee2a",
+    "pass7/rear_walk_without_cloak/000.png": "2124f6940e0d30c229966f6b227a46c721731ae5c7adb699193c1a38d39bd548",
+    "pass7/rear_walk_without_cloak/004.png": "d0d3f06c8e992746f156a1e06de6fa72bbc7b40a9f809a06c99156a8267df675",
+    "pass7/rear_walk_without_cloak/008.png": "1d0905a0e19670acd8689ead2308da3e6968d9c859631839d8dde852104a2bda",
+    "pass7/rear_walk_without_cloak/012.png": "83dcf3d3140bb042126dfa1afdf6829da572ff344b26b4774d114b5b85f1f830",
+    "pass7/rear_walk_without_cloak/016.png": "2f1f65008c07710019095186b1dca97e34701231f36821948b8c0aa4e1b27266",
+    "pass7/rear_walk_without_cloak/020.png": "9766213a89b4714a829fd7f1aef8d66d974f8c13ffa2630e4c9ea65c90131151",
+    "pass7/rear_attack/000.png": "86e06aa56572fc52284763555b78919fb93610c7d03d27dd87c7737ecc3c1176",
+    "pass7/rear_attack/004.png": "2b889b482b6663e6dd6b30dc5875d698c3337f45df07b166f34ef809c9262ba7",
+    "pass7/rear_attack/009.png": "c8d0e4741ef5028e56ba414af97c320573d2fc1c8d4b76a70e60d23ef31df631",
+    "pass7/rear_attack/013.png": "387d3a36123d387b137382d6b38258990b4aea527022035452f831174955799d",
+    "pass7/rear_attack/020.png": "59f0a5dc5cbc57a6a1c75a443739b2cf83631c454dab0800d3e25704247a9dca"
+  },
+  "comparisons": [
+    {
+      "file": "references/pass7/boots_knees_comparison.png",
+      "native_fixed_crop": [
+        203,
+        263,
+        323,
+        357
+      ],
+      "nearest_neighbor_scale": 2.5,
+      "pose_indices": [
+        0,
+        4,
+        8,
+        12,
+        16,
+        20
+      ],
+      "purpose": "Zoom both legs through walk in the sixth and seventh passes; upper body/sword deliberately outside this joint-specific view.",
+      "sha256": "6ead7bf66b7754a76ff60be8ce8fbef9bcf34abffcb0a2a35778710478711e43"
+    },
+    {
+      "file": "references/pass7/rear_cloak_comparison.png",
+      "native_fixed_crop": [
+        198,
+        173,
+        348,
+        348
+      ],
+      "nearest_neighbor_scale": 2,
+      "pose_indices": [
+        0,
+        4,
+        9,
+        13,
+        20
+      ],
+      "purpose": "Zoom the rear cloak neckline/shoulder through attack; complete head and blade are shown in the full-pose sheets, not this neckline crop.",
+      "sha256": "0f647d9530b18451c2ada660f012136bc43e31f148c3a81e2a8957aab1837e02"
+    }
+  ]
+}
