@@ -29,10 +29,10 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			expect.call(sample["rig_count"] == 2 and sample["texture_id"] == initial["texture_id"], "Facing/action switches retain two loaded rigs and one texture RID")
 			renderer.call("present", {}, false)
 			sample = renderer.call("snapshot")
-			expect.call(sample["clip"] == "idle" and sample["facing"] == expected_facings[index] and sample["mirrored"] == expected_mirrors[index], "Idle retains the most recent facing")
+			expect.call(sample["clip"] == "idle" and sample["facing"] == "front" and not sample["mirrored"], "Idle returns to the unmirrored front default after every direction")
 	renderer.call("present", {"clip": "attack", "phase": 0.8}, false)
 	renderer.call("present", {"clip": "attack", "phase": 1.0}, false)
-	expect.call(renderer.call("snapshot")["clip"] == "idle", "Completed melee resumes idle while floating damage text finishes")
+	expect.call(renderer.call("snapshot")["clip"] == "idle" and renderer.call("snapshot")["facing"] == "front" and not renderer.call("snapshot")["mirrored"], "Completed melee returns to front idle while floating damage text finishes")
 	var phase_before: float = float(renderer.call("snapshot")["phase"])
 	renderer.call("_process", 0.1)
 	expect.call(float(renderer.call("snapshot")["phase"]) > phase_before, "Idle advances on its own between game-state submissions")
@@ -73,6 +73,25 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call((rig.get("bones") as Dictionary).size() == 21, "%s retains all 21 accepted painted joints" % facing)
 		for part: Dictionary in layout["parts"]:
 			expect.call(str(part["file"]).begins_with("res://assets/units/protagonist_cutout/") and AssetLoader.load_texture(part["file"]) != null, "Every runtime part is a loadable production asset")
+		var bob_pose: Dictionary = Motion.sample_pose("idle", 0.40, layout, facing)
+		for bone: String in ["torso", "head", "hand_l"]:
+			var bob_world: Transform2D = Motion._world_transform(bob_pose, layout, bone)
+			var anchor_values: Array = layout["joints"][bone]["position"]
+			expect.call(bob_world.origin.is_equal_approx(Vector2(anchor_values[0], anchor_values[1]) + Vector2(0, 2)), "Idle moves torso, head and free hand together in a clear two-pixel bob")
+		for bone: String in ["thigh_r", "shin_r", "foot_r", "thigh_l", "shin_l", "foot_l"]:
+			var bob_world: Transform2D = Motion._world_transform(bob_pose, layout, bone)
+			expect.call(bob_world.x.is_equal_approx(Vector2.RIGHT) and bob_world.y.is_equal_approx(Vector2.DOWN), "Idle leaves leg paint stable rather than shimmering through IK")
+		for sample_index: int in range(49):
+			var walk_t: float = float(sample_index) / 48.0
+			var walk_pose: Dictionary = Motion.sample_pose("walk", walk_t, layout, facing)
+			for foot: String in ["foot_r", "foot_l"]:
+				var world: Transform2D = Motion._world_transform(walk_pose, layout, foot)
+				var step: Dictionary = Motion.walk_foot_state(walk_t, foot, layout, facing)
+				expect.call(world.origin.distance_to(step["target"]) < 0.2, "Long-stride leg reaches its authored foot target without pulling the boot apart")
+				if bool(step["contact"]) and float(step["cycle_phase"]) < 0.58:
+					var later: Dictionary = Motion.walk_foot_state(walk_t + 0.01, foot, layout, facing)
+					var travel: Vector2 = Motion.walk_cycle_info(layout, facing)["travel_per_cycle"]
+					expect.call((later["ground"] + travel * 0.01).distance_to(step["ground"]) < 0.001, "Planted support foot exactly cancels board travel through the longer stride")
 		var idle_end: Dictionary = Motion.sample_pose("idle", 0.999999, layout, facing)
 		for bone: String in ["head", "cape_mid", "cape_tip"]:
 			expect.call(absf(float(idle_end[bone]["rotation"])) < 0.0001, "Idle cloth/head return continuously to neutral at the loop seam")
@@ -84,7 +103,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 					var world: Transform2D = Motion._world_transform(pose, layout, foot)
 					var painted: Array = layout["joints"][foot]["position"]
 					expect.call(world.origin.distance_to(Vector2(painted[0], painted[1])) < 0.15, "%s %s keeps %s planted at phase %.2f" % [facing, clip, foot, t])
-	expect.call(Cutout.WALK_CYCLE_SECONDS < 0.3, "The accepted 2/3-second gait is accelerated by more than twice")
+	expect.call(Cutout.WALK_CYCLE_SECONDS > 0.24 and Cutout.walk_cycle_distance() >= 75.0, "Longer strides lower the old shuffle cadence")
+	expect.call(Cutout.walk_cycle_distance() / Cutout.WALK_CYCLE_SECONDS > 250.0, "Longer strides cover ground faster despite the lower step rate")
 	expect.call(Cutout.attack_pose_phase(0.42) >= 0.41, "Sword passes through the cut by the existing melee contact threshold")
 	expect.call(Cutout.attack_pose_phase(0.36) <= 0.31, "The sword holds anticipation until the short aggressive cut")
 	expect.call(is_equal_approx(Cutout.attack_pose_phase(1.0), 1.0), "Melee finishes in the accepted neutral pose")

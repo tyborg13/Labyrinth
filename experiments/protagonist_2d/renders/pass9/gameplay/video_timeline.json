@@ -1,0 +1,214 @@
+[
+  {
+    "file": "gameplay_full_speed.mp4",
+    "source_clock": "samples[].seconds from actual gameplay; no speed changes",
+    "duration": 33.781922333333334,
+    "clips": [
+      {
+        "clip": "01_idle",
+        "start": 0.0,
+        "duration": 3.413889333333333,
+        "frames": 89
+      },
+      {
+        "clip": "02_walk_southwest",
+        "start": 3.413889333333333,
+        "duration": 0.7841253333333333,
+        "frames": 21
+      },
+      {
+        "clip": "03_melee_southwest",
+        "start": 4.1980146666666665,
+        "duration": 1.6113853333333334,
+        "frames": 43
+      },
+      {
+        "clip": "04_walk_southeast",
+        "start": 5.8094,
+        "duration": 0.7706303333333333,
+        "frames": 20
+      },
+      {
+        "clip": "05_melee_southeast",
+        "start": 6.580030333333333,
+        "duration": 1.6128113333333336,
+        "frames": 42
+      },
+      {
+        "clip": "06_walk_northeast",
+        "start": 8.192841666666666,
+        "duration": 0.7736823333333332,
+        "frames": 21
+      },
+      {
+        "clip": "07_melee_northeast",
+        "start": 8.966524,
+        "duration": 1.5889993333333334,
+        "frames": 42
+      },
+      {
+        "clip": "08_walk_northwest",
+        "start": 10.555523333333333,
+        "duration": 0.8004243333333334,
+        "frames": 21
+      },
+      {
+        "clip": "09_melee_northwest",
+        "start": 11.355947666666667,
+        "duration": 1.6056033333333333,
+        "frames": 42
+      },
+      {
+        "clip": "09a_walk_two_tiles",
+        "start": 12.961551,
+        "duration": 1.2865083333333336,
+        "frames": 35
+      },
+      {
+        "clip": "09b_melee_whirlwind",
+        "start": 14.248059333333334,
+        "duration": 1.5062623333333334,
+        "frames": 39
+      },
+      {
+        "clip": "10_defensive_action",
+        "start": 15.754321666666668,
+        "duration": 1.4218753333333336,
+        "frames": 38
+      },
+      {
+        "clip": "11_ranged_action",
+        "start": 17.176197000000002,
+        "duration": 1.5282643333333337,
+        "frames": 39
+      },
+      {
+        "clip": "11a_targeted_aoe",
+        "start": 18.704461333333334,
+        "duration": 1.4604393333333334,
+        "frames": 38
+      },
+      {
+        "clip": "11b_blink",
+        "start": 20.164900666666668,
+        "duration": 1.7533973333333335,
+        "frames": 46
+      },
+      {
+        "clip": "11c_guarded_step",
+        "start": 21.918298,
+        "duration": 2.1612323333333334,
+        "frames": 56
+      },
+      {
+        "clip": "11d_take_damage_0",
+        "start": 24.079530333333334,
+        "duration": 1.0332663333333334,
+        "frames": 27
+      },
+      {
+        "clip": "11d_take_damage_1",
+        "start": 25.112796666666668,
+        "duration": 3.032176333333333,
+        "frames": 80
+      },
+      {
+        "clip": "15_reduced_melee",
+        "start": 28.144973,
+        "duration": 0.9287013333333333,
+        "frames": 25
+      },
+      {
+        "clip": "17_terminal_defeat_0",
+        "start": 29.073674333333333,
+        "duration": 1.0167913333333334,
+        "frames": 27
+      },
+      {
+        "clip": "17_terminal_defeat_1",
+        "start": 30.090465666666667,
+        "duration": 3.066633333333333,
+        "frames": 80
+      },
+      {
+        "clip": "18_room_idle",
+        "start": 33.157099,
+        "duration": 0.6248233333333333,
+        "frames": 16
+      }
+    ]
+  },
+  {
+    "file": "movement_melee_idle_full_speed.mp4",
+    "source_clock": "samples[].seconds from actual gameplay; no speed changes",
+    "duration": 15.754321666666668,
+    "clips": [
+      {
+        "clip": "01_idle",
+        "start": 0.0,
+        "duration": 3.413889333333333,
+        "frames": 89
+      },
+      {
+        "clip": "02_walk_southwest",
+        "start": 3.413889333333333,
+        "duration": 0.7841253333333333,
+        "frames": 21
+      },
+      {
+        "clip": "03_melee_southwest",
+        "start": 4.1980146666666665,
+        "duration": 1.6113853333333334,
+        "frames": 43
+      },
+      {
+        "clip": "04_walk_southeast",
+        "start": 5.8094,
+        "duration": 0.7706303333333333,
+        "frames": 20
+      },
+      {
+        "clip": "05_melee_southeast",
+        "start": 6.580030333333333,
+        "duration": 1.6128113333333336,
+        "frames": 42
+      },
+      {
+        "clip": "06_walk_northeast",
+        "start": 8.192841666666666,
+        "duration": 0.7736823333333332,
+        "frames": 21
+      },
+      {
+        "clip": "07_melee_northeast",
+        "start": 8.966524,
+        "duration": 1.5889993333333334,
+        "frames": 42
+      },
+      {
+        "clip": "08_walk_northwest",
+        "start": 10.555523333333333,
+        "duration": 0.8004243333333334,
+        "frames": 21
+      },
+      {
+        "clip": "09_melee_northwest",
+        "start": 11.355947666666667,
+        "duration": 1.6056033333333333,
+        "frames": 42
+      },
+      {
+        "clip": "09a_walk_two_tiles",
+        "start": 12.961551,
+        "duration": 1.2865083333333336,
+        "frames": 35
+      },
+      {
+        "clip": "09b_melee_whirlwind",
+        "start": 14.248059333333334,
+        "duration": 1.5062623333333334,
+        "frames": 39
+      }
+    ]
+  }
+]

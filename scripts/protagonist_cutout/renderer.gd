@@ -4,11 +4,12 @@ extends Node
 ## its tiles for every breath. Both painted facings stay loaded between turns.
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
-const REST_PATH: String = "res://assets/units/protagonist_cutout/front/front_assembled_rest.png"
+const REST_PATH: String = "res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png"
 const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
-const WALK_CYCLE_SECONDS: float = 0.24
+const WALK_CYCLE_SECONDS: float = 0.30
+const IDLE_CYCLE_SECONDS: float = 0.84
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const MELEE_FRAMES: int = 30
 const MELEE_FRAME_SECONDS: float = 1.0 / 60.0
@@ -93,8 +94,11 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 			clip = "idle"
 		else:
 			phase = attack_pose_phase(phase)
-	if clip == "idle" and previous_clip != "idle":
-		_idle_seconds = 0.0
+	if clip == "idle":
+		facing = "front"
+		mirrored = false
+		if previous_clip != "idle":
+			_idle_seconds = 0.0
 	_apply_pose()
 
 func _process(delta: float) -> void:
@@ -108,14 +112,14 @@ func _process(delta: float) -> void:
 			reduced_motion = next_reduced
 			_apply_pose()
 	if clip == "idle" and not reduced_motion:
-		_idle_seconds = fposmod(_idle_seconds + delta, 3.0)
+		_idle_seconds = fposmod(_idle_seconds + delta, IDLE_CYCLE_SECONDS)
 		_apply_pose()
 
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
 	var shown_clip: String = "rest" if reduced_motion else clip
-	var shown_phase: float = 0.0 if reduced_motion else (_idle_seconds / 3.0 if clip == "idle" else phase)
+	var shown_phase: float = 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
 	if signature == _pose_signature:
 		return
@@ -135,5 +139,5 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art": "protagonist_cutout_pass7", "facing": facing, "mirrored": mirrored,
-		"clip": "rest" if reduced_motion else clip, "phase": 0.0 if reduced_motion else (_idle_seconds / 3.0 if clip == "idle" else phase),
+		"clip": "rest" if reduced_motion else clip, "phase": 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}

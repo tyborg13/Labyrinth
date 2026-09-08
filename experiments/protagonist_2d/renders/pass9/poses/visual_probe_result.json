@@ -1,0 +1,841 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.027732169440796,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.30664185289163,
+          "path": "attack_00.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.01088111360422,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.12224306298399,
+          "path": "attack_01.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.02877129867217,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.40301235762117,
+          "path": "attack_02.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.92063807738144,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.980363755831966,
+          "path": "attack_03.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.975955623252986,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.236121142850326,
+          "path": "attack_04.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.942956362734186,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.058853207223727,
+          "path": "attack_05.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.00303251743202,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.21172033585622,
+          "path": "attack_06.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.029209376021,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.32736831145752,
+          "path": "attack_07.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.012988243467994,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.182847244856415,
+          "path": "idle_00.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.98307987981723,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.21081765386525,
+          "path": "idle_01.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.972946365897656,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.025924443415832,
+          "path": "idle_02.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.019583312275465,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.21156589833507,
+          "path": "idle_03.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.009325019804656,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.193414532991348,
+          "path": "idle_04.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.97378478332887,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.13199378078736,
+          "path": "idle_05.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.95738133109859,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.060783935144396,
+          "path": "idle_06.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.002341956691694,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.28641358320147,
+          "path": "idle_07.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.05479744546122,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.139861683151107,
+          "path": "walk_00.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.99506763685621,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.054026929186133,
+          "path": "walk_01.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.01339319443296,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.953583256627383,
+          "path": "walk_02.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.94838733394571,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.687795084676463,
+          "path": "walk_03.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.9167025941483,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.637291845262688,
+          "path": "walk_04.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.96952793027597,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.150961468349937,
+          "path": "walk_05.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.99007366343004,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.04315319954612,
+          "path": "walk_06.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.95929845779892,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.09759387586129,
+          "path": "walk_07.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.041002756280534,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.070416591825673,
+          "path": "walk_08.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.97528405571118,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.95575635034337,
+          "path": "walk_09.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.99258161186418,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.774422154248423,
+          "path": "walk_10.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.9998171306874,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.811291375375003,
+          "path": "walk_11.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.047566256755125,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.019805336994033,
+          "path": "walk_12.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.02676679455953,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.914560035456336,
+          "path": "walk_13.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.032627815597365,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.844162652052425,
+          "path": "walk_14.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.07433407548343,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.994760835726535,
+          "path": "walk_15.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.989717470769826,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.968945974372406,
+          "path": "walk_16.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.97696629629951,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.9374339223821,
+          "path": "walk_17.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.990296144448756,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.050768105476948,
+          "path": "walk_18.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.96266611439508,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.977670127056324,
+          "path": "walk_19.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.91324305207286,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.9082923346688,
+          "path": "walk_20.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.95799126070961,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.779470859157207,
+          "path": "walk_21.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 52.961199070737884,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.708522029558175,
+          "path": "walk_22.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 53.07581027763473,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 20.033411032245947,
+          "path": "walk_23.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "protagonist-2d-skeletal-experiment-1788893685469975000-35409-pass9_pose_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment",
+    "--script",
+    "experiments/protagonist_2d/pass9_pose_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.027732169440796,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.30664185289163,
+      "path": "attack_00.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.01088111360422,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.12224306298399,
+      "path": "attack_01.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.02877129867217,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.40301235762117,
+      "path": "attack_02.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.92063807738144,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.980363755831966,
+      "path": "attack_03.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.975955623252986,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.236121142850326,
+      "path": "attack_04.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.942956362734186,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.058853207223727,
+      "path": "attack_05.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.00303251743202,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.21172033585622,
+      "path": "attack_06.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.029209376021,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.32736831145752,
+      "path": "attack_07.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.012988243467994,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.182847244856415,
+      "path": "idle_00.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.98307987981723,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.21081765386525,
+      "path": "idle_01.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.972946365897656,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.025924443415832,
+      "path": "idle_02.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.019583312275465,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.21156589833507,
+      "path": "idle_03.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.009325019804656,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.193414532991348,
+      "path": "idle_04.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.97378478332887,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.13199378078736,
+      "path": "idle_05.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.95738133109859,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.060783935144396,
+      "path": "idle_06.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.002341956691694,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.28641358320147,
+      "path": "idle_07.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.05479744546122,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.139861683151107,
+      "path": "walk_00.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.99506763685621,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.054026929186133,
+      "path": "walk_01.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.01339319443296,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.953583256627383,
+      "path": "walk_02.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.94838733394571,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.687795084676463,
+      "path": "walk_03.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.9167025941483,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.637291845262688,
+      "path": "walk_04.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.96952793027597,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.150961468349937,
+      "path": "walk_05.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.99007366343004,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.04315319954612,
+      "path": "walk_06.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.95929845779892,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.09759387586129,
+      "path": "walk_07.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.041002756280534,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.070416591825673,
+      "path": "walk_08.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.97528405571118,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.95575635034337,
+      "path": "walk_09.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.99258161186418,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.774422154248423,
+      "path": "walk_10.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.9998171306874,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.811291375375003,
+      "path": "walk_11.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.047566256755125,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.019805336994033,
+      "path": "walk_12.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.02676679455953,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.914560035456336,
+      "path": "walk_13.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.032627815597365,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.844162652052425,
+      "path": "walk_14.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.07433407548343,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.994760835726535,
+      "path": "walk_15.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.989717470769826,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.968945974372406,
+      "path": "walk_16.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.97696629629951,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.9374339223821,
+      "path": "walk_17.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.990296144448756,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.050768105476948,
+      "path": "walk_18.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.96266611439508,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.977670127056324,
+      "path": "walk_19.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.91324305207286,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.9082923346688,
+      "path": "walk_20.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.95799126070961,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.779470859157207,
+      "path": "walk_21.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 52.961199070737884,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.708522029558175,
+      "path": "walk_22.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 53.07581027763473,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 20.033411032245947,
+      "path": "walk_23.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "protagonist-2d-skeletal-experiment-1788893685469975000-35409-pass9_pose_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "experiments/protagonist_2d/pass9_pose_probe.gd"
+}

@@ -6,7 +6,7 @@ const InputRouter = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const Cutout = preload("res://scripts/protagonist_cutout/renderer.gd")
-const OUTPUT: String = "user://probes/protagonist_cutout_gameplay_v8"
+const OUTPUT: String = "user://probes/protagonist_cutout_gameplay_v9"
 const SIZE := Vector2i(1920, 1080)
 
 var _errors: Array[String] = []
@@ -72,6 +72,14 @@ func _initialize() -> void:
 		var enemy: Dictionary = (_instance.get("_combat_state") as Dictionary)["enemies"][0]
 		_assert(int(enemy["hp"]) == 31, "Quick Stab applies its exact 9 damage once")
 		_assert_facing(index)
+	await _fixture(Vector2i(3, 2), Vector2i(6, 6))
+	await _instance.call("_on_board_tile_clicked", Vector2i(3, 2))
+	_instance.call("_on_board_tile_hovered", Vector2i(3, 4))
+	await _settle()
+	_instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	await _record("09a_walk_two_tiles", 0.1)
+	_assert(_player_pos() == Vector2i(3, 4) and CombatEngine.new().player_movement_remaining(_instance.get("_combat_state")) == 0, "Longer gait crosses two tiles and spends exactly two movement")
+	_assert_facing(0)
 	await _fixture(Vector2i(3, 3), Vector2i(3, 4), false, ["whirlwind_slash", "brace", "quick_stab", "bone_dart", "patch_up"], 24, [Vector2i(4, 3), Vector2i(3, 2), Vector2i(2, 3)])
 	var sweep_facing: Dictionary = _snapshot()
 	await _instance.call("_on_card_pressed", 0)
@@ -87,12 +95,12 @@ func _initialize() -> void:
 	await _instance.call("_on_card_pressed", 1)
 	_instance.call("_on_board_tile_clicked", Vector2i(3, 3))
 	await _record("10_defensive_action", 0.1)
-	_assert(int((_instance.get("_combat_state") as Dictionary)["player"].get("block", 0)) > 0, "Defensive card resolves while using cutout idle")
+	_assert(int((_instance.get("_combat_state") as Dictionary)["player"].get("block", 0)) > 0, "Defensive card resolves while using camera-facing cutout idle")
 	await _fixture(Vector2i(3, 3), Vector2i(5, 3))
 	await _instance.call("_on_card_pressed", 3)
 	_instance.call("_on_board_tile_clicked", Vector2i(5, 3))
 	await _record("11_ranged_action", 0.1)
-	_assert(int((_instance.get("_combat_state") as Dictionary)["enemies"][0]["hp"]) < 40, "Ranged damage resolves while using cutout idle")
+	_assert(int((_instance.get("_combat_state") as Dictionary)["enemies"][0]["hp"]) < 40, "Ranged damage resolves while using camera-facing cutout idle")
 	await _fixture(Vector2i(3, 3), Vector2i(5, 3), false, ["cinderburst", "brace", "quick_stab", "bone_dart", "patch_up"])
 	await _instance.call("_on_card_pressed", 0)
 	_instance.call("_on_board_tile_clicked", Vector2i(5, 3))
@@ -272,6 +280,8 @@ func _record(label: String, minimum_seconds: float) -> void:
 		var snapshot: Dictionary = _snapshot()
 		_assert(int(snapshot.get("texture_id", 0)) == _texture_id, "One cutout texture remains live throughout " + label)
 		phases[str(snapshot.get("clip", ""))] = true
+		if snapshot.get("clip") == "idle":
+			_assert(snapshot["facing"] == "front" and not snapshot["mirrored"], "Every idle frame returns to the camera-facing default in " + label)
 		if snapshot.get("clip") == "attack":
 			var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": _player_pos()}
 			_assert((_board.call("_unit_center", unit) as Vector2).is_equal_approx(_board.call("world_position_for_tile", _player_pos())), "Melee keeps the cutout's planted stance on its actual tile")
@@ -365,8 +375,15 @@ func _player_pos() -> Vector2i:
 func _assert_facing(index: int) -> void:
 	var facings: Array[String] = ["front", "front", "rear", "rear"]
 	var mirrors: Array[bool] = [false, true, false, true]
+	var latest_clip: Dictionary = (_manifest["clips"] as Array)[-1]
+	var saw_action: bool = false
+	for sample: Dictionary in latest_clip["samples"]:
+		var action: Dictionary = sample["animation"]
+		if str(action["clip"]) in ["walk", "attack"]:
+			saw_action = true
+			_assert(action["facing"] == facings[index] and action["mirrored"] == mirrors[index], "Action facing matches " + _direction_name(index))
 	var snapshot: Dictionary = _snapshot()
-	_assert(snapshot["facing"] == facings[index] and snapshot["mirrored"] == mirrors[index], "Final facing matches " + _direction_name(index))
+	_assert(saw_action and snapshot["facing"] == "front" and not snapshot["mirrored"] and snapshot["clip"] == "idle", "Action returns to default front idle after " + _direction_name(index))
 
 func _direction_name(index: int) -> String:
 	return ["southwest", "southeast", "northeast", "northwest"][index]

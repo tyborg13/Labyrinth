@@ -1,11 +1,11 @@
 {
-  "version": 9,
+  "version": 7,
   "facing": "front",
   "canvas_size": [
     255,
     255
   ],
-  "rest_source": "res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png",
+  "rest_source": "res://assets/units/protagonist_cutout/front/front_assembled_rest.png",
   "joints": {
     "root": {
       "parent": null,
@@ -313,10 +313,10 @@
     {
       "equipment_slot": "boots",
       "name": "foot_l",
-      "file": "res://assets/units/protagonist_cutout/front/foot_l_refined.png",
+      "file": "res://assets/units/protagonist_cutout/front/foot_l.png",
       "offset": [
-        133,
-        195
+        134,
+        199
       ],
       "bone": "foot_l",
       "z_index": 19
@@ -100224,7 +100224,7 @@
     "Separately generated shoulder caps, hidden pants, cloak, sword and alternate rear knee/boot views are fitted to recorded landmarks.",
     "The source ownership reconstruction proves segmentation, not the quality of the modified assembled character."
   ],
-  "rest_source_sha256": "4ab9fdc6552ac1b9b6b2f1aee230d2e3195dc7cd602eecec8c239e55e44a9ab7",
+  "rest_source_sha256": "4fb7620cbbffa8f6e30bf8b2d1b812066ad690f2daa97d29e6acfe87b79375f6",
   "seam_refinement": {
     "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
     "changes": [
@@ -100254,9 +100254,5 @@
       }
     ],
     "existing_pose_curves_unchanged": true
-  },
-  "runtime_refinement": {
-    "baseline_commit": "66e36c0f51116171edf6611f9a0f346426ec0b0d",
-    "front_boot": "Built-in image generation style edit; original toe direction and occupied cuff; wider sole, heavier outline and darker undersides. Alpha crop fitted at 40x30, registered to the existing sole floor."
   }
 }

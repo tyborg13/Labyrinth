@@ -1,0 +1,7 @@
+Captured command stdout; exit code 0.
+Run: protagonist-2d-skeletal-experiment-1788893860114355000-35618
+Command: python3 /Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment/tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- /private/tmp/protagonist-cutout-v8-export/godot_export_debug --headless
+Godot Engine v4.6.1.stable.official.14d19694e
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+PROTAGONIST CUTOUT EXPORT RUNTIME: PASS (editor=false)

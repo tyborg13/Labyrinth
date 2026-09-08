@@ -17,7 +17,7 @@ static var _boot_geometry: Dictionary = {}
 
 static func clip_specs() -> Dictionary:
 	return {
-		"idle": {"frames": 21, "fps": 25, "loop": true, "duration": 0.84},
+		"idle": {"frames": 96, "fps": 32, "loop": true, "duration": 3.0},
 		"walk": {"frames": 24, "fps": 36, "loop": true, "duration": 2.0 / 3.0},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
 	}
@@ -44,24 +44,17 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 
 	match clip:
 		"idle":
-			# Restore the coordinated short bob from pass four: upper body and
-			# free hand move together, the sword hand follows a little later.
-			# Counter-translation keeps the legs rigid and soles planted; solving
-			# this tiny motion through leg IK instead creates a surface shimmer.
-			var bob: float = _curve(t, PackedVector2Array([
-				Vector2(0.0, 0.0), Vector2(0.18, 2.0), Vector2(0.55, 2.0),
-				Vector2(0.91, 0.0), Vector2(1.0, 0.0)]))
-			var sword_bob: float = _curve(t, PackedVector2Array([
-				Vector2(0.0, 0.0), Vector2(0.10, 0.0), Vector2(0.28, 2.0),
-				Vector2(0.60, 2.0), Vector2(0.93, 0.0), Vector2(1.0, 0.0)]))
-			_offset(pose, "hips", Vector2(0.0, bob))
-			_offset(pose, "thigh_r", Vector2(0.0, -bob))
-			_offset(pose, "thigh_l", Vector2(0.0, -bob))
-			_offset(pose, "arm_r", Vector2(0.0, sword_bob - bob))
-			return _separate_grip(pose)
+			# Breathing compresses the body very slightly; both soles remain grounded
+			# through the same IK solve used by the attack, including mirrored views.
+			var breath: float = 0.5 - 0.5 * cos(TAU * t)
+			_offset(pose, "hips", Vector2(0.0, 1.1 * breath))
+			_rotate(pose, "torso", direction * 0.006 * sin(TAU * t))
+			_rotate(pose, "head", -direction * 0.004 * (sin(TAU * t - 0.2) + sin(0.2)))
+			_rotate(pose, "cape_mid", direction * 0.006 * (sin(TAU * t - 0.4) + sin(0.4)))
+			_rotate(pose, "cape_tip", direction * 0.010 * (sin(TAU * t - 0.7) + sin(0.7)))
 		"walk":
 			var info := walk_cycle_info(layout, facing)
-			var scale_factor: float = 1.0
+			var scale_factor: float = float(info["stride_px"]) / 30.0
 			var transfer: float = sin(TAU * t)
 			var step_phase: float = fposmod(t * 2.0, 1.0)
 			# Contact, down, passing, up, contact. The down arrives quickly after
@@ -265,7 +258,7 @@ static func _store_transform(pose: Dictionary, name: String, transform: Transfor
 
 
 static func walk_cycle_info(layout: Dictionary, facing: String) -> Dictionary:
-	var stride: float = 48.0
+	var stride: float = 30.0
 	var rear: bool = facing.to_lower().contains("rear") or facing.to_lower() == "back"
 	var projected_direction := Vector2(1.0, -0.5) if rear else Vector2(-1.0, 0.5)
 	projected_direction = projected_direction.normalized()

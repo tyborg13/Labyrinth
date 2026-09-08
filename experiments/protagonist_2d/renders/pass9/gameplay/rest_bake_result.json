@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 255,
+          "luma_max": 251.82319999999996,
+          "luma_mean": 13.56530133640914,
+          "luma_min": 0.0,
+          "luma_range": 251.82319999999996,
+          "luma_stdev": 32.261291881647495,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/probes/cutout_rest_bake/front_assembled_rest_v9.png",
+          "width": 255
+        },
+        {
+          "height": 255,
+          "luma_max": 251.82319999999996,
+          "luma_mean": 15.247626408304402,
+          "luma_min": 0.0,
+          "luma_range": 251.82319999999996,
+          "luma_stdev": 33.63387628626818,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/probes/cutout_rest_bake/rear_assembled_rest_v9.png",
+          "width": 255
+        }
+      ],
+      "namespace": "protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment",
+    "--script",
+    "experiments/protagonist_2d/pass9_bake_rest_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      255,
+      255
+    ]
+  ],
+  "images": [
+    {
+      "height": 255,
+      "luma_max": 251.82319999999996,
+      "luma_mean": 13.56530133640914,
+      "luma_min": 0.0,
+      "luma_range": 251.82319999999996,
+      "luma_stdev": 32.261291881647495,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/probes/cutout_rest_bake/front_assembled_rest_v9.png",
+      "width": 255
+    },
+    {
+      "height": 255,
+      "luma_max": 251.82319999999996,
+      "luma_mean": 15.247626408304402,
+      "luma_min": 0.0,
+      "luma_range": 251.82319999999996,
+      "luma_stdev": 33.63387628626818,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1/probes/cutout_rest_bake/rear_assembled_rest_v9.png",
+      "width": 255
+    }
+  ],
+  "namespace": "protagonist-2d-skeletal-experiment-1788893632255800000-35362-pass9_bake_rest_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "experiments/protagonist_2d/pass9_bake_rest_probe.gd"
+}

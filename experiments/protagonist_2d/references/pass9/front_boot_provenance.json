@@ -1,0 +1,22 @@
+{
+  "mode": "built-in image_gen",
+  "source": "front_boot_generated_rgba.png",
+  "source_sha256": "6a43a9433c604f18941ea3849ab0fb12abc02709e95f11d7fb02b063f54deb07",
+  "crop": [
+    144,
+    24,
+    1484,
+    1015
+  ],
+  "native_size": [
+    40,
+    30
+  ],
+  "offset": [
+    133,
+    195
+  ],
+  "edit_request": "Preserve current front near boot orientation/occupied cropped shaft. Match opposite boot with thicker dark outline, darker instep and underside, slightly broader sole and muted worn leather. Return actual transparent alpha.",
+  "background_correction": "Remove painted checkerboard without other changes; retain genuine alpha.",
+  "postprocess": "Alpha-bound registration crop and nearest-neighbor scaling only; no hand repaint."
+}
