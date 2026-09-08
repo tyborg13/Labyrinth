@@ -252,23 +252,33 @@ static func _selection_can_complete_with_keystone(selected: Array[String], keyst
 		return bool(_completion_cache[cache_key])
 	var working: Array[String] = selected.duplicate()
 	var prerequisite_lookup: Dictionary = _recursive_prerequisite_lookup(keystone_id)
+	# Each step consumes only the first available priority, or the first filler
+	# when no priority is available. Partition the stable authored order once so
+	# we can stop validating candidates as soon as that same choice is known.
+	var priority_order: Array[String]
+	var filler_order: Array[String]
+	for candidate_id: String in ordered_ids():
+		if is_keystone(candidate_id) and candidate_id != keystone_id:
+			continue
+		if candidate_id == keystone_id or prerequisite_lookup.has(candidate_id):
+			priority_order.append(candidate_id)
+		else:
+			filler_order.append(candidate_id)
 	while working.size() < COMPLETE_BUILD_SIZE:
-		var priority_candidates: Array[String]
-		var filler_candidates: Array[String]
-		for candidate_id: String in ordered_ids():
-			if is_keystone(candidate_id) and candidate_id != keystone_id:
-				continue
-			if not _is_authored_available(candidate_id, working):
-				continue
-			if candidate_id == keystone_id or (prerequisite_lookup.has(candidate_id) and not working.has(candidate_id)):
-				priority_candidates.append(candidate_id)
-			else:
-				filler_candidates.append(candidate_id)
-		var candidates: Array[String] = priority_candidates if not priority_candidates.is_empty() else filler_candidates
-		if candidates.is_empty():
+		var chosen_id: String = ""
+		for candidate_id: String in priority_order:
+			if _is_authored_available(candidate_id, working):
+				chosen_id = candidate_id
+				break
+		if chosen_id.is_empty():
+			for candidate_id: String in filler_order:
+				if _is_authored_available(candidate_id, working):
+					chosen_id = candidate_id
+					break
+		if chosen_id.is_empty():
 			_completion_cache[cache_key] = false
 			return false
-		working.append(candidates[0])
+		working.append(chosen_id)
 	var complete: bool = working.has(keystone_id) and selection_is_valid(working, COMPLETE_BUILD_SIZE)
 	_completion_cache[cache_key] = complete
 	return complete

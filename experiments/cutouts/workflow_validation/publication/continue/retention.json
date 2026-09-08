@@ -1,0 +1,12 @@
+{
+  "note": "Selected original native PNGs; complete raw gameplay frame sequence remains in the named temporary directory.",
+  "raw_directory": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788900322751015000-40267-protagonist_cutout_conti-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788900322751015000-40267-protagonist_cutout_conti-1/probes/protagonist_cutout_continue",
+  "retained_sha256": {
+    "01_continue_ready.png": "3595c828fd5713e33efd1a3bb0c813abc69977a2905ee9cc0295ae43ada1f22e",
+    "02_revealing.png": "6f45b5a1537dbb8de372e207b08f9eec3c02450e81f98c0791722706c51ae46e",
+    "03_continue_complete.png": "64bbb04a1248c3c39aaf67a7bc36748841c6b8c47b19276456ce74eb800e80c4",
+    "continue_manifest.json": "7822f2c73b569db93aa49678d34501db9b5acfbfb69ec394b8c88e8ac348bf26",
+    "godot.log": "8026142fb7d4c1818dcc8a92110efbe64e55082e04cd374a2d0fb04b1fd22f84",
+    "visual_probe_result.json": "d050050308a9fb6dace85592f2667689de8481745a784c5e9768f64275981003"
+  }
+}

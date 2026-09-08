@@ -368,7 +368,10 @@ static func relic_offer_weight(relic_id: String) -> int:
 	return int(RELIC_RARITY_OFFER_WEIGHTS.get(relic_rarity(relic_id), RELIC_RARITY_OFFER_WEIGHTS["common"]))
 
 static func relic_effects(relic_id: String) -> Array[Dictionary]:
-	var relic: Dictionary = relic_def(relic_id)
+	# Effect expansion does not consume display copy. Avoid cloning the complete
+	# relic and formatting its description on every rules/preview lookup; each
+	# returned effect below is still a separately owned mutable dictionary.
+	var relic: Dictionary = relics().get(relic_id, {}) as Dictionary
 	var result: Array[Dictionary] = []
 	var raw_effects: Array = relic.get("effects", [])
 	for effect_var: Variant in raw_effects:

@@ -20,6 +20,7 @@ static func run(expect: Callable) -> void:
 	_test_ranged_aoe_can_anchor_on_an_empty_tile(expect)
 	_test_action_upgrades_preserve_one_target_decision(expect)
 	_test_preferred_routes_collect_pickups_without_crossing_traps(expect)
+	_test_equivalent_preview_cache(expect)
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
@@ -385,3 +386,50 @@ static func _open_grid() -> Array:
 			row.append("wall" if x == 0 or y == 0 or x == GRID_WIDTH - 1 or y == GRID_HEIGHT - 1 else "stone")
 		grid.append(row)
 	return grid
+
+static func _test_equivalent_preview_cache(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _combat_state(combat, "sidestep_slash", Vector2i(4, 4), 84672)
+	state = combat.prepare_player_card(state, 0, "play")
+	var actions: Array = combat.card_play_actions("sidestep_slash", state)
+	var scene := RunScene.new()
+	var preview: Dictionary = scene.call("_card_preview_from_state", "sidestep_slash", state, actions, 0)
+	var first: Dictionary = (scene.call("_preview_shortcuts_for_current_action", preview) as Dictionary).duplicate(true)
+	expect.call(not (first.get("plans", {}) as Dictionary).is_empty(), "Equivalent-input cache fixture must contain an actual move-attack plan")
+	scene.call("_mark_preview_selection_changed")
+	scene.set("_hovered_card_index", -1)
+	scene.set("_selected_card_index", 0)
+	scene.call("set_runtime_performance_instrumentation_enabled", true)
+	var selected: Dictionary = scene.call("_preview_shortcuts_for_current_action", preview)
+	var profile: Dictionary = scene.call("runtime_performance_instrumentation_snapshot")
+	expect.call(selected == first, "Selecting an identical hovered preview must preserve exact shortcut plans")
+	expect.call(int((profile.get("shortcut_equivalent_input_hit", {}) as Dictionary).get("count", 0)) == 1, "Hover-to-select must reuse equal shortcut inputs")
+	expect.call(not profile.has("shortcut_move_exact_total"), "Equal hover-to-select inputs must not resolve movement again")
+	# Materializing/modifying the borrowed active plans cannot poison reuse.
+	(selected.get("plans", {}) as Dictionary).clear()
+	scene.call("_mark_preview_selection_changed")
+	expect.call(scene.call("_preview_shortcuts_for_current_action", preview) == first, "Active plan mutation must not alter the retained content snapshot")
+	for bleed: int in [30, 0, 2, 0, 4, 0]:
+		var changed: Dictionary = state.duplicate(true)
+		changed["player"]["bleed"] = bleed
+		changed["player"]["hp"] = 3
+		var changed_preview: Dictionary = scene.call("_card_preview_from_state", "sidestep_slash", changed, actions, 0)
+		scene.call("_mark_preview_selection_changed")
+		var actual: Dictionary = scene.call("_preview_shortcuts_for_current_action", changed_preview)
+		var oracle := RunScene.new()
+		var expected: Dictionary = oracle.call("_preview_shortcuts_for_current_action", changed_preview)
+		expect.call(actual == expected, "A/B/A preview changes must match uncached movement risk, death and route resolution")
+		oracle.free()
+		expect.call((scene.get("_preview_shortcuts_content_cache") as Dictionary).size() <= 4, "Equivalent preview retention must remain bounded")
+	# Committed knowledge can differ from a prepared card's light/move state.
+	var hidden: Dictionary = state.duplicate(true)
+	hidden["umbra"] = {"stage": "heart", "radius": 1, "turns": 0}
+	scene.set("_combat_state", hidden)
+	scene.call("_mark_preview_selection_changed")
+	var oracle := RunScene.new()
+	oracle.set("_combat_state", hidden)
+	expect.call(scene.call("_preview_shortcuts_for_current_action", preview) == oracle.call("_preview_shortcuts_for_current_action", preview), "Changed committed visibility must not reuse a revealed shortcut")
+	oracle.free()
+	scene.call("_mark_combat_preview_state_changed")
+	expect.call((scene.get("_preview_shortcuts_content_cache") as Dictionary).is_empty(), "Committed state changes release retained preview snapshots")
+	scene.free()

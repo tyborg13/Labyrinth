@@ -402,6 +402,26 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(str(victory_model.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory display should communicate the marker consequence of starting the next run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 53, "Victory should commit banked embers before displaying the recap")
 	_assert(engine.held_embers(instance.get("_run_state")) == 0, "Victory should clear embers from the ended run after banking")
+	var settled_victory: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	instance.call("_persist_grimoire_progression_from_run")
+	instance.call("_refresh_ui")
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 53, "Post-victory discoveries and repeated refresh must preserve the banked wallet")
+	_assert(int((instance.get("_progression") as Dictionary).get("embers", -1)) == 53, "The terminal in-memory profile must agree with the persisted bank")
+	instance.call("_load_run_state", settled_victory)
+	await process_frame
+	recap = instance.get("_run_end_recap") as Control
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 53 and int((recap.call("recap_model") as Dictionary).get("ember_amount", -1)) == 53, "Resuming a settled victory must preserve both the bank and recap amount")
+	var retry: Node = RUN_SCENE.instantiate()
+	retry.set("_progression", ProgressionStore.default_data())
+	var settled_source: Dictionary = settled_victory.duplicate(true)
+	var retried_state: Dictionary = retry.call("_finalize_terminal_committed_state", settled_victory)
+	_assert(int((retried_state.get("progression", {}) as Dictionary).get("embers", -1)) == 53, "A fresh terminal checkpoint retry must recover the embedded bank before recording the result")
+	_assert(engine.held_embers(retried_state) == 0 and settled_victory == settled_source, "Terminal retry must keep the ended wallet empty without changing the settled source")
+	var carried_priority: Dictionary = settled_victory.duplicate(true)
+	carried_priority["held_embers"] = 23
+	carried_priority["unbanked_embers"] = 23
+	_assert(int(retry.call("_victory_ember_amount", carried_priority)) == 23, "Unsettled victory must bank its held amount exactly, never add or maximize against the embedded balance")
+	retry.free()
 	var victory_new_run_button: Button = recap.find_child("NewRunButton", true, false) as Button if recap != null else null
 	if victory_new_run_button != null:
 		victory_new_run_button.pressed.emit()

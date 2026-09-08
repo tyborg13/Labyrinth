@@ -232,6 +232,7 @@ func _run_transition_regression() -> void:
 	await process_frame
 	var before_state: Dictionary = await _load_combat_fixture(instance)
 	await _run_pass_preview_warm_invalidation_regression(instance)
+	await _run_retained_content_regression(instance, before_state)
 	var intermediate_state: Dictionary = before_state.duplicate(true)
 	var intermediate_deck: Dictionary = (intermediate_state.get("deck", {}) as Dictionary).duplicate(true)
 	intermediate_deck["hand"] = ["shadow_step", "brace", "quick_stab", "lantern_shot", "patch_up"]
@@ -432,3 +433,51 @@ func _expect(condition: bool, message: String) -> void:
 		return
 	_failed = true
 	push_error(message)
+
+func _run_retained_content_regression(instance: Node, source: Dictionary) -> void:
+	var previous: Dictionary = {}
+	var exits: Dictionary = {}
+	var hands: Array = [
+		["shadow_step", "brace", "quick_stab"],
+		["quick_stab", "shadow_step", "quick_stab"],
+		["shadow_step", "quick_stab"],
+		["brace", "quick_stab", "shadow_step"],
+	]
+	for hand: Array in hands:
+		var state: Dictionary = source.duplicate(true)
+		state["deck"]["hand"] = hand.duplicate()
+		instance.set("_combat_state", state)
+		(instance.get("_run_state") as Dictionary)["combat_state"] = state
+		instance.call("_mark_combat_preview_state_changed")
+		instance.call("_refresh_hand_panel")
+		await process_frame
+		await process_frame
+		var next: Dictionary = {}
+		var used: Dictionary = {}
+		_expect((instance.get("hand_box") as Control).get_child_count() == hand.size(), "Hand reconciliation must preserve exact order and duplicate cardinality")
+		for index: int in range(hand.size()):
+			var widget: Control = instance.call("_hand_card_control", index) as Control
+			var card_id: String = str(hand[index])
+			_expect(widget != null and widget.get("card_id") == card_id, "Reconciled hand widgets must match deck order")
+			if widget == null: continue
+			var widget_id: int = widget.get_instance_id()
+			_expect(not used.has(widget_id), "Repeated card IDs must retain distinct widgets")
+			used[widget_id] = true
+			_expect(widget.size.is_equal_approx(Vector2(250, 352)), "Retained cards must keep native 250x352 geometry")
+			_expect(int(instance.call("_hand_card_index_for_widget", widget)) == index, "Surviving card callbacks must resolve their new live index")
+			if previous.has(card_id) and not next.has(card_id):
+				var prior: Dictionary = previous[card_id]
+				_expect(widget_id == int(prior["id"]), "First surviving duplicate should retain its existing widget")
+				_expect(int(exits.get(widget_id, 0)) == int(prior["exits"]), "Surviving hand subtrees must stay in the scene tree")
+			if not exits.has(widget_id):
+				exits[widget_id] = 0
+				widget.tree_exiting.connect(func() -> void: exits[widget_id] = int(exits.get(widget_id, 0)) + 1)
+			if not next.has(card_id): next[card_id] = {"id": widget_id, "exits": exits[widget_id]}
+		previous = next
+		_expect(instance.get("_combat_state") == state, "Hand reconciliation must not mutate gameplay")
+	instance.set("_combat_state", source.duplicate(true))
+	(instance.get("_run_state") as Dictionary)["combat_state"] = instance.get("_combat_state")
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_hand_panel")
+	await process_frame
+	await process_frame

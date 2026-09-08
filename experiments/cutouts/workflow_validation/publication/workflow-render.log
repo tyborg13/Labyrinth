@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "output": "/private/tmp/cutout-publication-workflow-proof-v2",
+  "preview": "/private/tmp/cutout-publication-workflow-proof-v2/videos/cutout_review.mp4",
+  "authored_frames": 312,
+  "verification": {
+    "ok": true,
+    "inputs": 923,
+    "outputs": 755,
+    "errors": []
+  }
+}

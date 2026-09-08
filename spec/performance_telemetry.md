@@ -21,6 +21,8 @@ Viewport render timing is enabled only when performance sampling is active. Godo
 
 Enemy CPU sections separate forecast preparation, enemy-turn setup/actions/presentation/cleanup, intent-plan setup/reachable paths/direct candidates/finalization, and future-route context construction/search. Inclusive parent measurements use the `_total` suffix and remain in local JSON; Steam aggregation excludes them to avoid counting their child phases twice. Per-anchor diagnostic timers used during profiling are not retained in the runtime path.
 
+Surface preview attribution includes `preview_surface` after the ordinary effect and risk phases. Combat-engine board attacks split planning, conduction setup, hits, and finishing into `board_attack_plan_total`, `board_attack_conduction`, `board_attack_hits_total`, and `board_attack_finish_total` (prefixed `engine_` in the scene snapshot). The `_total` sections can include existing child timers and are excluded from Steam sums. These are additive section names in the existing local summary; they do not change gameplay events, sampling cadence, or the Steam stat manifest. See [the September 7 performance pass](performance_pass_2026_09_07.md) for matched workloads and remaining limits.
+
 Each summary also includes a `steam_stats` transport diagnostic. It records the selected platform prefix, current-stats readiness, queued/pending counts, accepted and rejected keys, and any shutdown `StoreStats` result. This does not contain Steam identity; it exists so a support bundle can distinguish missing sampling from a client-side Steam upload failure.
 
 ## Local storage

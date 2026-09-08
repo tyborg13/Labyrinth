@@ -1,0 +1,12 @@
+{
+  "manifest_section_sha256": {
+    "full_roster": "f723439d695dbb42ae74a0c6ccb7db54e3f317284896c01554f354edad8d77de",
+    "initial": "512d76afc1501f1bd49692f864085060362dba8ec88736cba012c2d7d840b98e"
+  },
+  "presented_slices": 6,
+  "raw_log": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899967796537000-40013/godot.log",
+  "raw_log_sha256": "f2b5e8ec08adb28583f39ce8d79de4bcfd00ade56a79e846a69bad1efd83bd23",
+  "script_sha256": "538c0fcbb30481eed0f1de36fd5db86bc5e265ab232ec8db30503eb26a3f1d4d",
+  "semantic_errors": [],
+  "staging_supported": true
+}

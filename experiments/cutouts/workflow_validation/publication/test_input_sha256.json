@@ -1,0 +1,8 @@
+{
+  "tests/board_startup_manifest_probe.gd": "538c0fcbb30481eed0f1de36fd5db86bc5e265ab232ec8db30503eb26a3f1d4d",
+  "tests/main_menu_input_test.gd": "ad4afac395e7d94de30f3ce81bd8c9f88f142aee9dda2108d2373c1aad44f4a7",
+  "tests/protagonist_cutout_continue_probe.gd": "e3cdb12adc70efaf511be0d32b2a2665f684a6218da6c5ce198a0ea8b2538f51",
+  "tests/protagonist_cutout_gameplay_probe.gd": "df0dfe24f9c413395cc4e5a050dd921725c6018fd5f044970bec40b8020a294a",
+  "tests/protagonist_cutout_test.gd": "ebb67a4828f7f505da3642757e1cef6acf7a4df28211743e66b1b4778d4b44fc",
+  "tests/run_tests.gd": "05d1adb399fa830c17e2484879f5db5bfa4c80d34a82b5fc5c644a4ac5961b31"
+}

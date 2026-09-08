@@ -17,7 +17,7 @@ def input_hashes(case: Path) -> dict[str, str]:
     paths = {PROJECT / "project.godot", PROJECT / "tools/cutout_workflow.py"}
     # Include the board/rendering dependency closure, including dynamic art paths.
     # Audio is not part of this silent character study.
-    for folder, extensions in [("scripts", {".gd"}), ("tools/cutout_pipeline", {".gd", ".py"}), ("scenes", {".tscn"}), ("data", {".json"}), ("shaders", {".gdshader"}), ("assets", {".png", ".ttf", ".otf", ".json"})]:
+    for folder, extensions in [("scripts", {".gd"}), ("tools/cutout_pipeline", {".gd", ".py"}), ("scenes", {".tscn"}), ("data", {".json"}), ("shaders", {".gdshader"}), ("assets", {".png", ".ttf", ".otf", ".json", ".res"})]:
         paths.update(p for p in (PROJECT / folder).rglob("*") if p.is_file() and p.suffix in extensions)
     result.update({"project:" + str(p.relative_to(PROJECT)): digest(p) for p in sorted(paths)})
     return result

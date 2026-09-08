@@ -94,3 +94,18 @@ static func run(expect: Callable) -> void:
 
 	var short_noise_results: Array[Dictionary] = GrimoireSearch.search(entries, sections, "zz")
 	expect.call(short_noise_results.is_empty(), "Grimoire search should not fuzzy-match very short noise")
+
+	var pristine: Array = entries.duplicate(true)
+	var index: Array[Dictionary] = GrimoireSearch.build_index(entries, sections)
+	entries[0]["title"] = "Mutated source"
+	entries[0]["aliases"].clear()
+	entries[0]["body"].append("Injected rules")
+	for query: String in ["turn clock", "initiative", "clock turn", "armor", "heath c", "truesigth", "reshuffle", "zz"]:
+		var expected: Array[Dictionary] = GrimoireSearch.search(pristine, sections, query)
+		var actual: Array[Dictionary] = GrimoireSearch.search_index(index, query)
+		expect.call(actual == expected, "Prepared index must own its source entries: " + query)
+		if not actual.is_empty():
+			actual[0]["entry"]["title"] = "Mutated result"
+			actual[0]["entry"]["body"].append("Mutated returned rules")
+			actual.clear()
+			expect.call(GrimoireSearch.search_index(index, query) == expected, "Returned entries and nested values must not alias the prepared index: " + query)

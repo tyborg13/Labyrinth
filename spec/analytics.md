@@ -328,6 +328,14 @@ rely only on later `_process_victory_carry` or `_process_defeat_loss` refresh
 hooks: a save implementation may set those processed flags during committed
 terminal finalization and legitimately bypass the UI-time hooks.
 
+Victory settlement resolves the carried amount from the incoming terminal
+snapshot before recording its result. Positive held Embers are authoritative;
+when held Embers are already cleared, retain the embedded profile's banked
+amount. Canonical victories always include the final boss's Ember award, so
+this zero-held case represents a settled snapshot. Later UI refresh, Grimoire
+persistence, and terminal retry must preserve that bank and the original recap
+amount without adding it again. This does not add or repeat analytics events.
+
 `progression_level_up` fires when Draw Strength commits at a campfire. Its
 payload records `level_before`, `level_after`, the unchanged post-purchase
 `skill_ids`, `unspent_skill_points_before`,
@@ -410,7 +418,10 @@ construction omits retired intensity fields rather than emitting a zero meter.
 Combat state holds a monotonic `surface_event_sequence` and bounded recent
 `surface_events` for previews and presentation. Analytics flushes unseen events
 at resolved action/start boundaries, using combat ID plus event sequence for
-idempotency. Preview copies never append gameplay analytics. Records include
+idempotency. A boundary derives its common context once and synchronously appends
+its ordered unseen tail in one JSONL batch. The in-memory cursor advances only
+after the batch flush succeeds; stable event keys make partial-append retries
+and restart replay idempotent. Preview copies never append gameplay analytics. Records include
 creation, replacement, removal reason, source actor/card/relic, tile and layer;
 Fire entry/start contact; successful Freeze and consumed Ice; actor death source;
 and the native Chain route alongside connected-component side hits. A direct

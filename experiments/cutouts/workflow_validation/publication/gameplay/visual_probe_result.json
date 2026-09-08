@@ -1,0 +1,1041 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.35685896472107,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.33754319403631,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/01_idle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.37701438231034,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.40432166391786,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/02_walk_southwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.989352692971224,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.00451986430731,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.526784878197773,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.42456352585962,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.21259999999998,
+          "luma_mean": 29.764630975160557,
+          "luma_min": 0.0,
+          "luma_range": 254.21259999999998,
+          "luma_stdev": 39.19179722398185,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.8834,
+          "luma_mean": 29.498364651212608,
+          "luma_min": 0.0,
+          "luma_range": 246.8834,
+          "luma_stdev": 38.42303353296575,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.43923584703664,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.45365849856267,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/04_walk_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.06957227142733,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.090078723172795,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.557443154850677,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.46723939619132,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.92780000000002,
+          "luma_mean": 29.805915805910164,
+          "luma_min": 0.0,
+          "luma_range": 253.92780000000002,
+          "luma_stdev": 39.2474262793858,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.55837562875134,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.48126294608496,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 32.97618943767273,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 43.91536688021704,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/06_walk_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.03420163713445,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.036534882883046,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.56686334624582,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.41619098943775,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.63899999999998,
+          "luma_mean": 29.8939948117626,
+          "luma_min": 0.0,
+          "luma_range": 254.63899999999998,
+          "luma_stdev": 39.283498915344836,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.656247006479852,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.51609137286673,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 32.954188619102645,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 43.892898798791194,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/08_walk_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.01570096487886,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.0036228997399,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.551279535742818,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.39732733298408,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 29.853871686169445,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 39.247941176764556,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.58136397895695,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.464205636451325,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.26577070151301,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.26670233091894,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09a_walk_two_tiles.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.398352257982275,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.3706243016481,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 30.267942810814173,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.86534361456498,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 29.924034150579775,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.93355925567839,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 29.924034150579775,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.93355925567839,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.352036954280855,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 43.479806357105495,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/10_defensive_action.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.82599999999996,
+          "luma_mean": 31.45156232599864,
+          "luma_min": 0.0,
+          "luma_range": 250.82599999999996,
+          "luma_stdev": 43.40857967258882,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11_ranged_action.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.435015461873554,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 43.50396859904795,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11a_targeted_aoe.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.47105458319582,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 43.549838578818125,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 29.682129037482778,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.045232046866445,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_025.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.283517004107548,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 37.91039905332919,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_050.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.167814931978313,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 37.998044625484525,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_075.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.49102109695724,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 43.66042869393512,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11c_guarded_step.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 35.46137443450912,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 47.499717003349346,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 35.468539184588224,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 47.48128230358646,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 31.18806639512267,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 39.36778149017883,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_1_contact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.82599999999996,
+          "luma_mean": 38.17962158335384,
+          "luma_min": 0.0,
+          "luma_range": 250.82599999999996,
+          "luma_stdev": 45.97359686434643,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/12_controller_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7474,
+          "luma_mean": 20.61095408097806,
+          "luma_min": 0.0,
+          "luma_range": 245.7474,
+          "luma_stdev": 28.92005392096866,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/13_equipment.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7474,
+          "luma_mean": 20.998099707361924,
+          "luma_min": 0.0,
+          "luma_range": 245.7474,
+          "luma_stdev": 30.022941075730902,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/13_equipment_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.37325137218704,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.33719077820773,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/14_resumed.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.989352692971224,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.00451986430731,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/15_reduced_melee.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.997711337387546,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.01574252170888,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/16_reduced_idle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.465112792623486,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.44405014867186,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 243.8906,
+          "luma_mean": 22.247504654376517,
+          "luma_min": 0.9278,
+          "luma_range": 242.96280000000002,
+          "luma_stdev": 33.662836527649944,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 30.898396516129026,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.9816946369196,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_000.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.70651189891964,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.75711743695104,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_067.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 30.7798703297959,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.75978954020236,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_080.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 31.07395174390488,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.202125453741154,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_contact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 27.761479266841146,
+          "luma_min": 0.2126,
+          "luma_range": 244.39319999999998,
+          "luma_stdev": 37.948814277049,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/18_room_idle.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment",
+    "--script",
+    "tests/protagonist_cutout_gameplay_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.35685896472107,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.33754319403631,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/01_idle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.37701438231034,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.40432166391786,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/02_walk_southwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.989352692971224,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.00451986430731,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.526784878197773,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.42456352585962,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.21259999999998,
+      "luma_mean": 29.764630975160557,
+      "luma_min": 0.0,
+      "luma_range": 254.21259999999998,
+      "luma_stdev": 39.19179722398185,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.8834,
+      "luma_mean": 29.498364651212608,
+      "luma_min": 0.0,
+      "luma_range": 246.8834,
+      "luma_stdev": 38.42303353296575,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/03_melee_southwest_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.43923584703664,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.45365849856267,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/04_walk_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.06957227142733,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.090078723172795,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.557443154850677,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.46723939619132,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.92780000000002,
+      "luma_mean": 29.805915805910164,
+      "luma_min": 0.0,
+      "luma_range": 253.92780000000002,
+      "luma_stdev": 39.2474262793858,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.55837562875134,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.48126294608496,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/05_melee_southeast_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 32.97618943767273,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 43.91536688021704,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/06_walk_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.03420163713445,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.036534882883046,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.56686334624582,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.41619098943775,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.63899999999998,
+      "luma_mean": 29.8939948117626,
+      "luma_min": 0.0,
+      "luma_range": 254.63899999999998,
+      "luma_stdev": 39.283498915344836,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.656247006479852,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.51609137286673,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/07_melee_northeast_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 32.954188619102645,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 43.892898798791194,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/08_walk_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.01570096487886,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.0036228997399,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.551279535742818,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.39732733298408,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 29.853871686169445,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 39.247941176764556,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.58136397895695,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.464205636451325,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09_melee_northwest_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.26577070151301,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.26670233091894,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09a_walk_two_tiles.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.398352257982275,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.3706243016481,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 30.267942810814173,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.86534361456498,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 29.924034150579775,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.93355925567839,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 29.924034150579775,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.93355925567839,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/09b_melee_whirlwind_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.352036954280855,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 43.479806357105495,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/10_defensive_action.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.82599999999996,
+      "luma_mean": 31.45156232599864,
+      "luma_min": 0.0,
+      "luma_range": 250.82599999999996,
+      "luma_stdev": 43.40857967258882,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11_ranged_action.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.435015461873554,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 43.50396859904795,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11a_targeted_aoe.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.47105458319582,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 43.549838578818125,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 29.682129037482778,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.045232046866445,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_025.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.283517004107548,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 37.91039905332919,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_050.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.167814931978313,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 37.998044625484525,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11b_blink_phase_075.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.49102109695724,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 43.66042869393512,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11c_guarded_step.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 35.46137443450912,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 47.499717003349346,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 35.468539184588224,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 47.48128230358646,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 31.18806639512267,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 39.36778149017883,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/11d_take_damage_1_contact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.82599999999996,
+      "luma_mean": 38.17962158335384,
+      "luma_min": 0.0,
+      "luma_range": 250.82599999999996,
+      "luma_stdev": 45.97359686434643,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/12_controller_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7474,
+      "luma_mean": 20.61095408097806,
+      "luma_min": 0.0,
+      "luma_range": 245.7474,
+      "luma_stdev": 28.92005392096866,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/13_equipment.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7474,
+      "luma_mean": 20.998099707361924,
+      "luma_min": 0.0,
+      "luma_range": 245.7474,
+      "luma_stdev": 30.022941075730902,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/13_equipment_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.37325137218704,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.33719077820773,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/14_resumed.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.989352692971224,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.00451986430731,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/15_reduced_melee.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.997711337387546,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.01574252170888,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/16_reduced_idle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.465112792623486,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.44405014867186,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 243.8906,
+      "luma_mean": 22.247504654376517,
+      "luma_min": 0.9278,
+      "luma_range": 242.96280000000002,
+      "luma_stdev": 33.662836527649944,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 30.898396516129026,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.9816946369196,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_000.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.70651189891964,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.75711743695104,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_067.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 30.7798703297959,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.75978954020236,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_collapse_080.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 31.07395174390488,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.202125453741154,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/17_terminal_defeat_1_contact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 27.761479266841146,
+      "luma_min": 0.2126,
+      "luma_range": 244.39319999999998,
+      "luma_stdev": 37.948814277049,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9/18_room_idle.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/protagonist_cutout_gameplay_probe.gd"
+}

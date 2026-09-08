@@ -74,6 +74,9 @@ var _sell_next: Button
 var _leave_button: Button
 var _selection_effects: Dictionary = {}
 var _offer_sources: Dictionary = {}
+var _shelf_signatures: Dictionary = {}
+var _sell_page_signature: String = ""
+var _rendered_detail_card_id: String = ""
 var _animated_groups: Array[Control] = []
 var _sellable_ids: Array = []
 var _sell_page: int = 0
@@ -94,6 +97,12 @@ func _ready() -> void:
 func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
 	_run_state = run_state.duplicate(true)
 	_run_engine = run_engine
+	if reduced_motion and not _reduced_motion:
+		for tween: Tween in _slot_tweens.values():
+			if tween != null and tween.is_valid(): tween.kill()
+		_slot_tweens.clear()
+		for source: Control in _offer_sources.values():
+			if is_instance_valid(source): source.scale = Vector2.ONE
 	_reduced_motion = reduced_motion
 	var next_room: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
 	if next_room != _room_coord:
@@ -498,37 +507,66 @@ func _build_sell_content() -> void:
 func _rebuild_inventory() -> void:
 	if _run_engine == null or _magic_group == null:
 		return
-	_slot_tweens.clear()
-	_offer_sources.clear()
-	_selection_effects.clear()
-	for group: Control in [_magic_group, _gear_group, _item_group]:
-		var row := group.get_node_or_null("OfferRow") as HBoxContainer
-		_clear_children(row)
 	var offers: Array = _run_engine.call("merchant_offer_ids", _run_state, MERCHANT_KIND)
+	var offers_by_kind: Dictionary = {MAGIC: [], GEAR: [], ITEM: []}
 	for offer_var: Variant in offers:
 		var item_id: String = str(offer_var)
 		var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
-		var target_group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
-		var row := target_group.get_node("OfferRow") as HBoxContainer
-		var shelf_slot := CenterContainer.new()
-		shelf_slot.name = "ShelfCubby_%s" % item_id
-		shelf_slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
-		shelf_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		shelf_slot.add_child(_build_offer(item_id, kind))
-		row.add_child(shelf_slot)
+		(offers_by_kind[kind] as Array).append(item_id)
+	for kind: String in offers_by_kind:
+		var ids: Array = offers_by_kind[kind] as Array
+		var signatures: Array = []
+		for item_id: String in ids:
+			var affordable: bool = _offer_is_affordable(item_id, false)
+			signatures.append([item_id, affordable])
+		var signature: int = hash(signatures)
+		if _shelf_signatures.get(kind, -1) != signature:
+			var target_group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
+			var row := target_group.get_node("OfferRow") as HBoxContainer
+			for child: Node in row.get_children():
+				var item_id: String = str(child.get_meta("shop_item_id", ""))
+				var key: String = "buy:" + item_id
+				_forget_offer(key)
+			_clear_children(row)
+			for item_id: String in ids:
+				var shelf_slot := CenterContainer.new()
+				shelf_slot.name = "ShelfCubby_%s" % item_id
+				shelf_slot.set_meta("shop_item_id", item_id)
+				shelf_slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
+				shelf_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+				shelf_slot.add_child(_build_offer(item_id, kind))
+				row.add_child(shelf_slot)
+			_shelf_signatures[kind] = signature
+		# Unaffordable tooltips include the changing amount still needed even
+		# while their price, disabled tint and card artwork remain unchanged.
+		for item_id: String in ids:
+			var offer: Control = _offer_sources.get("buy:" + item_id) as Control
+			if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
 	_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
 	_populate_sell_page()
 	_update_selection_effects()
 
+func _forget_offer(key: String) -> void:
+	var source: Control = _offer_sources.get(key) as Control
+	if is_instance_valid(source):
+		source.set_meta("shop_offer_retired", true)
+		var tween_key: int = source.get_instance_id()
+		var tween: Tween = _slot_tweens.get(tween_key) as Tween
+		if tween != null and tween.is_valid(): tween.kill()
+		_slot_tweens.erase(tween_key)
+	_offer_sources.erase(key)
+	_selection_effects.erase(key)
+
 func _populate_sell_page() -> void:
-	for key_var: Variant in _offer_sources.keys():
-		var key: String = str(key_var)
-		if key.begins_with("sell:"):
-			_offer_sources.erase(key)
-			_selection_effects.erase(key)
-	_clear_children(_sell_row)
 	var page_count: int = maxi(1, ceili(float(_sellable_ids.size()) / float(SELL_PAGE_SIZE)))
 	_sell_page = clampi(_sell_page, 0, page_count - 1)
+	var signature: String = "%d|%d|%d" % [hash(_sellable_ids), _sell_page, page_count]
+	if signature == _sell_page_signature: return
+	_sell_page_signature = signature
+	for key_var: Variant in _offer_sources.keys():
+		var key: String = str(key_var)
+		if key.begins_with("sell:"): _forget_offer(key)
+	_clear_children(_sell_row)
 	_sell_heading.text = "SELL FROM PACK" if page_count == 1 else "SELL FROM PACK  •  %d/%d" % [_sell_page + 1, page_count]
 	_sell_previous.disabled = _sell_page <= 0
 	_sell_next.disabled = _sell_page >= page_count - 1
@@ -792,7 +830,7 @@ func _unhover_item(item_id: String, source: Control) -> void:
 	_set_offer_emphasis(source, source.has_focus() if source != null else false)
 
 func _set_offer_emphasis(source: Control, emphasized: bool) -> void:
-	if source == null:
+	if source == null or bool(source.get_meta("shop_offer_retired", false)):
 		return
 	source.z_index = 10 if emphasized else 0
 	_animate_slot_scale(source, Vector2(1.045, 1.045) if emphasized else Vector2.ONE)
@@ -828,6 +866,7 @@ func _sync_detail() -> void:
 		_detail_card_ids.clear()
 		_detail_card_index = 0
 		_clear_children(_detail_card_host)
+		_rendered_detail_card_id = ""
 		_detail_card_nav.visible = false
 		_detail_price.text = ""
 		_detail_action.text = "SELECT AN OFFER"
@@ -861,13 +900,17 @@ func _sync_detail() -> void:
 func _render_detail_card() -> void:
 	if _detail_card_host == null:
 		return
-	_clear_children(_detail_card_host)
 	if _detail_card_ids.is_empty():
+		_clear_children(_detail_card_host)
+		_rendered_detail_card_id = ""
 		_detail_card_nav.visible = false
 		return
 	_detail_card_index = clampi(_detail_card_index, 0, _detail_card_ids.size() - 1)
 	var card_id: String = _detail_card_ids[_detail_card_index]
-	_build_native_scaled_card(_detail_card_host, card_id, Vector2(220.0, 310.0), "DetailCard", false)
+	if card_id != _rendered_detail_card_id:
+		_clear_children(_detail_card_host)
+		_build_native_scaled_card(_detail_card_host, card_id, Vector2(220.0, 310.0), "DetailCard", false)
+		_rendered_detail_card_id = card_id
 	var multiple_cards: bool = _detail_card_ids.size() > 1
 	_detail_card_nav.visible = multiple_cards
 	if multiple_cards:
@@ -1024,14 +1067,17 @@ func _configure_offer_row(
 		_set_focus_neighbor(offer, SIDE_BOTTOM, row_below[mini(index, row_below.size() - 1)] if not row_below.is_empty() else offer)
 
 func _buy_offer_controls(kind: String) -> Array[Control]:
+	# The rendered shelf already owns the validated stock and its order. Focus
+	# wiring must not regenerate all three merchant catalogs on each ware click.
 	var result: Array[Control]
-	for offer_var: Variant in _run_engine.call("merchant_offer_ids", _run_state, MERCHANT_KIND):
-		var item_id: String = str(offer_var)
-		if str(_run_engine.call("merchant_item_kind", item_id)) != kind:
-			continue
+	var group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
+	if group == null: return result
+	var row: Control = group.get_node_or_null("OfferRow") as Control
+	if row == null: return result
+	for slot: Node in row.get_children():
+		var item_id: String = str(slot.get_meta("shop_item_id", ""))
 		var offer: Control = _offer_sources.get("buy:%s" % item_id, null) as Control
-		if offer != null:
-			result.append(offer)
+		if offer != null: result.append(offer)
 	return result
 
 func _visible_sell_offer_controls() -> Array[Control]:

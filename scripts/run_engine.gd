@@ -2667,19 +2667,21 @@ func _merchant_valid_stock_ids(run_state: Dictionary, merchant_kind: String, roo
 			category_items.append(item_id)
 			if category_items.size() >= category_target:
 				break
-		var excluded: Array = sold_ids.duplicate()
-		excluded.append_array(result)
-		excluded.append_array(category_items)
-		if not reserved_item_id.is_empty():
-			excluded.append(reserved_item_id)
-		category_items.append_array(_weighted_merchant_choices(
-			int(run_state.get("seed", 0)),
-			coord,
-			_available_merchant_offer_ids(run_state, category, excluded),
-			category_target - category_items.size(),
-			_merchant_offer_salt(category) + 313,
-			category
-		))
+		if category_items.size() < category_target:
+			# Filtering the already validated category preserves its exact order and
+			# weights without expanding the entire generated card catalog again.
+			var replacements: Array = []
+			for item_id: String in available:
+				if not result.has(item_id) and not category_items.has(item_id) and item_id != reserved_item_id:
+					replacements.append(item_id)
+			category_items.append_array(_weighted_merchant_choices(
+				int(run_state.get("seed", 0)),
+				coord,
+				replacements,
+				category_target - category_items.size(),
+				_merchant_offer_salt(category) + 313,
+				category
+			))
 		result.append_array(category_items)
 	return result
 

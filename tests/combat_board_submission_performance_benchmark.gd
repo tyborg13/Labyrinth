@@ -49,6 +49,7 @@ func _initialize() -> void:
 	var enemy_center: Vector2 = board.call("world_position_for_unit_origin", enemy, enemy.get("pos", Vector2i.ZERO)) as Vector2
 	_verify_incremental_geometry(board, state, presentation, "enemy_1", enemy, enemy_center + Vector2(-44.0, 22.0), Vector2i(2, 2))
 	_verify_in_place_enemy_commit(board, state, presentation, "enemy_1", Vector2i(2, 2))
+	_verify_draw_tile_lifetimes(board, state, presentation)
 	_set_board_state(board, state, presentation)
 
 	var results: Dictionary = {
@@ -127,6 +128,7 @@ func _verify_incremental_geometry(
 	_set_board_state(board, state, base)
 	var movement: Dictionary = _moving_presentation(base, actor_key, center, draw_tile)
 	_set_board_state(board, state, movement)
+	_verify_draw_tile_index(board, actor_key + " animated")
 	var incremental_hud_entries: Array = (board.get("_hud_layout_entries_cache") as Array).duplicate(true)
 	var incremental_health_rects: Dictionary = (board.get("_hud_health_rects_cache") as Dictionary).duplicate(true)
 	var incremental_obstructions: Array = (board.get("_foreground_obstruction_entries_cache") as Array).duplicate(true)
@@ -167,6 +169,7 @@ func _verify_in_place_enemy_commit(
 		enemies[enemy_index] = enemy
 		break
 	_set_board_state(board, state, base, false)
+	_verify_draw_tile_index(board, actor_key + " committed")
 	var incremental_units: Array = (board.get("_visible_units_cache") as Array).duplicate(true)
 	var incremental_hud_entries: Array = (board.get("_hud_layout_entries_cache") as Array).duplicate(true)
 	var incremental_health_rects: Dictionary = (board.get("_hud_health_rects_cache") as Dictionary).duplicate(true)
@@ -186,6 +189,45 @@ func _verify_in_place_enemy_commit(
 
 	state["enemies"] = original_enemies
 	_set_board_state(board, state, base, false)
+
+func _verify_draw_tile_index(board: Control, label: String) -> void:
+	if board.get("_units_by_draw_tile_cache") == null: return
+	var expected: Dictionary = {}
+	for unit: Dictionary in board.call("_visible_units"):
+		var tile: Vector2i = board.call("_effective_unit_tile", unit)
+		var entries: Array = expected.get(tile, []) as Array
+		entries.append(unit)
+		expected[tile] = entries
+	_expect(board.get("_units_by_draw_tile_cache") == expected, label + " indexed bodies must match the ordered full visible-unit scan")
+	for layer: Control in board.call("_retained_render_layers"):
+		_expect(layer.get("_units_by_draw_tile_cache") == expected, label + " retained layers must share the current draw-tile index")
+
+func _verify_draw_tile_lifetimes(board: Control, state: Dictionary, base: Dictionary) -> void:
+	var together: Dictionary = base.duplicate(true)
+	together["unit_draw_tiles"] = {"player": Vector2i(3, 3), "enemy_1": Vector2i(3, 3)}
+	_set_board_state(board, state, together)
+	_verify_draw_tile_index(board, "two bodies at one animated depth tile")
+	_set_board_state(board, state, base)
+	_verify_draw_tile_index(board, "cleared animated depth override")
+	var changed: Dictionary = state.duplicate(true)
+	changed["enemies"][0]["footprint"] = Vector2i(5, 4)
+	_set_board_state(board, changed, base)
+	_verify_draw_tile_index(board, "legacy large footprint")
+	changed = state.duplicate(true)
+	changed["enemies"].remove_at(0)
+	_set_board_state(board, changed, base)
+	_verify_draw_tile_index(board, "removed body")
+	_set_board_state(board, state, base)
+	_verify_draw_tile_index(board, "restored body")
+	var atlas: Texture2D = board.get("_ambient_combined_atlas")
+	if board.has_method("prepare_initial_assets_for"):
+		_expect(atlas != null, "Initial asset preparation must include the ambient atlas")
+		for layer: Control in board.call("_retained_render_layers"):
+			_expect(layer.get("_ambient_combined_atlas") == atlas, "Every stress layer must share the owner's exact atlas")
+			for field: String in ["_ambient_combined_atlas_regions", "_ambient_particle_textures", "_ambient_particle_glow_textures", "_ambient_fire_soft_textures", "_ambient_air_wisp_textures", "_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures"]:
+				_expect(is_same(layer.get(field), board.get(field)), "Stress layers must share source identity/UV maps: " + field)
+			layer.call("_ensure_ambient_combined_atlas")
+			_expect(layer.get("_ambient_combined_atlas") == atlas, "A retained layer must not repack the owner's atlas")
 
 func _stress_state() -> Dictionary:
 	var combat := CombatEngine.new()

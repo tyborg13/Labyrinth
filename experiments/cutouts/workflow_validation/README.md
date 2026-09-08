@@ -2,7 +2,11 @@
 
 This directory retains the operationalization rehearsal, not new accepted character content. The approved protagonist remains pass nine in production. `salute_case` is a fresh-agent authoring demonstration: it adds only a case-owned salute while preserving accepted art and idle/walk/attack. Its raised rear blade overlaps the board HP bar and is **not approved for production**. `nonhumanoid_case` is a two-bone loader fixture using borrowed paint, not an enemy art proposal or grounded-locomotion claim.
 
-## Results
+## Operationalization checkpoint (`8b749755`)
+
+The results below describe the inspected checkpoint before publication integrated upstream performance changes. Fresh merge verification is retained in [publication/README.md](publication/README.md).
+
+### Results
 
 - Fourteen focused Python tests cover portable cloning/forking, unbuilt creature scaffolds, exact-alpha ownership, all six approved rear-leg skin recipes, art protection, invalid graph/UV/weight rejection, safe output collisions, rigid replacement, proof tampering and full-duration video packing. See `python-tests.log`.
 - The new skill passes the official skill validator (`skill-validation.log`). Its relative reference links were checked.

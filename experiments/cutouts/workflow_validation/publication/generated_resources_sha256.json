@@ -1,0 +1,8 @@
+{
+  "provenance": "Both files were inherited unchanged from this immutable upstream commit and remained unchanged during all publication captures.",
+  "sha256": {
+    "assets/generated/card_presentation_cache.res": "292e767f458953502ef0e25ad891bb9e70032c92baf48fcbed53136732f444fb",
+    "assets/generated/unit_shadow_cache.res": "f05dcf7a1b6eef395556181e74030b11ebc02f58d542f44ad17f252f7e0ff794"
+  },
+  "upstream_commit": "685c3dde359e7d28ceb3173c2c10f8878e4114ee"
+}

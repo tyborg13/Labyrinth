@@ -5,12 +5,13 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 
 const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v13"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v14"
 const HAND: Array = [
 	"threaded_path",
 	"sidestep_slash",
@@ -248,6 +249,21 @@ func _initialize() -> void:
 	probe_settings_store.save_settings(probe_settings)
 	await process_frame
 
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_STARTUP_ONLY") == "1":
+		var startup_sampler := FrameSampler.new()
+		startup_sampler.request_render = _render_pulse.pulse
+		startup_sampler.observe_frame = _observe_probe_focus
+		startup_sampler.measured_viewport_rid = root.get_viewport_rid()
+		RenderingServer.viewport_set_measure_render_time(startup_sampler.measured_viewport_rid, true)
+		root.add_child(startup_sampler)
+		await _acquire_probe_window_focus()
+		await _settle_render_frames(4)
+		var startup_workload = load("res://tests/startup_performance_workload.gd").new()
+		var startup_report: Dictionary = await startup_workload.run(self, startup_sampler)
+		startup_report["semantic_errors"] = _errors
+		print("STARTUP PERF RESULT: %s" % JSON.stringify(startup_report))
+		quit(0 if _errors.is_empty() else 1)
+		return
 	var packed: PackedScene = load("res://scenes/run_scene.tscn")
 	_phase_log("scene loaded")
 	var instance: Node = packed.instantiate()
@@ -278,6 +294,47 @@ func _initialize() -> void:
 	await _settle_frames(8)
 	await _settle_probe_window()
 	await _settle_frames(8)
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_REMAINING_SURFACES_ONLY") == "1":
+		var remaining_workload = load("res://tests/remaining_surface_performance_workload.gd").new()
+		var remaining_report: Dictionary = await remaining_workload.run(self, instance, sampler)
+		instance = remaining_workload.final_instance()
+		remaining_report["semantic_errors"] = _errors
+		print("REMAINING SURFACE PERF RESULT: %s" % JSON.stringify(remaining_report))
+		if is_instance_valid(instance): instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_ALL_SURFACES_ONLY") == "1":
+		var broad_workload = load("res://tests/all_surface_performance_workload.gd").new()
+		var broad_report: Dictionary = await broad_workload.run(self, instance, sampler)
+		broad_report["semantic_errors"] = _errors
+		print("ALL SURFACE PERF RESULT: %s" % JSON.stringify(broad_report))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_FLOW_ONLY") == "1":
+		var flow_workload = load("res://tests/ui_flow_performance_workload.gd").new()
+		var flow_report: Dictionary = await flow_workload.run(self, instance, sampler)
+		flow_report["semantic_errors"] = _errors
+		print("UI FLOW PERF RESULT: %s" % JSON.stringify(flow_report))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_SURFACE_ONLY") == "1":
+		var surface_workload = load("res://tests/surface_performance_workload.gd").new()
+		var surface_report: Dictionary = await surface_workload.run(self, instance, sampler)
+		surface_report["semantic_errors"] = _errors
+		print("SURFACE FRAME PERF RESULT: %s" % JSON.stringify(surface_report))
+		instance.queue_free()
+		sampler.queue_free()
+		await process_frame
+		quit(0 if _errors.is_empty() else 1)
+		return
 	if OS.get_environment("LABYRINTH_RUNTIME_PERF_CACHE_VISUAL_ONLY") == "1":
 		var cache_visual_proof: Dictionary = await _verify_live_render_cache_equivalence(instance)
 		cache_visual_proof["semantic_errors"] = _errors
@@ -712,6 +769,8 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		if hand_index < 0:
 			continue
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		var card_click_pipelines_before: int = _canvas_pipeline_compilation_count()
 		var click_started: int = Time.get_ticks_usec()
 		var click_handler_ms: float = await _select_card(instance, hand_index)
@@ -719,15 +778,25 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		var click_frame_completion_ms: float = float(Time.get_ticks_usec() - click_started) / 1000.0
 		var card_click_pipeline_compilations: int = _canvas_pipeline_compilation_count() - card_click_pipelines_before
 		var click_stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		var click_frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		var click_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		all_card_click_handler_samples.append(click_handler_ms)
 		all_card_click_frame_completion_samples.append(click_frame_completion_ms)
-		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
+		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var cold_result: Dictionary = await _measure_current_preview_hovers(instance)
+		var cold_stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		var cold_frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		var cold_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var card_result: Dictionary = await _measure_current_preview_hovers(instance)
 		card_result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		card_result["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		card_result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		board.call("set_submission_performance_instrumentation_enabled", false)
 		var board_profile: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
 		card_result["board_profile"] = board_profile
 		var hover_handler_samples: Array[float] = card_result.get("hover_handler_samples", []) as Array[float]
@@ -744,6 +813,11 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		card_result["card_click_frame_completion_ms"] = click_frame_completion_ms
 		card_result["card_click_canvas_pipeline_compilations"] = card_click_pipeline_compilations
 		card_result["card_click_stage_profile"] = click_stage_profile
+		card_result["card_click_stage_frame_profile"] = click_frame_profile
+		card_result["card_click_board_submission_profile"] = click_submission_profile
+		card_result["cold_stage_profile"] = cold_stage_profile
+		card_result["cold_stage_frame_profile"] = cold_frame_profile
+		card_result["cold_board_submission_profile"] = cold_submission_profile
 		card_result["cold_hover_handler"] = _duration_phase_result(cold_hover_handler_samples, "input_handler")
 		card_result["cold_hover_frame_completion"] = _duration_phase_result(cold_hover_frame_completion_samples, "cold_interaction_frame_completion")
 		card_result["cold_canvas_pipeline_compilations"] = int(cold_result.get("canvas_pipeline_compilations", 0))
@@ -1353,21 +1427,23 @@ func _timed_call(target: Object, method_name: String, arguments: Array = []) -> 
 	target.callv(method_name, arguments)
 	return float(Time.get_ticks_usec() - started) / 1000.0
 
-func _routed_left_click(control: Control, local_position: Vector2) -> float:
+func _routed_left_click(control: Control, local_position: Vector2, double_click: bool = false) -> float:
 	if control == null or control.get_viewport() == null:
 		return 0.0
 	# Viewport GUI input is expressed in viewport coordinates. Include CanvasLayer
 	# transforms so UiLayer controls receive the event at their rendered position.
+	var target_viewport: Viewport = control.get_viewport()
 	var global_position: Vector2 = control.get_global_transform_with_canvas() * local_position
 	var motion := InputEventMouseMotion.new()
 	motion.position = global_position
 	motion.global_position = global_position
-	control.get_viewport().push_input(motion, true)
+	target_viewport.push_input(motion, true)
 	var press := InputEventMouseButton.new()
 	press.position = global_position
 	press.global_position = global_position
 	press.button_index = MOUSE_BUTTON_LEFT
 	press.button_mask = MOUSE_BUTTON_MASK_LEFT
+	press.double_click = double_click
 	press.pressed = true
 	var release := InputEventMouseButton.new()
 	release.position = global_position
@@ -1376,8 +1452,8 @@ func _routed_left_click(control: Control, local_position: Vector2) -> float:
 	release.button_mask = 0
 	release.pressed = false
 	var started: int = Time.get_ticks_usec()
-	control.get_viewport().push_input(press, true)
-	control.get_viewport().push_input(release, true)
+	target_viewport.push_input(press, true)
+	target_viewport.push_input(release, true)
 	return float(Time.get_ticks_usec() - started) / 1000.0
 
 func _routed_pointer_motion(control: Control, local_position: Vector2) -> void:
@@ -1498,6 +1574,7 @@ func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dic
 
 func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary:
 	var results: Dictionary = {}
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 	for card_id: String in _benchmark_card_ids():
 		_phase_log("action %s" % card_id)
 		_install_stress_combat(instance, "specialists")
@@ -1510,6 +1587,7 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_reset_board_render_instrumentation(instance)
 		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		board.call("set_submission_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
 		var interaction: Dictionary = {}
@@ -1537,6 +1615,9 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		phase["board_profile"] = _board_render_instrumentation(instance)
 		phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		phase["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		phase["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		board.call("set_submission_performance_instrumentation_enabled", false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s confirmed play must change committed combat state" % card_id)
@@ -1659,6 +1740,21 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
 		var routed_controls: Dictionary = await _activate_skill_through_viewport(instance, skill_id)
+		if (instance.get("_surface_aim") as RefCounted).call("active"):
+			var choices: Control = instance.get("_surface_skill_choice_row") as Control
+			var ice_choice: Button = choices.get_node_or_null("SurfaceChoiceIce") as Button
+			_expect(ice_choice != null and ice_choice.is_visible_in_tree(), "%s must expose its live ground-kind choice" % skill_id)
+			if ice_choice != null:
+				routed_controls["surface_choice"] = ice_choice.name
+				_routed_left_click(ice_choice, ice_choice.size * 0.5)
+				await _await_render_frame()
+				var surface_tiles: Array[Vector2i] = instance.get("_surface_skill_tiles") as Array[Vector2i]
+				_expect(not surface_tiles.is_empty(), "%s ground choice must expose legal targets" % skill_id)
+				if not surface_tiles.is_empty():
+					var surface_tile: Vector2i = _preferred_target(instance, surface_tiles)
+					_board_pointer_click(instance, surface_tile)
+					routed_controls["surface_target"] = surface_tile
+					await _await_render_frame()
 		var selection_zone: String = str(instance.get("_combat_skill_card_selection_zone"))
 		if selection_zone == "hand":
 			var hand_indices: Array = instance.get("_combat_skill_card_selection_indices") as Array
@@ -1708,13 +1804,14 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 
 func _activate_skill_through_viewport(instance: Node, skill_id: String) -> Dictionary:
 	var routed: Dictionary = {}
-	var sigil: Button = instance.find_child("SkillSigil", true, false) as Button
-	_expect(sigil != null and sigil.visible and not sigil.disabled, "%s must open from the live ability sigil" % skill_id)
-	if sigil == null or not sigil.visible or sigil.disabled:
+	var sigil: Button = instance.get("_skill_sigil") as Button
+	_expect(sigil != null and sigil.is_visible_in_tree() and not sigil.disabled, "%s must open from the live ability sigil" % skill_id)
+	if sigil == null or not sigil.is_visible_in_tree() or sigil.disabled:
 		return routed
 	_routed_left_click(sigil, sigil.size * 0.5)
 	routed["sigil"] = sigil.name
-	await process_frame
+	await _await_render_frame()
+	_expect((instance.get("_skill_status_scrim") as Control).is_visible_in_tree() and (instance.get("_skill_status_popover") as Control).is_visible_in_tree(), "%s routed sigil click must open the ability palette" % skill_id)
 	var status_tiles: Dictionary = instance.get("_skill_status_tiles") as Dictionary
 	var status_tile: Button = status_tiles.get(skill_id, null) as Button
 	var page_guard: int = 0
@@ -1724,9 +1821,9 @@ func _activate_skill_through_viewport(instance: Node, skill_id: String) -> Dicti
 		var visible_ids: Array[String] = instance.call("_skill_status_visible_ids") as Array[String]
 		var visible_last_index: int = skill_ids.find(visible_ids[visible_ids.size() - 1]) if not visible_ids.is_empty() else -1
 		var page_button: Button = (
-			instance.find_child("NextSkillStatusPage", true, false) as Button
+			instance.get("_skill_status_next_page") as Button
 			if target_index > visible_last_index
-			else instance.find_child("PreviousSkillStatusPage", true, false) as Button
+			else instance.get("_skill_status_previous_page") as Button
 		)
 		_expect(page_button != null and page_button.visible and not page_button.disabled, "%s palette page must be reachable through live page controls" % skill_id)
 		if page_button == null or not page_button.visible or page_button.disabled:
@@ -1742,7 +1839,7 @@ func _activate_skill_through_viewport(instance: Node, skill_id: String) -> Dicti
 	_routed_left_click(status_tile, status_tile.size * 0.5)
 	routed["tile"] = status_tile.name
 	await process_frame
-	var action_button: Button = instance.find_child("ActivateSelectedSkill", true, false) as Button
+	var action_button: Button = instance.get("_skill_status_action_button") as Button
 	_expect(action_button != null and action_button.visible and not action_button.disabled, "%s must activate through the live palette action button" % skill_id)
 	if action_button != null and action_button.visible and not action_button.disabled:
 		_routed_left_click(action_button, action_button.size * 0.5)
@@ -1852,6 +1949,10 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 			if str(step.get("boundary", "")) == "initiative_activate":
 				enemy_activations += 1
 		_expect(enemy_activations >= queue.size() and enemy_activations > 0, "%s fixture must activate all scheduled enemies" % composition_id)
+		# The sampler carries the previous completed draw into its first interval.
+		# Flush the untimed oracle/setup before readiness can return immediately;
+		# otherwise the first reported "enemy frame" includes reference simulation.
+		await _await_render_frame()
 		var pass_readiness: Dictionary = await _await_live_pass_button(instance)
 		var pass_button: Button = pass_readiness.get("button") as Button
 		_expect(
@@ -2219,6 +2320,8 @@ func _install_stress_combat(instance: Node, composition_id: String) -> Dictionar
 	instance.call("_cancel_drag_play")
 	instance.call("_cancel_card_selection")
 	instance.call("_cancel_combat_skill_card_selection")
+	instance.call("_close_skill_status_popover", false)
+	instance.call("_cancel_surface_skill_selection")
 	instance.call("_reset_card_resolution")
 	var layout: Dictionary = {
 		"name": "Depth 13 Runtime Performance Chamber",
@@ -2284,7 +2387,7 @@ func _install_stress_combat(instance: Node, composition_id: String) -> Dictionar
 	_enrich_enemy_states(combat_state)
 	_phase_log("install %s: combat enriched" % composition_id)
 
-	var progression: Dictionary = ProgressionStore.default_data()
+	var progression: Dictionary = ContextualCombatTutorial.complete_tutorial(ProgressionStore.default_data())
 	progression["level"] = 14
 	progression["skill_ids"] = SKILLS.duplicate()
 	progression["run_counter"] = 2
@@ -2308,6 +2411,7 @@ func _install_stress_combat(instance: Node, composition_id: String) -> Dictionar
 		_profile_initial_refresh_parts(instance)
 	_phase_log("install %s: refreshing ui" % composition_id)
 	instance.call("_refresh_ui")
+	_expect(not bool(instance.call("_guided_tutorial_action_restricted")), "experienced depth-13 performance fixture must allow ordinary ability input")
 	_phase_log("install %s: ui refreshed" % composition_id)
 	return combat_state
 

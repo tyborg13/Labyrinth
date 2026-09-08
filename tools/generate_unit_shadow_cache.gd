@@ -55,16 +55,23 @@ func _build_cache() -> Dictionary:
 				_append_unique_texture(textures, texture_var as Texture2D)
 	var entries: Dictionary = {}
 	var source_sha256: Dictionary = {}
+	var source_images: Dictionary = {}
 	for texture: Texture2D in textures:
 		var key: String = UnitShadowCacheResourceScript.texture_key(texture)
 		if key.is_empty() or entries.has(key):
 			continue
-		var image: Image = texture.get_image()
-		entries[key] = {
-			"shadow_data": board.call("_unit_shadow_data_for_texture", texture),
-			"used_rect": image.get_used_rect() if image != null and not image.is_empty() else Rect2i(),
-		}
 		var source_path: String = UnitShadowCacheResourceScript.source_path(texture)
+		# Build from the same raw bytes whose fingerprint we ship, regardless of
+		# a developer's imported-texture or previously generated shadow caches.
+		if not source_images.has(source_path):
+			source_images[source_path] = Image.load_from_file(source_path)
+		var image: Image = source_images[source_path] as Image
+		assert(image != null and not image.is_empty(), "Shadow source must decode: %s" % source_path)
+		if texture is AtlasTexture:
+			var atlas: AtlasTexture = texture as AtlasTexture
+			assert(atlas.margin == Rect2(), "Shadow generator needs explicit support for padded atlases")
+			image = image.get_region(Rect2i(atlas.region))
+		entries[key] = board.call("_compute_unit_shadow_data_for_image", image)
 		if not source_path.is_empty() and not source_sha256.has(source_path):
 			source_sha256[source_path] = FileAccess.get_sha256(source_path)
 	# This tool runs as a standalone SceneTree script, so the unattached Control

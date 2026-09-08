@@ -75,3 +75,7 @@ Fresh evidence is in `experiments/protagonist_2d/renders/pass9/`:
 - `gameplay/capture_input_sha256.json` binds 114 runtime/art/test/producer inputs to the final capture. Separate `proof_sha256.json` files bind the retained gameplay and pose evidence. Both assembled 255×255 rest renders passed the native probe collector.
 
 Affected UI rubric gates remain **Pass** at 1920×1080 and 100% UI scale: immediate comprehension, hierarchy, gameplay visibility, state/consequence, input completeness, cohesion, reduced motion, layout resilience and native proof. Target rings, HP, cards and the grounded body retain their established layout. There are no rules, copy, outcome, analytics or icon-identity changes. Static neutral shadows, untested Windows/physical-controller hardware, and the deferred death redesign remain the limits. Independent exact-HEAD review and a freshly verified pre-action combat fixture are required before handoff; publication remains pending explicit user approval.
+
+## Publication integration
+
+The accepted checkpoint was integrated with upstream performance work at `685c3dde` while preserving cutout initialization and staged asset reuse. [Fresh publication evidence](../experiments/cutouts/workflow_validation/publication/README.md) covers staged startup identity, native Continue, gameplay and the full test suite.

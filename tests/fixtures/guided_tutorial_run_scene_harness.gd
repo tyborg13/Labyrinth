@@ -8,7 +8,7 @@ var tutorial_refresh_count: int = 0
 var use_real_tutorial_refresh: bool = false
 
 
-func _cancel_drag_play() -> void:
+func _cancel_drag_play(_refresh_ui: bool = true) -> void:
 	set("_drag_card_index", -1)
 
 

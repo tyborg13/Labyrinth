@@ -26,6 +26,7 @@ const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 const CONDITIONAL_TEXT_COLOR: String = "#fff7df"
 const CONDITIONAL_OUTLINE_COLOR: String = "#24160f"
+const CardPresentationCache = preload("res://scripts/card_presentation_cache.gd")
 const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_FRAME_STARTER_PATH: String = "res://assets/art/ui/card_frame_rarity_starter.png"
 const CARD_FRAME_COMMON_PATH: String = "res://assets/art/ui/card_frame_rarity_common.png"
@@ -363,11 +364,23 @@ class DebossedRoleEmblem:
 		if _masked_texture_cache.has(path):
 			return _masked_texture_cache.get(path, null) as Texture2D
 		var source_texture: Texture2D = AssetLoaderScript.load_texture(path)
-		if source_texture == null:
-			return null
+		if source_texture == null: return null
 		var image: Image = source_texture.get_image()
-		if image == null or image.is_empty():
-			return null
+		if image == null or image.is_empty(): return null
+		var prepared: Texture2D = CardPresentationCache.texture("emblem|" + path, path, _transform_signature(), image)
+		if prepared != null:
+			_masked_texture_cache[path] = prepared
+			return prepared
+		image = _build_masked_emblem_image(image)
+		var masked_texture: Texture2D = ImageTexture.create_from_image(image)
+		_masked_texture_cache[path] = masked_texture
+		return masked_texture
+
+	func _transform_signature() -> String:
+		return "emblem_v1|%s" % str([CONTENT_ALPHA_THRESHOLD, CONTENT_PADDING])
+
+	func _build_masked_emblem_image(source_image: Image) -> Image:
+		var image: Image = source_image
 		image = image.duplicate()
 		image.convert(Image.FORMAT_RGBA8)
 		var content_min := Vector2i(image.get_width(), image.get_height())
@@ -398,9 +411,8 @@ class DebossedRoleEmblem:
 				mini(image.get_height(), content_max.y + CONTENT_PADDING + 1)
 			)
 			image = image.get_region(Rect2i(crop_position, crop_end - crop_position))
-		var masked_texture: Texture2D = ImageTexture.create_from_image(image)
-		_masked_texture_cache[path] = masked_texture
-		return masked_texture
+		return image
+
 
 	func _texture_rect(texture: Texture2D, center: Vector2, max_size: float) -> Rect2:
 		var texture_size: Vector2 = texture.get_size()
@@ -866,16 +878,30 @@ func _card_frame_style(expand: float = 0.0, rarity: String = "", element_id: Str
 
 func _card_frame_texture(rarity: String, element_id: String) -> Texture2D:
 	var base_path: String = _card_frame_path(rarity)
-	var base_texture: Texture2D = AssetLoader.load_texture(base_path)
-	if base_texture == null or not ElementData.is_elemental(element_id):
-		return base_texture
+	if not ElementData.is_elemental(element_id): return AssetLoader.load_texture(base_path)
 	var cache_key: String = "%s|%s" % [base_path, element_id]
 	if _elemental_frame_cache.has(cache_key):
-		return _elemental_frame_cache.get(cache_key, base_texture)
+		return _elemental_frame_cache[cache_key] as Texture2D
+	# Match the exact image the fallback would use, including import processing.
+	var base_texture: Texture2D = AssetLoader.load_texture(base_path)
+	if base_texture == null: return null
 	var image: Image = base_texture.get_image()
 	if image == null or image.is_empty():
 		_elemental_frame_cache[cache_key] = base_texture
 		return base_texture
+	var prepared: Texture2D = CardPresentationCache.texture(cache_key, base_path, _frame_transform_signature(element_id), image)
+	if prepared != null:
+		_elemental_frame_cache[cache_key] = prepared
+		return prepared
+	var tinted_image: Image = _build_elemental_frame_image(image, element_id)
+	var tinted_texture: Texture2D = ImageTexture.create_from_image(tinted_image)
+	_elemental_frame_cache[cache_key] = tinted_texture
+	return tinted_texture
+
+func _frame_transform_signature(element_id: String) -> String:
+	return "frame_v1|%s" % str([ELEMENT_FRAME_BAND, ELEMENT_FRAME_VALUE_MAX, ELEMENT_FRAME_SATURATION_MAX, ELEMENT_FRAME_SATURATION_FLOOR, ELEMENT_FRAME_TINT_BLEND, FIRE_FRAME_SATURATION_FLOOR, FIRE_FRAME_TINT_BLEND, FIRE_FRAME_VALUE_LIFT, _element_frame_tint_color(element_id)])
+
+func _build_elemental_frame_image(image: Image, element_id: String) -> Image:
 	var tinted_image: Image = image.duplicate()
 	var accent_hsv: Vector3 = _color_to_hsv(_element_frame_tint_color(element_id))
 	for y: int in range(tinted_image.get_height()):
@@ -891,9 +917,7 @@ func _card_frame_texture(rarity: String, element_id: String) -> Texture2D:
 				pixel.a
 			)
 			tinted_image.set_pixel(x, y, pixel.lerp(tinted_pixel, _element_frame_tint_blend(element_id)))
-	var tinted_texture: Texture2D = ImageTexture.create_from_image(tinted_image)
-	_elemental_frame_cache[cache_key] = tinted_texture
-	return tinted_texture
+	return tinted_image
 
 func _element_frame_tint_color(element_id: String) -> Color:
 	var accent: Color = ElementData.accent(element_id)

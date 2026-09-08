@@ -391,6 +391,7 @@ var _node_buttons: Dictionary = {}
 var _node_faces: Dictionary = {}
 var _node_icons: Dictionary = {}
 var _node_centers: Dictionary = {}
+var _navigation_topology_cache: Dictionary = {}
 var _node_sizes: Dictionary = {}
 var _node_visual_rects: Dictionary = {}
 var _static_links: Array[Dictionary]
@@ -436,13 +437,14 @@ func _ready() -> void:
 	call_deferred("_configure_focus_neighbors")
 
 func configure(context: Dictionary) -> void:
+	var previous_context: Array = [_owned_ids, _required_count, _unspent_points, _editing_enabled, _focused_id]
 	_owned_ids = SkillTreeLibrary.normalized_ids(context.get("owned_ids", []))
 	_required_count = maxi(0, int(context.get("required_count", _owned_ids.size())))
 	_unspent_points = maxi(0, int(context.get("unspent_points", _required_count - _owned_ids.size())))
 	_editing_enabled = bool(context.get("editing_enabled", true))
 	var requested_focus: String = str(context.get("focused_id", _focused_id))
 	_focused_id = requested_focus if SkillTreeLibrary.is_player_visible(requested_focus) else _default_focus_id()
-	if is_node_ready():
+	if is_node_ready() and previous_context != [_owned_ids, _required_count, _unspent_points, _editing_enabled, _focused_id]:
 		_refresh_summary()
 		_refresh_nodes()
 		_refresh_links()
@@ -458,11 +460,14 @@ func owned_skill_ids() -> Array[String]:
 func focus_skill(skill_id: String, ensure_visible: bool = true) -> void:
 	if not SkillTreeLibrary.is_player_visible(skill_id):
 		return
-	_focused_id = skill_id
-	_refresh_nodes()
-	_refresh_links()
-	_refresh_detail()
-	_configure_focus_neighbors()
+	# A pointer press follows focus_entered on the same node. Context changes
+	# refresh through configure(); rendering this unchanged selection twice is wasteful.
+	if _focused_id != skill_id:
+		_focused_id = skill_id
+		_refresh_nodes()
+		_refresh_links()
+		_refresh_detail()
+		_configure_focus_neighbors()
 	skill_focused.emit(skill_id)
 	if ensure_visible:
 		call_deferred("_ensure_focused_visible")
@@ -472,6 +477,17 @@ func grab_tree_focus() -> void:
 	if button != null and button.is_inside_tree() and button.is_visible_in_tree():
 		button.grab_focus()
 		call_deferred("_ensure_focused_visible")
+
+func clear_external_focus_targets() -> void:
+	# Character chrome can be replaced while this graph remains scene-owned.
+	_external_command_target = null
+	_external_tab_target = null
+
+func set_external_focus_targets(tab_target: Control, command_target: Control) -> void:
+	_external_tab_target = tab_target
+	_external_command_target = command_target
+	# The caller may still be assembling the replacement Character body.
+	call_deferred("_configure_focus_neighbors")
 
 func set_external_command_focus_target(target: Control) -> void:
 	_external_command_target = target
@@ -553,6 +569,7 @@ func navigation_rebuild_count() -> int:
 
 func performance_metrics() -> Dictionary:
 	return {
+		"focus_render_refresh_count": _focus_render_refresh_count,
 		"build_view_usec": _last_build_view_usec,
 		"refresh_view_usec": _last_refresh_view_usec,
 		"link_geometry_usec": _last_link_geometry_usec,
@@ -861,6 +878,7 @@ func _legend_symbol_kind(state: String) -> String:
 			return "lock"
 
 func _build_skill_nodes() -> void:
+	_navigation_topology_cache.clear()
 	if _shared_empty_node_style == null:
 		_shared_empty_node_style = StyleBoxEmpty.new()
 	for skill_id: String in SkillTreeLibrary.visible_ids():
@@ -1011,7 +1029,10 @@ func _refresh_summary() -> void:
 		return
 	_summary_label.text = "LEARNED %d  ·  POINTS %d" % [_owned_ids.size(), _unspent_points]
 
+var _focus_render_refresh_count: int = 0
+
 func _refresh_nodes() -> void:
+	_focus_render_refresh_count += 1
 	for skill_id: String in SkillTreeLibrary.visible_ids():
 		var button: Button = node_for_skill(skill_id)
 		if button == null:
@@ -1205,8 +1226,8 @@ func _configure_command_focus_neighbors() -> void:
 			_external_tab_target if _control_accepts_focus(_external_tab_target) else focused_node
 		)
 
-func _control_accepts_focus(control: Control) -> bool:
-	if control == null or not control.is_inside_tree() or not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
+func _control_accepts_focus(control: Variant) -> bool:
+	if not is_instance_valid(control) or not control.is_inside_tree() or not control.is_visible_in_tree() or control.focus_mode == Control.FOCUS_NONE:
 		return false
 	if control is BaseButton and (control as BaseButton).disabled:
 		return false
@@ -1227,6 +1248,14 @@ func _set_focus_neighbor(source: Control, direction: String, target: Control) ->
 			source.focus_neighbor_bottom = target_path
 
 func _navigation_neighbor_for_direction(skill_id: String, direction: String) -> String:
+	# These relationships depend on authored topology, not focus, ownership or
+	# viewport scale. Rebind live NodePaths freely without rescanning the graph.
+	var key: String = skill_id + "|" + direction
+	if not _navigation_topology_cache.has(key):
+		_navigation_topology_cache[key] = _uncached_navigation_neighbor_for_direction(skill_id, direction)
+	return str(_navigation_topology_cache[key])
+
+func _uncached_navigation_neighbor_for_direction(skill_id: String, direction: String) -> String:
 	var origin: Vector2 = _node_center(skill_id)
 	if direction in ["left", "right"]:
 		var best_id: String = ""

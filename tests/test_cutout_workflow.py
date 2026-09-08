@@ -14,7 +14,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from cutout_pipeline.assets import apply_skin, replace_part, segment, skin_mesh
 from cutout_pipeline.cases import CutoutError, PROJECT, baseline, case_hashes, fork_case, init_case, local_path, read_json, seed_protagonist, write_json
-from cutout_pipeline.proof import pack, verify_render
+from cutout_pipeline.proof import input_hashes, pack, verify_render
 from cutout_pipeline.cases import digest
 from cutout_pipeline.validation import validate, validate_layout
 
@@ -193,6 +193,23 @@ class CutoutWorkflowTests(unittest.TestCase):
         self.assertAlmostEqual(report["source_seconds"], 0.6)
         self.assertAlmostEqual(report["encoded_seconds"], 0.6)
         self.assertEqual(report["clips"][0]["encoded_frames"], 36)
+
+    def test_render_proof_detects_generated_resource_changes(self):
+        project = self.root / "project"
+        generated = project / "assets/generated"
+        generated.mkdir(parents=True)
+        (project / "tools").mkdir()
+        (project / "project.godot").write_text("config_version=5")
+        (project / "tools/cutout_workflow.py").write_text("# fixture")
+        resource = generated / "unit_shadow_cache.res"
+        resource.write_bytes(b"accepted cached pixels")
+        with patch("cutout_pipeline.proof.PROJECT", project), patch("cutout_pipeline.proof.case_hashes", return_value={}):
+            before = input_hashes(self.root)
+            resource.write_bytes(b"changed cached pixels")
+            after = input_hashes(self.root)
+        key = "project:assets/generated/unit_shadow_cache.res"
+        self.assertIn(key, before)
+        self.assertNotEqual(before[key], after[key])
 
     def test_verification_rejects_changed_inputs_or_tampered_proof(self):
         output = self.root / "proof"

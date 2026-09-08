@@ -31,6 +31,8 @@ func _initialize() -> void:
 	await _test_run_entry("new", true)
 	await _test_run_entry("continue", true)
 	await _test_loading_failure_preserves_save_and_recovers_focus()
+	await _test_staged_loading_teardown(false)
+	await _test_staged_loading_teardown(true)
 	SettingsStore.clear_storage()
 	_cleanup_storage()
 	if _failures.is_empty():
@@ -41,6 +43,42 @@ func _initialize() -> void:
 		push_error(failure)
 	print("TEST RESULT: FAIL — %d main menu first-click input failure(s)" % _failures.size())
 	quit(1)
+
+func _test_staged_loading_teardown(during_reveal: bool) -> void:
+	var settings: Dictionary = SettingsStore.default_settings()
+	settings["reduced_motion"] = false
+	SettingsStore.save_settings(settings)
+	var saved: Dictionary = RunEngine.new().create_new_run(82914, ProgressionStore.default_data())
+	ProgressionStore.save_run_state(saved)
+	var menu: Control = load("res://scenes/main_menu.tscn").instantiate()
+	root.add_child(menu)
+	await process_frame
+	var bridge := MenuRunTransition.new()
+	var commits: Array[int]
+	bridge.begin(menu, "res://scenes/run_scene.tscn", func() -> void: commits.append(1))
+	var detached: Node
+	for frame: int in range(1200):
+		await process_frame
+		if is_instance_valid(bridge.destination) and ((during_reveal and bridge.phase == &"revealing") or (not during_reveal and bridge.destination.get_parent() == null)):
+			detached = bridge.destination
+			break
+	_expect(detached != null, "Teardown fixture must reach its requested loading phase")
+	if detached != null:
+		var expected_save: Dictionary = ProgressionStore.load_saved_run() if during_reveal else saved
+		bridge.free()
+		for frame: int in range(8): await process_frame
+		if during_reveal:
+			_expect(is_instance_valid(detached) and detached.process_mode != Node.PROCESS_MODE_DISABLED, "Reveal teardown must restore attached destination processing")
+			detached.free()
+		else:
+			_expect(not is_instance_valid(detached), "Transition teardown must free its detached destination")
+		_expect(not root.gui_disable_input, "Transition teardown must release viewport input")
+		_expect(commits.size() == (1 if during_reveal else 0), "New Run intent must only commit after preparation succeeds")
+		_expect(ProgressionStore.load_saved_run() == expected_save, "Teardown must preserve the save committed at its loading phase")
+	else:
+		if is_instance_valid(bridge): bridge.queue_free()
+	current_scene = null
+	ProgressionStore.clear_saved_run()
 
 func _test_hover_and_press_same_frame_activates_once() -> void:
 	var packed: PackedScene = load("res://scenes/main_menu.tscn")

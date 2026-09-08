@@ -1,0 +1,17 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+Startup timing reduced_motion=false: {"complete":4700,"fade_in":1593,"fade_out":3955,"hold":1954,"menu_black":4299,"menu_fade_in":4311}
+Startup timing reduced_motion=true: {"complete":6815,"fade_in":4795,"fade_out":6803,"hold":4802,"menu_black":6803,"menu_fade_in":6815}
+Music handoff new: menu stopped=206 ms, room started=-1 ms, overlap=false
+Run entry PASS: new reduced_motion=false reveal_ms=214
+Music handoff continue: menu stopped=205 ms, room started=302 ms, overlap=false
+Run entry PASS: continue reduced_motion=false reveal_ms=223
+Music handoff replace: menu stopped=206 ms, room started=-1 ms, overlap=false
+Run entry PASS: replace reduced_motion=false reveal_ms=221
+Music handoff new: menu stopped=199 ms, room started=-1 ms, overlap=false
+Run entry PASS: new reduced_motion=true reveal_ms=1
+Music handoff continue: menu stopped=213 ms, room started=317 ms, overlap=false
+Run entry PASS: continue reduced_motion=true reveal_ms=0
+TEST RESULT: PASS — main menu input and startup transitions
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)

@@ -7,6 +7,9 @@ const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 
 static func run(expect: Callable) -> void:
 	_test_screen_popup_collision_layout(expect)
+	_test_health_column_keeps_hit_beside_its_target(expect)
+	_test_clustered_hits_keep_the_receiving_actor(expect)
+	_test_actor_region_intersections_find_a_feasible_lane(expect)
 	_test_direct_to_timeline_popup_identity(expect)
 	_test_fatigue_popup_identity(expect)
 	_test_damage_motion_curve(expect)
@@ -421,6 +424,58 @@ static func _test_screen_popup_collision_layout(expect: Callable) -> void:
 	var empty: Array[Dictionary] = []
 	FloatingCombatText.place_screen_popups(empty, bounds, cache)
 	expect.call(cache.is_empty(), "Finished popup bursts must release their layout reservations")
+
+
+static func _test_health_column_keeps_hit_beside_its_target(expect: Callable) -> void:
+	var popups: Array[Dictionary]
+	popups.append({"key": "middle_hit", "tile": Vector2i(5, 3), "envelope": Rect2(1000, 352, 104, 104)})
+	var health: Array[Rect2]
+	for y: float in [260.0, 352.0, 444.0]: health.append(Rect2(970, y, 144, 36))
+	var cache: Dictionary = {}
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, Rect2(12, 16, 1896, 1036), cache, health)
+	var offset: Vector2 = placed[0]["layout_offset"]
+	var final_rect := Rect2((placed[0]["envelope"] as Rect2).position + offset, Vector2(104, 104))
+	expect.call(absf(offset.y) <= FloatingCombatText.SCREEN_POPUP_SOLO_VERTICAL_SHIFT, "A neighboring column of health bars must not move a hit to the next actor")
+	expect.call(absf(offset.x) > 24.0, "Health avoidance should use the available side lane instead of escaping below the column")
+	for rect: Rect2 in health:
+		expect.call(not final_rect.intersects(rect), "The local side lane should keep damage legible beside health bars")
+
+
+static func _test_clustered_hits_keep_the_receiving_actor(expect: Callable) -> void:
+	var neighbors: Array[Vector2]
+	neighbors.append_array([Vector2(1000, 400), Vector2(900, 430), Vector2(1100, 430)])
+	var popups: Array[Dictionary]
+	popups.append({"key": "damage", "tile": Vector2i(4, 3), "envelope": Rect2(972, 380, 56, 44), "actor_association": {"target": neighbors[0], "centers": Rect2(999, 402, 2, 2), "neighbors": neighbors}})
+	popups.append({"key": "block", "tile": Vector2i(4, 3), "envelope": Rect2(972, 334, 56, 34), "actor_association": {"target": neighbors[0], "centers": Rect2(999, 350, 2, 2), "neighbors": neighbors}})
+	var health: Array[Rect2]
+	health.append(Rect2(969, 374, 62, 56))
+	var placed: Array[Dictionary] = FloatingCombatText.place_screen_popups(popups, Rect2(12, 16, 1896, 1036), {}, health)
+	for popup: Dictionary in placed:
+		var offset: Vector2 = popup["layout_offset"]
+		var envelope: Rect2 = popup["envelope"]
+		envelope.position += offset
+		expect.call(not envelope.intersects(health[0]), "Clustered hits should preserve a clear lane around health bars")
+		var centers: Rect2 = (popup["actor_association"] as Dictionary)["centers"]
+		for corner: Vector2 in [centers.position, Vector2(centers.end.x, centers.position.y), centers.end, Vector2(centers.position.x, centers.end.y)]:
+			var drawn_center: Vector2 = corner + offset
+			for neighbor: Vector2 in neighbors:
+				if neighbor == neighbors[0]:
+					continue
+				expect.call(drawn_center.distance_squared_to(neighbors[0]) < drawn_center.distance_squared_to(neighbor), "Every reserved glyph-center position must stay nearest the receiving actor in a clustered burst")
+
+
+static func _test_actor_region_intersections_find_a_feasible_lane(expect: Callable) -> void:
+	var target := Vector2(1000, 400)
+	var neighbors: Array[Vector2]
+	neighbors.append_array([Vector2(1084, 484), Vector2(1084, 316), Vector2(916, 484), Vector2(916, 316)])
+	var centers := Rect2(1020, 305, 24, 80)
+	var occupied: Array[Rect2]
+	var offset: Vector2 = FloatingCombatText._nearest_clear_popup_offset(Rect2(1000, 280, 64, 130), occupied, Rect2(12, 16, 1896, 1036), FloatingCombatText.SCREEN_POPUP_STACK_VERTICAL_SHIFT, {"target": target, "centers": centers, "neighbors": neighbors})
+	expect.call(not offset.is_zero_approx(), "A feasible intersection of actor regions must not fall back to the unconstrained origin")
+	for corner: Vector2 in [centers.position, Vector2(centers.end.x, centers.position.y), centers.end, Vector2(centers.position.x, centers.end.y)]:
+		for neighbor: Vector2 in neighbors:
+			var normal: Vector2 = target.direction_to(neighbor)
+			expect.call(normal.dot((target + neighbor) * 0.5 - corner - offset) >= FloatingCombatText.SCREEN_POPUP_ACTOR_MARGIN - 0.01, "Intersecting actor regions must preserve the full trajectory's receiver margin")
 
 
 static func _test_direct_to_timeline_popup_identity(expect: Callable) -> void:

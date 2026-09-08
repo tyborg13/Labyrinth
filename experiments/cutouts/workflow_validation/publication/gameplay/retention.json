@@ -1,0 +1,17 @@
+{
+  "note": "Selected original native PNGs; complete raw gameplay frame sequence remains in the named temporary directory.",
+  "raw_directory": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788899852554898000-39979-protagonist_cutout_gamep-1/probes/protagonist_cutout_gameplay_v9",
+  "retained_sha256": {
+    "01_idle.png": "203110414269a62b822805f33802ed948ca36d0cf00923f7638f735900529dd7",
+    "07_melee_northeast_phase_044.png": "526511db2611c57efdf110ff6f6d528c9953d3f8d51fbd706871d2efa957bba7",
+    "08_walk_northwest.png": "a3cf402857a7070fe8b400912774242088af5cec5caf09e67937d4a63bd14d37",
+    "09b_melee_whirlwind_phase_044.png": "2f6c4840ce9edc122ffcec258d92eb7d12eed850b34c92fec19d70e1c79a9ac9",
+    "11a_targeted_aoe.png": "e7d088ab295c21645c9ddca5a8fcd464adbc41dab1fd0723875134b7942e0f25",
+    "11d_take_damage_1_contact.png": "dd51b6967c4fe0fdad1ed93929de2589dee705201638fb17c6194e9cdabafe18",
+    "13_equipment.png": "e76bd071cfdd864e4a2ec21dfde78f46148484e4b48b7a72d9e19d265d135ff6",
+    "15_reduced_melee.png": "a14b81b6a2a70d2580d0565b6d918059e8e049c64e06beda7895e0f9b34831e3",
+    "godot.log": "a5cf7532217b498f15518bb4b1303618456bbca944568dcc1721cc0fb426d84b",
+    "manifest.json": "9e2ebc244da76a0af0e696301db20bf7a2bfd068089b4707a485eb20e849ed62",
+    "visual_probe_result.json": "b69c284077491eb525f91dec92e8637a885b6370611a5ca6201273b09738fda4"
+  }
+}
