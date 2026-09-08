@@ -1,0 +1,803 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.3863342257144,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.350849046365944,
+          "path": "01_idle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.39523290097531,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.40590790060919,
+          "path": "02_walk_southwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.016904769054726,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.022863619676315,
+          "path": "03_melee_southwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.525171211636565,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.4159047799306,
+          "path": "03_melee_southwest_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.09306391173062,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.102016078600265,
+          "path": "03_melee_southwest_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.550021603126577,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.47403383077994,
+          "path": "03_melee_southwest_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.42898701359786,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.465754456721434,
+          "path": "04_walk_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.061272330743996,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.08056761225671,
+          "path": "05_melee_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.564920092528627,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.4792652651075,
+          "path": "05_melee_southeast_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.14554116180964,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.15353683232408,
+          "path": "05_melee_southeast_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.631656860956337,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.61359422026834,
+          "path": "05_melee_southeast_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.03799882552462,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 43.942840841424946,
+          "path": "06_walk_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.085963674464374,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.07940965471292,
+          "path": "07_melee_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.564750624796904,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.39766862794647,
+          "path": "07_melee_northeast_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.353,
+          "luma_mean": 29.754600964878982,
+          "luma_min": 0.0,
+          "luma_range": 248.353,
+          "luma_stdev": 38.81010027879403,
+          "path": "07_melee_northeast_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.663694519134065,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.62014925562627,
+          "path": "07_melee_northeast_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.01143888009595,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 43.914641403893484,
+          "path": "08_walk_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 32.05424074659346,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.02097355957632,
+          "path": "09_melee_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.544662369497956,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.38206443525567,
+          "path": "09_melee_northwest_phase_027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.92379999999997,
+          "luma_mean": 29.7691287250814,
+          "luma_min": 0.0,
+          "luma_range": 246.92379999999997,
+          "luma_stdev": 38.860836932280186,
+          "path": "09_melee_northwest_phase_044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.6481534561793,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.57141304231964,
+          "path": "09_melee_northwest_phase_060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.392020353521584,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 43.53374585816099,
+          "path": "10_defensive_action.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.82599999999996,
+          "luma_mean": 31.493998331218467,
+          "luma_min": 0.0,
+          "luma_range": 250.82599999999996,
+          "luma_stdev": 43.42705519806091,
+          "path": "11_ranged_action.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.500388986865513,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 43.56644135356269,
+          "path": "11b_blink.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.489831006795903,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 43.64959759435626,
+          "path": "11c_guarded_step.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 35.5455844550722,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 47.57327914522446,
+          "path": "11d_take_damage_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 35.31619436095637,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 47.4267480579756,
+          "path": "11d_take_damage_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 31.22346257908352,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 39.405757825311554,
+          "path": "11d_take_damage_1_contact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.82599999999996,
+          "luma_mean": 38.210185969624,
+          "luma_min": 0.0,
+          "luma_range": 250.82599999999996,
+          "luma_stdev": 46.00521244654955,
+          "path": "12_controller_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7474,
+          "luma_mean": 20.60680361435358,
+          "luma_min": 0.0,
+          "luma_range": 245.7474,
+          "luma_stdev": 28.925463001170822,
+          "path": "13_equipment.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7474,
+          "luma_mean": 20.999224268418548,
+          "luma_min": 0.0,
+          "luma_range": 245.7474,
+          "luma_stdev": 30.0270965680288,
+          "path": "13_equipment_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.390547880412285,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.35970387540631,
+          "path": "14_resumed.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.995080753711495,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.011300063247816,
+          "path": "15_reduced_melee.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.995080753711495,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.011300063247816,
+          "path": "16_reduced_idle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 35.31931306152602,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 47.34443174656224,
+          "path": "17_terminal_defeat_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 243.8906,
+          "luma_mean": 22.122647670827,
+          "luma_min": 0.2126,
+          "luma_range": 243.678,
+          "luma_stdev": 33.333865233126,
+          "path": "17_terminal_defeat_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 31.0623768309027,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.18036414940086,
+          "path": "17_terminal_defeat_1_contact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 27.55597162685378,
+          "luma_min": 0.2126,
+          "luma_range": 244.39319999999998,
+          "luma_stdev": 37.40078386915226,
+          "path": "18_room_idle.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "protagonist-2d-skeletal-experiment-1788887253386949000-32033-protagonist_cutout_gamep-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--audio-driver",
+    "Dummy",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment",
+    "--script",
+    "tests/protagonist_cutout_gameplay_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.3863342257144,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.350849046365944,
+      "path": "01_idle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.39523290097531,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.40590790060919,
+      "path": "02_walk_southwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.016904769054726,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.022863619676315,
+      "path": "03_melee_southwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.525171211636565,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.4159047799306,
+      "path": "03_melee_southwest_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.09306391173062,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.102016078600265,
+      "path": "03_melee_southwest_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.550021603126577,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.47403383077994,
+      "path": "03_melee_southwest_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.42898701359786,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.465754456721434,
+      "path": "04_walk_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.061272330743996,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.08056761225671,
+      "path": "05_melee_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.564920092528627,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.4792652651075,
+      "path": "05_melee_southeast_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.14554116180964,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.15353683232408,
+      "path": "05_melee_southeast_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.631656860956337,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.61359422026834,
+      "path": "05_melee_southeast_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.03799882552462,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 43.942840841424946,
+      "path": "06_walk_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.085963674464374,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.07940965471292,
+      "path": "07_melee_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.564750624796904,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.39766862794647,
+      "path": "07_melee_northeast_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.353,
+      "luma_mean": 29.754600964878982,
+      "luma_min": 0.0,
+      "luma_range": 248.353,
+      "luma_stdev": 38.81010027879403,
+      "path": "07_melee_northeast_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.663694519134065,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.62014925562627,
+      "path": "07_melee_northeast_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.01143888009595,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 43.914641403893484,
+      "path": "08_walk_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 32.05424074659346,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.02097355957632,
+      "path": "09_melee_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.544662369497956,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.38206443525567,
+      "path": "09_melee_northwest_phase_027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.92379999999997,
+      "luma_mean": 29.7691287250814,
+      "luma_min": 0.0,
+      "luma_range": 246.92379999999997,
+      "luma_stdev": 38.860836932280186,
+      "path": "09_melee_northwest_phase_044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.6481534561793,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.57141304231964,
+      "path": "09_melee_northwest_phase_060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.392020353521584,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 43.53374585816099,
+      "path": "10_defensive_action.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.82599999999996,
+      "luma_mean": 31.493998331218467,
+      "luma_min": 0.0,
+      "luma_range": 250.82599999999996,
+      "luma_stdev": 43.42705519806091,
+      "path": "11_ranged_action.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.500388986865513,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 43.56644135356269,
+      "path": "11b_blink.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.489831006795903,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 43.64959759435626,
+      "path": "11c_guarded_step.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 35.5455844550722,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 47.57327914522446,
+      "path": "11d_take_damage_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 35.31619436095637,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 47.4267480579756,
+      "path": "11d_take_damage_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 31.22346257908352,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 39.405757825311554,
+      "path": "11d_take_damage_1_contact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.82599999999996,
+      "luma_mean": 38.210185969624,
+      "luma_min": 0.0,
+      "luma_range": 250.82599999999996,
+      "luma_stdev": 46.00521244654955,
+      "path": "12_controller_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7474,
+      "luma_mean": 20.60680361435358,
+      "luma_min": 0.0,
+      "luma_range": 245.7474,
+      "luma_stdev": 28.925463001170822,
+      "path": "13_equipment.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7474,
+      "luma_mean": 20.999224268418548,
+      "luma_min": 0.0,
+      "luma_range": 245.7474,
+      "luma_stdev": 30.0270965680288,
+      "path": "13_equipment_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.390547880412285,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.35970387540631,
+      "path": "14_resumed.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.995080753711495,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.011300063247816,
+      "path": "15_reduced_melee.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.995080753711495,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.011300063247816,
+      "path": "16_reduced_idle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 35.31931306152602,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 47.34443174656224,
+      "path": "17_terminal_defeat_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 243.8906,
+      "luma_mean": 22.122647670827,
+      "luma_min": 0.2126,
+      "luma_range": 243.678,
+      "luma_stdev": 33.333865233126,
+      "path": "17_terminal_defeat_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 31.0623768309027,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.18036414940086,
+      "path": "17_terminal_defeat_1_contact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 27.55597162685378,
+      "luma_min": 0.2126,
+      "luma_range": 244.39319999999998,
+      "luma_stdev": 37.40078386915226,
+      "path": "18_room_idle.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "protagonist-2d-skeletal-experiment-1788887253386949000-32033-protagonist_cutout_gamep-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/protagonist_cutout_gameplay_probe.gd"
+}

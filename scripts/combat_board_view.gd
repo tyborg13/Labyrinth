@@ -1,6 +1,9 @@
 extends Control
 class_name CombatBoardView
 
+const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+var _protagonist_renderer: Node
+
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
@@ -697,10 +700,24 @@ func _ready() -> void:
 	set_process(true)
 	resized.connect(_on_board_resized)
 	get_viewport().size_changed.connect(_sync_static_render_cache)
+	if _uses_protagonist_cutout():
+		_protagonist_renderer = ProtagonistCutout.new()
+		_protagonist_renderer.name = "ProtagonistCutout"
+		add_child(_protagonist_renderer)
 	_load_assets(false)
 	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
+
+func _uses_protagonist_cutout() -> bool:
+	return true
+
+func protagonist_animation_snapshot() -> Dictionary:
+	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
+
+func protagonist_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "player", "key": "player", "role": "player"}
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
 
 func _exit_tree() -> void:
 	if _unit_shadow_prewarm_thread != null and _unit_shadow_prewarm_thread.is_started():
@@ -1012,7 +1029,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
@@ -1665,6 +1682,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	if is_instance_valid(_protagonist_renderer):
+		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
+			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
 	var next_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if move_tiles_changed:
 		_move_tiles_lookup_cache = _vector2i_lookup(move_tiles)
@@ -2085,6 +2105,9 @@ func _queue_presentation_change_redraws(
 				_queue_scene_tiles_for_presentation_entries(previous_scene_props, next_scene_props, "tile")
 				_queue_render_layer_redraw(_ambient_render_layer)
 				foreground_changed = true
+			"protagonist_motion":
+				# Live texture content changes without invalidating board geometry.
+				pass
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
 				pass
@@ -6452,7 +6475,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	var texture: Texture2D = _texture_for_unit(unit)
 	if texture != null:
 		var death_animation: bool = bool(unit.get("death_animation", false))
-		var draw_rect: Rect2 = _unit_draw_rect(unit)
+		var draw_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit))
 		var impact: float = _unit_impact_strength(unit)
 		var impact_shake: float = _unit_impact_shake_strength(unit)
 		var impact_offset := Vector2.ZERO
@@ -8574,7 +8597,13 @@ func _draw_effect_overlay() -> void:
 		"melee":
 			if to_tile.x < 0:
 				return
-			_draw_melee_slash_effect(from_point, to_point, progress)
+			var slash_progress: float = progress
+			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			_draw_melee_slash_effect(from_point, to_point, slash_progress)
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -9899,7 +9928,7 @@ func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -
 	if texture == null:
 		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
 		return
-	var base_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	var base_rect: Rect2 = _unit_texture_draw_rect(unit, center)
 	var ghost_rect: Rect2 = _scaled_unit_rect(base_rect, scale)
 	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
 	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
@@ -11812,7 +11841,7 @@ func _unit_shadow_immediate_textures_for_state(state: Dictionary) -> Array[Textu
 			units.append(prepared_npc)
 	var textures: Array[Texture2D] = []
 	for unit: Dictionary in units:
-		var texture: Texture2D = _texture_for_unit(unit)
+		var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
 		if texture != null and not textures.has(texture):
 			textures.append(texture)
 	return textures
@@ -11822,6 +11851,10 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	_unit_assets_loaded[unit_type] = true
 	var art_path: String = ""
+	if unit_type == "player" and _uses_protagonist_cutout():
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ProtagonistCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
 	if unit_type == "player":
 		art_path = "res://assets/placeholders/units/player_reaver.png"
 	else:
@@ -12031,6 +12064,8 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" and is_instance_valid(_protagonist_renderer):
+		return _protagonist_renderer.call("texture") as Texture2D
 	if _unit_uses_procedural_shadow_dissolve(unit):
 		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -12357,8 +12392,15 @@ func _unit_draw_rect(unit: Dictionary) -> Rect2:
 	return _unit_draw_rect_for_center(unit, _unit_center(unit))
 
 func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
-	var texture: Texture2D = _texture_for_unit(unit)
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
 	return _unit_draw_rect_for_texture(unit, center, texture)
+
+func _unit_texture_draw_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	if str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer):
+		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
+			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
+	return rect
 
 func _unit_draw_rect_for_texture(unit: Dictionary, center: Vector2, texture: Texture2D) -> Rect2:
 	var frame_rect: Rect2 = _unit_frame_rect(center)
@@ -12856,7 +12898,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
-	var texture: Texture2D = _texture_for_unit(unit)
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_texture", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()

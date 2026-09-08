@@ -308,15 +308,12 @@ static func _test_movement_and_follow_up_keep_the_idle_sprite_source(expect: Cal
 		expect.call(moving_texture == boss_idle_frames[0], "The final boss movement frame should use the authored idle sheet rather than the separately framed static texture")
 		expect.call(landed_texture == moving_texture, "The first landed frame should retain the exact same grounded sprite source as the final movement frame")
 		expect.call(follow_up_texture == landed_texture, "Zekarion's post-move action should keep the landed sprite source instead of snapping to static art")
-	var player_idle_frames: Array = board.call("_unit_idle_frames", player) as Array
-	expect.call(not player_idle_frames.is_empty(), "The player should expose authored idle frames for action continuity")
-	if not player_idle_frames.is_empty():
-		board.presentation = {"unit_world_positions": {"player": Vector2(940.0, 650.0)}}
-		var player_moving_texture: Texture2D = board.call("_texture_for_unit", player) as Texture2D
-		board.presentation = {"effect": {"kind": "block"}, "focus_actor_keys": ["player"]}
-		var player_follow_up_texture: Texture2D = board.call("_texture_for_unit", player) as Texture2D
-		expect.call(player_moving_texture == player_idle_frames[0], "The final player movement frame should use the authored idle sheet")
-		expect.call(player_follow_up_texture == player_moving_texture, "Guarded Step's post-move Block should not swap the player to differently framed static art")
+	board.presentation = {"unit_world_positions": {"player": Vector2(940.0, 650.0)}}
+	var player_moving_texture: Texture2D = board.call("_texture_for_unit", player) as Texture2D
+	board.presentation = {"effect": {"kind": "block"}, "focus_actor_keys": ["player"]}
+	var player_follow_up_texture: Texture2D = board.call("_texture_for_unit", player) as Texture2D
+	expect.call(player_moving_texture != null, "The player has cutout source art for detached layout inspection")
+	expect.call(player_follow_up_texture == player_moving_texture, "Guarded Step's post-move Block should not swap the player to differently framed art")
 	board.free()
 
 

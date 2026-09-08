@@ -1,5 +1,7 @@
 extends Control
 
+const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
@@ -1244,7 +1246,7 @@ const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
 const CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN: float = 4.0
-const PLAYER_UNIT_TEXTURE_PATH: String = "res://assets/placeholders/units/player_reaver.png"
+const PLAYER_UNIT_TEXTURE_PATH: String = ProtagonistCutout.REST_PATH
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
@@ -22649,6 +22651,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
+				"protagonist_melee": action_type == "melee",
 				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
 				"center": effect_target_tile,
@@ -22669,8 +22672,6 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			if _has_electrical_trace(chain_hits):
 				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
 			else:
-				var from_point: Vector2 = board_view.world_position_for_tile(player_before_tile)
-				var to_point: Vector2 = board_view.world_position_for_tile(effect_target_tile)
 				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(effect, ATTACK_FRAMES, _reduced_motion_enabled())
 				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(effect, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
 				effect["triggered_traps"] = triggered_traps
@@ -22699,11 +22700,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						"effect": effect,
 						"effect_progress": t
 					}
-					if action_type == "melee":
-						presentation["unit_world_positions"] = {
-							"player": from_point.lerp(to_point, 0.10 + sin(t * PI) * 0.24)
-						}
-						presentation["unit_draw_tiles"] = {"player": effect_target_tile}
+					# The articulated swing already supplies body drive with planted
+					# feet. Retain the real tile instead of the old whole-sprite lunge.
 					var effect_display_state: Dictionary = before_state
 					if feedback_elapsed_seconds >= 0.0:
 						presentation["impact_actor_keys"] = attack_impact_actor_keys
@@ -23553,17 +23551,37 @@ func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, p
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
 	var segment_count: int = maxi(0, path.size() - 1)
-	var total_frame_count: int = segment_count * MOVE_STEP_FRAMES
-	await _play_timed_animation_frames(total_frame_count, MOVE_FRAME_SECONDS, func(frame_number: int) -> void:
+	var player_walk: bool = actor_key == "player"
+	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else MOVE_FRAME_SECONDS
+	var segment_frame_counts: Array[int] = []
+	var segment_start_frames: Array[int] = []
+	var distance_before: Array[float] = []
+	var distance: float = 0.0
+	var total_frame_count: int = 0
+	var source_scale: float = maxf(0.001, board_view.protagonist_source_pixel_scale())
+	for index: int in range(segment_count):
+		var from: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index])
+		var to: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index + 1])
+		var length: float = from.distance_to(to)
+		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else MOVE_STEP_FRAMES
+		segment_frame_counts.append(frames)
+		segment_start_frames.append(total_frame_count)
+		distance_before.append(distance)
+		distance += length
+		total_frame_count += frames
+	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
 		var zero_based_frame: int = frame_number - 1
-		var path_index: int = mini(segment_count - 1, int(zero_based_frame / MOVE_STEP_FRAMES))
-		var segment_frame: int = zero_based_frame % MOVE_STEP_FRAMES + 1
+		var path_index: int = 0
+		while path_index + 1 < segment_count and zero_based_frame >= segment_start_frames[path_index + 1]:
+			path_index += 1
+		var segment_frames: int = segment_frame_counts[path_index]
+		var segment_frame: int = zero_based_frame - segment_start_frames[path_index] + 1
 		var segment_from: Vector2i = path[path_index]
 		var segment_to: Vector2i = path[path_index + 1]
 		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
 		var to_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_to)
 		var draw_tile: Vector2i = board_view.draw_tile_for_unit_origin(actor_unit, segment_to)
-		var t: float = float(segment_frame) / float(MOVE_STEP_FRAMES)
+		var t: float = float(segment_frame) / float(segment_frames)
 		var moving_footprint_center: Vector2 = from_point.lerp(to_point, t)
 		var frame_presentation: Dictionary = base_presentation
 		if bool(base_presentation.get("umbra_reveal_actor_on_visible_tiles", false)):
@@ -23592,6 +23610,11 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			draw_tile,
 			segment_to
 		)
+		if player_walk:
+			# The accepted gait travels along the 2:1 projected lane. Distance
+			# drives phase so planted feet counter the actual root translation.
+			presentation["protagonist_motion"] = {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / ProtagonistCutout.walk_cycle_distance()}
 		_render_board_state(display_state, presentation, true)
 	)
 
@@ -23859,6 +23882,10 @@ func _stop_music_tween() -> void:
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
+	var cutout_effect: Dictionary = presentation.get("effect", {})
+	if bool(cutout_effect.get("protagonist_melee", false)):
+		rendered_presentation["protagonist_motion"] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 	var run_mode: String = str(_run_state.get("mode", "room"))
 	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
@@ -27630,7 +27657,18 @@ func _build_equipment_portrait_panel() -> Control:
 
 	var art := TextureRect.new()
 	art.name = "EquipmentCharacterArt"
-	art.texture = AssetLoader.load_texture(PLAYER_UNIT_TEXTURE_PATH)
+	var cutout := ProtagonistCutout.new()
+	art.add_child(cutout)
+	cutout.name = "EquipmentCutout"
+	cutout.reduced_motion_source = _reduced_motion_enabled
+	cutout.ready.connect(func() -> void:
+		var crop := AtlasTexture.new()
+		crop.atlas = cutout.texture()
+		crop.region = Rect2(ProtagonistCutout.SOURCE_OFFSET, ProtagonistCutout.SOURCE_SIZE)
+		art.texture = crop
+		cutout.present({}, _reduced_motion_enabled())
+	)
+	art.texture = AssetLoader.load_texture_source_first(PLAYER_UNIT_TEXTURE_PATH)
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

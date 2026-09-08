@@ -7,6 +7,9 @@ const SOURCE_OFFSET := Vector2(128.0, 128.0)
 const PUPPET_CANVAS_SIZE := Vector2(512.0, 512.0)
 var _drawing_reference_shadow: bool = false
 
+func _uses_protagonist_cutout() -> bool:
+	return false
+
 func _is_player(unit: Dictionary) -> bool:
 	return str(unit.get("type", "")) == "player"
 

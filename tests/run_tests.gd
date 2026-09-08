@@ -281,7 +281,7 @@ func _initialize() -> void:
 	_test_chainbound_gaoler_board_art_is_taller_and_centered()
 	_test_enemy_intent_popup_expands_for_long_titles()
 	_test_unit_shadow_uses_alpha_silhouette()
-	_test_player_uses_original_anime_art()
+	_test_player_uses_promoted_cutout_art()
 	_test_combat_board_keeps_equipment_data_off_player_sprite()
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
@@ -359,6 +359,7 @@ func _initialize() -> void:
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
@@ -5673,7 +5674,7 @@ func _test_unit_shadow_uses_alpha_silhouette() -> void:
 	_assert(min_point.y <= foot_point.y + 1.0, "Projected unit shadow should begin at the opaque feet without a visible vertical gap")
 	board.free()
 
-func _test_player_uses_original_anime_art() -> void:
+func _test_player_uses_promoted_cutout_art() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
@@ -5684,8 +5685,8 @@ func _test_player_uses_original_anime_art() -> void:
 	var player_unit := {"key": "player", "role": "player", "type": "player", "pos": Vector2i(3, 3), "hp": 20}
 	var idle_frames: Array = board.call("_unit_idle_frames", player_unit)
 	var player_texture: Texture2D = board.call("_texture_for_unit", player_unit)
-	_assert(idle_frames.size() == 8, "Original anime player art should still load its matching idle sheet")
-	_assert(player_texture != null, "Original anime player art should load for board rendering")
+	_assert(idle_frames.is_empty(), "Player runtime should not load its retired idle sheet")
+	_assert(player_texture != null and str(player_texture.get_meta("asset_source_path", "")).begins_with("res://assets/units/protagonist_cutout/"), "Detached board layout should use promoted cutout rest art")
 	board.free()
 
 func _test_combat_board_keeps_equipment_data_off_player_sprite() -> void:
@@ -6050,8 +6051,8 @@ func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
 		"death_frame": 5,
 		"death_progress": 0.42
 	}
-	_assert(not bool(board.call("_unit_uses_procedural_shadow_dissolve", player_death_unit)), "Player defeat should retain its distinct authored terminal collapse")
-	_assert((board.call("_unit_death_frames", player_death_unit) as Array).size() == 16, "Player defeat should continue loading all authored collapse frames")
+	_assert(not bool(board.call("_unit_uses_procedural_shadow_dissolve", player_death_unit)), "Player defeat should retain its cutout through the terminal fade")
+	_assert((board.call("_unit_death_frames", player_death_unit) as Array).is_empty(), "Player defeat should never load the old-art collapse sheet")
 	var death_entry := {
 		"key": "enemy_99",
 		"role": "enemy",

@@ -63,6 +63,8 @@ static func uses_authored_elemental_attack(effect: Dictionary) -> bool:
 	return style_for_effect(effect) != STYLE_DEFAULT
 
 static func animation_frame_count(effect: Dictionary, fallback_count: int, reduced_motion: bool) -> int:
+	if bool(effect.get("protagonist_melee", false)):
+		return 1 if reduced_motion else preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAMES
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:
 		return maxi(1, fallback_count)
@@ -81,6 +83,8 @@ static func animation_frame_count(effect: Dictionary, fallback_count: int, reduc
 			return FIREBALL_ANIMATION_FRAMES
 
 static func animation_frame_seconds(effect: Dictionary, fallback_seconds: float, reduced_motion: bool) -> float:
+	if bool(effect.get("protagonist_melee", false)):
+		return 0.0 if reduced_motion else preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAME_SECONDS
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:
 		return maxf(0.0, fallback_seconds)
