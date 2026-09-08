@@ -17,7 +17,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 ACTIONS = ('idle', 'walk', 'attack', 'block', 'hit')
 FACINGS = ('front', 'rear')
-FPS = 24
+FPS = 72
 SCALE = 2
 FONT_PATH = Path(__file__).resolve().parents[2] / 'fonts/LabyrinthCrumble-Text.ttf'
 
@@ -73,7 +73,7 @@ def _compose(clips, action, frame, geometry, pass_number, speed, repetition, rep
     return canvas
 
 
-def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_folder):
+def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_folder, source_fps):
     size = geometry[2]
     encoder = subprocess.Popen([ffmpeg, '-hide_banner', '-loglevel', 'error', '-y',
         '-f', 'rawvideo', '-pix_fmt', 'rgb24', '-s', f'{size[0]}x{size[1]}', '-r', str(FPS),
@@ -87,6 +87,9 @@ def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_f
             count = len(clips['front', action])
             modes = ((1, 2, 1), (0.5, 1, 2)) if feedback else ((1, 1, 1),)
             for speed, repeats, duplicate in modes:
+                if FPS % source_fps[action]:
+                    raise ValueError('Output cadence must preserve every source frame exactly')
+                duplicate *= FPS // source_fps[action]
                 start = total
                 for repetition in range(repeats):
                     for frame in range(count):
@@ -108,14 +111,15 @@ def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_f
         raise RuntimeError('ffmpeg failed to encode ' + str(destination))
     metadata = json.loads(subprocess.check_output(['ffprobe', '-v', 'error', '-select_streams', 'v:0',
         '-show_entries', 'stream=width,height,avg_frame_rate,nb_frames,duration', '-of', 'json', str(destination)], text=True))['streams'][0]
-    if (metadata['width'], metadata['height']) != size or int(metadata['nb_frames']) != total or metadata['avg_frame_rate'] != '24/1':
+    if (metadata['width'], metadata['height']) != size or int(metadata['nb_frames']) != total or metadata['avg_frame_rate'] != f'{FPS}/1':
         raise ValueError('Encoded video changed frame geometry or cadence')
     subprocess.run([ffmpeg, '-v', 'error', '-xerror', '-i', str(destination), '-f', 'null', '-'], check=True)
     return {'file': destination.name, 'sha256': _sha(destination), 'frames': total, 'duration_seconds': total / FPS,
             'segments': segments, 'complete_decode': True, 'metadata': metadata, 'proof_frames': proof_frames}
 
 
-def write_previews(clips, output, pass_number=3):
+def write_previews(clips, output, pass_number=4, source_fps=None):
+    source_fps = source_fps or {action: 24 for action in ACTIONS}
     for action in ACTIONS:
         if not all((facing, action) in clips for facing in FACINGS):
             raise ValueError('All five animations need both actual facings')
@@ -128,11 +132,11 @@ def write_previews(clips, output, pass_number=3):
     proof_folder = output / 'video_frames' / 'feedback'
     proof_folder.mkdir(parents=True, exist_ok=True)
     geometry = _geometry(clips)
-    records = [_encode(ffmpeg, output / name, clips, geometry, pass_number, feedback, proof_folder)
+    records = [_encode(ffmpeg, output / name, clips, geometry, pass_number, feedback, proof_folder, source_fps)
                for name, feedback in (('animation_showcase.mp4', False), ('all_animations_feedback.mp4', True))]
     manifest = {'pass': pass_number, 'fps': FPS, 'size': geometry[2], 'shared_source_crop': geometry[0],
         'source_pixel_scale': SCALE, 'facings_left_to_right': list(FACINGS), 'per_frame_camera_fitting': False,
-        'pose_interpolation': False, 'half_speed_method': 'Display each actual source frame twice',
+        'pose_interpolation': False, 'source_fps': source_fps, 'half_speed_method': 'Hold each actual source frame twice as long; output cadence preserves both 24fps and 36fps inputs',
         'builder_sha256': _sha(__file__), 'font_sha256': _sha(FONT_PATH),
         'source_sha256': {path.name: _sha(path) for path in sorted(output.glob('*.png')) if path.stem in {f + '_' + a for f in FACINGS for a in ACTIONS}},
         'videos': records}

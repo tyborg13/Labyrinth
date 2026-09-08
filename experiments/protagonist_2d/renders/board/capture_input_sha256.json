@@ -1,7 +1,6 @@
 {
   "input_sha256": {
     "../../assets/placeholders/units/player_reaver.png": "162d297a1b469ac9c55dbb50109272246a04ec407caa4144c2485b6946ba9ba5",
-    "../../assets/placeholders/units/player_reaver_idle.png": "51eb82f5b24d2fba17eae4f29ee9645e4c4acb01402084d7c4c5d4a062025592",
     "assets/front/arm_l.png": "498d57b67a214fd35fe88cc82768279c3a9655afaea004ac7afb92eec512bf47",
     "assets/front/arm_l_skin.png": "e7e482ba54dc069f53acd43aeaae3d1160b5ad912ef68ec7a9cb828bc92a05bc",
     "assets/front/arm_r.png": "1689f1e057a9965ff5f5a42af8c41382c3358535a47c07780be81f38865292e4",
@@ -53,25 +52,15 @@
     "assets/rear/thigh_r.png": "341c944cfab9d780ab88b12a6d984a132f2577f46c75c3c18c8d109eef7d4322",
     "assets/rear/thigh_r_skin.png": "771d5097b1178781bf2492150c738d2d2dd90c10b938974bf5abb6ad66a7a5b0",
     "assets/rear/torso.png": "03ebc2b5cd60c1f7f74eb4d39688606e30978a51d6ab0abd76847b0ee92110e3",
-    "cutout_layout.json": "384b8de6d1d0510ab1b2ae88dbbaac4a438fae7efe0beaa46ab2e17111e33947",
-    "cutout_layout_rear.json": "a1df242377e302c26e759a9c16b9ca30413d2de99e2724ae76b61ab3579427ed",
-    "cutout_motion.gd": "e692dc0e9659cb366e2671abd7fb7bc1193bbf41913b1bad56dd2bf281787aa4",
+    "cutout_layout.json": "636d55e1c1f2612ab60ce74923c2ba9914e00cb094febd49d8a92a682eff5440",
+    "cutout_layout_rear.json": "02bd7404a7acfb7dd517d4b880a6e771667a6feee9ccb35872be53675527f157",
+    "cutout_motion.gd": "3b0835f1693903f1b0e079871fc1f8e8117fe7523287c70bbbe626bf006b9fe2",
     "cutout_rig.gd": "4fe8ca7050d63749c0c262c4ab35db9d1f214587440707708db5646831db4f0d",
     "inspection.tscn": "b6b973153fddcd2e9f5eacded704f82b291c2113e7bf6d9bff5feba4845e1cc5",
-    "inspection_board.gd": "d16bf3819ff073e38ade734c0e1db950a82dcbdaa145bb14b6646f3a6c0ce2d9",
-    "inspection_encode_videos.py": "9e69a48c09f498130c9e5513e6339c99eb7de2395665c60fd5f9ce610a2f1cd9",
-    "inspection_probe.gd": "08b2b0ccd45ed28f48e350c8b6016054ac2f14d016bfc75d3bd5deb31babc06e",
+    "inspection_probe.gd": "aa452e838c034c32c7550d3b6b6f017fd2fbcb5a11fe7d93845ed68c14402f1c",
     "inspection_proof_contract.json": "242174defd65e5445e4dc0e20572fa54ce5558fd01b95e62efd4bccdfc56021d",
     "inspection_view.gd": "28f4cf30465cabf8c914a73f7bcf70cf556aad41e50c7be28693e35392a5d155",
-    "motion_contract_probe.gd": "51919ed193e557f93fce76d341ef47a282219ea0582e1575d5565f406386acc5",
-    "references/rear.png": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
-    "render_frames_probe.gd": "8c0232247c116a7b7ebfcdf94fdbf68fea7ae8e8df4b6f4ea64113699cfdc48a",
-    "roundtrip_probe.gd": "80247a5cbf107f827dc9c8ed5771b25a84ca7b849d4c8096a426802154f1b7e8"
-  },
-  "board_dependency_tree": {
-    "included": "All files under scripts/ and assets/, project.godot and tools/*runner*.py",
-    "file_count": 972,
-    "manifest_sha256": "47aae52bab4c262902d357b7cf990f0f212fe9bac94f9a2f07f4081c3efecf83"
+    "references/rear.png": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3"
   },
   "board_dependency_file_sha256": {
     "assets/art/backgrounds/map_labyrinth_depths_v1.png": "d6fa088fb2ab5cfc85fa2d733aa3fc76b374f78571b0168da6b64060521d251f",
@@ -1046,5 +1035,10 @@
     "scripts/unit_shadow_cache_resource.gd": "4001bd6e92c711d3f663f2962988e742c1e4a9c8ce8b9829bb963d8768e4cfee",
     "tools/godot_task_runner.py": "f58edcd8eeefabba6df7896b8033917c98c6381d57401c29798d8ad14f3a41a5",
     "tools/visual_probe_runner.py": "b28fb10b6a0fda80c1b5f4e3e3e9ab05a06e8fc838204921d6b7872830578402"
+  },
+  "board_dependency_tree": {
+    "included": "All files under scripts/ and assets/, project.godot and tools/*runner*.py",
+    "file_count": 972,
+    "manifest_sha256": "47aae52bab4c262902d357b7cf990f0f212fe9bac94f9a2f07f4081c3efecf83"
   }
 }

@@ -1,11 +1,11 @@
 {
-  "pass": 3,
+  "pass": 4,
   "method": "Regenerate the canonical front/rear cutout and weighted-joint outputs in an isolated copy of authoring inputs and compare SHA256 with current outputs. Separate semantic-audit visualization files are verified by segmentation_audit.py.",
   "input_scripts": {
     "prepare_rear.py": "bad560987b02eb21f623270721687a0676289e56031c9e492c128c78c88d19a5",
-    "cutout_assets.py": "47a54612f5a6e9729ae236428e6c11ce4870bd861b511df939234b70f46cfa6e",
+    "cutout_assets.py": "f290ae1306b92690862c6b371f8c7817721246e05137a836c34704061017424b",
     "rear_assets.py": "a2a472fc2e30ed6fd88a6579611cc68bf7c0fa814d90a93138d4f7f08042f3c2",
-    "mesh_assets.py": "e33c0dbafddcb49d13613c61949d78b6a7f6d058e5519038ae72edffa763d95c"
+    "mesh_assets.py": "7a678aa1e13d4dd191ed820f9e11e29809792d06b9eb56306f100f9cd7890d94"
   },
   "checked_files": 67,
   "changed_files": [],
@@ -390,14 +390,14 @@
     },
     {
       "path": "cutout_layout.json",
-      "sha256": "384b8de6d1d0510ab1b2ae88dbbaac4a438fae7efe0beaa46ab2e17111e33947",
-      "reproduced_sha256": "384b8de6d1d0510ab1b2ae88dbbaac4a438fae7efe0beaa46ab2e17111e33947",
+      "sha256": "636d55e1c1f2612ab60ce74923c2ba9914e00cb094febd49d8a92a682eff5440",
+      "reproduced_sha256": "636d55e1c1f2612ab60ce74923c2ba9914e00cb094febd49d8a92a682eff5440",
       "equal": true
     },
     {
       "path": "cutout_layout_rear.json",
-      "sha256": "a1df242377e302c26e759a9c16b9ca30413d2de99e2724ae76b61ab3579427ed",
-      "reproduced_sha256": "a1df242377e302c26e759a9c16b9ca30413d2de99e2724ae76b61ab3579427ed",
+      "sha256": "02bd7404a7acfb7dd517d4b880a6e771667a6feee9ccb35872be53675527f157",
+      "reproduced_sha256": "02bd7404a7acfb7dd517d4b880a6e771667a6feee9ccb35872be53675527f157",
       "equal": true
     },
     {

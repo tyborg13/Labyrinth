@@ -3,7 +3,7 @@
   "facings": {
     "front": {
       "source_sha256": "162d297a1b469ac9c55dbb50109272246a04ec407caa4144c2485b6946ba9ba5",
-      "layout_sha256": "384b8de6d1d0510ab1b2ae88dbbaac4a438fae7efe0beaa46ab2e17111e33947",
+      "layout_sha256": "636d55e1c1f2612ab60ce74923c2ba9914e00cb094febd49d8a92a682eff5440",
       "source_visible_pixels": 17246,
       "exclusive_owned_pixels": 17246,
       "base_part_components": {
@@ -974,7 +974,7 @@
     },
     "rear": {
       "source_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
-      "layout_sha256": "a1df242377e302c26e759a9c16b9ca30413d2de99e2724ae76b61ab3579427ed",
+      "layout_sha256": "02bd7404a7acfb7dd517d4b880a6e771667a6feee9ccb35872be53675527f157",
       "source_visible_pixels": 18722,
       "exclusive_owned_pixels": 18722,
       "base_part_components": {

@@ -16,9 +16,9 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
     draw.text(at,text,font=font,fill=color)
 
 
-def iteration_comparison(output, clips):
+def iteration_comparison(output, clips, source_fps):
     """Compare retained renderer frames at their original timing and scale."""
-    baseline = output / 'pass2'
+    baseline = output / 'pass3'
     metadata_path = baseline / 'animations.json'
     if not metadata_path.exists() or set(f for f, a in clips if a == 'walk') != {'front', 'rear'}:
         return
@@ -30,21 +30,28 @@ def iteration_comparison(output, clips):
         prior[facing] = [sheet.crop(((i % spec['cols']) * 512, (i // spec['cols']) * 512,
                                     (i % spec['cols'] + 1) * 512, (i // spec['cols'] + 1) * 512))
                          for i in range(spec['frames'])]
-    # Both authored cycles are at 24fps. LCM makes both loop without a jump.
-    count = math.lcm(*(len(prior[f]) for f in prior), *(len(clips[(f, 'walk')]) for f in prior))
+    # A 72fps output preserves both the 24fps baseline and new 36fps walk.
+    # Two seconds contains two old cycles and three new cycles.
+    output_fps = 72
+    prior_fps = int(metadata['animations']['walk']['front']['fps'])
+    current_fps = int(source_fps['walk'])
+    periods = [len(prior[f]) * output_fps // prior_fps for f in prior]
+    periods += [len(clips[(f, 'walk')]) * output_fps // current_fps for f in prior]
+    count = math.lcm(*periods)
     folder = output / 'video_frames' / 'comparison'
     folder.mkdir(parents=True, exist_ok=True)
     for frame in range(count):
         canvas = Image.new('RGB', (1000, 880), '#1b1d20')
         draw = ImageDraw.Draw(canvas)
-        label(draw, (30, 24), 'WALK / SECOND AND THIRD PASS', 25)
+        label(draw, (30, 24), 'WALK / THIRD AND FOURTH PASS', 25)
         label(draw, (220, 70), 'Front', 21)
         label(draw, (720, 70), 'Rear', 21)
-        for row, version in enumerate(('Second pass', 'Third pass')):
+        for row, version in enumerate(('Third pass / 24fps', 'Fourth pass / 36fps')):
             label(draw, (30, 102 + row * 420), version, 20, '#c99b62')
             for column, facing in enumerate(('front', 'rear')):
                 frames = prior[facing] if row == 0 else clips[(facing, 'walk')]
-                im = frames[frame % len(frames)].resize((640, 640), Image.Resampling.NEAREST)
+                rate = prior_fps if row == 0 else current_fps
+                im = frames[(frame * rate // output_fps) % len(frames)].resize((640, 640), Image.Resampling.NEAREST)
                 canvas.paste(im, (250 + column * 500 - 319, 405 + row * 420 - 439), im)
         draw.line((30, 455, 970, 455), fill='#4b4942', width=1)
         canvas.save(folder / f'{frame:04d}.png')
@@ -52,14 +59,14 @@ def iteration_comparison(output, clips):
             canvas.save(output / 'walk_iteration_comparison.png')
     ffmpeg = shutil.which('ffmpeg')
     if ffmpeg:
-        subprocess.run([ffmpeg, '-y', '-loglevel', 'error', '-framerate', '24', '-i',
+        subprocess.run([ffmpeg, '-y', '-loglevel', 'error', '-framerate', str(output_fps), '-i',
                         str(folder / '%04d.png'), '-frames:v', str(count), '-c:v', 'libx264',
                         '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
                         str(output / 'walk_iteration_comparison.mp4')], check=True)
     (output / 'walk_iteration_comparison.json').write_text(json.dumps({
-        'baseline_commit': '6bcc01b2d8b0e05729fe1d217a1006c902ba24e5',
-        'baseline_source': 'pass2/front_walk.png and pass2/rear_walk.png',
-        'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': 24,
+        'baseline_commit': '1ce20af71335f2f4ac64cfead08fedef34111ee2',
+        'baseline_source': 'pass3/front_walk.png and pass3/rear_walk.png',
+        'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': output_fps, 'source_fps': [prior_fps, current_fps],
         'scale': 1.25, 'resampler': 'nearest', 'interpolated_frames': False,
     }, indent=2) + '\n')
 
@@ -99,7 +106,8 @@ def main():
         for meta in actions.values():meta.pop('folder',None)
     (output/'render_validation.json').write_text(json.dumps(source,indent=2)+'\n')
     facings=list(source['facings'])
-    walk_frames,n=write_previews(clips,output,pass_number=3)
+    source_fps={action:int(meta["fps"]) for action,meta in source["facings"]["front"].items()}
+    walk_frames,n=write_previews(clips,output,pass_number=4,source_fps=source_fps)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
         gif_size=(960,round(walk_frames[0].height*960/walk_frames[0].width))
@@ -111,7 +119,7 @@ def main():
             sample.paste(im.resize((300,190),Image.Resampling.NEAREST),((index%4)*300,(index//4)*190))
         palette=sample.quantize(colors=256,method=Image.Quantize.MEDIANCUT)
         small=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in small]
-        times=[round(i*100/24)*10 for i in range(len(small)+1)]
+        times=[round(i*100/source_fps["walk"])*10 for i in range(len(small)+1)]
         delays=[b-a for a,b in zip(times,times[1:])]
         small[0].save(output/'walking_front_rear.gif',save_all=True,append_images=small[1:],duration=delays,loop=0,disposal=2,optimize=False)
     # One shared walk crop retains every painted pixel in both facings.
@@ -128,7 +136,7 @@ def main():
             contact.paste(im,(col*cell[0]+12,row*cell[1]+48),im)
             label(d,(col*cell[0]+12,row*cell[1]+16),f'{facing.title()} / frame {frame+1}',18)
     contact.save(output/'walking_poses.png')
-    iteration_comparison(output, clips)
+    iteration_comparison(output, clips, source_fps)
     print(json.dumps({'frames':count,'facings':facings,'sheets':len(clips),'video_frames':n,'rest':source['rest_reconstruction']},indent=2))
 
 if __name__=='__main__':main()

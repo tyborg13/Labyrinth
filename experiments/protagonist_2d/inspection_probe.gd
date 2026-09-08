@@ -30,7 +30,7 @@ func _run() -> void:
 	assert(front_only or view.has_facing("rear"), "Full proof requires the actual rear rig")
 	view.set_playing(false)
 	view.set_travel_enabled(false)
-	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v3" if front_only else "user://protagonist_2d_board_full_v3")
+	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v4" if front_only else "user://protagonist_2d_board_full_v4")
 	DirAccess.make_dir_recursive_absolute(output)
 	var facings := PackedStringArray(["front"]) if front_only else View.FACINGS
 	var board: Control = view.board
@@ -66,12 +66,13 @@ func _run() -> void:
 			view.select_clip(action, which)
 			var count: int = view.frame_count()
 			assert(count > 1 and view.fps() > 0.0, "Action requires actual animation timing")
-			var record_clip: bool = capture_motion and which == "front" and action != "walk"
+			var record_clip: bool = capture_motion and action != "walk"
 			var frames_path: String = ""
+			var actor_bounds: Array[Array]
 			if record_clip:
 				frames_path = output.path_join("motion").path_join(which + "_" + action)
 				DirAccess.make_dir_recursive_absolute(frames_path)
-				video_clips.append({"name": which + "_" + action, "fps": view.fps(), "frame_count": count, "frames_path": frames_path, "frame_extension": "webp", "lossless": true, "size": [1920, 1080]})
+				video_clips.append({"name": which + "_" + action, "fps": view.fps(), "frame_count": count, "frames_path": frames_path, "frame_extension": "webp", "lossless": true, "size": [1920, 1080], "actor_bounds": actor_bounds})
 			for index: int in range(count):
 				view.seek_timeline_frame(index)
 				assert(view._frame_label.text.begins_with(action.capitalize()), "Frame label names the active action")
@@ -85,9 +86,13 @@ func _run() -> void:
 					assert(int(view.puppet.call("get_frame_index")) == index, "Rig seeks the requested discrete frame")
 				if record_clip:
 					await _save_image(frames_path.path_join("frame_%04d.webp" % index), 1)
+					actor_bounds.append(_actor_bounds(board, player))
 				checked_frames += 1
 			view.seek_timeline_frame(int(count * (0.43 if action == "attack" else 0.33)))
 			await _capture(which + "_" + action)
+			if action == "attack":
+				view.seek_timeline_frame(roundi(float(count - 1) * 0.29))
+				await _capture(which + "_attack_preparation")
 		# The full 512px detail shows eight evenly spaced phases, including both
 		# contacts and swing extremes; no source-frame crop can hide a broken seam.
 		view.select_clip("walk", which)
@@ -99,9 +104,10 @@ func _run() -> void:
 		view.set_travel_enabled(true)
 		var travel_count: int = view.timeline_frame_count()
 		var travel_frames: String = output.path_join("motion").path_join(which + "_walk")
+		var travel_bounds: Array[Array]
 		if capture_motion:
 			DirAccess.make_dir_recursive_absolute(travel_frames)
-			video_clips.append({"name": which + "_walk", "fps": view.fps(), "frame_count": travel_count, "gait_cycles": View.TRAVEL_CYCLES, "board_travel": true, "frames_path": travel_frames, "frame_extension": "webp", "lossless": true, "size": [1920, 1080]})
+			video_clips.append({"name": which + "_walk", "fps": view.fps(), "frame_count": travel_count, "gait_cycles": View.TRAVEL_CYCLES, "board_travel": true, "frames_path": travel_frames, "frame_extension": "webp", "lossless": true, "size": [1920, 1080], "actor_bounds": travel_bounds})
 		var last_center: Vector2 = board.call("_unit_center", player)
 		var source_scale: Vector2 = source_rect.size / View.SOURCE_SIZE
 		var info: Dictionary = View.Motion.walk_cycle_info(view.puppet.layout, which)
@@ -127,6 +133,7 @@ func _run() -> void:
 			assert(retained_health_found, "Travel proof inspects the actual retained player HUD")
 			if capture_motion:
 				await _save_image(travel_frames.path_join("frame_%04d.webp" % index), 1)
+				travel_bounds.append(_actor_bounds(board, player))
 			if index in [0, travel_count / 2, travel_count - 1]:
 				await _capture("travel_%s_%03d" % [which, index])
 			checked_frames += 1
@@ -180,7 +187,7 @@ func _run() -> void:
 		view.set_bones_visible(false)
 	view.set_detail_zoom(false)
 	await _capture("detail_full_pose")
-	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "pass": 3, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
+	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "pass": 4, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
 	var file := FileAccess.open(output.path_join("validation.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(evidence, "\t"))
 	file.close()
@@ -219,3 +226,15 @@ func _save_image(path: String, settle_frames: int) -> void:
 		assert(screenshot.save_webp(path, false) == OK)
 	else:
 		assert(screenshot.save_png(path) == OK)
+
+
+func _actor_bounds(board: Control, player: Dictionary) -> Array:
+	# Derive the actor rectangle from the rendered alpha canvas and the exact
+	# production board draw rectangle. The reel uses one union for all clips,
+	# retaining complete overhead weapons, feet, and the entire travel path.
+	var occupied: Rect2i = view.puppet_viewport.get_texture().get_image().get_used_rect()
+	var canvas_rect: Rect2 = board.call("_unit_draw_rect", player)
+	var scale: Vector2 = canvas_rect.size / Vector2(View.CANVAS_SIZE)
+	var bounds := Rect2(board.global_position + canvas_rect.position + Vector2(occupied.position) * scale,
+		Vector2(occupied.size) * scale)
+	return [bounds.position.x, bounds.position.y, bounds.end.x, bounds.end.y]

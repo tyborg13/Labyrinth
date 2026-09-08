@@ -106,7 +106,7 @@ def main() -> None:
             frame_hashes.append(hashlib.sha256(frame.read_bytes()).hexdigest())
         destination = output / f"{name}.mp4"
         repeats = 1 if clip.get("board_travel") else args.cycles
-        command = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-framerate", str(fps), "-i", str(frames / f"frame_%04d.{extension}"), "-vf", f"loop=loop={repeats-1}:size={count}:start=0,setpts=N/({fps}*TB),fps=24,format=yuv420p", "-an", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-movflags", "+faststart", str(destination)]
+        command = [ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-framerate", str(fps), "-i", str(frames / f"frame_%04d.{extension}"), "-vf", f"loop=loop={repeats-1}:size={count}:start=0,setpts=N/({fps}*TB),fps=72,format=yuv420p", "-an", "-c:v", "libx264", "-preset", "medium", "-crf", "18", "-movflags", "+faststart", str(destination)]
         subprocess.run(command, check=True)
         videos.append(destination)
         captured.append({"name": name, "captured_frames": count, "captured_fps": fps, "board_travel": bool(clip.get("board_travel")), "gait_cycles": clip.get("gait_cycles"), "repeats": repeats, "lossless_frame_sha256": frame_hashes})
@@ -114,7 +114,7 @@ def main() -> None:
     playlist.write_text("".join("file '" + str(path).replace("'", "'\\''") + "'\n" for path in videos))
     showcase = output / "protagonist_2d_showcase.mp4"
     subprocess.run([ffmpeg, "-hide_banner", "-loglevel", "error", "-y", "-f", "concat", "-safe", "0", "-i", str(playlist), "-c", "copy", "-movflags", "+faststart", str(showcase)], check=True)
-    report = {"proof_kind": "actual Godot board capture", "cycles_per_stationary_action": args.cycles, "captured_clips": captured, "videos": [str(path) for path in videos], "showcase": str(showcase)}
+    report = {"proof_kind": "actual Godot board capture", "cycles_per_stationary_action": args.cycles, "full_frame_output_fps": 72, "captured_clips": captured, "videos": [str(path) for path in videos], "showcase": str(showcase)}
     walking_clips = [path for path in videos if path.stem in {"front_walk", "rear_walk"}]
     if len(walking_clips) == 2:
         walking_playlist = output / "walking.txt"
@@ -125,13 +125,28 @@ def main() -> None:
     paired = encode_paired_travel(ffmpeg, clips, output, tuple(args.travel_crop))
     if paired:
         report["paired_travel"] = paired
+    expected = {
+        output / (clip["name"] + ".mp4"): ((1920, 1080), 72,
+            round(clip["captured_frames"] * clip["repeats"] * 72 / clip["captured_fps"]))
+        for clip in captured
+    }
+    expected[showcase] = ((1920, 1080), 72, sum(value[2] for value in expected.values()))
+    if len(walking_clips) == 2:
+        expected[walking_video] = ((1920, 1080), 72, sum(expected[path][2] for path in walking_clips))
+    if paired:
+        walk = next(clip for clip in captured if clip["name"] == "front_walk")
+        expected[Path(paired["video"])] = (tuple(paired["size"]), int(walk["captured_fps"]), walk["captured_frames"])
     verified = []
-    for path in sorted(output.glob("*.mp4")):
+    # Verify only outputs from this run; a separately composed board reel may
+    # already coexist here when the documented encoders are rerun.
+    for path in sorted(expected):
         metadata = json.loads(subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height,avg_frame_rate,duration,nb_frames", "-of", "json", str(path)], text=True))["streams"][0]
-        expected_size = tuple(paired["size"]) if path.name == "walking_front_rear_paired.mp4" else (1920, 1080)
-        if (metadata["width"], metadata["height"]) != expected_size:
-            raise ValueError(f"Unexpected encoded size: {path}")
-        subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-i", str(path), "-f", "null", "-"], check=True)
+        expected_size, expected_fps, expected_frames = expected[path]
+        if ((metadata["width"], metadata["height"]) != expected_size
+                or metadata["avg_frame_rate"] != f"{expected_fps}/1"
+                or int(metadata["nb_frames"]) != expected_frames):
+            raise ValueError(f"Unexpected encoded dimensions or timing: {path}")
+        subprocess.run([ffmpeg, "-hide_banner", "-v", "error", "-xerror", "-i", str(path), "-f", "null", "-"], check=True)
         verified.append({"path": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "complete_decode": True, **metadata})
     report["verified_videos"] = verified
     (output / "video_manifest.json").write_text(json.dumps(report, indent=2) + "\n")

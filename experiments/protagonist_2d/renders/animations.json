@@ -91,7 +91,7 @@
         "frames": 24,
         "cols": 6,
         "rows": 4,
-        "fps": 24.0,
+        "fps": 36.0,
         "loop": true
       },
       "rear": {
@@ -99,7 +99,7 @@
         "frames": 24,
         "cols": 6,
         "rows": 4,
-        "fps": 24.0,
+        "fps": 36.0,
         "loop": true
       }
     }

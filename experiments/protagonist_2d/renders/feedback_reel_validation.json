@@ -1,15 +1,15 @@
 {
-  "pass": 3,
-  "fps": 24,
+  "pass": 4,
+  "fps": 72,
   "size": [
-    1484,
-    788
+    1552,
+    854
   ],
   "shared_source_crop": [
-    97,
-    125,
-    438,
-    389
+    87,
+    84,
+    445,
+    381
   ],
   "source_pixel_scale": 2,
   "facings_left_to_right": [
@@ -18,27 +18,34 @@
   ],
   "per_frame_camera_fitting": false,
   "pose_interpolation": false,
-  "half_speed_method": "Display each actual source frame twice",
-  "builder_sha256": "84dac70df635b47c79bc637543c07330217d31df54c03a4d72d369cc9d6257a9",
+  "source_fps": {
+    "attack": 24,
+    "block": 24,
+    "hit": 24,
+    "idle": 24,
+    "walk": 36
+  },
+  "half_speed_method": "Hold each actual source frame twice as long; output cadence preserves both 24fps and 36fps inputs",
+  "builder_sha256": "9456f407c7bcf0b81ec6376c866c8c68cc6272baff6dd2965c0d68f13c5d8ca5",
   "font_sha256": "83f0f49b4178e1c5bdaf40a7174f510b9bc52c9563095d23cf3c46486a8a8035",
   "source_sha256": {
-    "front_attack.png": "fc28847c8a59f1dbe04be2244101f21ea979a2cb10f4793a8191157a37f549dd",
-    "front_block.png": "23ea09a1fe07dcd92a9c3f0f7304036fed358b8cb1fb0086789d9a27bb26b09c",
-    "front_hit.png": "2f4efbec23e3d01ed2153bf4edf1f286b13aa4d5566e0ba7b24c9df2037ecf7c",
-    "front_idle.png": "24dab11f1670bf028be2fb171ed8761be9636da09303bbf3f8106b837a0626c2",
-    "front_walk.png": "b0685f39d0a2a1505e590cfa0c9ce8f7858cfd133e79ed360f3d1f28de23a563",
-    "rear_attack.png": "258fd9d10625e59fe61e6605874f0c94d222a2c7645036730e0ee60c6970b651",
-    "rear_block.png": "ff744b5358948b83ef1bdbd5c89a0a0d024b0ebf0647023d1fdf4f4239e77033",
-    "rear_hit.png": "3a872a5f8907ccf3490da3359a178803406dbd81017cde4ef0bcbd5b0250a592",
-    "rear_idle.png": "ad9efbdf1a3f0a18d44076f77246a859bf9f0b0196f92818fa97e18c786c28a8",
-    "rear_walk.png": "cfa32a74864eaf21148d4f712d07539825a258b1368fa001091683c5834da765"
+    "front_attack.png": "19928288aab9be2b878c8206d1a019ac99fdfc0eed4db05ca97f9e7f70c13242",
+    "front_block.png": "7c0df8ee73f729c0e314999af5a8702b29f9cdc122e963ebb7193da7bdf9d78e",
+    "front_hit.png": "e0267533b6353063abd70c92cdda69cb82fd8e3f57f7e62c5d42d8895d7ad7fb",
+    "front_idle.png": "0b526b70207a16858ef39f8406ff0d326486001bc93a24400931ac15b22d180f",
+    "front_walk.png": "0e2b923f1aa817a95912dcb9a25c0819a2b07c6c9c0b72612e02618f50a0a6c3",
+    "rear_attack.png": "f0801e4efd25ef41be47648767a856aea61732c9eaa6b83f7026554675302ab9",
+    "rear_block.png": "8a19552a15f91242f87fb90946b07cf7dd4846bbdbd6ccf6e7e20999ecfc430b",
+    "rear_hit.png": "080db2d57596686a1c7796a8284f6e6cd644d9869085cbf3691c7d2af81b7b15",
+    "rear_idle.png": "08752d5aab13a62c98f205795cfa514bdc526f20285987d6abacd35280d0135e",
+    "rear_walk.png": "3cd1d053b17bca83fb2c278a4f28c086aea1c989eb623e63f532c1927ba146e5"
   },
   "videos": [
     {
       "file": "animation_showcase.mp4",
-      "sha256": "44ca12653ed3eb77c3510a6493aa7023b6144590af624a7a9b321db49f692140",
-      "frames": 136,
-      "duration_seconds": 5.666666666666667,
+      "sha256": "c8e33ea3eca997de75ac5c0d564934e2bf860e5fbc54153d2ce8ed91c2a5dc06",
+      "frames": 384,
+      "duration_seconds": 5.333333333333333,
       "segments": [
         {
           "action": "idle",
@@ -46,7 +53,7 @@
           "repetitions": 1,
           "source_frames_per_facing": 20,
           "start_frame": 0,
-          "frame_count": 20,
+          "frame_count": 60,
           "start_seconds": 0.0,
           "end_seconds": 0.8333333333333334
         },
@@ -55,57 +62,57 @@
           "speed": 1,
           "repetitions": 1,
           "source_frames_per_facing": 24,
-          "start_frame": 20,
-          "frame_count": 24,
+          "start_frame": 60,
+          "frame_count": 48,
           "start_seconds": 0.8333333333333334,
-          "end_seconds": 1.8333333333333333
+          "end_seconds": 1.5
         },
         {
           "action": "attack",
           "speed": 1,
           "repetitions": 1,
           "source_frames_per_facing": 32,
-          "start_frame": 44,
-          "frame_count": 32,
-          "start_seconds": 1.8333333333333333,
-          "end_seconds": 3.1666666666666665
+          "start_frame": 108,
+          "frame_count": 96,
+          "start_seconds": 1.5,
+          "end_seconds": 2.8333333333333335
         },
         {
           "action": "block",
           "speed": 1,
           "repetitions": 1,
           "source_frames_per_facing": 36,
-          "start_frame": 76,
-          "frame_count": 36,
-          "start_seconds": 3.1666666666666665,
-          "end_seconds": 4.666666666666667
+          "start_frame": 204,
+          "frame_count": 108,
+          "start_seconds": 2.8333333333333335,
+          "end_seconds": 4.333333333333333
         },
         {
           "action": "hit",
           "speed": 1,
           "repetitions": 1,
           "source_frames_per_facing": 24,
-          "start_frame": 112,
-          "frame_count": 24,
-          "start_seconds": 4.666666666666667,
-          "end_seconds": 5.666666666666667
+          "start_frame": 312,
+          "frame_count": 72,
+          "start_seconds": 4.333333333333333,
+          "end_seconds": 5.333333333333333
         }
       ],
       "complete_decode": true,
       "metadata": {
-        "width": 1484,
-        "height": 788,
-        "avg_frame_rate": "24/1",
-        "duration": "5.666667",
-        "nb_frames": "136"
+        "width": 1552,
+        "height": 854,
+        "avg_frame_rate": "72/1",
+        "duration": "5.333333",
+        "nb_frames": "384"
       },
       "proof_frames": []
     },
     {
       "file": "all_animations_feedback.mp4",
-      "sha256": "fdda0a32855722b88042e74f1e6cd8f4ac70ffcd971d1271b07350fc52ca28d7",
-      "frames": 544,
-      "duration_seconds": 22.666666666666668,
+      "sha256": "e85c4069648c2ad1c2ff37bbd800cd820ee7044c2f0ca8205a559ff6de321232",
+      "frames": 1536,
+      "duration_seconds": 21.333333333333332,
       "segments": [
         {
           "action": "idle",
@@ -113,7 +120,7 @@
           "repetitions": 2,
           "source_frames_per_facing": 20,
           "start_frame": 0,
-          "frame_count": 40,
+          "frame_count": 120,
           "start_seconds": 0.0,
           "end_seconds": 1.6666666666666667
         },
@@ -122,8 +129,8 @@
           "speed": 0.5,
           "repetitions": 1,
           "source_frames_per_facing": 20,
-          "start_frame": 40,
-          "frame_count": 40,
+          "start_frame": 120,
+          "frame_count": 120,
           "start_seconds": 1.6666666666666667,
           "end_seconds": 3.3333333333333335
         },
@@ -132,89 +139,89 @@
           "speed": 1,
           "repetitions": 2,
           "source_frames_per_facing": 24,
-          "start_frame": 80,
-          "frame_count": 48,
+          "start_frame": 240,
+          "frame_count": 96,
           "start_seconds": 3.3333333333333335,
-          "end_seconds": 5.333333333333333
+          "end_seconds": 4.666666666666667
         },
         {
           "action": "walk",
           "speed": 0.5,
           "repetitions": 1,
           "source_frames_per_facing": 24,
-          "start_frame": 128,
-          "frame_count": 48,
-          "start_seconds": 5.333333333333333,
-          "end_seconds": 7.333333333333333
+          "start_frame": 336,
+          "frame_count": 96,
+          "start_seconds": 4.666666666666667,
+          "end_seconds": 6.0
         },
         {
           "action": "attack",
           "speed": 1,
           "repetitions": 2,
           "source_frames_per_facing": 32,
-          "start_frame": 176,
-          "frame_count": 64,
-          "start_seconds": 7.333333333333333,
-          "end_seconds": 10.0
+          "start_frame": 432,
+          "frame_count": 192,
+          "start_seconds": 6.0,
+          "end_seconds": 8.666666666666666
         },
         {
           "action": "attack",
           "speed": 0.5,
           "repetitions": 1,
           "source_frames_per_facing": 32,
-          "start_frame": 240,
-          "frame_count": 64,
-          "start_seconds": 10.0,
-          "end_seconds": 12.666666666666666
+          "start_frame": 624,
+          "frame_count": 192,
+          "start_seconds": 8.666666666666666,
+          "end_seconds": 11.333333333333334
         },
         {
           "action": "block",
           "speed": 1,
           "repetitions": 2,
           "source_frames_per_facing": 36,
-          "start_frame": 304,
-          "frame_count": 72,
-          "start_seconds": 12.666666666666666,
-          "end_seconds": 15.666666666666666
+          "start_frame": 816,
+          "frame_count": 216,
+          "start_seconds": 11.333333333333334,
+          "end_seconds": 14.333333333333334
         },
         {
           "action": "block",
           "speed": 0.5,
           "repetitions": 1,
           "source_frames_per_facing": 36,
-          "start_frame": 376,
-          "frame_count": 72,
-          "start_seconds": 15.666666666666666,
-          "end_seconds": 18.666666666666668
+          "start_frame": 1032,
+          "frame_count": 216,
+          "start_seconds": 14.333333333333334,
+          "end_seconds": 17.333333333333332
         },
         {
           "action": "hit",
           "speed": 1,
           "repetitions": 2,
           "source_frames_per_facing": 24,
-          "start_frame": 448,
-          "frame_count": 48,
-          "start_seconds": 18.666666666666668,
-          "end_seconds": 20.666666666666668
+          "start_frame": 1248,
+          "frame_count": 144,
+          "start_seconds": 17.333333333333332,
+          "end_seconds": 19.333333333333332
         },
         {
           "action": "hit",
           "speed": 0.5,
           "repetitions": 1,
           "source_frames_per_facing": 24,
-          "start_frame": 496,
-          "frame_count": 48,
-          "start_seconds": 20.666666666666668,
-          "end_seconds": 22.666666666666668
+          "start_frame": 1392,
+          "frame_count": 144,
+          "start_seconds": 19.333333333333332,
+          "end_seconds": 21.333333333333332
         }
       ],
       "complete_decode": true,
       "metadata": {
-        "width": 1484,
-        "height": 788,
-        "avg_frame_rate": "24/1",
-        "duration": "22.666667",
-        "nb_frames": "544"
+        "width": 1552,
+        "height": 854,
+        "avg_frame_rate": "72/1",
+        "duration": "21.333333",
+        "nb_frames": "1536"
       },
       "proof_frames": [
         "idle_normal_000.png",

@@ -26,6 +26,21 @@ FAMILIES = (
 )
 
 
+def front_cape_weights(point):
+    """Shared painted-source field for the cape and its emerging sleeve edge."""
+    x, y = point
+    distance = .47297 * (x - 151) + .88108 * (y - 78)
+    if distance <= 20:
+        return (1.0, 0.0, 0.0)
+    if distance <= 61:
+        t = (distance - 20) / 41
+        return (1 - t, t, 0.0)
+    if distance <= 99:
+        t = (distance - 61) / 38
+        return (0.0, 1 - t, t)
+    return (0.0, 0.0, 1.0)
+
+
 def _unit(start, end):
     dx, dy = end[0] - start[0], end[1] - start[1]
     length = math.hypot(dx, dy)
@@ -127,13 +142,24 @@ def build_joint_meshes(source, masks, joints, parts, output_dir, file_prefix,
         # folds the opposite elbow edge when the sword is raised. Local pin
         # neighborhoods preserve the same exact weld while leaving that cloth
         # room to turn. The concealed front left shoulder has no source collar.
-        local_pins = family.startswith('arm_') and collar_pixels > 0
+        local_pins = collar_pixels > 0
+        concealed_collar = family == 'arm_l' and collar_pixels == 0
+        is_arm = family.startswith('arm_')
         collar_vertices = _overlap_grid_vertices(masks[parent_part], masks[upper_part], grid_step)
         cuff_vertices = _overlap_grid_vertices(masks[lower_part], masks[terminal_part], grid_step)
-        short_sleeve = min(math.dist(upper, lower), math.dist(lower, terminal)) < 20.0
-        pin_falloff = 8.0 if short_sleeve else 16.0
+        short_sleeve = is_arm and min(math.dist(upper, lower), math.dist(lower, terminal)) < 20.0
+        # Broad local falloffs preserve the end welds without folding the
+        # sleeve during an overhead lift or pinching a boot-adjacent shin.
+        if family == 'arm_r':
+            pin_falloff = 16.0 if short_sleeve else 32.0
+            sleeve_bend_half_width = 32.0 if short_sleeve else 28.0
+        elif is_arm:
+            pin_falloff = 8.0 if short_sleeve else 16.0
+            sleeve_bend_half_width = 16.0
+        else:
+            pin_falloff = 12.0
+            sleeve_bend_half_width = 12.0
         sleeve_collar_width = 8.0 if short_sleeve else 12.0
-        sleeve_bend_half_width = 16.0
         family_mask = ImageChops.lighter(masks[upper_part], masks[lower_part])
         bbox = family_mask.getbbox()
         if bbox is None:
@@ -143,6 +169,16 @@ def build_joint_meshes(source, masks, joints, parts, output_dir, file_prefix,
         xs, ys = list(range(x0, x1 + 1, grid_step)), list(range(y0, y1 + 1, grid_step))
         vertices, uvs = [], []
         weights = {bone: [] for bone in bone_names}
+        if concealed_collar:
+            # The front upper sleeve first appears well below its concealed
+            # shoulder pivot. Weld that emerging strip to the adjacent cloak's
+            # weight field, then release it into the arm toward the elbow.
+            # Ownership stays on the arm; no sleeve pixels are left on the cape.
+            weights.update({bone: [] for bone in ('cape_root', 'cape_mid', 'cape_tip')})
+            visible = [(x, y) for y in range(source.height) for x in range(source.width)
+                       if masks[upper_part].getpixel((x, y))]
+            collar_start = min(_projection(point, upper, upper_axis) for point in visible)
+
         for y in ys:
             for x in xs:
                 vertices.append([x, y])
@@ -178,6 +214,13 @@ def build_joint_meshes(source, masks, joints, parts, output_dir, file_prefix,
                         values = [1.0, 0.0, 0.0, 0.0]
                     if (x, y) in cuff_vertices:
                         values = [0.0, 0.0, 0.0, 1.0]
+                if concealed_collar:
+                    attachment = 1.0 - _ease(_projection((x, y), upper, upper_axis),
+                                             collar_start + 4.0, collar_start + 16.0)
+                    cape_values = front_cape_weights((x, y))
+                    values = [value * (1 - attachment) for value in values]
+                    for bone, value in zip(('cape_root', 'cape_mid', 'cape_tip'), cape_values):
+                        weights[bone].append(value * attachment)
                 for bone, value in zip(bone_names, values):
                     weights[bone].append(value)
         triangles = []
@@ -204,7 +247,8 @@ def build_joint_meshes(source, masks, joints, parts, output_dir, file_prefix,
                     'blend_width': blend_width, 'bend_half_width': bend_half_width,
                     'collar_shared_pixels': collar_pixels, 'cuff_shared_pixels': cuff_pixels,
                     'grid_step': grid_step,
-                    'endpoint_mode': 'local_shared_cells' if local_pins else 'cross_section',
+                    'endpoint_mode': 'concealed_cape_collar' if concealed_collar else ('local_shared_cells' if local_pins else 'cross_section'),
+                    'concealed_collar': concealed_collar,
                     'pin_falloff': pin_falloff if local_pins else 0.0,
                     'sleeve_bend_half_width': sleeve_bend_half_width if local_pins else 0.0,
                 },

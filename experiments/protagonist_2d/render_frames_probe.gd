@@ -26,7 +26,7 @@ func _run() -> void:
 	assert(rig.load_rig(), str(rig.load_errors))
 	var requested: String = OS.get_environment("LABYRINTH_2D_CAPTURE_FACINGS")
 	var facings: PackedStringArray = PackedStringArray(["front", "rear"]) if requested.is_empty() else requested.split(",", false)
-	var manifest: Dictionary = {"canvas": [512, 512], "source_offset": [128, 128], "source_size": [255, 255], "fps": 24, "facings": {}, "rest_reconstruction": {}, "input_sha256": _input_hashes()}
+	var manifest: Dictionary = {"canvas": [512, 512], "source_offset": [128, 128], "source_size": [255, 255], "per_clip_timing": true, "facings": {}, "rest_reconstruction": {}, "input_sha256": _input_hashes()}
 	for facing: String in facings:
 		assert(rig.has_facing(facing), "Required actual facing missing: " + facing)
 		rig.set_facing(facing)

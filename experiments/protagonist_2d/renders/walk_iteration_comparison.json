@@ -1,9 +1,13 @@
 {
-  "baseline_commit": "6bcc01b2d8b0e05729fe1d217a1006c902ba24e5",
-  "baseline_source": "pass2/front_walk.png and pass2/rear_walk.png",
+  "baseline_commit": "1ce20af71335f2f4ac64cfead08fedef34111ee2",
+  "baseline_source": "pass3/front_walk.png and pass3/rear_walk.png",
   "current_source": "fresh Godot render frames",
-  "frame_count": 24,
-  "fps": 24,
+  "frame_count": 144,
+  "fps": 72,
+  "source_fps": [
+    24,
+    36
+  ],
   "scale": 1.25,
   "resampler": "nearest",
   "interpolated_frames": false

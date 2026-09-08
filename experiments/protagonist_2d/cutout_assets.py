@@ -14,7 +14,7 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
-from mesh_assets import build_joint_meshes
+from mesh_assets import build_joint_meshes, front_cape_weights
 
 
 HERE = Path(__file__).resolve().parent
@@ -395,17 +395,7 @@ def _cape_mesh(source, mask):
     for y in ys:
         for x in xs:
             vertices.append([x, y]); uvs.append([x - x0, y - y0])
-            distance = .47297 * (x - 151) + .88108 * (y - 78)
-            if distance <= 20:
-                values = (1., 0., 0.)
-            elif distance <= 61:
-                t = (distance - 20) / 41
-                values = (1 - t, t, 0.)
-            elif distance <= 99:
-                t = (distance - 61) / 38
-                values = (0., 1 - t, t)
-            else:
-                values = (0., 0., 1.)
+            values = front_cape_weights((x, y))
             for name, value in zip(weights, values):
                 weights[name].append(round(value, 8))
     triangles = []
