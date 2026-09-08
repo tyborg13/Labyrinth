@@ -1,0 +1,1621 @@
+{
+  "scope": "Hand-reviewed semantic landmarks/material boundaries, connected components, source RGBA, and actual exported cutouts; complements renderer pose inspection.",
+  "facings": {
+    "front": {
+      "source_sha256": "162d297a1b469ac9c55dbb50109272246a04ec407caa4144c2485b6946ba9ba5",
+      "layout_sha256": "384b8de6d1d0510ab1b2ae88dbbaac4a438fae7efe0beaa46ab2e17111e33947",
+      "source_visible_pixels": 17246,
+      "exclusive_owned_pixels": 17246,
+      "base_part_components": {
+        "head": [
+          {
+            "pixels": 3433,
+            "bbox": [
+              96,
+              9,
+              169,
+              81
+            ]
+          }
+        ],
+        "cape_full": [
+          {
+            "pixels": 3631,
+            "bbox": [
+              138,
+              58,
+              219,
+              187
+            ]
+          },
+          {
+            "pixels": 224,
+            "bbox": [
+              97,
+              69,
+              113,
+              97
+            ]
+          }
+        ],
+        "sword_hand_r": [
+          {
+            "pixels": 1883,
+            "bbox": [
+              12,
+              119,
+              104,
+              191
+            ]
+          }
+        ],
+        "hand_l": [
+          {
+            "pixels": 307,
+            "bbox": [
+              157,
+              149,
+              182,
+              167
+            ]
+          }
+        ],
+        "forearm_r": [
+          {
+            "pixels": 316,
+            "bbox": [
+              86,
+              108,
+              110,
+              126
+            ]
+          }
+        ],
+        "arm_r": [
+          {
+            "pixels": 268,
+            "bbox": [
+              92,
+              93,
+              114,
+              113
+            ]
+          }
+        ],
+        "forearm_l": [
+          {
+            "pixels": 574,
+            "bbox": [
+              154,
+              124,
+              182,
+              151
+            ]
+          }
+        ],
+        "arm_l": [
+          {
+            "pixels": 132,
+            "bbox": [
+              155,
+              116,
+              176,
+              128
+            ]
+          }
+        ],
+        "scarf": [
+          {
+            "pixels": 420,
+            "bbox": [
+              104,
+              63,
+              140,
+              95
+            ]
+          }
+        ],
+        "foot_r": [
+          {
+            "pixels": 539,
+            "bbox": [
+              94,
+              175,
+              133,
+              197
+            ]
+          }
+        ],
+        "foot_l": [
+          {
+            "pixels": 564,
+            "bbox": [
+              151,
+              196,
+              179,
+              223
+            ]
+          }
+        ],
+        "shin_r": [
+          {
+            "pixels": 331,
+            "bbox": [
+              106,
+              162,
+              134,
+              177
+            ]
+          }
+        ],
+        "shin_l": [
+          {
+            "pixels": 528,
+            "bbox": [
+              143,
+              177,
+              174,
+              201
+            ]
+          }
+        ],
+        "thigh_r": [
+          {
+            "pixels": 623,
+            "bbox": [
+              98,
+              143,
+              138,
+              169
+            ]
+          }
+        ],
+        "thigh_l": [
+          {
+            "pixels": 981,
+            "bbox": [
+              129,
+              140,
+              178,
+              183
+            ]
+          }
+        ],
+        "hips": [
+          {
+            "pixels": 1377,
+            "bbox": [
+              101,
+              116,
+              159,
+              152
+            ]
+          }
+        ],
+        "torso": [
+          {
+            "pixels": 1115,
+            "bbox": [
+              107,
+              84,
+              161,
+              120
+            ]
+          }
+        ]
+      },
+      "intentional_occlusion": "Front cape has a separate visible far-shoulder fold; the connecting material is hidden by head/scarf.",
+      "landmarks": [
+        {
+          "source_pixel": [
+            130,
+            35
+          ],
+          "expected": "head",
+          "actual": "head",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            122,
+            59
+          ],
+          "expected": "head",
+          "actual": "head",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            125,
+            84
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            122,
+            82
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            128,
+            99
+          ],
+          "expected": "torso",
+          "actual": "torso",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            138,
+            106
+          ],
+          "expected": "torso",
+          "actual": "torso",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            117,
+            121
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            143,
+            137
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            101,
+            145
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            103,
+            135
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            155,
+            88
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            193,
+            148
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            105,
+            81
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            101,
+            92
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            148,
+            96
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            100,
+            102
+          ],
+          "expected": "arm_r",
+          "actual": "arm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            98,
+            108
+          ],
+          "expected": "arm_r",
+          "actual": "arm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            94,
+            118
+          ],
+          "expected": "forearm_r",
+          "actual": "forearm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            91,
+            123
+          ],
+          "expected": "forearm_r",
+          "actual": "forearm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            94,
+            128
+          ],
+          "expected": "sword_hand_r",
+          "actual": "sword_hand_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            54,
+            163
+          ],
+          "expected": "sword_hand_r",
+          "actual": "sword_hand_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            165,
+            121
+          ],
+          "expected": "arm_l",
+          "actual": "arm_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            170,
+            123
+          ],
+          "expected": "arm_l",
+          "actual": "arm_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            167,
+            134
+          ],
+          "expected": "forearm_l",
+          "actual": "forearm_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            166,
+            146
+          ],
+          "expected": "forearm_l",
+          "actual": "forearm_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            166,
+            150
+          ],
+          "expected": "forearm_l",
+          "actual": "forearm_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            163,
+            154
+          ],
+          "expected": "hand_l",
+          "actual": "hand_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            173,
+            155
+          ],
+          "expected": "hand_l",
+          "actual": "hand_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            115,
+            151
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            122,
+            158
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            99,
+            153
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            133,
+            167
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            133,
+            168
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            118,
+            173
+          ],
+          "expected": "shin_r",
+          "actual": "shin_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            119,
+            172
+          ],
+          "expected": "shin_r",
+          "actual": "shin_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            101,
+            189
+          ],
+          "expected": "foot_r",
+          "actual": "foot_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            121,
+            183
+          ],
+          "expected": "foot_r",
+          "actual": "foot_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            145,
+            159
+          ],
+          "expected": "thigh_l",
+          "actual": "thigh_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            156,
+            170
+          ],
+          "expected": "thigh_l",
+          "actual": "thigh_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            169,
+            175
+          ],
+          "expected": "thigh_l",
+          "actual": "thigh_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            167,
+            190
+          ],
+          "expected": "shin_l",
+          "actual": "shin_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            160,
+            183
+          ],
+          "expected": "shin_l",
+          "actual": "shin_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            168,
+            210
+          ],
+          "expected": "foot_l",
+          "actual": "foot_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            168,
+            216
+          ],
+          "expected": "foot_l",
+          "actual": "foot_l",
+          "passed": true
+        }
+      ],
+      "material_boundary_checks": [
+        {
+          "name": "opposite shoulder cloak fold",
+          "source_rect": [
+            95,
+            69,
+            113,
+            97
+          ],
+          "material": "green",
+          "expected_owners": [
+            "cape_full"
+          ],
+          "checked_pixels": 65,
+          "misowned_pixels": []
+        },
+        {
+          "name": "cloak edge beside chest",
+          "source_rect": [
+            138,
+            88,
+            156,
+            102
+          ],
+          "material": "green",
+          "expected_owners": [
+            "cape_full"
+          ],
+          "checked_pixels": 127,
+          "misowned_pixels": []
+        },
+        {
+          "name": "exposed sleeve under cloak",
+          "source_rect": [
+            163,
+            120,
+            176,
+            140
+          ],
+          "material": "brown",
+          "expected_owners": [
+            "arm_l",
+            "forearm_l"
+          ],
+          "checked_pixels": 190,
+          "misowned_pixels": []
+        },
+        {
+          "name": "bracer below elbow",
+          "source_rect": [
+            160,
+            141,
+            177,
+            149
+          ],
+          "material": "brown",
+          "expected_owners": [
+            "forearm_l"
+          ],
+          "checked_pixels": 108,
+          "misowned_pixels": []
+        }
+      ],
+      "saved_asset_checks": [
+        {
+          "part": "cape_upper",
+          "file": "assets/front/cape_upper.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_middle",
+          "file": "assets/front/cape_middle.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_lower",
+          "file": "assets/front/cape_lower.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "thigh_r",
+          "file": "assets/front/thigh_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "shin_r",
+          "file": "assets/front/shin_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "foot_r",
+          "file": "assets/front/foot_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "thigh_l",
+          "file": "assets/front/thigh_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "shin_l",
+          "file": "assets/front/shin_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "foot_l",
+          "file": "assets/front/foot_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "arm_r",
+          "file": "assets/front/arm_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "forearm_r",
+          "file": "assets/front/forearm_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "torso",
+          "file": "assets/front/torso.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "hips",
+          "file": "assets/front/hips.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "arm_l",
+          "file": "assets/front/arm_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "forearm_l",
+          "file": "assets/front/forearm_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "hand_l",
+          "file": "assets/front/hand_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "sword_hand_r",
+          "file": "assets/front/sword_hand_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "scarf",
+          "file": "assets/front/scarf.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "head",
+          "file": "assets/front/head.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_full",
+          "file": "assets/front/cape_full.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        }
+      ],
+      "comparison_to_baseline": {
+        "revision": "6bcc01b2d8b0e05729fe1d217a1006c902ba24e5",
+        "pixels_with_changed_owner": 1123,
+        "transfers": [
+          {
+            "from": "arm_l",
+            "to": "cape_full",
+            "pixels": 5
+          },
+          {
+            "from": "arm_l",
+            "to": "forearm_l",
+            "pixels": 9
+          },
+          {
+            "from": "arm_l",
+            "to": "torso",
+            "pixels": 13
+          },
+          {
+            "from": "arm_r",
+            "to": "cape_full",
+            "pixels": 38
+          },
+          {
+            "from": "cape_full",
+            "to": "arm_l",
+            "pixels": 43
+          },
+          {
+            "from": "cape_full",
+            "to": "forearm_l",
+            "pixels": 155
+          },
+          {
+            "from": "cape_full",
+            "to": "hand_l",
+            "pixels": 63
+          },
+          {
+            "from": "cape_full",
+            "to": "thigh_l",
+            "pixels": 2
+          },
+          {
+            "from": "cape_full",
+            "to": "torso",
+            "pixels": 4
+          },
+          {
+            "from": "foot_l",
+            "to": "shin_l",
+            "pixels": 1
+          },
+          {
+            "from": "forearm_l",
+            "to": "arm_l",
+            "pixels": 2
+          },
+          {
+            "from": "forearm_l",
+            "to": "hips",
+            "pixels": 13
+          },
+          {
+            "from": "hand_l",
+            "to": "forearm_l",
+            "pixels": 199
+          },
+          {
+            "from": "hand_l",
+            "to": "hips",
+            "pixels": 1
+          },
+          {
+            "from": "hand_l",
+            "to": "thigh_l",
+            "pixels": 7
+          },
+          {
+            "from": "hips",
+            "to": "arm_l",
+            "pixels": 5
+          },
+          {
+            "from": "hips",
+            "to": "forearm_l",
+            "pixels": 5
+          },
+          {
+            "from": "scarf",
+            "to": "cape_full",
+            "pixels": 85
+          },
+          {
+            "from": "shin_l",
+            "to": "thigh_l",
+            "pixels": 184
+          },
+          {
+            "from": "sword_hand_r",
+            "to": "forearm_r",
+            "pixels": 77
+          },
+          {
+            "from": "sword_hand_r",
+            "to": "hips",
+            "pixels": 4
+          },
+          {
+            "from": "sword_hand_r",
+            "to": "thigh_r",
+            "pixels": 1
+          },
+          {
+            "from": "thigh_l",
+            "to": "forearm_l",
+            "pixels": 4
+          },
+          {
+            "from": "thigh_l",
+            "to": "hand_l",
+            "pixels": 40
+          },
+          {
+            "from": "thigh_l",
+            "to": "shin_l",
+            "pixels": 16
+          },
+          {
+            "from": "thigh_l",
+            "to": "thigh_r",
+            "pixels": 2
+          },
+          {
+            "from": "torso",
+            "to": "cape_full",
+            "pixels": 145
+          }
+        ]
+      },
+      "failures": [],
+      "passed": true
+    },
+    "rear": {
+      "source_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "layout_sha256": "a1df242377e302c26e759a9c16b9ca30413d2de99e2724ae76b61ab3579427ed",
+      "source_visible_pixels": 18722,
+      "exclusive_owned_pixels": 18722,
+      "base_part_components": {
+        "head": [
+          {
+            "pixels": 2690,
+            "bbox": [
+              90,
+              9,
+              160,
+              68
+            ]
+          }
+        ],
+        "cape_full": [
+          {
+            "pixels": 6556,
+            "bbox": [
+              23,
+              63,
+              158,
+              189
+            ]
+          }
+        ],
+        "scarf": [
+          {
+            "pixels": 623,
+            "bbox": [
+              94,
+              60,
+              155,
+              80
+            ]
+          }
+        ],
+        "sword_hand_r": [
+          {
+            "pixels": 2390,
+            "bbox": [
+              154,
+              136,
+              252,
+              219
+            ]
+          }
+        ],
+        "forearm_r": [
+          {
+            "pixels": 687,
+            "bbox": [
+              147,
+              109,
+              177,
+              146
+            ]
+          }
+        ],
+        "arm_r": [
+          {
+            "pixels": 696,
+            "bbox": [
+              137,
+              81,
+              167,
+              118
+            ]
+          }
+        ],
+        "foot_l": [
+          {
+            "pixels": 541,
+            "bbox": [
+              82,
+              186,
+              111,
+              211
+            ]
+          }
+        ],
+        "foot_r": [
+          {
+            "pixels": 736,
+            "bbox": [
+              132,
+              194,
+              167,
+              223
+            ]
+          }
+        ],
+        "shin_l": [
+          {
+            "pixels": 400,
+            "bbox": [
+              84,
+              171,
+              113,
+              188
+            ]
+          }
+        ],
+        "shin_r": [
+          {
+            "pixels": 647,
+            "bbox": [
+              129,
+              171,
+              160,
+              198
+            ]
+          }
+        ],
+        "thigh_l": [
+          {
+            "pixels": 555,
+            "bbox": [
+              89,
+              146,
+              119,
+              179
+            ]
+          }
+        ],
+        "thigh_r": [
+          {
+            "pixels": 694,
+            "bbox": [
+              123,
+              149,
+              160,
+              176
+            ]
+          }
+        ],
+        "hips": [
+          {
+            "pixels": 800,
+            "bbox": [
+              106,
+              129,
+              155,
+              163
+            ]
+          }
+        ],
+        "torso": [
+          {
+            "pixels": 707,
+            "bbox": [
+              116,
+              97,
+              153,
+              140
+            ]
+          }
+        ]
+      },
+      "intentional_occlusion": "The entire left arm is hidden in the rear source; it has bones but no invented cutouts.",
+      "landmarks": [
+        {
+          "source_pixel": [
+            124,
+            33
+          ],
+          "expected": "head",
+          "actual": "head",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            147,
+            55
+          ],
+          "expected": "head",
+          "actual": "head",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            123,
+            70
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            110,
+            78
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            106,
+            78
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            107,
+            79
+          ],
+          "expected": "scarf",
+          "actual": "scarf",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            115,
+            79
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            140,
+            73
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            90,
+            70
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            77,
+            125
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            60,
+            159
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            119,
+            116
+          ],
+          "expected": "cape_full",
+          "actual": "cape_full",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            126,
+            125
+          ],
+          "expected": "torso",
+          "actual": "torso",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            136,
+            131
+          ],
+          "expected": "torso",
+          "actual": "torso",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            122,
+            146
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            128,
+            140
+          ],
+          "expected": "hips",
+          "actual": "hips",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            147,
+            93
+          ],
+          "expected": "arm_r",
+          "actual": "arm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            151,
+            104
+          ],
+          "expected": "arm_r",
+          "actual": "arm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            157,
+            125
+          ],
+          "expected": "forearm_r",
+          "actual": "forearm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            169,
+            139
+          ],
+          "expected": "forearm_r",
+          "actual": "forearm_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            168,
+            153
+          ],
+          "expected": "sword_hand_r",
+          "actual": "sword_hand_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            219,
+            199
+          ],
+          "expected": "sword_hand_r",
+          "actual": "sword_hand_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            103,
+            162
+          ],
+          "expected": "thigh_l",
+          "actual": "thigh_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            103,
+            166
+          ],
+          "expected": "thigh_l",
+          "actual": "thigh_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            98,
+            171
+          ],
+          "expected": "shin_l",
+          "actual": "shin_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            97,
+            184
+          ],
+          "expected": "shin_l",
+          "actual": "shin_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            94,
+            200
+          ],
+          "expected": "foot_l",
+          "actual": "foot_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            104,
+            198
+          ],
+          "expected": "foot_l",
+          "actual": "foot_l",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            137,
+            164
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            133,
+            151
+          ],
+          "expected": "thigh_r",
+          "actual": "thigh_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            145,
+            173
+          ],
+          "expected": "shin_r",
+          "actual": "shin_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            141,
+            186
+          ],
+          "expected": "shin_r",
+          "actual": "shin_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            140,
+            216
+          ],
+          "expected": "foot_r",
+          "actual": "foot_r",
+          "passed": true
+        },
+        {
+          "source_pixel": [
+            160,
+            210
+          ],
+          "expected": "foot_r",
+          "actual": "foot_r",
+          "passed": true
+        }
+      ],
+      "material_boundary_checks": [
+        {
+          "name": "green cloak hem around brown collar",
+          "source_rect": [
+            88,
+            64,
+            152,
+            81
+          ],
+          "material": "green",
+          "expected_owners": [
+            "cape_full"
+          ],
+          "checked_pixels": 219,
+          "misowned_pixels": []
+        }
+      ],
+      "saved_asset_checks": [
+        {
+          "part": "thigh_l",
+          "file": "assets/rear/thigh_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "shin_l",
+          "file": "assets/rear/shin_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "foot_l",
+          "file": "assets/rear/foot_l.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "thigh_r",
+          "file": "assets/rear/thigh_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "shin_r",
+          "file": "assets/rear/shin_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "foot_r",
+          "file": "assets/rear/foot_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "torso",
+          "file": "assets/rear/torso.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "hips",
+          "file": "assets/rear/hips.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_upper",
+          "file": "assets/rear/cape_upper.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_middle",
+          "file": "assets/rear/cape_middle.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_lower",
+          "file": "assets/rear/cape_lower.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "arm_r",
+          "file": "assets/rear/arm_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "forearm_r",
+          "file": "assets/rear/forearm_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "sword_hand_r",
+          "file": "assets/rear/sword_hand_r.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "scarf",
+          "file": "assets/rear/scarf.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "head",
+          "file": "assets/rear/head.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        },
+        {
+          "part": "cape_full",
+          "file": "assets/rear/cape_full.png",
+          "rgba_changed_pixels": 0,
+          "unrelated_owner_pixels": 0,
+          "missing_owned_pixels": 0,
+          "out_of_wrist_overlap_pixels": 0
+        }
+      ],
+      "comparison_to_baseline": {
+        "revision": "6bcc01b2d8b0e05729fe1d217a1006c902ba24e5",
+        "pixels_with_changed_owner": 175,
+        "transfers": [
+          {
+            "from": "cape_full",
+            "to": "scarf",
+            "pixels": 5
+          },
+          {
+            "from": "scarf",
+            "to": "cape_full",
+            "pixels": 170
+          }
+        ]
+      },
+      "failures": [],
+      "passed": true
+    }
+  },
+  "passed": true
+}

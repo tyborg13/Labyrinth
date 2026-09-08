@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse,json,math,shutil,subprocess
 from pathlib import Path
 from PIL import Image,ImageDraw,ImageFont
+from feedback_reel import write_previews
 HERE=Path(__file__).resolve().parent
 
 
@@ -17,7 +18,7 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
 
 def iteration_comparison(output, clips):
     """Compare retained renderer frames at their original timing and scale."""
-    baseline = output / 'pass1'
+    baseline = output / 'pass2'
     metadata_path = baseline / 'animations.json'
     if not metadata_path.exists() or set(f for f, a in clips if a == 'walk') != {'front', 'rear'}:
         return
@@ -36,10 +37,10 @@ def iteration_comparison(output, clips):
     for frame in range(count):
         canvas = Image.new('RGB', (1000, 880), '#1b1d20')
         draw = ImageDraw.Draw(canvas)
-        label(draw, (30, 24), 'WALK / FIRST AND SECOND PASS', 25)
+        label(draw, (30, 24), 'WALK / SECOND AND THIRD PASS', 25)
         label(draw, (220, 70), 'Front', 21)
         label(draw, (720, 70), 'Rear', 21)
-        for row, version in enumerate(('First pass', 'Second pass')):
+        for row, version in enumerate(('Second pass', 'Third pass')):
             label(draw, (30, 102 + row * 420), version, 20, '#c99b62')
             for column, facing in enumerate(('front', 'rear')):
                 frames = prior[facing] if row == 0 else clips[(facing, 'walk')]
@@ -56,8 +57,8 @@ def iteration_comparison(output, clips):
                         '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
                         str(output / 'walk_iteration_comparison.mp4')], check=True)
     (output / 'walk_iteration_comparison.json').write_text(json.dumps({
-        'baseline_commit': '9eee314ff1e5974d8cc635646eae6b48ed84f57c',
-        'baseline_source': 'pass1/front_walk.png and pass1/rear_walk.png',
+        'baseline_commit': '6bcc01b2d8b0e05729fe1d217a1006c902ba24e5',
+        'baseline_source': 'pass2/front_walk.png and pass2/rear_walk.png',
         'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': 24,
         'scale': 1.25, 'resampler': 'nearest', 'interpolated_frames': False,
     }, indent=2) + '\n')
@@ -97,30 +98,12 @@ def main():
     for actions in source['facings'].values():
         for meta in actions.values():meta.pop('folder',None)
     (output/'render_validation.json').write_text(json.dumps(source,indent=2)+'\n')
-    video=output/'video_frames';video.mkdir(exist_ok=True)
-    facings=list(source['facings']);n=0;walk_frames=[]
-    for action in ('idle','walk','attack','block','hit'):
-        length=len(clips[(facings[0],action)])
-        for frame in range(length):
-            canvas=Image.new('RGB',(1200,760),'#1b1d20');d=ImageDraw.Draw(canvas)
-            label(d,(42,30),'REAVER / SECOND SKELETAL PASS',28)
-            label(d,(42,80),action.upper(),24,'#c99b62')
-            for index,facing in enumerate(facings):
-                center=340+index*500
-                im=clips[(facing,action)][frame]
-                # A fixed camera crop is never fitted to individual alpha bounds.
-                doubled=im.resize((1024,1024),Image.Resampling.NEAREST)
-                canvas.paste(doubled,(center-511,630-702),doubled)
-                label(d,(center-95,137),'Front' if facing=='front' else 'Rear',22)
-            label(d,(42,704),'Weighted painted joints • fixed scale • in-place cycle; travel shown on board',19,'#a4a29a')
-            canvas.save(video/f'{n:04d}.png');n+=1
-            if action=='walk':walk_frames.append(canvas)
-    ffmpeg=shutil.which('ffmpeg')
-    if ffmpeg:
-        subprocess.run([ffmpeg,'-y','-loglevel','error','-framerate','24','-i',str(video/'%04d.png'),'-frames:v',str(n),'-c:v','libx264','-crf','16','-pix_fmt','yuv420p','-movflags','+faststart',str(output/'animation_showcase.mp4')],check=True)
+    facings=list(source['facings'])
+    walk_frames,n=write_previews(clips,output,pass_number=3)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
-        small=[im.resize((960,608),Image.Resampling.LANCZOS) for im in walk_frames]
+        gif_size=(960,round(walk_frames[0].height*960/walk_frames[0].width))
+        small=[im.resize(gif_size,Image.Resampling.LANCZOS) for im in walk_frames]
         # One palette avoids encoding-induced color flicker. GIF delays have
         # 10ms precision, so distribute rounding instead of shortening every frame.
         sample=Image.new('RGB',(300*4,190*math.ceil(len(small)/4)))
@@ -131,15 +114,19 @@ def main():
         times=[round(i*100/24)*10 for i in range(len(small)+1)]
         delays=[b-a for a,b in zip(times,times[1:])]
         small[0].save(output/'walking_front_rear.gif',save_all=True,append_images=small[1:],duration=delays,loop=0,disposal=2,optimize=False)
-    # Equal framing, four phases of the front/rear walks.
-    contact=Image.new('RGB',(1200,720),'#1b1d20');d=ImageDraw.Draw(contact)
+    # One shared walk crop retains every painted pixel in both facings.
+    bounds=[im.getchannel('A').getbbox() for facing in facings for im in clips[(facing,'walk')]]
+    crop=(min(b[0] for b in bounds)-8,min(b[1] for b in bounds)-8,
+          max(b[2] for b in bounds)+8,max(b[3] for b in bounds)+8)
+    cell=(crop[2]-crop[0]+24,crop[3]-crop[1]+60)
+    contact=Image.new('RGB',(cell[0]*4,cell[1]*len(facings)),'#1b1d20');d=ImageDraw.Draw(contact)
     for row,facing in enumerate(facings):
         frames=clips[(facing,'walk')]
         for col,phase in enumerate((0,.25,.5,.75)):
             frame=int(len(frames)*phase)
-            im=frames[frame].crop((112,112,400,368))
-            contact.paste(im,(col*300+6,row*360+54),im)
-            label(d,(col*300+10,row*360+20),f'{facing.title()} / {frame+1}',18)
+            im=frames[frame].crop(crop)
+            contact.paste(im,(col*cell[0]+12,row*cell[1]+48),im)
+            label(d,(col*cell[0]+12,row*cell[1]+16),f'{facing.title()} / frame {frame+1}',18)
     contact.save(output/'walking_poses.png')
     iteration_comparison(output, clips)
     print(json.dumps({'frames':count,'facings':facings,'sheets':len(clips),'video_frames':n,'rest':source['rest_reconstruction']},indent=2))

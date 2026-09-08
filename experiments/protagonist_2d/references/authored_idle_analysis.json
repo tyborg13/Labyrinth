@@ -1,0 +1,485 @@
+{
+  "method": "RGB premultiplied by alpha plus alpha, bounded local minimum absolute-difference template translation; quarter-source-pixel refinement on original1020px frames. Region deformation is not a rigid-translation ground truth.",
+  "fps": 10,
+  "duration_seconds": 0.8,
+  "regions": {
+    "head_hair": {
+      "box_source_px": [
+        105,
+        17,
+        148,
+        48
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.3952
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.7129
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.8398
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.6508
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 9.0184
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.121
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 2.9242
+        }
+      ]
+    },
+    "face": {
+      "box_source_px": [
+        113,
+        48,
+        149,
+        73
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 9.8522
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 10.3986
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 12.6886
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 13.2069
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 12.7642
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 12.1361
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 8.1211
+        }
+      ]
+    },
+    "chest": {
+      "box_source_px": [
+        108,
+        96,
+        146,
+        122
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.1617
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.4643
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.5853
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.6445
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.4114
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.2955
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 7.2907
+        }
+      ]
+    },
+    "belt": {
+      "box_source_px": [
+        117,
+        121,
+        151,
+        143
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.2039
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.6828
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.9031
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.988
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.9706
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.7791
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 8.8155
+        }
+      ]
+    },
+    "sword_hand": {
+      "box_source_px": [
+        87,
+        115,
+        103,
+        133
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": -1.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 10.4844
+        },
+        {
+          "frame": 2,
+          "dx_source_px": -1.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 12.6354
+        },
+        {
+          "frame": 3,
+          "dx_source_px": -1.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 9.4332
+        },
+        {
+          "frame": 4,
+          "dx_source_px": -1.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 9.4896
+        },
+        {
+          "frame": 5,
+          "dx_source_px": -1.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 9.4913
+        },
+        {
+          "frame": 6,
+          "dx_source_px": -1.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 10.7292
+        },
+        {
+          "frame": 7,
+          "dx_source_px": -1.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 9.9175
+        }
+      ]
+    },
+    "free_hand": {
+      "box_source_px": [
+        155,
+        137,
+        176,
+        160
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.3406
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.4203
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.0367
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 7.5518
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.9074
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": -1.0,
+          "mean_abs_channel_error": 6.4017
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 6.8546
+        }
+      ]
+    },
+    "far_boot": {
+      "box_source_px": [
+        97,
+        177,
+        122,
+        193
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.8356
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.925
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.935
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.8931
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.8994
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.925
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 1.0119
+        }
+      ]
+    },
+    "near_boot": {
+      "box_source_px": [
+        157,
+        203,
+        177,
+        222
+      ],
+      "samples": [
+        {
+          "frame": 0,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.0
+        },
+        {
+          "frame": 1,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.2441
+        },
+        {
+          "frame": 2,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.2645
+        },
+        {
+          "frame": 3,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.3105
+        },
+        {
+          "frame": 4,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.3007
+        },
+        {
+          "frame": 5,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.3007
+        },
+        {
+          "frame": 6,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.3158
+        },
+        {
+          "frame": 7,
+          "dx_source_px": 0.0,
+          "dy_source_px": 0.0,
+          "mean_abs_channel_error": 0.3204
+        }
+      ]
+    }
+  },
+  "source_file": "assets/placeholders/units/player_reaver_idle.png",
+  "source_sha256": "51eb82f5b24d2fba17eae4f29ee9645e4c4acb01402084d7c4c5d4a062025592",
+  "sheet_size": [
+    4080,
+    2040
+  ],
+  "frame_size": [
+    1020,
+    1020
+  ],
+  "frame_order": "4 columns by 2 rows, row-major",
+  "source_pixel_normalization": "1020px frames displayed at255px, so measured displacements are divided by4",
+  "runtime_cadence_source": "scripts/combat_board_view.gd: IDLE_FRAME_SECONDS=0.10; player uses default",
+  "interpretation": "Authored head/chest/free hand rise together about1 source pixel, boots stay still; hair edge varies up to2 pixels. Region redraws are not rigid-transform ground truth. Third pass adapts cadence/coherence with a1.5px downward body compression and fixed soles; it does not reproduce authored pixels frame-for-frame."
+}

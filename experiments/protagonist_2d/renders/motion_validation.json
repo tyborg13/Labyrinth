@@ -1,13 +1,41 @@
 {
   "actual_layouts": true,
+  "attack_metrics": {
+    "front": {
+      "blade_tip_separation_from_block_px": 208.052734375,
+      "cut_delta_px": [
+        90.4286727905273,
+        127.298553466797
+      ],
+      "cut_peak_speed_px_s": 1446.53530883789,
+      "painted_blade_tip_lift_px": 85.6490173339844,
+      "preparation_peak_speed_px_s": 475.656143188477,
+      "recovery_peak_speed_px_s": 192.737800598145,
+      "upward_travel_during_cut_px": 0.0
+    },
+    "rear": {
+      "blade_tip_separation_from_block_px": 216.648147583008,
+      "cut_delta_px": [
+        -78.0845642089844,
+        157.723968505859
+      ],
+      "cut_peak_speed_px_s": 1621.27752685547,
+      "painted_blade_tip_lift_px": 127.70401763916,
+      "preparation_peak_speed_px_s": 719.194519042969,
+      "recovery_peak_speed_px_s": 116.115589141846,
+      "upward_travel_during_cut_px": 0.0
+    }
+  },
   "clips": 5,
   "failures": [],
   "gait_metrics": {
     "front": {
       "fps": 24,
       "frames": 24,
+      "lead_boot_angle_rad": 1.10000002384186,
+      "maximum_lead_toe_direction_error_rad": 0.197787836194038,
       "maximum_lift_px": 11.5576455753343,
-      "pelvis_vertical_range_px": 6.34066772460938,
+      "pelvis_vertical_range_px": 6.59066772460938,
       "stance_fraction": 0.6,
       "stride_px": 30.133198890686,
       "support_samples": 310,
@@ -19,8 +47,10 @@
     "rear": {
       "fps": 24,
       "frames": 24,
+      "lead_boot_angle_rad": -0.599999964237213,
+      "maximum_lead_toe_direction_error_rad": 0.0560445785522461,
       "maximum_lift_px": 11.5516156840219,
-      "pelvis_vertical_range_px": 6.81509399414062,
+      "pelvis_vertical_range_px": 7.72601318359375,
       "stance_fraction": 0.6,
       "stride_px": 30.1174777030945,
       "support_samples": 310,
@@ -30,14 +60,28 @@
       ]
     }
   },
+  "idle_metrics": {
+    "front": {
+      "body_bob_range_px": 1.5,
+      "duration_s": 0.833333333333333,
+      "maximum_body_disagreement_px": 0.0,
+      "maximum_cape_travel_relative_to_body_px": 0.215699091553688
+    },
+    "rear": {
+      "body_bob_range_px": 1.5,
+      "duration_s": 0.833333333333333,
+      "maximum_body_disagreement_px": 0.0,
+      "maximum_cape_travel_relative_to_body_px": 0.265558540821075
+    }
+  },
   "joint_rotation_peaks_rad": {
     "front/arm_l": 0.299979090690613,
-    "front/arm_r": 0.579383492469788,
+    "front/arm_r": 0.25,
     "front/cape_mid": 0.0499998964369297,
     "front/cape_root": 0.0399995110929012,
     "front/cape_tip": 0.0744153261184692,
-    "front/foot_l": 0.988665223121643,
-    "front/foot_r": 1.75031578540802,
+    "front/foot_l": 2.00513529777527,
+    "front/foot_r": 1.77630126476288,
     "front/forearm_l": 0.28999999165535,
     "front/forearm_r": 1.10000002384186,
     "front/hand_l": 0.0,
@@ -46,18 +90,18 @@
     "front/hips": 0.0259993933141232,
     "front/neck": 0.0549993291497231,
     "front/root": 0.0,
-    "front/shin_l": 1.463583111763,
-    "front/shin_r": 1.88444066047668,
-    "front/thigh_l": 0.864496469497681,
-    "front/thigh_r": 0.698180973529816,
-    "front/torso": 0.119867943227291,
+    "front/shin_l": 1.35874927043915,
+    "front/shin_r": 1.86784827709198,
+    "front/thigh_l": 0.812642395496368,
+    "front/thigh_r": 0.6895672082901,
+    "front/torso": 0.109997436404228,
     "rear/arm_l": 0.299979090690613,
-    "rear/arm_r": 0.579383492469788,
+    "rear/arm_r": 0.319999992847443,
     "rear/cape_mid": 0.0499998964369297,
     "rear/cape_root": 0.0399995110929012,
     "rear/cape_tip": 0.0744153261184692,
-    "rear/foot_l": 1.0049307346344,
-    "rear/foot_r": 0.890306949615479,
+    "rear/foot_l": 1.18895864486694,
+    "rear/foot_r": 1.36362934112549,
     "rear/forearm_l": 0.28999999165535,
     "rear/forearm_r": 1.10000002384186,
     "rear/hand_l": 0.0,
@@ -66,18 +110,19 @@
     "rear/hips": 0.0259993933141232,
     "rear/neck": 0.0549993291497231,
     "rear/root": 0.0,
-    "rear/shin_l": 1.80833733081818,
-    "rear/shin_r": 1.42752814292908,
-    "rear/thigh_l": 1.28174602985382,
-    "rear/thigh_r": 0.928702652454376,
-    "rear/torso": 0.119867943227291
+    "rear/shin_l": 2.02728939056396,
+    "rear/shin_r": 1.23116278648376,
+    "rear/thigh_l": 1.42392528057098,
+    "rear/thigh_r": 0.794877588748932,
+    "rear/torso": 0.109997436404228
   },
   "layouts": 2,
-  "max_contact_rotation_rad": 1.63912773132324e-07,
+  "max_contact_rotation_rad": 2.38418579101562e-07,
+  "max_painted_sole_ground_error_px": 0.00464820861816406,
   "max_target_error_px": 2.15791860682657e-05,
-  "max_world_support_drift_px": 4.31583721365314e-05,
+  "max_world_support_drift_px": 3.41196900990326e-05,
   "max_wrap_position_delta_px": 0.000855065765790641,
-  "max_wrap_rotation_delta_rad": 8.15187350828306e-05,
+  "max_wrap_rotation_delta_rad": 0.000111816854895586,
   "phase_samples": 257,
-  "worst_case": "front/idle/foot_l/0.3750"
+  "worst_case": "front/walk/foot_l/0.0508"
 }

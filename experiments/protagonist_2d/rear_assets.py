@@ -40,6 +40,8 @@ JOINTS = {'root': {'parent': None, 'position': [132, 211]},
  'cape_mid': {'parent': 'cape_root', 'position': [103, 120]},
  'cape_tip': {'parent': 'cape_mid', 'position': [72, 159]}}
 
+# The upper cloak edge follows the brown collar's outline row by row; the
+# green hem belongs to the cloak, including the narrow strip behind the neck.
 POLYGONS = [('head',
   [(85, 0),
    (168, 0),
@@ -55,30 +57,29 @@ POLYGONS = [('head',
    (103, 61),
    (97, 59),
    (89, 54)]),
- ('scarf',
-  [(91, 59),
-   (101, 61),
-   (110, 65),
-   (126, 67),
-   (140, 64),
-   (149, 62),
-   (153, 69),
-   (150, 75),
-   (140, 75),
-   (128, 79),
-   (117, 79),
-   (106, 76),
-   (98, 73),
-   (91, 69)]),
  ('cape_full',
-  [(88, 66),
-   (94, 72),
-   (101, 76),
-   (112, 80),
-   (124, 79),
-   (135, 76),
-   (145, 73),
-   (151, 73),
+  [(88, 63),
+   (93, 63),
+   (94, 70),
+   (96, 72),
+   (98, 74),
+   (100, 75),
+   (100, 76),
+   (104, 77),
+   (104, 79),
+   (114, 80),
+   (115, 79),
+   (122, 78),
+   (122, 77),
+   (129, 76),
+   (131, 75),
+   (135, 74),
+   (139, 73),
+   (139, 72),
+   (146, 71),
+   (147, 69),
+   (151, 70),
+   (153, 74),
    (153, 79),
    (145, 83),
    (140, 89),
@@ -120,6 +121,21 @@ POLYGONS = [('head',
    (76, 87),
    (80, 81),
    (81, 73)]),
+ ('scarf',
+  [(91, 59),
+   (101, 61),
+   (110, 65),
+   (126, 67),
+   (140, 64),
+   (149, 62),
+   (153, 69),
+   (150, 75),
+   (140, 75),
+   (128, 79),
+   (117, 79),
+   (106, 76),
+   (98, 73),
+   (91, 69)]),
  ('sword_hand_r',
   [(162, 142),
    (168, 140),
@@ -165,7 +181,8 @@ POLYGONS = [('head',
    (144, 110),
    (139, 104),
    (136, 94)]),
- ('foot_l', [(84, 188), (99, 186), (111, 189), (112, 198), (105, 205), (96, 213), (83, 210), (80, 198)]),
+ ('foot_l',
+  [(84, 188), (99, 186), (111, 189), (112, 198), (105, 205), (96, 213), (83, 210), (80, 198)]),
  ('foot_r',
   [(131, 197),
    (143, 194),
@@ -176,7 +193,8 @@ POLYGONS = [('head',
    (140, 228),
    (133, 224),
    (129, 215)]),
- ('shin_l', [(88, 171), (107, 171), (110, 181), (106, 191), (104, 199), (91, 203), (84, 197), (82, 184)]),
+ ('shin_l',
+  [(88, 171), (107, 171), (110, 181), (106, 191), (104, 199), (91, 203), (84, 197), (82, 184)]),
  ('shin_r',
   [(128, 172),
    (143, 171),
@@ -277,13 +295,9 @@ def _cape_mesh(source, mask):
             'z_index': 50, 'coordinate_space': 'source pixels; UVs are crop-local pixels'}
 
 
-def main():
-    source = Image.open(SOURCE).convert('RGBA')
-    alpha = source.getchannel('A')
-    if source.size != (255, 255) or any(alpha.histogram()[1:255]):
-        raise ValueError('Expected the prepared 255px rear reference with binary alpha')
-    OUTPUT.mkdir(parents=True, exist_ok=True)
-    available, base = alpha.copy(), {}
+def build_base_masks(source):
+    """Return exclusive rear-source ownership before joint overlaps."""
+    available, base = source.getchannel('A').copy(), {}
     for name, points in POLYGONS:
         owned = ImageChops.multiply(cut._polygon(source.size, points), available)
         base[name] = owned
@@ -294,10 +308,20 @@ def main():
     # The collar's last brown pixels sit below the broad scarf polygon. They
     # must follow the neck; leaving this isolated strip on the torso exposes it
     # when the head turns. Transfer only pixels already assigned to the torso.
-    collar_strip = cut._polygon(source.size, [(108, 78), (116, 78), (116, 79), (108, 79)])
+    collar_strip = cut._polygon(source.size, [(106, 78), (116, 78), (116, 79), (106, 79)])
     collar_strip = ImageChops.multiply(base['torso'], collar_strip)
     base['torso'] = ImageChops.subtract(base['torso'], collar_strip)
     base['scarf'] = ImageChops.lighter(base['scarf'], collar_strip)
+    return base, assignments
+
+
+def main():
+    source = Image.open(SOURCE).convert('RGBA')
+    alpha = source.getchannel('A')
+    if source.size != (255, 255) or any(alpha.histogram()[1:255]):
+        raise ValueError('Expected the prepared 255px rear reference with binary alpha')
+    OUTPUT.mkdir(parents=True, exist_ok=True)
+    base, assignments = build_base_masks(source)
     assert sum(cut._count(mask) for mask in base.values()) == cut._count(alpha)
     masks = {name: mask.copy() for name, mask in base.items() if name != 'cape_full'}
     overlap_report = []
@@ -339,14 +363,20 @@ def main():
     cape_mesh = _cape_mesh(source, base['cape_full'])
     joint_meshes = build_joint_meshes(source, masks, JOINTS, parts, OUTPUT, 'assets/rear')
     proof = {}
-    for mode in ('segments', 'weighted_cape'):
+    mesh_by_part = {mesh['replaces_part']: mesh for mesh in joint_meshes}
+    for mode in ('segments', 'weighted_cape', 'weighted_joints'):
         composite = Image.new('RGBA', source.size)
-        if mode == 'weighted_cape':
+        if mode != 'segments':
             composite.alpha_composite(cut._masked(source, base['cape_full']))
         for part in parts:
-            if mode == 'weighted_cape' and part.get('cape_segment'):
+            if mode != 'segments' and part.get('cape_segment'):
                 continue
-            composite.alpha_composite(cut._masked(source, masks[part['name']]))
+            if mode == 'weighted_joints' and part['name'] in mesh_by_part:
+                mesh = mesh_by_part[part['name']]
+                with Image.open(HERE / mesh['file']) as image:
+                    composite.alpha_composite(image, tuple(mesh['offset']))
+            else:
+                composite.alpha_composite(cut._masked(source, masks[part['name']]))
         difference = ImageChops.difference(source, composite)
         changed = sum(1 for pixel in difference.getdata() if any(pixel))
         proof[mode] = {'different_rgba_pixels': changed, 'exact_rest_reconstruction': changed == 0}
@@ -365,6 +395,7 @@ def main():
               'source_occupied_bbox': list(alpha.getbbox()), 'joints': JOINTS, 'parts': parts,
               'cape_mesh': cape_mesh, 'joint_meshes': joint_meshes, 'source_only_joint_overlaps': overlap_report,
               'source_outline_assignments': assignments, 'exact_rest_proof': proof,
+              'semantic_ownership_proof': 'assets/segmentation_audit.json',
               'hidden_bones': ['arm_l', 'forearm_l', 'hand_l'],
               'constraints': [
                   'Rear source is a separately authored interpretation, not a view recovered from the original front sprite.',

@@ -43,7 +43,7 @@ func _run() -> void:
 		assert((saved.get_node("Skeleton") as Skeleton2D).get_bone_count() == 20, "Saved skeleton retains twenty bones")
 		for action: String in live.specs:
 			live.set_clip(action)
-			var frame: int = 0 if action == "idle" else int(live.get_frame_count() * 0.43)
+			var frame: int = int(live.get_frame_count() * 0.43)
 			live.seek_frame(frame)
 			player.play(action)
 			player.pause()

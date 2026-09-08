@@ -26,7 +26,7 @@ func _run() -> void:
 	assert(rig.load_rig(), str(rig.load_errors))
 	var requested: String = OS.get_environment("LABYRINTH_2D_CAPTURE_FACINGS")
 	var facings: PackedStringArray = PackedStringArray(["front", "rear"]) if requested.is_empty() else requested.split(",", false)
-	var manifest: Dictionary = {"canvas": [512, 512], "source_offset": [128, 128], "source_size": [255, 255], "fps": 24, "facings": {}, "rest_reconstruction": {}}
+	var manifest: Dictionary = {"canvas": [512, 512], "source_offset": [128, 128], "source_size": [255, 255], "fps": 24, "facings": {}, "rest_reconstruction": {}, "input_sha256": _input_hashes()}
 	for facing: String in facings:
 		assert(rig.has_facing(facing), "Required actual facing missing: " + facing)
 		rig.set_facing(facing)
@@ -90,3 +90,25 @@ func _image() -> Image:
 		await process_frame
 	await RenderingServer.frame_post_draw
 	return viewport.get_texture().get_image()
+
+func _input_hashes() -> Dictionary:
+	var prefix: String = "res://experiments/protagonist_2d/"
+	var paths: Dictionary = {}
+	for name: String in ["cutout_rig.gd", "cutout_motion.gd", "render_frames_probe.gd", "cutout_layout.json", "cutout_layout_rear.json", "references/rear.png"]:
+		paths[prefix + name] = true
+	paths["res://assets/placeholders/units/player_reaver.png"] = true
+	for name: String in ["cutout_layout.json", "cutout_layout_rear.json"]:
+		var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(prefix + name))
+		for part: Dictionary in data.get("parts", []):
+			paths[prefix + str(part["file"])] = true
+		for mesh: Dictionary in data.get("joint_meshes", []):
+			paths[prefix + str(mesh["file"])] = true
+		var cape: Dictionary = data.get("cape_mesh", {})
+		if not cape.is_empty():
+			paths[prefix + str(cape["file"])] = true
+	var result: Dictionary = {}
+	for path: String in paths:
+		var digest: String = FileAccess.get_sha256(path)
+		assert(not digest.is_empty(), "Missing render input: " + path)
+		result[path] = digest
+	return result

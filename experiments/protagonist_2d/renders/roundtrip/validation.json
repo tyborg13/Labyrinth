@@ -3,7 +3,7 @@
 		{
 			"action": "idle",
 			"facing": "front",
-			"frame": 0,
+			"frame": 8,
 			"pixel_identical": true
 		},
 		{
@@ -33,7 +33,7 @@
 		{
 			"action": "idle",
 			"facing": "rear",
-			"frame": 0,
+			"frame": 8,
 			"pixel_identical": true
 		},
 		{

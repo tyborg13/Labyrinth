@@ -1,0 +1,253 @@
+{
+  "pass": 3,
+  "fps": 24,
+  "size": [
+    1484,
+    788
+  ],
+  "shared_source_crop": [
+    97,
+    125,
+    438,
+    389
+  ],
+  "source_pixel_scale": 2,
+  "facings_left_to_right": [
+    "front",
+    "rear"
+  ],
+  "per_frame_camera_fitting": false,
+  "pose_interpolation": false,
+  "half_speed_method": "Display each actual source frame twice",
+  "builder_sha256": "84dac70df635b47c79bc637543c07330217d31df54c03a4d72d369cc9d6257a9",
+  "font_sha256": "83f0f49b4178e1c5bdaf40a7174f510b9bc52c9563095d23cf3c46486a8a8035",
+  "source_sha256": {
+    "front_attack.png": "fc28847c8a59f1dbe04be2244101f21ea979a2cb10f4793a8191157a37f549dd",
+    "front_block.png": "23ea09a1fe07dcd92a9c3f0f7304036fed358b8cb1fb0086789d9a27bb26b09c",
+    "front_hit.png": "2f4efbec23e3d01ed2153bf4edf1f286b13aa4d5566e0ba7b24c9df2037ecf7c",
+    "front_idle.png": "24dab11f1670bf028be2fb171ed8761be9636da09303bbf3f8106b837a0626c2",
+    "front_walk.png": "b0685f39d0a2a1505e590cfa0c9ce8f7858cfd133e79ed360f3d1f28de23a563",
+    "rear_attack.png": "258fd9d10625e59fe61e6605874f0c94d222a2c7645036730e0ee60c6970b651",
+    "rear_block.png": "ff744b5358948b83ef1bdbd5c89a0a0d024b0ebf0647023d1fdf4f4239e77033",
+    "rear_hit.png": "3a872a5f8907ccf3490da3359a178803406dbd81017cde4ef0bcbd5b0250a592",
+    "rear_idle.png": "ad9efbdf1a3f0a18d44076f77246a859bf9f0b0196f92818fa97e18c786c28a8",
+    "rear_walk.png": "cfa32a74864eaf21148d4f712d07539825a258b1368fa001091683c5834da765"
+  },
+  "videos": [
+    {
+      "file": "animation_showcase.mp4",
+      "sha256": "44ca12653ed3eb77c3510a6493aa7023b6144590af624a7a9b321db49f692140",
+      "frames": 136,
+      "duration_seconds": 5.666666666666667,
+      "segments": [
+        {
+          "action": "idle",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 20,
+          "start_frame": 0,
+          "frame_count": 20,
+          "start_seconds": 0.0,
+          "end_seconds": 0.8333333333333334
+        },
+        {
+          "action": "walk",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 20,
+          "frame_count": 24,
+          "start_seconds": 0.8333333333333334,
+          "end_seconds": 1.8333333333333333
+        },
+        {
+          "action": "attack",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 32,
+          "start_frame": 44,
+          "frame_count": 32,
+          "start_seconds": 1.8333333333333333,
+          "end_seconds": 3.1666666666666665
+        },
+        {
+          "action": "block",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 36,
+          "start_frame": 76,
+          "frame_count": 36,
+          "start_seconds": 3.1666666666666665,
+          "end_seconds": 4.666666666666667
+        },
+        {
+          "action": "hit",
+          "speed": 1,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 112,
+          "frame_count": 24,
+          "start_seconds": 4.666666666666667,
+          "end_seconds": 5.666666666666667
+        }
+      ],
+      "complete_decode": true,
+      "metadata": {
+        "width": 1484,
+        "height": 788,
+        "avg_frame_rate": "24/1",
+        "duration": "5.666667",
+        "nb_frames": "136"
+      },
+      "proof_frames": []
+    },
+    {
+      "file": "all_animations_feedback.mp4",
+      "sha256": "fdda0a32855722b88042e74f1e6cd8f4ac70ffcd971d1271b07350fc52ca28d7",
+      "frames": 544,
+      "duration_seconds": 22.666666666666668,
+      "segments": [
+        {
+          "action": "idle",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 20,
+          "start_frame": 0,
+          "frame_count": 40,
+          "start_seconds": 0.0,
+          "end_seconds": 1.6666666666666667
+        },
+        {
+          "action": "idle",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 20,
+          "start_frame": 40,
+          "frame_count": 40,
+          "start_seconds": 1.6666666666666667,
+          "end_seconds": 3.3333333333333335
+        },
+        {
+          "action": "walk",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 24,
+          "start_frame": 80,
+          "frame_count": 48,
+          "start_seconds": 3.3333333333333335,
+          "end_seconds": 5.333333333333333
+        },
+        {
+          "action": "walk",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 128,
+          "frame_count": 48,
+          "start_seconds": 5.333333333333333,
+          "end_seconds": 7.333333333333333
+        },
+        {
+          "action": "attack",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 32,
+          "start_frame": 176,
+          "frame_count": 64,
+          "start_seconds": 7.333333333333333,
+          "end_seconds": 10.0
+        },
+        {
+          "action": "attack",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 32,
+          "start_frame": 240,
+          "frame_count": 64,
+          "start_seconds": 10.0,
+          "end_seconds": 12.666666666666666
+        },
+        {
+          "action": "block",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 36,
+          "start_frame": 304,
+          "frame_count": 72,
+          "start_seconds": 12.666666666666666,
+          "end_seconds": 15.666666666666666
+        },
+        {
+          "action": "block",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 36,
+          "start_frame": 376,
+          "frame_count": 72,
+          "start_seconds": 15.666666666666666,
+          "end_seconds": 18.666666666666668
+        },
+        {
+          "action": "hit",
+          "speed": 1,
+          "repetitions": 2,
+          "source_frames_per_facing": 24,
+          "start_frame": 448,
+          "frame_count": 48,
+          "start_seconds": 18.666666666666668,
+          "end_seconds": 20.666666666666668
+        },
+        {
+          "action": "hit",
+          "speed": 0.5,
+          "repetitions": 1,
+          "source_frames_per_facing": 24,
+          "start_frame": 496,
+          "frame_count": 48,
+          "start_seconds": 20.666666666666668,
+          "end_seconds": 22.666666666666668
+        }
+      ],
+      "complete_decode": true,
+      "metadata": {
+        "width": 1484,
+        "height": 788,
+        "avg_frame_rate": "24/1",
+        "duration": "22.666667",
+        "nb_frames": "544"
+      },
+      "proof_frames": [
+        "idle_normal_000.png",
+        "idle_normal_010.png",
+        "idle_normal_019.png",
+        "idle_half_000.png",
+        "idle_half_010.png",
+        "idle_half_019.png",
+        "walk_normal_000.png",
+        "walk_normal_012.png",
+        "walk_normal_023.png",
+        "walk_half_000.png",
+        "walk_half_012.png",
+        "walk_half_023.png",
+        "attack_normal_000.png",
+        "attack_normal_016.png",
+        "attack_normal_031.png",
+        "attack_half_000.png",
+        "attack_half_016.png",
+        "attack_half_031.png",
+        "block_normal_000.png",
+        "block_normal_018.png",
+        "block_normal_035.png",
+        "block_half_000.png",
+        "block_half_018.png",
+        "block_half_035.png",
+        "hit_normal_000.png",
+        "hit_normal_012.png",
+        "hit_normal_023.png",
+        "hit_half_000.png",
+        "hit_half_012.png",
+        "hit_half_023.png"
+      ]
+    }
+  ]
+}

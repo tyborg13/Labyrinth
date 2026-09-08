@@ -3,8 +3,8 @@
   "visible_source_pixels": 18722,
   "exclusive_base_pixels": {
     "head": 2690,
-    "scarf": 788,
-    "cape_full": 6391,
+    "cape_full": 6556,
+    "scarf": 623,
     "sword_hand_r": 2390,
     "forearm_r": 687,
     "arm_r": 696,
@@ -19,8 +19,8 @@
   },
   "source_outline_assignments": {
     "head": 24,
-    "scarf": 39,
     "cape_full": 68,
+    "scarf": 15,
     "sword_hand_r": 247,
     "forearm_r": 184,
     "arm_r": 82,
@@ -30,7 +30,7 @@
     "thigh_l": 35,
     "thigh_r": 107,
     "hips": 72,
-    "torso": 62
+    "torso": 64
   },
   "source_rgba_preserved": true,
   "proof": {
@@ -39,6 +39,10 @@
       "exact_rest_reconstruction": true
     },
     "weighted_cape": {
+      "different_rgba_pixels": 0,
+      "exact_rest_reconstruction": true
+    },
+    "weighted_joints": {
       "different_rgba_pixels": 0,
       "exact_rest_reconstruction": true
     }

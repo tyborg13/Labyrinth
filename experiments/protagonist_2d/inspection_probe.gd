@@ -30,7 +30,7 @@ func _run() -> void:
 	assert(front_only or view.has_facing("rear"), "Full proof requires the actual rear rig")
 	view.set_playing(false)
 	view.set_travel_enabled(false)
-	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v2" if front_only else "user://protagonist_2d_board_full_v2")
+	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v3" if front_only else "user://protagonist_2d_board_full_v3")
 	DirAccess.make_dir_recursive_absolute(output)
 	var facings := PackedStringArray(["front"]) if front_only else View.FACINGS
 	var board: Control = view.board
@@ -180,7 +180,7 @@ func _run() -> void:
 		view.set_bones_visible(false)
 	view.set_detail_zoom(false)
 	await _capture("detail_full_pose")
-	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "pass": 2, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
+	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "pass": 3, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
 	var file := FileAccess.open(output.path_join("validation.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(evidence, "\t"))
 	file.close()

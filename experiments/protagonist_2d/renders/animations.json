@@ -70,17 +70,17 @@
     "idle": {
       "front": {
         "sheet": "front_idle.png",
-        "frames": 48,
+        "frames": 20,
         "cols": 6,
-        "rows": 8,
+        "rows": 4,
         "fps": 24.0,
         "loop": true
       },
       "rear": {
         "sheet": "rear_idle.png",
-        "frames": 48,
+        "frames": 20,
         "cols": 6,
-        "rows": 8,
+        "rows": 4,
         "fps": 24.0,
         "loop": true
       }

@@ -7,12 +7,15 @@ func _init() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	var maximum_target_error := 0.0
 	var maximum_support_drift := 0.0
+	var maximum_painted_sole_ground_error := 0.0
 	var maximum_contact_rotation := 0.0
 	var maximum_wrap_position_delta := 0.0
 	var maximum_wrap_rotation_delta := 0.0
 	var worst_case := ""
 	var gait_metrics := {}
 	var joint_rotation_peaks := {}
+	var attack_metrics := {}
+	var idle_metrics := {}
 	for facing: String in ["front", "rear"]:
 		var layout_path := "res://experiments/protagonist_2d/cutout_layout.json" if facing == "front" else "res://experiments/protagonist_2d/cutout_layout_rear.json"
 		var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(layout_path))
@@ -38,6 +41,17 @@ func _init() -> void:
 		var minimum_hips_y := INF
 		var maximum_hips_y := -INF
 		var support_samples := 0
+		var traces := {}
+		var sole_geometry := _painted_sole_geometry(layout)
+		var maximum_lead_toe_error := 0.0
+		var lead_boot_angle := 0.0
+		var lead_foot_name: String = "foot_l" if facing == "front" else "foot_r"
+		# Independent landmarks read from the painted near boots: heel-to-toe
+		# points down in front and down-right in rear. Assess their actual global
+		# direction against board travel, rather than the motion's angle output.
+		var painted_toe_direction := Vector2(0.0, 14.0) if facing == "front" else Vector2(18.0, 5.0)
+		var desired_toe_direction := Vector2(-1.0, 0.28) if facing == "front" else Vector2(1.0, -0.28)
+		var blade_tip_source := Vector2(13.0, 190.0) if facing == "front" else Vector2(249.0, 216.0)
 		for clip: String in Motion.clip_specs():
 			var initial: Dictionary = Motion.sample_pose(clip, 0.0, layout, facing)
 			if initial != Motion.sample_pose(clip, 1.0, layout, facing):
@@ -47,9 +61,13 @@ func _init() -> void:
 			if clip == "walk" and initial == neutral:
 				failures.append("Walk contact was replaced with neutral: " + facing)
 			var support_anchors := {}
+			var contact_angles := {}
+			traces[clip] = []
 			for index: int in range(PHASE_SAMPLES):
 				var phase: float = float(index) / float(PHASE_SAMPLES - 1)
 				var pose: Dictionary = Motion.sample_pose(clip, phase, layout, facing)
+				if pose.size() != 20 or pose.size() != bones.size():
+					failures.append("Pose does not contain all 20 bones: " + clip + "/" + facing)
 				for name: String in bones:
 					var bone: Bone2D = bones[name]
 					bone.position = pose[name].position
@@ -58,6 +76,13 @@ func _init() -> void:
 						failures.append("Nonfinite " + clip + "/" + name)
 					var key: String = facing + "/" + name
 					joint_rotation_peaks[key] = maxf(float(joint_rotation_peaks.get(key, 0.0)), absf(bone.rotation))
+				var hand: Bone2D = bones["hand_r"]
+				var cape: Bone2D = bones["cape_tip"]
+				var cape_material_point := Vector2(207.0, 179.0) if facing == "front" else Vector2(41.0, 174.0)
+				traces[clip].append({"tip": hand.global_transform * (blade_tip_source - Motion._joint_position(layout, "hand_r")),
+					"hips": bones["hips"].global_position, "torso": bones["torso"].global_position,
+					"head": bones["head"].global_position, "hand_l": bones["hand_l"].global_position, "hand": hand.global_position,
+					"cape": cape.global_transform * (cape_material_point - Motion._joint_position(layout, "cape_tip"))})
 				if clip == "walk":
 					var hips: Bone2D = bones["hips"]
 					minimum_hips_y = minf(minimum_hips_y, hips.global_position.y)
@@ -67,9 +92,11 @@ func _init() -> void:
 					var target := Vector2(float(source[0]), float(source[1]))
 					var contact := true
 					var foot_phase := 0.0
+					var sole_ground_y := 0.0
 					if clip == "walk":
 						var state: Dictionary = Motion.walk_foot_state(phase, foot_name, layout, facing)
 						target = state.target
+						sole_ground_y = Vector2(state.ground).y + float(sole_geometry[foot_name].rest_depth)
 						contact = state.contact
 						foot_phase = float(state.cycle_phase)
 						maximum_lift = maxf(maximum_lift, float(state.lift_px))
@@ -80,9 +107,22 @@ func _init() -> void:
 						worst_case = "%s/%s/%s/%.4f" % [facing, clip, foot_name, phase]
 					if not contact:
 						support_anchors.erase(foot_name)
+						contact_angles.erase(foot_name)
 						continue
-					maximum_contact_rotation = maxf(maximum_contact_rotation, absf(foot.global_rotation))
+					if not contact_angles.has(foot_name):
+						contact_angles[foot_name] = foot.global_rotation if clip == "walk" else 0.0
+					maximum_contact_rotation = maxf(maximum_contact_rotation,
+						absf(wrapf(foot.global_rotation - float(contact_angles[foot_name]), -PI, PI)))
+					if clip == "walk" and foot_name == lead_foot_name:
+						var toe_direction: Vector2 = painted_toe_direction.rotated(foot.global_rotation)
+						maximum_lead_toe_error = maxf(maximum_lead_toe_error, absf(toe_direction.angle_to(desired_toe_direction)))
+						lead_boot_angle = foot.global_rotation
 					if clip == "walk":
+						var sole_depth := -INF
+						for pixel: Vector2 in sole_geometry[foot_name].pixels:
+							sole_depth = maxf(sole_depth, pixel.rotated(foot.global_rotation).y)
+						maximum_painted_sole_ground_error = maxf(maximum_painted_sole_ground_error,
+							absf(foot.global_position.y + sole_depth - sole_ground_y))
 						# Independent world-space contact test: add the same constant
 						# root travel as the inspection host, then compare all samples
 						# in each uninterrupted support interval to its first footprint.
@@ -93,6 +133,10 @@ func _init() -> void:
 						maximum_support_drift = maxf(maximum_support_drift, world_foot.distance_to(anchor))
 						support_anchors[foot_name].phase = foot_phase
 						support_samples += 1
+		attack_metrics[facing] = _measure_attack(traces, facing)
+		idle_metrics[facing] = _measure_idle(traces["idle"], facing)
+		if maximum_lead_toe_error > 0.35 or absf(lead_boot_angle) < 0.35:
+			failures.append("Walking near boot still splays away from travel: " + facing)
 		var before: Dictionary = Motion.sample_pose("walk", 1.0 - 0.00001, layout, facing)
 		var after: Dictionary = Motion.sample_pose("walk", 0.00001, layout, facing)
 		for name: String in bones:
@@ -108,14 +152,17 @@ func _init() -> void:
 			"stride_px": walk_info.stride_px,
 			"travel_per_cycle_px": [cycle_travel.x, cycle_travel.y],
 			"maximum_lift_px": maximum_lift, "pelvis_vertical_range_px": hips_range,
-			"support_samples": support_samples}
+			"support_samples": support_samples, "lead_boot_angle_rad": lead_boot_angle,
+			"maximum_lead_toe_direction_error_rad": maximum_lead_toe_error}
 		skeleton.free()
 	if maximum_target_error > 0.02:
 		failures.append("IK target error exceeds 0.02 px: " + str(maximum_target_error) + " at " + worst_case)
+	if maximum_painted_sole_ground_error > 0.35:
+		failures.append("Turned walking boot loses its painted sole ground depth: " + str(maximum_painted_sole_ground_error))
 	if maximum_support_drift > 0.02:
 		failures.append("World-space support foot slides: " + str(maximum_support_drift))
 	if maximum_contact_rotation > 0.0001:
-		failures.append("Contact foot rotates: " + str(maximum_contact_rotation))
+		failures.append("Contact foot changes its planted angle: " + str(maximum_contact_rotation))
 	if maximum_wrap_position_delta > 0.05 or maximum_wrap_rotation_delta > 0.001:
 		failures.append("Walk has a discontinuity at wrap")
 	var matrices_path: String = OS.get_environment("LABYRINTH_CUTOUT_POSE_MATRICES")
@@ -123,10 +170,94 @@ func _init() -> void:
 		_write_pose_matrices(matrices_path)
 	print("CUTOUT_MOTION_PROOF " + JSON.stringify({"phase_samples": PHASE_SAMPLES, "layouts": 2, "actual_layouts": true, "clips": 5,
 		"max_target_error_px": maximum_target_error, "max_world_support_drift_px": maximum_support_drift,
-		"max_contact_rotation_rad": maximum_contact_rotation, "worst_case": worst_case,
+		"max_contact_rotation_rad": maximum_contact_rotation, "max_painted_sole_ground_error_px": maximum_painted_sole_ground_error, "worst_case": worst_case,
 		"max_wrap_position_delta_px": maximum_wrap_position_delta, "max_wrap_rotation_delta_rad": maximum_wrap_rotation_delta,
-		"gait_metrics": gait_metrics, "joint_rotation_peaks_rad": joint_rotation_peaks, "failures": failures}))
+		"gait_metrics": gait_metrics, "attack_metrics": attack_metrics, "idle_metrics": idle_metrics, "joint_rotation_peaks_rad": joint_rotation_peaks, "failures": failures}))
 	quit(0 if failures.is_empty() else 1)
+
+
+func _painted_sole_geometry(layout: Dictionary) -> Dictionary:
+	var geometry := {}
+	for part: Dictionary in layout.parts:
+		var name := String(part.name)
+		if name != "foot_r" and name != "foot_l":
+			continue
+		var image := Image.load_from_file("res://experiments/protagonist_2d/" + String(part.file))
+		var pixels: Array[Vector2]
+		var rest_depth := -INF
+		var offset := Vector2(float(part.offset[0]), float(part.offset[1])) - Motion._joint_position(layout, name)
+		for y: int in range(image.get_height()):
+			for x: int in range(image.get_width()):
+				if image.get_pixel(x, y).a > 0.0:
+					var point: Vector2 = Vector2(x, y) + offset
+					pixels.append(point)
+					rest_depth = maxf(rest_depth, point.y)
+		geometry[name] = {"pixels": pixels, "rest_depth": rest_depth}
+	return geometry
+
+
+func _measure_attack(traces: Dictionary, facing: String) -> Dictionary:
+	var attack: Array = traces["attack"]
+	var block: Array = traces["block"]
+	var windup: Vector2 = attack[roundi(0.25 * (PHASE_SAMPLES - 1))].tip
+	var finish: Vector2 = attack[roundi(0.45 * (PHASE_SAMPLES - 1))].tip
+	var cut: Vector2 = finish - windup
+	var lift: float = Vector2(attack[0].tip).y - windup.y
+	var preparation_speed := 0.0
+	var cut_speed := 0.0
+	var recovery_speed := 0.0
+	var upward_cut_travel := 0.0
+	for index: int in range(1, attack.size()):
+		var phase: float = float(index) / float(PHASE_SAMPLES - 1)
+		var travel: Vector2 = Vector2(attack[index].tip) - Vector2(attack[index - 1].tip)
+		var speed: float = travel.length() * float(PHASE_SAMPLES - 1) / float(Motion.clip_specs()["attack"].duration)
+		if phase < 0.25:
+			preparation_speed = maxf(preparation_speed, speed)
+		elif phase >= 0.28 and phase <= 0.45:
+			cut_speed = maxf(cut_speed, speed)
+			upward_cut_travel += maxf(0.0, -travel.y)
+		elif phase >= 0.60:
+			recovery_speed = maxf(recovery_speed, speed)
+	var block_separation: float = finish.distance_to(Vector2(block[roundi(0.45 * (PHASE_SAMPLES - 1))].tip))
+	# Blade landmarks are from source pixels. These spatial and timing bounds
+	# reject the previous upward flick even when its joint values are finite.
+	if lift < 45.0 or cut.y < 70.0 or absf(cut.x) < 40.0 or upward_cut_travel > 2.0:
+		failures.append("Attack lacks raised anticipation followed by a sideways/downward cut: " + facing)
+	if cut_speed < preparation_speed * 1.40 or cut_speed < recovery_speed * 2.0:
+		failures.append("Attack cut is not faster than preparation/recovery: " + facing)
+	if block_separation < 100.0:
+		failures.append("Attack blade trajectory is too similar to raised block: " + facing)
+	return {"painted_blade_tip_lift_px": lift, "cut_delta_px": [cut.x, cut.y],
+		"upward_travel_during_cut_px": upward_cut_travel, "preparation_peak_speed_px_s": preparation_speed,
+		"cut_peak_speed_px_s": cut_speed, "recovery_peak_speed_px_s": recovery_speed,
+		"blade_tip_separation_from_block_px": block_separation}
+
+
+func _measure_idle(trace: Array, facing: String) -> Dictionary:
+	var first: Dictionary = trace[0]
+	var minimum_body_y := INF
+	var maximum_body_y := -INF
+	var maximum_body_disagreement := 0.0
+	var maximum_cape_relative_travel := 0.0
+	for sample: Dictionary in trace:
+		var body: Vector2 = Vector2(sample.hips) - Vector2(first.hips)
+		minimum_body_y = minf(minimum_body_y, body.y)
+		maximum_body_y = maxf(maximum_body_y, body.y)
+		for key: String in ["torso", "head", "hand_l"]:
+			var moved: Vector2 = Vector2(sample[key]) - Vector2(first[key])
+			maximum_body_disagreement = maxf(maximum_body_disagreement, moved.distance_to(body))
+		var cape_travel: Vector2 = Vector2(sample.cape) - Vector2(first.cape)
+		maximum_cape_relative_travel = maxf(maximum_cape_relative_travel, cape_travel.distance_to(body))
+	var body_range: float = maximum_body_y - minimum_body_y
+	var seconds: float = float(Motion.clip_specs()["idle"].duration)
+	if body_range < 1.0 or body_range > 2.1 or maximum_body_disagreement > 0.05:
+		failures.append("Idle lacks a coherent 1–2 px pelvis/chest/head bob: " + facing)
+	if maximum_cape_relative_travel > 0.75:
+		failures.append("Idle cape ripple overwhelms the body bob: " + facing)
+	if seconds < 0.72 or seconds > 0.90:
+		failures.append("Idle cadence no longer resembles the authored 0.8 s sheet: " + facing)
+	return {"body_bob_range_px": body_range, "maximum_body_disagreement_px": maximum_body_disagreement,
+		"maximum_cape_travel_relative_to_body_px": maximum_cape_relative_travel, "duration_s": seconds}
 
 
 func _write_pose_matrices(path: String) -> void:

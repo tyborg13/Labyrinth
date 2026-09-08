@@ -14,7 +14,7 @@ const WALK_STANCE_FRACTION: float = 0.60
 
 static func clip_specs() -> Dictionary:
 	return {
-		"idle": {"frames": 48, "fps": 24, "loop": true, "duration": 2.0},
+		"idle": {"frames": 20, "fps": 24, "loop": true, "duration": 20.0 / 24.0},
 		"walk": {"frames": 24, "fps": 24, "loop": true, "duration": 1.0},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
 		"block": {"frames": 36, "fps": 24, "loop": false, "duration": 1.5},
@@ -41,19 +41,23 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 
 	match clip:
 		"idle":
-			var breath: float = 0.5 - 0.5 * cos(TAU * t)
-			var sway: float = sin(TAU * t)
-			_offset(pose, "hips", Vector2(0.0, 0.34 * breath))
-			_offset(pose, "torso", Vector2(0.0, -0.22 * breath))
-			_rotate(pose, "torso", direction * 0.008 * sway)
-			_rotate(pose, "neck", -direction * 0.004 * sway)
-			_rotate(pose, "head", -direction * 0.004 * sway)
-			_rotate(pose, "arm_r", direction * 0.009 * breath)
-			_rotate(pose, "forearm_r", -direction * 0.010 * breath)
-			_rotate(pose, "arm_l", -direction * 0.008 * breath)
-			_rotate(pose, "cape_root", direction * 0.009 * sway)
-			_rotate(pose, "cape_mid", direction * (0.015 * sway + 0.010 * breath))
-			_rotate(pose, "cape_tip", direction * (0.020 * sway - 0.015 * breath))
+			# The original eight-frame sheet lifts chest, face and free hand
+			# together by ~1 source pixel at 10 fps. Twenty frames at 24 fps
+			# retain its ~0.8 s cadence. A downward compression keeps the body
+			# coherent and feet fixed without stretching the straight source legs.
+			var bob: float = _curve(t, PackedVector2Array([
+				Vector2(0.0, 0.0), Vector2(0.14, 1.5), Vector2(0.62, 1.5),
+				Vector2(0.91, 0.0), Vector2(1.0, 0.0)]))
+			var sword_bob: float = _curve(t, PackedVector2Array([
+				Vector2(0.0, 0.0), Vector2(0.12, 0.0), Vector2(0.26, 1.5),
+				Vector2(0.61, 1.5), Vector2(0.83, 0.0), Vector2(1.0, 0.0)]))
+			_offset(pose, "hips", Vector2(0.0, bob))
+			_offset(pose, "arm_r", Vector2(0.0, sword_bob - bob))
+			# Cloth travels with the chest. Subpixel overlap is secondary to the
+			# body bob, rather than a chain of opposing surface ripples.
+			var overlap: float = sin(TAU * t) * bob / 1.5
+			_rotate(pose, "cape_mid", direction * 0.002 * overlap)
+			_rotate(pose, "cape_tip", direction * 0.003 * overlap)
 		"walk":
 			var info := walk_cycle_info(layout, facing)
 			var scale_factor: float = float(info["stride_px"]) / 30.0
@@ -91,27 +95,35 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			_rotate(pose, "cape_tip", -direction * 0.060 * sin(TAU * t - 0.92))
 			_fit_walk_pelvis(pose, layout, right_target, left_target)
 		"attack":
-			var prepare: float = _pulse(t, 0.0, 0.23, 0.39)
-			var drive: float = _pulse(t, 0.24, 0.38, 0.84)
-			var strike: float = _pulse(t, 0.27, 0.44, 0.91)
-			var blade_follow: float = _pulse(t, 0.31, 0.48, 0.94)
-			var cloth_follow: float = _pulse(t, 0.39, 0.64, 1.0)
-			# The pelvis starts the cut, then shoulder, elbow, blade and cloth.
-			# A slower recovery leaves a clear commitment and follow-through.
-			_offset(pose, "root", Vector2(direction * (1.3 * prepare - 4.2 * drive), 0.0))
-			_offset(pose, "hips", Vector2(0.0, 1.7 * prepare + 3.4 * drive))
-			_rotate(pose, "hips", direction * (0.018 * prepare - 0.025 * drive))
-			_rotate(pose, "torso", direction * (0.045 * prepare - 0.12 * drive))
-			_rotate(pose, "neck", direction * (-0.016 * prepare + 0.036 * strike))
-			_rotate(pose, "head", direction * (-0.015 * prepare + 0.025 * strike))
-			_rotate(pose, "arm_r", direction * (-0.20 * prepare + 0.58 * drive))
-			_rotate(pose, "forearm_r", direction * (-0.24 * prepare + 0.73 * strike))
-			_rotate(pose, "hand_r", direction * (-0.08 * prepare + 0.14 * blade_follow))
-			_rotate(pose, "arm_l", direction * (0.10 * prepare - 0.19 * strike))
-			_rotate(pose, "forearm_l", direction * (0.12 * prepare - 0.25 * strike))
-			_rotate(pose, "cape_root", direction * (0.022 * prepare + 0.034 * drive))
-			_rotate(pose, "cape_mid", direction * (0.048 * strike - 0.052 * cloth_follow))
-			_rotate(pose, "cape_tip", direction * (0.030 * strike - 0.083 * cloth_follow))
+			# Read the two painted sword orientations independently: front starts
+			# down-left; rear starts down-right. Their lifts and cuts need opposite
+			# signs and different amplitudes, not a mirrored upward wrist flick.
+			# Eight-frame anticipation, four-frame cut, delayed follow-through,
+			# then a substantially slower recovery into the exact source stance.
+			var prepare: float = _hold(t, 0.0, 0.22, 0.27, 0.40)
+			var drive: float = _hold(t, 0.26, 0.38, 0.49, 0.94)
+			var strike: float = _hold(t, 0.28, 0.41, 0.54, 0.96)
+			var blade_follow: float = _hold(t, 0.31, 0.44, 0.57, 0.98)
+			var cloth_follow: float = _pulse(t, 0.36, 0.59, 1.0)
+			_offset(pose, "root", Vector2(direction * (1.0 * prepare - 3.2 * drive), 0.0))
+			_offset(pose, "hips", Vector2(0.0, 0.9 * prepare + 2.4 * drive))
+			_rotate(pose, "hips", direction * (0.012 * prepare - 0.018 * drive))
+			_rotate(pose, "torso", direction * (0.035 * prepare - 0.070 * drive))
+			_rotate(pose, "neck", direction * (-0.014 * prepare + 0.024 * strike))
+			_rotate(pose, "head", direction * (-0.012 * prepare + 0.018 * strike))
+			if direction > 0.0:
+				_rotate(pose, "arm_r", 0.25 * prepare - 0.20 * drive)
+				_rotate(pose, "forearm_r", 0.40 * prepare - 0.30 * strike)
+				_rotate(pose, "hand_r", 0.10 * prepare - 0.05 * blade_follow)
+			else:
+				_rotate(pose, "arm_r", -0.32 * prepare + 0.09 * drive)
+				_rotate(pose, "forearm_r", -0.55 * prepare + 0.12 * strike)
+				_rotate(pose, "hand_r", -0.10 * prepare + 0.025 * blade_follow)
+			_rotate(pose, "arm_l", direction * (0.10 * prepare - 0.17 * strike))
+			_rotate(pose, "forearm_l", direction * (0.12 * prepare - 0.20 * strike))
+			_rotate(pose, "cape_root", direction * (0.015 * prepare + 0.025 * drive))
+			_rotate(pose, "cape_mid", direction * (0.025 * strike - 0.038 * cloth_follow))
+			_rotate(pose, "cape_tip", direction * (0.020 * strike - 0.060 * cloth_follow))
 		"block":
 			var guard: float = _hold(t, 0.0, 0.21, 0.64, 1.0)
 			var blade_guard: float = _hold(t, 0.025, 0.25, 0.69, 1.0)
@@ -267,7 +279,12 @@ static func walk_foot_state(phase: float, foot_name: String, layout: Dictionary,
 	var stride: float = info["stride_px"]
 	var travel: float
 	var lift := 0.0
-	var angle := 0.0
+	# These offsets turn the source combat-stance boots into walking lanes.
+	# In particular the front near boot points down in the painting, and the
+	# rear near boot points down-right. Their walking toes point down-left and
+	# up-right respectively. A constant support angle also plants the sole.
+	var rear: bool = facing.to_lower().contains("rear") or facing.to_lower() == "back"
+	var angle: float = (-0.60 if foot_name == "foot_r" else -0.08) if rear else (0.04 if foot_name == "foot_r" else 1.10)
 	var contact: bool = t <= WALK_STANCE_FRACTION
 	if contact:
 		# A constant velocity here cancels the host's root translation exactly.
@@ -279,14 +296,18 @@ static func walk_foot_state(phase: float, foot_name: String, layout: Dictionary,
 		var tangent: float = -stride * (1.0 - WALK_STANCE_FRACTION) / WALK_STANCE_FRACTION
 		travel = lerpf(-stride * 0.5, stride * 0.5, _ease(u)) + tangent * (2.0 * u * u * u - 3.0 * u * u + u)
 		lift = float(info["foot_lift_px"]) * pow(sin(PI * u), 1.35)
-		angle = -signf(Vector2(info["direction"]).x) * 0.16 * sin(TAU * u)
+		angle += -signf(Vector2(info["direction"]).x) * 0.16 * sin(TAU * u)
 	# The source neutral is a wide combat stance. Walking uses narrower lanes
 	# under the hips rather than forcing that splayed pose through every step.
 	var anchor: Vector2 = _joint_position(layout, foot_name)
 	var thigh: Vector2 = _joint_position(layout, foot_name.replace("foot_", "thigh_"))
 	anchor.x = lerpf(anchor.x, thigh.x, 0.70)
 	var ground: Vector2 = anchor + Vector2(info["direction"]) * travel
-	return {"target": ground + Vector2(0.0, -lift), "ground": ground,
+	# Turning the rigid painted boot changes its lowest alpha contour by a
+	# few pixels. Compensate its ankle height so the visible sole retains the
+	# original ground depth. The probe independently measures the PNG contour.
+	var sole_drop: float = (3.10 if foot_name == "foot_r" else -0.51) if rear else (0.25 if foot_name == "foot_r" else 2.05)
+	return {"target": ground + Vector2(0.0, sole_drop - lift), "ground": ground,
 		"angle": angle, "contact": contact, "cycle_phase": t, "lift_px": lift}
 
 
