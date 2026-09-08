@@ -1,6 +1,6 @@
 extends Node2D
 
-## Original painted cutouts on editable Godot bones. The inspection host owns time.
+## Painted character parts on editable Godot bones. The inspection host owns time.
 const Motion = preload("res://experiments/protagonist_2d/cutout_motion.gd")
 const BASE: String = "res://experiments/protagonist_2d"
 const CANVAS_SIZE := Vector2i(512, 512)
@@ -282,6 +282,10 @@ func get_reference_texture(which: String = "") -> Texture2D:
 		if data is Dictionary:
 			_reference_cache[key] = _texture(str((data as Dictionary).get("source", "references/rear.png")))
 	return _reference_cache.get(key) as Texture2D
+
+func get_rest_texture() -> Texture2D:
+	# New paint has its own neutral assembly target; identity comparison stays canonical.
+	return _texture(str(layout.get("rest_source", layout.get("source", ""))))
 
 func show_rest() -> void:
 	if animator != null:

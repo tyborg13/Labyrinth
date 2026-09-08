@@ -18,7 +18,7 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
 
 def iteration_comparison(output, clips, source_fps):
     """Compare retained renderer frames at their original timing and scale."""
-    baseline = output / 'pass3'
+    baseline = output / 'pass4'
     metadata_path = baseline / 'animations.json'
     if not metadata_path.exists() or set(f for f, a in clips if a == 'walk') != {'front', 'rear'}:
         return
@@ -30,8 +30,7 @@ def iteration_comparison(output, clips, source_fps):
         prior[facing] = [sheet.crop(((i % spec['cols']) * 512, (i // spec['cols']) * 512,
                                     (i % spec['cols'] + 1) * 512, (i // spec['cols'] + 1) * 512))
                          for i in range(spec['frames'])]
-    # A 72fps output preserves both the 24fps baseline and new 36fps walk.
-    # Two seconds contains two old cycles and three new cycles.
+    # A 72fps output preserves the native 36fps baseline and current walk.
     output_fps = 72
     prior_fps = int(metadata['animations']['walk']['front']['fps'])
     current_fps = int(source_fps['walk'])
@@ -43,10 +42,10 @@ def iteration_comparison(output, clips, source_fps):
     for frame in range(count):
         canvas = Image.new('RGB', (1000, 880), '#1b1d20')
         draw = ImageDraw.Draw(canvas)
-        label(draw, (30, 24), 'WALK / THIRD AND FOURTH PASS', 25)
+        label(draw, (30, 24), 'WALK / FOURTH AND FIFTH PASS', 25)
         label(draw, (220, 70), 'Front', 21)
         label(draw, (720, 70), 'Rear', 21)
-        for row, version in enumerate(('Third pass / 24fps', 'Fourth pass / 36fps')):
+        for row, version in enumerate(('Fourth pass / 36fps', 'Fifth pass / 36fps')):
             label(draw, (30, 102 + row * 420), version, 20, '#c99b62')
             for column, facing in enumerate(('front', 'rear')):
                 frames = prior[facing] if row == 0 else clips[(facing, 'walk')]
@@ -64,8 +63,8 @@ def iteration_comparison(output, clips, source_fps):
                         '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
                         str(output / 'walk_iteration_comparison.mp4')], check=True)
     (output / 'walk_iteration_comparison.json').write_text(json.dumps({
-        'baseline_commit': '1ce20af71335f2f4ac64cfead08fedef34111ee2',
-        'baseline_source': 'pass3/front_walk.png and pass3/rear_walk.png',
+        'baseline_commit': 'a3d2bce6f45f775b311fa59dd7326bfab9995afc',
+        'baseline_source': 'pass4/front_walk.png and pass4/rear_walk.png',
         'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': output_fps, 'source_fps': [prior_fps, current_fps],
         'scale': 1.25, 'resampler': 'nearest', 'interpolated_frames': False,
     }, indent=2) + '\n')
@@ -107,7 +106,7 @@ def main():
     (output/'render_validation.json').write_text(json.dumps(source,indent=2)+'\n')
     facings=list(source['facings'])
     source_fps={action:int(meta["fps"]) for action,meta in source["facings"]["front"].items()}
-    walk_frames,n=write_previews(clips,output,pass_number=4,source_fps=source_fps)
+    walk_frames,n=write_previews(clips,output,pass_number=5,source_fps=source_fps)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
         gif_size=(960,round(walk_frames[0].height*960/walk_frames[0].width))

@@ -9,25 +9,25 @@
         {
           "height": 512,
           "luma_max": 223.55879999999996,
-          "luma_mean": 2.838430544164489,
+          "luma_mean": 2.7247330866505526,
           "luma_min": 0.0,
           "luma_range": 223.55879999999996,
-          "luma_stdev": 15.492716212408581,
-          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png",
+          "luma_stdev": 14.942579149097027,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png",
           "width": 512
         },
         {
           "height": 512,
-          "luma_max": 254.99999999999997,
-          "luma_mean": 3.2776645940224047,
+          "luma_max": 250.06419999999997,
+          "luma_mean": 3.088623540407035,
           "luma_min": 0.0,
-          "luma_range": 254.99999999999997,
-          "luma_stdev": 15.800869143388688,
-          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png",
+          "luma_range": 250.06419999999997,
+          "luma_stdev": 15.383379623237866,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png",
           "width": 512
         }
       ],
-      "namespace": "protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1",
+      "namespace": "protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1",
       "returncode": 0
     }
   ],
@@ -56,25 +56,25 @@
     {
       "height": 512,
       "luma_max": 223.55879999999996,
-      "luma_mean": 2.838430544164489,
+      "luma_mean": 2.7247330866505526,
       "luma_min": 0.0,
       "luma_range": 223.55879999999996,
-      "luma_stdev": 15.492716212408581,
-      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png",
+      "luma_stdev": 14.942579149097027,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png",
       "width": 512
     },
     {
       "height": 512,
-      "luma_max": 254.99999999999997,
-      "luma_mean": 3.2776645940224047,
+      "luma_max": 250.06419999999997,
+      "luma_mean": 3.088623540407035,
       "luma_min": 0.0,
-      "luma_range": 254.99999999999997,
-      "luma_stdev": 15.800869143388688,
-      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png",
+      "luma_range": 250.06419999999997,
+      "luma_stdev": 15.383379623237866,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png",
       "width": 512
     }
   ],
-  "namespace": "protagonist-2d-skeletal-experiment-1788841776397019000-65804-roundtrip_probe-1",
+  "namespace": "protagonist-2d-skeletal-experiment-1788847485818179000-93923-roundtrip_probe-1",
   "ok": true,
   "proof_contract": "",
   "rendering_driver": "metal",

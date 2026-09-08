@@ -1,5 +1,5 @@
 extends RefCounted
-## Projected walking and staged actions for a source-painted Bone2D cutout rig.
+## Projected walking and staged actions for an articulated painted Bone2D rig.
 ## Input joint positions are GLOBAL source-image pixels; returned positions are
 ## LOCAL to the joint's parent. Rotations are offsets from identity-basis rests.
 ## Each call returns a complete pose, so seeking and changing clips cannot leave
@@ -27,13 +27,13 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var pose := _rest_pose(layout)
 	var specs := clip_specs()
 	if not specs.has(clip):
-		return pose
+		return _separate_grip(pose)
 	var looped: bool = bool(specs[clip]["loop"])
 	var t: float = fposmod(phase, 1.0) if looped else clampf(phase, 0.0, 1.0)
 	# A walking loop starts at contact, not neutral. Neutral remains an explicit
 	# exact-source pose; one-shot actions and idle also return to that pose.
 	if clip != "walk" and (is_zero_approx(t) or is_equal_approx(t, 1.0)):
-		return pose
+		return _separate_grip(pose)
 	var direction: float = -1.0 if facing.to_lower().contains("rear") or facing.to_lower() == "back" else 1.0
 	var right_target := _joint_position(layout, "foot_r")
 	var left_target := _joint_position(layout, "foot_l")
@@ -123,13 +123,13 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			var cut_hold := _hold(t, 0.31, 0.41, 0.54, 0.96)
 			var follow_hold := _hold(t, 0.44, 0.58, 0.66, 0.98)
 			if direction > 0.0:
-				_rotate(pose, "arm_r", 0.90 * arm_curve + 0.50 * cut_hold - 0.15 * follow_hold)
-				_rotate(pose, "forearm_r", 0.80 * arm_curve + 0.20 * cut_hold - 0.20 * follow_hold)
-				_rotate(pose, "hand_r", 0.50 * arm_curve - 0.15 * cut_hold + 0.05 * follow_hold)
+				_rotate(pose, "arm_r", 1.30 * arm_curve + 0.60 * cut_hold - 0.15 * follow_hold)
+				_rotate(pose, "forearm_r", 0.65 * arm_curve + 0.20 * cut_hold - 0.20 * follow_hold)
+				_rotate(pose, "hand_r", 0.25 * arm_curve - 0.10 * cut_hold + 0.05 * follow_hold)
 			else:
-				_rotate(pose, "arm_r", -0.90 * arm_curve - 0.60 * cut_hold + 0.15 * follow_hold)
-				_rotate(pose, "forearm_r", -1.00 * arm_curve + 0.35 * cut_hold - 0.10 * follow_hold)
-				_rotate(pose, "hand_r", -0.38 * arm_curve - 0.53 * cut_hold + 0.16 * follow_hold)
+				_rotate(pose, "arm_r", -1.35 * arm_curve - 0.60 * cut_hold + 0.15 * follow_hold)
+				_rotate(pose, "forearm_r", -0.75 * arm_curve + 0.35 * cut_hold - 0.10 * follow_hold)
+				_rotate(pose, "hand_r", -0.18 * arm_curve - 0.53 * cut_hold + 0.16 * follow_hold)
 			_rotate(pose, "arm_l", direction * (0.10 * prepare - 0.17 * strike))
 			_rotate(pose, "forearm_l", direction * (0.12 * prepare - 0.20 * strike))
 			_rotate(pose, "cape_root", direction * (0.015 * prepare + 0.025 * drive))
@@ -182,7 +182,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 
 	# Idle legs remain source-identical; only the upper body bobs.
 	if clip == "idle":
-		return pose
+		return _separate_grip(pose)
 
 	# Non-walking feet stay at painted anchors. Walking support feet move
 	# opposite the host's root travel and therefore stay fixed in world space.
@@ -192,6 +192,16 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var walking_pole: float = direction if clip == "walk" else 0.0
 	_solve_leg(pose, layout, "thigh_r", "shin_r", "foot_r", right_target, right_foot_angle, -direction, walking_pole)
 	_solve_leg(pose, layout, "thigh_l", "shin_l", "foot_l", left_target, left_foot_angle, direction, walking_pole)
+	return _separate_grip(pose)
+
+
+static func _separate_grip(pose: Dictionary) -> Dictionary:
+	# The generated closed fist follows its forearm with modest wrist flex.
+	# A separate weapon bone retains the authored blade attitude at the grip.
+	if pose.has("weapon_r"):
+		var combined: float = float(pose["hand_r"]["rotation"])
+		pose["hand_r"]["rotation"] = combined * 0.15
+		pose["weapon_r"]["rotation"] = combined * 0.85
 	return pose
 
 
@@ -201,7 +211,7 @@ static func _rest_pose(layout: Dictionary) -> Dictionary:
 	for joint_name in joints:
 		var name := String(joint_name)
 		pose[name] = {"rotation": 0.0, "position": _local_position(layout, name)}
-	return pose
+	return _separate_grip(pose)
 
 
 static func _joint_position(layout: Dictionary, name: String) -> Vector2:
@@ -300,13 +310,11 @@ static func walk_foot_state(phase: float, foot_name: String, layout: Dictionary,
 	var stride: float = info["stride_px"]
 	var travel: float
 	var lift := 0.0
-	# These offsets turn the source combat-stance boots into walking lanes.
-	# In particular the front near boot points down in the painting, and the
-	# rear near boot points down-right. Moderate turns orient them into the
-	# stride without forcing a painted 2D view into a false 3D yaw. A constant
-	# support angle plants the sole; the swing phase relaxes it below.
+	# Fifth-pass boot artwork already faces into the projected walking lane.
+	# Keep its painted sole level in support; only a small swing relaxation is
+	# needed. This avoids rotating a front-facing toe cap toward the knee.
 	var rear: bool = facing.to_lower().contains("rear") or facing.to_lower() == "back"
-	var angle: float = (-0.35 if foot_name == "foot_r" else -0.08) if rear else (0.04 if foot_name == "foot_r" else 0.50)
+	var angle: float = 0.0
 	var contact: bool = t <= WALK_STANCE_FRACTION
 	if contact:
 		# A constant velocity here cancels the host's root translation exactly.
@@ -318,13 +326,7 @@ static func walk_foot_state(phase: float, foot_name: String, layout: Dictionary,
 		var tangent: float = -stride * (1.0 - WALK_STANCE_FRACTION) / WALK_STANCE_FRACTION
 		travel = lerpf(-stride * 0.5, stride * 0.5, _ease(u)) + tangent * (2.0 * u * u * u - 3.0 * u * u + u)
 		lift = float(info["foot_lift_px"]) * pow(sin(PI * u), 1.35)
-		# A boot aimed into travel during support must relax during swing.
-		# Keeping that angle as the shin advances folded its toe into the knee.
-		var near_foot: bool = foot_name == ("foot_r" if rear else "foot_l")
-		if near_foot:
-			angle += (0.55 if rear else -0.40) * pow(sin(PI * u), 1.2)
-		else:
-			angle += (0.12 if rear else -0.10) * sin(PI * u)
+		angle += (0.14 if rear else -0.14) * sin(PI * u)
 	# The source neutral is a wide combat stance. Walking uses narrower lanes
 	# under the hips rather than forcing that splayed pose through every step.
 	var anchor: Vector2 = _joint_position(layout, foot_name)

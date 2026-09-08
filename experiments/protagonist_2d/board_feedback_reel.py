@@ -94,7 +94,7 @@ def write_board_reel(proof: Path) -> dict:
                     for index in range(count):
                         canvas = Image.new('RGB', size, '#100e12')
                         draw = ImageDraw.Draw(canvas)
-                        _text(draw, (32, 20), 'PASS 4 / ON THE COMBAT BOARD', 25)
+                        _text(draw, (32, 20), 'PASS 5 / ON THE COMBAT BOARD', 25)
                         _text(draw, (32, 60), action.upper(), 25, '#d7aa74')
                         _text(draw, (size[0] - 32, 62), 'Normal speed / 1x' if speed == 1 else 'Half speed / 0.5x', 22, anchor='rt')
                         for column, facing in enumerate(FACINGS):
@@ -146,7 +146,7 @@ def write_board_reel(proof: Path) -> dict:
             image.thumbnail((400, 240), Image.Resampling.LANCZOS)
             contact.paste(image, ((number % 3) * 400, (number // 3) * 240))
     contact.save(output / 'all_animations_board_contact.png')
-    report = {'pass': 4, 'proof_kind': 'actual Godot combat-board frames',
+    report = {'pass': 5, 'proof_kind': 'actual Godot combat-board frames',
         'native_capture_size': [1920, 1080], 'ui_scale': 1.0, 'source_pixel_scale': 1,
         'fixed_source_crop': list(crop), 'facings_left_to_right': list(FACINGS),
         'per_frame_camera_fitting': False, 'pose_interpolation': False,

@@ -34,7 +34,7 @@ func _run() -> void:
 		rig.show_rest()
 		var rest: Image = await _image()
 		assert(rest.save_png(output.path_join(facing + "_rest.png")) == OK)
-		var source: Image = rig.get_reference_texture(facing).get_image()
+		var source: Image = rig.get_rest_texture().get_image()
 		var reconstructed: Image = rest.get_region(Rect2i(128, 128, 255, 255))
 		source.convert(Image.FORMAT_RGBA8)
 		reconstructed.convert(Image.FORMAT_RGBA8)
@@ -52,12 +52,15 @@ func _run() -> void:
 					max_color_difference = maxf(max_color_difference, difference)
 					if difference > 1.1 / 255.0:
 						color_mismatches += 1
-		manifest["rest_reconstruction"][facing] = {"alpha_mismatches": alpha_mismatches, "color_mismatches_over_one_code": color_mismatches, "max_color_difference": max_color_difference, "bones": rig.bones.size()}
+		manifest["rest_reconstruction"][facing] = {"alpha_mismatches": alpha_mismatches, "color_mismatches_over_one_code": color_mismatches, "max_color_difference": max_color_difference, "bones": rig.bones.size(), "target": str(rig.layout.get("rest_source", rig.layout.get("source", "")))}
 		assert(alpha_mismatches == 0, "Rest silhouette changed: " + str(alpha_mismatches))
 		assert(color_mismatches == 0, "Opaque source colors changed: " + str(color_mismatches))
 		assert(rig.save_editable_scene(output.path_join("reaver_" + facing + ".tscn")) == OK)
 		var clips: Dictionary = {}
+		var requested_actions: String = OS.get_environment("LABYRINTH_2D_CAPTURE_ACTIONS")
 		for action: String in rig.specs:
+			if not requested_actions.is_empty() and action not in requested_actions.split(",", false):
+				continue
 			rig.set_clip(action)
 			var folder: String = output.path_join(facing + "_" + action)
 			DirAccess.make_dir_recursive_absolute(folder)
@@ -99,6 +102,8 @@ func _input_hashes() -> Dictionary:
 	paths["res://assets/placeholders/units/player_reaver.png"] = true
 	for name: String in ["cutout_layout.json", "cutout_layout_rear.json"]:
 		var data: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(prefix + name))
+		if data.has("rest_source"):
+			paths[prefix + str(data["rest_source"])] = true
 		for part: Dictionary in data.get("parts", []):
 			paths[prefix + str(part["file"])] = true
 		for mesh: Dictionary in data.get("joint_meshes", []):

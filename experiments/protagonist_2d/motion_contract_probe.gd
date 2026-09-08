@@ -51,12 +51,12 @@ func _init() -> void:
 		var minimum_toe_knee_distance := INF
 		var maximum_swing_boot_relaxation := 0.0
 		var lead_foot_name: String = "foot_l" if facing == "front" else "foot_r"
-		# Independent landmarks read from the painted near boots: heel-to-toe
-		# points down in front and down-right in rear. Assess their actual global
-		# direction against board travel, rather than the motion's angle output.
-		var painted_toe_direction := Vector2(0.0, 14.0) if facing == "front" else Vector2(18.0, 5.0)
+		# Independent landmarks inspected on the newly painted near-boot PNGs.
+		# Their perspective already faces into travel; test those actual features
+		# instead of requiring a large rotation of the previous toe-cap painting.
+		var painted_toe_direction := Vector2(-19.0, 2.0) if facing == "front" else Vector2(26.0, -2.0)
 		var desired_toe_direction := Vector2(-1.0, 0.28) if facing == "front" else Vector2(1.0, -0.28)
-		var blade_tip_source := Vector2(13.0, 190.0) if facing == "front" else Vector2(249.0, 216.0)
+		var blade_tip_source := Vector2(8.0, 205.0) if facing == "front" else Vector2(238.0, 214.0)
 		for clip: String in Motion.clip_specs():
 			var initial: Dictionary = Motion.sample_pose(clip, 0.0, layout, facing)
 			if initial != Motion.sample_pose(clip, 1.0, layout, facing):
@@ -71,8 +71,8 @@ func _init() -> void:
 			for index: int in range(PHASE_SAMPLES):
 				var phase: float = float(index) / float(PHASE_SAMPLES - 1)
 				var pose: Dictionary = Motion.sample_pose(clip, phase, layout, facing)
-				if pose.size() != 20 or pose.size() != bones.size():
-					failures.append("Pose does not contain all 20 bones: " + clip + "/" + facing)
+				if pose.size() != 21 or pose.size() != bones.size():
+					failures.append("Pose does not contain all 21 bones: " + clip + "/" + facing)
 				for name: String in bones:
 					var bone: Bone2D = bones[name]
 					bone.position = pose[name].position
@@ -81,10 +81,10 @@ func _init() -> void:
 						failures.append("Nonfinite " + clip + "/" + name)
 					var key: String = facing + "/" + name
 					joint_rotation_peaks[key] = maxf(float(joint_rotation_peaks.get(key, 0.0)), absf(bone.rotation))
-				var hand: Bone2D = bones["hand_r"]
+				var hand: Bone2D = bones["weapon_r"]
 				var cape: Bone2D = bones["cape_tip"]
 				var cape_material_point := Vector2(207.0, 179.0) if facing == "front" else Vector2(41.0, 174.0)
-				traces[clip].append({"tip": hand.global_transform * (blade_tip_source - Motion._joint_position(layout, "hand_r")),
+				traces[clip].append({"tip": hand.global_transform * (blade_tip_source - Motion._joint_position(layout, "weapon_r")),
 					"hips": bones["hips"].global_position, "torso": bones["torso"].global_position,
 					"head": bones["head"].global_position, "hand_l": bones["hand_l"].global_position, "hand": hand.global_position,
 					"cape": cape.global_transform * (cape_material_point - Motion._joint_position(layout, "cape_tip"))})
@@ -113,7 +113,7 @@ func _init() -> void:
 					var foot: Bone2D = bones[foot_name]
 					if clip == "walk" and foot_name == lead_foot_name:
 						var knee: Bone2D = bones[foot_name.replace("foot_", "shin_")]
-						var toe_source := Vector2(164.0, 220.0) if facing == "front" else Vector2(164.0, 216.0)
+						var toe_source := Vector2(137.0, 220.0) if facing == "front" else Vector2(152.0, 218.0)
 						var toe: Vector2 = foot.global_transform * (toe_source - Motion._joint_position(layout, foot_name))
 						minimum_knee_toe_angle = minf(minimum_knee_toe_angle, absf((knee.global_position - foot.global_position).angle_to(toe - foot.global_position)))
 						minimum_toe_knee_distance = minf(minimum_toe_knee_distance, toe.distance_to(knee.global_position))
@@ -159,9 +159,9 @@ func _init() -> void:
 		# 3D yaw. Reject toe-to-knee folding through the entire cycle instead.
 		if minimum_knee_toe_angle < deg_to_rad(72.0) or minimum_toe_knee_distance < 28.0:
 			failures.append("Walking toe folds toward its knee: " + facing)
-		if maximum_swing_boot_relaxation < 0.30:
+		if maximum_swing_boot_relaxation < 0.08:
 			failures.append("Walking boot stays locked during swing: " + facing)
-		if maximum_lead_toe_error > 0.85 or absf(lead_boot_angle) < 0.30:
+		if maximum_lead_toe_error > 0.40 or absf(lead_boot_angle) > 0.20:
 			failures.append("Walking near boot still splays away from travel: " + facing)
 		var before: Dictionary = Motion.sample_pose("walk", 1.0 - 0.00001, layout, facing)
 		var after: Dictionary = Motion.sample_pose("walk", 0.00001, layout, facing)

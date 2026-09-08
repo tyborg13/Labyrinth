@@ -118,6 +118,9 @@ def check_poses(data, samples):
 
 def check_layout(path, pose_dump=None):
     data = json.loads(path.read_text())
+    if data.get('new_complete_anatomy'):
+        from articulated_contract_probe import check_layout as check_complete_layout
+        return check_complete_layout(path, pose_dump)
     failures = []
     parts = {part['name']: part for part in data['parts']}
     meshes = {mesh['replaces_part']: mesh for mesh in data.get('joint_meshes', [])}
@@ -252,7 +255,7 @@ def main():
                 raise ValueError('Stale pose matrices; regenerate after changing ' + name)
     results = [check_layout(HERE / name, pose_dump) for name in ('cutout_layout.json', 'cutout_layout_rear.json')]
     report = {'version': 1, 'proof': 'generated mesh data and pose-independent overlap weld invariants',
-              'builder_sha256': _hash(HERE / 'mesh_assets.py'), 'facings': results,
+              'builder_sha256': _hash(HERE / ('articulated_assets.py' if results[0].get('bone_count') == 21 else 'mesh_assets.py')), 'facings': results,
               'pose_matrices_sha256': _hash(args.pose_matrices) if args.pose_matrices else None,
               'passed': all(result['passed'] for result in results)}
     args.output.parent.mkdir(parents=True, exist_ok=True)

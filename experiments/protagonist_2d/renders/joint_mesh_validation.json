@@ -1,435 +1,182 @@
 {
-  "version": 1,
-  "proof": "generated mesh data and pose-independent overlap weld invariants",
-  "builder_sha256": "7a678aa1e13d4dd191ed820f9e11e29809792d06b9eb56306f100f9cd7890d94",
-  "facings": [
+  "pass": 5,
+  "input_sha256": {
+    "res://experiments/protagonist_2d/cutout_layout.json": "2863c03b9624a4181e09e74bcc75e31e54e2ac79ebbdb78546ad28f15040cb23",
+    "res://experiments/protagonist_2d/cutout_layout_rear.json": "5d08dd1b1ddb5f73890d00125fb36b2f4b36407d404a8b7b5b7740af439b8231",
+    "res://experiments/protagonist_2d/cutout_motion.gd": "4d94f08567e713920af70d51a50ad26e91aa5ead0a01db7438781cdc8c5e5bd7"
+  },
+  "layouts": [
     {
       "facing": "front",
-      "layout_sha256": "636d55e1c1f2612ab60ce74923c2ba9914e00cb094febd49d8a92a682eff5440",
-      "mesh_count": 8,
-      "vertex_count": 4742,
-      "triangle_count": 8732,
-      "families": [
+      "layout_sha256": "2863c03b9624a4181e09e74bcc75e31e54e2ac79ebbdb78546ad28f15040cb23",
+      "bone_count": 21,
+      "mesh_count": 6,
+      "identity": [
         {
-          "family": "leg_r",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "hips",
-              "shared_source_pixels": 97,
-              "checked_cell_vertices": 43,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "foot_r",
-              "shared_source_pixels": 61,
-              "checked_cell_vertices": 31,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "head",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "ec8abd369f8ec94e2315639eab8240e7bf35945e9db196e4cf1193b03452b0fe"
         },
         {
-          "family": "leg_l",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "hips",
-              "shared_source_pixels": 97,
-              "checked_cell_vertices": 43,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "foot_l",
-              "shared_source_pixels": 61,
-              "checked_cell_vertices": 31,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "scarf",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "27e71d43db8cb5cab8c7d5118591231c1a30234258a0043d4d23062291ae9ef2"
         },
         {
-          "family": "arm_r",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "torso",
-              "shared_source_pixels": 96,
-              "checked_cell_vertices": 43,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "sword_hand_r",
-              "shared_source_pixels": 37,
-              "checked_cell_vertices": 22,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "torso",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "fc43d8b6223f6710e08244ecc9507dbdd937d316c4976600923119194223968c"
         },
         {
-          "family": "arm_l",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "torso",
-              "shared_source_pixels": 0,
-              "checked_cell_vertices": 0,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "no source overlap; inspect occlusion visually"
-            },
-            {
-              "rigid_part": "hand_l",
-              "shared_source_pixels": 37,
-              "checked_cell_vertices": 22,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "hips",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "30ca9c4a9249b99468522dd6c410a13f99173967665912baff8d5d6ecf2cc098"
+        }
+      ],
+      "attachments": [
+        {
+          "joint": "elbow_r",
+          "shared_painted_pixels": 73,
+          "different_shared_pixels": 0,
+          "common_vertices": 35,
+          "maximum_weight_disagreement": 0.0
+        },
+        {
+          "joint": "elbow_l",
+          "shared_painted_pixels": 77,
+          "different_shared_pixels": 0,
+          "common_vertices": 35,
+          "maximum_weight_disagreement": 0.0
+        },
+        {
+          "joint": "hand_r",
+          "shared_painted_pixels": 54,
+          "checked_vertices": 44,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "hand_l",
+          "shared_painted_pixels": 53,
+          "checked_vertices": 40,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "foot_r",
+          "shared_painted_pixels": 67,
+          "checked_vertices": 44,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "foot_l",
+          "shared_painted_pixels": 60,
+          "checked_vertices": 44,
+          "maximum_nonterminal_weight": 0.0
         }
       ],
       "posed_area": {
         "sampled_frames": 136,
         "scope": "opaque texture triangles before draw-order occlusion; leg foldovers require renderer inspection",
         "meshes": {
-          "thigh_r_skin": {
-            "family": "leg_r",
-            "opaque_rest_triangles": 410,
-            "ignored_transparent_triangles": 690,
-            "minimum_signed_area_ratio": -0.46645895123387526,
-            "reversed_triangle_samples": 105,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 11,
-                "count": 1
-              },
-              {
-                "clip": "walk",
-                "frame": 12,
-                "count": 4
-              },
-              {
-                "clip": "walk",
-                "frame": 13,
-                "count": 8
-              },
-              {
-                "clip": "walk",
-                "frame": 14,
-                "count": 12
-              },
-              {
-                "clip": "walk",
-                "frame": 15,
-                "count": 13
-              },
-              {
-                "clip": "walk",
-                "frame": 16,
-                "count": 15
-              },
-              {
-                "clip": "walk",
-                "frame": 17,
-                "count": 16
-              },
-              {
-                "clip": "walk",
-                "frame": 18,
-                "count": 16
-              },
-              {
-                "clip": "walk",
-                "frame": 19,
-                "count": 14
-              },
-              {
-                "clip": "walk",
-                "frame": 20,
-                "count": 6
-              }
-            ],
+          "Complete_arm_r": {
+            "family": "arm_arm_r",
+            "opaque_rest_triangles": 386,
+            "ignored_transparent_triangles": 126,
+            "minimum_signed_area_ratio": 0.12365492245788572,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
             "worst_pose": {
-              "clip": "walk",
-              "frame": 16,
-              "phase": 0.666666666666667,
+              "clip": "block",
+              "frame": 8,
+              "phase": 0.228571428571429,
               "triangle": [
-                403,
-                404,
-                427
+                240,
+                241,
+                250
               ]
             },
-            "renderer_inspection_required": true
+            "renderer_inspection_required": false
           },
-          "shin_r_skin": {
-            "family": "leg_r",
-            "opaque_rest_triangles": 215,
-            "ignored_transparent_triangles": 885,
-            "minimum_signed_area_ratio": -0.6801990308765045,
-            "reversed_triangle_samples": 293,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 10,
-                "count": 1
-              },
-              {
-                "clip": "walk",
-                "frame": 11,
-                "count": 8
-              },
-              {
-                "clip": "walk",
-                "frame": 12,
-                "count": 18
-              },
-              {
-                "clip": "walk",
-                "frame": 13,
-                "count": 22
-              },
-              {
-                "clip": "walk",
-                "frame": 14,
-                "count": 31
-              },
-              {
-                "clip": "walk",
-                "frame": 15,
-                "count": 34
-              },
-              {
-                "clip": "walk",
-                "frame": 16,
-                "count": 37
-              },
-              {
-                "clip": "walk",
-                "frame": 17,
-                "count": 37
-              },
-              {
-                "clip": "walk",
-                "frame": 18,
-                "count": 39
-              },
-              {
-                "clip": "walk",
-                "frame": 19,
-                "count": 38
-              },
-              {
-                "clip": "walk",
-                "frame": 20,
-                "count": 27
-              },
-              {
-                "clip": "walk",
-                "frame": 21,
-                "count": 1
-              }
-            ],
+          "Complete_forearm_r": {
+            "family": "arm_forearm_r",
+            "opaque_rest_triangles": 278,
+            "ignored_transparent_triangles": 162,
+            "minimum_signed_area_ratio": 0.12510310610507197,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 8,
+              "phase": 0.228571428571429,
+              "triangle": [
+                9,
+                10,
+                21
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_arm_l": {
+            "family": "arm_arm_l",
+            "opaque_rest_triangles": 421,
+            "ignored_transparent_triangles": 155,
+            "minimum_signed_area_ratio": 0.7180764938661492,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 17,
+              "phase": 0.485714285714286,
+              "triangle": [
+                262,
+                272,
+                271
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_forearm_l": {
+            "family": "arm_forearm_l",
+            "opaque_rest_triangles": 311,
+            "ignored_transparent_triangles": 139,
+            "minimum_signed_area_ratio": 0.7454219354188473,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 17,
+              "phase": 0.485714285714286,
+              "triangle": [
+                0,
+                11,
+                10
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_thigh_r": {
+            "family": "leg_thigh_r",
+            "opaque_rest_triangles": 737,
+            "ignored_transparent_triangles": 383,
+            "minimum_signed_area_ratio": 0.045057723443201914,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
             "worst_pose": {
               "clip": "walk",
               "frame": 18,
               "phase": 0.75,
               "triangle": [
-                409,
-                410,
-                433
+                327,
+                328,
+                339
               ]
             },
-            "renderer_inspection_required": true
+            "renderer_inspection_required": false
           },
-          "thigh_l_skin": {
-            "family": "leg_l",
-            "opaque_rest_triangles": 552,
-            "ignored_transparent_triangles": 1338,
-            "minimum_signed_area_ratio": -0.7868988470811628,
-            "reversed_triangle_samples": 630,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 0,
-                "count": 39
-              },
-              {
-                "clip": "walk",
-                "frame": 1,
-                "count": 32
-              },
-              {
-                "clip": "walk",
-                "frame": 2,
-                "count": 30
-              },
-              {
-                "clip": "walk",
-                "frame": 3,
-                "count": 30
-              },
-              {
-                "clip": "walk",
-                "frame": 4,
-                "count": 34
-              },
-              {
-                "clip": "walk",
-                "frame": 5,
-                "count": 36
-              },
-              {
-                "clip": "walk",
-                "frame": 6,
-                "count": 39
-              },
-              {
-                "clip": "walk",
-                "frame": 7,
-                "count": 41
-              },
-              {
-                "clip": "walk",
-                "frame": 8,
-                "count": 37
-              },
-              {
-                "clip": "walk",
-                "frame": 9,
-                "count": 29
-              },
-              {
-                "clip": "walk",
-                "frame": 10,
-                "count": 19
-              },
-              {
-                "clip": "walk",
-                "frame": 11,
-                "count": 2
-              },
-              {
-                "clip": "walk",
-                "frame": 13,
-                "count": 13
-              },
-              {
-                "clip": "walk",
-                "frame": 14,
-                "count": 23
-              },
-              {
-                "clip": "walk",
-                "frame": 15,
-                "count": 21
-              },
-              {
-                "clip": "walk",
-                "frame": 16,
-                "count": 19
-              },
-              {
-                "clip": "walk",
-                "frame": 17,
-                "count": 11
-              },
-              {
-                "clip": "walk",
-                "frame": 18,
-                "count": 10
-              },
-              {
-                "clip": "walk",
-                "frame": 19,
-                "count": 13
-              },
-              {
-                "clip": "walk",
-                "frame": 20,
-                "count": 17
-              },
-              {
-                "clip": "walk",
-                "frame": 21,
-                "count": 18
-              },
-              {
-                "clip": "walk",
-                "frame": 22,
-                "count": 27
-              },
-              {
-                "clip": "walk",
-                "frame": 23,
-                "count": 36
-              },
-              {
-                "clip": "block",
-                "frame": 13,
-                "count": 2
-              },
-              {
-                "clip": "block",
-                "frame": 14,
-                "count": 8
-              },
-              {
-                "clip": "block",
-                "frame": 15,
-                "count": 5
-              },
-              {
-                "clip": "block",
-                "frame": 16,
-                "count": 1
-              },
-              {
-                "clip": "hit",
-                "frame": 2,
-                "count": 9
-              },
-              {
-                "clip": "hit",
-                "frame": 3,
-                "count": 10
-              },
-              {
-                "clip": "hit",
-                "frame": 4,
-                "count": 9
-              },
-              {
-                "clip": "hit",
-                "frame": 5,
-                "count": 7
-              },
-              {
-                "clip": "hit",
-                "frame": 6,
-                "count": 3
-              }
-            ],
-            "worst_pose": {
-              "clip": "walk",
-              "frame": 7,
-              "phase": 0.291666666666667,
-              "triangle": [
-                445,
-                474,
-                473
-              ]
-            },
-            "renderer_inspection_required": true
-          },
-          "shin_l_skin": {
-            "family": "leg_l",
-            "opaque_rest_triangles": 374,
-            "ignored_transparent_triangles": 1516,
-            "minimum_signed_area_ratio": 0.024575654129488145,
+          "Complete_thigh_l": {
+            "family": "leg_thigh_l",
+            "opaque_rest_triangles": 987,
+            "ignored_transparent_triangles": 373,
+            "minimum_signed_area_ratio": 0.06707645952628201,
             "reversed_triangle_samples": 0,
             "frames_with_reversed_triangles": [],
             "worst_pose": {
@@ -437,85 +184,9 @@
               "frame": 7,
               "phase": 0.291666666666667,
               "triangle": [
-                554,
-                555,
-                583
-              ]
-            },
-            "renderer_inspection_required": false
-          },
-          "arm_r_skin": {
-            "family": "arm_r",
-            "opaque_rest_triangles": 191,
-            "ignored_transparent_triangles": 481,
-            "minimum_signed_area_ratio": 0.02561641819480731,
-            "reversed_triangle_samples": 0,
-            "frames_with_reversed_triangles": [],
-            "worst_pose": {
-              "clip": "block",
-              "frame": 8,
-              "phase": 0.228571428571429,
-              "triangle": [
-                193,
-                211,
-                210
-              ]
-            },
-            "renderer_inspection_required": false
-          },
-          "forearm_r_skin": {
-            "family": "arm_r",
-            "opaque_rest_triangles": 192,
-            "ignored_transparent_triangles": 480,
-            "minimum_signed_area_ratio": 0.02561641819480731,
-            "reversed_triangle_samples": 0,
-            "frames_with_reversed_triangles": [],
-            "worst_pose": {
-              "clip": "block",
-              "frame": 8,
-              "phase": 0.228571428571429,
-              "triangle": [
-                193,
-                211,
-                210
-              ]
-            },
-            "renderer_inspection_required": false
-          },
-          "arm_l_skin": {
-            "family": "arm_l",
-            "opaque_rest_triangles": 110,
-            "ignored_transparent_triangles": 594,
-            "minimum_signed_area_ratio": 0.5194608285890446,
-            "reversed_triangle_samples": 0,
-            "frames_with_reversed_triangles": [],
-            "worst_pose": {
-              "clip": "walk",
-              "frame": 13,
-              "phase": 0.541666666666667,
-              "triangle": [
-                61,
-                62,
-                79
-              ]
-            },
-            "renderer_inspection_required": false
-          },
-          "forearm_l_skin": {
-            "family": "arm_l",
-            "opaque_rest_triangles": 328,
-            "ignored_transparent_triangles": 376,
-            "minimum_signed_area_ratio": 0.6183002530960968,
-            "reversed_triangle_samples": 0,
-            "frames_with_reversed_triangles": [],
-            "worst_pose": {
-              "clip": "hit",
-              "frame": 6,
-              "phase": 0.260869565217391,
-              "triangle": [
-                132,
-                150,
-                149
+                404,
+                405,
+                416
               ]
             },
             "renderer_inspection_required": false
@@ -529,146 +200,156 @@
     },
     {
       "facing": "rear",
-      "layout_sha256": "02bd7404a7acfb7dd517d4b880a6e771667a6feee9ccb35872be53675527f157",
+      "layout_sha256": "5d08dd1b1ddb5f73890d00125fb36b2f4b36407d404a8b7b5b7740af439b8231",
+      "bone_count": 21,
       "mesh_count": 6,
-      "vertex_count": 4756,
-      "triangle_count": 8832,
-      "families": [
+      "identity": [
         {
-          "family": "leg_r",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "hips",
-              "shared_source_pixels": 129,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "foot_r",
-              "shared_source_pixels": 129,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "head",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "3d83bdb0646edf216218ba3c3bdcb8b6089076d96feacbd7101f7c00d0054266"
         },
         {
-          "family": "leg_l",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "hips",
-              "shared_source_pixels": 128,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "foot_l",
-              "shared_source_pixels": 129,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "scarf",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "5c8d1503718a2a2ecf4ec7e31b4a18136697985a2d33cbf2f10fd418e0eaa3c3"
         },
         {
-          "family": "arm_r",
-          "shared_mesh_data_equal": true,
-          "endpoints": [
-            {
-              "rigid_part": "torso",
-              "shared_source_pixels": 129,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            },
-            {
-              "rigid_part": "sword_hand_r",
-              "shared_source_pixels": 129,
-              "checked_cell_vertices": 54,
-              "maximum_nonrigid_influence": 0.0,
-              "coverage_note": "source overlap verified"
-            }
-          ]
+          "part": "torso",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "03ebc2b5cd60c1f7f74eb4d39688606e30978a51d6ab0abd76847b0ee92110e3"
+        },
+        {
+          "part": "hips",
+          "exact_baseline_pixels_and_registration": true,
+          "sha256": "1134f0582397a4d5e95e2c61cc8797167bff766b78c054d0ffd03a0cef61ed44"
+        }
+      ],
+      "attachments": [
+        {
+          "joint": "elbow_r",
+          "shared_painted_pixels": 79,
+          "different_shared_pixels": 0,
+          "common_vertices": 40,
+          "maximum_weight_disagreement": 0.0
+        },
+        {
+          "joint": "elbow_l",
+          "shared_painted_pixels": 65,
+          "different_shared_pixels": 0,
+          "common_vertices": 30,
+          "maximum_weight_disagreement": 0.0
+        },
+        {
+          "joint": "hand_r",
+          "shared_painted_pixels": 53,
+          "checked_vertices": 44,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "hand_l",
+          "shared_painted_pixels": 43,
+          "checked_vertices": 40,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "foot_r",
+          "shared_painted_pixels": 86,
+          "checked_vertices": 48,
+          "maximum_nonterminal_weight": 0.0
+        },
+        {
+          "joint": "foot_l",
+          "shared_painted_pixels": 80,
+          "checked_vertices": 44,
+          "maximum_nonterminal_weight": 0.0
         }
       ],
       "posed_area": {
         "sampled_frames": 136,
         "scope": "opaque texture triangles before draw-order occlusion; leg foldovers require renderer inspection",
         "meshes": {
-          "thigh_r_skin": {
-            "family": "leg_r",
-            "opaque_rest_triangles": 451,
-            "ignored_transparent_triangles": 977,
-            "minimum_signed_area_ratio": -0.8442116824081234,
-            "reversed_triangle_samples": 131,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 0,
-                "count": 9
-              },
-              {
-                "clip": "walk",
-                "frame": 1,
-                "count": 12
-              },
-              {
-                "clip": "walk",
-                "frame": 2,
-                "count": 13
-              },
-              {
-                "clip": "walk",
-                "frame": 3,
-                "count": 12
-              },
-              {
-                "clip": "walk",
-                "frame": 19,
-                "count": 12
-              },
-              {
-                "clip": "walk",
-                "frame": 20,
-                "count": 20
-              },
-              {
-                "clip": "walk",
-                "frame": 21,
-                "count": 21
-              },
-              {
-                "clip": "walk",
-                "frame": 22,
-                "count": 19
-              },
-              {
-                "clip": "walk",
-                "frame": 23,
-                "count": 13
-              }
-            ],
+          "Complete_arm_r": {
+            "family": "arm_arm_r",
+            "opaque_rest_triangles": 485,
+            "ignored_transparent_triangles": 139,
+            "minimum_signed_area_ratio": 0.1617942640572713,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
             "worst_pose": {
-              "clip": "walk",
-              "frame": 21,
-              "phase": 0.875,
+              "clip": "block",
+              "frame": 8,
+              "phase": 0.228571428571429,
               "triangle": [
-                127,
-                128,
-                150
+                303,
+                304,
+                313
               ]
             },
-            "renderer_inspection_required": true
+            "renderer_inspection_required": false
           },
-          "shin_r_skin": {
-            "family": "leg_r",
-            "opaque_rest_triangles": 426,
-            "ignored_transparent_triangles": 1002,
-            "minimum_signed_area_ratio": 0.14557978299237806,
+          "Complete_forearm_r": {
+            "family": "arm_forearm_r",
+            "opaque_rest_triangles": 377,
+            "ignored_transparent_triangles": 203,
+            "minimum_signed_area_ratio": 0.21049771433053846,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 8,
+              "phase": 0.228571428571429,
+              "triangle": [
+                6,
+                7,
+                18
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_arm_l": {
+            "family": "arm_arm_l",
+            "opaque_rest_triangles": 373,
+            "ignored_transparent_triangles": 187,
+            "minimum_signed_area_ratio": 0.7705187199198212,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 16,
+              "phase": 0.457142857142857,
+              "triangle": [
+                231,
+                232,
+                241
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_forearm_l": {
+            "family": "arm_forearm_l",
+            "opaque_rest_triangles": 285,
+            "ignored_transparent_triangles": 183,
+            "minimum_signed_area_ratio": 0.7868245938673248,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "block",
+              "frame": 16,
+              "phase": 0.457142857142857,
+              "triangle": [
+                8,
+                9,
+                19
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Complete_thigh_r": {
+            "family": "leg_thigh_r",
+            "opaque_rest_triangles": 993,
+            "ignored_transparent_triangles": 459,
+            "minimum_signed_area_ratio": 0.2000116372033703,
             "reversed_triangle_samples": 0,
             "frames_with_reversed_triangles": [],
             "worst_pose": {
@@ -676,207 +357,28 @@
               "frame": 20,
               "phase": 0.833333333333333,
               "triangle": [
-                357,
-                380,
-                379
+                433,
+                446,
+                445
               ]
             },
             "renderer_inspection_required": false
           },
-          "thigh_l_skin": {
-            "family": "leg_l",
-            "opaque_rest_triangles": 384,
-            "ignored_transparent_triangles": 856,
-            "minimum_signed_area_ratio": -1.429740667585446,
-            "reversed_triangle_samples": 210,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 7,
-                "count": 6
-              },
-              {
-                "clip": "walk",
-                "frame": 8,
-                "count": 10
-              },
-              {
-                "clip": "walk",
-                "frame": 9,
-                "count": 21
-              },
-              {
-                "clip": "walk",
-                "frame": 10,
-                "count": 26
-              },
-              {
-                "clip": "walk",
-                "frame": 11,
-                "count": 26
-              },
-              {
-                "clip": "walk",
-                "frame": 12,
-                "count": 26
-              },
-              {
-                "clip": "walk",
-                "frame": 13,
-                "count": 25
-              },
-              {
-                "clip": "walk",
-                "frame": 14,
-                "count": 25
-              },
-              {
-                "clip": "walk",
-                "frame": 15,
-                "count": 18
-              },
-              {
-                "clip": "walk",
-                "frame": 16,
-                "count": 10
-              },
-              {
-                "clip": "walk",
-                "frame": 17,
-                "count": 8
-              },
-              {
-                "clip": "walk",
-                "frame": 18,
-                "count": 6
-              },
-              {
-                "clip": "walk",
-                "frame": 19,
-                "count": 3
-              }
-            ],
-            "worst_pose": {
-              "clip": "walk",
-              "frame": 11,
-              "phase": 0.458333333333333,
-              "triangle": [
-                248,
-                249,
-                270
-              ]
-            },
-            "renderer_inspection_required": true
-          },
-          "shin_l_skin": {
-            "family": "leg_l",
-            "opaque_rest_triangles": 311,
-            "ignored_transparent_triangles": 929,
-            "minimum_signed_area_ratio": -0.3911703382377921,
-            "reversed_triangle_samples": 115,
-            "frames_with_reversed_triangles": [
-              {
-                "clip": "walk",
-                "frame": 6,
-                "count": 1
-              },
-              {
-                "clip": "walk",
-                "frame": 7,
-                "count": 11
-              },
-              {
-                "clip": "walk",
-                "frame": 8,
-                "count": 17
-              },
-              {
-                "clip": "walk",
-                "frame": 9,
-                "count": 17
-              },
-              {
-                "clip": "walk",
-                "frame": 10,
-                "count": 15
-              },
-              {
-                "clip": "walk",
-                "frame": 11,
-                "count": 11
-              },
-              {
-                "clip": "walk",
-                "frame": 12,
-                "count": 9
-              },
-              {
-                "clip": "walk",
-                "frame": 13,
-                "count": 11
-              },
-              {
-                "clip": "walk",
-                "frame": 14,
-                "count": 11
-              },
-              {
-                "clip": "walk",
-                "frame": 15,
-                "count": 10
-              },
-              {
-                "clip": "walk",
-                "frame": 16,
-                "count": 2
-              }
-            ],
-            "worst_pose": {
-              "clip": "walk",
-              "frame": 9,
-              "phase": 0.375,
-              "triangle": [
-                316,
-                338,
-                337
-              ]
-            },
-            "renderer_inspection_required": true
-          },
-          "arm_r_skin": {
-            "family": "arm_r",
-            "opaque_rest_triangles": 446,
-            "ignored_transparent_triangles": 1302,
-            "minimum_signed_area_ratio": 0.44547974795982415,
+          "Complete_thigh_l": {
+            "family": "leg_thigh_l",
+            "opaque_rest_triangles": 795,
+            "ignored_transparent_triangles": 345,
+            "minimum_signed_area_ratio": 0.07479378724231155,
             "reversed_triangle_samples": 0,
             "frames_with_reversed_triangles": [],
             "worst_pose": {
-              "clip": "attack",
-              "frame": 9,
-              "phase": 0.290322580645161,
+              "clip": "walk",
+              "frame": 8,
+              "phase": 0.333333333333333,
               "triangle": [
-                182,
-                183,
-                207
-              ]
-            },
-            "renderer_inspection_required": false
-          },
-          "forearm_r_skin": {
-            "family": "arm_r",
-            "opaque_rest_triangles": 434,
-            "ignored_transparent_triangles": 1314,
-            "minimum_signed_area_ratio": 0.41244003544914315,
-            "reversed_triangle_samples": 0,
-            "frames_with_reversed_triangles": [],
-            "worst_pose": {
-              "clip": "block",
-              "frame": 5,
-              "phase": 0.142857142857143,
-              "triangle": [
-                474,
-                499,
-                498
+                331,
+                343,
+                342
               ]
             },
             "renderer_inspection_required": false
@@ -889,6 +391,1645 @@
       "passed": true
     }
   ],
-  "pose_matrices_sha256": "a6d1ebe68faaa3653b89698e5653181c20c2a549a01feab1f9398287013850f8",
+  "rendered_attachments": {
+    "scope": "8-connected opaque components of every real rendered pose; tiny pixel-art outline specks below 8 pixels are retained",
+    "cases": [
+      {
+        "file": "front_idle/000.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/001.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/002.png",
+        "sha256": "c77f73c5a3c9b1e2b921590be8eeac6ecccb31e790f43a674c360f9922e76b7a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/003.png",
+        "sha256": "362a32da7cff7cf962bf1ec4e2eccba6c12ff0fa22247fc3fb851e9fd52c2354",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/004.png",
+        "sha256": "dbe1bdb39a23097d61eacae9b4382f8dfbb6e74899ede1b5834e85cb1ab08a2b",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "front_idle/005.png",
+        "sha256": "92b2c8cb08df82dccbd0980e2ca5039986b8815ec693a1a4bf1fd8816cc1f814",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/006.png",
+        "sha256": "b7d5ddc85f03afd4f946fc267e70930a61c0e3237540ecf8b1fff4ea298ccc1e",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "front_idle/007.png",
+        "sha256": "2efe8e982d45f69ccb2267e323bb56c2f30543fcdb9c542a82b0d359ce350c3f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/008.png",
+        "sha256": "63345f7d7af042ed69cb98e86e23f5d2bf36a965ea05179a4183184551409cd6",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "front_idle/009.png",
+        "sha256": "4c9d9fd170559e1d55f1808d1699f0842b024a8033b24a11edf4438b862e72d6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/010.png",
+        "sha256": "353fff03e9193942d387a6a2026e85560a024a028f9aa0ecddcfc6689a1a511a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/011.png",
+        "sha256": "a6c279876a5b72148ad6c5895c66458fa8cc2b28f23f7231c130432dea3255ed",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/012.png",
+        "sha256": "33672506b8743e731f84f374fcf263810d4eb8d5dc9247460c2303e0e4893a97",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/013.png",
+        "sha256": "3ce1743f6f38562e65f62fe5e689f615b919e6f27d3e99f3d6148a33cbf5f1d5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/014.png",
+        "sha256": "3ce1743f6f38562e65f62fe5e689f615b919e6f27d3e99f3d6148a33cbf5f1d5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/015.png",
+        "sha256": "c77f73c5a3c9b1e2b921590be8eeac6ecccb31e790f43a674c360f9922e76b7a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/016.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/017.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/018.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_idle/019.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/000.png",
+        "sha256": "4e0d069a8a3fe6b4fa6886e572fe6569cf599920720876ea24f47f86c7ec4a35",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/001.png",
+        "sha256": "427825992b3f3c83aa630afb216938bbdab6c8ae3583407e39d974e068f842db",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/002.png",
+        "sha256": "cfaeaea996435018b2fcfc5a3c4cc2e07e5e4d4264c4c8258bcd40a3bd97c1aa",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/003.png",
+        "sha256": "51e8dd1c89b09593e9d63fdd959c154bafb4ab54d44dcd412e491727ad910431",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/004.png",
+        "sha256": "87c741cd88735fd298dd5e26b1cc467922294adb29d893e1bb3c6d7effe493c6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/005.png",
+        "sha256": "fb489222920b90ae5bb980d1172e773fc60251d99294c1de35a258cdc591933b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/006.png",
+        "sha256": "1b7ec43d4bf7e33b6922441089773953169835f723463fa8be10577f17366db1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/007.png",
+        "sha256": "bdfafd122448cf30b220094c7306721b2b66b8fb052cbeab159e99f3a222203f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/008.png",
+        "sha256": "52db782958b1b0690793e25016afe292d543fdcb4506a8c95324b7df42c5fb6b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/009.png",
+        "sha256": "583d3a73d00c8c1fac017dae21c91e262254d89e2b7bf595da51c898eb77ef46",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/010.png",
+        "sha256": "e60446cc0b6c3d95a42d4eec1a45fc9154f733a2ad0190484ca7c514ac8bbb83",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/011.png",
+        "sha256": "61cf33235f7fbbe1ba7c6f8f28a5cb4e396f1c73b392ce750ad25f51f62b22b4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/012.png",
+        "sha256": "a5fd45e75c968b4a530ac41715d5686a23c18b834cfb638a4850d0ddb90c0043",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/013.png",
+        "sha256": "4e3d65c2475d262eb29bad661e7737ddc8b89cb8f3070351a589c28fd80dcb25",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/014.png",
+        "sha256": "8528ff1601f8f68f2bf1107de4e0421270e0d9a86077acd2a416969d59c520b5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/015.png",
+        "sha256": "3d2e0a1210befb51412f9129cc66f31f84e0a49ac17dcdfa02c912be821a9007",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/016.png",
+        "sha256": "4933d9baf859f07af69258bd80cea26c45d24b6335e6e210e1c3c8c1621e2417",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/017.png",
+        "sha256": "71ba41239a688d5dbf5a7d1377d6a57c5d0486fc8fcbb802d1dd4fb01f65e71f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/018.png",
+        "sha256": "c3d2111d8e66e705070cabb485ccf2193d46640fce26f05452c4b70cb1d6e018",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/019.png",
+        "sha256": "794f8e0864596531534fd22417b75071dd6b5b73e83ea95659329f8a9bfad632",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/020.png",
+        "sha256": "5027cbd0130dc51c8d11979d3bbc54705f5cac2cee342877fa7dec781c2f8550",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/021.png",
+        "sha256": "7a86783bf115e49e106027523bbb46ca0f55197d61b6eac5a2a0b00b0917e5b7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/022.png",
+        "sha256": "031b833fba9213e7b10d859ba0504fe4902599889dedf05b306e2f264b6f68fd",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/023.png",
+        "sha256": "fac16bbbbafd4fd5ec2965c7ea300a80c2346de65561419b3391fc31d70b2c23",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/000.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/001.png",
+        "sha256": "243907d24884d409a87a57d8332d6955032cdcbbc82c4b3001fd6b6ac60f1c8e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/002.png",
+        "sha256": "8994c438e8ba8bd502646d6ee057c597ec933e8dbcda26739c80d80d256c22e7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/003.png",
+        "sha256": "ea7f320b49ca63563d3813c29ba565b8455d71080463d185aecac335e4bca2ee",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/004.png",
+        "sha256": "ecda2d6e168620bada9ea72cc36900e7e1c5ea4506023176a459921473f384ae",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/005.png",
+        "sha256": "ab97247efe499e82515987d4a931b9c661ad681e22350aa7e8dfab08e7bfc174",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/006.png",
+        "sha256": "c3d43cc7fea8aa2e4cbfee04c0adc58ea1e70640dbd1b54fd85c029cb0018018",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/007.png",
+        "sha256": "0bcc0c77209a9e116107bd618b32b0fd26beab960ddf13862231e60a3ae0cb54",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/008.png",
+        "sha256": "13a7b72e9dc75291f9ea8b75f569f6176cd4ea8c340f4b7ddf244bb629c1f224",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/009.png",
+        "sha256": "22c4a664c26d8c92cabc514f654a46a4691c5c769e1e48ed709afb58ddd56ae4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/010.png",
+        "sha256": "a2bd83af90d06bbe29f469ef4be71af8aeee4a8e636b55ed2ffd6d5eb05569be",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/011.png",
+        "sha256": "eb34801affed33fa039709954fbb9009160a99450b9baf197d5695bf52c00fee",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/012.png",
+        "sha256": "158a5597e478f83607022171a769102f3793c1834a4878a1090c506abe6831e3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/013.png",
+        "sha256": "3cb4a081f74dc96868e7add869b460019082647d83c81d0cf6766507577c7573",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/014.png",
+        "sha256": "554e23c3147b87cc84deac8d8413c1cc90fe016ae7b86e4856b716f21758086f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/015.png",
+        "sha256": "58ae3001b1a90c98c2d509897485db8cc5e88ca6e58b2938d0664cf65a7663af",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/016.png",
+        "sha256": "060b49b2061ac77772b88282f585fa90c91e9114df9fbb2e307b654a5ddf4525",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/017.png",
+        "sha256": "4a3d5c8cbad71cf9220a1d71db299cfc844e763a0dc1b7b9ba9e9f8540e4310f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/018.png",
+        "sha256": "c86c34f8ac402fde379f9a70ddeb92675514df0d806155437bf86dee58009794",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/019.png",
+        "sha256": "aa07fbc9076c9830221928f56595e00f23192930c7a59ac1206ddbf486ab5923",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/020.png",
+        "sha256": "87a4578489213b3d7d85fa509b3f32271eae1fb193b93a8ee1a64b68459e0c61",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/021.png",
+        "sha256": "f044bff52009940fa82d939da639d80a018a98726d7d435fcdf18426ffe58707",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/022.png",
+        "sha256": "b544d29a906302c6c6c6988df9e85fd38654a3ab8c9c26ba35e5a1bebed6a70c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/023.png",
+        "sha256": "465d1bf2ecef8a0496df9a7e36bab276533ad4de2cab61dfbacce10220d29d2b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/024.png",
+        "sha256": "eab36c422fae8fb74d75c42a708d6c521f0c1d6ef38f8a6f00fe617ce83c1cfd",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/025.png",
+        "sha256": "18bd287b72b133fc7bcf95f945ac6624948d0d889f85cd1f25f90def35f17696",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/026.png",
+        "sha256": "79eebdf95489ed19e062b40970276aed12c1389d320642e04f32ab4e919b9d31",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/027.png",
+        "sha256": "8351063e0df7f6c47f29f88b5344145e60529c5dfc3c89b3c9181b0057733b2f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/028.png",
+        "sha256": "ced2e1a0053a8abefd1c0655dd7ebda20c92070da8791399b93bd5a3ed5b926d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/029.png",
+        "sha256": "bf135a35503d5428770c01633c62e04121f724a20d1e1e3a894c8f4d8890e589",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/030.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/031.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/000.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/001.png",
+        "sha256": "5f36810722f962f6a96e7684e4598c6c7eaa058f793ff88b33a37fd9a8f1d4e1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/002.png",
+        "sha256": "77d594852020d5381e048fbe0ac0daff554fb2577d04b9bbdb4228063bbe1561",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/003.png",
+        "sha256": "9ac88a8f4a6690d4ad223f6319c59461b7147577ac99d2965e101fc43d4fae4a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/004.png",
+        "sha256": "4ff7322aa0ae3475acf2ce68712ddf72ffbcc1e5d4f5eb705eff976414858431",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/005.png",
+        "sha256": "e1c4be1fb2f1ed3ee3632cc8b8aee54cf66654e777199c7d2059f26d0512843f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/006.png",
+        "sha256": "fb13a6584a327dae99539d33b048d8ef9235c0bcdb4952aad58bb524221168b8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/007.png",
+        "sha256": "6cd45364654dfaf455d98cb6eefd1c9940f9c80b39c2cb624f2e101b3b6cda22",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/008.png",
+        "sha256": "fec0b63e14271ff5166c01939b72d9a61765659370e773f4e7c1191c07530800",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/009.png",
+        "sha256": "fec0b63e14271ff5166c01939b72d9a61765659370e773f4e7c1191c07530800",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/010.png",
+        "sha256": "fec0b63e14271ff5166c01939b72d9a61765659370e773f4e7c1191c07530800",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/011.png",
+        "sha256": "fec0b63e14271ff5166c01939b72d9a61765659370e773f4e7c1191c07530800",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/012.png",
+        "sha256": "1cc38cffdec5ea19b25883c377d8f7eace5bb26b2c32ccceb31c9b8a3bd74120",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/013.png",
+        "sha256": "ae226df1249a600c9ff5f07dcdfa40ae27904edd0294b39193c706b1cce598eb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/014.png",
+        "sha256": "0993e6c563f3ecfb378c6f31104bd4205d4cecfef3840b53ba45e72b50d3854f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/015.png",
+        "sha256": "38f2cdf86f3e726e856cb69adef2aa48283908a485649acf4a74a593d89b358b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/016.png",
+        "sha256": "934a36920c2031da90656fcc8d6618781f999f8c6875f82573e25928169ead78",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/017.png",
+        "sha256": "f0da581efda24ee45e1034d74e8301406c3e554a5b9d7aa8771bf92b5f855b3b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/018.png",
+        "sha256": "ff795f982e9b0eea73ad3f6d22dbf8da419c0688e1f695c73f9228435641bf62",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/019.png",
+        "sha256": "fde79aef073cda98fd829fbf901d463c5afa58f1091423e0f99b309afd52e747",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/020.png",
+        "sha256": "247a8f6bd7f8240f8d5ca476ef27ea261d0566c0a44018feb7e4edc00d445598",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/021.png",
+        "sha256": "4c80c0d51ed63bb0ad60f52701ff48892e5684d9e2acd98b0bc66fdc31527e19",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/022.png",
+        "sha256": "22fc8a969af6d8a3a0d992a8c509e77ad9ab57bd5d636760b87b6da0da2ffc83",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/023.png",
+        "sha256": "5acecee52fee8a4859e8edac52c5e19bbf8cdc997d391106712d49c67eb27ab6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/024.png",
+        "sha256": "2b4081e6d65a6b98b427e03c3a628c593cbdb482d4752082be5ea4980a462fa7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/025.png",
+        "sha256": "2caa2c5916108fcf61d0400a16011e3c60eeee270db82e398279a28283fdfa86",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/026.png",
+        "sha256": "198802dbc113cfd1d68e788b3381702dd5537fd2e786797ff312d9409745f1a3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/027.png",
+        "sha256": "abf326005fd538b4cf30230a5423a7a0a481019884a1cad76bbcdf8039f5e307",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/028.png",
+        "sha256": "ac58ec144f2062ce4ed79b0303400f3c2243f4d07ebe7f5c608fd41ca44d8887",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/029.png",
+        "sha256": "64674cc84a1f1a8b974e371575f2b4cb2695348e521ad39fa7813d9e5071204c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/030.png",
+        "sha256": "931d259cfe1e1ef7b94608987c648bc4a7700708d11e8296e932440db5040b20",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/031.png",
+        "sha256": "b71dfd8615bcc0b18c0f92b9190f993cf41b135d29479af7ab546d325a962c48",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/032.png",
+        "sha256": "0567f910a75ed87501d747882699de9cba6e776308c7e80d2f61b02415601406",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/033.png",
+        "sha256": "3dc4fe777cc21b7b2c7c726a16556c8ad5dce8188067d800233b0709c4dd210a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/034.png",
+        "sha256": "a17de26c54ee573b5be226b561dafa2cd10b5f1197929fb3db0a75bc95a02c59",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_block/035.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/000.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/001.png",
+        "sha256": "e35b1859cf4377925fdc7e1b1cb15b301528f6c4bd8ae02b88495cc1a1123149",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/002.png",
+        "sha256": "57372f73a68ae91a3541398452bbf639ff93e957d6b6e483dc80f307cda099b2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/003.png",
+        "sha256": "5602fd08bcf825f1f06485bc4b37e978ec1117868fbe04f4137fc15bd4b5b5e8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/004.png",
+        "sha256": "32452277fa32ea8b7c207ca67c2e9f0b46ed6dac8fdd77e74303b1fb55cca5be",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/005.png",
+        "sha256": "6a4491abce1ecdc2e7fdbb5c02de286022133b5e61ae342ea80a173c3c6c1ed9",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/006.png",
+        "sha256": "015a3f415edc9c632a9ab73fce0e47c2ccf3851c7a8cabae293cc1cbbbc7c2a2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/007.png",
+        "sha256": "72fa362b9385747679217ee6ee9ea26eb8516cfdadba9962b40a5de86ee64dee",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/008.png",
+        "sha256": "7780a559985c9c43402fbf06f5a7fc18f95f8f503f8a5e8f54f6d99dadcdfc3e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/009.png",
+        "sha256": "1dd406b44f799888395f41b9d714a9dfadde4e2fd4c63668d19838897bb3477a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/010.png",
+        "sha256": "9e5c392b1d441a2a1197519fa3fc765464cfdb02c252e0169b8883c56f468b1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/011.png",
+        "sha256": "219c78d3dc7621f08a9eea7cec3119ba05c2788b88c85e655d5fbe0311ca599f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/012.png",
+        "sha256": "9af7ebabcd1569f2fa74b3fdde33a3d526816c1619ae08d8ac683e736e2b1c8e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/013.png",
+        "sha256": "4b5396bfbd4a2e761f72c7eb1dbd94ad1f8d150d5477bc20102109a4586de763",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/014.png",
+        "sha256": "0ec343521f40259c0ce8dafe34dedc41d987c63efbdbe23d9d9e1b37698bf213",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/015.png",
+        "sha256": "00d6581bb2b34cb32bc344da704d4025a7d9814d593a960b42049068ead3edae",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/016.png",
+        "sha256": "1789a2725258f98b8aeb5a8aec0947645155f243673f307c0d27a1d950972bdf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/017.png",
+        "sha256": "5e19415902c800dad050ed7615baa5b31557970a605f4c9651825ce7eb74f582",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/018.png",
+        "sha256": "a7748772fa4b4086f0e04022f32288fa0659c48e7d2a337bc4bdd024de28be21",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/019.png",
+        "sha256": "fa2f16414dc99e9ccc0fef309b5300a9a55b91608f1bff21d879d3c335581388",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/020.png",
+        "sha256": "1edebbdd0d3a3a49a1dff9db8730f0bd3df0d93ce6c39ff7f4987be3c2534a11",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/021.png",
+        "sha256": "f0daaea4d7ddbbf7bb0cb58ee148204204c288e39a30b8ee98c74ffb31faf7a0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/022.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_hit/023.png",
+        "sha256": "4805bcaefd09c977b4b3826c8392be82985bf6109f50e11701c234c6cfdbd8c1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/000.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/001.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/002.png",
+        "sha256": "1fed08f553787c0e1cea3ddbbb56a3e28a4b3e3655d8b1d32d4eddef45d2793b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/003.png",
+        "sha256": "2d96fa99514f65b2a4e9f9d733a0ccbd969182cd811d230c820f79fcf942b160",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/004.png",
+        "sha256": "0c1f4e292194a87d940ea67354ed4ec7462035f255171ad138dab3d5dffa6fa7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/005.png",
+        "sha256": "1ff4f13d3ec794f51f6052ee1f5b3f358f3d975b1237b77a2a436eafeee95ada",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/006.png",
+        "sha256": "20e874f332c0c242aac8e7bf969e7c479238e612316742e36600770bc3fa4455",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/007.png",
+        "sha256": "adb3e136c670df7227a6e87ac562c800a9c860b63750244b263d41cb13e56b9d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/008.png",
+        "sha256": "a34f60a7d12f4ccd8e0535b7ef72e05d1be6dffdcb6fb5d1c077056e60cdd82a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/009.png",
+        "sha256": "41cd03146b4ab2c865d352d4129a9f8a5b960a69a978314b4c8e319f7a53a7c5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/010.png",
+        "sha256": "8f1d98d47017ac42c0f7f54f933cc796f6c5de93c91f91b7ef40d29526e0d624",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/011.png",
+        "sha256": "0c132d18d38585e88f66a5e2d09daee422c4d98081c64a9df62d662b5a427ad4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/012.png",
+        "sha256": "9e7b48406d8b0105f6f44fad6f2616ba78ed1472583c300d6e0852f388d24b47",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/013.png",
+        "sha256": "116abf1e4e41a9e20a33bc41c8d1cb621a23dc4ced85a22fbc62f3194919b688",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/014.png",
+        "sha256": "116abf1e4e41a9e20a33bc41c8d1cb621a23dc4ced85a22fbc62f3194919b688",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/015.png",
+        "sha256": "1fed08f553787c0e1cea3ddbbb56a3e28a4b3e3655d8b1d32d4eddef45d2793b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/016.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/017.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/018.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_idle/019.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/000.png",
+        "sha256": "ec1b0e2068250ea8c7f093bb0efc19a98e789725312a8621a13b49886f5cf509",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/001.png",
+        "sha256": "af74bb2c6f768b72dfe8cf8df691ea0e560234ba54aef668d960004a6edf3c9a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/002.png",
+        "sha256": "b02775cfffaea5d87e36bd6f113a02efa1db93aaa4fe94cd89049bed35d7819c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/003.png",
+        "sha256": "c4de057236aa0ce08f95b336601338d846f57ce42e8a6bd039d419b09d66b451",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/004.png",
+        "sha256": "91cc1d99e008979fbb937e332bda268bb4b4f404d1c22a6ac85a7a48d64a48b4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/005.png",
+        "sha256": "4263b8ce7bdffea43f390f0fadb2bc638e6a198ac660a23ce8698a256289dc1f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/006.png",
+        "sha256": "276062703649722739161b4e37b947bc306451403f956012e8568d19779cacfb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/007.png",
+        "sha256": "204674253bb1b026807323eff1c76a16929a2aee5b3e4fc8fea04e979c617c7b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/008.png",
+        "sha256": "91cc3b71424bc528a519edeb00ab61d9bf90f5b68cd50638bdd2c2e6f3f072d2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/009.png",
+        "sha256": "f28381d6a3dada775ac55e604c15b5bddcc0bbee77311995d92eb5b0d48ac5ec",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/010.png",
+        "sha256": "2e4229264d13e8e7f803f3a24b14ac4c489f3ad6d1b7ae6bc2c94d6f77b036cc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/011.png",
+        "sha256": "646dfb21f5a75125d1c62c7b8be6b38f9dca147651c45ae353f28a4f6fd0bc32",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/012.png",
+        "sha256": "381dea4f18b4b61122e54f9ba7253b1727ac13e834115fbde98975dc8e17c9a9",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/013.png",
+        "sha256": "4bdc85e8accecf544e9f239c9d7cf3eaa303f1b91ad5f4f755cf0666b56ba7aa",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/014.png",
+        "sha256": "f96f571e872eb47e7a3d394c9fedf3b1742cb926dfab2d5ef490a8b302f62acf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/015.png",
+        "sha256": "3f991c775e7801b6cee539762c196765f2c3d958888b813b3b64d90ff422db26",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/016.png",
+        "sha256": "825c7d2ba481a5e3d6861ce0443087ac5e5834e673ad6b643059fd39323ac0d2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/017.png",
+        "sha256": "0406ab02155585ad254d0a8de04b24b18e75df78bee95d3900416c294d898817",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/018.png",
+        "sha256": "cc4003e443774d9485e31df23ff87f538aada7dd53042a285a37f09c282e6974",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/019.png",
+        "sha256": "9a5fb903ec86e97b4fcab0d66dcadcff69e8f1776c0d9957f477ab71085b582e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/020.png",
+        "sha256": "0ef133935281b0a7a025379558c1f3257ccc5fb6d0edaf59c89aa2fdead73476",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/021.png",
+        "sha256": "59feadf1896c45541c77ca7ed1ac52bf77cd02719f45dd787ae1fc0ac15f143c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/022.png",
+        "sha256": "bb100d0c50ad7ae90f4db009f0c0832e552ff8a637bee62ac80c037bff3dba24",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/023.png",
+        "sha256": "0677b3758c9443af568a220091ef6c361a27774ca768303494c19ff81e8dfd79",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/000.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/001.png",
+        "sha256": "b3e9c0ca3ac02308ca5090623dc2bf11dcf44051e67fa3d794dd0b6db7f26d4e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/002.png",
+        "sha256": "432183910c955d8edc008470e34ec45806af2f462e0669f16ea5d6205e691ab4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/003.png",
+        "sha256": "b0ece5bd2fa2f13513cb97f5c63df863881bfe4e1d8acf15ce75d0fd844c28c7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/004.png",
+        "sha256": "5694c4268c759a4c22d8a449cbe92951ff515e8813313d82f27b7c23b5d9280c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/005.png",
+        "sha256": "793f326bae503f278abc1d3bc64f7a69846e0141a6792be7078f0a802642a20e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/006.png",
+        "sha256": "512bba4e802cd68b89867819aac0ef30b6f5909a2aec4b4b9aaaf4242d617532",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/007.png",
+        "sha256": "fc2ba1c52e360489051e46ea13c72fb8bc1fd5083a7ba4709c13b14a44af1b01",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/008.png",
+        "sha256": "067ea6de868878573b68cbd09f6efd754bc70929f81eb16490a9ac70821af552",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/009.png",
+        "sha256": "ed97b61de08f4bd48d1e651ce8fe63f2e1c7fd47eada85e9f0601594a6569fb1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/010.png",
+        "sha256": "110d31a1196c722f9a25fc743d9077943f6c16e96044eee9ee3c11ee6cc61ca6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/011.png",
+        "sha256": "1c92571e7c4785d43242599f9e8e271d89dd0457dadf4952c9d0f132b311bb2f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/012.png",
+        "sha256": "e2e1d59e7dbaa86e73c0305b405760902173901686b361dc1bec4bfea1bc3dd3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/013.png",
+        "sha256": "4e289034f5ebbf81ff6b0255d9fb011f16e0c64f40f3cb40e438a596f558bfa9",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/014.png",
+        "sha256": "e444fbc5599ca035e8d610cacc66a3fc263bc46daa632aa6917c481c4e02ddf2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/015.png",
+        "sha256": "3807466867ffa46d6ece202f152aea35aa12f55520d91f3d308f184a3793ee30",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/016.png",
+        "sha256": "b98f8be335c97817916db05b12f8c37a9e76b228b4583df8309c5ec67dbafedd",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/017.png",
+        "sha256": "2134e8819d62d7fc40037ec26ce108e7d4e984c8eee46c90f0e00a822cbad84d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/018.png",
+        "sha256": "54f02bb0c828213da36c0501c08a708842bab712e4151aaa1b340b9e9c9de9a0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/019.png",
+        "sha256": "c4537c9a6b4c0db4a936429de9d3ad6a2870ebbf52b3c71647ca75cf07c6ad0d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/020.png",
+        "sha256": "d18c8a9744a727a25710ca1a85cc2a168b18450189c466133ffbd25e7c2be832",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/021.png",
+        "sha256": "5fcae9b82a19581374707111b90cd64e489bdb5210864747fe41ce1263b8964a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/022.png",
+        "sha256": "ea45a55767426aa28d0ce655f4968dec5c0ce1724c1da2390e258c442a58b089",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/023.png",
+        "sha256": "79eccac417a5795e34bad61af75568947a6051387dd73eb13871180cad4e9f69",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/024.png",
+        "sha256": "51f9d412baafaace958c83fbc27f67874a63e0d7d9e3c7a0c9246d800bdd8e9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/025.png",
+        "sha256": "fb973cb54968f3b82656a2ed0be7bed5e738a466267a9b08aeaa79990d34c947",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/026.png",
+        "sha256": "1665ccf21ec1aa3f4ba2a4dae1eed81c5eda18599384293f811724776d901e1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/027.png",
+        "sha256": "305a906c887c7bac2d7ea24bc8ba3df06a2a8bf8374700e5a67c246fddd24ccf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/028.png",
+        "sha256": "a3ed32ba4481573556413183bc685161463bf73b63d2c37c8c6f461303400bd0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/029.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/030.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/031.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/000.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/001.png",
+        "sha256": "336a8920266e771eb158da548ab9644afc6a61175365e0e06a8761a1d69b9091",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/002.png",
+        "sha256": "12517932f23f497c3701cd146198794b3f306b778c83b2982f324e5f5c93adc8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/003.png",
+        "sha256": "aabc0701e3abbccdcd4f59761999fc85d77d93c9a35524fba7f913d09342b596",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/004.png",
+        "sha256": "8c29a235c8baaa8ec00e78e85ee14f31b53c9bd7a95b7e860b4eee5d8a563cb5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/005.png",
+        "sha256": "359f8ff3e196e621d55896dbe60dd7d21e2ef288ce2a3d0b0126ee397488f18a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/006.png",
+        "sha256": "1b6f2d5858fde8a77b7b66a676d66e87f8105024a21a5fe3c4eb8a2466c6428f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/007.png",
+        "sha256": "ba1dc744f4a4650b0bd95c28cc5ffcdbe7e96c8c8a0d46b05c6999f57123b6b9",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/008.png",
+        "sha256": "11809534a20ceec215c74cfa716835d8b6cc16e0e77c7b2304e80b98d9bf67af",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/009.png",
+        "sha256": "72f81792336de04e173f5e1afaf6ba03eef1dca96fe5efdacd8dbc2adecb4df3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/010.png",
+        "sha256": "72f81792336de04e173f5e1afaf6ba03eef1dca96fe5efdacd8dbc2adecb4df3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/011.png",
+        "sha256": "72f81792336de04e173f5e1afaf6ba03eef1dca96fe5efdacd8dbc2adecb4df3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/012.png",
+        "sha256": "b76279447d5547bced99ad56c6ceeb89a7eda92038a5da2dce94f47171a18afd",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/013.png",
+        "sha256": "6d303aa212f63bc08231fb34993bf7aab1de441034b12d00ec89425e352229ea",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/014.png",
+        "sha256": "f227e6e3f9383f5689debcdde62125ec909726cade009093dc03408b295ea010",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/015.png",
+        "sha256": "4e48b09fe4f77c82fcd2dc5b469bccea5a23f86b96265b6ac1fb7ba6b0246995",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/016.png",
+        "sha256": "490de568f543dfc8d6b5fba43bd48e0ce95415cba5ed46bb9507c6ae478ca2e0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/017.png",
+        "sha256": "7b55047e219ab46c71318768cc01e664e4c53fbaad5156e68f4afcfab4053b98",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/018.png",
+        "sha256": "dba0b3ceaae7bc0bd74849aa43167007d3d876f0f8d1606c8ca21d7ed87f855e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/019.png",
+        "sha256": "ff42c62fdf600dd889513c1278d24e92a5359af12ce06e36563b592b944f4642",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/020.png",
+        "sha256": "602fea2b8e3d4406d5a875725bd2fc921baac233154e954c421250d527ec1dce",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/021.png",
+        "sha256": "82bdc3d6b61d8c31c49c88836dabebdc753734234fb7e2d3041e803181943a79",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/022.png",
+        "sha256": "c15a65dc31b231116ba0170ae91cca1061fd55d6bccb55aa816be9ea4ac3daaf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/023.png",
+        "sha256": "cd97d85fef3daba874b646b095886341b4ec2280a24734fc89c79dddae35690e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/024.png",
+        "sha256": "3659d276f5b2cad7ad5652481bff23056dd6873a08c404d32e74b75fa3cd2321",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/025.png",
+        "sha256": "93b91915a24b31850dc7352b180d3e85bbe2d156fe777fe0c57b7df83f62634b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/026.png",
+        "sha256": "fc7f7c610852b27af6e5c947b56c4b26d7ce182232df38bb68ed1056c0efc43e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/027.png",
+        "sha256": "a94fa25ff39cbf49abb044f5890876c88b520e6100b147b03a808aaab194ffbe",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/028.png",
+        "sha256": "6c795741a116995f98634b2d96072da11205a7646ad3648b46f22b30948347d9",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/029.png",
+        "sha256": "f6568fd7b6b52f029149d02284d659112a683f4c05901a30fd20d1be1249ac1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/030.png",
+        "sha256": "1cbc2ed4476cb4ed5a54b82758ec9028e22679da0604d45102fb42f11459d319",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/031.png",
+        "sha256": "1df082619e4d74adefe9387cb5a600c857b21f937ac3479cf80954e03d891d01",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/032.png",
+        "sha256": "b6b60f78d69e9f1749b5b1fe9fc05c828fc5df5c7cbb8a680316f94863662a6c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/033.png",
+        "sha256": "6d7508be0d74dc032855aa10b3a85ee6185223f0a98f819dcbbffa828ae50e7a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/034.png",
+        "sha256": "6bfaa8cf12d46691efa79d67888a07a4d63b046473f069d7e8940b4c4bcd59b4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_block/035.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/000.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/001.png",
+        "sha256": "199ce7f35b714128d330eb3cbbc66b81577fab1652abbf14a274a9665241d427",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/002.png",
+        "sha256": "95d925aac0078a1b114a30b6ecc0723963013914e3c77036114ac15e247fd7cb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/003.png",
+        "sha256": "fd6e15030c51bf49152fe29971a46e9fdf4d67ff663c606294177eb31724c37b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/004.png",
+        "sha256": "76ef40e5b13c58673666dbff1c5c611cf6f0e5e9a0dc4bcb346675160e0aa105",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/005.png",
+        "sha256": "31b098b622cbb00c05eeafe2f0ad587cabdd278332a0924b926a485f53c5e8c0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/006.png",
+        "sha256": "f3a5b491fb253a3e509d0e96d770408e61a87f3246e6107e0a8629d32aab048a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/007.png",
+        "sha256": "a435dd8da36bca55f93d80726143a8fd0e212647263bd8b2ba3f5d1866ac91df",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/008.png",
+        "sha256": "f6c559711ef99813a946563b467e5c875ea647cc6685b641acda62484da7c4b4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/009.png",
+        "sha256": "398901aa7e0f92bc17039fabff6a317e979874acda21c1e7547719f3c754f10a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/010.png",
+        "sha256": "92f46754bbf243dbc79762900d183ffd03cd655b82bf93dbed3574edf7f12482",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/011.png",
+        "sha256": "22e83d5fee05e1289265611fb17e362e5c3565a6209e6b32a1bce01b75f76386",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/012.png",
+        "sha256": "7623cbbf60560f498643f81c22326889d48222ead870c009a72ab0c0ca41166c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/013.png",
+        "sha256": "bba845602036a2051031ec36dc127487407724899d09f6d92d5d89a748c150a4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/014.png",
+        "sha256": "f3f533e351554cf8e2cd4e47f230aeb46cf3bbf8b9a5658a1c1f954a2d796aab",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/015.png",
+        "sha256": "964769970538389769304e48ecb657a45f3e94997dbd3459c2bb16c43c8ed5d2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/016.png",
+        "sha256": "c2c0ebf39f50a11b4091d165f00b122103e3f3377cd62eab4d265f70ada0e0b2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/017.png",
+        "sha256": "546441fdf04886639a32b6d6e1324edfdb356bde741c142063aca2c5e02a547f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/018.png",
+        "sha256": "3300e9de728995234f8c743deed531b3a4d6edd3cb1981dc653ea60b70fd5bc8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/019.png",
+        "sha256": "20e70f1f459495e776afaa87e9ac6be3242134a17e9abeb9dfbca506e2ca358e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/020.png",
+        "sha256": "c562a8cc06d678178aea57fe0ce882d33abd573fbea2f30ed83300b511ced7d8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/021.png",
+        "sha256": "94e06b467bf27e820c52cafac0c6f8040b8999ea28399f63e1259ee7301f2944",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/022.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_hit/023.png",
+        "sha256": "2b70cc131eb2173e9c40cd4854159b40fda6728080c8039ca4dbaea1c8435f9e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      }
+    ],
+    "failures": [],
+    "passed": true
+  },
+  "failures": [],
   "passed": true
 }

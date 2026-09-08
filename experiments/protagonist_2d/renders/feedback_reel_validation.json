@@ -1,15 +1,15 @@
 {
-  "pass": 4,
+  "pass": 5,
   "fps": 72,
   "size": [
-    1552,
-    854
+    1584,
+    886
   ],
   "shared_source_crop": [
-    87,
-    84,
-    445,
-    381
+    71,
+    74,
+    437,
+    387
   ],
   "source_pixel_scale": 2,
   "facings_left_to_right": [
@@ -26,24 +26,24 @@
     "walk": 36
   },
   "half_speed_method": "Hold each actual source frame twice as long; output cadence preserves both 24fps and 36fps inputs",
-  "builder_sha256": "9456f407c7bcf0b81ec6376c866c8c68cc6272baff6dd2965c0d68f13c5d8ca5",
+  "builder_sha256": "96c0cae717cd5bde5ddeefbb5a2cc149a44143c8c123e55c350e857c6757f526",
   "font_sha256": "83f0f49b4178e1c5bdaf40a7174f510b9bc52c9563095d23cf3c46486a8a8035",
   "source_sha256": {
-    "front_attack.png": "19928288aab9be2b878c8206d1a019ac99fdfc0eed4db05ca97f9e7f70c13242",
-    "front_block.png": "7c0df8ee73f729c0e314999af5a8702b29f9cdc122e963ebb7193da7bdf9d78e",
-    "front_hit.png": "e0267533b6353063abd70c92cdda69cb82fd8e3f57f7e62c5d42d8895d7ad7fb",
-    "front_idle.png": "0b526b70207a16858ef39f8406ff0d326486001bc93a24400931ac15b22d180f",
-    "front_walk.png": "0e2b923f1aa817a95912dcb9a25c0819a2b07c6c9c0b72612e02618f50a0a6c3",
-    "rear_attack.png": "f0801e4efd25ef41be47648767a856aea61732c9eaa6b83f7026554675302ab9",
-    "rear_block.png": "8a19552a15f91242f87fb90946b07cf7dd4846bbdbd6ccf6e7e20999ecfc430b",
-    "rear_hit.png": "080db2d57596686a1c7796a8284f6e6cd644d9869085cbf3691c7d2af81b7b15",
-    "rear_idle.png": "08752d5aab13a62c98f205795cfa514bdc526f20285987d6abacd35280d0135e",
-    "rear_walk.png": "3cd1d053b17bca83fb2c278a4f28c086aea1c989eb623e63f532c1927ba146e5"
+    "front_attack.png": "a21cf26036ab1cc8688689411504ba8654c14fcc3f61fece4cb1fe4c81a3ecc7",
+    "front_block.png": "6eef62b7a5bc11874c7482261dfa3bee0f045cbb9b7ad86d38612d9d2a07473f",
+    "front_hit.png": "bb8e55a4cbc45ac230422d72d0b8d24c6c598be4addedad63e4991b0ae13435f",
+    "front_idle.png": "fc48b51b283c6151b9c8b6834f7e576c7d630951d6c240e9be458f88c3ae9085",
+    "front_walk.png": "7abcdd2275f346a221978a258d645592458b3743541c6231775e95990957a54d",
+    "rear_attack.png": "26f8706ebc3d24eadef2fb2a87a64a5210e60add42347577750eb29c8f68218a",
+    "rear_block.png": "5e6b6369d0d2ce3202b4429b121f7fb0c28dc4b5059af0b3a41c0fcb0dddd126",
+    "rear_hit.png": "c63175015e6f2db50a1b5902c3b3b34419fce6ef4bac1d4b4e9903c8bd1f9ca4",
+    "rear_idle.png": "69354541b599c2c335b998f20fc35f3d8a9fcf77bc0faacc692ebae339980ec0",
+    "rear_walk.png": "ec0dba4faad05f4bbb3d57521a96d077b3fc6321f288d234d3f8dce57aaf15d8"
   },
   "videos": [
     {
       "file": "animation_showcase.mp4",
-      "sha256": "c8e33ea3eca997de75ac5c0d564934e2bf860e5fbc54153d2ce8ed91c2a5dc06",
+      "sha256": "792c93bdfa04576dd125cdab485de1d90532327f867b675509129959e89ae465",
       "frames": 384,
       "duration_seconds": 5.333333333333333,
       "segments": [
@@ -100,8 +100,8 @@
       ],
       "complete_decode": true,
       "metadata": {
-        "width": 1552,
-        "height": 854,
+        "width": 1584,
+        "height": 886,
         "avg_frame_rate": "72/1",
         "duration": "5.333333",
         "nb_frames": "384"
@@ -110,7 +110,7 @@
     },
     {
       "file": "all_animations_feedback.mp4",
-      "sha256": "e85c4069648c2ad1c2ff37bbd800cd820ee7044c2f0ca8205a559ff6de321232",
+      "sha256": "416c6de4e8bbd7f8041e92df4de4f2646797c40fd8725dab615974e6d4d01beb",
       "frames": 1536,
       "duration_seconds": 21.333333333333332,
       "segments": [
@@ -217,8 +217,8 @@
       ],
       "complete_decode": true,
       "metadata": {
-        "width": 1552,
-        "height": 854,
+        "width": 1584,
+        "height": 886,
         "avg_frame_rate": "72/1",
         "duration": "21.333333",
         "nb_frames": "1536"

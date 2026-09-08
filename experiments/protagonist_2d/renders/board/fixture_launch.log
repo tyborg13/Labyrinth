@@ -1,0 +1,10 @@
+Running task-local command:
+  task: protagonist-2d-skeletal-experiment
+  run: protagonist-2d-skeletal-experiment-1788847808422963000-94182
+  HOME: /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847808422963000-94182
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788847808422963000-94182/godot.log --headless --path . --quit-after 5 res://experiments/protagonist_2d/inspection.tscn
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
