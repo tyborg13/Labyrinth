@@ -1,4 +1,4 @@
-"""Compose all five front/rear actions from actual combat-board capture pixels.
+"""Compose walk and attack in front/rear views from actual combat-board capture pixels.
 
 A single fixed native-pixel crop covers every actor pose and the full walk path.
 The 72fps output preserves all 24fps action and 36fps walk frames; half speed
@@ -26,7 +26,7 @@ def write_board_reel(proof: Path) -> dict:
     clips = {entry['name']: entry for entry in evidence['video_clips']}
     required = {facing + '_' + action for facing in FACINGS for action in ACTIONS}
     if set(clips) != required:
-        raise ValueError('Board reel requires all five actions in both facings')
+        raise ValueError('Board reel requires walk and attack in both facings')
     all_bounds = []
     hashes = {}
     for name, clip in clips.items():
@@ -60,7 +60,7 @@ def write_board_reel(proof: Path) -> dict:
     size = (width * 2 + 96, height + 202)
     output = proof / 'videos'
     output.mkdir(exist_ok=True)
-    destination = output / 'all_animations_board.mp4'
+    destination = output / 'walk_attack_board.mp4'
     ffmpeg = shutil.which('ffmpeg')
     if not ffmpeg:
         raise RuntimeError('ffmpeg is required')
@@ -94,7 +94,7 @@ def write_board_reel(proof: Path) -> dict:
                     for index in range(count):
                         canvas = Image.new('RGB', size, '#100e12')
                         draw = ImageDraw.Draw(canvas)
-                        _text(draw, (32, 20), 'PASS 5 / ON THE COMBAT BOARD', 25)
+                        _text(draw, (32, 20), 'PASS 6 / ON THE COMBAT BOARD', 25)
                         _text(draw, (32, 60), action.upper(), 25, '#d7aa74')
                         _text(draw, (size[0] - 32, 62), 'Normal speed / 1x' if speed == 1 else 'Half speed / 0.5x', 22, anchor='rt')
                         for column, facing in enumerate(FACINGS):
@@ -145,8 +145,8 @@ def write_board_reel(proof: Path) -> dict:
             image = source.convert('RGB')
             image.thumbnail((400, 240), Image.Resampling.LANCZOS)
             contact.paste(image, ((number % 3) * 400, (number // 3) * 240))
-    contact.save(output / 'all_animations_board_contact.png')
-    report = {'pass': 5, 'proof_kind': 'actual Godot combat-board frames',
+    contact.save(output / 'walk_attack_board_contact.png')
+    report = {'pass': 6, 'proof_kind': 'actual Godot combat-board frames',
         'native_capture_size': [1920, 1080], 'ui_scale': 1.0, 'source_pixel_scale': 1,
         'fixed_source_crop': list(crop), 'facings_left_to_right': list(FACINGS),
         'per_frame_camera_fitting': False, 'pose_interpolation': False,

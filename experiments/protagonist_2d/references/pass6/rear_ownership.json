@@ -1,0 +1,2575 @@
+{
+  "coordinate_space": "registered native 255x255 painting; all parts retain exact pixel positions",
+  "priority_polygons": [
+    [
+      "hips",
+      [
+        [
+          100,
+          129
+        ],
+        [
+          102,
+          129
+        ],
+        [
+          102,
+          138
+        ],
+        [
+          100,
+          138
+        ]
+      ]
+    ],
+    [
+      "head",
+      [
+        [
+          86,
+          0
+        ],
+        [
+          176,
+          0
+        ],
+        [
+          177,
+          57
+        ],
+        [
+          160,
+          65
+        ],
+        [
+          146,
+          69
+        ],
+        [
+          128,
+          69
+        ],
+        [
+          114,
+          64
+        ],
+        [
+          102,
+          59
+        ],
+        [
+          95,
+          53
+        ],
+        [
+          86,
+          51
+        ]
+      ]
+    ],
+    [
+      "scarf",
+      [
+        [
+          98,
+          58
+        ],
+        [
+          111,
+          63
+        ],
+        [
+          132,
+          69
+        ],
+        [
+          149,
+          68
+        ],
+        [
+          161,
+          63
+        ],
+        [
+          163,
+          69
+        ],
+        [
+          152,
+          73
+        ],
+        [
+          142,
+          77
+        ],
+        [
+          126,
+          80
+        ],
+        [
+          111,
+          77
+        ],
+        [
+          102,
+          72
+        ],
+        [
+          97,
+          66
+        ]
+      ]
+    ],
+    [
+      "mantle_far",
+      [
+        [
+          96,
+          67
+        ],
+        [
+          104,
+          74
+        ],
+        [
+          107,
+          79
+        ],
+        [
+          103,
+          87
+        ],
+        [
+          102,
+          92
+        ],
+        [
+          89,
+          95
+        ],
+        [
+          81,
+          92
+        ],
+        [
+          83,
+          87
+        ],
+        [
+          89,
+          79
+        ],
+        [
+          89,
+          73
+        ]
+      ]
+    ],
+    [
+      "mantle_near",
+      [
+        [
+          103,
+          76
+        ],
+        [
+          115,
+          80
+        ],
+        [
+          129,
+          80
+        ],
+        [
+          144,
+          75
+        ],
+        [
+          156,
+          71
+        ],
+        [
+          163,
+          70
+        ],
+        [
+          166,
+          78
+        ],
+        [
+          162,
+          83
+        ],
+        [
+          153,
+          83
+        ],
+        [
+          145,
+          86
+        ],
+        [
+          139,
+          92
+        ],
+        [
+          134,
+          96
+        ],
+        [
+          126,
+          101
+        ],
+        [
+          121,
+          96
+        ],
+        [
+          114,
+          94
+        ],
+        [
+          102,
+          92
+        ],
+        [
+          101,
+          85
+        ]
+      ]
+    ],
+    [
+      "hand_l",
+      [
+        [
+          79,
+          127
+        ],
+        [
+          96,
+          125
+        ],
+        [
+          102,
+          131
+        ],
+        [
+          102,
+          138
+        ],
+        [
+          93,
+          140
+        ],
+        [
+          81,
+          138
+        ],
+        [
+          77,
+          133
+        ]
+      ]
+    ],
+    [
+      "forearm_l",
+      [
+        [
+          79,
+          108
+        ],
+        [
+          99,
+          108
+        ],
+        [
+          99,
+          119
+        ],
+        [
+          97,
+          127
+        ],
+        [
+          96,
+          132
+        ],
+        [
+          78,
+          132
+        ],
+        [
+          75,
+          123
+        ]
+      ]
+    ],
+    [
+      "arm_l",
+      [
+        [
+          89,
+          90
+        ],
+        [
+          101,
+          91
+        ],
+        [
+          106,
+          100
+        ],
+        [
+          104,
+          109
+        ],
+        [
+          97,
+          115
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          79,
+          108
+        ],
+        [
+          83,
+          98
+        ]
+      ]
+    ],
+    [
+      "hand_r",
+      [
+        [
+          161,
+          138
+        ],
+        [
+          180,
+          138
+        ],
+        [
+          184,
+          143
+        ],
+        [
+          181,
+          152
+        ],
+        [
+          169,
+          156
+        ],
+        [
+          159,
+          150
+        ],
+        [
+          158,
+          143
+        ]
+      ]
+    ],
+    [
+      "forearm_r",
+      [
+        [
+          151,
+          114
+        ],
+        [
+          168,
+          110
+        ],
+        [
+          175,
+          120
+        ],
+        [
+          180,
+          137
+        ],
+        [
+          179,
+          144
+        ],
+        [
+          168,
+          147
+        ],
+        [
+          157,
+          141
+        ],
+        [
+          155,
+          128
+        ]
+      ]
+    ],
+    [
+      "arm_r",
+      [
+        [
+          144,
+          79
+        ],
+        [
+          156,
+          79
+        ],
+        [
+          164,
+          85
+        ],
+        [
+          167,
+          96
+        ],
+        [
+          167,
+          111
+        ],
+        [
+          170,
+          114
+        ],
+        [
+          165,
+          122
+        ],
+        [
+          155,
+          123
+        ],
+        [
+          143,
+          111
+        ],
+        [
+          139,
+          100
+        ],
+        [
+          140,
+          89
+        ]
+      ]
+    ],
+    [
+      "foot_l",
+      [
+        [
+          87,
+          189
+        ],
+        [
+          103,
+          187
+        ],
+        [
+          113,
+          190
+        ],
+        [
+          117,
+          197
+        ],
+        [
+          109,
+          201
+        ],
+        [
+          101,
+          204
+        ],
+        [
+          87,
+          206
+        ],
+        [
+          82,
+          198
+        ]
+      ]
+    ],
+    [
+      "shin_l",
+      [
+        [
+          90,
+          166
+        ],
+        [
+          109,
+          167
+        ],
+        [
+          112,
+          174
+        ],
+        [
+          109,
+          182
+        ],
+        [
+          112,
+          191
+        ],
+        [
+          110,
+          197
+        ],
+        [
+          93,
+          196
+        ],
+        [
+          84,
+          192
+        ],
+        [
+          85,
+          181
+        ]
+      ]
+    ],
+    [
+      "thigh_l",
+      [
+        [
+          98,
+          142
+        ],
+        [
+          121,
+          142
+        ],
+        [
+          126,
+          150
+        ],
+        [
+          125,
+          159
+        ],
+        [
+          116,
+          167
+        ],
+        [
+          112,
+          174
+        ],
+        [
+          94,
+          173
+        ],
+        [
+          89,
+          168
+        ],
+        [
+          90,
+          159
+        ]
+      ]
+    ],
+    [
+      "foot_r",
+      [
+        [
+          132,
+          200
+        ],
+        [
+          152,
+          199
+        ],
+        [
+          166,
+          199
+        ],
+        [
+          173,
+          204
+        ],
+        [
+          172,
+          213
+        ],
+        [
+          158,
+          219
+        ],
+        [
+          144,
+          223
+        ],
+        [
+          131,
+          221
+        ],
+        [
+          129,
+          213
+        ]
+      ]
+    ],
+    [
+      "shin_r",
+      [
+        [
+          127,
+          173
+        ],
+        [
+          154,
+          169
+        ],
+        [
+          158,
+          178
+        ],
+        [
+          158,
+          189
+        ],
+        [
+          156,
+          199
+        ],
+        [
+          153,
+          207
+        ],
+        [
+          137,
+          209
+        ],
+        [
+          128,
+          201
+        ],
+        [
+          129,
+          190
+        ]
+      ]
+    ],
+    [
+      "thigh_r",
+      [
+        [
+          126,
+          143
+        ],
+        [
+          143,
+          142
+        ],
+        [
+          154,
+          151
+        ],
+        [
+          158,
+          161
+        ],
+        [
+          159,
+          169
+        ],
+        [
+          153,
+          176
+        ],
+        [
+          139,
+          178
+        ],
+        [
+          127,
+          174
+        ],
+        [
+          124,
+          161
+        ]
+      ]
+    ],
+    [
+      "hips",
+      [
+        [
+          101,
+          111
+        ],
+        [
+          127,
+          112
+        ],
+        [
+          146,
+          114
+        ],
+        [
+          152,
+          124
+        ],
+        [
+          151,
+          135
+        ],
+        [
+          157,
+          144
+        ],
+        [
+          150,
+          148
+        ],
+        [
+          138,
+          145
+        ],
+        [
+          132,
+          149
+        ],
+        [
+          118,
+          147
+        ],
+        [
+          106,
+          146
+        ],
+        [
+          97,
+          145
+        ],
+        [
+          98,
+          133
+        ]
+      ]
+    ],
+    [
+      "torso",
+      [
+        [
+          101,
+          90
+        ],
+        [
+          137,
+          91
+        ],
+        [
+          145,
+          102
+        ],
+        [
+          146,
+          116
+        ],
+        [
+          135,
+          122
+        ],
+        [
+          114,
+          120
+        ],
+        [
+          101,
+          111
+        ],
+        [
+          97,
+          104
+        ]
+      ]
+    ],
+    [
+      "scarf",
+      [
+        [
+          105,
+          74
+        ],
+        [
+          120,
+          74
+        ],
+        [
+          120,
+          79
+        ],
+        [
+          105,
+          79
+        ]
+      ]
+    ],
+    [
+      "scarf",
+      [
+        [
+          92,
+          64
+        ],
+        [
+          99,
+          64
+        ],
+        [
+          99,
+          70
+        ],
+        [
+          92,
+          70
+        ]
+      ]
+    ],
+    [
+      "hand_l",
+      [
+        [
+          77,
+          131
+        ],
+        [
+          93,
+          131
+        ],
+        [
+          93,
+          141
+        ],
+        [
+          77,
+          141
+        ]
+      ]
+    ],
+    [
+      "hips",
+      [
+        [
+          149,
+          118
+        ],
+        [
+          156,
+          118
+        ],
+        [
+          156,
+          141
+        ],
+        [
+          149,
+          141
+        ]
+      ]
+    ],
+    [
+      "shin_r",
+      [
+        [
+          127,
+          178
+        ],
+        [
+          127,
+          178
+        ],
+        [
+          127,
+          181
+        ],
+        [
+          127,
+          181
+        ]
+      ]
+    ],
+    [
+      "shin_l",
+      [
+        [
+          110,
+          172
+        ],
+        [
+          116,
+          172
+        ],
+        [
+          116,
+          194
+        ],
+        [
+          110,
+          194
+        ]
+      ]
+    ],
+    [
+      "foot_r",
+      [
+        [
+          135,
+          222
+        ],
+        [
+          137,
+          222
+        ],
+        [
+          137,
+          222
+        ],
+        [
+          135,
+          222
+        ]
+      ]
+    ],
+    [
+      "arm_l",
+      [
+        [
+          80,
+          104
+        ],
+        [
+          80,
+          104
+        ],
+        [
+          80,
+          104
+        ],
+        [
+          80,
+          104
+        ]
+      ]
+    ],
+    [
+      "forearm_l",
+      [
+        [
+          77,
+          109
+        ],
+        [
+          78,
+          109
+        ],
+        [
+          78,
+          113
+        ],
+        [
+          77,
+          113
+        ]
+      ]
+    ],
+    [
+      "thigh_r",
+      [
+        [
+          151,
+          147
+        ],
+        [
+          156,
+          147
+        ],
+        [
+          156,
+          154
+        ],
+        [
+          151,
+          154
+        ]
+      ]
+    ],
+    [
+      "hips",
+      [
+        [
+          96,
+          145
+        ],
+        [
+          96,
+          145
+        ],
+        [
+          96,
+          145
+        ],
+        [
+          96,
+          145
+        ]
+      ]
+    ],
+    [
+      "shin_l",
+      [
+        [
+          88,
+          168
+        ],
+        [
+          88,
+          168
+        ],
+        [
+          88,
+          170
+        ],
+        [
+          88,
+          170
+        ]
+      ]
+    ],
+    [
+      "shin_l",
+      [
+        [
+          116,
+          168
+        ],
+        [
+          116,
+          168
+        ],
+        [
+          116,
+          168
+        ],
+        [
+          116,
+          168
+        ]
+      ]
+    ],
+    [
+      "hand_r",
+      [
+        [
+          158,
+          142
+        ],
+        [
+          158,
+          142
+        ],
+        [
+          158,
+          142
+        ],
+        [
+          158,
+          142
+        ]
+      ]
+    ],
+    [
+      "mantle_far",
+      [
+        [
+          88,
+          74
+        ],
+        [
+          88,
+          74
+        ],
+        [
+          88,
+          78
+        ],
+        [
+          88,
+          78
+        ]
+      ]
+    ],
+    [
+      "mantle_near",
+      [
+        [
+          139,
+          93
+        ],
+        [
+          139,
+          93
+        ],
+        [
+          139,
+          93
+        ],
+        [
+          139,
+          93
+        ]
+      ]
+    ]
+  ],
+  "border_repairs": "Explicit source-pixel border ownership after reviewing unassigned connected regions; rectangles affect only still-unassigned source pixels.",
+  "pixel_overrides": [
+    {
+      "name": "mantle_far",
+      "point": [
+        98,
+        68
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        99,
+        68
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        93,
+        69
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        99,
+        69
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        100,
+        69
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        100,
+        70
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        150,
+        70
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        101,
+        71
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        102,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        145,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        146,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        147,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        148,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        149,
+        71
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        154,
+        71
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        102,
+        72
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        103,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        138,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        141,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        143,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        145,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        146,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        147,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        148,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        149,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        150,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        151,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        152,
+        72
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        154,
+        72
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        104,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        138,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        141,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        143,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        145,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        146,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        147,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        148,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        149,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        150,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        151,
+        73
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        152,
+        73
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        105,
+        74
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        106,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        133,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        134,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        135,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        136,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        137,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        138,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        141,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        143,
+        74
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        74
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        106,
+        75
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        107,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        128,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        130,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        131,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        132,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        133,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        134,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        135,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        136,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        137,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        138,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        141,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        143,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        146,
+        75
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        147,
+        75
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        106,
+        76
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        107,
+        76
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        108,
+        76
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        126,
+        76
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        127,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        128,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        130,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        131,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        132,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        133,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        134,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        135,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        136,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        137,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        138,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        143,
+        76
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        144,
+        76
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        107,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        108,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        109,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        110,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        111,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        123,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        124,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        125,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        126,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        127,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        128,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        130,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        131,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        132,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        133,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        134,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        135,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        136,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        137,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        139,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        140,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        141,
+        77
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        142,
+        77
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        110,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        111,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        123,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        124,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        125,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        126,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        127,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        128,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        130,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        131,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        132,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        133,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        134,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        135,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        136,
+        78
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        137,
+        78
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        113,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        114,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        115,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        116,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        117,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        118,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        119,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        123,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        124,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        125,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        126,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        127,
+        79
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        128,
+        79
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        129,
+        79
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        130,
+        79
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        131,
+        79
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        126,
+        80
+      ]
+    },
+    {
+      "name": "mantle_near",
+      "point": [
+        162,
+        90
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        99,
+        93
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        100,
+        93
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        101,
+        93
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        95,
+        94
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        96,
+        94
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        97,
+        94
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        98,
+        94
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        99,
+        94
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        96,
+        95
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        97,
+        95
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        96,
+        96
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        97,
+        96
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        118,
+        96
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        119,
+        96
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        96
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        97
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        97
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        84,
+        98
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        98
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        98
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        98
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        120,
+        99
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        99
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        99
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        123,
+        99
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        100
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        100
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        121,
+        101
+      ]
+    },
+    {
+      "name": "mantle_far",
+      "point": [
+        122,
+        101
+      ]
+    }
+  ],
+  "pixel_override_reason": "Inspected collar and shoulder cloth colors outside the broad semantic masks belong to the removable cloak, not the scarf, head or chest."
+}

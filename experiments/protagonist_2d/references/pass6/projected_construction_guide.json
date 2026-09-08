@@ -1,0 +1,243 @@
+{
+  "projection": {
+    "screen_x": "X-Y",
+    "screen_y": "0.5*(X+Y)-Z",
+    "origin": [
+      128,
+      205
+    ],
+    "code": "scripts/combat_board_view.gd:_ranged_preview_projected_board_vector"
+  },
+  "source_landmarks": {
+    "shoulders": [
+      [
+        104,
+        96
+      ],
+      [
+        156,
+        115
+      ]
+    ],
+    "waist": [
+      [
+        108,
+        123
+      ],
+      [
+        152,
+        141
+      ]
+    ],
+    "hips": [
+      [
+        119,
+        140
+      ],
+      [
+        150,
+        154
+      ]
+    ],
+    "knees": [
+      [
+        117,
+        167
+      ],
+      [
+        156,
+        179
+      ]
+    ],
+    "ankles": [
+      [
+        112,
+        184
+      ],
+      [
+        164,
+        202
+      ]
+    ],
+    "sole contacts": [
+      [
+        111,
+        195
+      ],
+      [
+        166,
+        221
+      ]
+    ]
+  },
+  "construction_world": {
+    "shoulder_far": [
+      -26,
+      0,
+      100
+    ],
+    "shoulder_near": [
+      26,
+      0,
+      100
+    ],
+    "waist_far": [
+      -20,
+      0,
+      67
+    ],
+    "waist_near": [
+      20,
+      0,
+      67
+    ],
+    "hip_far": [
+      -15,
+      0,
+      59
+    ],
+    "hip_near": [
+      15,
+      0,
+      59
+    ],
+    "knee_far": [
+      -18,
+      0,
+      33
+    ],
+    "knee_near": [
+      18,
+      0,
+      33
+    ],
+    "ankle_far": [
+      -22,
+      0,
+      10
+    ],
+    "ankle_near": [
+      22,
+      0,
+      10
+    ],
+    "heel_far": [
+      -22,
+      0,
+      0
+    ],
+    "heel_near": [
+      22,
+      0,
+      0
+    ],
+    "toe_far": [
+      -22,
+      18,
+      0
+    ],
+    "toe_near": [
+      22,
+      18,
+      0
+    ],
+    "elbow_far": [
+      -29,
+      2,
+      76
+    ],
+    "elbow_near": [
+      29,
+      2,
+      76
+    ],
+    "wrist_far": [
+      -31,
+      4,
+      52
+    ],
+    "wrist_near": [
+      31,
+      4,
+      52
+    ]
+  },
+  "construction_screen": {
+    "shoulder_far": [
+      102,
+      92.0
+    ],
+    "shoulder_near": [
+      154,
+      118.0
+    ],
+    "waist_far": [
+      108,
+      128.0
+    ],
+    "waist_near": [
+      148,
+      148.0
+    ],
+    "hip_far": [
+      113,
+      138.5
+    ],
+    "hip_near": [
+      143,
+      153.5
+    ],
+    "knee_far": [
+      110,
+      163.0
+    ],
+    "knee_near": [
+      146,
+      181.0
+    ],
+    "ankle_far": [
+      106,
+      184.0
+    ],
+    "ankle_near": [
+      150,
+      206.0
+    ],
+    "heel_far": [
+      106,
+      194.0
+    ],
+    "heel_near": [
+      150,
+      216.0
+    ],
+    "toe_far": [
+      88,
+      203.0
+    ],
+    "toe_near": [
+      132,
+      225.0
+    ],
+    "elbow_far": [
+      97,
+      115.5
+    ],
+    "elbow_near": [
+      155,
+      144.5
+    ],
+    "wrist_far": [
+      93,
+      139.5
+    ],
+    "wrist_near": [
+      155,
+      170.5
+    ]
+  },
+  "uncertainty": [
+    "Source near shoulder is concealed by cloak; screen landmark is an estimate, not ground truth.",
+    "Source poses are not a neutral equal-height skeleton."
+  ]
+}

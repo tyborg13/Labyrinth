@@ -1,0 +1,29 @@
+{
+	"cases": [
+		{
+			"action": "walk",
+			"facing": "front",
+			"frame": 10,
+			"pixel_identical": true
+		},
+		{
+			"action": "attack",
+			"facing": "front",
+			"frame": 13,
+			"pixel_identical": true
+		},
+		{
+			"action": "walk",
+			"facing": "rear",
+			"frame": 10,
+			"pixel_identical": true
+		},
+		{
+			"action": "attack",
+			"facing": "rear",
+			"frame": 13,
+			"pixel_identical": true
+		}
+	],
+	"saved_scene_reload": true
+}

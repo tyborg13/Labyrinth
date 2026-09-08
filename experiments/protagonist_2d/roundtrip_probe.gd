@@ -39,7 +39,7 @@ func _run() -> void:
 		saved = scene.instantiate() as Node2D
 		saved_view.add_child(saved)
 		var player := saved.get_node("Animations") as AnimationPlayer
-		assert(player != null and player.get_animation_list().size() == 5, "Saved rig retains all five editable animations")
+		assert(player != null and player.get_animation_list().size() == 2, "Saved rig retains both editable animations")
 		assert((saved.get_node("Skeleton") as Skeleton2D).get_bone_count() == 21, "Saved skeleton retains twenty-one bones including the independent sword grip")
 		for action: String in live.specs:
 			live.set_clip(action)

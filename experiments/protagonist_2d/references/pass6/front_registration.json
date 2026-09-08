@@ -1,0 +1,19 @@
+{
+  "source_keyed": "front_master_keyed.png",
+  "source_bbox": [
+    355,
+    36,
+    920,
+    1175
+  ],
+  "uniform_scale": 0.18788410886742757,
+  "native_size": [
+    106,
+    214
+  ],
+  "offset": [
+    75,
+    9
+  ],
+  "paint_source_status": "candidate to segment and validate; not a final accepted pose"
+}

@@ -1,69 +1,62 @@
 # Protagonist 2D skeletal animation experiment
 
-The fifth pass adds newly generated complete limbs, gloves, boots, hidden pelvis material and a sword grip while preserving the recognizable head, scarf, torso, belt, cloak and chipped blade. Both front/rear rigs are editable, with 21 bones and five actions each. The new relaxed assembly gives the joints room to move and the boots an appropriate painted perspective.
+The sixth pass rebuilds the complete protagonist as newly painted, composable front and rear artwork. The canonical sprite supplies the concept, proportions and style reference. Each facing has 19 art attachments on an editable 21-bone rig, with **walk and attack only**.
 
-Start with [the all-action combat-board reel](renders/board/videos/all_animations_board.mp4): front and rear appear side by side, with every action twice at normal speed and once at half speed. The 26.67-second reel uses a single native-pixel crop of the actual Godot board across every action and complete walk path. [Fifth-pass rationale](iteration_5.md) explains the art selection and rig changes; [the identity/assembly comparison](references/pass5/assembly_review.png) shows the new neutral pose beside the reference.
+Start with the [sixth-pass combat-board reel](renders/pass6/board/videos/walk_attack_board.mp4): both facings, twice at normal speed and once at half speed. The 13.33-second reel uses actual Godot board pixels with fixed framing. Compare the [canonical reference and new assemblies](references/pass6/assembly_review.png), then inspect the [front parts](references/pass6/front_parts_review.png) and [rear parts](references/pass6/rear_parts_review.png) at a shared 2× pixel scale.
 
-Open `inspection.tscn` for the live combat-board comparison, using [the verified launch instructions](inspection.md). It supports front/rear selection, all five actions, walking across the floor, source comparison, pause/frame-step and optional detail bones.
+[Launch the live inspection scene](inspection.md) to switch facing/action, walk across the board, hide the cloak, compare the source, pause, step and inspect bones. [The art and motion review](iteration_6.md) records the decisions and limits.
 
-## Preview artifacts
+## Current artifacts
 
-- `renders/board/videos/all_animations_board.mp4`: primary proof, all five actions and both facings on the real combat floor at normal/half speed.
-- `renders/board/videos/protagonist_2d_showcase.mp4`: every action with the complete 1920×1080 inspection surface visible.
-- `renders/all_animations_feedback.mp4`: supplemental in-place, magnified motion/seam review.
-- `renders/board/videos/walking_front_rear_paired.gif` and `.mp4`: simultaneous front/rear travel at native board scale.
-- `renders/walk_iteration_comparison.mp4`: fourth/fifth-pass walks, both at their accurate 36fps cadence with fixed framing.
-- `renders/walking_front_rear.gif`: paired in-place walk cycles.
-- `renders/animation_showcase.mp4`: one normal-speed cycle of each action, both facings.
-- `references/pass5/`: accepted ImageGen sources, prompts and candidate assessments, frozen baseline layouts, and assembled reference images.
-- `assets/pass5/front/` and `assets/pass5/rear/`: native complete appendages, their overlapping rig pieces, pelvis and weapon components.
-- `renders/pass4/`: retained sheets, reports and reels from reviewed commit `a3d2bce6f45f775b311fa59dd7326bfab9995afc`. Earlier studies remain under `renders/pass1` through `pass3`.
+- `renders/pass6/board/videos/walk_attack_board.mp4`: primary front/rear walk and attack comparison on the real board, normal and half speed.
+- `renders/pass6/walk_attack_feedback.mp4`: supplemental enlarged, in-place comparison.
+- `renders/pass6/board/videos/protagonist_2d_showcase.mp4`: full 1920×1080 inspection surface for both actions/facings.
+- `renders/pass6/board/videos/walking_front_rear_paired.mp4` and `.gif`: three gait cycles of simultaneous front/rear board travel.
+- `renders/pass6/review/`: every authored pose with/without cloak, all 39 board regions, and all 72 paired travel phases at native pixel scale.
+- `references/pass6/`: retained raw artwork, prompts/provenance, source registration and ownership traces, assembly and part comparisons.
+- `assets/pass6/front/` and `assets/pass6/rear/`: current composable character pieces. Their `source/` directories preserve the manually split master paint before joint completion.
+- `rigs/reaver_front.tscn` and `rigs/reaver_rear.tscn`: saved, editable Godot scenes. Select `Animations` for the two clips.
+
+Prior pass-five root previews are frozen in `renders/pass5/`; the historical fifth-pass full board proof remains in `renders/board/`. Earlier versioned folders and `iteration_1.md` through `iteration_5.md` describe superseded studies. Use the explicit **pass6** paths for this revision.
 
 ## Artwork and motion
 
-Built-in ImageGen supplied the new artwork. A full-character redraw was rejected for changing the face, palette and paint density. Two limb atlases were also rejected for false transparency or overly fine texture. The selected art uses dark grouped values, sparse ochre highlights, complete hidden joints and separately painted front/rear boot views. [Prompts and verdicts](references/pass5/prompts.json) retain those decisions and source filenames.
+Built-in ImageGen supplied two complete new paint sources and individually requested joint/material components. The full paintings establish head/body/limb consistency; manually authored ownership masks split them at registered coordinates. Individually generated sleeves caps, chest coverage, pelvis, rear trouser material, boots, cloak drapes and blade complete the hidden or revised surfaces. Source images are never stretched to fit a changing pose. Import uses measured destination dimensions and nearest-neighbor sampling; limb-length fitting is explicit in `registered_assets.py`.
 
-`articulated_assets.py` keys, crops and scales the accepted source art with nearest-neighbor sampling, partitions local overlaps and builds the skin weights. The canonical identity cutouts and cape texture remain byte-identical to pass four. The old hand is removed from the compound sword asset; its chipped blade/crossguard are retained, with a new narrow grip shaft and closed glove. The sword has its own bone so strong weapon rotation does not fold the wrist texture. A painted pelvis underlay supplies material behind the belt and moving thighs.
+The two source traces recompose their respective new master paint exactly. The final neutral assemblies additionally include complete hidden material and revised components, so they have distinct assembled reference images. Neither reconstruction assertion treats the canonical concept sprite as an immutable body.
 
-Each facing has six limb meshes: two overlapping pieces per sleeve and one continuous mesh per leg. Their glove/boot collars share the rigid terminal bone. Complete upper caps rotate into the body overlap instead of pinning their full width to the torso. The front cloak covers the concealed sleeve shoulder while the forearm can emerge in front of it.
+Head, scarf, chest, pelvis, gloves, boots and weapon are independently attached. Each sleeve is a complete weighted mesh; thighs and shins use overlapping rigid painted pieces. Two shoulder mantle pieces and a separate three-bone drape share the cloak equipment slot. Hiding the cloak exposes complete shoulders/chest/back for review. The blade rotates about its own grip bone. Slots organize this prototype's attachments; a production equipment swapping system is not implemented.
 
-Attack raises the blade nearly vertically above the head, briefly holds, then cuts down and forward above foot level. Front block crosses the chest; rear block is a high diagonal partly hidden by the head. Walking retains 24 poses at 36fps (0.667 seconds per cycle), with a 34px stride and matching 56.67px board displacement per cycle. The new painted boot views need only small swing rotation. Actual sole contours control ground clearance. Idle keeps its body bob while counter-translating the leg chains so the knees stay steady.
+Walk has 24 authored frames at 36fps (0.667 seconds), a 30px stride and 50px board displacement per cycle along the 2:1 floor direction. View-dependent projected leg lengths keep the foot planted without forcing a deep pelvis dip; local affine transforms preserve painted limb width and the boot's rigid basis. This is an authored 2D approximation to foreshortening. Attack has 32 frames at 24fps: raised preparation, a quicker forward/downward cut, and recovery. Gloves and boots keep fixed painted viewing angles.
 
 ## Verification
 
-The neutral rigs reproduce their **new assembled reference images** in Godot: no alpha mismatches or color differences exceeding one 8-bit code value. The original paintings remain identity comparisons, not reconstruction targets for the changed pose. All 272 authored motion frames fit the fixed 512px canvas: idle 20, walk 24, attack 32, block 36 and hit 24 per facing. The 255px coordinate system retains offset (128,128); no per-frame crop or recentering changes registration.
+Fresh Godot 4.6.1 Metal/Mobile proof passed at 1920×1080 and 100% UI scale. The review includes all 112 authored poses, the same 112 poses without cloak, all 39 board screenshot regions and 72 paired travel phases. Full-surface screenshots check control layout, focus, references and detail. Numeric checks support those visual judgments; they do not establish art quality by themselves.
 
-Retained proof includes:
+- `renders/pass6/render_validation.json`: assembled rest reconstruction, fixed 512×512 motion canvas, per-clip timing, pose bounds and input hashes.
+- `renders/pass6/motion_validation.json`: 257 sampled phases per clip/facing; foot target error below 0.000064px, world support drift below 0.000081px, preserved boot basis/limb width, loop closure and sword trajectory.
+- `renders/pass6/registered_art_validation.json`: exact source segmentation, equipment grouping, cuff/knee overlap, valid visible mesh geometry and attachment checks across all 224 rendered poses.
+- `renders/pass6/roundtrip/`: all four action/facing cases render pixel-identically after saving and reloading the two editable rigs.
+- `renders/pass6/asset_reproduction.json`: all 89 generated layout, part and assembly files reproduced byte-identically from retained inputs in an isolated directory.
+- `renders/pass6/board/`: 39 native stills, 256 checked action/travel states and video manifests for 208 captured lossless motion frames. The before/after hash set contains 886 unchanged runtime inputs.
+- `renders/pass6/proof_manifest.json` and `inspection_review.json`: retained proof hashes and visual inspection scope. Raw full-HD lossless motion sequences remain in the isolated capture directory recorded in the manifest; native sheets and videos are retained here.
 
-- `renders/render_validation.json` and `renderer_proof_result.json`: assembled references, frame bounds, actual-renderer trajectories and input hashes.
-- `renders/motion_validation.json`: actual-layout IK, toe/knee clearance, sole depth, idle stability, sword path, foot-contact/world-travel drift and loop continuity across 257 phases per action/facing.
-- `renders/joint_mesh_validation.json`: identity hashes, normalized weights, common sleeve geometry, glove/boot welds, and no collapsed or reversed opaque limb triangles through all 272 authored poses. Actual rendered frames also have no detached opaque component of eight pixels or more; this supplements visual inspection.
-- `renders/roundtrip/`: ten pixel-identical renderer comparisons after saving/reloading the two editable scenes, including non-neutral idle.
-- `renders/board/`: inspected 1920×1080, 100% UI proof, 40 native screenshots, 416 pose/travel checks and 368 captured motion frames covering all ten action/facing combinations. Input/output hashes bind the proof to the delivered files.
-- `renders/asset_reproduction.json`: all 39 fifth-pass generated files reproduced byte-identically from retained source images and baseline assets in an isolated directory.
-- `renders/board/videos/board_feedback_reel_validation.json` and `renders/feedback_reel_validation.json`: source hashes, fixed framing, exact 24/36fps action timing, normal/half-speed segments and complete decoding.
+## Reproduction
 
-Visual inspection covers the new assembly, all 272 final poses, all 40 native board regions and all 72 paired travel poses. Full-surface screenshots additionally check focus, controls, detail and references. Numeric checks alone cannot establish convincing motion or an art match.
-
-## Editable sources and reproduction
-
-`articulated_assets.py` owns the current artwork import and rig layout. `cutout_motion.gd` authors complete bone poses and the walk displacement contract. `cutout_rig.gd` builds and saves the rigs. In `rigs/reaver_front.tscn` or `rigs/reaver_rear.tscn`, select `Animations` to preview the editable clips.
-
-The older `cutout_assets.py`, `prepare_rear.py`, `rear_assets.py`, `mesh_assets.py` and `segmentation_audit.py` describe the historical source-only pipeline. Their audits and ownership images apply to that baseline. Do not run those builders to reproduce pass five; the frozen layouts under `references/pass5/` are its identity inputs.
-
-From this task worktree, using Godot 4.6, Python 3/Pillow and ffmpeg:
+Run from this task worktree with Python 3/Pillow, Godot 4.6 and ffmpeg:
 
 ```bash
-python3 experiments/protagonist_2d/articulated_assets.py
-LABYRINTH_CUTOUT_POSE_MATRICES=/private/tmp/reaver-2d-v5-poses.json python3 tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- godot --headless --path . --script experiments/protagonist_2d/motion_contract_probe.gd
-python3 experiments/protagonist_2d/articulated_contract_probe.py --pose-matrices /private/tmp/reaver-2d-v5-poses.json
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-v5-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment
+python3 experiments/protagonist_2d/registered_assets.py
+LABYRINTH_CUTOUT_POSE_MATRICES=/private/tmp/reaver-2d-v6-poses.json python3 tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- godot --headless --path . --script experiments/protagonist_2d/motion_contract_probe.gd
+python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-v6-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment
 ```
 
-Pass the render probe's printed directory to `pack_renders.py '<directory>' --require-both` and to `articulated_contract_probe.py --pose-matrices '<pose-matrices>' --renders '<directory>'`. Every rerun needs a fresh result-manifest path. The packer creates ten fixed-cell sheets, timing/anchor metadata, both saved scenes and previews from actual rendered frames. It invokes `feedback_reel.py` for normal/half-speed review; half speed duplicates frames without interpolation. See [inspection.md](inspection.md) for board capture/encoding.
+Pass the last probe's printed directory to `pack_renders.py '<directory>' --require-both` and `registered_contract_probe.py --pose-matrices /private/tmp/reaver-2d-v6-poses.json --renders '<directory>'`. The packer creates the eight sheets (including cloak-off poses), saved rigs and previews in `renders/pass6`. Use a fresh result manifest path for each capture. Then run `roundtrip_probe.gd` through `visual_probe_runner.py` at 512×512. [Board capture and encoding commands](inspection.md) provide the final UI proof.
 
-## Limits and inspection fixture
+`registered_assets.py` is the current builder. The older `articulated_assets.py`, `mesh_assets.py`, `cutout_assets.py`, `rear_assets.py` and related audits describe previous pipelines and must not be used to reproduce pass six.
 
-The retained rear head/body/cloak are the earlier interpretation of hidden surfaces; their hair and highlights differ somewhat from the canonical front. The new arms and legs match the costume and palette but are a new painting, with a more relaxed silhouette. Two fixed facings do not provide continuous 3D turns; additional views would require more artwork. Strong bends still compress texture even without triangle reversal.
+## Limits
 
-The verified fixture is the standalone live board inspection scene. A production Continue save is not applicable: this experiment changes no production animation selection or gameplay routing. Board travel demonstrates matching gait speed; production tile traversal, combat triggers and directional transitions are not integrated. The production static-reference shadow is reused; animated shadow deformation and production performance evaluation remain outside this study.
+This remains a standalone art/animation study. Both facings are fixed 2D views; large turns, different palm views or substantially different bends would require replacement drawings. The rear leather has warmer, broader highlights and the new cape has a narrower flow than the concept. Animated joints still resample their pixels, especially in the rear sleeve and overlapping knee during extreme phases. The attack tests an arm-led overhead cut with restrained body motion, not a complete combat choreography set.
+
+Production animation selection, tile traversal, combat triggers, equipment replacement, dynamic shadows and performance integration remain outside this prototype. The board reuses the production static-reference shadow. The inspection scene is the playable fixture; a production Continue save is not applicable because production gameplay does not route to this experiment.

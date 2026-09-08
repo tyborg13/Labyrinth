@@ -8,7 +8,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Motion = preload("res://experiments/protagonist_2d/cutout_motion.gd")
 const RIG_PATH: String = "res://experiments/protagonist_2d/cutout_rig.gd"
-const ACTIONS: PackedStringArray = ["idle", "walk", "attack", "block", "hit"]
+const ACTIONS: PackedStringArray = ["walk", "attack"]
 const FACINGS: PackedStringArray = ["front", "rear"]
 const CANVAS_SIZE := Vector2i(512, 512)
 const SOURCE_OFFSET := Vector2(128, 128)
@@ -21,7 +21,9 @@ var puppet_viewport: SubViewport
 var detail_viewport: SubViewport
 var puppet: Node2D
 var detail_puppet: Node2D
-var animation: String = "idle"
+var animation: String = "walk"
+var cloak_visible: bool = true
+var _cloak_button: Button
 var facing: String = "front"
 var frame_index: int = 0
 var playing: bool = true
@@ -137,7 +139,7 @@ func _build_view() -> void:
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 	_label("Protagonist • 2D skeletal animation", Vector2(32, 20), Vector2(1270, 48), Typography.ROLE_HERO)
-	_label("Reaver artwork with complete limbs on a live 2D rig", Vector2(32, 70), Vector2(1250, 28), Typography.ROLE_BODY_LARGE)
+	_label("New Reaver artwork · Walk and attack study", Vector2(32, 70), Vector2(1250, 28), Typography.ROLE_BODY_LARGE)
 	board = Board.new()
 	board.position = Vector2(20, 134)
 	board.size = Vector2(1280, 790)
@@ -192,6 +194,11 @@ func _build_view() -> void:
 		button.pressed.connect(select_clip.bind(action, ""))
 		actions.add_child(button)
 		_action_buttons[action] = button
+	_cloak_button = _button("Show cloak", 184, true)
+	_cloak_button.position = Vector2(350, 930)
+	_cloak_button.button_pressed = true
+	_cloak_button.pressed.connect(func() -> void: set_cloak_visible(not cloak_visible))
+	add_child(_cloak_button)
 	var facing_row := HBoxContainer.new()
 	facing_row.position = Vector2(744, 930)
 	facing_row.add_theme_constant_override("separation", 10)
@@ -217,7 +224,7 @@ func _build_view() -> void:
 	transport.add_child(_source_button)
 	_frame_label = _label("", Vector2(640, 1007), Vector2(648, 32), Typography.ROLE_BODY_LARGE)
 	_label("Pause / step to inspect the poses", Vector2(1340, 1012), Vector2(532, 28), Typography.ROLE_BODY)
-	(_action_buttons["idle"] as Button).grab_focus()
+	(_action_buttons["walk"] as Button).grab_focus()
 	set_detail_zoom(true)
 
 func _button(text_value: String, width: float, toggles: bool = false, compact: bool = false) -> Button:
@@ -379,3 +386,9 @@ func _layout() -> Dictionary:
 		grid.append(row)
 	grid[2][5] = "pillar"
 	return {"name": "Protagonist Cutout Study", "coord": Vector2i(1, 0), "type": "combat", "grid": grid, "player_start": START_TILE, "enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 22, "max_hp": 22, "block": 0}, {"id": 2, "type": "harrier", "pos": Vector2i(6, 2), "hp": 18, "max_hp": 18, "block": 0}], "terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(2, 2), "hp": 8, "max_hp": 8}]}
+
+func set_cloak_visible(value: bool) -> void:
+	cloak_visible = value
+	_cloak_button.button_pressed = value
+	for rig: Node2D in [puppet, detail_puppet]:
+		rig.call("set_cloak_visible", value)

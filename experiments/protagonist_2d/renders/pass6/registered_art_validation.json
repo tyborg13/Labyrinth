@@ -1,0 +1,1772 @@
+{
+  "pass": 6,
+  "pose_input_sha256": {
+    "res://experiments/protagonist_2d/cutout_layout.json": "f507a4f8434079cbd5875b9994f6a059b3ab3e9c538f3ba2da0962f6de5d4b81",
+    "res://experiments/protagonist_2d/cutout_layout_rear.json": "e1f3c371e8503961c37b9d84e6d2923b77ddc032a505a24be97ec6f644212662",
+    "res://experiments/protagonist_2d/cutout_motion.gd": "3b0c8bd147658f94dc27c63f47477e2130dce015f177dda814964e48816cd44c"
+  },
+  "layouts": [
+    {
+      "facing": "front",
+      "layout_sha256": "f507a4f8434079cbd5875b9994f6a059b3ab3e9c538f3ba2da0962f6de5d4b81",
+      "bone_count": 21,
+      "source_segmentation": {
+        "source_sha256": "40d11ff0a28cbbfa5fd13037d5dce19750395a72c698ae6484e8d9af9e7bde93",
+        "visible_pixels": 13323,
+        "part_pixels": 13323,
+        "changed_or_missing_pixels": 0,
+        "unassigned_pixels": 0
+      },
+      "equipment_slots": {
+        "head": [
+          "head"
+        ],
+        "neck": [
+          "scarf"
+        ],
+        "chest": [
+          "torso",
+          "arm_r",
+          "arm_l"
+        ],
+        "legs": [
+          "hips",
+          "pelvis_underlay",
+          "thigh_r",
+          "shin_r",
+          "thigh_l",
+          "shin_l"
+        ],
+        "gloves": [
+          "hand_r",
+          "hand_l"
+        ],
+        "boots": [
+          "foot_r",
+          "foot_l"
+        ],
+        "cloak": [
+          "mantle_far",
+          "mantle_near",
+          "cape_drape"
+        ],
+        "weapon": [
+          "weapon_r"
+        ]
+      },
+      "attachments": [
+        {
+          "joint": "hand_r",
+          "shared_pixels": 66,
+          "different_shared_pixels": 0,
+          "maximum_nonhand_weight": 0.0
+        },
+        {
+          "joint": "knee_r",
+          "shared_pixels": 346,
+          "different_shared_pixels": 0,
+          "method": "overlapping painted segments; no knee mesh interpolation"
+        },
+        {
+          "joint": "hand_l",
+          "shared_pixels": 98,
+          "different_shared_pixels": 0,
+          "maximum_nonhand_weight": 0.0
+        },
+        {
+          "joint": "knee_l",
+          "shared_pixels": 439,
+          "different_shared_pixels": 0,
+          "method": "overlapping painted segments; no knee mesh interpolation"
+        }
+      ],
+      "posed_area": {
+        "sampled_frames": 56,
+        "scope": "opaque texture triangles before draw-order occlusion; leg foldovers require renderer inspection",
+        "meshes": {
+          "Skin_arm_r": {
+            "family": "arm_r",
+            "opaque_rest_triangles": 566,
+            "ignored_transparent_triangles": 474,
+            "minimum_signed_area_ratio": 0.41448888969264774,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 9,
+              "phase": 0.290322580645161,
+              "triangle": [
+                352,
+                367,
+                366
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_arm_l": {
+            "family": "arm_l",
+            "opaque_rest_triangles": 703,
+            "ignored_transparent_triangles": 353,
+            "minimum_signed_area_ratio": 0.828987898061869,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 16,
+              "phase": 0.516129032258065,
+              "triangle": [
+                310,
+                311,
+                323
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_mantle_far": {
+            "family": "mantle_r",
+            "opaque_rest_triangles": 171,
+            "ignored_transparent_triangles": 325,
+            "minimum_signed_area_ratio": 0.5912666611588944,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 9,
+              "phase": 0.290322580645161,
+              "triangle": [
+                162,
+                172,
+                171
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_mantle_near": {
+            "family": "mantle_l",
+            "opaque_rest_triangles": 598,
+            "ignored_transparent_triangles": 494,
+            "minimum_signed_area_ratio": 0.9228899386642686,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "walk",
+              "frame": 13,
+              "phase": 0.541666666666667,
+              "triangle": [
+                387,
+                388,
+                403
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_cape_drape": {
+            "family": "cape",
+            "opaque_rest_triangles": 1973,
+            "ignored_transparent_triangles": 3547,
+            "minimum_signed_area_ratio": 0.9463373387792148,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "walk",
+              "frame": 22,
+              "phase": 0.916666666666667,
+              "triangle": [
+                1881,
+                1906,
+                1905
+              ]
+            },
+            "renderer_inspection_required": false
+          }
+        },
+        "failures": [],
+        "passed": true
+      },
+      "failures": [],
+      "passed": true
+    },
+    {
+      "facing": "rear",
+      "layout_sha256": "e1f3c371e8503961c37b9d84e6d2923b77ddc032a505a24be97ec6f644212662",
+      "bone_count": 21,
+      "source_segmentation": {
+        "source_sha256": "a33c09f1d8e74441e1ccbcf9984fb7f0934a78b7676a686dee62a78334399bb4",
+        "visible_pixels": 13371,
+        "part_pixels": 13371,
+        "changed_or_missing_pixels": 0,
+        "unassigned_pixels": 0
+      },
+      "equipment_slots": {
+        "head": [
+          "head"
+        ],
+        "neck": [
+          "scarf"
+        ],
+        "chest": [
+          "torso",
+          "arm_r",
+          "arm_l"
+        ],
+        "legs": [
+          "hips",
+          "pelvis_underlay",
+          "thigh_r",
+          "shin_r",
+          "thigh_l",
+          "shin_l"
+        ],
+        "gloves": [
+          "hand_r",
+          "hand_l"
+        ],
+        "boots": [
+          "foot_r",
+          "foot_l"
+        ],
+        "cloak": [
+          "mantle_far",
+          "mantle_near",
+          "cape_drape"
+        ],
+        "weapon": [
+          "weapon_r"
+        ]
+      },
+      "attachments": [
+        {
+          "joint": "hand_r",
+          "shared_pixels": 97,
+          "different_shared_pixels": 0,
+          "maximum_nonhand_weight": 0.0
+        },
+        {
+          "joint": "knee_r",
+          "shared_pixels": 359,
+          "different_shared_pixels": 0,
+          "method": "overlapping painted segments; no knee mesh interpolation"
+        },
+        {
+          "joint": "hand_l",
+          "shared_pixels": 86,
+          "different_shared_pixels": 0,
+          "maximum_nonhand_weight": 0.0
+        },
+        {
+          "joint": "knee_l",
+          "shared_pixels": 376,
+          "different_shared_pixels": 0,
+          "method": "overlapping painted segments; no knee mesh interpolation"
+        }
+      ],
+      "posed_area": {
+        "sampled_frames": 56,
+        "scope": "opaque texture triangles before draw-order occlusion; leg foldovers require renderer inspection",
+        "meshes": {
+          "Skin_arm_r": {
+            "family": "arm_r",
+            "opaque_rest_triangles": 866,
+            "ignored_transparent_triangles": 786,
+            "minimum_signed_area_ratio": 0.36910045886334464,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 9,
+              "phase": 0.290322580645161,
+              "triangle": [
+                490,
+                491,
+                506
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_arm_l": {
+            "family": "arm_l",
+            "opaque_rest_triangles": 561,
+            "ignored_transparent_triangles": 275,
+            "minimum_signed_area_ratio": 0.8290118972841231,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 13,
+              "phase": 0.419354838709677,
+              "triangle": [
+                313,
+                326,
+                325
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_mantle_far": {
+            "family": "mantle_l",
+            "opaque_rest_triangles": 378,
+            "ignored_transparent_triangles": 742,
+            "minimum_signed_area_ratio": 0.9391893469750904,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "walk",
+              "frame": 13,
+              "phase": 0.541666666666667,
+              "triangle": [
+                324,
+                342,
+                341
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_mantle_near": {
+            "family": "mantle_r",
+            "opaque_rest_triangles": 638,
+            "ignored_transparent_triangles": 706,
+            "minimum_signed_area_ratio": 0.32638023551208595,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "attack",
+              "frame": 9,
+              "phase": 0.290322580645161,
+              "triangle": [
+                532,
+                533,
+                555
+              ]
+            },
+            "renderer_inspection_required": false
+          },
+          "Skin_cape_drape": {
+            "family": "cape",
+            "opaque_rest_triangles": 3268,
+            "ignored_transparent_triangles": 4788,
+            "minimum_signed_area_ratio": 0.8892303982236359,
+            "reversed_triangle_samples": 0,
+            "frames_with_reversed_triangles": [],
+            "worst_pose": {
+              "clip": "walk",
+              "frame": 22,
+              "phase": 0.916666666666667,
+              "triangle": [
+                2988,
+                2989,
+                3028
+              ]
+            },
+            "renderer_inspection_required": false
+          }
+        },
+        "failures": [],
+        "passed": true
+      },
+      "failures": [],
+      "passed": true
+    }
+  ],
+  "rendered_attachments": {
+    "scope": "Every actual 512px authored pose, with and without the cloak; 8-connected opaque components of at least eight pixels",
+    "input_sha256": {
+      "res://assets/placeholders/units/player_reaver.png": "162d297a1b469ac9c55dbb50109272246a04ec407caa4144c2485b6946ba9ba5",
+      "res://experiments/protagonist_2d/assets/pass6/front/arm_l.png": "a466cf356af9d874ee12cfb805827e04fe23ab4f4c5ece7b191fc156dbf80bea",
+      "res://experiments/protagonist_2d/assets/pass6/front/arm_r.png": "2cfc2d034171e633304617ba7c614bcc226d0e3fa0625116984852120ece1e2f",
+      "res://experiments/protagonist_2d/assets/pass6/front/cape_drape.png": "8c3ec7a57b37bca9ad7134b883bd7451806459b51b0dec5b62ad0bd49edc9b16",
+      "res://experiments/protagonist_2d/assets/pass6/front/foot_l.png": "993aeb70a2296f02a72bc125506d41098d3dc028ff0402255c1d4bf7ace8f819",
+      "res://experiments/protagonist_2d/assets/pass6/front/foot_r.png": "a88ddf8cb391face77d8d6e957439c41e97e6fe16716bc1b733092b3185804bf",
+      "res://experiments/protagonist_2d/assets/pass6/front/hand_l.png": "0110cde158674baf266b4d92f873b63a105fead426bef1fc4e0c3dea2c3c3b90",
+      "res://experiments/protagonist_2d/assets/pass6/front/hand_r.png": "2102bef6561af5230b9a311c10adc8a890e1e66ec6f1da1e7e27093364e8bbc9",
+      "res://experiments/protagonist_2d/assets/pass6/front/head.png": "4b70a6c9377502a61c3476ec51314e7be90a5495d9dd86cf2e4f524e295c5e67",
+      "res://experiments/protagonist_2d/assets/pass6/front/hips.png": "0db010c2d4a1e91256517a9b5172ee450c584a9c4e65a6e154516264925c1a94",
+      "res://experiments/protagonist_2d/assets/pass6/front/mantle_far.png": "a17163d92309696f34034c6683f07d94de7dffb8afaa1d17a14cdb90857c99fb",
+      "res://experiments/protagonist_2d/assets/pass6/front/mantle_near.png": "309386a73ddd52d5406a6fc77d1189cd9426da38f53af90c1486eae2fcb3aee7",
+      "res://experiments/protagonist_2d/assets/pass6/front/pelvis_underlay.png": "327e7e2753bd62ab8f654c0ad7f2b26ea22b66491318562c5c1a09fe3c8d7a57",
+      "res://experiments/protagonist_2d/assets/pass6/front/scarf.png": "ba963bd3e44678d5e484bd08c1e037853f8f787364f692684553ab99d17309e4",
+      "res://experiments/protagonist_2d/assets/pass6/front/shin_l.png": "cd0d5d478532f949bd2481b35481ef1ecbf5a6d2657ca661b258e9bf020099e9",
+      "res://experiments/protagonist_2d/assets/pass6/front/shin_r.png": "0bf6361243ef0277b4c1510dd78e96d15092b2786758f381bd2539333a497dff",
+      "res://experiments/protagonist_2d/assets/pass6/front/thigh_l.png": "a8ad1ad69f6d5346099c7de47c38a9501defcc2f7acdea81341474aef58bba7d",
+      "res://experiments/protagonist_2d/assets/pass6/front/thigh_r.png": "7f5a1743aaa678634747fdd715e332d47f2a65b708de9b3a5d78b05a198ac46d",
+      "res://experiments/protagonist_2d/assets/pass6/front/torso.png": "589de163ed443c507f664af9a68d38cd203f58fdb212efe0617071b55ad54839",
+      "res://experiments/protagonist_2d/assets/pass6/front/weapon_r.png": "adb3b5536509bbc941cd8aed42df2b266aae5e52277791e787b396e18dfd5bf5",
+      "res://experiments/protagonist_2d/assets/pass6/rear/arm_l.png": "3c4b22a52c2b5c6e60b46a7f99493b806c3f9564e770667d0dbd36d8af8e8f8a",
+      "res://experiments/protagonist_2d/assets/pass6/rear/arm_r.png": "fd20b006e568e531c6479c3e43b38fb23f33491905b6f8afd83e8ca62663b86a",
+      "res://experiments/protagonist_2d/assets/pass6/rear/cape_drape.png": "d1fe80bbfc91ec496837a2d9f63092591bd28db3ff038dcf2ee4d47598ab69d6",
+      "res://experiments/protagonist_2d/assets/pass6/rear/foot_l.png": "52180f1c4e3cacd5895d53c6f9469bd3578a3a7f83d4db80e4735f0cbcfde1b8",
+      "res://experiments/protagonist_2d/assets/pass6/rear/foot_r.png": "ade232c218659f722bbf1736469f8a9a1046a1dad71acfe3dccfa2e7c9dac204",
+      "res://experiments/protagonist_2d/assets/pass6/rear/hand_l.png": "f5fbeb116ac5902e8498d789306e1163d997c7715171eeaa51e6b07011a284c6",
+      "res://experiments/protagonist_2d/assets/pass6/rear/hand_r.png": "5c0a99c5000ae75890ad9c645cdc2d868008eb3337842c56a1895a993a927427",
+      "res://experiments/protagonist_2d/assets/pass6/rear/head.png": "4685649116aa0a38f583463259868ab5e24a8daa32a1f27a13238b1d3ca7ae6d",
+      "res://experiments/protagonist_2d/assets/pass6/rear/hips.png": "eeb15f49dc165ce9be1e1d8ef21e606bf85de591c992d3f5a9f5fe0c3d360298",
+      "res://experiments/protagonist_2d/assets/pass6/rear/mantle_far.png": "dc1e54679bcc86b5b8e72eee03a1574a79ee8743055e145e00277350aeda1071",
+      "res://experiments/protagonist_2d/assets/pass6/rear/mantle_near.png": "ba85f12be67f33bf1ca56481ea404f3a9845803f76ff41d6d943100199f18f2a",
+      "res://experiments/protagonist_2d/assets/pass6/rear/pelvis_underlay.png": "327e7e2753bd62ab8f654c0ad7f2b26ea22b66491318562c5c1a09fe3c8d7a57",
+      "res://experiments/protagonist_2d/assets/pass6/rear/scarf.png": "16f04e895c32a03ec0ec881bef8cf612a66760c41249b710e185bcaa1554ed17",
+      "res://experiments/protagonist_2d/assets/pass6/rear/shin_l.png": "ab31aeb54864c85e575387da5ff1fffa5b0a5d0837cff09ff386aaaaaa6f9261",
+      "res://experiments/protagonist_2d/assets/pass6/rear/shin_r.png": "35cfb146b97f8f05240e2ae59afacd430066ce17ca9f28846fc2d7f3bdacfb61",
+      "res://experiments/protagonist_2d/assets/pass6/rear/thigh_l.png": "4b6659c12e0c3396e0d1666e111692f544acca5ed28f9d24db9b17bf08bd5173",
+      "res://experiments/protagonist_2d/assets/pass6/rear/thigh_r.png": "65e189bf5dea18a49aa770a47e3776b1ca66f88131e33777a4fef58f29f21d7e",
+      "res://experiments/protagonist_2d/assets/pass6/rear/torso.png": "484dfab16d7638c0ae4fc9ade8db7daf4ec0b091345783b0eed17c2c3cac1784",
+      "res://experiments/protagonist_2d/assets/pass6/rear/weapon_r.png": "e6577212530fcce51a3dd4656ccb2d18e6725e72282f8e0796502e6ce8c85512",
+      "res://experiments/protagonist_2d/cutout_layout.json": "f507a4f8434079cbd5875b9994f6a059b3ab3e9c538f3ba2da0962f6de5d4b81",
+      "res://experiments/protagonist_2d/cutout_layout_rear.json": "e1f3c371e8503961c37b9d84e6d2923b77ddc032a505a24be97ec6f644212662",
+      "res://experiments/protagonist_2d/cutout_motion.gd": "3b0c8bd147658f94dc27c63f47477e2130dce015f177dda814964e48816cd44c",
+      "res://experiments/protagonist_2d/cutout_rig.gd": "2c396396808ab8e937fd9ca07ebde6392f622e62247cdf0fd749b218687012fe",
+      "res://experiments/protagonist_2d/references/pass6/front_assembled_rest.png": "7b211354e6bd56a529d7611959e1c1e76756e1daf6b45a541c46b8b8c384166f",
+      "res://experiments/protagonist_2d/references/pass6/rear_assembled_rest.png": "b3802da7e014f75506370b6ea1e22f26e5aab8dbcab9095108f2fdaabe9d30b7",
+      "res://experiments/protagonist_2d/references/rear.png": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "res://experiments/protagonist_2d/render_frames_probe.gd": "b776681428ae71c94739168399f31f8a735188e159510841cc0810d015838b71"
+    },
+    "cases": [
+      {
+        "file": "front_walk/000.png",
+        "sha256": "2fa885a1295f188880be541ba4265f8895f261a0a85e57db1a11ebe7c23a4049",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/001.png",
+        "sha256": "c20d7d4f0016ae62db4406ae5c3b3957b2dd4d5c7e9d0f8b7c4a6e165218b23d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/002.png",
+        "sha256": "ab85fbe5458889c1c781a44a5752b765f67ce27f85e698f898061d8383fb8c26",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/003.png",
+        "sha256": "93b1bc4a71a3190ab8e3356d06e84951707b847736a58602c3ec050c45224d95",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/004.png",
+        "sha256": "b00f520dbb100520f01d98c2705448dd4003ba0d2f6fb6053a95e87fe64db79a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/005.png",
+        "sha256": "28bf1eb9c3b94edc1974be17940a27a7f56a55e41dac36d38b7ff5659d3614b2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/006.png",
+        "sha256": "e3104370a582e0d1dfd69a9de9cc4154a6e8297c841e2147b304ef03529e09bf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/007.png",
+        "sha256": "f366625c0ccb11f05da4a8bca3c588e5183f11c7e32fb210a2440db93e544c02",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/008.png",
+        "sha256": "290c7059fb53b585718c4774eae12170f1dc16caa1247f4e8310d24654c9f583",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/009.png",
+        "sha256": "7669742e18d1bf1a880b13ce3e3717bd6b9114d8f5d0ecc1181792d2c67994ee",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/010.png",
+        "sha256": "fcf1b01cb229381cecb76466fbc2fbbc883d61dd08f49f23b3ea819986240434",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/011.png",
+        "sha256": "ea15f1204b6e2576a96f1c2e387e99cf3a5a35e0e08ff76492f8e8d5884a06ed",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/012.png",
+        "sha256": "4daf936dc6d76225fc4c462d821d9c23557cbb8ca49dcad04bed474f7a257951",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/013.png",
+        "sha256": "3dfb9ac3f8a0310922c633d7b43e98af2b2e50c2cd26c31f9b898cbacdb7415a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/014.png",
+        "sha256": "74b60bc1270b8ec515e5559797dfdf2c78aad42ecf926877f6e2d4ee148abc04",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/015.png",
+        "sha256": "8eec2d14cb3ac0d9e002d240a984c5b6a8aaeb7440a9d7f3a76461b0e51f7fc2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/016.png",
+        "sha256": "b31d5998f4e26051e17b89740bbc8f7052fa960e4482b6b04752737e106e6252",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/017.png",
+        "sha256": "33f59be5dba25c183a900ea6a6f18b300a1f79eaed321fae7abd6bbb4093fbb2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/018.png",
+        "sha256": "4dbe21395746ac6362bd4e7d3681ca88ce57af2f7ced3d7bbfaf6a5ec1a8fb47",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/019.png",
+        "sha256": "124d58eff53437c365f34a735db8ad5a69bca64fc1a9c2fa196a778c8790bf24",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/020.png",
+        "sha256": "0dbe0667d17888ee261a006915a2f33719ef2dd517eec60f0f787009eed1615c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/021.png",
+        "sha256": "bc81999dfbd75e805eb4d69f33d9ace8b9fa8238e2f71aba8254feb8aa852529",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/022.png",
+        "sha256": "b0b96a9846bdabf5323007360195fb311220f564c4ee93f9602fcdc4cbb86837",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk/023.png",
+        "sha256": "6cb0e98c1e09a67b83a00d3e313cc95b565d83d2d3a0329ab90e1cb391f71af3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/000.png",
+        "sha256": "2aa87a8b001c16a811f7d1549b2b29c3e8e9778e37ea129267c5ac6ece138a4f",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/001.png",
+        "sha256": "ff2410fef3bdf69020dc7baffc8e964e23ae3be45d1ea90710f0bd6050fc159c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/002.png",
+        "sha256": "6645beef2118b4ecbf25d0eff566d149d0a57b699eef781e8639f280e9fd4abf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/003.png",
+        "sha256": "133e7054d6af59a2d60c2bc499950ee9983fc876cb6b018dc8212c86de3ecaa6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/004.png",
+        "sha256": "a076a5e3497ac905772c4e710709e87f5c41901c23ada2b01e132176275129bd",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/005.png",
+        "sha256": "c388d2256b029300b274d37ba7d3787000f6253624e62f938b469ed6fc6f03e7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/006.png",
+        "sha256": "b861ef527b03e84a1b3d93a6a9a6aefa40f66f3a1c539d5a91e034aa8d07d048",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/007.png",
+        "sha256": "2c21b632a4182004ab01dd0ef2afc0f75de3df18b93a002f0daf080759e900be",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/008.png",
+        "sha256": "81a042d94cce0c229a06972fe95204317b203c75b3a7601a25f4e39b6d6e6951",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/009.png",
+        "sha256": "25186ec4c844390067aab6557a4c08d0719e2015a60b3a92b40a9470f2ad0578",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/010.png",
+        "sha256": "7dcf5d2403de0b83f58e878d4c0e8a77be7f343d1a7064ef8154cc534143160c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/011.png",
+        "sha256": "f8bb21baddc8e0bd2756246a9cf86ed407d5e23c4c785e2bf4c826b16b1a18f0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/012.png",
+        "sha256": "c3affe4ad9f8c15e96acd32f95b90923eb368764ff6c1b905c3c2065b16ce7ab",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/013.png",
+        "sha256": "0de14d53c146d0bd4bb04e2820cc73ef1f6c00f76610c519f8df18e3a7a166c2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/014.png",
+        "sha256": "e84705b51a99e76fd9643e895a0420b13094fc9ede62f1cefe2dcdd06465592b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/015.png",
+        "sha256": "28e43661645aa1bf12efbf64a82b072e52f8c0e76f00fb88c8f776db0c06a74d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/016.png",
+        "sha256": "79553d71cd6a9f3f13e9b7e65b0ae8d898171dfb5e828677226410c7d96a01dc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/017.png",
+        "sha256": "e0b7a349c61cf23dd0567fdc13fc7ef63a8ae5ffaa9d0d1fae93b014fb915078",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/018.png",
+        "sha256": "67d45da607bb0c85d90f1e6f7c0a91031fabcd369cc74f44dd7ab69031ae0803",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/019.png",
+        "sha256": "d13dbbe865d3c1d2abb071be59ef225f57df3bcadd2889471c9d9cd023f0e65a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/020.png",
+        "sha256": "8cf677bbff760c6fb250a2919c12a43065e578c63ae79e5c03ec4c4d85ff59bc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/021.png",
+        "sha256": "7256f2559ba5c339187bf8e11a54e3038a4430dab3b16a4526b74776cc825525",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/022.png",
+        "sha256": "ed501b352bb1201a6e1d8b0557a34c6da927684b45a78a41b47142794dca254e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_walk_without_cloak/023.png",
+        "sha256": "92b03568675484ab76dc0ebef2320129efd7843c426c5232d50690da96ec02bf",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/000.png",
+        "sha256": "85ccdb5d41749825974fcbb864b9b5bd2eda7e0427fe4e4ff1a79f5b1c18fdfb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/001.png",
+        "sha256": "a4cdb3457b052ddd8f7595f7a68334acf14fbf726e2a1970190500d48a460316",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/002.png",
+        "sha256": "5c91934251c0c7c4e93a56f9e0e5a5cd8ddff90a4b250dd2ca50ae1d82fe3501",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/003.png",
+        "sha256": "45b10b1eaa126bf4e55ef7872a3803294a2b699ec93bfa42837bff710af786f5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/004.png",
+        "sha256": "89d5f589cc5e324f33a98fd0715190ad4c59af3f3d5fd48fc1562cdb3b60a993",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/005.png",
+        "sha256": "04b0a4bb91f3f4970ca0c8697226119cc1fa7a0efac0a3d7662083d1f4426ace",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/006.png",
+        "sha256": "1103d60949a0498887611426347ecb4093c6c71f67ba6517d57a2967c56a86d4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/007.png",
+        "sha256": "dac265a6f5135ab99e6816b0daac263bf0a524e58244a81aaf0d0fb4f0e43c75",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/008.png",
+        "sha256": "be227dd4b60dfb4b9cd463832cf172fa2a2a71a76d7f409612da01cae13d748d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/009.png",
+        "sha256": "79c035d1b0413f9df844b237742018c53eb4d9dd96a41b79e22ccba497f67e2b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/010.png",
+        "sha256": "d0811cb5d08e0b1b601ced41681f56f546b42f799e75589b2d03699c06b5ea0d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/011.png",
+        "sha256": "5bd224539bc260661c0dcea44393cb869c560200fe70804f87cb598e3f6d189e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/012.png",
+        "sha256": "713f30a61b69a9eb00d34a71edef98575a5f3ffdde6a159380a7dade5baa18c4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/013.png",
+        "sha256": "4cf2a0c727d0ea1282d0564602b17fd3d275a3a6024f7246b60da86e478d9954",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/014.png",
+        "sha256": "8dd6e30dbc6a89a1e718e738f40f52d6deb67ce0f5ccd45d282f3a85a81efdcc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/015.png",
+        "sha256": "ada0c7affcbbb4686c5903393c6834088ba74cbb34b83f3efa8506964bf9749e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/016.png",
+        "sha256": "975921a30ddfc077b21feed199c3d1b532ba8631fae5cb43ece1b5e7e0790919",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/017.png",
+        "sha256": "79f34e6bea6e4c373c9573e495660cac31ee880b81a64cb1aa6e9800201aac70",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/018.png",
+        "sha256": "47a4cdd9d259c25e33444aa7237c7927e118a0cbbd5dc0f03f60b14da8fb1749",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/019.png",
+        "sha256": "9aa6a0913c66c0d370404aae392e93ad9a7a2ce1c433b670d94720ea77a3483e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/020.png",
+        "sha256": "9234b6fcb3f1436132839064802ad564d998b675d1b9530c63eff02686e06a00",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/021.png",
+        "sha256": "b1f6109bb7d2b6466095e946e270fb8231ffac3d27b7b700c20af14fb1787c07",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/022.png",
+        "sha256": "652708520a39714e4d8cebcca4582b7b47b658d29ade1b8c9f38e2de26a47b22",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/023.png",
+        "sha256": "d91ef02ebd1b69dea9cf9e8c30bba0850e9034f0c33cac84588efb18c53b9bab",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/024.png",
+        "sha256": "2c65059309a60947eece8fae4ff0a5b1526b26a67c33b17aa17f769a58438637",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/025.png",
+        "sha256": "92dad5af5240cf05247a729d7b4445e7f5563f060dd4fe92e1114dced7784498",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/026.png",
+        "sha256": "9c757841ee057066f9d8910c86d73f8039b0b3ccc5c7d7bab38b8f9caddbed93",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/027.png",
+        "sha256": "a984dad8157ab7d945a40784b360358b73169c470fb12d75ca39361f9f32476b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/028.png",
+        "sha256": "e4604366e7ec1af1981175578742da3a2e68b2a505be041c2832d55fda0846e3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/029.png",
+        "sha256": "bffbd2a7b4678f01128aec4c28531f5f9648a7531e677892867a44c73dedd1db",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/030.png",
+        "sha256": "85ccdb5d41749825974fcbb864b9b5bd2eda7e0427fe4e4ff1a79f5b1c18fdfb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack/031.png",
+        "sha256": "85ccdb5d41749825974fcbb864b9b5bd2eda7e0427fe4e4ff1a79f5b1c18fdfb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/000.png",
+        "sha256": "0780e91c0f9da980510315d764547d167c2306f2396d6657685716927053851a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/001.png",
+        "sha256": "32fcaf68999cc401917c666f24259cf2467229c62a4b98be7047e4c1cbfcda3d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/002.png",
+        "sha256": "0d3c77682b9178242c36fb44b954d066ae815ad54fa15485ac535233d9d3c7e5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/003.png",
+        "sha256": "44fe1ded6cd88744cfe1cc1ec2f50684cb5275cf08005e4611adfbac51c0535c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/004.png",
+        "sha256": "0197123dc920e53797581f384388493cbb882426b25d7196f4e2bb281f5c9ab5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/005.png",
+        "sha256": "126a4445a8a7a99d7287619dcc20cf9ad1e093a930a875fbe7eddfc07b9cda80",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/006.png",
+        "sha256": "6dbdf4f37ea37e861123f0bbedc1df608d387a7c83d2498248037612494f6385",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/007.png",
+        "sha256": "4e0514d4fa3ad2b98af7057e03843547791320d8c5c0474669a03acde770c081",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/008.png",
+        "sha256": "edb5f7ae4100c54a170bf4b06ca5a3ac252ded7cb6f2747b1a731360048e9f6e",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/009.png",
+        "sha256": "3a6a0ed4ccb42b30636dbe0099e513b62d0560f63e1e7134af9726aa2e5cddde",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/010.png",
+        "sha256": "21e1e82250b3d554eb2a0a127d21d2397361378f69bf9c2e7c3bd9bf16a9fa77",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/011.png",
+        "sha256": "736ad5723b5d0f36ef05bd7377c4da0eebbb8acb6a7121ac5f54ff8a69ebf563",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/012.png",
+        "sha256": "28408e0ebcb0ac5ba0cd896e82e89e40e33391bf2e081c286a83b3588c4b4966",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/013.png",
+        "sha256": "1b795caa4608fea96d6b45755eba4049dea75eb6047484cb69eb1582c9252991",
+        "major_components": 1,
+        "largest_minor_component": 5
+      },
+      {
+        "file": "front_attack_without_cloak/014.png",
+        "sha256": "625db6962e49ce2c2fa7a560327ac082b50bb7b53c3f0e87648dc9e40e69207a",
+        "major_components": 1,
+        "largest_minor_component": 5
+      },
+      {
+        "file": "front_attack_without_cloak/015.png",
+        "sha256": "caf9d8c36316ba7fde86bdcad5a3405a400b7bc26ce79ca710ac9529e2d28236",
+        "major_components": 1,
+        "largest_minor_component": 5
+      },
+      {
+        "file": "front_attack_without_cloak/016.png",
+        "sha256": "be619a17934c8b7dcae8b8c5bd3b8e5282442984518700837538466f12e2d14c",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/017.png",
+        "sha256": "979e6d2561edb752cc5a8a500649967d8e4e3d61d1b5caf66be98b2eb85d4578",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/018.png",
+        "sha256": "aa8914d4e00307fec4dc887ff31ca00af81850f7ef0a0b5b6bcdea0e0ec132cb",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/019.png",
+        "sha256": "473623bb2635dc223b68f4ab27cb546f2f2de480ad0752db714c1cac0c6c15d6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/020.png",
+        "sha256": "e32fee40e52201c9fb69e637aee04739fce84cc655415463570c0e6b01592dbc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/021.png",
+        "sha256": "b588c1dfc745cb7a38647dee6adc8396c16a6c80051a6454a8fb859538b3c7e3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/022.png",
+        "sha256": "4cc3c2a96b19c50f326633d98614fa1ca506a398a3bfb14fc8da6f29c2e0da07",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/023.png",
+        "sha256": "6c9edab75e3186eb90a021e467fc9c4c5ec92c203e34c35235c9b01e14cb9597",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/024.png",
+        "sha256": "4f2c9b914f939a23965f1f72569f903bd34c88db25d7b740e2e49376c40429f1",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/025.png",
+        "sha256": "bfc679364d9fced6675968090fc936fef66d908aa65a337126da2ea0411e0d95",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/026.png",
+        "sha256": "c31c22fdc0af0ee800c7c5fc7c834ccc74c776e6bbc76bc0d82d47ff9356d5c3",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/027.png",
+        "sha256": "3a0f53899289163aaba5eea13640c0b341eb765f4def85cd2f6020ff6a54079d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/028.png",
+        "sha256": "e4f1b7296e8fe2c0f030d6cd6e46061953cee4ab62d0e67ad8b207a1ec62a8f6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/029.png",
+        "sha256": "5850b15dcf4f7710d8bddddd26c386546718c7a403d0359553573d683c12d076",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/030.png",
+        "sha256": "0780e91c0f9da980510315d764547d167c2306f2396d6657685716927053851a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "front_attack_without_cloak/031.png",
+        "sha256": "0780e91c0f9da980510315d764547d167c2306f2396d6657685716927053851a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/000.png",
+        "sha256": "9091cefe1f2a67331dfe6fb23122a2a0fd4cd0d8ff39650e5a3c821a11a3bfbc",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/001.png",
+        "sha256": "9254716655a16c6dacd3d430800e00dd66981f8e059c9a45c4e696287c964182",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/002.png",
+        "sha256": "b8ed29781e49dc10feb8c851a65dfa43a10f6e0e032bb41925520182c45646e5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/003.png",
+        "sha256": "bc05025e984c182dcbedd3d9666aef37844556511488e917e3bac1e8f21c795a",
+        "major_components": 1,
+        "largest_minor_component": 2
+      },
+      {
+        "file": "rear_walk/004.png",
+        "sha256": "af1dfafe9423b8896cfe4a663eb4b8a89ce313a44f1d855f11ab19fb8ab61ac5",
+        "major_components": 1,
+        "largest_minor_component": 2
+      },
+      {
+        "file": "rear_walk/005.png",
+        "sha256": "81a60b00580d4e0f3f848b489d224473b9f98bf9ff4ba97eda786eba27274f21",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/006.png",
+        "sha256": "c3ebce1353aa9f20788a48464e1771ad6f3191e31021b81fbd5478bedb04934a",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/007.png",
+        "sha256": "e1160f3445aaa9a47a4bb6a00bef758246674a55dcdd36a8e78f9c0b9127d291",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/008.png",
+        "sha256": "52f5b526b62f9293bb209bb209cd3ceeb0bc6de442e2431f951678a2245a0c1d",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/009.png",
+        "sha256": "b4144eaafbb358ee2c033512cf2641cf71c66d65365f62cf5a966094e5f5605b",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/010.png",
+        "sha256": "e5260cff0e768b89f61c56454d16217ce22684b4d3f32e832b593953c1cc3572",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/011.png",
+        "sha256": "ef41d5f233fa39387647fdd816d91d96fee15c647b32eab5e3b7f7daa5fa71b0",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/012.png",
+        "sha256": "40f78ece3428942986956111fc41113a125f9c76d06c694ae316fda4f72eec1d",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/013.png",
+        "sha256": "3dd0ebf0a62a1f120dd9a1181acb83c980da32b7f3f11486dec80794cb799b7e",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/014.png",
+        "sha256": "c58332029ef34dd332963609627fa41d5e22c094fd1190a95a59a4c4dc5d5e62",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/015.png",
+        "sha256": "973c1c6826c5f04424222abcc7c813c79145919a91479cb578748591b4571a2d",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/016.png",
+        "sha256": "adaf0a1d8a49321c0dac8424bbfa4d18d11184b9f4e10cd98f0a40785f689f12",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/017.png",
+        "sha256": "1e63ba9541bd08a641f2cae438f1b54a07a3599dea9f9bffb2685150873180e5",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/018.png",
+        "sha256": "9746a80239e9e7458d0e784dc58ab9032cd84eda16ba7d35fc77f30cbc2e715b",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/019.png",
+        "sha256": "053c224280c0171081a21f7f1c3d7610c776e25846e8ea6f90226172812d2074",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/020.png",
+        "sha256": "54debb18734d5d87d5cc9bdc8dc38b3cd93a53473ff2686084180c975236e809",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/021.png",
+        "sha256": "5d6b77a02a4ed081a04976ac57f41a31506d83cf8cad98b122e829ff6c83e362",
+        "major_components": 1,
+        "largest_minor_component": 1
+      },
+      {
+        "file": "rear_walk/022.png",
+        "sha256": "2282bb61328a7a8c9c44420e57d3dbf091a270a14903d176d1d48c2dfd8baf20",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk/023.png",
+        "sha256": "c5fd58921c8737445462f6a34645a895343f54ed1cfc1a93c5b2a7a9bdc7a85d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_walk_without_cloak/000.png",
+        "sha256": "d796abd8eee2e6293bb984b49c44641cf4de982f5f836b6cdd5c57879ee8284b",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/001.png",
+        "sha256": "faf4015791f3c7bf4a3551304a0a7ae268a9055e1671efe2997399f728cf7d56",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/002.png",
+        "sha256": "5b3ce889246b9ec687fff4ad56b49773c62ee74e528636a1feda4344376af848",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/003.png",
+        "sha256": "88424b66f051c253229c661691b15a45dafa2520dadf77d707cc61b7aad9b48c",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/004.png",
+        "sha256": "54646609b24805e4a47a99878916e84bfc438dbb5adc6a6ecf3bba4702f055b1",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/005.png",
+        "sha256": "6b490ab745f31f19460198629a8d1d17e32ef73d3a80bc4f280732eeef3e278f",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/006.png",
+        "sha256": "c47696c8eaf77e75b14b42f185ec7a25a861f7a0ad77a2794e644b6d070505b3",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/007.png",
+        "sha256": "13032f237936f931fdabfed49cdaeddde6d511d326dcadebdcb31c0e6e2b78aa",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/008.png",
+        "sha256": "8287590c63f78b37b28bdb88089a30f48d6293677c476bf8c0d92d4c28c10345",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/009.png",
+        "sha256": "9bcf826f4978fcf987e1a0b9814f8345878815a9643a3b311cff2754c65e9d37",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/010.png",
+        "sha256": "7d29fcf98811f0b6a8995d975b0ea489397020084d794f589f907db2ce569da6",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/011.png",
+        "sha256": "188ffef45b89710c6eb0e9920e2e8d18638a9c98264e6036d94950de71060f9f",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/012.png",
+        "sha256": "d857ffd2132c0edd395cd3a13b9da0d32b55a81417267d43301fee779daa3285",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/013.png",
+        "sha256": "2d9d72305c775f908e49a8f6d10034a1a180126568ad1f531125b3dd2728c7b3",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/014.png",
+        "sha256": "2fadf451cd82639f4403b047d52e3e12707376fe027187b278bb08f591f7a5a2",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/015.png",
+        "sha256": "ea438e05d9291d137a295fc3a7d34a13dbb8fbcc483d18398606aa5265878bd8",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/016.png",
+        "sha256": "9ffcabd38311e4085cf235c6e838a7366c1d18870e75009439b780f0bccbe3f2",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/017.png",
+        "sha256": "19d15ef9e5b1611fe55ac016e38a349f0488bb4b2cd840ecba049b602302500e",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/018.png",
+        "sha256": "538f0c399d09a713221d5656c77899637e29c3143ec5ce0c947f65f9be608373",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/019.png",
+        "sha256": "cbef7045b0305712b9e96ec3119d0ee02416d61dad7ca9411b6822667b2fa5a6",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/020.png",
+        "sha256": "935870beb0b179a2645261c2889f8ca356874ead2284a09578c2dee7899b20db",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/021.png",
+        "sha256": "aee3ddd3830962c9cf368fbb0c5266cf6f627473ad32d0b5a7ff29cbdcfd267a",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/022.png",
+        "sha256": "5fa9124d83412860ef3b44a732957cfa27a14e635a8e4a4a53f3a04a25b04da9",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_walk_without_cloak/023.png",
+        "sha256": "fe8bc52f5c7133b7cb235d5b7ed110d92aba59d536ead80d2999d9a3c2136940",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack/000.png",
+        "sha256": "a4d20efcb9c3b0f696d4b990e3a166e472ff7e6628757910ea5ac69def0a8c1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/001.png",
+        "sha256": "a88db49c158c06023fdd9f53e3b79b46a62c76ddf882aaa426bdd032d018376a",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/002.png",
+        "sha256": "52a99ed6ed5be0e293ad34c01cc79ac59d920e73023183734e0fcd2dd2e3ed55",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/003.png",
+        "sha256": "9829db25f0a76858f21f7075a421831b1a87ff3a5141d7e3446c96fdfea9ca85",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/004.png",
+        "sha256": "ae51a9149eabef57067024ae524880ea7f3386bbc83d3e98b5ee60b6e2c15738",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/005.png",
+        "sha256": "bfef9091773938055edde7b07cd2bb37bde150890b576ce1d6c1488509b269e8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/006.png",
+        "sha256": "b0a252011c938bcabec04ae9a09b5a7f224e2a43f6e53e83de670365d23dd536",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/007.png",
+        "sha256": "5dadac9e67a96da8c87eaa3adefcde6497ac1d2980115242aa5885572d6b1c89",
+        "major_components": 1,
+        "largest_minor_component": 2
+      },
+      {
+        "file": "rear_attack/008.png",
+        "sha256": "392c8725744d2dc23c52cf926bb256bd70ebf3c8fa508423be6403de2b43eabd",
+        "major_components": 1,
+        "largest_minor_component": 2
+      },
+      {
+        "file": "rear_attack/009.png",
+        "sha256": "8b53bc28b69cdf50d9c793078c52016e25c79c1b3c8a1532dbe84a87d3828aa7",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/010.png",
+        "sha256": "ae09b1eb67d53cee1cc0ab4763e12ba0de4bf03609cb4e8037ee4b9ed25fb26b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/011.png",
+        "sha256": "ecd24ba224f54bcd2bee36d94bd50737ec7a193c076bd475b69692255a0062d0",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/012.png",
+        "sha256": "2294d23c7379d52ebd66639f377322581f56187cae390574e44618d2eda2c050",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/013.png",
+        "sha256": "d3d3b2ab37d9880e8c0f0838f100ff211e65ba93fff665e503800281a1170de4",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/014.png",
+        "sha256": "8dee3e2e0541711097563deab4203c3c4c103210554c7b4fb730e71d2c8f3a8d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/015.png",
+        "sha256": "fa530534e750997a21e64749b20b9db69d2a55d726deaffa992a3777fa8483d6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/016.png",
+        "sha256": "cf69339c3548fb13e556eb7bda42343577b59c5aa03365fa61043dcadcaaf5c6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/017.png",
+        "sha256": "a9ff74b4a328c41700a4b2a0f1f6f6b5a5831ab67602fc6475a43d86799f7f05",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/018.png",
+        "sha256": "4c98e24ff49368e4ae3308852b028029140b29325e1faed74d0d4108c8553f26",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/019.png",
+        "sha256": "2d87478066918b0a7adcfa9f5dc0465ee453c9bc56d90357c6e5af0db782fb75",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/020.png",
+        "sha256": "e8097c8b6e29db6ccfde0f3c67be135eaad623bb30e5ab3618dacafe19fd4029",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/021.png",
+        "sha256": "0772a84e17f4b4900abe24d56853680ec84ee1f624857f5cfe3f1502a3c9cf5b",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/022.png",
+        "sha256": "1a88c804419a0e2bd41eb6acbe9607c3a9f4096fb71c20558bb125bdd223e360",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/023.png",
+        "sha256": "249a0b4f20c55dc2bbf9334f1fdaa99c5ff22dc0ce841d92121522217481ee59",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/024.png",
+        "sha256": "8f53c6ab92a0ffe17b2132722834402818d0e314ceb389f297b74f0f7a4af4e2",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/025.png",
+        "sha256": "23da5f4351ef10a9f60eb0d8c93c7e887a7ffdbe4930f45b4e7f80ac361cbfc5",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/026.png",
+        "sha256": "56ca26eb58a203e09a5bc6552bdab239133419506374a633f07de83ddaabd9c8",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/027.png",
+        "sha256": "397abd42f8ed1e6980e7c7b769b9e7969bac59cea5295a4b791a0d6d2ce4c429",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/028.png",
+        "sha256": "b473642d465759d0532d9592adb187d1eadb89b1edcef4773a2817ab4cda54d6",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/029.png",
+        "sha256": "a4d20efcb9c3b0f696d4b990e3a166e472ff7e6628757910ea5ac69def0a8c1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/030.png",
+        "sha256": "a4d20efcb9c3b0f696d4b990e3a166e472ff7e6628757910ea5ac69def0a8c1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack/031.png",
+        "sha256": "a4d20efcb9c3b0f696d4b990e3a166e472ff7e6628757910ea5ac69def0a8c1d",
+        "major_components": 1,
+        "largest_minor_component": 0
+      },
+      {
+        "file": "rear_attack_without_cloak/000.png",
+        "sha256": "f7df8f7a4298b60162507d784ca3ddd2e108d401770e7a499e9d2aef311be95b",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/001.png",
+        "sha256": "51cdc9c6e96a7b3b2fb71991a1dbc3498f4fcb9e639e3b18d5b10b592ca8d814",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/002.png",
+        "sha256": "a4612f5d51aa07cd51065f2d6cdd6c9527a464465479ca4005c0e7788ff677a5",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/003.png",
+        "sha256": "4a15077ed2c771363e4cbd46accdade20837f7ef7f632f27a1c457a985c26bd1",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/004.png",
+        "sha256": "0f1d3cbb4e3db8835a7785850be00e3988abdb49b3d6396ad5b6883df1c2c180",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/005.png",
+        "sha256": "173aca96f05975edf7865cd1033dc101e41d409ff6b29d6e7df20ff047fbd28c",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/006.png",
+        "sha256": "1f8ef62f2b31d4a9688c8aeff1ec1576a9ea63c3190c926b571f172752bdb846",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/007.png",
+        "sha256": "06889b78d140f1cb88d4575d5cd6f2e522048ffc32e4f21f79f607fdc0bd0f43",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/008.png",
+        "sha256": "e70b61e5033a1cc550d1af402e5f72939dc78608d2d71cdd4b3d6bef5d67ebfa",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/009.png",
+        "sha256": "2c01f8ca46bad1e5ac884c2bd3b6f7fa7fb6fc522d6af58719927cffdb599f56",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/010.png",
+        "sha256": "ef97909e82115f25efb11255d09978b8fee8def8d7dc63b23efcb2466744396e",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/011.png",
+        "sha256": "eddadc77038a1f138382f38395b263f9bb81f4986634a4c83c9715dbbcfce58f",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/012.png",
+        "sha256": "fe8ceac68f362d82694e67f23437c0107f498e62a58b91c99fe200fadd6bf292",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/013.png",
+        "sha256": "51429c1d5e99e6fda28bd16539ca9c6de24ebc365dc0fd8999698a2441fe794e",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/014.png",
+        "sha256": "5aa1529a6655cacffd6df7ac21a19f3abcf70df16dd827d8bf8991d21ba67c16",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/015.png",
+        "sha256": "f0243eaea8f2010761eae7fa94b9ae09131058b5b36e77d31f7d6d66b83afda1",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/016.png",
+        "sha256": "91b01454623a6c946f37eaa2cc3cde92741540a8d2573c20e16cd82cdfcb6a8a",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/017.png",
+        "sha256": "54bd2f4362ec4c6d5cea3abf37c3ba9d731c88d4030d053516c2af3e63fb2ff5",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/018.png",
+        "sha256": "381cb8e24590d6a2d4cf33d29b7e3d5da7f1cf92ec91d1238232b7a4682e7e6d",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/019.png",
+        "sha256": "1754f2bda4da3ff63ba043b97253f00ffc1faee6c32cf9e8c5b59b206ce93d59",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/020.png",
+        "sha256": "30ed245f252600b20f440266ba0d38a465afa8377fb1c0e4e2da29ea781bd745",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/021.png",
+        "sha256": "7d1caa755dae4b3799acac1cf7be0c6e8410fa983abf1cdd1aa6da0973713261",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/022.png",
+        "sha256": "0069b160badc40fe2a65c4dcfa052c62995d6a3bb1062557acc12749f6feb876",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/023.png",
+        "sha256": "c75062722b992dc01b90d2e14d43aea54576c5b08dfb769f7ef43f02f7d51830",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/024.png",
+        "sha256": "1be97dd81d7af3addf153389c96da5dc0d8670d102b4b6aff35fff1a1e15ead0",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/025.png",
+        "sha256": "a0b6bd996488ae5020246b033dcbf617b11c50ec790aac16270cc15ffc758e81",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/026.png",
+        "sha256": "4b02b7da128fd61216e65b0766a1f94e7c5b0717aae0421e5f53d24a6090faae",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/027.png",
+        "sha256": "82bd557bff11c57463be84178bcfa70577631b250b4f4ac6dca76f90b77fd260",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/028.png",
+        "sha256": "2c8784b15f94bced8fc9f780d9dfca7298403b27e9c605dc9c66ee846dc0bed9",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/029.png",
+        "sha256": "f7df8f7a4298b60162507d784ca3ddd2e108d401770e7a499e9d2aef311be95b",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/030.png",
+        "sha256": "f7df8f7a4298b60162507d784ca3ddd2e108d401770e7a499e9d2aef311be95b",
+        "major_components": 1,
+        "largest_minor_component": 6
+      },
+      {
+        "file": "rear_attack_without_cloak/031.png",
+        "sha256": "f7df8f7a4298b60162507d784ca3ddd2e108d401770e7a499e9d2aef311be95b",
+        "major_components": 1,
+        "largest_minor_component": 6
+      }
+    ],
+    "failures": [],
+    "passed": true
+  },
+  "failures": [],
+  "passed": true
+}

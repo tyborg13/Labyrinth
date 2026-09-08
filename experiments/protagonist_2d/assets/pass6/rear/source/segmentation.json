@@ -1,0 +1,279 @@
+{
+  "source": "references/pass6/rear_master.png",
+  "source_sha256": "a33c09f1d8e74441e1ccbcf9984fb7f0934a78b7676a686dee62a78334399bb4",
+  "parts": [
+    {
+      "name": "hips",
+      "file": "assets/pass6/rear/source/hips.png",
+      "offset": [
+        96,
+        112
+      ],
+      "bbox": [
+        96,
+        112,
+        156,
+        148
+      ],
+      "pixels": 1586
+    },
+    {
+      "name": "head",
+      "file": "assets/pass6/rear/source/head.png",
+      "offset": [
+        91,
+        9
+      ],
+      "bbox": [
+        91,
+        9,
+        163,
+        70
+      ],
+      "pixels": 2982
+    },
+    {
+      "name": "scarf",
+      "file": "assets/pass6/rear/source/scarf.png",
+      "offset": [
+        92,
+        59
+      ],
+      "bbox": [
+        92,
+        59,
+        156,
+        79
+      ],
+      "pixels": 441
+    },
+    {
+      "name": "mantle_far",
+      "file": "assets/pass6/rear/source/mantle_far.png",
+      "offset": [
+        82,
+        67
+      ],
+      "bbox": [
+        82,
+        67,
+        128,
+        102
+      ],
+      "pixels": 519
+    },
+    {
+      "name": "mantle_near",
+      "file": "assets/pass6/rear/source/mantle_near.png",
+      "offset": [
+        103,
+        70
+      ],
+      "bbox": [
+        103,
+        70,
+        163,
+        102
+      ],
+      "pixels": 907
+    },
+    {
+      "name": "hand_l",
+      "file": "assets/pass6/rear/source/hand_l.png",
+      "offset": [
+        77,
+        126
+      ],
+      "bbox": [
+        77,
+        126,
+        99,
+        141
+      ],
+      "pixels": 258
+    },
+    {
+      "name": "forearm_l",
+      "file": "assets/pass6/rear/source/forearm_l.png",
+      "offset": [
+        77,
+        108
+      ],
+      "bbox": [
+        77,
+        108,
+        100,
+        131
+      ],
+      "pixels": 373
+    },
+    {
+      "name": "arm_l",
+      "file": "assets/pass6/rear/source/arm_l.png",
+      "offset": [
+        80,
+        93
+      ],
+      "bbox": [
+        80,
+        93,
+        107,
+        112
+      ],
+      "pixels": 310
+    },
+    {
+      "name": "hand_r",
+      "file": "assets/pass6/rear/source/hand_r.png",
+      "offset": [
+        158,
+        138
+      ],
+      "bbox": [
+        158,
+        138,
+        179,
+        154
+      ],
+      "pixels": 267
+    },
+    {
+      "name": "forearm_r",
+      "file": "assets/pass6/rear/source/forearm_r.png",
+      "offset": [
+        151,
+        111
+      ],
+      "bbox": [
+        151,
+        111,
+        178,
+        142
+      ],
+      "pixels": 482
+    },
+    {
+      "name": "arm_r",
+      "file": "assets/pass6/rear/source/arm_r.png",
+      "offset": [
+        139,
+        84
+      ],
+      "bbox": [
+        139,
+        84,
+        168,
+        121
+      ],
+      "pixels": 658
+    },
+    {
+      "name": "foot_l",
+      "file": "assets/pass6/rear/source/foot_l.png",
+      "offset": [
+        85,
+        187
+      ],
+      "bbox": [
+        85,
+        187,
+        116,
+        205
+      ],
+      "pixels": 397
+    },
+    {
+      "name": "shin_l",
+      "file": "assets/pass6/rear/source/shin_l.png",
+      "offset": [
+        87,
+        166
+      ],
+      "bbox": [
+        87,
+        166,
+        117,
+        195
+      ],
+      "pixels": 548
+    },
+    {
+      "name": "thigh_l",
+      "file": "assets/pass6/rear/source/thigh_l.png",
+      "offset": [
+        91,
+        142
+      ],
+      "bbox": [
+        91,
+        142,
+        127,
+        174
+      ],
+      "pixels": 737
+    },
+    {
+      "name": "foot_r",
+      "file": "assets/pass6/rear/source/foot_r.png",
+      "offset": [
+        132,
+        199
+      ],
+      "bbox": [
+        132,
+        199,
+        171,
+        223
+      ],
+      "pixels": 750
+    },
+    {
+      "name": "shin_r",
+      "file": "assets/pass6/rear/source/shin_r.png",
+      "offset": [
+        127,
+        169
+      ],
+      "bbox": [
+        127,
+        169,
+        158,
+        200
+      ],
+      "pixels": 783
+    },
+    {
+      "name": "thigh_r",
+      "file": "assets/pass6/rear/source/thigh_r.png",
+      "offset": [
+        125,
+        142
+      ],
+      "bbox": [
+        125,
+        142,
+        158,
+        173
+      ],
+      "pixels": 822
+    },
+    {
+      "name": "torso",
+      "file": "assets/pass6/rear/source/torso.png",
+      "offset": [
+        103,
+        93
+      ],
+      "bbox": [
+        103,
+        93,
+        145,
+        114
+      ],
+      "pixels": 551
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "registered_coordinates_preserved": true
+}

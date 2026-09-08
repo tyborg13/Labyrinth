@@ -15,7 +15,7 @@ import subprocess
 
 from PIL import Image, ImageDraw, ImageFont
 
-ACTIONS = ('idle', 'walk', 'attack', 'block', 'hit')
+ACTIONS = ('walk', 'attack')
 FACINGS = ('front', 'rear')
 FPS = 72
 SCALE = 2
@@ -118,11 +118,11 @@ def _encode(ffmpeg, destination, clips, geometry, pass_number, feedback, proof_f
             'segments': segments, 'complete_decode': True, 'metadata': metadata, 'proof_frames': proof_frames}
 
 
-def write_previews(clips, output, pass_number=5, source_fps=None):
+def write_previews(clips, output, pass_number=6, source_fps=None):
     source_fps = source_fps or {action: 24 for action in ACTIONS}
     for action in ACTIONS:
         if not all((facing, action) in clips for facing in FACINGS):
-            raise ValueError('All five animations need both actual facings')
+            raise ValueError('Walk and attack need both actual facings')
         if len(clips['front', action]) != len(clips['rear', action]):
             raise ValueError('Paired animation frame counts differ')
     ffmpeg = shutil.which('ffmpeg')
@@ -133,7 +133,7 @@ def write_previews(clips, output, pass_number=5, source_fps=None):
     proof_folder.mkdir(parents=True, exist_ok=True)
     geometry = _geometry(clips)
     records = [_encode(ffmpeg, output / name, clips, geometry, pass_number, feedback, proof_folder, source_fps)
-               for name, feedback in (('animation_showcase.mp4', False), ('all_animations_feedback.mp4', True))]
+               for name, feedback in (('animation_showcase.mp4', False), ('walk_attack_feedback.mp4', True))]
     manifest = {'pass': pass_number, 'fps': FPS, 'size': geometry[2], 'shared_source_crop': geometry[0],
         'source_pixel_scale': SCALE, 'facings_left_to_right': list(FACINGS), 'per_frame_camera_fitting': False,
         'pose_interpolation': False, 'source_fps': source_fps, 'half_speed_method': 'Hold each actual source frame twice as long; output cadence preserves both 24fps and 36fps inputs',
@@ -142,7 +142,7 @@ def write_previews(clips, output, pass_number=5, source_fps=None):
         'videos': records}
     (output / 'feedback_reel_validation.json').write_text(json.dumps(manifest, indent=2) + '\n')
     # A small full-reel overview; the numbered full-size stills are scratch.
-    contact = Image.new('RGB', (1200, 5 * 440), '#1b1d20')
+    contact = Image.new('RGB', (1200, len(ACTIONS) * 440), '#1b1d20')
     for row, action in enumerate(ACTIONS):
         count = len(clips['front', action])
         for column, frame in enumerate((0, count // 2, count - 1)):

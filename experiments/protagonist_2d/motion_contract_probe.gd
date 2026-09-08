@@ -12,19 +12,20 @@ func _init() -> void:
 	var maximum_wrap_position_delta := 0.0
 	var maximum_wrap_rotation_delta := 0.0
 	var worst_case := ""
+	var maximum_boot_basis_error := 0.0
+	var maximum_limb_width_error := 0.0
+	var minimum_projected_length_ratio := INF
+	var maximum_projected_length_ratio := -INF
 	var gait_metrics := {}
 	var joint_rotation_peaks := {}
 	var attack_metrics := {}
-	var idle_metrics := {}
-	var maximum_idle_leg_displacement := 0.0
-	var maximum_idle_leg_rotation := 0.0
 	for facing: String in ["front", "rear"]:
 		var layout_path := "res://experiments/protagonist_2d/cutout_layout.json" if facing == "front" else "res://experiments/protagonist_2d/cutout_layout_rear.json"
 		var layout: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(layout_path))
 		var bones := {}
 		var skeleton := Skeleton2D.new()
 		root.add_child(skeleton)
-		var neutral: Dictionary = Motion.sample_pose("idle", 0.0, layout, facing)
+		var neutral: Dictionary = Motion.sample_pose("rest", 0.0, layout, facing)
 		for name: String in layout.joints:
 			var bone := Bone2D.new()
 			bone.name = name
@@ -54,9 +55,9 @@ func _init() -> void:
 		# Independent landmarks inspected on the newly painted near-boot PNGs.
 		# Their perspective already faces into travel; test those actual features
 		# instead of requiring a large rotation of the previous toe-cap painting.
-		var painted_toe_direction := Vector2(-19.0, 2.0) if facing == "front" else Vector2(26.0, -2.0)
-		var desired_toe_direction := Vector2(-1.0, 0.28) if facing == "front" else Vector2(1.0, -0.28)
-		var blade_tip_source := Vector2(8.0, 205.0) if facing == "front" else Vector2(238.0, 214.0)
+		var painted_toe_direction := Vector2(-27.0, 12.0) if facing == "front" else Vector2(26.0, -8.0)
+		var desired_toe_direction := Vector2(-1.0, 0.5) if facing == "front" else Vector2(1.0, -0.5)
+		var blade_tip_source := Vector2(float(layout.weapon_grip.tip[0]), float(layout.weapon_grip.tip[1]))
 		for clip: String in Motion.clip_specs():
 			var initial: Dictionary = Motion.sample_pose(clip, 0.0, layout, facing)
 			if initial != Motion.sample_pose(clip, 1.0, layout, facing):
@@ -77,10 +78,25 @@ func _init() -> void:
 					var bone: Bone2D = bones[name]
 					bone.position = pose[name].position
 					bone.rotation = float(pose[name].rotation)
+					bone.scale = pose[name].get("scale", Vector2.ONE)
+					bone.skew = float(pose[name].get("skew", 0.0))
 					if not bone.transform.is_finite():
 						failures.append("Nonfinite " + clip + "/" + name)
 					var key: String = facing + "/" + name
 					joint_rotation_peaks[key] = maxf(float(joint_rotation_peaks.get(key, 0.0)), absf(bone.rotation))
+				# Independent checks on the actual Node2D transforms: longitudinal
+				# projection may vary, but painted widths and boot geometry may not.
+				for pair: Array in [["thigh_r", "shin_r"], ["shin_r", "foot_r"], ["thigh_l", "shin_l"], ["shin_l", "foot_l"]]:
+					var segment: Bone2D = bones[pair[0]]
+					var axis: Vector2 = (Motion._joint_position(layout, pair[1]) - Motion._joint_position(layout, pair[0])).normalized()
+					var width: Vector2 = segment.global_transform.basis_xform(axis.orthogonal())
+					var longitudinal: Vector2 = segment.global_transform.basis_xform(axis)
+					maximum_limb_width_error = maxf(maximum_limb_width_error, absf(width.length() - 1.0))
+					minimum_projected_length_ratio = minf(minimum_projected_length_ratio, longitudinal.length())
+					maximum_projected_length_ratio = maxf(maximum_projected_length_ratio, longitudinal.length())
+				for foot_name: String in ["foot_r", "foot_l"]:
+					var basis: Transform2D = (bones[foot_name] as Bone2D).global_transform
+					maximum_boot_basis_error = maxf(maximum_boot_basis_error, maxf(absf(basis.x.length() - 1.0), maxf(absf(basis.y.length() - 1.0), absf(basis.x.dot(basis.y)))))
 				var hand: Bone2D = bones["weapon_r"]
 				var cape: Bone2D = bones["cape_tip"]
 				var cape_material_point := Vector2(207.0, 179.0) if facing == "front" else Vector2(41.0, 174.0)
@@ -88,11 +104,6 @@ func _init() -> void:
 					"hips": bones["hips"].global_position, "torso": bones["torso"].global_position,
 					"head": bones["head"].global_position, "hand_l": bones["hand_l"].global_position, "hand": hand.global_position,
 					"cape": cape.global_transform * (cape_material_point - Motion._joint_position(layout, "cape_tip"))})
-				if clip == "idle":
-					for leg_bone: String in ["thigh_r", "shin_r", "foot_r", "thigh_l", "shin_l", "foot_l"]:
-						var fixed_leg: Bone2D = bones[leg_bone]
-						maximum_idle_leg_displacement = maxf(maximum_idle_leg_displacement, fixed_leg.global_position.distance_to(Motion._joint_position(layout, leg_bone)))
-						maximum_idle_leg_rotation = maxf(maximum_idle_leg_rotation, absf(fixed_leg.global_rotation))
 				if clip == "walk":
 					var hips: Bone2D = bones["hips"]
 					minimum_hips_y = minf(minimum_hips_y, hips.global_position.y)
@@ -113,7 +124,7 @@ func _init() -> void:
 					var foot: Bone2D = bones[foot_name]
 					if clip == "walk" and foot_name == lead_foot_name:
 						var knee: Bone2D = bones[foot_name.replace("foot_", "shin_")]
-						var toe_source := Vector2(137.0, 220.0) if facing == "front" else Vector2(152.0, 218.0)
+						var toe_source := Vector2(137.0, 220.0) if facing == "front" else Vector2(168.0, 216.0)
 						var toe: Vector2 = foot.global_transform * (toe_source - Motion._joint_position(layout, foot_name))
 						minimum_knee_toe_angle = minf(minimum_knee_toe_angle, absf((knee.global_position - foot.global_position).angle_to(toe - foot.global_position)))
 						minimum_toe_knee_distance = minf(minimum_toe_knee_distance, toe.distance_to(knee.global_position))
@@ -154,7 +165,6 @@ func _init() -> void:
 						support_anchors[foot_name].phase = foot_phase
 						support_samples += 1
 		attack_metrics[facing] = _measure_attack(traces, facing)
-		idle_metrics[facing] = _measure_idle(traces["idle"], facing)
 		# Direction is a moderate turn of a painted view, not a forced exact
 		# 3D yaw. Reject toe-to-knee folding through the entire cycle instead.
 		if minimum_knee_toe_angle < deg_to_rad(72.0) or minimum_toe_knee_distance < 28.0:
@@ -186,8 +196,6 @@ func _init() -> void:
 			"maximum_swing_boot_relaxation_rad": maximum_swing_boot_relaxation,
 			"duration_seconds": Motion.clip_specs()["walk"].duration}
 		skeleton.free()
-	if maximum_idle_leg_displacement > 0.001 or maximum_idle_leg_rotation > 0.0001:
-		failures.append("Idle moves or buckles its painted legs")
 	if maximum_target_error > 0.02:
 		failures.append("IK target error exceeds 0.02 px: " + str(maximum_target_error) + " at " + worst_case)
 	if maximum_painted_sole_ground_error > 0.35:
@@ -198,15 +206,19 @@ func _init() -> void:
 		failures.append("Contact foot changes its planted angle: " + str(maximum_contact_rotation))
 	if maximum_wrap_position_delta > 0.05 or maximum_wrap_rotation_delta > 0.001:
 		failures.append("Walk has a discontinuity at wrap")
+	if maximum_boot_basis_error > 0.0001 or maximum_limb_width_error > 0.0001:
+		failures.append("Projected leg motion stretches limb width or boot geometry")
+	if minimum_projected_length_ratio < 0.78 or maximum_projected_length_ratio > 1.22:
+		failures.append("Projected segment lengths exceed the authored foreshortening range")
 	var matrices_path: String = OS.get_environment("LABYRINTH_CUTOUT_POSE_MATRICES")
 	if not matrices_path.is_empty():
 		_write_pose_matrices(matrices_path)
-	print("CUTOUT_MOTION_PROOF " + JSON.stringify({"phase_samples": PHASE_SAMPLES, "layouts": 2, "actual_layouts": true, "clips": 5,
-		"max_target_error_px": maximum_target_error, "max_world_support_drift_px": maximum_support_drift,
+	print("CUTOUT_MOTION_PROOF " + JSON.stringify({"phase_samples": PHASE_SAMPLES, "layouts": 2, "actual_layouts": true, "clips": Motion.clip_specs().size(),
+		"maximum_boot_basis_error": maximum_boot_basis_error, "maximum_limb_width_error": maximum_limb_width_error,
+		"projected_segment_length_ratio": [minimum_projected_length_ratio, maximum_projected_length_ratio], "max_target_error_px": maximum_target_error, "max_world_support_drift_px": maximum_support_drift,
 		"max_contact_rotation_rad": maximum_contact_rotation, "max_painted_sole_ground_error_px": maximum_painted_sole_ground_error, "worst_case": worst_case,
 		"max_wrap_position_delta_px": maximum_wrap_position_delta, "max_wrap_rotation_delta_rad": maximum_wrap_rotation_delta,
-		"maximum_idle_leg_displacement_px": maximum_idle_leg_displacement, "maximum_idle_leg_rotation_rad": maximum_idle_leg_rotation,
-		"gait_metrics": gait_metrics, "attack_metrics": attack_metrics, "idle_metrics": idle_metrics, "joint_rotation_peaks_rad": joint_rotation_peaks, "failures": failures}))
+		"gait_metrics": gait_metrics, "attack_metrics": attack_metrics, "joint_rotation_peaks_rad": joint_rotation_peaks, "failures": failures}))
 	quit(0 if failures.is_empty() else 1)
 
 
@@ -232,7 +244,6 @@ func _painted_sole_geometry(layout: Dictionary) -> Dictionary:
 
 func _measure_attack(traces: Dictionary, facing: String) -> Dictionary:
 	var attack: Array = traces["attack"]
-	var block: Array = traces["block"]
 	var windup: Vector2 = attack[roundi(0.29 * (PHASE_SAMPLES - 1))].tip
 	var finish: Vector2 = attack[roundi(0.43 * (PHASE_SAMPLES - 1))].tip
 	var cut: Vector2 = finish - windup
@@ -263,48 +274,18 @@ func _measure_attack(traces: Dictionary, facing: String) -> Dictionary:
 		failures.append("Attack preparation is not nearly vertical and above the head: " + facing)
 	if forward_reach < 100.0 or cut_height_above_feet < 50.0:
 		failures.append("Attack hits beside the feet instead of in front at body height: " + facing)
-	var block_separation: float = finish.distance_to(Vector2(block[roundi(0.45 * (PHASE_SAMPLES - 1))].tip))
 	# Blade landmarks are from source pixels. These spatial and timing bounds
 	# reject the previous upward flick even when its joint values are finite.
 	if lift < 45.0 or cut.y < 70.0 or absf(cut.x) < 40.0 or upward_cut_travel > 2.0:
 		failures.append("Attack lacks raised anticipation followed by a sideways/downward cut: " + facing)
 	if cut_speed < preparation_speed * 1.40 or cut_speed < recovery_speed * 2.0:
 		failures.append("Attack cut is not faster than preparation/recovery: " + facing)
-	if block_separation < 100.0:
-		failures.append("Attack blade trajectory is too similar to raised block: " + facing)
 	return {"painted_blade_tip_lift_px": lift, "cut_delta_px": [cut.x, cut.y],
 		"upward_travel_during_cut_px": upward_cut_travel, "preparation_peak_speed_px_s": preparation_speed,
 		"cut_peak_speed_px_s": cut_speed, "recovery_peak_speed_px_s": recovery_speed,
-		"blade_tip_separation_from_block_px": block_separation, "overhead_angle_error_rad": overhead_angle_error,
+		"overhead_angle_error_rad": overhead_angle_error,
 		"overhead_clearance_from_head_bone_px": overhead_clearance, "forward_reach_px": forward_reach,
 		"cut_height_above_feet_px": cut_height_above_feet}
-
-
-func _measure_idle(trace: Array, facing: String) -> Dictionary:
-	var first: Dictionary = trace[0]
-	var minimum_body_y := INF
-	var maximum_body_y := -INF
-	var maximum_body_disagreement := 0.0
-	var maximum_cape_relative_travel := 0.0
-	for sample: Dictionary in trace:
-		var body: Vector2 = Vector2(sample.hips) - Vector2(first.hips)
-		minimum_body_y = minf(minimum_body_y, body.y)
-		maximum_body_y = maxf(maximum_body_y, body.y)
-		for key: String in ["torso", "head", "hand_l"]:
-			var moved: Vector2 = Vector2(sample[key]) - Vector2(first[key])
-			maximum_body_disagreement = maxf(maximum_body_disagreement, moved.distance_to(body))
-		var cape_travel: Vector2 = Vector2(sample.cape) - Vector2(first.cape)
-		maximum_cape_relative_travel = maxf(maximum_cape_relative_travel, cape_travel.distance_to(body))
-	var body_range: float = maximum_body_y - minimum_body_y
-	var seconds: float = float(Motion.clip_specs()["idle"].duration)
-	if body_range < 1.0 or body_range > 2.1 or maximum_body_disagreement > 0.05:
-		failures.append("Idle lacks a coherent 1–2 px pelvis/chest/head bob: " + facing)
-	if maximum_cape_relative_travel > 0.75:
-		failures.append("Idle cape ripple overwhelms the body bob: " + facing)
-	if seconds < 0.72 or seconds > 0.90:
-		failures.append("Idle cadence no longer resembles the authored 0.8 s sheet: " + facing)
-	return {"body_bob_range_px": body_range, "maximum_body_disagreement_px": maximum_body_disagreement,
-		"maximum_cape_travel_relative_to_body_px": maximum_cape_relative_travel, "duration_s": seconds}
 
 
 func _write_pose_matrices(path: String) -> void:

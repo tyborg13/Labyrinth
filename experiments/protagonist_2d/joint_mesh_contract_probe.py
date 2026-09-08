@@ -118,6 +118,9 @@ def check_poses(data, samples):
 
 def check_layout(path, pose_dump=None):
     data = json.loads(path.read_text())
+    if data.get('new_registered_anatomy'):
+        from registered_contract_probe import check_layout as check_registered_layout
+        return check_registered_layout(path, pose_dump)
     if data.get('new_complete_anatomy'):
         from articulated_contract_probe import check_layout as check_complete_layout
         return check_complete_layout(path, pose_dump)

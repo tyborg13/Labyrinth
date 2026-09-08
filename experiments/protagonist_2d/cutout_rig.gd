@@ -8,7 +8,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const SOURCE_SIZE := Vector2(255, 255)
 
 var facing: String = "front"
-var clip: String = "idle"
+var clip: String = "walk"
 var layout: Dictionary = {}
 var bones: Dictionary = {}
 var rest_transforms: Dictionary = {}
@@ -20,6 +20,7 @@ var _loaded_facing: String = ""
 var _frame_index: int = 0
 var _elapsed: float = 0.0
 var _debug_bones: bool = false
+var _cloak_visible: bool = true
 var _bone_overlay: Node2D
 var _reference_cache: Dictionary = {}
 
@@ -115,6 +116,7 @@ func load_rig() -> bool:
 			continue
 		var sprite := Sprite2D.new()
 		sprite.name = str(part.get("name", "Part"))
+		sprite.set_meta("equipment_slot", str(part.get("equipment_slot", "")))
 		sprite.texture = _texture(str(part["file"]))
 		sprite.centered = false
 		sprite.position = _vector(part["offset"]) - _vector((joints[bone_name] as Dictionary)["position"])
@@ -133,6 +135,7 @@ func load_rig() -> bool:
 	set_debug_bones(_debug_bones)
 	_loaded_facing = facing
 	set_clip(clip)
+	set_cloak_visible(_cloak_visible)
 	return true
 
 func _build_mesh(data: Dictionary, mesh_name: String) -> void:
@@ -140,6 +143,7 @@ func _build_mesh(data: Dictionary, mesh_name: String) -> void:
 	# to a Bone2D would apply that moving transform a second time.
 	var mesh := Polygon2D.new()
 	mesh.name = mesh_name
+	mesh.set_meta("equipment_slot", str(data.get("equipment_slot", "")))
 	mesh.texture = _texture(str(data["file"]))
 	mesh.texture_repeat = CanvasItem.TEXTURE_REPEAT_DISABLED
 	var vertices := PackedVector2Array()
@@ -211,7 +215,7 @@ func _build_animations() -> void:
 		var tracks: Dictionary = {}
 		for bone_name: String in bones:
 			tracks[bone_name] = {}
-			for property_name: String in ["position", "rotation", "scale"]:
+			for property_name: String in ["position", "rotation", "scale", "skew"]:
 				var track: int = animation.add_track(Animation.TYPE_VALUE)
 				animation.track_set_path(track, NodePath(str(get_path_to(bones[bone_name])) + ":" + property_name))
 				animation.track_set_interpolation_type(track, Animation.INTERPOLATION_LINEAR)
@@ -222,7 +226,7 @@ func _build_animations() -> void:
 			for bone_name: String in bones:
 				var override: Dictionary = pose.get(bone_name, {})
 				var rest: Transform2D = rest_transforms[bone_name]
-				var values: Dictionary = {"position": override.get("position", rest.origin), "rotation": override.get("rotation", 0.0), "scale": override.get("scale", Vector2.ONE)}
+				var values: Dictionary = {"position": override.get("position", rest.origin), "rotation": override.get("rotation", 0.0), "scale": override.get("scale", Vector2.ONE), "skew": override.get("skew", 0.0)}
 				for property_name: String in values:
 					animation.track_insert_key(int((tracks[bone_name] as Dictionary)[property_name]), float(frame) / fps, values[property_name])
 		library.add_animation(clip_name, animation)
@@ -325,3 +329,13 @@ func save_editable_scene(path: String) -> Error:
 	if result != OK:
 		return result
 	return ResourceSaver.save(scene, path)
+
+func set_cloak_visible(value: bool) -> void:
+	_cloak_visible = value
+	_apply_equipment_visibility(self, "cloak", value)
+
+func _apply_equipment_visibility(node: Node, slot: String, value: bool) -> void:
+	for child: Node in node.get_children():
+		if child is CanvasItem and str(child.get_meta("equipment_slot", "")) == slot:
+			(child as CanvasItem).visible = value
+		_apply_equipment_visibility(child, slot, value)

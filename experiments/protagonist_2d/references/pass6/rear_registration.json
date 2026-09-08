@@ -1,0 +1,19 @@
+{
+  "source_keyed": "rear_master_keyed.png",
+  "source_bbox": [
+    366,
+    51,
+    898,
+    1167
+  ],
+  "uniform_scale": 0.1917562724014337,
+  "native_size": [
+    102,
+    214
+  ],
+  "offset": [
+    77,
+    9
+  ],
+  "paint_source_status": "candidate to segment and validate; not a final accepted pose"
+}

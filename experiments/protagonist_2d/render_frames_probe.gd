@@ -72,6 +72,13 @@ func _run() -> void:
 				assert(occupied.size != Vector2i.ZERO, "Empty animation frame")
 				assert(occupied.position.x >= 3 and occupied.position.y >= 3 and occupied.end.x <= 509 and occupied.end.y <= 509, "Animation clips the fixed canvas")
 				assert(image.save_png(folder.path_join("%03d.png" % frame)) == OK)
+				if OS.get_cmdline_user_args().has("--capture-uncloaked"):
+					var bare_folder: String = output.path_join(facing + "_" + action + "_without_cloak")
+					DirAccess.make_dir_recursive_absolute(bare_folder)
+					rig.set_cloak_visible(false)
+					var bare: Image = await _image()
+					assert(bare.save_png(bare_folder.path_join("%03d.png" % frame)) == OK)
+					rig.set_cloak_visible(true)
 				var points: Dictionary = {}
 				for name_value: String in ["hand_r", "foot_r", "foot_l", "head"]:
 					var point: Vector2 = rig.to_local((rig.bones[name_value] as Bone2D).global_position)

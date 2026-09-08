@@ -30,7 +30,7 @@ func _run() -> void:
 	assert(front_only or view.has_facing("rear"), "Full proof requires the actual rear rig")
 	view.set_playing(false)
 	view.set_travel_enabled(false)
-	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v5" if front_only else "user://protagonist_2d_board_full_v5")
+	output = ProjectSettings.globalize_path("user://protagonist_2d_board_front_only_v6" if front_only else "user://protagonist_2d_board_full_v6")
 	DirAccess.make_dir_recursive_absolute(output)
 	var facings := PackedStringArray(["front"]) if front_only else View.FACINGS
 	var board: Control = view.board
@@ -41,7 +41,7 @@ func _run() -> void:
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", player, board.call("_unit_center", player))
 	var first_rect: Rect2 = board.call("_unit_draw_rect", player)
 	for which: String in facings:
-		view.select_clip("idle", which)
+		view.select_clip("attack", which)
 		await _settle(4)
 		var rest_image: Image = view.puppet_viewport.get_texture().get_image()
 		assert(rest_image.get_used_rect().size != Vector2i.ZERO, "Puppet viewport contains actual artwork")
@@ -93,6 +93,15 @@ func _run() -> void:
 			if action == "attack":
 				view.seek_timeline_frame(roundi(float(count - 1) * 0.29))
 				await _capture(which + "_attack_preparation")
+		# The cloak must be independently removable through difficult poses.
+		view.set_cloak_visible(false)
+		view.set_detail_zoom(false)
+		for action: String in ["walk", "attack"]:
+			view.select_clip(action, which)
+			view.seek_timeline_frame(8 if action == "walk" else 9)
+			assert(not view.puppet._cloak_visible and not view.detail_puppet._cloak_visible, "Cloak visibility persists across actions and actual facing reloads")
+			await _capture("without_cloak_" + which + "_" + action)
+		view.set_cloak_visible(true)
 		# The full 512px detail shows eight evenly spaced phases, including both
 		# contacts and swing extremes; no source-frame crop can hide a broken seam.
 		view.select_clip("walk", which)
@@ -187,7 +196,16 @@ func _run() -> void:
 		view.set_bones_visible(false)
 	view.set_detail_zoom(false)
 	await _capture("detail_full_pose")
-	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "pass": 5, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
+	view._cloak_button.grab_focus()
+	await _activate_focused_button()
+	assert(not view.cloak_visible and not view._cloak_button.button_pressed, "Cloak toggle is keyboard reachable")
+	view.select_clip("attack", "rear")
+	view.seek_timeline_frame(9)
+	assert(not view.puppet._cloak_visible and not view.detail_puppet._cloak_visible, "Both actual rigs preserve removal across facing changes")
+	await _capture("cloak_keyboard_focus_paused")
+	await _activate_focused_button()
+	assert(view.cloak_visible and view._cloak_button.button_pressed, "Keyboard toggle restores the cloak")
+	var evidence := {"proof_kind": "live 2D board poses, gait-matched locomotion and controls", "cloak_removed_pose_checks": 4, "cloak_keyboard_toggle_and_facing_persistence": true, "pass": 6, "facings": facings, "rear_verified": not front_only, "checked_frames": checked_frames, "source_registration_unchanged": true, "fixed_canvas": [512, 512], "original_source_size": [255, 255], "source_offset": [128, 128], "anchor": view.puppet.call("get_anchor"), "health_anchor_follows_travel": true, "travel_matches_authored_gait": true, "travel_cycles": View.TRAVEL_CYCLES, "full_pose_phases_per_facing": 8, "production_shadow_reused": true, "retained_live_texture": true, "enemy_art_unchanged": true, "pause_step_wrap_fps": true, "native_button_focus": true, "bones_detail_only": debug_isolated, "motion_frames_captured": capture_motion, "video_clips": video_clips, "viewport": [1920, 1080], "ui_scale": 1.0}
 	var file := FileAccess.open(output.path_join("validation.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(evidence, "\t"))
 	file.close()

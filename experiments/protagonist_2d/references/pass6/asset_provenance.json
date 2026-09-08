@@ -1,0 +1,517 @@
+{
+  "mode": "built-in image_gen",
+  "all_runtime_parts_new": true,
+  "generator": "registered_assets.py",
+  "components": {
+    "front_torso": {
+      "generated_file": "exec-6d696f78-20a8-4c2d-90e9-6cc2227db570.png",
+      "file": "references/pass6/components/front_torso.png",
+      "sha256": "656d2bbfbee4ac19cbbba776c7e3b37fd9c7b33015a58f39e7594f29f2902f1c",
+      "keyed_bbox": [
+        386,
+        127,
+        1095,
+        900
+      ]
+    },
+    "rear_torso": {
+      "generated_file": "exec-4a276ba6-9dd2-4645-b063-44f678e35ca1.png",
+      "file": "references/pass6/components/rear_torso.png",
+      "sha256": "245b230f53bbfad7c74965c5e523bf4051df903cae022d72a9beb895865f23a6",
+      "keyed_bbox": [
+        365,
+        194,
+        1077,
+        868
+      ]
+    },
+    "front_boot": {
+      "generated_file": "exec-c2a5943b-cb79-4a04-9b30-f4fef9b3641e.png",
+      "file": "references/pass6/components/front_boot.png",
+      "sha256": "0a19fa0db12d645b7c85db81ec0edf7a6b9ff5fc1d60d5213adf2e2a0a6d817d",
+      "keyed_bbox": [
+        320,
+        209,
+        1053,
+        918
+      ]
+    },
+    "rear_boot": {
+      "generated_file": "exec-b94122ee-a13e-4f6d-be06-dee716c66034.png",
+      "file": "references/pass6/components/rear_boot.png",
+      "sha256": "2f245197e4e80e14a28b54b0607d0a3184366d4dc769cbeeb54a013478c30205",
+      "keyed_bbox": [
+        434,
+        404,
+        922,
+        878
+      ]
+    },
+    "rear_leg": {
+      "generated_file": "exec-dbb3217e-d7fe-4511-bec0-421b8bb26697.png",
+      "file": "references/pass6/components/rear_leg.png",
+      "sha256": "c980cca5e0055e2dc638cbe888a324ef9eaacdef6912fa2288985ced7f80ab1a",
+      "keyed_bbox": [
+        259,
+        284,
+        766,
+        1403
+      ]
+    },
+    "front_cape": {
+      "generated_file": "exec-a30489aa-0ac8-4c80-8b6b-44bf2be87de9.png",
+      "file": "references/pass6/components/front_cape.png",
+      "sha256": "493725beb85e2a3bd706775382c393d92917faa24d321047f670afbdd7623dd0",
+      "keyed_bbox": [
+        146,
+        191,
+        856,
+        1455
+      ]
+    },
+    "rear_cape": {
+      "generated_file": "exec-6681ae7c-6e28-4d6a-85b4-b0487883e79e.png",
+      "file": "references/pass6/components/rear_cape.png",
+      "sha256": "2e0a5dea6ee0744eda57507112bbdec483c1f11336c6f6e6bc38fd8c450a5ed7",
+      "keyed_bbox": [
+        115,
+        232,
+        1042,
+        1091
+      ]
+    },
+    "weapon": {
+      "generated_file": "exec-a559d9c3-8547-4859-9421-1fe5d3886ef3.png",
+      "file": "references/pass6/components/weapon.png",
+      "sha256": "50ad799b4e006f6e721e9e2cfa96c118539b73542b7a1cdcb7be5e6feb29c7fd",
+      "keyed_bbox": [
+        354,
+        69,
+        667,
+        1483
+      ]
+    },
+    "pelvis": {
+      "generated_file": "exec-1d6324bb-20c4-4f8a-a060-fd4747b950c0.png",
+      "file": "references/pass6/components/pelvis.png",
+      "sha256": "b3bad8e602d5a8b5880d676205ac1725e034f8e87979b7d07d18e0e507e943d3",
+      "keyed_bbox": [
+        579,
+        200,
+        1124,
+        712
+      ]
+    },
+    "cap_r": {
+      "generated_file": "exec-d0c9af23-bb8f-4b0f-845c-b3338fbec444.png",
+      "file": "references/pass6/components/cap_r.png",
+      "sha256": "7ce79e4ff20bea59766d13014866e7514262d61caa2ac6261eb3dbd59f4eea90",
+      "keyed_bbox": [
+        389,
+        364,
+        866,
+        922
+      ]
+    },
+    "cap_l": {
+      "generated_file": "exec-27b75714-acd1-49d9-a069-8610dfff1537.png",
+      "file": "references/pass6/components/cap_l.png",
+      "sha256": "5b9ee2064fbd875a043e8a7d8e3356079e70617f796ee4c5047da60b42080b42",
+      "keyed_bbox": [
+        357,
+        322,
+        882,
+        945
+      ]
+    }
+  },
+  "master_registration": {
+    "front": {
+      "source_keyed": "front_master_keyed.png",
+      "source_bbox": [
+        355,
+        36,
+        920,
+        1175
+      ],
+      "uniform_scale": 0.18788410886742757,
+      "native_size": [
+        106,
+        214
+      ],
+      "offset": [
+        75,
+        9
+      ],
+      "paint_source_status": "Retained paint source; final assembly includes documented fitted components and corrected semantic masks."
+    },
+    "rear": {
+      "source_keyed": "rear_master_keyed.png",
+      "source_bbox": [
+        366,
+        51,
+        898,
+        1167
+      ],
+      "uniform_scale": 0.1917562724014337,
+      "native_size": [
+        102,
+        214
+      ],
+      "offset": [
+        77,
+        9
+      ],
+      "paint_source_status": "Retained paint source; final assembly includes documented fitted components and corrected semantic masks."
+    }
+  },
+  "runtime_parts": {
+    "front": [
+      {
+        "file": "assets/pass6/front/head.png",
+        "offset": [
+          93,
+          9
+        ],
+        "equipment_slot": "head",
+        "sha256": "4b70a6c9377502a61c3476ec51314e7be90a5495d9dd86cf2e4f524e295c5e67"
+      },
+      {
+        "file": "assets/pass6/front/scarf.png",
+        "offset": [
+          100,
+          61
+        ],
+        "equipment_slot": "neck",
+        "sha256": "ba963bd3e44678d5e484bd08c1e037853f8f787364f692684553ab99d17309e4"
+      },
+      {
+        "file": "assets/pass6/front/torso.png",
+        "offset": [
+          99,
+          83
+        ],
+        "equipment_slot": "chest",
+        "sha256": "589de163ed443c507f664af9a68d38cd203f58fdb212efe0617071b55ad54839"
+      },
+      {
+        "file": "assets/pass6/front/hips.png",
+        "offset": [
+          100,
+          115
+        ],
+        "equipment_slot": "legs",
+        "sha256": "0db010c2d4a1e91256517a9b5172ee450c584a9c4e65a6e154516264925c1a94"
+      },
+      {
+        "file": "assets/pass6/front/pelvis_underlay.png",
+        "offset": [
+          99,
+          124
+        ],
+        "equipment_slot": "legs",
+        "sha256": "327e7e2753bd62ab8f654c0ad7f2b26ea22b66491318562c5c1a09fe3c8d7a57"
+      },
+      {
+        "file": "assets/pass6/front/arm_r.png",
+        "offset": [
+          75,
+          91
+        ],
+        "equipment_slot": "chest",
+        "sha256": "2cfc2d034171e633304617ba7c614bcc226d0e3fa0625116984852120ece1e2f"
+      },
+      {
+        "file": "assets/pass6/front/hand_r.png",
+        "offset": [
+          75,
+          126
+        ],
+        "equipment_slot": "gloves",
+        "sha256": "2102bef6561af5230b9a311c10adc8a890e1e66ec6f1da1e7e27093364e8bbc9"
+      },
+      {
+        "file": "assets/pass6/front/thigh_r.png",
+        "offset": [
+          96,
+          134
+        ],
+        "equipment_slot": "legs",
+        "sha256": "7f5a1743aaa678634747fdd715e332d47f2a65b708de9b3a5d78b05a198ac46d"
+      },
+      {
+        "file": "assets/pass6/front/shin_r.png",
+        "offset": [
+          101,
+          159
+        ],
+        "equipment_slot": "legs",
+        "sha256": "0bf6361243ef0277b4c1510dd78e96d15092b2786758f381bd2539333a497dff"
+      },
+      {
+        "file": "assets/pass6/front/foot_r.png",
+        "offset": [
+          86,
+          178
+        ],
+        "equipment_slot": "boots",
+        "sha256": "a88ddf8cb391face77d8d6e957439c41e97e6fe16716bc1b733092b3185804bf"
+      },
+      {
+        "file": "assets/pass6/front/arm_l.png",
+        "offset": [
+          151,
+          98
+        ],
+        "equipment_slot": "chest",
+        "sha256": "a466cf356af9d874ee12cfb805827e04fe23ab4f4c5ece7b191fc156dbf80bea"
+      },
+      {
+        "file": "assets/pass6/front/hand_l.png",
+        "offset": [
+          155,
+          141
+        ],
+        "equipment_slot": "gloves",
+        "sha256": "0110cde158674baf266b4d92f873b63a105fead426bef1fc4e0c3dea2c3c3b90"
+      },
+      {
+        "file": "assets/pass6/front/thigh_l.png",
+        "offset": [
+          128,
+          140
+        ],
+        "equipment_slot": "legs",
+        "sha256": "a8ad1ad69f6d5346099c7de47c38a9501defcc2f7acdea81341474aef58bba7d"
+      },
+      {
+        "file": "assets/pass6/front/shin_l.png",
+        "offset": [
+          134,
+          168
+        ],
+        "equipment_slot": "legs",
+        "sha256": "cd0d5d478532f949bd2481b35481ef1ecbf5a6d2657ca661b258e9bf020099e9"
+      },
+      {
+        "file": "assets/pass6/front/foot_l.png",
+        "offset": [
+          134,
+          189
+        ],
+        "equipment_slot": "boots",
+        "sha256": "993aeb70a2296f02a72bc125506d41098d3dc028ff0402255c1d4bf7ace8f819"
+      },
+      {
+        "file": "assets/pass6/front/mantle_far.png",
+        "offset": [
+          93,
+          73
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "a17163d92309696f34034c6683f07d94de7dffb8afaa1d17a14cdb90857c99fb"
+      },
+      {
+        "file": "assets/pass6/front/mantle_near.png",
+        "offset": [
+          134,
+          63
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "309386a73ddd52d5406a6fc77d1189cd9426da38f53af90c1486eae2fcb3aee7"
+      },
+      {
+        "file": "assets/pass6/front/weapon_r.png",
+        "offset": [
+          2,
+          124
+        ],
+        "equipment_slot": "weapon",
+        "sha256": "adb3b5536509bbc941cd8aed42df2b266aae5e52277791e787b396e18dfd5bf5"
+      },
+      {
+        "file": "assets/pass6/front/cape_drape.png",
+        "offset": [
+          143,
+          78
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "8c3ec7a57b37bca9ad7134b883bd7451806459b51b0dec5b62ad0bd49edc9b16"
+      }
+    ],
+    "rear": [
+      {
+        "file": "assets/pass6/rear/head.png",
+        "offset": [
+          91,
+          9
+        ],
+        "equipment_slot": "head",
+        "sha256": "4685649116aa0a38f583463259868ab5e24a8daa32a1f27a13238b1d3ca7ae6d"
+      },
+      {
+        "file": "assets/pass6/rear/scarf.png",
+        "offset": [
+          92,
+          59
+        ],
+        "equipment_slot": "neck",
+        "sha256": "16f04e895c32a03ec0ec881bef8cf612a66760c41249b710e185bcaa1554ed17"
+      },
+      {
+        "file": "assets/pass6/rear/torso.png",
+        "offset": [
+          98,
+          74
+        ],
+        "equipment_slot": "chest",
+        "sha256": "484dfab16d7638c0ae4fc9ade8db7daf4ec0b091345783b0eed17c2c3cac1784"
+      },
+      {
+        "file": "assets/pass6/rear/hips.png",
+        "offset": [
+          96,
+          112
+        ],
+        "equipment_slot": "legs",
+        "sha256": "eeb15f49dc165ce9be1e1d8ef21e606bf85de591c992d3f5a9f5fe0c3d360298"
+      },
+      {
+        "file": "assets/pass6/rear/pelvis_underlay.png",
+        "offset": [
+          97,
+          126
+        ],
+        "equipment_slot": "legs",
+        "sha256": "327e7e2753bd62ab8f654c0ad7f2b26ea22b66491318562c5c1a09fe3c8d7a57"
+      },
+      {
+        "file": "assets/pass6/rear/arm_r.png",
+        "offset": [
+          139,
+          84
+        ],
+        "equipment_slot": "chest",
+        "sha256": "fd20b006e568e531c6479c3e43b38fb23f33491905b6f8afd83e8ca62663b86a"
+      },
+      {
+        "file": "assets/pass6/rear/hand_r.png",
+        "offset": [
+          158,
+          138
+        ],
+        "equipment_slot": "gloves",
+        "sha256": "5c0a99c5000ae75890ad9c645cdc2d868008eb3337842c56a1895a993a927427"
+      },
+      {
+        "file": "assets/pass6/rear/thigh_r.png",
+        "offset": [
+          127,
+          138
+        ],
+        "equipment_slot": "legs",
+        "sha256": "65e189bf5dea18a49aa770a47e3776b1ca66f88131e33777a4fef58f29f21d7e"
+      },
+      {
+        "file": "assets/pass6/rear/shin_r.png",
+        "offset": [
+          129,
+          166
+        ],
+        "equipment_slot": "legs",
+        "sha256": "35cfb146b97f8f05240e2ae59afacd430066ce17ca9f28846fc2d7f3bdacfb61"
+      },
+      {
+        "file": "assets/pass6/rear/foot_r.png",
+        "offset": [
+          132,
+          199
+        ],
+        "equipment_slot": "boots",
+        "sha256": "ade232c218659f722bbf1736469f8a9a1046a1dad71acfe3dccfa2e7c9dac204"
+      },
+      {
+        "file": "assets/pass6/rear/arm_l.png",
+        "offset": [
+          77,
+          93
+        ],
+        "equipment_slot": "chest",
+        "sha256": "3c4b22a52c2b5c6e60b46a7f99493b806c3f9564e770667d0dbd36d8af8e8f8a"
+      },
+      {
+        "file": "assets/pass6/rear/hand_l.png",
+        "offset": [
+          77,
+          126
+        ],
+        "equipment_slot": "gloves",
+        "sha256": "f5fbeb116ac5902e8498d789306e1163d997c7715171eeaa51e6b07011a284c6"
+      },
+      {
+        "file": "assets/pass6/rear/thigh_l.png",
+        "offset": [
+          88,
+          139
+        ],
+        "equipment_slot": "legs",
+        "sha256": "4b6659c12e0c3396e0d1666e111692f544acca5ed28f9d24db9b17bf08bd5173"
+      },
+      {
+        "file": "assets/pass6/rear/shin_l.png",
+        "offset": [
+          87,
+          162
+        ],
+        "equipment_slot": "legs",
+        "sha256": "ab31aeb54864c85e575387da5ff1fffa5b0a5d0837cff09ff386aaaaaa6f9261"
+      },
+      {
+        "file": "assets/pass6/rear/foot_l.png",
+        "offset": [
+          87,
+          181
+        ],
+        "equipment_slot": "boots",
+        "sha256": "52180f1c4e3cacd5895d53c6f9469bd3578a3a7f83d4db80e4735f0cbcfde1b8"
+      },
+      {
+        "file": "assets/pass6/rear/mantle_far.png",
+        "offset": [
+          82,
+          67
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "dc1e54679bcc86b5b8e72eee03a1574a79ee8743055e145e00277350aeda1071"
+      },
+      {
+        "file": "assets/pass6/rear/mantle_near.png",
+        "offset": [
+          103,
+          70
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "ba85f12be67f33bf1ca56481ea404f3a9845803f76ff41d6d943100199f18f2a"
+      },
+      {
+        "file": "assets/pass6/rear/weapon_r.png",
+        "offset": [
+          157,
+          136
+        ],
+        "equipment_slot": "weapon",
+        "sha256": "e6577212530fcce51a3dd4656ccb2d18e6725e72282f8e0796502e6ce8c85512"
+      },
+      {
+        "file": "assets/pass6/rear/cape_drape.png",
+        "offset": [
+          51,
+          83
+        ],
+        "equipment_slot": "cloak",
+        "sha256": "d1fe80bbfc91ec496837a2d9f63092591bd28db3ff038dcf2ee4d47598ab69d6"
+      }
+    ]
+  },
+  "generation_prompts": "references/pass6/prompts.json"
+}

@@ -1,0 +1,71 @@
+{
+  "pass": 6,
+  "reviewer": "implementation visual inspection; independent peer signoff recorded separately",
+  "native_pose_count": 224,
+  "board_still_regions": 39,
+  "paired_travel_phases": 72,
+  "real_renderer": "Godot 4.6.1 Metal/Mobile",
+  "resolution": [
+    1920,
+    1080
+  ],
+  "ui_scale": 1.0,
+  "runtime_input_files": 886,
+  "runtime_inputs_unchanged_before_after_and_at_packaging": true,
+  "visual_scope": [
+    "canonical and assembled reference at shared scale",
+    "all 112 authored poses and all 112 cloak-off poses at native pixel scale",
+    "all 39 board screenshot regions",
+    "all 72 paired front/rear three-cycle travel phases",
+    "full UI action preparation, references, native focus, cloak-off and detail states",
+    "decoded primary reel proof frames and full decoding"
+  ],
+  "art_rationale": "iteration_6.md",
+  "technical_checks": [
+    "registered_art_validation.json",
+    "motion_validation.json",
+    "render_validation.json",
+    "roundtrip/validation.json",
+    "asset_reproduction.json"
+  ],
+  "limitations": [
+    "Two fixed painted hand/boot perspectives and authored projected limb lengths.",
+    "Rear leather uses warmer broader highlights than front.",
+    "Restrained arm-led attack, no arbitrary pose replacement library.",
+    "Production animation/equipment routing and dynamic shadows are outside the prototype."
+  ],
+  "visual_files_sha256": {
+    "renders/pass6/review/front_attack_without_cloak.png": "04993346db12b845ba222be808b67c057b6fa69c42dbaff3a1af17fc08f97359",
+    "renders/pass6/review/rear_attack.png": "8450c78618d222bbedf7dd347d06294a89323d04dd3049e68ad7ec6bb3394967",
+    "renders/pass6/review/rear_attack_without_cloak.png": "f533474616733dda09f05d277bc7cc69184762ebeaf43506d53d7ca97fec40dd",
+    "renders/pass6/review/front_walk.png": "5e8dc7d6a9046c9c3821e741c81439a958608924ee044995cdf84ed9c1b3aa10",
+    "renders/pass6/review/board_stills_2.png": "6f2134bcae7fc12b72f6c5d3e8825f8d9d6cf4979141f9dfd9d17a80c10552c7",
+    "renders/pass6/review/board_stills_3.png": "29f4e898ec3dfbfc0b5c81894ae5a1c308ba1b52677b5c3271db7a341c027235",
+    "renders/pass6/review/board_stills_1.png": "a3361e3ea01d427bc175626468896b97fb74ba69b9de5f5e351500d32062f1cb",
+    "renders/pass6/review/board_stills_0.png": "2c480a539567015d38f592bdb7961303de33da13637713d41d9155b2ad868fd1",
+    "renders/pass6/review/rear_walk.png": "97f730384cd683bb9c49b7c2461c59f7dba2db63d70116e60495c4a4ddcb818e",
+    "renders/pass6/review/board_stills_4.png": "7dc23c890195d32ba1ad4d1de02de85634dc5d54cb06eec2d9a472c0fbe63c58",
+    "renders/pass6/review/front_attack.png": "fc81452ed8fa68c24942d0c2575c6b79f051d3b507f34263a9bb589ee1422a82",
+    "renders/pass6/review/board_travel_2.png": "1b54ade63037e9604058ab983be977283c800c1566b8c2af2f936f221f5e3dd3",
+    "renders/pass6/review/board_travel_3.png": "e3fc71894a858f796c184b1274b0b497df1be287210bba9e69fe46699d69311b",
+    "renders/pass6/review/board_travel_1.png": "8881150b82beb07fdde49264e3bcecab7678cd230b62833db71a2a2178cd13eb",
+    "renders/pass6/review/rear_walk_without_cloak.png": "25bfb0032805f3b5ad67ee1ebc4e0aeee224077b67b0c150fab8f466bdcfcd1a",
+    "renders/pass6/review/front_walk_without_cloak.png": "24ec0b8bfa224f9a619ea3f81b11c56774ebff69e97defdfdbe067565872beb5",
+    "renders/pass6/review/board_travel_0.png": "a1224e18af5b3e1ce3e21e30b6fd7af425c251bcb2c1483b244ab84a9921a595",
+    "renders/pass6/review/board_travel_4.png": "5db84e97ca17956c3ae378a7be4b1d2c49b0bd75b4b4286d7182aaec9a5c9247",
+    "renders/pass6/review/board_travel_5.png": "07704dfc0c530640d1d5d09a03a2c4256006c107c4f3ea22a77b4fa418272c20",
+    "references/pass6/rear_master_keyed.png": "f30615f5769984f78d9344be798e5dd466bf9453e054c32d24616f249fb76624",
+    "references/pass6/front_master_keyed.png": "58c07569c3c906abe0498c6387d9451d33ef3b909c9774d874b7d4696b3076e6",
+    "references/pass6/assembly_review.png": "7633b41bf04d6e7cf3c220a602894a98ae1b7496a51fa65c741b820b4a1f931e",
+    "references/pass6/rear_without_cloak.png": "0d4297bc3520d7a1a02f8bfd9c8bdab4c07f9358b36f692e00e21a3d3fb74f2b",
+    "references/pass6/front_assembled_rest.png": "7b211354e6bd56a529d7611959e1c1e76756e1daf6b45a541c46b8b8c384166f",
+    "references/pass6/front_master.png": "40d11ff0a28cbbfa5fd13037d5dce19750395a72c698ae6484e8d9af9e7bde93",
+    "references/pass6/projected_construction_guide.png": "aa7da2772875128f0d7ef7d765ddd50237110e46492e6811ee2abbfceaba36ad",
+    "references/pass6/rear_assembled_rest.png": "b3802da7e014f75506370b6ea1e22f26e5aab8dbcab9095108f2fdaabe9d30b7",
+    "references/pass6/rear_parts_review.png": "13a250f701ca749ca28905caa800d50c3b75a09347f7e7c74ba3e609de15d2c5",
+    "references/pass6/front_parts_review.png": "efdb09bc17f07059f35aca9b7bbb01efd87cae9b83f2d5f808eab51fcf94d6e2",
+    "references/pass6/rear_master.png": "a33c09f1d8e74441e1ccbcf9984fb7f0934a78b7676a686dee62a78334399bb4",
+    "references/pass6/front_without_cloak.png": "456b433c4234c51fb8866dc152dfea88417c69268bd6febe824370134743894c"
+  },
+  "reviewed_reel_sha256": "309b2c5be6cee11a7749d4186738ffd40e9b871d93975c7bb2c6f5b34d134856"
+}

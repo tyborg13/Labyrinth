@@ -1,19 +1,125 @@
 {
-  "min_images": 38,
-  "expected_sizes": ["1920x1080"],
+  "min_images": 39,
+  "expected_sizes": [
+    "1920x1080"
+  ],
   "required_images": [
-    {"pattern": "front_*.png", "min_count": 5, "width": 1920, "height": 1080,
-     "regions": [{"rect": [200,240,1000,600], "min_luma_range": 30, "min_luma_stdev": 5}, {"rect": [1348,475,512,512], "min_luma_range": 20, "min_luma_stdev": 2}]},
-    {"pattern": "rear_*.png", "min_count": 5, "width": 1920, "height": 1080,
-     "regions": [{"rect": [200,240,1000,600], "min_luma_range": 30, "min_luma_stdev": 5}, {"rect": [1348,475,512,512], "min_luma_range": 20, "min_luma_stdev": 2}]},
-    {"pattern": "reference_*.png", "min_count": 2, "width": 1920, "height": 1080},
-    {"pattern": "keyboard_focus_paused.png", "width": 1920, "height": 1080},
-    {"pattern": "detail_bones.png", "width": 1920, "height": 1080},
-    {"pattern": "detail_full_pose.png", "width": 1920, "height": 1080},
-    {"pattern": "walk_pose_front_*.png", "min_count": 8, "width": 1920, "height": 1080},
-    {"pattern": "walk_pose_rear_*.png", "min_count": 8, "width": 1920, "height": 1080},
-    {"pattern": "travel_front_*.png", "min_count": 3, "width": 1920, "height": 1080},
-    {"pattern": "travel_rear_*.png", "min_count": 3, "width": 1920, "height": 1080},
-    {"pattern": "travel_keyboard_focus_paused.png", "width": 1920, "height": 1080}
+    {
+      "pattern": "front_*.png",
+      "min_count": 3,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            200,
+            240,
+            1000,
+            600
+          ],
+          "min_luma_range": 30,
+          "min_luma_stdev": 5
+        },
+        {
+          "rect": [
+            1348,
+            475,
+            512,
+            512
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "rear_*.png",
+      "min_count": 3,
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            200,
+            240,
+            1000,
+            600
+          ],
+          "min_luma_range": 30,
+          "min_luma_stdev": 5
+        },
+        {
+          "rect": [
+            1348,
+            475,
+            512,
+            512
+          ],
+          "min_luma_range": 20,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "reference_*.png",
+      "min_count": 2,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "keyboard_focus_paused.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "detail_bones.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "detail_full_pose.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "walk_pose_front_*.png",
+      "min_count": 8,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "walk_pose_rear_*.png",
+      "min_count": 8,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "travel_front_*.png",
+      "min_count": 3,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "travel_rear_*.png",
+      "min_count": 3,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "travel_keyboard_focus_paused.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "without_cloak_*.png",
+      "min_count": 4,
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "cloak_keyboard_focus_paused.png",
+      "width": 1920,
+      "height": 1080
+    }
   ]
 }

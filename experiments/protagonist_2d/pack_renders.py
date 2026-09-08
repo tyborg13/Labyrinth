@@ -16,69 +16,15 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
     draw.text(at,text,font=font,fill=color)
 
 
-def iteration_comparison(output, clips, source_fps):
-    """Compare retained renderer frames at their original timing and scale."""
-    baseline = output / 'pass4'
-    metadata_path = baseline / 'animations.json'
-    if not metadata_path.exists() or set(f for f, a in clips if a == 'walk') != {'front', 'rear'}:
-        return
-    metadata = json.loads(metadata_path.read_text())
-    prior = {}
-    for facing in ('front', 'rear'):
-        spec = metadata['animations']['walk'][facing]
-        sheet = Image.open(baseline / spec['sheet']).convert('RGBA')
-        prior[facing] = [sheet.crop(((i % spec['cols']) * 512, (i // spec['cols']) * 512,
-                                    (i % spec['cols'] + 1) * 512, (i // spec['cols'] + 1) * 512))
-                         for i in range(spec['frames'])]
-    # A 72fps output preserves the native 36fps baseline and current walk.
-    output_fps = 72
-    prior_fps = int(metadata['animations']['walk']['front']['fps'])
-    current_fps = int(source_fps['walk'])
-    periods = [len(prior[f]) * output_fps // prior_fps for f in prior]
-    periods += [len(clips[(f, 'walk')]) * output_fps // current_fps for f in prior]
-    count = math.lcm(*periods)
-    folder = output / 'video_frames' / 'comparison'
-    folder.mkdir(parents=True, exist_ok=True)
-    for frame in range(count):
-        canvas = Image.new('RGB', (1000, 880), '#1b1d20')
-        draw = ImageDraw.Draw(canvas)
-        label(draw, (30, 24), 'WALK / FOURTH AND FIFTH PASS', 25)
-        label(draw, (220, 70), 'Front', 21)
-        label(draw, (720, 70), 'Rear', 21)
-        for row, version in enumerate(('Fourth pass / 36fps', 'Fifth pass / 36fps')):
-            label(draw, (30, 102 + row * 420), version, 20, '#c99b62')
-            for column, facing in enumerate(('front', 'rear')):
-                frames = prior[facing] if row == 0 else clips[(facing, 'walk')]
-                rate = prior_fps if row == 0 else current_fps
-                im = frames[(frame * rate // output_fps) % len(frames)].resize((640, 640), Image.Resampling.NEAREST)
-                canvas.paste(im, (250 + column * 500 - 319, 405 + row * 420 - 439), im)
-        draw.line((30, 455, 970, 455), fill='#4b4942', width=1)
-        canvas.save(folder / f'{frame:04d}.png')
-        if frame == 6:
-            canvas.save(output / 'walk_iteration_comparison.png')
-    ffmpeg = shutil.which('ffmpeg')
-    if ffmpeg:
-        subprocess.run([ffmpeg, '-y', '-loglevel', 'error', '-framerate', str(output_fps), '-i',
-                        str(folder / '%04d.png'), '-frames:v', str(count), '-c:v', 'libx264',
-                        '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
-                        str(output / 'walk_iteration_comparison.mp4')], check=True)
-    (output / 'walk_iteration_comparison.json').write_text(json.dumps({
-        'baseline_commit': 'a3d2bce6f45f775b311fa59dd7326bfab9995afc',
-        'baseline_source': 'pass4/front_walk.png and pass4/rear_walk.png',
-        'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': output_fps, 'source_fps': [prior_fps, current_fps],
-        'scale': 1.25, 'resampler': 'nearest', 'interpolated_frames': False,
-    }, indent=2) + '\n')
-
-
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('frames_dir',type=Path)
-    ap.add_argument('--output',type=Path,default=HERE/'renders')
+    ap.add_argument('--output',type=Path,default=HERE/'renders/pass6')
     ap.add_argument('--require-both',action='store_true')
     args=ap.parse_args();output=args.output;output.mkdir(parents=True,exist_ok=True)
     source=json.loads((args.frames_dir/'render_manifest.json').read_text())
     if args.require_both and set(source['facings']) != {'front','rear'}:
         raise ValueError('Both real facings are required; a mirrored front is not a rear.')
-    manifest={'frame_size':[512,512],'anchor':[(128+127.5)/512,(128+223)/512],
+    manifest={'uncloaked_animations':{},'frame_size':[512,512],'anchor':[(128+127.5)/512,(128+223)/512],
               'board_canvas_scale':512/255,'source_offset':[128,128],'animations':{}}
     clips={};count=0
     for facing,actions in source['facings'].items():
@@ -94,6 +40,15 @@ def main():
                     raise ValueError('Empty or clipped animation frame: '+str(path))
                 frames.append(im);sheet.paste(im,((frame%columns)*512,(frame//columns)*512));count+=1
             filename=f'{facing}_{action}.png';sheet.save(output/filename,optimize=True)
+            bare_folder=args.frames_dir/(facing+'_'+action+'_without_cloak')
+            if bare_folder.exists():
+                bare_sheet=Image.new('RGBA',(columns*512,rows*512))
+                for frame in range(meta['frames']):
+                    image=Image.open(bare_folder/f'{frame:03d}.png').convert('RGBA')
+                    if image.size != (512,512): raise ValueError('Unexpected uncloaked frame size')
+                    bare_sheet.paste(image,((frame%columns)*512,(frame//columns)*512))
+                bare_name=f'{facing}_{action}_without_cloak.png';bare_sheet.save(output/bare_name,optimize=True)
+                manifest['uncloaked_animations'].setdefault(action,{})[facing]={'sheet':bare_name,'frames':meta['frames'],'cols':columns,'rows':rows,'fps':meta['fps'],'loop':meta['loop']}
             clips[(facing,action)]=frames
             manifest['animations'].setdefault(action,{})[facing]={'sheet':filename,'frames':len(frames),'cols':columns,'rows':rows,'fps':meta['fps'],'loop':meta['loop']}
         shutil.copyfile(args.frames_dir/(facing+'_rest.png'),output/(facing+'_rest.png'))
@@ -106,7 +61,7 @@ def main():
     (output/'render_validation.json').write_text(json.dumps(source,indent=2)+'\n')
     facings=list(source['facings'])
     source_fps={action:int(meta["fps"]) for action,meta in source["facings"]["front"].items()}
-    walk_frames,n=write_previews(clips,output,pass_number=5,source_fps=source_fps)
+    walk_frames,n=write_previews(clips,output,pass_number=6,source_fps=source_fps)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
         gif_size=(960,round(walk_frames[0].height*960/walk_frames[0].width))
@@ -135,7 +90,6 @@ def main():
             contact.paste(im,(col*cell[0]+12,row*cell[1]+48),im)
             label(d,(col*cell[0]+12,row*cell[1]+16),f'{facing.title()} / frame {frame+1}',18)
     contact.save(output/'walking_poses.png')
-    iteration_comparison(output, clips, source_fps)
     print(json.dumps({'frames':count,'facings':facings,'sheets':len(clips),'video_frames':n,'rest':source['rest_reconstruction']},indent=2))
 
 if __name__=='__main__':main()
