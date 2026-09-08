@@ -33,7 +33,9 @@ func _initialize() -> void:
 		await _capture_config(packed, {"size": Vector2i(1920, 1080), "scale": 1.0})
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	var layout_file := FileAccess.open("%s/final_popup_geometry.json" % OUTPUT_DIR, FileAccess.WRITE)
-	if layout_file != null: layout_file.store_string(JSON.stringify(_layout_records, "\t"))
+	_expect(layout_file != null, "Final popup geometry must be saved beside the renderer captures")
+	if layout_file != null:
+		layout_file.store_string(JSON.stringify(_layout_records, "\t"))
 	if _failures.is_empty():
 		print("FLOATING DAMAGE PROBE: PASS")
 		quit(0)
@@ -490,10 +492,9 @@ func _capture_animated_popup_state(
 				)
 		var effects: Control = board.get("_effects_render_layer") as Control
 		var layouts: Array = effects.get("_floating_text_last_layout") as Array
+		_expect(layouts.size() == animated_entries.size(), "%s must draw every active popup in the final renderer layout" % path)
 		for popup: Dictionary in layouts:
-			var tile: Vector2i = popup["tile"]
 			var offset: Vector2 = popup["layout_offset"]
-			var target: Rect2 = effects.call("_floating_text_target_rect", tile)
 			var drawn: Rect2 = popup["rendered_rect"]
 			drawn.position += offset
 			var key: String = str(popup["key"])
@@ -502,14 +503,82 @@ func _capture_animated_popup_state(
 			_layout_offsets[key] = offset
 			if layouts.size() == 1 and FloatingCombatText.is_damage_entry(popup["entry"]):
 				_expect(absf(offset.y) <= FloatingCombatText.SCREEN_POPUP_SOLO_VERTICAL_SHIFT, "%s must not shift a solo hit down onto another actor" % path)
-				if is_zero_approx(elapsed_seconds):
-					var target_distance: float = drawn.get_center().distance_squared_to(target.get_center())
-					for unit: Dictionary in effects.call("_visible_units"):
-						if (effects.call("_unit_footprint_tiles", unit) as Array).has(tile): continue
-						var other: Rect2 = effects.call("_unit_draw_rect", unit)
-						_expect(target_distance < drawn.get_center().distance_squared_to(other.get_center()), "%s final glyphs must be nearer the receiving actor than its neighbors" % path)
-			_layout_records.append({"capture": path.get_file(), "tile": str(tile), "key": key, "target_rect": str(target), "layout_offset": str(offset), "final_glyph_rect": str(drawn)})
+			_record_final_popup_geometry(effects, popup, drawn, elapsed_seconds, path)
 	await _save_screenshot(viewport, path, expected_size)
+
+
+func _record_final_popup_geometry(effects: Control, popup: Dictionary, drawn: Rect2, elapsed_seconds: float, path: String) -> void:
+	var tile: Vector2i = popup["tile"]
+	var entry: Dictionary = popup["entry"]
+	var key: String = str(popup["key"])
+	var visible_units: Array = effects.call("_visible_units") as Array
+	var receiver: Dictionary = {}
+	for unit: Dictionary in visible_units:
+		if (effects.call("_unit_footprint_tiles", unit) as Array).has(tile):
+			receiver = unit
+			break
+	var target: Rect2 = effects.call("_floating_text_target_rect", tile) as Rect2
+	var target_kind: String = "tile"
+	var target_key: String = ""
+	if not receiver.is_empty():
+		target_kind = "actor"
+		target_key = str(receiver.get("key", ""))
+		# Use the actual visible footprint's draw rect, independently of the
+		# allocator's anchor, for every actor-targeted damage sample and stack.
+		target = effects.call("_unit_draw_rect", receiver) as Rect2
+	else:
+		for terrain: Dictionary in (effects.get("combat_state") as Dictionary).get("terrain", []):
+			if terrain.get("pos", Vector2i(-1, -1)) == tile:
+				target_kind = "terrain"
+				target_key = str(terrain.get("id", ""))
+				break
+	var context: String = "%s at %.3fs popup %s (%s on %s)" % [path.get_file(), elapsed_seconds, key, str(entry.get("text", "")), str(tile)]
+	var is_damage: bool = FloatingCombatText.is_damage_entry(entry)
+	if is_damage:
+		_expect(target_kind != "tile", "%s damage must resolve to a visible actor or the terrain fixture" % context)
+	var check_association: bool = is_damage and target_kind == "actor"
+	var target_distance: float = drawn.get_center().distance_squared_to(target.get_center())
+	var neighbors: Array[Dictionary]
+	for unit: Dictionary in visible_units:
+		if unit == receiver:
+			continue
+		var neighbor_rect: Rect2 = effects.call("_unit_draw_rect", unit) as Rect2
+		var neighbor_distance: float = drawn.get_center().distance_squared_to(neighbor_rect.get_center())
+		if check_association:
+			_expect(target_distance < neighbor_distance, "%s final glyph center must be nearer %s than %s (%.3f versus %.3f pixels)" % [context, target_key, str(unit.get("key", "")), sqrt(target_distance), sqrt(neighbor_distance)])
+		neighbors.append({
+			"actor_key": str(unit.get("key", "")),
+			"rect": _rect_record(neighbor_rect),
+			"center": _point_record(neighbor_rect.get_center()),
+			"glyph_center_distance": sqrt(neighbor_distance),
+		})
+	_layout_records.append({
+		"capture": path.get_file(),
+		"elapsed_seconds": elapsed_seconds,
+		"animation_progress": float(entry.get("animation_progress", 0.0)),
+		"popup_elapsed_seconds": float(entry.get("animation_progress", 0.0)) * FloatingCombatText.ANIMATION_DURATION_SECONDS,
+		"reduced_motion": bool(entry.get("animation_reduced_motion", false)),
+		"tile": _point_record(Vector2(tile)),
+		"text": str(entry.get("text", "")),
+		"key": key,
+		"target_kind": target_kind,
+		"target_key": target_key,
+		"target_rect": _rect_record(target),
+		"target_center": _point_record(target.get_center()),
+		"target_glyph_center_distance": sqrt(target_distance),
+		"actor_association_checked": check_association,
+		"neighbors": neighbors,
+		"layout_offset": _point_record(popup["layout_offset"] as Vector2),
+		"final_glyph_rect": _rect_record(drawn),
+	})
+
+
+func _point_record(point: Vector2) -> Dictionary:
+	return {"x": point.x, "y": point.y}
+
+
+func _rect_record(rect: Rect2) -> Dictionary:
+	return {"position": _point_record(rect.position), "size": _point_record(rect.size), "center": _point_record(rect.get_center())}
 
 
 func _assert_arc_continuity() -> void:

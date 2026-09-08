@@ -8,6 +8,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const OUTPUT_DIR: String = "user://floating_text_collision_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 var _errors: Array[String] = []
+var _layout_records: Array[Dictionary]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -48,6 +49,7 @@ func _initialize() -> void:
 		await _settle()
 		var previous_offsets: Dictionary = {}
 		for elapsed: float in [0.0, 0.08, 0.16, 0.30, 0.42]:
+			var capture_path: String = "%s/%s_%03d.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", roundi(elapsed * 1000)]
 			var entries: Array[Dictionary] = FloatingCombatText.animate_entries(base_entries, elapsed, reduced)
 			instance.call("_render_board_state", state, {"floating_texts": entries, "reduced_motion": reduced})
 			await _settle()
@@ -59,6 +61,7 @@ func _initialize() -> void:
 				var envelope: Rect2 = popup["rendered_rect"]
 				var offset: Vector2 = popup["layout_offset"]
 				var rect := Rect2(envelope.position + offset, envelope.size)
+				_record_target_proximity(layer, popup, rect, reduced, elapsed, capture_path)
 				for health_var: Variant in (layer.get("_hud_health_rects_cache") as Dictionary).values():
 					_expect(not rect.intersects(health_var as Rect2), "Health bars must not paint over floating results")
 				var key: String = str(popup["key"])
@@ -75,8 +78,12 @@ func _initialize() -> void:
 			await RenderingServer.frame_post_draw
 			var screenshot: Image = viewport.get_texture().get_image()
 			_expect(screenshot.get_size() == VIEWPORT_SIZE, "Proof must render at 1920x1080")
-			_expect(screenshot.save_png("%s/%s_%03d.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", roundi(elapsed * 1000)]) == OK, "Screenshot must save")
+			_expect(screenshot.save_png(capture_path) == OK, "Screenshot must save")
 	await _probe_timeline_handoff(instance, board, viewport, settings)
+	var layout_file := FileAccess.open("%s/final_popup_geometry.json" % OUTPUT_DIR, FileAccess.WRITE)
+	_expect(layout_file != null, "Final popup geometry must be saved beside the renderer captures")
+	if layout_file != null:
+		layout_file.store_string(JSON.stringify(_layout_records, "\t"))
 	for error: String in _errors:
 		push_error(error)
 	print("FLOATING TEXT COLLISION PROBE: %s" % ("PASS" if _errors.is_empty() else "FAIL"))
@@ -166,7 +173,7 @@ func _probe_timeline_handoff(instance: Node, board: Control, viewport: SubViewpo
 		var direct: Array[Dictionary] = FloatingCombatText.animate_entries(source, 0.18, reduced)
 		instance.call("_render_board_state", state, {"floating_texts": direct, "reduced_motion": reduced})
 		var previous: Dictionary = {}
-		await _capture_handoff_frame(board, viewport, reduced, "1_direct", previous, 1)
+		await _capture_handoff_frame(board, viewport, reduced, "1_direct", previous, 1, 0.18)
 		instance.call("_begin_player_popup_timeline")
 		instance.set("_player_popup_timeline_started_usec", Time.get_ticks_usec() - 1000000)
 		instance.call("_queue_player_popup_group", source.duplicate(true), 0.18)
@@ -174,26 +181,27 @@ func _probe_timeline_handoff(instance: Node, board: Control, viewport: SubViewpo
 		var start: float = float(groups[0]["start_seconds"])
 		_set_timeline_time(instance, start + 0.18)
 		instance.call("_render_board_state", state, {"reduced_motion": reduced})
-		await _capture_handoff_frame(board, viewport, reduced, "2_queued", previous, 1, true)
+		await _capture_handoff_frame(board, viewport, reduced, "2_queued", previous, 1, start + 0.18, true)
 		var repeated: Array[Dictionary] = [FloatingCombatText.damage_entry(Vector2i(5, 3), "-5", Color("f39779"))]
 		_set_timeline_time(instance, start + 0.21)
 		instance.call("_render_board_state", state, {"floating_texts": FloatingCombatText.animate_entries(repeated, 0.0, reduced), "reduced_motion": reduced})
-		await _capture_handoff_frame(board, viewport, reduced, "3_repeated_direct", previous, 2)
+		await _capture_handoff_frame(board, viewport, reduced, "3_repeated_direct", previous, 2, start + 0.21)
 		_set_timeline_time(instance, start + 0.21)
 		instance.call("_queue_player_popup_group", repeated.duplicate(true), 0.0)
 		_set_timeline_time(instance, float(groups[1]["start_seconds"]))
 		instance.call("_render_board_state", state, {"reduced_motion": reduced})
-		await _capture_handoff_frame(board, viewport, reduced, "4_repeated_queued", previous, 2, true)
+		await _capture_handoff_frame(board, viewport, reduced, "4_repeated_queued", previous, 2, float(groups[1]["start_seconds"]), true)
 		_set_timeline_time(instance, start + 0.29)
 		instance.call("_render_board_state", state, {"reduced_motion": reduced})
-		await _capture_handoff_frame(board, viewport, reduced, "5_overlapping_tail", previous, 2)
+		await _capture_handoff_frame(board, viewport, reduced, "5_overlapping_tail", previous, 2, start + 0.29)
 	instance.set("_player_popup_timeline_active", false)
 
 func _set_timeline_time(instance: Node, elapsed: float) -> void:
 	instance.set("_player_popup_timeline_started_usec", Time.get_ticks_usec() - roundi(elapsed * 1000000.0))
 
-func _capture_handoff_frame(board: Control, viewport: SubViewport, reduced: bool, stage: String, previous: Dictionary, count: int, same_elapsed: bool = false) -> void:
+func _capture_handoff_frame(board: Control, viewport: SubViewport, reduced: bool, stage: String, previous: Dictionary, count: int, elapsed_seconds: float, same_elapsed: bool = false) -> void:
 	await _settle()
+	var capture_path: String = "%s/handoff_%s_%s.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", stage]
 	var layer: Control = board.get("_effects_render_layer") as Control
 	var layouts: Array = layer.get("_floating_text_last_layout") as Array
 	_expect(layouts.size() == count, "Both identical hits must remain independently visible across the production queue")
@@ -215,6 +223,7 @@ func _capture_handoff_frame(board: Control, viewport: SubViewport, reduced: bool
 		previous[key] = {"offset": offset, "origin": origin}
 		var rendered: Rect2 = popup["rendered_rect"]
 		var rect := Rect2(rendered.position + offset, rendered.size)
+		_record_target_proximity(layer, popup, rect, reduced, elapsed_seconds, capture_path)
 		for other: Rect2 in rects:
 			_expect(not rect.intersects(other), "Overlapping identical hits must occupy separate visible lanes at %s %s" % [str(reduced), stage])
 		for health_var: Variant in (layer.get("_hud_health_rects_cache") as Dictionary).values():
@@ -223,4 +232,63 @@ func _capture_handoff_frame(board: Control, viewport: SubViewport, reduced: bool
 	await RenderingServer.frame_post_draw
 	var screenshot: Image = viewport.get_texture().get_image()
 	_expect(screenshot.get_size() == VIEWPORT_SIZE, "Handoff proof must render at 1920x1080")
-	_expect(screenshot.save_png("%s/handoff_%s_%s.png" % [OUTPUT_DIR, "reduced" if reduced else "normal", stage]) == OK, "Handoff screenshot must save")
+	_expect(screenshot.save_png(capture_path) == OK, "Handoff screenshot must save")
+
+
+func _record_target_proximity(layer: Control, popup: Dictionary, drawn: Rect2, reduced: bool, elapsed_seconds: float, capture_path: String) -> void:
+	var tile: Vector2i = popup["tile"]
+	var entry: Dictionary = popup["entry"]
+	var key: String = str(popup["key"])
+	var visible_units: Array = layer.call("_visible_units") as Array
+	var receiver: Dictionary = {}
+	for unit: Dictionary in visible_units:
+		if (layer.call("_unit_footprint_tiles", unit) as Array).has(tile):
+			receiver = unit
+			break
+	var context: String = "%s at %.3fs popup %s (%s on %s)" % [capture_path.get_file(), elapsed_seconds, key, str(entry.get("text", "")), str(tile)]
+	_expect(not receiver.is_empty(), "%s must resolve to a visible receiving actor" % context)
+	# Resolve the receiver independently of the allocator's anchor and compare
+	# final rendered glyphs, after font settling, motion, and cached lane offset.
+	var target := Rect2()
+	if not receiver.is_empty():
+		target = layer.call("_unit_draw_rect", receiver) as Rect2
+	var target_distance: float = drawn.get_center().distance_squared_to(target.get_center())
+	var neighbors: Array[Dictionary]
+	for unit: Dictionary in visible_units:
+		if unit == receiver:
+			continue
+		var neighbor_rect: Rect2 = layer.call("_unit_draw_rect", unit) as Rect2
+		var neighbor_distance: float = drawn.get_center().distance_squared_to(neighbor_rect.get_center())
+		if not receiver.is_empty():
+			_expect(target_distance < neighbor_distance, "%s final glyph center must be nearer %s than %s (%.3f versus %.3f pixels)" % [context, str(receiver.get("key", "")), str(unit.get("key", "")), sqrt(target_distance), sqrt(neighbor_distance)])
+		neighbors.append({
+			"actor_key": str(unit.get("key", "")),
+			"rect": _rect_record(neighbor_rect),
+			"center": _point_record(neighbor_rect.get_center()),
+			"glyph_center_distance": sqrt(neighbor_distance),
+		})
+	_layout_records.append({
+		"capture": capture_path.get_file(),
+		"elapsed_seconds": elapsed_seconds,
+		"animation_progress": float(entry.get("animation_progress", 0.0)),
+		"popup_elapsed_seconds": float(entry.get("animation_progress", 0.0)) * FloatingCombatText.ANIMATION_DURATION_SECONDS,
+		"reduced_motion": reduced,
+		"tile": _point_record(Vector2(tile)),
+		"text": str(entry.get("text", "")),
+		"key": key,
+		"target_actor_key": str(receiver.get("key", "")),
+		"target_rect": _rect_record(target),
+		"target_center": _point_record(target.get_center()),
+		"target_glyph_center_distance": sqrt(target_distance),
+		"neighbors": neighbors,
+		"layout_offset": _point_record(popup["layout_offset"] as Vector2),
+		"final_glyph_rect": _rect_record(drawn),
+	})
+
+
+func _point_record(point: Vector2) -> Dictionary:
+	return {"x": point.x, "y": point.y}
+
+
+func _rect_record(rect: Rect2) -> Dictionary:
+	return {"position": _point_record(rect.position), "size": _point_record(rect.size), "center": _point_record(rect.get_center())}

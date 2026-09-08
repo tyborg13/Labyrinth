@@ -29,7 +29,8 @@ const REDUCED_STACK_STEP_Y: float = 36.0
 const SCREEN_POPUP_GAP: float = 8.0
 const SCREEN_POPUP_MAX_SIDE_SHIFT: float = DAMAGE_WIDTH
 const SCREEN_POPUP_SOLO_VERTICAL_SHIFT: float = 48.0
-const SCREEN_POPUP_STACK_VERTICAL_SHIFT: float = 96.0
+const SCREEN_POPUP_STACK_VERTICAL_SHIFT: float = 112.0
+const SCREEN_POPUP_ACTOR_MARGIN: float = 12.0
 
 const EFFECT_BASE_FONT_SIZE: int = 24
 const EFFECT_PEAK_FONT_SIZE: int = 48
@@ -357,14 +358,14 @@ static func place_screen_popups(popups: Array[Dictionary], bounds: Rect2, cache:
 			if other.get("tile", null) == popup.get("tile", null):
 				same_target_count += 1
 		var vertical_limit: float = SCREEN_POPUP_STACK_VERTICAL_SHIFT if same_target_count > 1 else SCREEN_POPUP_SOLO_VERTICAL_SHIFT
-		var offset: Vector2 = _nearest_clear_popup_offset(envelope, occupied, bounds, vertical_limit)
+		var offset: Vector2 = _nearest_clear_popup_offset(envelope, occupied, bounds, vertical_limit, popup.get("actor_association", {}))
 		popup["layout_offset"] = offset
 		cache[key] = {"offset": offset, "scale": float(popup.get("layout_scale", 1.0))}
 		occupied.append(_offset_rect(envelope, offset).grow(SCREEN_POPUP_GAP * 0.5))
 	return popups
 
 
-static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2, vertical_limit: float = SCREEN_POPUP_SOLO_VERTICAL_SHIFT) -> Vector2:
+static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2], bounds: Rect2, vertical_limit: float = SCREEN_POPUP_SOLO_VERTICAL_SHIFT, association: Dictionary = {}) -> Vector2:
 	var candidates_y: Array[float] = [0.0]
 	var candidates_x: Array[float]
 	candidates_x.append_array([0.0, -SCREEN_POPUP_MAX_SIDE_SHIFT, SCREEN_POPUP_MAX_SIDE_SHIFT])
@@ -373,6 +374,29 @@ static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2],
 		candidates_y.append(rect.end.y + SCREEN_POPUP_GAP * 0.5 - envelope.position.y)
 		candidates_x.append(rect.position.x - SCREEN_POPUP_GAP * 0.5 - envelope.end.x)
 		candidates_x.append(rect.end.x + SCREEN_POPUP_GAP * 0.5 - envelope.position.x)
+	# Each half-plane keeps the whole glyph-center trajectory nearer its actor
+	# than another visible actor. A short displacement can still cross onto a
+	# neighbor in a clustered volley, even when every glyph avoids other labels.
+	var planes: Array[Vector3]
+	if not association.is_empty():
+		var target: Vector2 = association["target"]
+		var centers: Rect2 = association["centers"]
+		for neighbor: Vector2 in association["neighbors"]:
+			if neighbor.is_equal_approx(target):
+				continue
+			var normal: Vector2 = target.direction_to(neighbor)
+			var farthest := Vector2(centers.end.x if normal.x >= 0.0 else centers.position.x, centers.end.y if normal.y >= 0.0 else centers.position.y)
+			var margin: float = minf(SCREEN_POPUP_ACTOR_MARGIN, target.distance_to(neighbor) * 0.125)
+			var clearance: float = normal.dot((target + neighbor) * 0.5 - farthest) - margin
+			planes.append(Vector3(normal.x, normal.y, clearance))
+	var min_x: float = maxf(-SCREEN_POPUP_MAX_SIDE_SHIFT, bounds.position.x - envelope.position.x)
+	var max_x: float = minf(SCREEN_POPUP_MAX_SIDE_SHIFT, bounds.end.x - envelope.end.x)
+	var lowest_y: float = maxf(-vertical_limit, bounds.position.y - envelope.position.y)
+	var highest_y: float = minf(vertical_limit, bounds.end.y - envelope.end.y)
+	# Clipping finds intersections between actor constraints too. Sampling only
+	# obstacle edges and individual planes can miss a narrow, feasible region.
+	for vertex: Vector2 in _popup_actor_region(planes, Rect2(Vector2(min_x, lowest_y), Vector2(max_x - min_x, highest_y - lowest_y))):
+		candidates_x.append(vertex.x)
 	# Neighboring bars often share edges, and distant obstacles all clamp to
 	# the same limits. Evaluate each resulting lane only once in large bursts.
 	var unique_x: Dictionary = {}
@@ -384,7 +408,25 @@ static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2],
 	var best_offset := Vector2.ZERO
 	var best_cost: float = INF
 	for dx: float in unique_x:
+		var min_y: float = lowest_y
+		var max_y: float = highest_y
+		var admissible: bool = true
+		for plane: Vector3 in planes:
+			if is_zero_approx(plane.y):
+				if dx * plane.x > plane.z + 0.001:
+					admissible = false
+					break
+			elif plane.y > 0.0:
+				max_y = minf(max_y, (plane.z - dx * plane.x) / plane.y)
+			else:
+				min_y = maxf(min_y, (plane.z - dx * plane.x) / plane.y)
+		if not admissible or min_y > max_y + 0.001:
+			continue
+		max_y = maxf(min_y, max_y)
+		var admissible_y: Dictionary = {}
 		for dy: float in unique_y:
+			admissible_y[clampf(dy, min_y, max_y)] = true
+		for dy: float in admissible_y:
 			# A wall of neighboring health bars must never move a hit onto the
 			# actor below it. Search exact side-clearance lanes within one label
 			# width, and keep vertical displacement local even in a crowded burst.
@@ -397,7 +439,34 @@ static func _nearest_clear_popup_offset(envelope: Rect2, occupied: Array[Rect2],
 			if cost < best_cost:
 				best_cost = cost
 				best_offset = offset
+	if is_inf(best_cost) and not association.is_empty():
+		# Keep feedback visible if the canvas cannot contain an actor's reserved
+		# trajectory. Normal crowded layouts have a feasible local half-plane.
+		return _nearest_clear_popup_offset(envelope, occupied, bounds, vertical_limit)
 	return best_offset
+
+
+static func _popup_actor_region(planes: Array[Vector3], bounds: Rect2) -> Array[Vector2]:
+	var polygon: Array[Vector2]
+	if bounds.size.x < 0.0 or bounds.size.y < 0.0:
+		return polygon
+	polygon.append_array([bounds.position, Vector2(bounds.end.x, bounds.position.y), bounds.end, Vector2(bounds.position.x, bounds.end.y)])
+	for plane: Vector3 in planes:
+		if polygon.is_empty():
+			break
+		var clipped: Array[Vector2]
+		var previous: Vector2 = polygon.back()
+		var previous_distance: float = plane.x * previous.x + plane.y * previous.y - plane.z
+		for current: Vector2 in polygon:
+			var current_distance: float = plane.x * current.x + plane.y * current.y - plane.z
+			if (previous_distance <= 0.0) != (current_distance <= 0.0):
+				clipped.append(previous.lerp(current, previous_distance / (previous_distance - current_distance)))
+			if current_distance <= 0.0:
+				clipped.append(current)
+			previous = current
+			previous_distance = current_distance
+		polygon = clipped
+	return polygon
 
 
 static func _offset_rect(rect: Rect2, offset: Vector2) -> Rect2:

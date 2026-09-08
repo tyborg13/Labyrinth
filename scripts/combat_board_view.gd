@@ -10124,6 +10124,15 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		var font_size: int = int(entry.get("font_size", 16))
 		var natural_rect := Rect2(anchor - Vector2(0.0, font.get_ascent(font_size)), Vector2(label_width, font.get_height(font_size)))
 		popups.append({"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width, "automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect})
+	var actor_centers: Array[Vector2]
+	var actor_center_by_tile: Dictionary = {}
+	if not popups.is_empty():
+		for unit: Dictionary in _visible_units():
+			var center: Vector2 = _unit_draw_rect(unit).get_center()
+			actor_centers.append(center)
+			for tile: Vector2i in _unit_footprint_tiles(unit):
+				if not actor_center_by_tile.has(tile):
+					actor_center_by_tile[tile] = center
 	for popup: Dictionary in popups:
 		var entry: Dictionary = popup["entry"]
 		var font: Font = popup["font"] as Font
@@ -10179,6 +10188,18 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		popup["font_scale"] = font_scale
 		popup["layout_scale"] = layout_scale
 		popup["envelope"] = envelope
+		if bool(popup["automatic_anchor"]) and FloatingCombatText.is_damage_entry(entry) and actor_center_by_tile.has(tile):
+			var centers := Rect2(rendered_rect.get_center(), Vector2.ZERO)
+			if not bool(popup["reduced_motion"]):
+				# Bound centers across font settling and the full authored arc, so
+				# a cached lane stays associated after impact as well as at impact.
+				var glyph_center := Vector2(glyph_inset + glyph_width * 0.5 + absf(shadow.x) * 0.5, (descent - ascent + absf(shadow.y)) * 0.5)
+				var small_scale: float = 0.1 * layout_scale
+				var peak_center: Vector2 = anchor + extra_offset + glyph_center * layout_scale
+				var small_center: Vector2 = _floating_text_local_origin(tile, label_width * small_scale) + extra_offset + glyph_center * small_scale
+				centers = Rect2(peak_center, Vector2.ZERO).expand(small_center)
+				centers = centers.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, FloatingCombatText.ARC_LATERAL_DRIFT * motion_scale, FloatingCombatText.ARC_END_DROP * motion_scale)
+			popup["actor_association"] = {"target": actor_center_by_tile[tile], "centers": centers, "neighbors": actor_centers}
 	var obstacles: Array[Rect2] = []
 	for rect_var: Variant in _hud_health_rects_cache.values():
 		if typeof(rect_var) != TYPE_RECT2:
