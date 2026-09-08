@@ -2,120 +2,132 @@
   {
     "file": "gameplay_full_speed.mp4",
     "source_clock": "samples[].seconds from actual gameplay; no speed changes",
-    "duration": 30.547535333333332,
+    "duration": 33.72798,
     "clips": [
       {
         "clip": "01_idle",
         "start": 0.0,
-        "duration": 3.411157333333333,
-        "frames": 90
+        "duration": 3.399742333333333,
+        "frames": 88
       },
       {
         "clip": "02_walk_southwest",
-        "start": 3.411157333333333,
-        "duration": 0.9263793333333333,
+        "start": 3.399742333333333,
+        "duration": 0.9184213333333332,
         "frames": 24
       },
       {
         "clip": "03_melee_southwest",
-        "start": 4.337536666666667,
-        "duration": 1.6234733333333335,
-        "frames": 42
+        "start": 4.318163666666666,
+        "duration": 1.6281233333333334,
+        "frames": 43
       },
       {
         "clip": "04_walk_southeast",
-        "start": 5.96101,
-        "duration": 0.9196823333333333,
+        "start": 5.946287,
+        "duration": 0.9114393333333334,
         "frames": 24
       },
       {
         "clip": "05_melee_southeast",
-        "start": 6.880692333333333,
-        "duration": 1.5798273333333333,
+        "start": 6.857726333333333,
+        "duration": 1.5888793333333335,
         "frames": 41
       },
       {
         "clip": "06_walk_northeast",
-        "start": 8.460519666666666,
-        "duration": 0.9336663333333333,
-        "frames": 24
-      },
-      {
-        "clip": "07_melee_northeast",
-        "start": 9.394186,
-        "duration": 1.5973963333333334,
-        "frames": 42
-      },
-      {
-        "clip": "08_walk_northwest",
-        "start": 10.991582333333334,
-        "duration": 0.9368403333333333,
+        "start": 8.446605666666667,
+        "duration": 0.9255963333333334,
         "frames": 25
       },
       {
+        "clip": "07_melee_northeast",
+        "start": 9.372202,
+        "duration": 1.5885483333333335,
+        "frames": 41
+      },
+      {
+        "clip": "08_walk_northwest",
+        "start": 10.960750333333333,
+        "duration": 0.9179803333333333,
+        "frames": 24
+      },
+      {
         "clip": "09_melee_northwest",
-        "start": 11.928422666666666,
-        "duration": 1.5976143333333335,
-        "frames": 42
+        "start": 11.878730666666666,
+        "duration": 1.6224333333333334,
+        "frames": 43
       },
       {
-        "clip": "10_defensive_action",
-        "start": 13.526036999999999,
-        "duration": 1.3805573333333334,
-        "frames": 36
-      },
-      {
-        "clip": "11_ranged_action",
-        "start": 14.906594333333333,
-        "duration": 1.5206353333333333,
+        "clip": "09b_melee_whirlwind",
+        "start": 13.501164,
+        "duration": 1.4866393333333334,
         "frames": 39
       },
       {
+        "clip": "10_defensive_action",
+        "start": 14.987803333333332,
+        "duration": 1.3810443333333335,
+        "frames": 37
+      },
+      {
+        "clip": "11_ranged_action",
+        "start": 16.368847666666667,
+        "duration": 1.5462033333333334,
+        "frames": 40
+      },
+      {
+        "clip": "11a_targeted_aoe",
+        "start": 17.915051000000002,
+        "duration": 1.5113223333333334,
+        "frames": 40
+      },
+      {
         "clip": "11b_blink",
-        "start": 16.427229666666666,
-        "duration": 1.7859583333333335,
-        "frames": 48
+        "start": 19.426373333333334,
+        "duration": 1.7872493333333335,
+        "frames": 47
       },
       {
         "clip": "11c_guarded_step",
-        "start": 18.213188,
-        "duration": 2.311846333333333,
+        "start": 21.213622666666666,
+        "duration": 2.328521333333333,
         "frames": 61
       },
       {
         "clip": "11d_take_damage_0",
-        "start": 20.52503433333333,
-        "duration": 1.2749163333333335,
-        "frames": 34
+        "start": 23.542144,
+        "duration": 1.2647733333333335,
+        "frames": 33
       },
       {
         "clip": "11d_take_damage_1",
-        "start": 21.799950666666664,
-        "duration": 2.8018663333333333,
-        "frames": 74
+        "start": 24.806917333333335,
+        "duration": 3.0028003333333335,
+        "frames": 78
       },
       {
         "clip": "15_reduced_melee",
-        "start": 24.601816999999997,
-        "duration": 0.9376673333333334,
+        "start": 27.809717666666668,
+        "duration": 0.9379533333333334,
         "frames": 25
       },
       {
         "clip": "17_terminal_defeat_0",
-        "start": 25.53948433333333,
-        "duration": 1.2582853333333333,
+        "start": 28.747671,
+        "duration": 1.2498893333333334,
         "frames": 33
       },
       {
         "clip": "17_terminal_defeat_1",
-        "start": 26.797769666666664,
-        "duration": 3.116455333333333,
+        "start": 29.997560333333332,
+        "duration": 3.116934333333333,
         "frames": 82
       },
       {
         "clip": "18_room_idle",
-        "start": 29.914225,
-        "duration": 0.6333103333333333,
+        "start": 33.114494666666666,
+        "duration": 0.6134853333333333,
         "frames": 16
       }
     ]
@@ -123,61 +135,67 @@
   {
     "file": "movement_melee_idle_full_speed.mp4",
     "source_clock": "samples[].seconds from actual gameplay; no speed changes",
-    "duration": 13.526036999999999,
+    "duration": 14.987803333333332,
     "clips": [
       {
         "clip": "01_idle",
         "start": 0.0,
-        "duration": 3.411157333333333,
-        "frames": 90
+        "duration": 3.399742333333333,
+        "frames": 88
       },
       {
         "clip": "02_walk_southwest",
-        "start": 3.411157333333333,
-        "duration": 0.9263793333333333,
+        "start": 3.399742333333333,
+        "duration": 0.9184213333333332,
         "frames": 24
       },
       {
         "clip": "03_melee_southwest",
-        "start": 4.337536666666667,
-        "duration": 1.6234733333333335,
-        "frames": 42
+        "start": 4.318163666666666,
+        "duration": 1.6281233333333334,
+        "frames": 43
       },
       {
         "clip": "04_walk_southeast",
-        "start": 5.96101,
-        "duration": 0.9196823333333333,
+        "start": 5.946287,
+        "duration": 0.9114393333333334,
         "frames": 24
       },
       {
         "clip": "05_melee_southeast",
-        "start": 6.880692333333333,
-        "duration": 1.5798273333333333,
+        "start": 6.857726333333333,
+        "duration": 1.5888793333333335,
         "frames": 41
       },
       {
         "clip": "06_walk_northeast",
-        "start": 8.460519666666666,
-        "duration": 0.9336663333333333,
-        "frames": 24
-      },
-      {
-        "clip": "07_melee_northeast",
-        "start": 9.394186,
-        "duration": 1.5973963333333334,
-        "frames": 42
-      },
-      {
-        "clip": "08_walk_northwest",
-        "start": 10.991582333333334,
-        "duration": 0.9368403333333333,
+        "start": 8.446605666666667,
+        "duration": 0.9255963333333334,
         "frames": 25
       },
       {
+        "clip": "07_melee_northeast",
+        "start": 9.372202,
+        "duration": 1.5885483333333335,
+        "frames": 41
+      },
+      {
+        "clip": "08_walk_northwest",
+        "start": 10.960750333333333,
+        "duration": 0.9179803333333333,
+        "frames": 24
+      },
+      {
         "clip": "09_melee_northwest",
-        "start": 11.928422666666666,
-        "duration": 1.5976143333333335,
-        "frames": 42
+        "start": 11.878730666666666,
+        "duration": 1.6224333333333334,
+        "frames": 43
+      },
+      {
+        "clip": "09b_melee_whirlwind",
+        "start": 13.501164,
+        "duration": 1.4866393333333334,
+        "frames": 39
       }
     ]
   }

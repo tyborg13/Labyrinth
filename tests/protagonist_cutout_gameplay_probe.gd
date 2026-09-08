@@ -72,6 +72,16 @@ func _initialize() -> void:
 		var enemy: Dictionary = (_instance.get("_combat_state") as Dictionary)["enemies"][0]
 		_assert(int(enemy["hp"]) == 31, "Quick Stab applies its exact 9 damage once")
 		_assert_facing(index)
+	await _fixture(Vector2i(3, 3), Vector2i(3, 4), false, ["whirlwind_slash", "brace", "quick_stab", "bone_dart", "patch_up"], 24, [Vector2i(4, 3), Vector2i(3, 2), Vector2i(2, 3)])
+	var sweep_facing: Dictionary = _snapshot()
+	await _instance.call("_on_card_pressed", 0)
+	_instance.call("_on_confirm_card_play_pressed")
+	await _record("09b_melee_whirlwind", 0.1)
+	var sweep_enemies: Array = (_instance.get("_combat_state") as Dictionary)["enemies"]
+	_assert(sweep_enemies.size() == 4, "Whirlwind keeps all four nonlethal adjacent targets")
+	for enemy: Dictionary in sweep_enemies:
+		_assert(int(enemy["hp"]) == 32, "Whirlwind applies its exact 8 damage once to every adjacent enemy")
+	_assert(_snapshot()["facing"] == sweep_facing["facing"] and _snapshot()["mirrored"] == sweep_facing["mirrored"], "Self-centered melee retains its previous facing")
 	# Defensive card and ordinary UI refresh exercise the action-focus idle path.
 	await _fixture(Vector2i(3, 3), Vector2i(5, 4))
 	await _instance.call("_on_card_pressed", 1)
@@ -83,6 +93,11 @@ func _initialize() -> void:
 	_instance.call("_on_board_tile_clicked", Vector2i(5, 3))
 	await _record("11_ranged_action", 0.1)
 	_assert(int((_instance.get("_combat_state") as Dictionary)["enemies"][0]["hp"]) < 40, "Ranged damage resolves while using cutout idle")
+	await _fixture(Vector2i(3, 3), Vector2i(5, 3), false, ["cinderburst", "brace", "quick_stab", "bone_dart", "patch_up"])
+	await _instance.call("_on_card_pressed", 0)
+	_instance.call("_on_board_tile_clicked", Vector2i(5, 3))
+	await _record("11a_targeted_aoe", 0.1)
+	_assert(int((_instance.get("_combat_state") as Dictionary)["enemies"][0]["hp"]) == 33, "Targeted AoE retains idle while applying its exact ranged-area damage")
 	await _fixture(Vector2i(3, 3), Vector2i(6, 6), false, ["shadow_step", "brace", "quick_stab", "bone_dart", "patch_up"])
 	await _instance.call("_on_card_pressed", 0)
 	_instance.call("_on_board_tile_clicked", Vector2i(4, 4))
@@ -195,7 +210,7 @@ func _initialize() -> void:
 	print(ProjectSettings.globalize_path(OUTPUT))
 	quit(0 if _errors.is_empty() else 1)
 
-func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false, custom_hand: Array = [], player_hp: int = 24) -> void:
+func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false, custom_hand: Array = [], player_hp: int = 24, extra_enemy_tiles: Array = []) -> void:
 	_instance.call("_cancel_drag_play")
 	_instance.call("_reset_card_resolution")
 	var hand: Array = custom_hand.duplicate() if not custom_hand.is_empty() else ["quick_stab", "brace", "sidestep_slash", "bone_dart", "patch_up"]
@@ -208,6 +223,8 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 	var layout: Dictionary = {"name": "Cutout Animation Trial", "coord": Vector2i(4, 3), "type": "combat", "grid": grid,
 		"player_start": player_tile, "enemies": [{"id": 1, "type": "crawler", "pos": enemy_tile, "hp": 40, "max_hp": 40, "block": 0}],
 		"traps": [], "terrain": [], "element": "none"}
+	for tile: Vector2i in extra_enemy_tiles:
+		layout["enemies"].append({"id": (layout["enemies"] as Array).size() + 1, "type": "crawler", "pos": tile, "hp": 40, "max_hp": 40, "block": 0})
 	var combat := CombatEngine.new()
 	var state: Dictionary = combat.create_combat(260908, layout, {"hp": player_hp, "max_hp": 24, "deck_cards": hand.duplicate(), "relics": [], "hand_size": 5, "heal_bonus": 0})
 	state["deck"] = {"hand": hand.duplicate(), "draw": [], "discard": [], "burned": []}
@@ -263,6 +280,7 @@ func _record(label: String, minimum_seconds: float) -> void:
 			var sample: Dictionary = {"seconds": float(now - started) / 1000000.0, "animation": snapshot,
 				"center": str(_board.call("_unit_center", {"type": "player", "key": "player", "role": "player", "pos": _player_pos()})),
 				"effect": (_board.get("presentation") as Dictionary).get("effect", {}),
+				"effect_progress": float((_board.get("presentation") as Dictionary).get("effect_progress", 0.0)),
 				"death_units": (_board.get("presentation") as Dictionary).get("death_animation_units", []),
 				"player_hp": int((_instance.get("_combat_state") as Dictionary).get("player", {}).get("hp", 0))}
 			if _capture:
@@ -297,11 +315,40 @@ func _record(label: String, minimum_seconds: float) -> void:
 				if not (samples[index].get("death_units", []) as Array).is_empty() or not (samples[index].get("effect", {}) as Dictionary).is_empty():
 					images[index].save_png(OUTPUT.path_join(label + "_contact.png"))
 					break
+		if label.contains("blink"):
+			for phase_target: float in [0.25, 0.5, 0.75]:
+				var nearest: int = -1
+				var difference: float = INF
+				for index: int in range(samples.size()):
+					if str((samples[index].get("effect", {}) as Dictionary).get("kind", "")) != "blink":
+						continue
+					var gap: float = absf(float(samples[index].get("effect_progress", 0.0)) - phase_target)
+					if gap < difference:
+						nearest = index
+						difference = gap
+				if nearest >= 0:
+					images[nearest].save_png(OUTPUT.path_join(label + "_phase_%03d.png" % roundi(phase_target * 100)))
+		if label.contains("terminal_defeat"):
+			for phase_target: float in [0.0, 0.67, 0.80]:
+				var nearest: int = -1
+				var difference: float = INF
+				for index: int in range(samples.size()):
+					for dying: Dictionary in samples[index].get("death_units", []):
+						if str(dying.get("type", "")) != "player":
+							continue
+						var gap: float = absf(float(dying.get("death_progress", 0.0)) - phase_target)
+						if gap < difference:
+							nearest = index
+							difference = gap
+				if nearest >= 0:
+					images[nearest].save_png(OUTPUT.path_join(label + "_collapse_%03d.png" % roundi(phase_target * 100)))
 	_manifest["clips"].append({"label": label, "samples": samples, "phases_seen": phases.keys()})
 	if label.contains("walk"):
 		_assert(phases.has("walk"), "Real movement displays a walk cycle in " + label)
 	if label.contains("melee") and not label.contains("reduced"):
 		_assert(phases.has("attack"), "Real melee displays the sword cut in " + label)
+	if label == "11a_targeted_aoe":
+		_assert(not phases.has("attack"), "Targeted AoE does not trigger the weapon swing")
 
 func _still(label: String) -> void:
 	_assert(int(_snapshot().get("texture_id", 0)) == _texture_id, "New cutout remains active in " + label)

@@ -22651,7 +22651,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
-				"protagonist_melee": action_type == "melee",
+				"protagonist_melee": AttackFxLibrary.protagonist_uses_melee_motion(action),
 				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
 				"center": effect_target_tile,
@@ -23880,12 +23880,19 @@ func _stop_music_tween() -> void:
 		_music_tween.kill()
 	_music_tween = null
 
+func _protagonist_attack_motion(effect: Dictionary, progress: float) -> Dictionary:
+	# Area sweeps keep their existing 0.38 result boundary and cadence. Retiming
+	# only the cutout phase puts its aggressive cut at that same contact point.
+	var contact: float = _attack_feedback_start_progress(effect)
+	var phase: float = 0.42 * progress / contact if progress <= contact else 0.42 + 0.58 * (progress - contact) / (1.0 - contact)
+	return {"clip": "attack", "phase": phase,
+		"direction": (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)}
+
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
 	if bool(cutout_effect.get("protagonist_melee", false)):
-		rendered_presentation["protagonist_motion"] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
-			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["protagonist_motion"] = _protagonist_attack_motion(cutout_effect, float(presentation.get("effect_progress", 1.0)))
 	var run_mode: String = str(_run_state.get("mode", "room"))
 	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()

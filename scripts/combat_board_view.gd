@@ -6482,8 +6482,6 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		if impact_shake > 0.0:
 			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact_shake, 0.0)
 		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
-		if death_animation:
-			shifted_rect = _death_animation_render_rect(unit, shifted_rect)
 		var body_tint: Color = Color.WHITE
 		var role: String = str(unit.get("role", ""))
 		if role == "illusion_preview":
@@ -9928,8 +9926,7 @@ func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -
 	if texture == null:
 		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
 		return
-	var base_rect: Rect2 = _unit_texture_draw_rect(unit, center)
-	var ghost_rect: Rect2 = _scaled_unit_rect(base_rect, scale)
+	var ghost_rect: Rect2 = _unit_texture_draw_rect(unit, center, scale)
 	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
 	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
 	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(-2.0, -2.0), ghost_rect.size), false, Color(0.018, 0.012, 0.035, alpha * 0.72))
@@ -12395,8 +12392,14 @@ func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
 	return _unit_draw_rect_for_texture(unit, center, texture)
 
-func _unit_texture_draw_rect(unit: Dictionary, center: Vector2) -> Rect2:
+func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
 	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	# Collapse around the logical body floor before adding transparent rig padding.
+	# Squashing the padded viewport would pull the actor below its death tile.
+	if bool(unit.get("death_animation", false)):
+		rect = _death_animation_render_rect(unit, rect)
+	if not is_equal_approx(body_scale, 1.0):
+		rect = _scaled_unit_rect(rect, body_scale)
 	if str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer):
 		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
 			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)

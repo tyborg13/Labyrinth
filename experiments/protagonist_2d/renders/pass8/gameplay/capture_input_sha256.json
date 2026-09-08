@@ -91,17 +91,17 @@
   "assets/units/protagonist_cutout/rear/weapon_r.png.import": "7555fac082d30e93ac61b6b4da1fc2603221228140dac753d24b9840b1f40bbf",
   "experiments/protagonist_2d/inspection_board.gd": "d0489f95c098ed150d4a936d4cf0897fca251c25872d7aa604a4ab315ab044ae",
   "export_presets.cfg": "e8abe37724aac7ee342c9cf8b8ed711d8807754b3ba9d940ed46c70efabb2711",
-  "scripts/attack_fx_library.gd": "295b8f194f9e15b99cd4fb1b667285800f8aa095160d420dcad76e1accbc5469",
-  "scripts/combat_board_view.gd": "d1be664c64dd101925ff1a000a65f89c33106e0e1fe067906ab9d8ba40c52d8e",
+  "scripts/attack_fx_library.gd": "72323d32e758eae35422c6ea4ed9d9b4ce60d1e5d0eb0f1b2c54f85f3f9be716",
+  "scripts/combat_board_view.gd": "7de9a5fc2f7d57f3d7e32d175c0db01bc215819c42ba2894b56754875e2926b4",
   "scripts/protagonist_cutout/motion.gd": "1c014f04d2ff36f3556a55954baf855698f2dd6c5c75b4a2018b794bec9b32da",
   "scripts/protagonist_cutout/renderer.gd": "5d930b0eb28bca242e1be50bae6e023c2905bf605af5c4d7b71f02f0111c3485",
   "scripts/protagonist_cutout/rig.gd": "78173bd7ff4b12b76b3b407b82aff5230e2e8a2dda4e2e35927653bc6cf0c03a",
-  "scripts/run_scene.gd": "74390eaff17f6e9939dfdee94d6d006c4e589d8e7d51d7f79ec1b284d95a7110",
+  "scripts/run_scene.gd": "3337413e1c989da8a4537a7ce0ca8e1f5fbf7f5f1a5d36f7e1c63c6bc14bea14",
   "tests/fixtures/protagonist_cutout_export_smoke.gd": "b85cb77ec921b17eeeaa196bbd115e1658bad4d37527b32ebb6786ef230ddbda",
-  "tests/protagonist_cutout_gameplay_probe.gd": "3c23b3378cb0d179a387f5601f13fb11839a28d246a1fd926a0dd50c228ba436",
+  "tests/protagonist_cutout_gameplay_probe.gd": "a74f82a91ff63bd8ae9e4af106bd5f762f7fb64f7face90b87da7b48a4088af4",
   "tests/protagonist_cutout_pack_test.gd": "de0af4387c1cddf5b3c3e02ac71256867b29bb5abc513ca49e9bfaa14c6e0cbb",
   "tests/protagonist_cutout_test.gd": "ebb67a4828f7f505da3642757e1cef6acf7a4df28211743e66b1b4778d4b44fc",
   "tests/run_tests.gd": "89f79b81a49f301978b9ef1dea8826f4e655fbb5f415596da70b5d0311523c1d",
   "tests/suites/enemy_intent_compass_suite.gd": "2e65c7d27a240e8a71d6a8f7a2257197d742741e15b69fab9e785890d1fda0ad",
-  "tests/suites/protagonist_cutout_suite.gd": "450ef32d639e65979262703535cf7c84f33246ab0c1b54043108d4b0ba99901c"
+  "tests/suites/protagonist_cutout_suite.gd": "affed2c7417d86884d94117ffd674e049f466c3609bb6155c1784a113cbf8893"
 }

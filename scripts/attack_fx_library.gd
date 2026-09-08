@@ -62,8 +62,13 @@ static func uses_authored_elemental_ranged(effect: Dictionary) -> bool:
 static func uses_authored_elemental_attack(effect: Dictionary) -> bool:
 	return style_for_effect(effect) != STYLE_DEFAULT
 
+static func protagonist_uses_melee_motion(action: Dictionary) -> bool:
+	# Weapon sweeps use self-centered AoE actions; share the existing attack
+	# category so their full-body animation agrees with the melee sound path.
+	return preload("res://scripts/attack_sfx_library.gd").category_for_action(action) == "melee"
+
 static func animation_frame_count(effect: Dictionary, fallback_count: int, reduced_motion: bool) -> int:
-	if bool(effect.get("protagonist_melee", false)):
+	if bool(effect.get("protagonist_melee", false)) and str(effect.get("kind", "")) == "melee":
 		return 1 if reduced_motion else preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAMES
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:
@@ -83,7 +88,7 @@ static func animation_frame_count(effect: Dictionary, fallback_count: int, reduc
 			return FIREBALL_ANIMATION_FRAMES
 
 static func animation_frame_seconds(effect: Dictionary, fallback_seconds: float, reduced_motion: bool) -> float:
-	if bool(effect.get("protagonist_melee", false)):
+	if bool(effect.get("protagonist_melee", false)) and str(effect.get("kind", "")) == "melee":
 		return 0.0 if reduced_motion else preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAME_SECONDS
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:
