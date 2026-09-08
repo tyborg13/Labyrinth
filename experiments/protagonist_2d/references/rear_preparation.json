@@ -1,0 +1,24 @@
+{
+  "source": "rear_keyed_source.png",
+  "source_sha256": "1fbf3f2bc4d0bfe8383593e964ab72e4f671884e6c451908af89eac4979c0503",
+  "raw_size": [
+    1254,
+    1254
+  ],
+  "key_rule": "r>g+20 and b>g+20 and b>r*0.5",
+  "background_pixels_removed": 1200082,
+  "uniform_scale": 0.22431865828092243,
+  "resampler": "nearest",
+  "translation": [
+    -13,
+    -14
+  ],
+  "result_alpha_bounds": [
+    23,
+    9,
+    252,
+    223
+  ],
+  "result_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+  "character_color_adjustment": false
+}

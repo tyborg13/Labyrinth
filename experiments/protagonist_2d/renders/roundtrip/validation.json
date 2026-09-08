@@ -9,7 +9,7 @@
 		{
 			"action": "walk",
 			"facing": "front",
-			"frame": 13,
+			"frame": 10,
 			"pixel_identical": true
 		},
 		{
@@ -39,7 +39,7 @@
 		{
 			"action": "walk",
 			"facing": "rear",
-			"frame": 13,
+			"frame": 10,
 			"pixel_identical": true
 		},
 		{

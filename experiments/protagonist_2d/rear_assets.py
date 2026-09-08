@@ -13,83 +13,222 @@ from pathlib import Path
 from PIL import Image, ImageChops, ImageDraw
 
 import cutout_assets as cut
+from mesh_assets import build_joint_meshes
 
 
 HERE = Path(__file__).resolve().parent
 SOURCE = HERE / 'references/rear.png'
 OUTPUT = HERE / 'assets/rear'
-JOINTS = {
-    'root': {'parent': None, 'position': [132, 211]},
-    'hips': {'parent': 'root', 'position': [122, 146]},
-    'torso': {'parent': 'hips', 'position': [122, 119]},
-    'neck': {'parent': 'torso', 'position': [120, 70]},
-    'head': {'parent': 'neck', 'position': [123, 56]},
-    'arm_r': {'parent': 'torso', 'position': [144, 87]},
-    'forearm_r': {'parent': 'arm_r', 'position': [151, 112]},
-    'hand_r': {'parent': 'forearm_r', 'position': [160, 146]},
-    'arm_l': {'parent': 'torso', 'position': [94, 89], 'fully_occluded': True},
-    'forearm_l': {'parent': 'arm_l', 'position': [88, 119], 'fully_occluded': True},
-    'hand_l': {'parent': 'forearm_l', 'position': [85, 142], 'fully_occluded': True},
-    'thigh_r': {'parent': 'hips', 'position': [133, 150]},
-    'shin_r': {'parent': 'thigh_r', 'position': [135, 176]},
-    'foot_r': {'parent': 'shin_r', 'position': [134, 205]},
-    'thigh_l': {'parent': 'hips', 'position': [105, 153]},
-    'shin_l': {'parent': 'thigh_l', 'position': [100, 177]},
-    'foot_l': {'parent': 'shin_l', 'position': [96, 196]},
-    'cape_root': {'parent': 'torso', 'position': [119, 73]},
-    'cape_mid': {'parent': 'cape_root', 'position': [102, 115]},
-    'cape_tip': {'parent': 'cape_mid', 'position': [84, 152]},
-}
+JOINTS = {'root': {'parent': None, 'position': [132, 211]},
+ 'hips': {'parent': 'root', 'position': [124, 143]},
+ 'torso': {'parent': 'hips', 'position': [127, 120]},
+ 'neck': {'parent': 'torso', 'position': [123, 76]},
+ 'head': {'parent': 'neck', 'position': [126, 47]},
+ 'arm_r': {'parent': 'torso', 'position': [146, 92]},
+ 'forearm_r': {'parent': 'arm_r', 'position': [156, 119]},
+ 'hand_r': {'parent': 'forearm_r', 'position': [167, 145]},
+ 'arm_l': {'parent': 'torso', 'position': [98, 92], 'fully_occluded': True},
+ 'forearm_l': {'parent': 'arm_l', 'position': [87, 119], 'fully_occluded': True},
+ 'hand_l': {'parent': 'forearm_l', 'position': [79, 144], 'fully_occluded': True},
+ 'thigh_r': {'parent': 'hips', 'position': [136, 155]},
+ 'shin_r': {'parent': 'thigh_r', 'position': [139, 178]},
+ 'foot_r': {'parent': 'shin_r', 'position': [141, 204]},
+ 'thigh_l': {'parent': 'hips', 'position': [104, 156]},
+ 'shin_l': {'parent': 'thigh_l', 'position': [98, 177]},
+ 'foot_l': {'parent': 'shin_l', 'position': [94, 196]},
+ 'cape_root': {'parent': 'torso', 'position': [123, 79]},
+ 'cape_mid': {'parent': 'cape_root', 'position': [103, 120]},
+ 'cape_tip': {'parent': 'cape_mid', 'position': [72, 159]}}
 
-POLYGONS = [
-    ('head', [(87, 0), (165, 0), (164, 45), (155, 51), (150, 54), (145, 58),
-              (138, 62), (125, 62), (111, 61), (102, 60), (97, 57), (91, 56), (87, 48)]),
-    ('cape_full', [(93, 53), (102, 58), (101, 64), (108, 68), (126, 71),
-                   (138, 67), (143, 66), (148, 70), (148, 75), (138, 80),
-                   (132, 88), (128, 97), (125, 107), (122, 117),
-                   (119, 128), (116, 138), (111, 147), (106, 155), (101, 163),
-                   (99, 169), (94, 173), (91, 170), (88, 176), (81, 180),
-                   (76, 179), (77, 170), (68, 174), (63, 173), (62, 163),
-                   (58, 166), (54, 164), (46, 166), (49, 158), (55, 151),
-                   (60, 140), (64, 129), (68, 117), (73, 104), (77, 92),
-                   (80, 81), (77, 76), (80, 67), (86, 60)]),
-    ('scarf', [(94, 52), (106, 57), (120, 60), (136, 58), (144, 55), (147, 63),
-               (143, 70), (128, 73), (112, 72), (101, 69), (94, 64)]),
-    ('sword_hand_r', [(153, 136), (162, 134), (169, 137), (174, 131), (182, 131),
-                      (184, 139), (180, 147), (187, 157), (201, 170), (217, 184),
-                      (248, 212), (246, 220), (226, 217), (208, 206), (190, 192),
-                      (175, 181), (166, 177), (158, 175), (156, 167), (158, 160),
-                      (149, 154), (148, 145)]),
-    ('forearm_r', [(138, 103), (151, 103), (158, 109), (163, 121), (166, 135),
-                    (167, 144), (160, 150), (150, 144), (144, 133), (139, 120)]),
-    ('arm_r', [(136, 76), (148, 77), (155, 85), (159, 95), (158, 104),
-               (153, 111), (145, 113), (136, 105), (131, 94), (132, 84)]),
-    ('foot_l', [(86, 190), (103, 188), (114, 192), (115, 201), (106, 209),
-                (91, 212), (83, 206), (82, 198)]),
-    ('foot_r', [(123, 199), (140, 197), (148, 201), (160, 204), (162, 215),
-                (151, 224), (129, 229), (121, 220), (120, 208)]),
-    ('shin_l', [(87, 170), (107, 168), (113, 178), (112, 192), (107, 201),
-                (91, 203), (83, 193)]),
-    ('shin_r', [(121, 170), (137, 168), (148, 175), (152, 188), (147, 202),
-                (138, 209), (125, 207), (118, 194)]),
-    ('thigh_l', [(95, 149), (111, 147), (116, 156), (114, 171), (108, 180),
-                 (92, 179), (89, 164)]),
-    ('thigh_r', [(121, 147), (140, 147), (147, 156), (145, 168), (146, 178),
-                 (132, 183), (120, 177), (118, 164)]),
-    ('hips', [(111, 131), (127, 129), (141, 134), (147, 146), (145, 157),
-               (139, 164), (123, 163), (110, 157), (107, 144)]),
-]
-Z_ORDER = {'thigh_l': 10, 'shin_l': 11, 'foot_l': 12, 'thigh_r': 20, 'shin_r': 21,
-           'foot_r': 22, 'torso': 40, 'hips': 45, 'cape_upper': 50, 'cape_middle': 51,
-           'cape_lower': 52, 'arm_r': 60, 'forearm_r': 61, 'sword_hand_r': 65,
-           'scarf': 70, 'head': 80}
-OVERLAPS = [('head', 'scarf', (121, 61), 5),
-            ('torso', 'arm_r', (139, 87), 5), ('arm_r', 'forearm_r', (150, 109), 5),
-            ('forearm_r', 'sword_hand_r', (159, 140), 5), ('torso', 'hips', (126, 137), 6),
-            ('hips', 'thigh_r', (131, 151), 5), ('hips', 'thigh_l', (105, 154), 5),
-            ('thigh_r', 'shin_r', (134, 174), 5), ('shin_r', 'foot_r', (134, 201), 5),
-            ('thigh_l', 'shin_l', (101, 174), 5), ('shin_l', 'foot_l', (97, 194), 5)]
+POLYGONS = [('head',
+  [(85, 0),
+   (168, 0),
+   (166, 51),
+   (156, 58),
+   (151, 62),
+   (148, 64),
+   (143, 62),
+   (139, 64),
+   (132, 67),
+   (122, 66),
+   (112, 64),
+   (103, 61),
+   (97, 59),
+   (89, 54)]),
+ ('scarf',
+  [(91, 59),
+   (101, 61),
+   (110, 65),
+   (126, 67),
+   (140, 64),
+   (149, 62),
+   (153, 69),
+   (150, 75),
+   (140, 75),
+   (128, 79),
+   (117, 79),
+   (106, 76),
+   (98, 73),
+   (91, 69)]),
+ ('cape_full',
+  [(88, 66),
+   (94, 72),
+   (101, 76),
+   (112, 80),
+   (124, 79),
+   (135, 76),
+   (145, 73),
+   (151, 73),
+   (153, 79),
+   (145, 83),
+   (140, 89),
+   (136, 96),
+   (131, 103),
+   (128, 110),
+   (124, 116),
+   (121, 122),
+   (116, 129),
+   (110, 137),
+   (104, 145),
+   (99, 152),
+   (93, 162),
+   (86, 171),
+   (78, 179),
+   (69, 183),
+   (65, 190),
+   (56, 190),
+   (57, 182),
+   (64, 172),
+   (64, 167),
+   (57, 175),
+   (54, 170),
+   (48, 175),
+   (44, 164),
+   (40, 167),
+   (33, 172),
+   (25, 180),
+   (19, 180),
+   (20, 170),
+   (26, 160),
+   (27, 154),
+   (22, 150),
+   (21, 140),
+   (30, 132),
+   (43, 126),
+   (57, 115),
+   (66, 102),
+   (76, 87),
+   (80, 81),
+   (81, 73)]),
+ ('sword_hand_r',
+  [(162, 142),
+   (168, 140),
+   (174, 142),
+   (178, 137),
+   (186, 137),
+   (191, 141),
+   (188, 151),
+   (182, 157),
+   (191, 159),
+   (255, 213),
+   (255, 226),
+   (243, 227),
+   (215, 211),
+   (194, 196),
+   (176, 182),
+   (167, 180),
+   (164, 176),
+   (165, 168),
+   (163, 161),
+   (158, 157),
+   (159, 149)]),
+ ('forearm_r',
+  [(150, 110),
+   (161, 109),
+   (166, 119),
+   (168, 129),
+   (174, 139),
+   (177, 148),
+   (171, 155),
+   (161, 151),
+   (159, 139),
+   (155, 131),
+   (149, 121)]),
+ ('arm_r',
+  [(138, 82),
+   (151, 81),
+   (158, 88),
+   (164, 102),
+   (164, 114),
+   (159, 121),
+   (150, 119),
+   (144, 110),
+   (139, 104),
+   (136, 94)]),
+ ('foot_l', [(84, 188), (99, 186), (111, 189), (112, 198), (105, 205), (96, 213), (83, 210), (80, 198)]),
+ ('foot_r',
+  [(131, 197),
+   (143, 194),
+   (155, 198),
+   (169, 201),
+   (169, 216),
+   (158, 222),
+   (140, 228),
+   (133, 224),
+   (129, 215)]),
+ ('shin_l', [(88, 171), (107, 171), (110, 181), (106, 191), (104, 199), (91, 203), (84, 197), (82, 184)]),
+ ('shin_r',
+  [(128, 172),
+   (143, 171),
+   (154, 177),
+   (155, 191),
+   (151, 203),
+   (144, 210),
+   (133, 208),
+   (128, 198),
+   (126, 186)]),
+ ('thigh_l', [(95, 147), (112, 146), (117, 156), (116, 167), (110, 177), (93, 178), (88, 168)]),
+ ('thigh_r',
+  [(124, 149), (141, 149), (151, 156), (153, 168), (151, 180), (136, 184), (125, 177), (122, 164)]),
+ ('hips',
+  [(111, 131),
+   (127, 129),
+   (141, 134),
+   (149, 146),
+   (148, 157),
+   (139, 165),
+   (122, 163),
+   (109, 157),
+   (106, 146)])]
 
+Z_ORDER = {'thigh_l': 10,
+ 'shin_l': 11,
+ 'foot_l': 12,
+ 'thigh_r': 20,
+ 'shin_r': 21,
+ 'foot_r': 22,
+ 'torso': 40,
+ 'hips': 45,
+ 'cape_upper': 50,
+ 'cape_middle': 51,
+ 'cape_lower': 52,
+ 'arm_r': 60,
+ 'forearm_r': 61,
+ 'sword_hand_r': 65,
+ 'scarf': 70,
+ 'head': 80}
+
+OVERLAPS = [('head', 'scarf', (124, 65), 5),
+ ('torso', 'arm_r', (146, 92), 6),
+ ('arm_r', 'forearm_r', (156, 119), 6),
+ ('forearm_r', 'sword_hand_r', (167, 145), 6),
+ ('torso', 'hips', (125, 139), 6),
+ ('hips', 'thigh_r', (136, 155), 6),
+ ('hips', 'thigh_l', (104, 156), 6),
+ ('thigh_r', 'shin_r', (139, 178), 6),
+ ('shin_r', 'foot_r', (141, 204), 6),
+ ('thigh_l', 'shin_l', (98, 177), 6),
+ ('shin_l', 'foot_l', (94, 196), 6)]
 
 def _save(source, mask, name):
     bbox = mask.getbbox()
@@ -150,8 +289,15 @@ def main():
         base[name] = owned
         available = ImageChops.subtract(available, owned)
     assignments = cut._assign_outline_fragments(base, available,
-        [(106, 72), (132, 71), (144, 82), (142, 102), (144, 122),
-         (137, 144), (125, 153), (110, 149), (102, 118), (98, 85)])
+        [(108, 78), (134, 77), (143, 87), (141, 104), (149, 132),
+         (140, 151), (125, 154), (109, 148), (104, 119), (99, 88)])
+    # The collar's last brown pixels sit below the broad scarf polygon. They
+    # must follow the neck; leaving this isolated strip on the torso exposes it
+    # when the head turns. Transfer only pixels already assigned to the torso.
+    collar_strip = cut._polygon(source.size, [(108, 78), (116, 78), (116, 79), (108, 79)])
+    collar_strip = ImageChops.multiply(base['torso'], collar_strip)
+    base['torso'] = ImageChops.subtract(base['torso'], collar_strip)
+    base['scarf'] = ImageChops.lighter(base['scarf'], collar_strip)
     assert sum(cut._count(mask) for mask in base.values()) == cut._count(alpha)
     masks = {name: mask.copy() for name, mask in base.items() if name != 'cape_full'}
     overlap_report = []
@@ -164,6 +310,16 @@ def main():
             masks[name] = ImageChops.lighter(masks[name], shared)
         overlap_report.append({'parts': [a, c], 'position': list(point), 'radius': radius,
                                'source_pixels_shared': cut._count(shared)})
+    # The torso/hips seam spans the full coat width, not just a central pivot.
+    # A narrow disc left a one-pixel slit near the right waist during walk17.
+    # Share the existing coat pixels across this broad hidden overlap band.
+    waist_band = cut._polygon(source.size, [(94, 124), (156, 124), (156, 153), (94, 153)])
+    waist_band = ImageChops.multiply(waist_band, ImageChops.lighter(base['torso'], base['hips']))
+    for name in ('torso', 'hips'):
+        masks[name] = ImageChops.lighter(masks[name], waist_band)
+    overlap_report.append({'parts': ['torso', 'hips'], 'rect': [94, 124, 157, 154],
+                           'source_pixels_shared': cut._count(waist_band),
+                           'reason': 'Full-width coat coverage through pelvis counterrotation'})
     for name, low, high in [('cape_upper', -1000, 49), ('cape_middle', 43, 87),
                             ('cape_lower', 81, 1000)]:
         selection = Image.new('L', source.size)
@@ -181,6 +337,7 @@ def main():
             part['cape_segment'] = True
         parts.append(part)
     cape_mesh = _cape_mesh(source, base['cape_full'])
+    joint_meshes = build_joint_meshes(source, masks, JOINTS, parts, OUTPUT, 'assets/rear')
     proof = {}
     for mode in ('segments', 'weighted_cape'):
         composite = Image.new('RGBA', source.size)
@@ -203,10 +360,10 @@ def main():
     draw.text((263, 4), 'Rear cutouts: 0 changed pixels', fill=(239, 234, 219))
     comparison.resize((1020, 550), Image.Resampling.NEAREST).save(OUTPUT / 'rest_comparison.png')
     cut._contact_sheet(source, masks, parts, OUTPUT)
-    layout = {'version': 1, 'facing': 'rear', 'canvas_size': [255, 255], 'source': 'references/rear.png',
+    layout = {'version': 2, 'facing': 'rear', 'canvas_size': [255, 255], 'source': 'references/rear.png',
               'source_sha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
               'source_occupied_bbox': list(alpha.getbbox()), 'joints': JOINTS, 'parts': parts,
-              'cape_mesh': cape_mesh, 'source_only_joint_overlaps': overlap_report,
+              'cape_mesh': cape_mesh, 'joint_meshes': joint_meshes, 'source_only_joint_overlaps': overlap_report,
               'source_outline_assignments': assignments, 'exact_rest_proof': proof,
               'hidden_bones': ['arm_l', 'forearm_l', 'hand_l'],
               'constraints': [
@@ -214,7 +371,7 @@ def main():
                   'All cutout pixels are copied unchanged from that rear source; no hidden body or limb pixels are invented.',
                   'The left arm is fully concealed by the cape and intentionally has no visible cutout parts.',
                   'The right hand and sword remain joined. Rear walk keeps this true rear artwork rather than mirroring the front.',
-                  'Large leg separation can reveal unpainted upper-thigh regions behind the cape; begin with short planted steps.',
+                  'Upper and lower limb meshes share bend fields and pin overlap material to rigid body, boots and sword-hand pieces.',
               ]}
     (HERE / 'cutout_layout_rear.json').write_text(json.dumps(layout, indent=2) + '\n')
     (OUTPUT / 'reconstruction_proof.json').write_text(json.dumps({

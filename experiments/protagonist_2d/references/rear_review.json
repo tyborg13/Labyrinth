@@ -1,28 +1,55 @@
 {
-  "status": "accepted_for_isolated_rig_study",
+  "status": "second_pass_rendered_and_inspected_for_isolated_study",
   "identity_reference": "assets/placeholders/units/player_reaver.png",
-  "rejected_v1": "Cloak almost reached boot soles; painted checkerboard was opaque.",
-  "corrected_v2": "Shorter asymmetric gray-green cloak exposes both lower legs, original proportions/colors/equipment retained; generated solid magenta isolated with a deterministic key mask.",
+  "previous_pass": {
+    "source": "references/rear_pass1.png",
+    "keyed_source": "references/rear_pass1_keyed_source.png",
+    "user_feedback": "Rear art was not accurate enough."
+  },
+  "second_pass": {
+    "source": "references/rear.png",
+    "keyed_source": "references/rear_keyed_source.png",
+    "authoring": "Built-in ImageGen; prompt set in references/prompts.json. A second edit replaced an opaque painted checkerboard with magenta.",
+    "changes": [
+      "Larger hair mass and shorter torso for compact proportions",
+      "Plainer worn leather instead of ornate rear armor",
+      "Broader asymmetric cloak sweep and visible lower legs",
+      "Chipped sword with dark inset shapes instead of open circular holes"
+    ],
+    "cutout_fixes": [
+      "Replaced all rear pivots and anatomical masks against new source",
+      "Cloak diagonal follows visible cloth boundary",
+      "Disconnected 12-pixel collar strip follows scarf rather than torso"
+    ],
+    "remaining_art_differences": [
+      "Hair remains more rounded than canonical angular tufts",
+      "Armor highlights remain more uniformly banded and brighter",
+      "Blade outline remains cleaner than the original"
+    ]
+  },
   "preparation": {
+    "source": "rear_keyed_source.png",
+    "source_sha256": "1fbf3f2bc4d0bfe8383593e964ab72e4f671884e6c451908af89eac4979c0503",
     "raw_size": [
       1254,
       1254
     ],
     "key_rule": "r>g+20 and b>g+20 and b>r*0.5",
-    "background_pixels_removed": 1220175,
-    "uniform_scale": 0.20918866080156404,
+    "background_pixels_removed": 1200082,
+    "uniform_scale": 0.22431865828092243,
     "resampler": "nearest",
     "translation": [
-      -4,
-      -6
+      -13,
+      -14
     ],
     "result_alpha_bounds": [
-      49,
+      23,
       9,
-      241,
+      252,
       223
-    ]
+    ],
+    "result_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+    "character_color_adjustment": false
   },
-  "keyed_source_sha256": "b3e59ea7f304e40304a74e98aca2da050eda92e075c667af0a17ba5784063d4f",
-  "review_notes": "Front/rear source style and identity inspected; shorter cloak exposes both lower legs; hidden rear construction remains inferred, and armor detail is slightly more ornate than the front. Not a production art approval."
+  "review_notes": "Root and separate read-only art assessor inspected canonical front, both rear versions, source masks and part sheet. Meaningful improvement for this second-pass experiment; still inferred rear surfaces, not production art approval."
 }

@@ -6,12 +6,15 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const Motion = preload("res://experiments/protagonist_2d/cutout_motion.gd")
 const RIG_PATH: String = "res://experiments/protagonist_2d/cutout_rig.gd"
 const ACTIONS: PackedStringArray = ["idle", "walk", "attack", "block", "hit"]
 const FACINGS: PackedStringArray = ["front", "rear"]
 const CANVAS_SIZE := Vector2i(512, 512)
 const SOURCE_OFFSET := Vector2(128, 128)
 const SOURCE_SIZE := Vector2(255, 255)
+const START_TILE := Vector2i(3, 5)
+const TRAVEL_CYCLES: int = 3
 
 var board: Control
 var puppet_viewport: SubViewport
@@ -25,6 +28,8 @@ var playing: bool = true
 var reference_on_board: bool = false
 var bones_visible: bool = false
 var detail_zoom: bool = true
+var travel_enabled: bool = true
+var travel_frame_index: int = 0
 var load_errors: PackedStringArray = []
 var _elapsed: float = 0.0
 var _skin := UiSkin.new()
@@ -39,6 +44,7 @@ var _step_button: Button
 var _source_button: Button
 var _bones_button: Button
 var _zoom_button: Button
+var _travel_button: Button
 var _action_buttons: Dictionary = {}
 var _facing_buttons: Dictionary = {}
 
@@ -139,10 +145,14 @@ func _build_view() -> void:
 	Typography.apply_board_font(self, board)
 	var state: Dictionary = Combat.new().create_combat(71471, _layout(), {"hp": 30, "max_hp": 30, "deck_cards": ["quick_stab", "guarded_step"], "relics": []})
 	var shown: Dictionary = {"reduced_motion": true, "ambient_time_seconds": 12.0, "puppet_live": false, "puppet_texture": puppet_viewport.get_texture(), "puppet_reference": reference_texture("front"), "board_framing_mode": "combat", "board_safe_global_rect": Rect2(32, 148, 1250, 756)}
-	board.call("set_combat_state", state, [], [], Vector2i(3, 4), "", "", {}, {}, shown)
+	board.call("set_combat_state", state, [], [], START_TILE, "", "", {}, {}, shown)
 	board.call("set_navigation_zoom", 1.12)
 	board.call("set_navigation_pan", Vector2.ZERO)
 	_board_label = _label("Board: live cutout", Vector2(42, 120), Vector2(680, 30), Typography.ROLE_SECTION)
+	_travel_button = _button("Walk across board", 248, true, true)
+	_travel_button.position = Vector2(1020, 90)
+	_travel_button.pressed.connect(func() -> void: set_travel_enabled(not travel_enabled))
+	add_child(_travel_button)
 	var comparison := PanelContainer.new()
 	comparison.position = Vector2(1320, 22)
 	comparison.size = Vector2(568, 966)
@@ -255,6 +265,7 @@ func select_clip(next_animation: String, next_facing: String) -> void:
 		rig.call("set_facing", facing)
 		rig.call("set_clip", animation)
 	frame_index = 0
+	travel_frame_index = 0
 	_elapsed = 0.0
 	for action: String in _action_buttons:
 		(_action_buttons[action] as Button).set_pressed_no_signal(action == animation)
@@ -262,6 +273,8 @@ func select_clip(next_animation: String, next_facing: String) -> void:
 		(_facing_buttons[which] as Button).set_pressed_no_signal(which == facing)
 	_source_image.texture = reference_texture(facing)
 	_source_label.text = "Original" if facing == "front" else "Rear reference"
+	_travel_button.disabled = animation != "walk"
+	_travel_button.set_pressed_no_signal(travel_enabled)
 	_apply_frame()
 
 func frame_count() -> int:
@@ -273,20 +286,43 @@ func fps() -> float:
 func set_playing(next_playing: bool) -> void:
 	playing = next_playing and load_errors.is_empty()
 	_pause_button.text = "Pause" if playing else "Play"
-	_elapsed = float(frame_index) / maxf(1.0, fps())
+	_elapsed = float(travel_frame_index) / maxf(1.0, fps())
 	_apply_frame()
 
 func step_frame() -> void:
 	set_playing(false)
 	if frame_count() <= 0:
 		return
-	frame_index = (frame_index + 1) % frame_count()
+	var next_frame: int = travel_frame_index + 1 if _travel_active() else frame_index + 1
+	seek_timeline_frame(next_frame)
+
+func _travel_active() -> bool:
+	return travel_enabled and animation == "walk"
+
+func timeline_frame_count() -> int:
+	return frame_count() * (TRAVEL_CYCLES if _travel_active() else 1)
+
+func seek_timeline_frame(index: int) -> void:
+	travel_frame_index = posmod(index, maxi(1, timeline_frame_count()))
+	frame_index = travel_frame_index % maxi(1, frame_count())
+	_elapsed = float(travel_frame_index) / maxf(1.0, fps())
 	_apply_frame()
+
+func set_travel_enabled(enabled: bool) -> void:
+	travel_enabled = enabled
+	_travel_button.set_pressed_no_signal(enabled)
+	seek_timeline_frame(frame_index)
+
+func travel_source_offset() -> Vector2:
+	if not _travel_active():
+		return Vector2.ZERO
+	var info: Dictionary = Motion.walk_cycle_info(puppet.get("layout") as Dictionary, facing)
+	var displacement: Vector2 = info["travel_per_cycle"]
+	return displacement * (float(travel_frame_index) / float(frame_count()) - float(TRAVEL_CYCLES) * 0.5)
 
 func set_reference_on_board(enabled: bool) -> void:
 	reference_on_board = enabled
 	_source_button.text = "Show live cutout" if enabled else "Show static reference"
-	_board_label.text = "Board: static reference" if enabled else "Board: live cutout"
 	_apply_frame()
 
 func set_bones_visible(enabled: bool) -> void:
@@ -307,9 +343,10 @@ func _process(delta: float) -> void:
 	if not playing or not load_errors.is_empty() or frame_count() <= 0:
 		return
 	_elapsed += delta
-	var next_frame: int = int(floor(_elapsed * fps())) % frame_count()
-	if next_frame != frame_index:
-		frame_index = next_frame
+	var next_frame: int = int(floor(_elapsed * fps())) % timeline_frame_count()
+	if next_frame != travel_frame_index:
+		travel_frame_index = next_frame
+		frame_index = next_frame % frame_count()
 		_apply_frame()
 
 func _apply_frame() -> void:
@@ -322,10 +359,16 @@ func _apply_frame() -> void:
 	shown["puppet_texture"] = puppet_viewport.get_texture()
 	shown["puppet_reference"] = reference_texture(facing)
 	shown["puppet_anchor"] = puppet.call("get_anchor")
+	shown["puppet_travel_source_px"] = travel_source_offset()
 	board.call("_rebuild_hud_health_rects_cache")
-	board.call("_sync_dynamic_render_state", false, false, ["presentation", "_hud_health_rects_cache"])
+	board.call("_sync_dynamic_render_state", false, false, ["presentation", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
 	board.call("_queue_dynamic_redraw")
 	_frame_label.text = "%s • %s • %02d / %02d • %s fps%s" % [animation.capitalize(), facing.capitalize(), frame_index + 1, frame_count(), str(fps()), "" if playing else " • Paused"]
+	_board_label.text = "Board: static reference" if reference_on_board else "Board: live cutout"
+	if _travel_active():
+		_board_label.text += " • Traveling • cycle %d / %d" % [travel_frame_index / frame_count() + 1, TRAVEL_CYCLES]
+	elif animation == "walk":
+		_board_label.text += " • In place"
 
 func _layout() -> Dictionary:
 	var grid: Array = []
@@ -335,4 +378,4 @@ func _layout() -> Dictionary:
 			row.append("wall" if y == 0 or y == 7 or x == 0 or x == 8 else "stone")
 		grid.append(row)
 	grid[2][5] = "pillar"
-	return {"name": "Protagonist Cutout Study", "coord": Vector2i(1, 0), "type": "combat", "grid": grid, "player_start": Vector2i(3, 4), "enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 22, "max_hp": 22, "block": 0}, {"id": 2, "type": "harrier", "pos": Vector2i(6, 2), "hp": 18, "max_hp": 18, "block": 0}], "terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(2, 2), "hp": 8, "max_hp": 8}]}
+	return {"name": "Protagonist Cutout Study", "coord": Vector2i(1, 0), "type": "combat", "grid": grid, "player_start": START_TILE, "enemies": [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 22, "max_hp": 22, "block": 0}, {"id": 2, "type": "harrier", "pos": Vector2i(6, 2), "hp": 18, "max_hp": 18, "block": 0}], "terrain": [{"id": "crate", "kind": "wooden_crate", "pos": Vector2i(2, 2), "hp": 8, "max_hp": 8}]}

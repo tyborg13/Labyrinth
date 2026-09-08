@@ -88,17 +88,17 @@
     "walk": {
       "front": {
         "sheet": "front_walk.png",
-        "frames": 32,
+        "frames": 24,
         "cols": 6,
-        "rows": 6,
+        "rows": 4,
         "fps": 24.0,
         "loop": true
       },
       "rear": {
         "sheet": "rear_walk.png",
-        "frames": 32,
+        "frames": 24,
         "cols": 6,
-        "rows": 6,
+        "rows": 4,
         "fps": 24.0,
         "loop": true
       }

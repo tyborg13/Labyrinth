@@ -16,6 +16,23 @@ func _live_puppet(unit: Dictionary) -> bool:
 func _reference_texture() -> Texture2D:
 	return presentation.get("puppet_reference", _unit_textures.get("player", null)) as Texture2D
 
+func _unit_center(unit: Dictionary) -> Vector2:
+	var center: Vector2 = super._unit_center(unit)
+	if not _is_player(unit):
+		return center
+	var source_rect: Rect2 = super._unit_draw_rect_for_texture(unit, center, _reference_texture())
+	var travel: Vector2 = presentation.get("puppet_travel_source_px", Vector2.ZERO)
+	# Travel uses the very same scale as the feet inside the puppet texture.
+	# Moving the center also carries the existing shadow and health anchor.
+	return center + travel * source_rect.size / SOURCE_SIZE
+
+func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
+	var source: Dictionary = super._hud_layout_source(hud_units)
+	# The experiment's source-pixel travel is an extra layout input beside the
+	# production board's world-position override. Keep the retained HUD honest.
+	source["puppet_travel_source_px"] = presentation.get("puppet_travel_source_px", Vector2.ZERO)
+	return source
+
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	if _live_puppet(unit):
 		return presentation.get("puppet_texture") as Texture2D

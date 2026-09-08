@@ -1,15 +1,21 @@
 extends RefCounted
-## Restrained motion for a source-painted Bone2D cutout rig.
+## Projected walking and staged actions for a source-painted Bone2D cutout rig.
 ## Input joint positions are GLOBAL source-image pixels; returned positions are
 ## LOCAL to the joint's parent. Rotations are offsets from identity-basis rests.
 ## Each call returns a complete pose, so seeking and changing clips cannot leave
 ## transforms behind. Rear motion changes direction without mirroring textures.
+## Walk contact/down/passing/up timing, linear support-foot travel and delayed
+## arm/cloth overlap follow Jason Martinsen's Animation Mentor demonstration:
+## https://www.animationmentor.com/blog/tutorial-animating-human-walk-cycle/
+## Ground-plane direction is inferred from the two painted three-quarter views.
+
+const WALK_STANCE_FRACTION: float = 0.60
 
 
 static func clip_specs() -> Dictionary:
 	return {
 		"idle": {"frames": 48, "fps": 24, "loop": true, "duration": 2.0},
-		"walk": {"frames": 32, "fps": 24, "loop": true, "duration": 32.0 / 24.0},
+		"walk": {"frames": 24, "fps": 24, "loop": true, "duration": 1.0},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
 		"block": {"frames": 36, "fps": 24, "loop": false, "duration": 1.5},
 		"hit": {"frames": 24, "fps": 24, "loop": false, "duration": 1.0},
@@ -23,8 +29,9 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		return pose
 	var looped: bool = bool(specs[clip]["loop"])
 	var t: float = fposmod(phase, 1.0) if looped else clampf(phase, 0.0, 1.0)
-	# Preserve the exact source pose at every clip boundary, including idle phase 0.
-	if is_zero_approx(t) or is_equal_approx(t, 1.0):
+	# A walking loop starts at contact, not neutral. Neutral remains an explicit
+	# exact-source pose; one-shot actions and idle also return to that pose.
+	if clip != "walk" and (is_zero_approx(t) or is_equal_approx(t, 1.0)):
 		return pose
 	var direction: float = -1.0 if facing.to_lower().contains("rear") or facing.to_lower() == "back" else 1.0
 	var right_target := _joint_position(layout, "foot_r")
@@ -48,89 +55,110 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			_rotate(pose, "cape_mid", direction * (0.015 * sway + 0.010 * breath))
 			_rotate(pose, "cape_tip", direction * (0.020 * sway - 0.015 * breath))
 		"walk":
-			var stride: float = sin(TAU * t)
-			var weight_shift: float = stride * (0.5 - 0.5 * cos(TAU * t))
-			var settle: float = 0.4 * (1.0 - cos(TAU * t)) + 0.15 * (1.0 - cos(2.0 * TAU * t))
-			_offset(pose, "root", Vector2(direction * 0.45 * weight_shift, 0.0))
-			_offset(pose, "hips", Vector2(0.0, settle))
-			_rotate(pose, "hips", direction * 0.007 * weight_shift)
-			_rotate(pose, "torso", -direction * 0.018 * stride)
-			_rotate(pose, "neck", direction * 0.006 * stride)
-			_rotate(pose, "head", direction * 0.005 * stride)
-			_rotate(pose, "arm_r", -direction * 0.11 * stride)
-			_rotate(pose, "forearm_r", direction * 0.060 * stride)
-			_rotate(pose, "hand_r", direction * 0.018 * stride)
-			_rotate(pose, "arm_l", direction * 0.13 * stride)
-			_rotate(pose, "forearm_l", -direction * 0.070 * stride)
-			var right_step := _in_place_step(t, direction)
-			var left_step := _in_place_step(fposmod(t + 0.5, 1.0), direction)
-			right_target += Vector2(right_step.x, right_step.y)
-			left_target += Vector2(left_step.x, left_step.y)
-			right_foot_angle = right_step.z
-			left_foot_angle = left_step.z
-			var cloth_lag: float = sin(TAU * t - 0.45) + sin(0.45)
-			var cloth_tail: float = sin(TAU * t - 0.85) + sin(0.85)
-			_rotate(pose, "cape_root", direction * 0.018 * stride)
-			_rotate(pose, "cape_mid", direction * 0.023 * cloth_lag)
-			_rotate(pose, "cape_tip", direction * 0.028 * cloth_tail)
+			var info := walk_cycle_info(layout, facing)
+			var scale_factor: float = float(info["stride_px"]) / 30.0
+			var transfer: float = sin(TAU * t)
+			var step_phase: float = fposmod(t * 2.0, 1.0)
+			# Contact, down, passing, up, contact. The down arrives quickly after
+			# impact; the rise lasts longer while the support leg straightens.
+			var settle: float = _curve(step_phase, PackedVector2Array([
+				Vector2(0.0, 3.0), Vector2(0.16, 5.5), Vector2(0.50, 1.0),
+				Vector2(0.80, 0.5), Vector2(1.0, 3.0)]))
+			var foot_separation: Vector2 = _joint_position(layout, "foot_r") - _joint_position(layout, "foot_l")
+			var support_side: float = signf(foot_separation.x)
+			_offset(pose, "hips", Vector2(support_side * 2.2 * transfer, settle) * scale_factor)
+			_rotate(pose, "hips", -support_side * 0.020 * transfer)
+			_rotate(pose, "torso", support_side * 0.034 * transfer)
+			_rotate(pose, "neck", -support_side * 0.010 * sin(TAU * t - 0.16))
+			_rotate(pose, "head", -support_side * 0.010 * sin(TAU * t - 0.30))
+			# Opposite arm leads the forward leg. Forearm and wrist trail the
+			# shoulder, instead of all three joints reaching extremes together.
+			var arm_swing: float = cos(TAU * t - 0.16)
+			var elbow_swing: float = cos(TAU * t - 0.40)
+			_rotate(pose, "arm_r", -direction * 0.25 * arm_swing)
+			_rotate(pose, "forearm_r", direction * (0.09 * elbow_swing - 0.05))
+			_rotate(pose, "hand_r", direction * 0.035 * cos(TAU * t - 0.64))
+			_rotate(pose, "arm_l", direction * 0.30 * arm_swing)
+			_rotate(pose, "forearm_l", -direction * (0.12 * elbow_swing + 0.06))
+			var right_step := walk_foot_state(t, "foot_r", layout, facing)
+			var left_step := walk_foot_state(t, "foot_l", layout, facing)
+			right_target = right_step["target"]
+			left_target = left_step["target"]
+			right_foot_angle = float(right_step["angle"])
+			left_foot_angle = float(left_step["angle"])
+			_rotate(pose, "cape_root", -direction * 0.028 * sin(TAU * t - 0.18))
+			_rotate(pose, "cape_mid", -direction * 0.043 * sin(TAU * t - 0.55))
+			_rotate(pose, "cape_tip", -direction * 0.060 * sin(TAU * t - 0.92))
+			_fit_walk_pelvis(pose, layout, right_target, left_target)
 		"attack":
-			var prepare: float = _pulse(t, 0.0, 0.19, 0.37)
-			var strike: float = _pulse(t, 0.24, 0.44, 0.87)
-			var cloth_follow: float = _pulse(t, 0.36, 0.60, 1.0)
-			_offset(pose, "root", Vector2(direction * (0.45 * prepare - 1.3 * strike), 0.0))
-			_offset(pose, "hips", Vector2(0.0, 0.5 * prepare + 0.75 * strike))
-			_rotate(pose, "hips", direction * (-0.008 * prepare + 0.014 * strike))
-			_rotate(pose, "torso", direction * (-0.032 * prepare + 0.075 * strike))
-			_rotate(pose, "neck", direction * (0.012 * prepare - 0.025 * strike))
-			_rotate(pose, "head", direction * (0.010 * prepare - 0.020 * strike))
-			# A compact upward/outward cut gives the original down-left blade a
-			# readable arc without lifting the shoulder far beyond its painted cap.
-			_rotate(pose, "arm_r", direction * (-0.075 * prepare + 0.29 * strike))
-			_rotate(pose, "forearm_r", direction * (-0.12 * prepare + 0.49 * strike))
-			_rotate(pose, "hand_r", direction * (-0.05 * prepare + 0.07 * strike))
-			_rotate(pose, "arm_l", direction * (0.035 * prepare - 0.075 * strike))
-			_rotate(pose, "forearm_l", direction * (0.05 * prepare - 0.11 * strike))
-			_rotate(pose, "cape_root", direction * (-0.012 * prepare - 0.026 * strike))
-			_rotate(pose, "cape_mid", direction * (-0.035 * strike + 0.030 * cloth_follow))
-			_rotate(pose, "cape_tip", direction * (-0.025 * strike + 0.048 * cloth_follow))
+			var prepare: float = _pulse(t, 0.0, 0.23, 0.39)
+			var drive: float = _pulse(t, 0.24, 0.38, 0.84)
+			var strike: float = _pulse(t, 0.27, 0.44, 0.91)
+			var blade_follow: float = _pulse(t, 0.31, 0.48, 0.94)
+			var cloth_follow: float = _pulse(t, 0.39, 0.64, 1.0)
+			# The pelvis starts the cut, then shoulder, elbow, blade and cloth.
+			# A slower recovery leaves a clear commitment and follow-through.
+			_offset(pose, "root", Vector2(direction * (1.3 * prepare - 4.2 * drive), 0.0))
+			_offset(pose, "hips", Vector2(0.0, 1.7 * prepare + 3.4 * drive))
+			_rotate(pose, "hips", direction * (0.018 * prepare - 0.025 * drive))
+			_rotate(pose, "torso", direction * (0.045 * prepare - 0.12 * drive))
+			_rotate(pose, "neck", direction * (-0.016 * prepare + 0.036 * strike))
+			_rotate(pose, "head", direction * (-0.015 * prepare + 0.025 * strike))
+			_rotate(pose, "arm_r", direction * (-0.20 * prepare + 0.58 * drive))
+			_rotate(pose, "forearm_r", direction * (-0.24 * prepare + 0.73 * strike))
+			_rotate(pose, "hand_r", direction * (-0.08 * prepare + 0.14 * blade_follow))
+			_rotate(pose, "arm_l", direction * (0.10 * prepare - 0.19 * strike))
+			_rotate(pose, "forearm_l", direction * (0.12 * prepare - 0.25 * strike))
+			_rotate(pose, "cape_root", direction * (0.022 * prepare + 0.034 * drive))
+			_rotate(pose, "cape_mid", direction * (0.048 * strike - 0.052 * cloth_follow))
+			_rotate(pose, "cape_tip", direction * (0.030 * strike - 0.083 * cloth_follow))
 		"block":
-			var guard: float = _hold(t, 0.0, 0.24, 0.65, 1.0)
-			var catch: float = _pulse(t, 0.30, 0.39, 0.58)
-			_offset(pose, "root", Vector2(direction * (-0.5 * guard + 0.6 * catch), 0.0))
-			_offset(pose, "hips", Vector2(0.0, 0.55 * guard + 0.25 * catch))
-			_rotate(pose, "torso", direction * (-0.018 * guard + 0.028 * catch))
-			_rotate(pose, "head", direction * 0.012 * guard)
-			_rotate(pose, "arm_r", direction * (-0.10 * guard + 0.035 * catch))
-			_rotate(pose, "forearm_r", direction * (-0.20 * guard + 0.070 * catch))
-			_rotate(pose, "hand_r", direction * (1.02 * guard - 0.055 * catch))
-			_rotate(pose, "arm_l", -direction * 0.085 * guard)
-			_rotate(pose, "forearm_l", -direction * 0.17 * guard)
-			_rotate(pose, "cape_root", direction * 0.012 * catch)
-			_rotate(pose, "cape_mid", direction * 0.025 * catch)
-			_rotate(pose, "cape_tip", direction * 0.034 * _pulse(t, 0.35, 0.48, 0.76))
+			var guard: float = _hold(t, 0.0, 0.21, 0.64, 1.0)
+			var blade_guard: float = _hold(t, 0.025, 0.25, 0.69, 1.0)
+			var catch: float = _pulse(t, 0.33, 0.39, 0.59)
+			var head_catch: float = _pulse(t, 0.37, 0.45, 0.67)
+			_offset(pose, "root", Vector2(direction * (-1.5 * guard + 2.8 * catch), 0.0))
+			_offset(pose, "hips", Vector2(0.0, 2.2 * guard + 1.6 * catch))
+			_rotate(pose, "torso", direction * (-0.035 * guard + 0.065 * catch))
+			_rotate(pose, "neck", -direction * 0.024 * head_catch)
+			_rotate(pose, "head", direction * (0.017 * guard - 0.028 * head_catch))
+			# Raise through shoulder and elbow; the wrist refines blade angle.
+			_rotate(pose, "arm_r", direction * (0.18 * guard - 0.10 * catch))
+			_rotate(pose, "forearm_r", direction * (1.10 * guard - 0.13 * catch))
+			_rotate(pose, "hand_r", direction * (0.62 * blade_guard - 0.035 * catch))
+			_rotate(pose, "arm_l", direction * 0.17 * guard)
+			_rotate(pose, "forearm_l", direction * 0.29 * guard)
+			_rotate(pose, "cape_root", direction * 0.024 * catch)
+			_rotate(pose, "cape_mid", direction * 0.045 * head_catch)
+			_rotate(pose, "cape_tip", direction * 0.070 * _pulse(t, 0.40, 0.53, 0.82))
 		"hit":
-			var recoil: float = _pulse(t, 0.0, 0.14, 0.85)
-			var recover: float = _pulse(t, 0.36, 0.63, 1.0)
-			_offset(pose, "root", Vector2(direction * 2.0 * recoil, 0.0))
-			_offset(pose, "hips", Vector2(0.0, 0.85 * recoil))
-			_rotate(pose, "hips", direction * 0.010 * recoil)
-			_rotate(pose, "torso", direction * (0.062 * recoil - 0.008 * recover))
-			_rotate(pose, "neck", -direction * 0.040 * recoil)
-			_rotate(pose, "head", -direction * 0.070 * recoil)
-			_rotate(pose, "arm_r", direction * 0.090 * recoil)
-			_rotate(pose, "forearm_r", -direction * 0.13 * recoil)
-			_rotate(pose, "hand_r", direction * 0.060 * recoil)
-			_rotate(pose, "arm_l", -direction * 0.075 * recoil)
-			_rotate(pose, "forearm_l", -direction * 0.10 * recoil)
-			_rotate(pose, "cape_root", -direction * 0.024 * recoil)
-			_rotate(pose, "cape_mid", direction * (-0.025 * recoil + 0.026 * recover))
-			_rotate(pose, "cape_tip", direction * (-0.016 * recoil + 0.046 * recover))
+			var recoil: float = _pulse(t, 0.0, 0.10, 0.66)
+			var head_recoil: float = _pulse(t, 0.025, 0.18, 0.73)
+			var arm_drag: float = _pulse(t, 0.055, 0.23, 0.79)
+			var recover: float = _pulse(t, 0.39, 0.68, 1.0)
+			_offset(pose, "root", Vector2(direction * (4.7 * recoil - 0.7 * recover), 0.0))
+			_offset(pose, "hips", Vector2(0.0, 2.9 * recoil + 0.6 * recover))
+			_rotate(pose, "hips", direction * (0.026 * recoil - 0.012 * recover))
+			_rotate(pose, "torso", direction * (0.11 * recoil - 0.035 * recover))
+			_rotate(pose, "neck", -direction * 0.055 * head_recoil)
+			_rotate(pose, "head", -direction * (0.11 * head_recoil - 0.025 * recover))
+			_rotate(pose, "arm_r", direction * 0.19 * arm_drag)
+			_rotate(pose, "forearm_r", -direction * 0.26 * arm_drag)
+			_rotate(pose, "hand_r", direction * 0.085 * head_recoil)
+			_rotate(pose, "arm_l", -direction * 0.17 * arm_drag)
+			_rotate(pose, "forearm_l", -direction * 0.21 * arm_drag)
+			_rotate(pose, "cape_root", -direction * 0.040 * head_recoil)
+			_rotate(pose, "cape_mid", direction * (-0.050 * arm_drag + 0.045 * recover))
+			_rotate(pose, "cape_tip", direction * (-0.028 * arm_drag + 0.077 * recover))
 
-	# Contact feet remain at their exact rig-space anchors while the torso moves.
-	# Swinging feet use the same analytic two-segment solve. The ankle counter-
-	# rotation also keeps each planted boot's orientation fixed.
-	_solve_leg(pose, layout, "thigh_r", "shin_r", "foot_r", right_target, right_foot_angle, -direction)
-	_solve_leg(pose, layout, "thigh_l", "shin_l", "foot_l", left_target, left_foot_angle, direction)
+	# Non-walking feet stay at painted anchors. Walking support feet move
+	# opposite the host's root travel and therefore stay fixed in world space.
+	# Every target uses the same two-segment solve and boot counter-rotation.
+	# Perspective can put a painted knee less than a pixel either side of a
+	# straight leg. That tiny sign must not make a walking knee bend backward.
+	var walking_pole: float = direction if clip == "walk" else 0.0
+	_solve_leg(pose, layout, "thigh_r", "shin_r", "foot_r", right_target, right_foot_angle, -direction, walking_pole)
+	_solve_leg(pose, layout, "thigh_l", "shin_l", "foot_l", left_target, left_foot_angle, direction, walking_pole)
 	return pose
 
 
@@ -187,7 +215,7 @@ static func _world_transform(pose: Dictionary, layout: Dictionary, name: String)
 
 
 static func _solve_leg(pose: Dictionary, layout: Dictionary, upper: String, lower: String,
-		foot: String, target: Vector2, foot_angle: float, fallback_bend: float) -> void:
+		foot: String, target: Vector2, foot_angle: float, fallback_bend: float, bend_override: float = 0.0) -> void:
 	if not pose.has(upper) or not pose.has(lower) or not pose.has(foot):
 		return
 	var rest_start := _joint_position(layout, upper)
@@ -208,6 +236,8 @@ static func _solve_leg(pose: Dictionary, layout: Dictionary, upper: String, lowe
 		first_length + second_length - 0.00001)
 	var bend_cross := (rest_end - rest_start).cross(rest_knee - rest_start)
 	var bend: float = signf(bend_cross) if absf(bend_cross) > 0.00001 else fallback_bend
+	if not is_zero_approx(bend_override):
+		bend = bend_override
 	var cosine := clampf((first_length * first_length + reach * reach - second_length * second_length)
 		/ (2.0 * first_length * reach), -1.0, 1.0)
 	var first_angle := toward.angle() + bend * acos(cosine)
@@ -220,16 +250,73 @@ static func _solve_leg(pose: Dictionary, layout: Dictionary, upper: String, lowe
 	_rotate(pose, foot, wrapf(foot_angle - lower_global, -PI, PI))
 
 
-static func _in_place_step(phase: float, direction: float) -> Vector3:
-	# A 55% contact interval plus a short lifted return produces an in-place
-	# step, with no translation of the planted foot along the painted floor.
-	if phase <= 0.55:
-		return Vector3.ZERO
-	var u := _ease((phase - 0.55) / 0.45)
-	var travel := 4.5 * sin(TAU * u)
-	var lift := 6.5 * sin(PI * u)
-	return Vector3(direction * travel, -0.35 * direction * travel - lift,
-		direction * 0.045 * sin(TAU * u))
+static func walk_cycle_info(layout: Dictionary, facing: String) -> Dictionary:
+	var shortest_leg: float = minf(_leg_length(layout, "r"), _leg_length(layout, "l"))
+	var stride: float = clampf(shortest_leg * 0.73, 24.0, 34.0)
+	var rear: bool = facing.to_lower().contains("rear") or facing.to_lower() == "back"
+	var projected_direction := Vector2(1.0, -0.28) if rear else Vector2(-1.0, 0.28)
+	projected_direction = projected_direction.normalized()
+	return {"direction": projected_direction, "stride_px": stride,
+		"travel_per_cycle": projected_direction * stride / WALK_STANCE_FRACTION,
+		"stance_fraction": WALK_STANCE_FRACTION, "foot_lift_px": shortest_leg * 0.28}
+
+
+static func walk_foot_state(phase: float, foot_name: String, layout: Dictionary, facing: String) -> Dictionary:
+	var info := walk_cycle_info(layout, facing)
+	var t: float = fposmod(phase + (0.5 if foot_name == "foot_l" else 0.0), 1.0)
+	var stride: float = info["stride_px"]
+	var travel: float
+	var lift := 0.0
+	var angle := 0.0
+	var contact: bool = t <= WALK_STANCE_FRACTION
+	if contact:
+		# A constant velocity here cancels the host's root translation exactly.
+		travel = stride * (0.5 - t / WALK_STANCE_FRACTION)
+	else:
+		var u: float = (t - WALK_STANCE_FRACTION) / (1.0 - WALK_STANCE_FRACTION)
+		# Hermite endpoint tangents match linear stance speed, including wrap.
+		# The toe briefly trails after push-off before accelerating past support.
+		var tangent: float = -stride * (1.0 - WALK_STANCE_FRACTION) / WALK_STANCE_FRACTION
+		travel = lerpf(-stride * 0.5, stride * 0.5, _ease(u)) + tangent * (2.0 * u * u * u - 3.0 * u * u + u)
+		lift = float(info["foot_lift_px"]) * pow(sin(PI * u), 1.35)
+		angle = -signf(Vector2(info["direction"]).x) * 0.16 * sin(TAU * u)
+	# The source neutral is a wide combat stance. Walking uses narrower lanes
+	# under the hips rather than forcing that splayed pose through every step.
+	var anchor: Vector2 = _joint_position(layout, foot_name)
+	var thigh: Vector2 = _joint_position(layout, foot_name.replace("foot_", "thigh_"))
+	anchor.x = lerpf(anchor.x, thigh.x, 0.70)
+	var ground: Vector2 = anchor + Vector2(info["direction"]) * travel
+	return {"target": ground + Vector2(0.0, -lift), "ground": ground,
+		"angle": angle, "contact": contact, "cycle_phase": t, "lift_px": lift}
+
+
+static func _leg_length(layout: Dictionary, suffix: String) -> float:
+	return _joint_position(layout, "thigh_" + suffix).distance_to(_joint_position(layout, "shin_" + suffix)) \
+		+ _joint_position(layout, "shin_" + suffix).distance_to(_joint_position(layout, "foot_" + suffix))
+
+
+static func _fit_walk_pelvis(pose: Dictionary, layout: Dictionary, right: Vector2, left: Vector2) -> void:
+	# Painted perspective gives the far leg a shorter chain. Lower the pelvis
+	# only as much as needed to reach the authored footprint without stretching
+	# skin or allowing IK clamping to create foot sliding during support.
+	var drop := 0.0
+	for suffix: String in ["r", "l"]:
+		var target: Vector2 = right if suffix == "r" else left
+		var start := _world_transform(pose, layout, "thigh_" + suffix).origin
+		var reach: float = _leg_length(layout, suffix) - 0.10
+		var horizontal: float = target.x - start.x
+		var vertical: float = sqrt(maxf(0.01, reach * reach - horizontal * horizontal))
+		drop = maxf(drop, target.y - start.y - vertical)
+	_offset(pose, "hips", Vector2(0.0, drop))
+
+
+static func _curve(t: float, keys: PackedVector2Array) -> float:
+	for index: int in range(1, keys.size()):
+		if t <= keys[index].x:
+			var previous: Vector2 = keys[index - 1]
+			var next: Vector2 = keys[index]
+			return lerpf(previous.y, next.y, _ease((t - previous.x) / (next.x - previous.x)))
+	return keys[keys.size() - 1].y
 
 
 static func _ease(value: float) -> float:

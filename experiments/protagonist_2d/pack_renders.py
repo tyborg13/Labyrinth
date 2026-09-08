@@ -15,6 +15,54 @@ def label(draw,at,text,size=22,color='#d8c9ae'):
     draw.text(at,text,font=font,fill=color)
 
 
+def iteration_comparison(output, clips):
+    """Compare retained renderer frames at their original timing and scale."""
+    baseline = output / 'pass1'
+    metadata_path = baseline / 'animations.json'
+    if not metadata_path.exists() or set(f for f, a in clips if a == 'walk') != {'front', 'rear'}:
+        return
+    metadata = json.loads(metadata_path.read_text())
+    prior = {}
+    for facing in ('front', 'rear'):
+        spec = metadata['animations']['walk'][facing]
+        sheet = Image.open(baseline / spec['sheet']).convert('RGBA')
+        prior[facing] = [sheet.crop(((i % spec['cols']) * 512, (i // spec['cols']) * 512,
+                                    (i % spec['cols'] + 1) * 512, (i // spec['cols'] + 1) * 512))
+                         for i in range(spec['frames'])]
+    # Both authored cycles are at 24fps. LCM makes both loop without a jump.
+    count = math.lcm(*(len(prior[f]) for f in prior), *(len(clips[(f, 'walk')]) for f in prior))
+    folder = output / 'video_frames' / 'comparison'
+    folder.mkdir(parents=True, exist_ok=True)
+    for frame in range(count):
+        canvas = Image.new('RGB', (1000, 880), '#1b1d20')
+        draw = ImageDraw.Draw(canvas)
+        label(draw, (30, 24), 'WALK / FIRST AND SECOND PASS', 25)
+        label(draw, (220, 70), 'Front', 21)
+        label(draw, (720, 70), 'Rear', 21)
+        for row, version in enumerate(('First pass', 'Second pass')):
+            label(draw, (30, 102 + row * 420), version, 20, '#c99b62')
+            for column, facing in enumerate(('front', 'rear')):
+                frames = prior[facing] if row == 0 else clips[(facing, 'walk')]
+                im = frames[frame % len(frames)].resize((640, 640), Image.Resampling.NEAREST)
+                canvas.paste(im, (250 + column * 500 - 319, 405 + row * 420 - 439), im)
+        draw.line((30, 455, 970, 455), fill='#4b4942', width=1)
+        canvas.save(folder / f'{frame:04d}.png')
+        if frame == 6:
+            canvas.save(output / 'walk_iteration_comparison.png')
+    ffmpeg = shutil.which('ffmpeg')
+    if ffmpeg:
+        subprocess.run([ffmpeg, '-y', '-loglevel', 'error', '-framerate', '24', '-i',
+                        str(folder / '%04d.png'), '-frames:v', str(count), '-c:v', 'libx264',
+                        '-crf', '16', '-pix_fmt', 'yuv420p', '-movflags', '+faststart',
+                        str(output / 'walk_iteration_comparison.mp4')], check=True)
+    (output / 'walk_iteration_comparison.json').write_text(json.dumps({
+        'baseline_commit': '9eee314ff1e5974d8cc635646eae6b48ed84f57c',
+        'baseline_source': 'pass1/front_walk.png and pass1/rear_walk.png',
+        'current_source': 'fresh Godot render frames', 'frame_count': count, 'fps': 24,
+        'scale': 1.25, 'resampler': 'nearest', 'interpolated_frames': False,
+    }, indent=2) + '\n')
+
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('frames_dir',type=Path)
     ap.add_argument('--output',type=Path,default=HERE/'renders')
@@ -55,7 +103,7 @@ def main():
         length=len(clips[(facings[0],action)])
         for frame in range(length):
             canvas=Image.new('RGB',(1200,760),'#1b1d20');d=ImageDraw.Draw(canvas)
-            label(d,(42,30),'REAVER / 2D SKELETAL EXPERIMENT',28)
+            label(d,(42,30),'REAVER / SECOND SKELETAL PASS',28)
             label(d,(42,80),action.upper(),24,'#c99b62')
             for index,facing in enumerate(facings):
                 center=340+index*500
@@ -64,16 +112,25 @@ def main():
                 doubled=im.resize((1024,1024),Image.Resampling.NEAREST)
                 canvas.paste(doubled,(center-511,630-702),doubled)
                 label(d,(center-95,137),'Front' if facing=='front' else 'Rear',22)
-            label(d,(42,704),'Original painted cutouts on 20 bones • fixed scale • in-place animation',19,'#a4a29a')
+            label(d,(42,704),'Weighted painted joints • fixed scale • in-place cycle; travel shown on board',19,'#a4a29a')
             canvas.save(video/f'{n:04d}.png');n+=1
             if action=='walk':walk_frames.append(canvas)
     ffmpeg=shutil.which('ffmpeg')
     if ffmpeg:
-        subprocess.run([ffmpeg,'-y','-loglevel','error','-framerate','24','-i',str(video/'%04d.png'),'-c:v','libx264','-crf','16','-pix_fmt','yuv420p','-movflags','+faststart',str(output/'animation_showcase.mp4')],check=True)
+        subprocess.run([ffmpeg,'-y','-loglevel','error','-framerate','24','-i',str(video/'%04d.png'),'-frames:v',str(n),'-c:v','libx264','-crf','16','-pix_fmt','yuv420p','-movflags','+faststart',str(output/'animation_showcase.mp4')],check=True)
     # A smaller loop is convenient for inline review of the requested two walks.
     if walk_frames:
         small=[im.resize((960,608),Image.Resampling.LANCZOS) for im in walk_frames]
-        small[0].save(output/'walking_front_rear.gif',save_all=True,append_images=small[1:],duration=42,loop=0,disposal=2,optimize=False)
+        # One palette avoids encoding-induced color flicker. GIF delays have
+        # 10ms precision, so distribute rounding instead of shortening every frame.
+        sample=Image.new('RGB',(300*4,190*math.ceil(len(small)/4)))
+        for index,im in enumerate(small):
+            sample.paste(im.resize((300,190),Image.Resampling.NEAREST),((index%4)*300,(index//4)*190))
+        palette=sample.quantize(colors=256,method=Image.Quantize.MEDIANCUT)
+        small=[im.quantize(palette=palette,dither=Image.Dither.NONE) for im in small]
+        times=[round(i*100/24)*10 for i in range(len(small)+1)]
+        delays=[b-a for a,b in zip(times,times[1:])]
+        small[0].save(output/'walking_front_rear.gif',save_all=True,append_images=small[1:],duration=delays,loop=0,disposal=2,optimize=False)
     # Equal framing, four phases of the front/rear walks.
     contact=Image.new('RGB',(1200,720),'#1b1d20');d=ImageDraw.Draw(contact)
     for row,facing in enumerate(facings):
@@ -84,6 +141,7 @@ def main():
             contact.paste(im,(col*300+6,row*360+54),im)
             label(d,(col*300+10,row*360+20),f'{facing.title()} / {frame+1}',18)
     contact.save(output/'walking_poses.png')
+    iteration_comparison(output, clips)
     print(json.dumps({'frames':count,'facings':facings,'sheets':len(clips),'video_frames':n,'rest':source['rest_reconstruction']},indent=2))
 
 if __name__=='__main__':main()

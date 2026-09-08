@@ -14,6 +14,8 @@ from pathlib import Path
 
 from PIL import Image, ImageChops, ImageDraw, ImageFont
 
+from mesh_assets import build_joint_meshes
+
 
 HERE = Path(__file__).resolve().parent
 PROJECT = HERE.parents[1]
@@ -274,15 +276,22 @@ def main():
             part['cape_segment'] = True
         parts.append(part)
     cape_mesh = _cape_mesh(source, base_masks['cape_full'])
+    joint_meshes = build_joint_meshes(source, masks, JOINTS, parts, OUTPUT, 'assets/front')
+    mesh_by_part = {mesh['replaces_part']: mesh for mesh in joint_meshes}
     proof = {}
-    for mode in ('segments', 'weighted_cape'):
+    for mode in ('segments', 'weighted_cape', 'weighted_joints'):
         composite = Image.new('RGBA', source.size)
-        if mode == 'weighted_cape':
+        if mode != 'segments':
             composite.alpha_composite(_masked(source, base_masks['cape_full']))
         for part in parts:
-            if mode == 'weighted_cape' and part.get('cape_segment'):
+            if mode != 'segments' and part.get('cape_segment'):
                 continue
-            composite.alpha_composite(_masked(source, masks[part['name']]))
+            if mode == 'weighted_joints' and part['name'] in mesh_by_part:
+                mesh = mesh_by_part[part['name']]
+                with Image.open(HERE / mesh['file']) as image:
+                    composite.alpha_composite(image, tuple(mesh['offset']))
+            else:
+                composite.alpha_composite(_masked(source, masks[part['name']]))
         difference = ImageChops.difference(source, composite)
         changed = sum(1 for pixel in difference.getdata() if any(pixel))
         proof[mode] = {'different_rgba_pixels': changed, 'exact_rest_reconstruction': changed == 0}
@@ -299,16 +308,18 @@ def main():
     comparison.resize((1020, 550), Image.Resampling.NEAREST).save(OUTPUT / 'rest_comparison.png')
     _contact_sheet(source, masks, parts)
     layout = {
-        'version': 1, 'facing': 'front', 'canvas_size': [255, 255],
+        'version': 2, 'facing': 'front', 'canvas_size': [255, 255],
         'source': '../../assets/placeholders/units/player_reaver.png',
         'source_sha256': hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
         'source_occupied_bbox': list(alpha.getbbox()), 'joints': JOINTS, 'parts': parts,
-        'cape_mesh': cape_mesh, 'source_only_joint_overlaps': overlap_report,
+        'cape_mesh': cape_mesh, 'joint_meshes': joint_meshes,
+        'source_only_joint_overlaps': overlap_report,
         'source_outline_assignments': outline_assignments,
         'exact_rest_proof': proof,
         'constraints': [
             'All colored pixels are copied unchanged from the original sprite; no hidden anatomy has been filled.',
             'The sword and gripping right hand remain one cutout to preserve their exact contact.',
+            'Sleeve and trouser meshes share source-space grids and weights; their body and boot/hand overlaps are pinned to the corresponding rigid bones.',
             'The left upper arm is mostly concealed by the cape; a broad overhead block will need a repaired hidden upper arm or a replacement pose.',
             'Large shoulder swings, torso twists and fully crossing legs expose unpainted source occlusions. Begin with restrained actions and inspect those gaps.',
             'Front walk retains the source facing. A separately authored rear sprite is required for rear-facing walking.',

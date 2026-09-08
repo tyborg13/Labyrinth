@@ -1,14 +1,14 @@
 Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
 Running visual probe:
-  namespace: protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1
-  HOME: /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1
-  command: godot --log-file /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment --script experiments/protagonist_2d/roundtrip_probe.gd
+  namespace: protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1
+  HOME: /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/protagonist-2d-skeletal-experiment --script experiments/protagonist_2d/roundtrip_probe.gd
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
 
-/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/protagonist_2d_roundtrip
+/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/protagonist_2d_roundtrip
 SAVED 2D RIG ROUNDTRIP: PASS
 Validated 2 screenshot(s):
-  /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png 512x512 luma=2.9 range=223.6 stdev=15.7
-  /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824573768220000-12409-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png 512x512 luma=3.0 range=255.0 stdev=15.6
-Visual proof result manifest: /private/tmp/protagonist-2d-roundtrip-result.json
+  /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/protagonist_2d_roundtrip/front_saved_walk.png 512x512 luma=2.9 range=223.6 stdev=15.6
+  /private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788827277923091000-56419-roundtrip_probe-1/protagonist_2d_roundtrip/rear_saved_walk.png 512x512 luma=3.3 range=254.8 stdev=15.8
+Visual proof result manifest: /private/tmp/protagonist-2d-v2-roundtrip-final.json

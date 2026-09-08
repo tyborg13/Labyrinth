@@ -99,9 +99,15 @@ func load_rig() -> bool:
 			load_errors.append("Cyclic or missing bone parents: " + str(remaining))
 			return false
 	var use_cape_mesh: bool = layout.get("cape_mesh", {}) is Dictionary and not (layout.get("cape_mesh", {}) as Dictionary).is_empty()
+	var joint_meshes: Array = layout.get("joint_meshes", [])
+	var replaced_parts: Dictionary = {}
+	for mesh: Dictionary in joint_meshes:
+		replaced_parts[str(mesh.get("replaces_part", ""))] = true
 	for raw_part: Variant in layout.get("parts", []):
 		var part: Dictionary = raw_part
 		if use_cape_mesh and bool(part.get("cape_segment", false)):
+			continue
+		if replaced_parts.has(str(part.get("name", ""))):
 			continue
 		var bone_name: String = str(part.get("bone", ""))
 		if not bones.has(bone_name):
@@ -117,7 +123,9 @@ func load_rig() -> bool:
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		sprite.owner = self
 	if use_cape_mesh:
-		_build_cape(layout["cape_mesh"] as Dictionary)
+		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape")
+	for mesh: Dictionary in joint_meshes:
+		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")))
 	if not load_errors.is_empty():
 		return false
 	specs = Motion.clip_specs()
@@ -127,10 +135,13 @@ func load_rig() -> bool:
 	set_clip(clip)
 	return true
 
-func _build_cape(data: Dictionary) -> void:
-	var cape := Polygon2D.new()
-	cape.name = "PaintedCape"
-	cape.texture = _texture(str(data["file"]))
+func _build_mesh(data: Dictionary, mesh_name: String) -> void:
+	# Meshes share the skeleton's source-pixel coordinate space. Parenting them
+	# to a Bone2D would apply that moving transform a second time.
+	var mesh := Polygon2D.new()
+	mesh.name = mesh_name
+	mesh.texture = _texture(str(data["file"]))
+	mesh.texture_repeat = CanvasItem.TEXTURE_REPEAT_DISABLED
 	var vertices := PackedVector2Array()
 	var uvs := PackedVector2Array()
 	for point: Variant in data["vertices"]:
@@ -138,28 +149,48 @@ func _build_cape(data: Dictionary) -> void:
 	for point: Variant in data["uvs"]:
 		uvs.append(_vector(point))
 	if vertices.size() != uvs.size():
-		load_errors.append("Cape vertex/UV count differs")
-		cape.free()
+		load_errors.append(mesh_name + ": vertex/UV count differs")
+		mesh.free()
 		return
-	cape.polygon = vertices
-	cape.uv = uvs
+	mesh.polygon = vertices
+	mesh.uv = uvs
 	var triangles: Array = []
 	for triangle: Variant in data["triangles"]:
+		if triangle.size() != 3:
+			load_errors.append(mesh_name + ": a mesh face must contain three indices")
+			mesh.free()
+			return
+		for index: int in triangle:
+			if index < 0 or index >= vertices.size():
+				load_errors.append(mesh_name + ": triangle index outside vertex array")
+				mesh.free()
+				return
 		triangles.append(PackedInt32Array(triangle))
-	cape.polygons = triangles
-	cape.z_index = int(data.get("z_index", 3))
-	cape.z_as_relative = false
-	add_child(cape)
-	cape.owner = self
-	cape.skeleton = cape.get_path_to(skeleton)
+	mesh.polygons = triangles
+	mesh.z_index = int(data.get("z_index", 3))
+	mesh.z_as_relative = false
+	add_child(mesh)
+	mesh.owner = self
+	mesh.skeleton = mesh.get_path_to(skeleton)
 	var weights: Dictionary = data["weights"]
+	var totals := PackedFloat32Array()
+	totals.resize(vertices.size())
 	for bone_name: String in weights:
 		var influence := PackedFloat32Array(weights[bone_name])
 		if influence.size() != vertices.size() or not bones.has(bone_name):
-			load_errors.append("Invalid cape skin weights: " + bone_name)
+			load_errors.append(mesh_name + ": invalid skin weights for " + bone_name)
 			continue
-		cape.add_bone(skeleton.get_path_to(bones[bone_name]), influence)
-	cape.queue_redraw()
+		for index: int in range(influence.size()):
+			if not is_finite(influence[index]) or influence[index] < 0.0:
+				load_errors.append(mesh_name + ": invalid influence for " + bone_name)
+				return
+			totals[index] += influence[index]
+		mesh.add_bone(skeleton.get_path_to(bones[bone_name]), influence)
+	for total: float in totals:
+		if absf(total - 1.0) > 0.001:
+			load_errors.append(mesh_name + ": vertex weights do not sum to one")
+			return
+	mesh.queue_redraw()
 
 func _build_animations() -> void:
 	animator = AnimationPlayer.new()

@@ -1,9 +1,409 @@
 {
-  "regenerated_assets": 48,
+  "method": "Regenerate in isolated copy of authoring inputs and compare SHA256 with current outputs.",
+  "input_scripts": {
+    "prepare_rear.py": "bad560987b02eb21f623270721687a0676289e56031c9e492c128c78c88d19a5",
+    "cutout_assets.py": "3d7b493c45ebe2d67ffbed555fbec8d7f5ac086a722046e425525eb90b7ecf1a",
+    "rear_assets.py": "4c7c5e1e49916d9e9f8180c1ef3eb6d1c88d8aab43ff2d36fb59c72574c0bc77",
+    "mesh_assets.py": "e33c0dbafddcb49d13613c61949d78b6a7f6d058e5519038ae72edffa763d95c"
+  },
+  "checked_files": 66,
   "changed_files": [],
-  "scripts": [
-    "prepare_rear.py",
-    "cutout_assets.py",
-    "rear_assets.py"
+  "files": [
+    {
+      "path": "assets/front/arm_l.png",
+      "sha256": "720292fa7d6bfdde498788ed6728a158322889bdb0f54111db764cf9ad07e4b4",
+      "reproduced_sha256": "720292fa7d6bfdde498788ed6728a158322889bdb0f54111db764cf9ad07e4b4",
+      "equal": true
+    },
+    {
+      "path": "assets/front/arm_l_skin.png",
+      "sha256": "32f9bb986207b6ce6a5196554d62719061574381bc8f28d797915434d71ea989",
+      "reproduced_sha256": "32f9bb986207b6ce6a5196554d62719061574381bc8f28d797915434d71ea989",
+      "equal": true
+    },
+    {
+      "path": "assets/front/arm_r.png",
+      "sha256": "7390300cfcc634ef23a8219a0b09e0d8c7ca8309a503062a0fe2a5e0a70e634e",
+      "reproduced_sha256": "7390300cfcc634ef23a8219a0b09e0d8c7ca8309a503062a0fe2a5e0a70e634e",
+      "equal": true
+    },
+    {
+      "path": "assets/front/arm_r_skin.png",
+      "sha256": "0fa0eb6d2bdd6945eb24d353c07c46b7e399ec0c1572a9d4b588174e31950560",
+      "reproduced_sha256": "0fa0eb6d2bdd6945eb24d353c07c46b7e399ec0c1572a9d4b588174e31950560",
+      "equal": true
+    },
+    {
+      "path": "assets/front/cape_full.png",
+      "sha256": "65ddc64f96d3b3f9743ab406bfeb67b51177e98d089a147dcdd2413d9116c6a9",
+      "reproduced_sha256": "65ddc64f96d3b3f9743ab406bfeb67b51177e98d089a147dcdd2413d9116c6a9",
+      "equal": true
+    },
+    {
+      "path": "assets/front/cape_lower.png",
+      "sha256": "f2d96ed45e6ececbcb74f92c3856a63b3672f41b7c8685dcbe8badf3c9dc22d4",
+      "reproduced_sha256": "f2d96ed45e6ececbcb74f92c3856a63b3672f41b7c8685dcbe8badf3c9dc22d4",
+      "equal": true
+    },
+    {
+      "path": "assets/front/cape_middle.png",
+      "sha256": "6a4fc5e5543068660150d265e38f9c85a5926b840b7c0649e0ac9688af567538",
+      "reproduced_sha256": "6a4fc5e5543068660150d265e38f9c85a5926b840b7c0649e0ac9688af567538",
+      "equal": true
+    },
+    {
+      "path": "assets/front/cape_upper.png",
+      "sha256": "477233d45f30fe8001a04c91b2d7e86385284de177d75301e0303eb0ea670b3b",
+      "reproduced_sha256": "477233d45f30fe8001a04c91b2d7e86385284de177d75301e0303eb0ea670b3b",
+      "equal": true
+    },
+    {
+      "path": "assets/front/cutout_contact_sheet.png",
+      "sha256": "93f6ca52ea93baf46ff28be5490cda8fceda854c7ea23aa081749e9593c29e39",
+      "reproduced_sha256": "93f6ca52ea93baf46ff28be5490cda8fceda854c7ea23aa081749e9593c29e39",
+      "equal": true
+    },
+    {
+      "path": "assets/front/foot_l.png",
+      "sha256": "14cc0c29b8ce291e5a7c43a194e7e05daa7202403745838ce749f418b785b9ee",
+      "reproduced_sha256": "14cc0c29b8ce291e5a7c43a194e7e05daa7202403745838ce749f418b785b9ee",
+      "equal": true
+    },
+    {
+      "path": "assets/front/foot_r.png",
+      "sha256": "43bf23cf6e88adeedab530923c65a3fa7943d738489040a6d2aab6a2cb876bd3",
+      "reproduced_sha256": "43bf23cf6e88adeedab530923c65a3fa7943d738489040a6d2aab6a2cb876bd3",
+      "equal": true
+    },
+    {
+      "path": "assets/front/forearm_l.png",
+      "sha256": "a483156d0420410b10165a29e9bc15ea5c62966443f625dc695b1c35b924f48f",
+      "reproduced_sha256": "a483156d0420410b10165a29e9bc15ea5c62966443f625dc695b1c35b924f48f",
+      "equal": true
+    },
+    {
+      "path": "assets/front/forearm_l_skin.png",
+      "sha256": "d68b34120c23940909a4addffa7795ab135514247103d50d35e9701bcd18a9a7",
+      "reproduced_sha256": "d68b34120c23940909a4addffa7795ab135514247103d50d35e9701bcd18a9a7",
+      "equal": true
+    },
+    {
+      "path": "assets/front/forearm_r.png",
+      "sha256": "56aff9a97133ca91c209ddb03777f945c950fd402e9b6609972dc6e512499b50",
+      "reproduced_sha256": "56aff9a97133ca91c209ddb03777f945c950fd402e9b6609972dc6e512499b50",
+      "equal": true
+    },
+    {
+      "path": "assets/front/forearm_r_skin.png",
+      "sha256": "c9842e7b834823bdf5bb7e2efc8f75a13adf735fdce8e2b0a770806ef02ddec7",
+      "reproduced_sha256": "c9842e7b834823bdf5bb7e2efc8f75a13adf735fdce8e2b0a770806ef02ddec7",
+      "equal": true
+    },
+    {
+      "path": "assets/front/hand_l.png",
+      "sha256": "f69bc453db9d2c47e4bcb2bcf1ee3822aeadba2941ac967670b898aab7755252",
+      "reproduced_sha256": "f69bc453db9d2c47e4bcb2bcf1ee3822aeadba2941ac967670b898aab7755252",
+      "equal": true
+    },
+    {
+      "path": "assets/front/head.png",
+      "sha256": "ec8abd369f8ec94e2315639eab8240e7bf35945e9db196e4cf1193b03452b0fe",
+      "reproduced_sha256": "ec8abd369f8ec94e2315639eab8240e7bf35945e9db196e4cf1193b03452b0fe",
+      "equal": true
+    },
+    {
+      "path": "assets/front/hips.png",
+      "sha256": "2e17ee2cb5437dad3639d09cae69262d4ed0e735c5b2b3e54fb386989299b976",
+      "reproduced_sha256": "2e17ee2cb5437dad3639d09cae69262d4ed0e735c5b2b3e54fb386989299b976",
+      "equal": true
+    },
+    {
+      "path": "assets/front/reconstruction_proof.json",
+      "sha256": "309a420efb4626a44617c2cdc11b68eef9607907304b40149464bef3b8b55415",
+      "reproduced_sha256": "309a420efb4626a44617c2cdc11b68eef9607907304b40149464bef3b8b55415",
+      "equal": true
+    },
+    {
+      "path": "assets/front/rest_comparison.png",
+      "sha256": "58793525fa636f490f5757d2bbc7b1a260b729d78aaa9fec6b32bfd20f15c100",
+      "reproduced_sha256": "58793525fa636f490f5757d2bbc7b1a260b729d78aaa9fec6b32bfd20f15c100",
+      "equal": true
+    },
+    {
+      "path": "assets/front/rest_reconstruction_segments.png",
+      "sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "reproduced_sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "equal": true
+    },
+    {
+      "path": "assets/front/rest_reconstruction_weighted_cape.png",
+      "sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "reproduced_sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "equal": true
+    },
+    {
+      "path": "assets/front/rest_reconstruction_weighted_joints.png",
+      "sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "reproduced_sha256": "6ccebb0a5653affdb57a82fe190a191e57d34e06e4ab297d4be163cc06c3fe7c",
+      "equal": true
+    },
+    {
+      "path": "assets/front/scarf.png",
+      "sha256": "ceb91d71ba79df8e5056990c0da6fa0fdc420a4e7c448915a6ddc0c3ce0f4bcf",
+      "reproduced_sha256": "ceb91d71ba79df8e5056990c0da6fa0fdc420a4e7c448915a6ddc0c3ce0f4bcf",
+      "equal": true
+    },
+    {
+      "path": "assets/front/shin_l.png",
+      "sha256": "6ede893c7140c675892abf8251d60a0ffd0fb94f2d91150d23de986355062703",
+      "reproduced_sha256": "6ede893c7140c675892abf8251d60a0ffd0fb94f2d91150d23de986355062703",
+      "equal": true
+    },
+    {
+      "path": "assets/front/shin_l_skin.png",
+      "sha256": "83a98f9fe84a734c30c1a8384757455d1a319917479f6d22dd6092e496d41c31",
+      "reproduced_sha256": "83a98f9fe84a734c30c1a8384757455d1a319917479f6d22dd6092e496d41c31",
+      "equal": true
+    },
+    {
+      "path": "assets/front/shin_r.png",
+      "sha256": "7a9ebc98af24d8b6047129c737da091f13b00019d86d8fd06019a84695141a0e",
+      "reproduced_sha256": "7a9ebc98af24d8b6047129c737da091f13b00019d86d8fd06019a84695141a0e",
+      "equal": true
+    },
+    {
+      "path": "assets/front/shin_r_skin.png",
+      "sha256": "5ddaf4023ee5dbbf57bff0be98f8ffdc4e0dcbdedbe7b6db3c2c939b74b28ea2",
+      "reproduced_sha256": "5ddaf4023ee5dbbf57bff0be98f8ffdc4e0dcbdedbe7b6db3c2c939b74b28ea2",
+      "equal": true
+    },
+    {
+      "path": "assets/front/sword_hand_r.png",
+      "sha256": "46183f89fd03d3da4054bbd98cce0760cb4aa8b3069941e46ae939464684d2b0",
+      "reproduced_sha256": "46183f89fd03d3da4054bbd98cce0760cb4aa8b3069941e46ae939464684d2b0",
+      "equal": true
+    },
+    {
+      "path": "assets/front/thigh_l.png",
+      "sha256": "46be49712c63387695c9cb56aa37c321acfd7b5d8f4e0d0ef8520f4ba9a8c94b",
+      "reproduced_sha256": "46be49712c63387695c9cb56aa37c321acfd7b5d8f4e0d0ef8520f4ba9a8c94b",
+      "equal": true
+    },
+    {
+      "path": "assets/front/thigh_l_skin.png",
+      "sha256": "222e6a1bf0ec22dac5c134a6547a34aadb5b2da45fa40942a810afb573b02095",
+      "reproduced_sha256": "222e6a1bf0ec22dac5c134a6547a34aadb5b2da45fa40942a810afb573b02095",
+      "equal": true
+    },
+    {
+      "path": "assets/front/thigh_r.png",
+      "sha256": "b4c45283a18b32f7d2aba4e075743b5dce480a1b732f180e945109162cc23590",
+      "reproduced_sha256": "b4c45283a18b32f7d2aba4e075743b5dce480a1b732f180e945109162cc23590",
+      "equal": true
+    },
+    {
+      "path": "assets/front/thigh_r_skin.png",
+      "sha256": "5cfc3c18555344604bbc012e1bd2d469fc24e51542b12dce52360faeb92e2a71",
+      "reproduced_sha256": "5cfc3c18555344604bbc012e1bd2d469fc24e51542b12dce52360faeb92e2a71",
+      "equal": true
+    },
+    {
+      "path": "assets/front/torso.png",
+      "sha256": "7cea0adc822ec9429aad86771e013c6992f68e08f2cf0889316d47a19f75047a",
+      "reproduced_sha256": "7cea0adc822ec9429aad86771e013c6992f68e08f2cf0889316d47a19f75047a",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/arm_r.png",
+      "sha256": "9717486f1fc8405d0ef72dc4938ddffcb804fc8e37ac1a46031d7d8f7f4f4f9d",
+      "reproduced_sha256": "9717486f1fc8405d0ef72dc4938ddffcb804fc8e37ac1a46031d7d8f7f4f4f9d",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/arm_r_skin.png",
+      "sha256": "abee4ce1ca84a6eb94e5e525bf1938784d68031609c3c0caae50814369fca33e",
+      "reproduced_sha256": "abee4ce1ca84a6eb94e5e525bf1938784d68031609c3c0caae50814369fca33e",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/cape_full.png",
+      "sha256": "def1eb1e53ca43a1b7dbc30fca3c0e72fdc9807e2fbd043ef384792b16f49e73",
+      "reproduced_sha256": "def1eb1e53ca43a1b7dbc30fca3c0e72fdc9807e2fbd043ef384792b16f49e73",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/cape_lower.png",
+      "sha256": "002e672b45dc9201a1d0ffd52db5d811dc2761bed2d651818bd060c5fd7bc957",
+      "reproduced_sha256": "002e672b45dc9201a1d0ffd52db5d811dc2761bed2d651818bd060c5fd7bc957",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/cape_middle.png",
+      "sha256": "d01877dd8dc886492465ab38333fe631731ab720c9cfd4e735fa2aee0b2e47a4",
+      "reproduced_sha256": "d01877dd8dc886492465ab38333fe631731ab720c9cfd4e735fa2aee0b2e47a4",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/cape_upper.png",
+      "sha256": "b8acc88c9acbb86a9732432901507718c72df7831d8fdcc1248098a3d22a86cb",
+      "reproduced_sha256": "b8acc88c9acbb86a9732432901507718c72df7831d8fdcc1248098a3d22a86cb",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/cutout_contact_sheet.png",
+      "sha256": "0cad3d14218de085d74b98605aed2150cc5525421bcfbba627f54f7c46bf0f14",
+      "reproduced_sha256": "0cad3d14218de085d74b98605aed2150cc5525421bcfbba627f54f7c46bf0f14",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/foot_l.png",
+      "sha256": "9d14a7ec4356701adf850433d8e626a7de9a4aa7f9e2f6685c419f5f529a902b",
+      "reproduced_sha256": "9d14a7ec4356701adf850433d8e626a7de9a4aa7f9e2f6685c419f5f529a902b",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/foot_r.png",
+      "sha256": "4e880795ad90a21ebe88b0406454172ed1eb4c8ef1cb16d910e1a6fc9f7de064",
+      "reproduced_sha256": "4e880795ad90a21ebe88b0406454172ed1eb4c8ef1cb16d910e1a6fc9f7de064",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/forearm_r.png",
+      "sha256": "5dc036532b39b0485cab7a468b2f6de78d1919b86909a261c7f6c7a3fabe061a",
+      "reproduced_sha256": "5dc036532b39b0485cab7a468b2f6de78d1919b86909a261c7f6c7a3fabe061a",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/forearm_r_skin.png",
+      "sha256": "0da8308c7b43e886b44f7b683495223ee4a1ddedb7a9510938a33482570a90a2",
+      "reproduced_sha256": "0da8308c7b43e886b44f7b683495223ee4a1ddedb7a9510938a33482570a90a2",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/head.png",
+      "sha256": "3d83bdb0646edf216218ba3c3bdcb8b6089076d96feacbd7101f7c00d0054266",
+      "reproduced_sha256": "3d83bdb0646edf216218ba3c3bdcb8b6089076d96feacbd7101f7c00d0054266",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/hips.png",
+      "sha256": "1134f0582397a4d5e95e2c61cc8797167bff766b78c054d0ffd03a0cef61ed44",
+      "reproduced_sha256": "1134f0582397a4d5e95e2c61cc8797167bff766b78c054d0ffd03a0cef61ed44",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/reconstruction_proof.json",
+      "sha256": "2d3b0b75d3703c4c6a754c95204a49294ac52f4045817d171ba3f34add81e22f",
+      "reproduced_sha256": "2d3b0b75d3703c4c6a754c95204a49294ac52f4045817d171ba3f34add81e22f",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/rest_comparison.png",
+      "sha256": "26998481875c02fa737c6d7fffaf7e38e68b62116b123746bad6f9fbf46e1287",
+      "reproduced_sha256": "26998481875c02fa737c6d7fffaf7e38e68b62116b123746bad6f9fbf46e1287",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/rest_reconstruction_segments.png",
+      "sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "reproduced_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/rest_reconstruction_weighted_cape.png",
+      "sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "reproduced_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/scarf.png",
+      "sha256": "1e5ca63e7a13e4cdd20d013297b9f60566091c725e11ad84ce50004a6451a26d",
+      "reproduced_sha256": "1e5ca63e7a13e4cdd20d013297b9f60566091c725e11ad84ce50004a6451a26d",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/shin_l.png",
+      "sha256": "faed83fd81ea460fde9a762f765dd179d5f09ebee2b15687a5c53a71898fe804",
+      "reproduced_sha256": "faed83fd81ea460fde9a762f765dd179d5f09ebee2b15687a5c53a71898fe804",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/shin_l_skin.png",
+      "sha256": "b16ebe6585b0929161f02ec2756f5f64217acc598bcd0e70e467b805f716dfa0",
+      "reproduced_sha256": "b16ebe6585b0929161f02ec2756f5f64217acc598bcd0e70e467b805f716dfa0",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/shin_r.png",
+      "sha256": "b2d5d706fe4dd6ddd12afa828a134fb72e8996771b0e722c9263e48321115027",
+      "reproduced_sha256": "b2d5d706fe4dd6ddd12afa828a134fb72e8996771b0e722c9263e48321115027",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/shin_r_skin.png",
+      "sha256": "85705abf5c0c73973482ffb4957a68c14efea11a72f806a586e9c88f7e262e99",
+      "reproduced_sha256": "85705abf5c0c73973482ffb4957a68c14efea11a72f806a586e9c88f7e262e99",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/sword_hand_r.png",
+      "sha256": "86b75c895b48da526184c041bc4c23184e5b7fc3202d32b4e839a20f93c80433",
+      "reproduced_sha256": "86b75c895b48da526184c041bc4c23184e5b7fc3202d32b4e839a20f93c80433",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/thigh_l.png",
+      "sha256": "0e81e8ed47de8be04aab9b3782813d1123e03809b7dda6b4bc8b16feb3060ba5",
+      "reproduced_sha256": "0e81e8ed47de8be04aab9b3782813d1123e03809b7dda6b4bc8b16feb3060ba5",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/thigh_l_skin.png",
+      "sha256": "3fa9f76cf4c16e784bb0df49ef88eb1eec05346761bcfc748864235753a9fbf1",
+      "reproduced_sha256": "3fa9f76cf4c16e784bb0df49ef88eb1eec05346761bcfc748864235753a9fbf1",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/thigh_r.png",
+      "sha256": "341c944cfab9d780ab88b12a6d984a132f2577f46c75c3c18c8d109eef7d4322",
+      "reproduced_sha256": "341c944cfab9d780ab88b12a6d984a132f2577f46c75c3c18c8d109eef7d4322",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/thigh_r_skin.png",
+      "sha256": "771d5097b1178781bf2492150c738d2d2dd90c10b938974bf5abb6ad66a7a5b0",
+      "reproduced_sha256": "771d5097b1178781bf2492150c738d2d2dd90c10b938974bf5abb6ad66a7a5b0",
+      "equal": true
+    },
+    {
+      "path": "assets/rear/torso.png",
+      "sha256": "03ebc2b5cd60c1f7f74eb4d39688606e30978a51d6ab0abd76847b0ee92110e3",
+      "reproduced_sha256": "03ebc2b5cd60c1f7f74eb4d39688606e30978a51d6ab0abd76847b0ee92110e3",
+      "equal": true
+    },
+    {
+      "path": "cutout_layout.json",
+      "sha256": "564d7784c672e2ec8a4dc83838ca2f3d9949f6ed6071f6159f7703beb348656c",
+      "reproduced_sha256": "564d7784c672e2ec8a4dc83838ca2f3d9949f6ed6071f6159f7703beb348656c",
+      "equal": true
+    },
+    {
+      "path": "cutout_layout_rear.json",
+      "sha256": "1a8d19bc7d28a7c6bf0bb8e4b926e1092a15f85bdaf906c6ed19fd60163afd0b",
+      "reproduced_sha256": "1a8d19bc7d28a7c6bf0bb8e4b926e1092a15f85bdaf906c6ed19fd60163afd0b",
+      "equal": true
+    },
+    {
+      "path": "references/rear.png",
+      "sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "reproduced_sha256": "818350b4156ad5c17cb0fbdd2572957050c5c22fe9fcc276d8a43eaf62f017b3",
+      "equal": true
+    },
+    {
+      "path": "references/rear_preparation.json",
+      "sha256": "718f755ef92be36a134be74a5b8f3c3b6740590d9b7507258495ac70e25ba992",
+      "reproduced_sha256": "718f755ef92be36a134be74a5b8f3c3b6740590d9b7507258495ac70e25ba992",
+      "equal": true
+    }
   ]
 }

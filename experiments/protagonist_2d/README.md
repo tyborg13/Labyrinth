@@ -1,59 +1,63 @@
 # Protagonist 2D skeletal animation experiment
 
-This experiment tests whether the existing painted protagonist can gain useful animations through a 2D cutout rig. The priority here is walking from both front and rear while keeping the game’s painted appearance.
+This is the second pass on the painted protagonist animation study. It revises the rear character art, replaces rigid limb connections with weighted mesh joints, and authors a fuller walk with matching movement across the actual combat board. Idle, attack, block and hit remain available in both facings.
 
-Open `inspection.tscn` to compare the live rig with its static reference on the actual combat board. The rig runs inside a transparent SubViewport; the board receives its live texture. The top comparison shows the original 255px framing, and the detail view can expose the bones. See [inspection.md](inspection.md) for the verified launch and proof commands.
+Open `inspection.tscn` for the live comparison, or follow [the verified inspection instructions](inspection.md). The viewer supports front/rear selection, five actions, walking across the floor, original/reference comparison, pause/frame-step and optional detail bones. [Second-pass rationale and research](iteration_2.md) records the user feedback, source-backed techniques and remaining limits.
 
-## Results and limits
+## Preview artifacts
 
-Both views have a real 20-bone `Skeleton2D`, cropped painted `Sprite2D` parts, a weighted `Polygon2D` cape, and five editable `AnimationPlayer` clips: idle, walk, attack, block, and hit. The front uses the exact original sprite pixels. The rear uses a separately generated, reviewed rear view; it is not a mirror of the front.
+- `renders/board/videos/walking_front_rear.mp4`: front/rear walking across the real combat board, with inspection controls visible.
+- `renders/board/videos/walking_front_rear_paired.gif`: paired front/rear floor-contact preview at fixed camera positions.
+- `renders/walking_front_rear.gif`: paired in-place cycles at fixed scale.
+- `renders/walk_iteration_comparison.mp4`: first/second-pass walks, retaining each cycle's original timing.
+- `renders/animation_showcase.mp4`: the five actions from both directions.
+- `references/rear_comparison.png`: canonical front, first rear interpretation and revised rear at identical scale.
+- `renders/pass1/`: retained first-pass walk sheets, previews and board evidence for comparison.
 
-The neutral front and rear rigs render pixel-identically to their respective reference images: zero alpha differences and zero color differences in the actual Godot renderer. All 344 animation frames fit one 512px canvas without per-frame cropping, scaling or recentering. The original 255px image occupies offset (128,128); this stable mapping keeps the character’s board placement and health bar unchanged.
+## What changed
 
-The walk was tuned at native board size, using 4.5 source pixels of travel, 6.5 of lift, and opposing arm motion. Inspected front/rear frames retain connected knees and ankles. The motion is an in-place walking study, not integrated board traversal. Hit, guard and sword gestures work within a limited range. Large turns, extreme foreshortening and newly exposed surfaces still need additional painted views or repaired layers; this is not a general 360-degree character.
+Each facing still has a real 20-bone `Skeleton2D` and five editable `AnimationPlayer` clips. The front uses the original source pixels. The rear uses a separately generated rear image and freshly placed masks/pivots; its source and complete ImageGen prompts are retained under `references/`.
 
-The rear reference is a plausible interpretation of hidden costume details. Its leather detailing is somewhat more ornate than the front. Its first version was rejected for a cloak reaching too close to the boot soles and an opaque painted checkerboard. The retained corrected version shortens the cloak, exposes the lower legs, and uses a removable solid key background. See [references/rear_review.json](references/rear_review.json) and [references/prompts.json](references/prompts.json).
+The cape is a weighted `Polygon2D`. Upper/lower sleeve and trouser pieces now use paired meshes with matching source-space geometry and weights. Their existing source overlap stays attached to the same body, hand or foot bone. Elbow bands use local pin neighborhoods so endpoint locking does not collapse a whole short forearm cross-section. The boots, hands and sword remain rigid. This addresses separation at the cut boundaries while retaining their painted silhouettes.
 
-Production character assets and combat routing are outside this experiment. The live viewer and exported 512px sheets are inspection assets. A production integration would need animation triggers, movement timing, memory/performance evaluation, and broader action coverage.
+The walk is 24 frames at 24fps, with approximately 30 source pixels of fore/aft stride, 11.6px foot lift, narrower walking foot lanes, weight transfer and counterrotation. Its 60% stance phase moves a planted foot backward relative to the body. The board's matching forward travel keeps that foot planted in world space. Attack, block and hit have staged preparation/impact/recovery; the raised block guard is visually distinct from the sword strike.
 
-## Editable sources
+## Verification
 
-- `cutout_assets.py`, `cutout_layout.json`, `assets/front/`: source-only front masks, crops, pivots and exact-rest proof.
-- `prepare_rear.py`, `rear_assets.py`, `cutout_layout_rear.json`, `assets/rear/`: deterministic rear keying, sizing, masks and proof.
-- `cutout_rig.gd`: real bone hierarchy, sprite bindings, cape weights and AnimationPlayer authoring.
-- `cutout_motion.gd`: complete local poses with analytic leg IK, exact neutral endpoints and cape follow-through.
-- `rigs/reaver_front.tscn`, `rigs/reaver_rear.tscn`: saved editable Godot scenes with their painted textures and five animation clips. Select the `Animations` node to inspect the clips in Godot.
-- `renders/animation_showcase.mp4`, `renders/walking_front_rear.gif`: paired rendered previews.
-- `renders/animations.json` and ten PNG sheets: fixed 512px cells with timing and anchor metadata.
-- `renders/board/`: fresh 1920×1080 real-board proof and videos.
+Both neutral rigs reproduce their reference images in Godot without alpha or opaque-color mismatches. All 328 authored motion frames fit the fixed 512px canvas. The original 255px image retains offset (128, 128), so source placement never changes through per-frame cropping or recentering.
 
-## Reproduction
+Retained proof includes:
 
-From this task worktree, with Godot 4.6, Python 3/Pillow, and ffmpeg available:
+- `renders/render_validation.json` and `renderer_proof_result.json`: both references, canvas bounds and actual renderer trajectories.
+- `renders/motion_validation.json`: actual-layout IK, foot-contact/world-travel drift and loop continuity across 257 phases of every clip.
+- `renders/joint_mesh_validation.json`: normalized skinning, common geometry, rigid endpoint welds and source texture identity.
+- `renders/roundtrip/`: real-renderer comparisons after saving and loading both editable scenes.
+- `renders/board/`: fresh 1920×1080, 100% UI proof, native focus/pause/step/travel checks and captured motion.
+- `renders/asset_reproduction.json`: hashes before/after deterministic regeneration.
+
+The screenshots and videos require visual review as well as these numeric checks. Exact rest reconstruction cannot establish convincing motion, and shared weights cannot supply missing artwork.
+
+## Editable sources and reproduction
+
+`cutout_assets.py` owns the front masks; `prepare_rear.py` and `rear_assets.py` own rear preparation/masks. `mesh_assets.py` authors joint topology/weights. `cutout_motion.gd` authors complete bone poses and exposes the walk displacement contract. `cutout_rig.gd` builds and saves the rig. `rigs/reaver_front.tscn` and `rigs/reaver_rear.tscn` are editable scenes; select their `Animations` node to preview clips.
+
+From this task worktree, using Godot 4.6, Python 3/Pillow and ffmpeg:
 
 ```bash
 python3 experiments/protagonist_2d/prepare_rear.py
 python3 experiments/protagonist_2d/cutout_assets.py
 python3 experiments/protagonist_2d/rear_assets.py
-python3 tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- godot --headless --path . --check-only --script experiments/protagonist_2d/render_frames_probe.gd
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment
+LABYRINTH_CUTOUT_POSE_MATRICES=/private/tmp/reaver-2d-v2-poses.json python3 tools/godot_task_runner.py --task-id protagonist-2d-skeletal-experiment --stream -- godot --headless --path . --script experiments/protagonist_2d/motion_contract_probe.gd
+python3 experiments/protagonist_2d/joint_mesh_contract_probe.py --pose-matrices /private/tmp/reaver-2d-v2-poses.json
+python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --timeout 60 --result-manifest /private/tmp/reaver-2d-v2-render-result.json experiments/protagonist_2d/render_frames_probe.gd --task-id protagonist-2d-skeletal-experiment
 ```
 
-The render probe prints its unique output directory. Pass that directory to the packer:
+Pass the render probe's printed directory to `pack_renders.py '<directory>' --require-both`. Every probe rerun needs a fresh result-manifest path. The packer creates ten fixed-cell sheets and timing/anchor metadata, both saved scenes, and previews assembled only from actual rendered frames. See [inspection.md](inspection.md) for board proof and video encoding. Intermediate video frames stay outside Git.
 
-```bash
-python3 experiments/protagonist_2d/pack_renders.py '<printed output directory>' --require-both
-python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --expect-size 512x512 --result-manifest /private/tmp/reaver-2d-roundtrip-result.json experiments/protagonist_2d/roundtrip_probe.gd --task-id protagonist-2d-skeletal-experiment
-```
+## Limits and inspection fixture
 
-Every rerun needs a fresh result-manifest path. The renderer records the actual joint trajectories and alpha bounds. The separate roundtrip probe loads the saved scenes and checks their pixels against freshly built rigs across all five clips. Intermediate video frames remain excluded from Git; retained videos and sheets can be regenerated from the scripts.
+The revised rear is closer in proportions and costume, but still infers hidden surfaces. Its hair is somewhat more rounded and its armor highlights more regular than the canonical front. [The rear-art review](references/rear_review.json) preserves that distinction.
 
-## Technical references
+The two paintings do not support unrestricted perspective changes. Deep bends can compress trouser texture, and larger turns or newly exposed anatomy need additional painted views or coverage. Animated shadow deformation and production performance evaluation remain outside this study.
 
-The approach follows Godot’s [cutout animation workflow](https://docs.godotengine.org/en/4.6/tutorials/animation/cutout_animation.html), [2D skeleton workflow](https://docs.godotengine.org/en/stable/tutorials/animation/2d_skeletons.html), and [Bone2D API](https://docs.godotengine.org/en/stable/classes/class_bone2d.html). The cape uses texture-pixel UVs and bone paths relative to the skeleton, consistent with the [Godot 4.6 Polygon2D implementation](https://raw.githubusercontent.com/godotengine/godot/4.6/scene/2d/polygon_2d.cpp).
-
-## Inspection fixture
-
-The verified fixture is the standalone `inspection.tscn` scene described in `inspection.md`. A production Continue save is not applicable because this task supplies an art study without changing production combat animation routing. The fixture exposes the original/reference comparison, both real facings, five actions, deterministic pause/step controls, and optional detail bones.
-
-Validation artifacts in `renders/` retain exact source-pixel reconstruction, all 344 fixed-canvas frames, asset regeneration hashes, both actual-layout foot-contact checks, and ten pixel-identical saved-scene reload comparisons. `renders/board/` contains the separate real 1920×1080 board evidence.
+The verified fixture is the standalone live board inspection scene. A production Continue save is not applicable: this experiment does not change production animation selection or gameplay routing. Board travel is a presentation demonstration with matching gait speed; production tile traversal, combat triggers and general directional transitions are not integrated.

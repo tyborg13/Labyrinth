@@ -45,6 +45,10 @@
     "weighted_cape": {
       "different_rgba_pixels": 0,
       "exact_rest_reconstruction": true
+    },
+    "weighted_joints": {
+      "different_rgba_pixels": 0,
+      "exact_rest_reconstruction": true
     }
   }
 }

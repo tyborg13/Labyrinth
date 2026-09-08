@@ -1,0 +1,127 @@
+{
+  "proof_kind": "actual Godot Metal Mobile board renderer at 1920x1080 and 100% UI scale",
+  "source_proof_directory": "/private/tmp/labyrinth-godot-home/protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-2d-skeletal-experiment-1788824487509059000-12176-inspection_probe-1/protagonist_2d_board_full_v1",
+  "lossless_motion_frames_retained_at_source": 204,
+  "motion_format": "lossless WebP",
+  "semantic_png_screenshots_inspected": 15,
+  "posed_frames_checked": 344,
+  "video_validation": [
+    {
+      "path": "videos/front_attack.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "4.000000",
+      "nb_frames": "96"
+    },
+    {
+      "path": "videos/front_block.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "4.500000",
+      "nb_frames": "108"
+    },
+    {
+      "path": "videos/front_hit.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "3.000000",
+      "nb_frames": "72"
+    },
+    {
+      "path": "videos/front_idle.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "6.000000",
+      "nb_frames": "144"
+    },
+    {
+      "path": "videos/front_walk.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "4.000000",
+      "nb_frames": "96"
+    },
+    {
+      "path": "videos/protagonist_2d_showcase.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "25.500000",
+      "nb_frames": "612"
+    },
+    {
+      "path": "videos/rear_walk.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "4.000000",
+      "nb_frames": "96"
+    },
+    {
+      "path": "videos/walking_front_rear.mp4",
+      "width": 1920,
+      "height": 1080,
+      "avg_frame_rate": "24/1",
+      "duration": "8.000000",
+      "nb_frames": "192"
+    }
+  ],
+  "visual_findings": [
+    "Front original/live rest comparison preserves the canonical artwork at its original board scale.",
+    "Rear uses its separately authored rear reference and remains distinct from front.",
+    "Stronger walk shows alternating lifted feet and clearer stance changes in both facings at native board scale; eight captured phases per facing were visually inspected.",
+    "No detached knee seam is visible in the inspected walk phases. Front and rear attack, block, hit, idle and static-reference screenshots were inspected.",
+    "The source crop can exclude sword motion outside its original 255px framing. The board retains the complete 512px motion canvas; Full pose displays that canvas.",
+    "Health placement and board registration remain fixed; enemy artwork remains the production source.",
+    "Keyboard focus is visible. Bone overlay appears only in the detail panel and leaves the board and source comparison unchanged."
+  ],
+  "scope_limits": [
+    "Walking is in place; no tile travel integration.",
+    "Shadow reuses the static-reference silhouette.",
+    "Native pointer and keyboard controls verified; full controller routing is not claimed.",
+    "MP4 frame counts, dimensions, timing and complete decoding verified; visual motion judgment used recorded native-scale phases."
+  ],
+  "input_sha256": {
+    "inspection_board.gd": "1ac283741085c51e5837a29163f78ab5797d1637213f3ad02a391b6b6db56654",
+    "inspection_view.gd": "214e17d362ec0cbb9a02015973e663c77f8502b70977db1392349a9bc8441225",
+    "inspection_probe.gd": "415c934d47437debf090f3a73a122c69d2dcf4c211c4de1653dec337033bdcc7",
+    "inspection_encode_videos.py": "fb74b4b13278cc13a557cf3426329a4257bba6b58a34b1242f8705896d9a414b",
+    "cutout_rig.gd": "37750b8335fb02cd7a344e76c83350d8a3f84bd80a6d1837978287ca1e1964b0",
+    "cutout_motion.gd": "02be7614dd1de65fd7976d600ec84141ddb2a496b7c32c2c5e7847151a8cc6bf",
+    "cutout_layout.json": "725810b585785071e2f283f9e2a7e86e3265105b1b5b4ee2fb16a75e91861658",
+    "cutout_layout_rear.json": "f7c2ce235c2213bacc2a18370d2b46cb974b6d124c714f7ac73d7a30bc9a73ed"
+  },
+  "retained_file_sha256": {
+    "detail_bones.png": "0d053f0fee3ea17f70d6c88158391ed949072a16ecbe82434c314657699eb2cf",
+    "detail_full_pose.png": "83ebf8166d00c778401cf71ebc869d3b1a8918e04d958929718b4e9f493a4be7",
+    "front_attack.png": "6218be41916013fb6e43186af2eb99f686e983ad491b68862101b937c39c8b4d",
+    "front_block.png": "3b6f71608e65a45d41f0a8e9bc077e62f19e76dc49c53bc641ad9ee134a97b15",
+    "front_hit.png": "1f2a1d7cb196a32157687b65efc16a5dfbf94db534f317219913b90e83d5669c",
+    "front_idle.png": "be04efdbe22a94ae1ded974b3334bb8aab89bce04a4701245c3415a60c3e97d4",
+    "front_walk.png": "cee7adb580ef659a563d5b5c68f88a9a571338c35ee332137caf4c7db7b3af33",
+    "keyboard_focus_paused.png": "a9a4e2edacda0af8fd1f85e6a972c8e05040a5689ca37a5732f313c8b5f3cb08",
+    "rear_attack.png": "f2347abe16351559f6cd42169684e277ff121b68fdd2bdd72a42644e2ac595db",
+    "rear_block.png": "d083fb16a027839687ce4dd012249f2240b659764054a9fb4dda6669b21a4b41",
+    "rear_hit.png": "40e461a980d26096692b53f5df14d68d856a74f9bc3d32ce57275d16342d7cce",
+    "rear_idle.png": "29ecbbe391abc34b913b4c33f5d89061c836b526fe83254ddc7f7a2ddfdcc969",
+    "rear_walk.png": "6e6705b8fe33362151b6478d70431223ad8e61c5b5fe354498bd99fa4c9c7d76",
+    "reference_front.png": "b43331dce821f4e0617c79e340337d24c0d199428e256f6689265f2364cb57fb",
+    "reference_rear.png": "7f223b8eec1358b3f0cd34c91c7a145e569df9d336e93ef4c9b47722674bd0a6",
+    "videos/front_attack.mp4": "23a7c6ad4f89d0098f4737737c3ac4b91004cb2e19d0699b7bfab48e3e29687e",
+    "videos/front_block.mp4": "f1f4ebe6dfd443d3e542e66bdb1fea998f9c6aaca183245f4a5e605221ad25c4",
+    "videos/front_hit.mp4": "3fb97b55d58915bead741240240ae8f415d50793b6df7bf1a0b7fbbb7e9b62c8",
+    "videos/front_idle.mp4": "0f267a83910e63d3cbbb310286a7470cfa2d3d1703f34794f62c8fedb28fb509",
+    "videos/front_walk.mp4": "64e295e465c5010ac199e4fbc1256050ffd9729180af3c2dedd76d3e14170318",
+    "videos/protagonist_2d_showcase.mp4": "38ed0290192413f308b5d2ccc38aa8d9f1d6b112c969a9efe93775929024d8ff",
+    "videos/rear_walk.mp4": "9c683d0c5b679e013f481c3850ed2b194a21428e6333204a6ffb14f05be0183e",
+    "videos/walking_front_rear.mp4": "e73e55d492160bc3ca3a35ca5576813e4e41596f66ce42745960d850b7d9fb37",
+    "validation.json": "f84b5125c996ec47b236ccf22e37f56386f138c99b439a900ba2a376679b9878",
+    "visual_proof_result.json": "b443f9a71a4a9bc74656648833ead7391fcfa3a2d3d024619335ea5e25b2a88a",
+    "godot.log": "67229460c598bdc231695ea47aface10d9c80eae156e57e0ffce62bdde7f5431"
+  }
+}
