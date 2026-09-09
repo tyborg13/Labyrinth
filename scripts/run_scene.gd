@@ -1,6 +1,7 @@
 extends Control
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
@@ -23298,8 +23299,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
-				var attack_frame_count: int = AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
-				var attack_frame_seconds: float = AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				var warden_attack: bool = WardenCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var attack_frame_count: int = (1 if _reduced_motion_enabled() else WardenCutout.ATTACK_FRAMES) if warden_attack else AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
+				var attack_frame_seconds: float = (0.0 if _reduced_motion_enabled() else WardenCutout.ATTACK_FRAME_SECONDS) if warden_attack else AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
 				if not trap_detonation_follows:
@@ -23332,7 +23334,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						"effect": step,
 						"effect_progress": t
 					}
-					if str(step.get("kind", "")) == "melee":
+					if str(step.get("kind", "")) == "melee" and not warden_attack:
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}
@@ -23721,18 +23723,19 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
 	var segment_count: int = maxi(0, path.size() - 1)
 	var player_walk: bool = actor_key == "player"
-	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else MOVE_FRAME_SECONDS
+	var warden_walk: bool = str(actor_unit.get("type", "")) == "warden"
+	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else WardenCutout.WALK_FRAME_SECONDS if warden_walk else MOVE_FRAME_SECONDS
 	var segment_frame_counts: Array[int] = []
 	var segment_start_frames: Array[int] = []
 	var distance_before: Array[float] = []
 	var distance: float = 0.0
 	var total_frame_count: int = 0
-	var source_scale: float = maxf(0.001, board_view.protagonist_source_pixel_scale())
+	var source_scale: float = maxf(0.001, board_view.warden_source_pixel_scale() if warden_walk else board_view.protagonist_source_pixel_scale())
 	for index: int in range(segment_count):
 		var from: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index])
 		var to: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index + 1])
 		var length: float = from.distance_to(to)
-		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else MOVE_STEP_FRAMES
+		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else WardenCutout.walk_segment_frames(length / source_scale) if warden_walk else MOVE_STEP_FRAMES
 		segment_frame_counts.append(frames)
 		segment_start_frames.append(total_frame_count)
 		distance_before.append(distance)
@@ -23784,6 +23787,9 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			# drives phase so planted feet counter the actual root translation.
 			presentation["protagonist_motion"] = {"clip": "walk", "direction": segment_to - segment_from,
 				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / ProtagonistCutout.walk_cycle_distance()}
+		elif warden_walk:
+			presentation["warden_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / WardenCutout.walk_cycle_distance()}}
 		_render_board_state(display_state, presentation, true)
 	)
 
@@ -24060,6 +24066,17 @@ func _protagonist_attack_motion(effect: Dictionary, progress: float) -> Dictiona
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
+	var effect_actor_key: String = str(cutout_effect.get("actor_key", ""))
+	if not effect_actor_key.is_empty() and WardenCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var warden_motions: Dictionary = (presentation.get("warden_motion", {}) as Dictionary).duplicate(false)
+		warden_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
+			"contact": _attack_feedback_start_progress(cutout_effect),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["warden_motion"] = warden_motions
+		if str(cutout_effect.get("kind", "")) == "melee":
+			var warden_effect: Dictionary = cutout_effect.duplicate(false)
+			warden_effect["warden_melee"] = true
+			rendered_presentation["effect"] = warden_effect
 	if bool(cutout_effect.get("protagonist_melee", false)):
 		rendered_presentation["protagonist_motion"] = _protagonist_attack_motion(cutout_effect, float(presentation.get("effect_progress", 1.0)))
 	elif not str(cutout_effect.get("protagonist_ranged", "")).is_empty():

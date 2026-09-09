@@ -366,6 +366,7 @@ func _initialize() -> void:
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
@@ -5805,7 +5806,8 @@ func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
 	board.visible = true
 	board.call("_load_assets")
 	board.presentation = {}
-	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden"]:
+	# Warden now has dedicated cutout coverage; these retain the trial idle sheets.
+	for enemy_type: String in ["crawler", "acolyte", "harrier"]:
 		var enemy_unit := {"key": "enemy_%s" % enemy_type, "type": enemy_type}
 		var idle_frames: Array = board.call("_unit_idle_frames", enemy_unit)
 		var texture: Texture2D = board.call("_texture_for_unit", enemy_unit)

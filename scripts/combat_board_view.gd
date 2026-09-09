@@ -3,6 +3,8 @@ class_name CombatBoardView
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
+const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
+var _warden_renderers: Dictionary = {}
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -737,6 +739,58 @@ func protagonist_source_pixel_scale() -> float:
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player"}
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
 
+func warden_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _warden_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func warden_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "warden"}
+	_ensure_unit_assets_for_type("warden")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / WardenCutout.SOURCE_SIZE.x
+
+func _warden_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "warden":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Warden, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _warden_renderers.get(actor_key, null) as Node
+
+func _unit_uses_cutout(unit: Dictionary) -> bool:
+	return (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) == "warden"
+
+func _sync_warden_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "warden" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "warden":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("warden_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _warden_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = WardenCutout.new()
+			renderer.name = "WardenCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_warden_renderers[actor_key] = renderer
+			motion = motion.duplicate(false)
+			if not motion.has("direction"):
+				motion["direction"] = player_pos - (unit.get("pos", Vector2i.ZERO) as Vector2i)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _warden_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _warden_renderers[actor_key]
+			_warden_renderers.erase(actor_key)
+			renderer.queue_free()
+
 func _exit_tree() -> void:
 	if _unit_shadow_prewarm_thread != null and _unit_shadow_prewarm_thread.is_started():
 		_unit_shadow_prewarm_thread.wait_to_finish()
@@ -955,7 +1009,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
 		elif effect.get_parent() != target_layer:
 			effect.reparent(target_layer, false)
-		var source_rect: Rect2 = _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
+		var source_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit)) if is_instance_valid(_warden_renderer_for_unit(unit)) else _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
 		effect.call(
 			"configure",
 			source_texture,
@@ -1048,7 +1102,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
@@ -1709,6 +1763,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	_sync_warden_renderers()
 	if is_instance_valid(_protagonist_renderer):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
@@ -2134,6 +2189,9 @@ func _queue_presentation_change_redraws(
 			"protagonist_motion":
 				# The rig keeps a stable texture; its small hand charge lives on FX.
 				effects_changed = true
+			"warden_motion":
+				# Per-actor viewports retain their texture RID between poses.
+				pass
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
 				pass
@@ -8676,6 +8734,11 @@ func _draw_effect_overlay() -> void:
 				if trail_phase < 0.0:
 					return
 				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("warden_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = WardenCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
 			_draw_melee_slash_effect(from_point, to_point, slash_progress)
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
@@ -12028,7 +12091,7 @@ func _unit_shadow_immediate_textures_for_state(state: Dictionary) -> Array[Textu
 			units.append(prepared_npc)
 	var textures: Array[Texture2D] = []
 	for unit: Dictionary in units:
-		var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
+		var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
 		if texture != null and not textures.has(texture):
 			textures.append(texture)
 	return textures
@@ -12038,6 +12101,10 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	_unit_assets_loaded[unit_type] = true
 	var art_path: String = ""
+	if unit_type == "warden":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(WardenCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
 	if unit_type == "player" and _uses_protagonist_cutout():
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ProtagonistCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
@@ -12257,6 +12324,9 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 	return canvas_size
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
+	var warden: Node = _warden_renderer_for_unit(unit)
+	if is_instance_valid(warden):
+		return warden.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" and is_instance_valid(_protagonist_renderer):
 		return _protagonist_renderer.call("texture") as Texture2D
@@ -12276,6 +12346,9 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 
 
 func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
+	var warden: Node = _warden_renderer_for_unit(unit)
+	if is_instance_valid(warden):
+		return warden.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if not idle_frames.is_empty():
@@ -12586,7 +12659,7 @@ func _unit_draw_rect(unit: Dictionary) -> Rect2:
 	return _unit_draw_rect_for_center(unit, _unit_center(unit))
 
 func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
-	var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
 	return _unit_draw_rect_for_texture(unit, center, texture)
 
 func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
@@ -12597,7 +12670,7 @@ func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: floa
 		rect = _death_animation_render_rect(unit, rect)
 	if not is_equal_approx(body_scale, 1.0):
 		rect = _scaled_unit_rect(rect, body_scale)
-	if str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer):
+	if (str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer)) or is_instance_valid(_warden_renderer_for_unit(unit)):
 		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
 			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
 	return rect
@@ -13098,7 +13171,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
 	if shadow_alpha_scale <= 0.02:
 		return
-	var texture: Texture2D = _unit_hud_anchor_texture(unit) if str(unit.get("type", "")) == "player" and _uses_protagonist_cutout() else _texture_for_unit(unit)
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_texture", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
