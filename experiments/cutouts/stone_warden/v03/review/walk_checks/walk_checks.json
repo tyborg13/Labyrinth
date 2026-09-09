@@ -1,0 +1,21 @@
+{
+	"errors": [],
+	"front": {
+		"advancing_sole_y_pixels": {
+			"left": 40.1828002929688,
+			"right": 13.4828186035156
+		}
+	},
+	"incorrect_overlap_pixels": 0,
+	"legacy_order_leak_pixels": 48,
+	"ok": true,
+	"pixel_tolerance": "Remaining foreground transparency plus 2/255 rounding; native solid alpha is approximately 253/255",
+	"preserved_native_idle_attack_frames": 112,
+	"rear": {
+		"advancing_sole_y_pixels": {
+			"left": 40.3327941894531,
+			"right": 13.3328247070312
+		}
+	},
+	"rear_crossing_near_opaque_overlap_pixels": 254
+}

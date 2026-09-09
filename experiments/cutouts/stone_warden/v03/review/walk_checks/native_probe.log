@@ -1,0 +1,16 @@
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1
+  HOME: /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/godot.log --display-driver macos --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout --script experiments/cutouts/stone_warden/v03/verify_walk.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout/experiments/cutouts/stone_warden/v03/cutout.json --baseline /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout/experiments/cutouts/stone_warden/v02/cutout.json
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
+
+Saved /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk
+WARDEN_WALK: PASS
+Validated 4 screenshot(s):
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_combined.png 512x512 luma=0.7 range=208.1 stdev=7.5
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_far_left.png 512x512 luma=0.3 range=157.3 stdev=4.5
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_legacy_order.png 512x512 luma=0.7 range=208.1 stdev=7.5
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_near_right.png 512x512 luma=0.5 range=208.1 stdev=6.5
+Visual proof result manifest: /private/tmp/warden-v03-final-walk-probe.json

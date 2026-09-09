@@ -91,6 +91,9 @@ func _run() -> void:
 					_check(board_image.save_png(OUTPUT.path_join(folder + "_%04d.png" % index)) == OK, "Save full board proof")
 			manifest["clips"].append(clip_record)
 			await _roundtrip(scene_path, clip_name, int(frame_count * 0.43))
+			if clip_name == "walk" and not viewer.rig.config.get("draw_order_parts", {}).get(facing, []).is_empty():
+				await _roundtrip(scene_path, clip_name, 0)
+				await _roundtrip(scene_path, clip_name, frame_count / 2)
 		viewer.rig.set_slot_visible("cloak", false)
 		viewer.show_frame(0)
 		await _draw()
@@ -163,8 +166,11 @@ func _roundtrip(scene_path: String, clip_name: String, index: int) -> void:
 	var animator: AnimationPlayer = saved.get_node("Animations") as AnimationPlayer
 	animator.play(clip_name)
 	animator.pause()
-	var spec: Dictionary = viewer.rig.config["clips"][clip_name]
-	animator.seek(float(index) * float(spec["duration"]) / float(spec["frames"]), true)
+	# Compare the authored sample at its saved key, not an almost-equal time.
+	# Serialized key times can differ by a few nanoseconds from duration/frames;
+	# seeking the latter interpolates and can move a nearest-filtered edge pixel.
+	var saved_animation: Animation = animator.get_animation(clip_name)
+	animator.seek(saved_animation.track_get_key_time(0, index), true)
 	viewer.show_frame(index)
 	await _draw()
 	var identical: bool = viewport.get_texture().get_image().get_data() == viewer.puppet.get_texture().get_image().get_data()

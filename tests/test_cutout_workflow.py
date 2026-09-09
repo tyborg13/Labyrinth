@@ -158,6 +158,27 @@ class CutoutWorkflowTests(unittest.TestCase):
         with self.assertRaisesRegex(CutoutError, "negative weights"):
             validate_layout(case.parent, layout, "side", [], [])
 
+    def test_draw_order_declares_live_paint_and_rejects_replaced_parts(self):
+        case = self.creature()
+        config = read_json(case)
+        config["draw_order_parts"] = {"side": ["body"]}
+        write_json(case, config)
+        self.assertTrue(validate(case)["ok"])
+        layout = read_json(case.parent / "layouts/side.json")
+        field = {"name": "tail", "bones": ["root", "tail"], "bands": [{"center": [128, 208], "axis": [1, 0], "width": 4}]}
+        mesh = skin_mesh(layout["parts"][0], (8, 8), field)
+        layout["joint_meshes"] = [mesh]
+        write_json(case.parent / "layouts/side.json", layout)
+        self.assertFalse(validate(case)["ok"], "The replaced sprite has no live node to animate")
+        config["draw_order_parts"]["side"] = [mesh["name"]]
+        write_json(case, config)
+        self.assertTrue(validate(case)["ok"])
+        for broken in [{"rear": [mesh["name"]]}, {"side": [mesh["name"], mesh["name"]]}, {"side": ["missing"]}, {"side": [3]}]:
+            with self.subTest(declaration=broken):
+                config["draw_order_parts"] = broken
+                write_json(case, config)
+                self.assertFalse(validate(case)["ok"])
+
     def test_skin_collision_does_not_leave_a_half_written_layout(self):
         case = self.creature()
         recipe = {"facing": "side", "input_layout": "layouts/side.json", "output_layout": "layouts/skinned.json", "fields": [{"name": "tail", "parts": ["body"], "bones": ["root", "tail"], "bands": [{"center": [128, 208], "axis": [1, 0], "width": 4}]}]}

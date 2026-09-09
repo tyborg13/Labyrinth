@@ -1,0 +1,44 @@
+{
+  "mode": "built-in image_gen",
+  "requests": [
+    {
+      "output": "source/rear_generated.png",
+      "prompt": "Use case: identity-preserve. Asset type: rear-view full-body pixel-art source painting for an editable game character. Reference image 1 is the CURRENT Stone Warden identity; preserve this same character, proportions, armor design, palette, pixel cluster scale, brass outline trim, heavy enclosed pointed helmet, bulky dark green-black plate armor, ragged brown tabard, huge brass-rimmed kite/tower shield, and short heavy studded mace. Draw a coherent rear three-quarter view of this SAME character facing upper-right on a 2:1 isometric board, from the same elevated camera. Helmet back has no eyes or face motif. Shield is held on his left arm, now screen-left, with the BACK of the shield visible (dark wood, brass rim and arm straps), held slightly outboard to expose armored hips and knees. Mace is in right hand, screen-right, hanging diagonally outward beside the leg. Feet are rear/heel views, not front toes; see back plates, back belt, rear skirt/tassets. Neutral grounded stance. One complete assembled character only, no sheet, no labels or shadows, no floor. Pixel art, crisp restrained pixels, same sprite detail as reference, no smooth airbrushing, no glow or spells. Transparent background with actual alpha, full figure uncropped with generous transparent margin. Do not redesign as a stone golem or fantasy giant. Exact same compact knight identity.",
+      "reference": "source/front_original.png",
+      "disposition": "Selected rear visible art. Registered once to native coordinates."
+    },
+    {
+      "output": "source/front_underbody_rejected_checker.png",
+      "prompt": "Use case: precise-object-edit. Asset type: hidden body paint for an editable Stone Warden pixel-art rig. Reference image is the existing front three-quarter sprite; preserve its head, proportions, stance, camera, dark armor with restrained brass trim, ragged brown tabard, all existing exposed armor detail and visual identity. Remove ONLY the shield and mace, and reveal complete anatomically plausible armor underneath: the left arm on screen-right with shoulder, elbow, forearm and closed empty gauntlet; the full breastplate/waist/pelvis behind the shield; both upper legs, knees, shins and boots. Both arms hang naturally slightly away from torso. Right hand screen-left is empty. Fill the formerly hidden armor so this ONE complete assembled figure can be manually split and articulated, including overlap of plate/cuff joints. Keep the very same compact body silhouette, DO NOT make broader or taller, do not add new spikes or ornament. Same fine crisp pixel-art style; not a smooth illustration. Neutral pose matching reference, front three-quarter facing lower-left on a 2:1 isometric board. Transparent background with actual alpha, no shadow, floor, labels, grid or other parts. One assembled body only.",
+      "reference": "source/front_original.png",
+      "disposition": "Rejected for runtime: painted checkerboard. Retained provenance only."
+    },
+    {
+      "output": "source/front_underbody_generated.png",
+      "prompt": "Use case: background-extraction. Edit target: the supplied Stone Warden body image. Remove the ENTIRE gray-and-white checkerboard background and all background marks, replacing it with actual alpha=0 transparency. The checkerboard is painted in and must be removed, not retained. Preserve every character pixel and its hard pixel-art edge. Do not change the armor, skull helmet, pose, colors, dimensions, tabard, hands or feet. No new background, no checkerboard, no floor, no cast shadow. Output a PNG with genuine transparent alpha around the one full-body character.",
+      "reference": "source/front_underbody_rejected_checker.png",
+      "disposition": "Selected alpha repair for concealed front shield arm and shoulder material. Generated head and full silhouette not used."
+    },
+    {
+      "output": "source/pelvis_paint_generated.png",
+      "prompt": "Use case: precise-object-edit. Edit target is the supplied Stone Warden with empty hands. Remove ONLY the long brown cloth tabard/apron between the legs. Reveal the complete armored pelvis and both full upper thighs beneath it: dark steel articulated fauld/hip plates and dark chainmail connecting the thigh plates, with the same brass-trimmed armor design. Keep belt, chest, head, shoulders, arms, legs and feet exactly unchanged. Full anatomically connected body, no missing gaps at hips, knees or elbows. This is concealed armor paint for an animation rig, no new equipment or pose. Keep crisp pixel art and exactly the same perspective and proportions. Actual alpha transparent background; do not paint a checkerboard. No ground or shadow.",
+      "reference": "source/front_underbody_generated.png",
+      "disposition": "Selected only explicitly masked interior front pelvis/thigh armor; checkerboard outside these interior crops is excluded by manual ownership. Whole body is not a runtime image."
+    },
+    {
+      "output": "source/rear_underbody_generated.png",
+      "prompt": "Use case: precise-object-edit. Edit target: this rear three-quarter Stone Warden source painting. Preserve this EXACT back-view character, silhouette, viewpoint facing upper-right, proportions, same armor colors and brass trim, helmet, empty hand positions, heels and feet. Remove the brown cloth tabard hanging from the BACK of the belt. Reveal the full REAR pelvis: sensible dark armor seat plates and rear chainmail, no front codpiece, no butt anatomy. Remove shield and mace to expose the complete underlying forearms and hands without repositioning them. Ensure full armor coverage across the shoulder blades and the armor under both pauldrons, continuing into both upper arms, with complete hip/thigh/knee connections. This is hidden underpainting for a skeletal cutout. Keep the rear perspective, do not add a face/skull on the back of the helmet or front knee/toe armor on heels. Crisp same pixel-art style, no glow. Single full body, isolated on actual transparent alpha. No checkerboard, no shadow, no floor, no text. All exposed material must be coherent rear armor.",
+      "reference": "source/rear_generated.png",
+      "disposition": "Selected only explicitly masked interior rear pelvis and shoulder socket; checkerboard outside these crops is excluded by manual ownership. Whole body is not a runtime image."
+    },
+    {
+      "output": "source/front_armor_v02_generated.png",
+      "prompt": "Use case: precise-object-edit. Asset: concealed armor underpainting for a small game cutout. Image 1 is the edit target, an unarmed fully armored body with both legs exposed but a painted checkerboard behind it. Image 2 is the original production character, the authority for dark worn metal color and shape. Keep the entire body and leg pose of image 1, same proportions and framing. Remove ALL checkerboard pixels to actual transparent alpha around the silhouette and between the legs. Recolor the armor in image 1 to the muted very dark green-black iron and subdued worn brown/brass edges of image 2; avoid the bright clean gold and bright gray. Keep complete continuous thighs, knees, shins and boots so concealed leg coverage is usable; no skirt, no tabard/loincloth, no shield, no weapon. Preserve original pose with hands down and complete shoulder sockets. Pixel-art textured detailed small game sprite on genuinely transparent background; no ground shadow, no text, no checker pattern. This is hidden joint paint, not a redesign.",
+      "references": [
+        "source/pelvis_registered.png",
+        "source/front_original.png"
+      ],
+      "disposition": "Muted concealed front leg paint. Output alpha is opaque despite transparency request; retained unchanged. Only explicit armor polygons minus listed checker-background pixels enter the runtime. Original visible leg paint overlays these underlays."
+    }
+  ]
+}

@@ -5,6 +5,9 @@ extends "res://scripts/protagonist_cutout/rig.gd"
 var config: Dictionary = {}
 var case_directory: String = ""
 var sampler: Script
+var _layer_facing: String = ""
+var _layer_nodes: Dictionary = {}
+var _layer_defaults: Dictionary = {}
 
 func configure(path: String) -> bool:
 	case_file = path
@@ -44,6 +47,41 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 		bone.scale = override.get("scale", Vector2.ONE)
 		bone.skew = float(override.get("skew", 0.0))
 		bone.visible = bool(override.get("visible", true))
+	_apply_draw_order(clip_name, phase_value)
+
+func _draw_order_targets() -> Dictionary:
+	if _layer_facing == facing:
+		return _layer_nodes
+	_layer_facing = facing
+	_layer_nodes.clear()
+	_layer_defaults.clear()
+	for part_name: String in config.get("draw_order_parts", {}).get(facing, []):
+		# Bone and sprite names can coincide (for example foot_l). Only paint
+		# nodes own absolute drawing layers; changing the bone cannot reorder it.
+		var matches: Array[Node] = find_children(part_name, "Sprite2D", true, false)
+		matches.append_array(find_children(part_name, "Polygon2D", true, false))
+		if matches.size() != 1:
+			load_errors.append("Unknown or ambiguous draw-order paint: " + part_name)
+			continue
+		var part: CanvasItem = matches[0] as CanvasItem
+		_layer_nodes[part_name] = part
+		_layer_defaults[part_name] = part.z_index
+	return _layer_nodes
+
+func _apply_draw_order(clip_name: String, phase_value: float) -> void:
+	var targets: Dictionary = _draw_order_targets()
+	if targets.is_empty():
+		return
+	if not sampler.has_method("sample_draw_order"):
+		load_errors.append("Declared draw-order paint needs motion.sample_draw_order")
+		return
+	var orders: Dictionary = sampler.call("sample_draw_order", clip_name, phase_value, layout, facing)
+	for part_name: String in orders:
+		if not targets.has(part_name) or not orders[part_name] is int or int(orders[part_name]) < -4096 or int(orders[part_name]) > 4095:
+			load_errors.append("Invalid draw-order override: " + part_name)
+			return
+	for part_name: String in targets:
+		(targets[part_name] as CanvasItem).z_index = int(orders.get(part_name, _layer_defaults[part_name]))
 
 func playback_phase(clip_name: String, progress: float) -> float:
 	var keys: Array = config["clips"][clip_name].get("phase_curve", [])
@@ -111,12 +149,21 @@ func save_editable(path: String) -> Error:
 				if property == "visible":
 					animation.value_track_set_update_mode(track, Animation.UPDATE_DISCRETE)
 				tracks[bone_name][property] = track
+		var layer_tracks: Dictionary = {}
+		for part_name: String in _draw_order_targets():
+			var track: int = animation.add_track(Animation.TYPE_VALUE)
+			animation.track_set_path(track, NodePath(str(get_path_to(_layer_nodes[part_name])) + ":z_index"))
+			animation.track_set_interpolation_type(track, Animation.INTERPOLATION_NEAREST)
+			animation.value_track_set_update_mode(track, Animation.UPDATE_DISCRETE)
+			layer_tracks[part_name] = track
 		for index: int in range(frames + 1):
 			var progress: float = minf(1.0, float(index) / float(frames if specification["loop"] else frames-1))
 			apply_pose(clip_name, playback_phase(clip_name, progress))
 			for bone_name: String in bones:
 				for property: String in tracks[bone_name]:
 					animation.track_insert_key(tracks[bone_name][property], float(index) * duration / float(frames), bones[bone_name].get(property))
+			for part_name: String in layer_tracks:
+				animation.track_insert_key(layer_tracks[part_name], float(index) * duration / float(frames), (_layer_nodes[part_name] as CanvasItem).z_index)
 		library.add_animation(clip_name, animation)
 	player.add_animation_library("", library)
 	apply_pose("rest", 0.0)

@@ -127,10 +127,21 @@ def validate(case: Path, protect: str | None = None) -> dict:
                 curve = clip["phase_curve"]
                 _require(isinstance(curve, list) and len(curve) >= 2 and all(_point(p) and all(0 <= v <= 1 for v in p) for p in curve), f"{name}: invalid phase curve")
                 _require(curve[0][0] == 0 and curve[-1][0] == 1 and all(a[0] < b[0] for a, b in zip(curve, curve[1:])), f"{name}: phase-curve input must strictly advance from zero to one")
+        layer_parts = config.get("draw_order_parts", {})
+        _require(isinstance(layer_parts, dict) and all(f in config["layouts"] for f in layer_parts), "draw_order_parts must name supplied facings")
         for facing, relative in config["layouts"].items():
             try:
                 _require(bool(ID.fullmatch(facing)), "Facing ids use lowercase snake_case")
-                metrics[facing] = validate_layout(root, read_json(local_path(root, relative)), facing, config.get("rigid_bones", []), config.get("contact_feet", []))
+                layout = read_json(local_path(root, relative))
+                metrics[facing] = validate_layout(root, layout, facing, config.get("rigid_bones", []), config.get("contact_feet", []))
+                declared = layer_parts.get(facing, [])
+                _require(isinstance(declared, list) and all(isinstance(n, str) for n in declared) and len(set(declared)) == len(declared), "draw_order_parts must contain unique painted node names")
+                meshes = list(layout.get("joint_meshes", []))
+                replaced = {m.get("replaces_part") for m in meshes}
+                paint = {p["name"] for p in layout["parts"] if p["name"] not in replaced and not (layout.get("cape_mesh") and p.get("cape_segment"))} | {m["name"] for m in meshes}
+                if layout.get("cape_mesh"):
+                    paint.add("PaintedCape")
+                _require(all(n in paint for n in declared), "draw_order_parts names absent or replaced paint")
             except (CutoutError, KeyError, TypeError, OSError, ValueError) as error:
                 errors.append(f"{facing}: {error}")
         if not errors:

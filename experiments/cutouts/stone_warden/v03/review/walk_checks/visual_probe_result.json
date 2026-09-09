@@ -1,0 +1,126 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 512,
+          "luma_max": 208.101,
+          "luma_mean": 0.7085955673386867,
+          "luma_min": 0.0,
+          "luma_range": 208.101,
+          "luma_stdev": 7.45096153740221,
+          "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_combined.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 157.2952,
+          "luma_mean": 0.27522033988822997,
+          "luma_min": 0.0,
+          "luma_range": 157.2952,
+          "luma_stdev": 4.506034492711825,
+          "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_far_left.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 208.101,
+          "luma_mean": 0.7125400522611531,
+          "luma_min": 0.0,
+          "luma_range": 208.101,
+          "luma_stdev": 7.515566672904717,
+          "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_legacy_order.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 208.101,
+          "luma_mean": 0.5280595166796996,
+          "luma_min": 0.0,
+          "luma_range": 208.101,
+          "luma_stdev": 6.543328668097892,
+          "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_near_right.png",
+          "width": 512
+        }
+      ],
+      "namespace": "stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout",
+    "--script",
+    "experiments/cutouts/stone_warden/v03/verify_walk.gd",
+    "--",
+    "--case",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout/experiments/cutouts/stone_warden/v03/cutout.json",
+    "--baseline",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout/experiments/cutouts/stone_warden/v02/cutout.json"
+  ],
+  "expected_sizes": [
+    [
+      512,
+      512
+    ]
+  ],
+  "images": [
+    {
+      "height": 512,
+      "luma_max": 208.101,
+      "luma_mean": 0.7085955673386867,
+      "luma_min": 0.0,
+      "luma_range": 208.101,
+      "luma_stdev": 7.45096153740221,
+      "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_combined.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 157.2952,
+      "luma_mean": 0.27522033988822997,
+      "luma_min": 0.0,
+      "luma_range": 157.2952,
+      "luma_stdev": 4.506034492711825,
+      "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_far_left.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 208.101,
+      "luma_mean": 0.7125400522611531,
+      "luma_min": 0.0,
+      "luma_range": 208.101,
+      "luma_stdev": 7.515566672904717,
+      "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_legacy_order.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 208.101,
+      "luma_mean": 0.5280595166796996,
+      "luma_min": 0.0,
+      "luma_range": 208.101,
+      "luma_stdev": 6.543328668097892,
+      "path": "/private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1/probes/stone_warden_walk/rear_overlap_near_right.png",
+      "width": 512
+    }
+  ],
+  "namespace": "stone-warden-editable-front-rear-cut-1788972772099581000-57391-verify_walk-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "experiments/cutouts/stone_warden/v03/verify_walk.gd"
+}
