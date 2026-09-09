@@ -3,7 +3,7 @@ extends SceneTree
 ## Build the production-only cutout PCK in the task project; verify from an empty
 ## --path (optionally with a desktop export template) so references cannot mask
 ## a missing shipped layout, raw PNG or imported-cache dependency.
-var _errors: Array[String] = []
+var _errors: Array[String]
 
 func _initialize() -> void:
 	var args: PackedStringArray = OS.get_cmdline_user_args()
@@ -14,7 +14,7 @@ func _initialize() -> void:
 	if args[0] == "build":
 		var pack := PCKPacker.new()
 		_check(pack.pck_start(args[1]) == OK, "PCK opens")
-		for file: String in ["scripts/stone_warden_cutout/rig.gd", "scripts/stone_warden_cutout/motion.gd", "scripts/stone_warden_cutout/renderer.gd", "scripts/asset_loader.gd", "scripts/protagonist_cutout/rig.gd", "scripts/protagonist_cutout/motion.gd"]:
+		for file: String in ["scripts/enemy_cutout_facing.gd", "scripts/stone_warden_cutout/rig.gd", "scripts/stone_warden_cutout/motion.gd", "scripts/stone_warden_cutout/renderer.gd", "scripts/asset_loader.gd", "scripts/protagonist_cutout/rig.gd", "scripts/protagonist_cutout/motion.gd"]:
 			_check(pack.add_file("res://" + file, "res://" + file) == OK, "Packs " + file)
 		_pack_directory(pack, "res://assets/units/stone_warden_cutout")
 		# A tiny boot scene also lets the unmodified export template run this

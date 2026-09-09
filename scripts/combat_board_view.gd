@@ -4,6 +4,7 @@ class_name CombatBoardView
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
 const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
+const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 var _warden_renderers: Dictionary = {}
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
@@ -780,9 +781,8 @@ func _sync_warden_renderers() -> void:
 			renderer.name = "WardenCutout_%d" % int(unit.get("id", -1))
 			add_child(renderer)
 			_warden_renderers[actor_key] = renderer
-			motion = motion.duplicate(false)
-			if not motion.has("direction"):
-				motion["direction"] = player_pos - (unit.get("pos", Vector2i.ZERO) as Vector2i)
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
 		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
 	for actor_key: String in _warden_renderers.keys():

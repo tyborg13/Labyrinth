@@ -1,0 +1,701 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.04421965753973,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.068061476331934,
+          "path": "01_marching_southwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.367012476268233,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.482600481163146,
+          "path": "01_marching_southwest_attack_032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.967824905087785,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.2301190046508,
+          "path": "01_marching_southwest_attack_055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.369212393224892,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.5304034475188,
+          "path": "01_marching_southwest_attack_065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.0946874920858,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.14934333682529,
+          "path": "02_marching_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.40311998575892,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.49426158126441,
+          "path": "02_marching_southeast_attack_032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0682,
+          "luma_mean": 30.73680089369914,
+          "luma_min": 0.0,
+          "luma_range": 254.0682,
+          "luma_stdev": 39.42255122401003,
+          "path": "02_marching_southeast_attack_055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.42511660866303,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.62202306147605,
+          "path": "02_marching_southeast_attack_065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.539801771585864,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.31858673332831,
+          "path": "03_marching_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.836711412522426,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.79746802879697,
+          "path": "03_marching_northeast_attack_032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.92779999999996,
+          "luma_mean": 31.444795226978847,
+          "luma_min": 0.0,
+          "luma_range": 254.92779999999996,
+          "luma_stdev": 40.417051195364955,
+          "path": "03_marching_northeast_attack_055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.835730654850785,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.77197645205956,
+          "path": "03_marching_northeast_attack_065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.56786140065896,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.33829937180845,
+          "path": "04_marching_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.87264685225668,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.814704744407045,
+          "path": "04_marching_northwest_attack_032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.49715675418533,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.51313906616073,
+          "path": "04_marching_northwest_attack_055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.876205979115255,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.82691968537064,
+          "path": "04_marching_northwest_attack_065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.12781561609725,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.20631434350201,
+          "path": "05_crushing_step.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.469277819514083,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.68529820740209,
+          "path": "05_crushing_step_attack_032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.611606244063168,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.21654118920205,
+          "path": "05_crushing_step_attack_055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.578423481488027,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.14030137632355,
+          "path": "05_crushing_step_attack_065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.02327643150375,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.063565204507896,
+          "path": "06_reduced_marching.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 35.15161580591052,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 47.235494460490884,
+          "path": "07_bulwark.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 33.10713565722359,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 43.068174329134806,
+          "path": "08_target_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 31.779622900184233,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 44.956732287199614,
+          "path": "09_warden_death.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.71930005535643,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 39.65424488438605,
+          "path": "09_warden_death_dissolve_000.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 28.832647061842426,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 37.92083580155057,
+          "path": "09_warden_death_dissolve_050.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.08866226272813,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.07853656416061,
+          "path": "09_warden_death_dissolve_080.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.0334,
+          "luma_mean": 35.50322624960035,
+          "luma_min": 0.0,
+          "luma_range": 246.0334,
+          "luma_stdev": 42.79663965452256,
+          "path": "10_controller_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.49372172966889,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 46.38929923555737,
+          "path": "11_pointer_handoff.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.4341815880997,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 46.277818472795694,
+          "path": "12_player_reposition_southeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.418409024037736,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 46.22928278448855,
+          "path": "13_player_reposition_northeast.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.473679792781816,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 46.331650324508125,
+          "path": "14_player_reposition_northwest.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.39017625750808,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 46.2967021625653,
+          "path": "15_player_reposition_southwest.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "stone-warden-editable-front-rear-cut-1788976499025234000-60546-stone_warden_cutout_game-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout",
+    "--script",
+    "tests/stone_warden_cutout_gameplay_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.04421965753973,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.068061476331934,
+      "path": "01_marching_southwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.367012476268233,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.482600481163146,
+      "path": "01_marching_southwest_attack_032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.967824905087785,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.2301190046508,
+      "path": "01_marching_southwest_attack_055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.369212393224892,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.5304034475188,
+      "path": "01_marching_southwest_attack_065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.0946874920858,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.14934333682529,
+      "path": "02_marching_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.40311998575892,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.49426158126441,
+      "path": "02_marching_southeast_attack_032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0682,
+      "luma_mean": 30.73680089369914,
+      "luma_min": 0.0,
+      "luma_range": 254.0682,
+      "luma_stdev": 39.42255122401003,
+      "path": "02_marching_southeast_attack_055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.42511660866303,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.62202306147605,
+      "path": "02_marching_southeast_attack_065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.539801771585864,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.31858673332831,
+      "path": "03_marching_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.836711412522426,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.79746802879697,
+      "path": "03_marching_northeast_attack_032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.92779999999996,
+      "luma_mean": 31.444795226978847,
+      "luma_min": 0.0,
+      "luma_range": 254.92779999999996,
+      "luma_stdev": 40.417051195364955,
+      "path": "03_marching_northeast_attack_055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.835730654850785,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.77197645205956,
+      "path": "03_marching_northeast_attack_065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.56786140065896,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.33829937180845,
+      "path": "04_marching_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.87264685225668,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.814704744407045,
+      "path": "04_marching_northwest_attack_032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.49715675418533,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.51313906616073,
+      "path": "04_marching_northwest_attack_055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.876205979115255,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.82691968537064,
+      "path": "04_marching_northwest_attack_065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.12781561609725,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.20631434350201,
+      "path": "05_crushing_step.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.469277819514083,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.68529820740209,
+      "path": "05_crushing_step_attack_032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.611606244063168,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.21654118920205,
+      "path": "05_crushing_step_attack_055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.578423481488027,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.14030137632355,
+      "path": "05_crushing_step_attack_065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.02327643150375,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.063565204507896,
+      "path": "06_reduced_marching.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 35.15161580591052,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 47.235494460490884,
+      "path": "07_bulwark.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 33.10713565722359,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 43.068174329134806,
+      "path": "08_target_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 31.779622900184233,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 44.956732287199614,
+      "path": "09_warden_death.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.71930005535643,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 39.65424488438605,
+      "path": "09_warden_death_dissolve_000.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 28.832647061842426,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 37.92083580155057,
+      "path": "09_warden_death_dissolve_050.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.08866226272813,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.07853656416061,
+      "path": "09_warden_death_dissolve_080.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.0334,
+      "luma_mean": 35.50322624960035,
+      "luma_min": 0.0,
+      "luma_range": 246.0334,
+      "luma_stdev": 42.79663965452256,
+      "path": "10_controller_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.49372172966889,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 46.38929923555737,
+      "path": "11_pointer_handoff.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.4341815880997,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 46.277818472795694,
+      "path": "12_player_reposition_southeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.418409024037736,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 46.22928278448855,
+      "path": "13_player_reposition_northeast.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.473679792781816,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 46.331650324508125,
+      "path": "14_player_reposition_northwest.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.39017625750808,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 46.2967021625653,
+      "path": "15_player_reposition_southwest.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "stone-warden-editable-front-rear-cut-1788976499025234000-60546-stone_warden_cutout_game-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/stone_warden_cutout_gameplay_probe.gd"
+}

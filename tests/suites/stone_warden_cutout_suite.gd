@@ -22,9 +22,12 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call((board.get("_warden_renderers") as Dictionary).size() == 2, "Other enemy types do not allocate Warden renderers")
 	expect.call(first["texture_id"] != second["texture_id"], "Two Wardens have independent live textures and motion")
 	var texture: Texture2D = board.call("_texture_for_unit", state["enemies"][0])
-	var directions: Array[Vector2i] = [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
-	var facings: Array[String] = ["front", "front", "rear", "rear"]
-	var mirrors: Array[bool] = [false, true, false, true]
+	var directions: Array[Vector2i]
+	directions.assign([Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)])
+	var facings: Array[String]
+	facings.assign(["front", "front", "rear", "rear"])
+	var mirrors: Array[bool]
+	mirrors.assign([false, true, false, true])
 	for index: int in range(directions.size()):
 		for clip: String in ["walk", "attack"]:
 			_submit(board, state, {"warden_motion": {"enemy_1": {"clip": clip, "direction": directions[index], "phase": 0.42}}})
@@ -34,7 +37,23 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			expect.call(board.warden_animation_snapshot("enemy_2")["clip"] == "idle", "Animating one Warden never animates a second actor")
 			_submit(board, state, {})
 			var idle: Dictionary = board.warden_animation_snapshot("enemy_1")
-			expect.call(idle["clip"] == "idle" and idle["facing"] == facings[index] and idle["mirrored"] == mirrors[index], "Idle keeps the last action facing instead of snapping to a player-only home pose")
+			expect.call(idle["clip"] == "idle" and idle["facing"] == "front" and idle["mirrored"], "Idle faces the player even when the preceding action points elsewhere")
+	# Repositioning the player changes each observer independently, including
+	# diagonal offsets whose closest isometric facing is unambiguous.
+	var player_offsets: Array[Vector2i]
+	player_offsets.assign([Vector2i(1, 2), Vector2i(2, 1), Vector2i(1, -2), Vector2i(-2, 1)])
+	for index: int in range(player_offsets.size()):
+		var repositioned: Dictionary = state.duplicate(true)
+		repositioned["player"]["pos"] = Vector2i(3, 3) + player_offsets[index]
+		_submit(board, repositioned, {})
+		var sample: Dictionary = board.warden_animation_snapshot("enemy_1")
+		expect.call(sample["facing"] == facings[index] and sample["mirrored"] == mirrors[index], "Idle picks the nearest of four facings toward the player's current tile")
+		_submit(board, repositioned, {"reduced_motion": true})
+		sample = board.warden_animation_snapshot("enemy_1")
+		expect.call(sample["clip"] == "rest" and sample["facing"] == facings[index] and sample["mirrored"] == mirrors[index], "Reduced-motion idle also turns toward the player")
+	_submit(board, state, {"warden_motion": {"enemy_1": {"clip": "attack", "direction": Vector2i(0, -1), "phase": 1.0}}})
+	var recovered: Dictionary = board.warden_animation_snapshot("enemy_1")
+	expect.call(recovered["clip"] == "idle" and recovered["facing"] == "front" and recovered["mirrored"], "A completed attack immediately resumes player-facing idle")
 	var renderer: Node = (board.get("_warden_renderers") as Dictionary)["enemy_1"]
 	renderer.call("present", {"clip": "walk", "phase": 2.25}, false)
 	expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), 0.25), "Distance-driven walking wraps across complete cycles")
@@ -71,7 +90,11 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	dead_state["enemies"][0]["hp"] = 0
 	var dying: Dictionary = unit.duplicate(true)
 	dying.merge({"death_animation": true, "death_progress": 0.45}, true)
+	var frozen: Dictionary = renderer.call("snapshot")
+	dead_state["player"]["pos"] = Vector2i(3, 1)
 	_submit(board, dead_state, {"death_animation_units": [dying]})
+	var death_pose: Dictionary = renderer.call("snapshot")
+	expect.call(death_pose["facing"] == frozen["facing"] and death_pose["mirrored"] == frozen["mirrored"], "A death pose stays frozen even if the player's new position would change idle facing")
 	expect.call(board.call("_enemy_shadow_dissolve_source_texture", dying) == texture, "Death dissolves the same live cutout instead of switching art")
 	expect.call(not bool(renderer.call("snapshot")["active"]), "Death freezes the pose while the existing dissolve runs")
 	var dissolves: Dictionary = board.get("_enemy_shadow_dissolve_effects_by_key")

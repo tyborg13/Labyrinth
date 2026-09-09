@@ -60,6 +60,7 @@ description: Create, balance, animate, or review Escape the Umbra enemies and en
 
 - Final enemy sprites should be runtime-visible raster art, not SVG placeholders. Use the `imagegen` skill for final enemy art unless the user explicitly asks for a placeholder.
 - Prefer new final sprites under `assets/art/enemies/<enemy_id>.png`. Existing legacy sprites live under `assets/placeholders/units`; do not add new placeholder-era art there unless intentionally staging.
+- Directional enemy cutouts idle toward the player and update facing after movement completes; actions face their own direction. Apply the shared helper and proof requirements in [cutout production integration](../create-labyrinth-cutout/references/motion-and-integration.md#production-integration). The protagonist keeps its separate camera-facing idle.
 - Static combat unit sprites use a transparent `255x255` PNG with a grounded full-body silhouette, readable at board scale, no text, no border frame, and no opaque square background.
 - Turn-clock portraits are required for every new enemy. Add a transparent `128x128` PNG under `assets/art/portraits/`, register it in `RunScene.TURN_ORDER_PORTRAITS`, and verify the enemy appears in the turn-order clock instead of falling back to the player portrait.
 - Optional idle sheets use the same stem with `_idle.png` and are discovered automatically, for example `assets/art/enemies/<enemy_id>_idle.png`. Configure `idle_sheet_columns`, `idle_sheet_rows`, `idle_sheet_order`, `idle_sheet_ping_pong`, and `idle_frame_seconds` in `data/enemies.json`.

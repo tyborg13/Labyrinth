@@ -1,0 +1,22 @@
+Running task-local command:
+  task: stone-warden-editable-front-rear-cutout
+  run: stone-warden-editable-front-rear-cutout-1788976611424436000-60621
+  HOME: /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cutout-1788976611424436000-60621
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cutout-1788976611424436000-60621/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout --script tests/run_tests.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=9 total_ms=10.55
+WARNING: Conflicting legacy combat-unit evidence; preserving serialized values rather than risking destructive conversion.
+     at: push_warning (core/variant/variant_utility.cpp:1034)
+     GDScript backtrace (most recent call first):
+         [0] migrate_combat_units (res://scripts/run_engine.gd:411)
+         [1] _test_natural_and_ambiguous_saves_are_not_rescaled (res://tests/suites/balance_pacing_suite.gd:100)
+         [2] run (res://tests/suites/balance_pacing_suite.gd:14)
+         [3] _initialize (res://tests/run_tests.gd:123)
+ITEM DROP SAMPLE (600 rooms): [107, 369, 124]
+TEST RESULT: PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

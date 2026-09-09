@@ -19,7 +19,7 @@ For the approved protagonist:
 - Idle: a 0.84-second, two-source-pixel coordinated body bob with a slightly delayed sword hand. Counter-translate thighs against hip bob before leg IK so the legs stay rigid/planted. A chain of tiny periodic rotations read as shimmering cloth rather than breathing.
 - Walk: 48px stride, 60% support fraction, 80px source travel per 0.30-second cycle. The longer stride reduced cadence while increasing board speed. These are a reference for this body, not a universal creature gait.
 - Attack: the accepted preparation/cut/recovery poses remain unchanged. Single-target playback is 0.50 seconds, with the fast cut around 42% contact. The existing self-centered melee sweep retains its 0.24-second/38% contact behavior. Treat those gameplay event boundaries independently from animation phase.
-- Home facing: every protagonist idle returns to unmirrored front after its action. New enemies may need a different facing policy; preserve the requested actor behavior rather than imposing this player preference on them.
+- Home facing: every protagonist idle returns to unmirrored front after its action. Enemy cutout idle defaults to the closest supported direction toward the player; see the production-facing rule below.
 
 For a new action, give preparation, contact and recovery distinct readable timing. Check clearance against the board HP bar as well as the canvas edge: a temporary salute passed bounds checks while its raised rear blade disappeared behind the HP bar. A sword tip traveling far is insufficient: verify that the blade rises/prepares in the requested direction, cuts through the intended space and avoids feet/body. Use separate front/rear poses when their painted geometry differs.
 
@@ -45,6 +45,8 @@ The approved production example is:
 - `scripts/combat_board_view.gd`: logical body registration, viewport padding, stable art selection and HUD/shadow anchors.
 - `scripts/run_scene.gd` and `scripts/attack_fx_library.gd`: action descriptors, duration/contact mapping and effects.
 - `tests/suites/protagonist_cutout_suite.gd`, `tests/protagonist_cutout_gameplay_probe.gd`, `tests/protagonist_cutout_pack_test.gd`: focused rules, actual action/render proof and package loading.
+
+Enemy cutouts default to **player-facing idle**. Use `scripts/enemy_cutout_facing.gd` to choose the closest of the four front/rear/reflected directions from the displayed enemy and player tiles. Keep action-directed facing during walking and attacks; update idle after movement completes, including when only the player moved. Reduced-motion still art uses the same idle policy. Freeze death poses. Preserve the protagonist's unmirrored camera-facing idle. Prove player repositioning around all four sides, no premature mid-walk turns, and action-to-idle recovery. This policy applies when integrating directional enemy art; it does not require inventing missing views for legacy static sprites.
 
 Promote reviewed case art/layout/motion into production-owned paths and register the requested actor explicitly. Do not introduce a broad actor-system refactor unless the requested integration requires it. Update that enemy's portrait/turn-clock path independently; a valid body animation does not establish a valid portrait.
 

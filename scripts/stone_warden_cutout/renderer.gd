@@ -2,6 +2,7 @@ extends Node
 
 ## One persistent canvas per Warden, shared by all retained board layers.
 const Rig = preload("res://scripts/stone_warden_cutout/rig.gd")
+const EnemyFacing = preload("res://scripts/enemy_cutout_facing.gd")
 const Motion = preload("res://scripts/stone_warden_cutout/motion.gd")
 const REST_PATH: String = "res://assets/units/stone_warden_cutout/front/rest.png"
 const SOURCE_SIZE := Vector2(255, 255)
@@ -52,9 +53,7 @@ static func walk_segment_frames(source_distance: float) -> int:
 	return maxi(1, roundi(source_distance / walk_cycle_distance() * WALK_CYCLE_SECONDS / WALK_FRAME_SECONDS))
 
 static func direction_for_delta(delta: Vector2i) -> Dictionary:
-	if absi(delta.x) >= absi(delta.y) and delta.x != 0:
-		return {"facing": "front" if delta.x > 0 else "rear", "mirrored": true}
-	return {"facing": "front" if delta.y >= 0 else "rear", "mirrored": false}
+	return EnemyFacing.direction_for_delta(delta)
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
 	if str(actor.get("type", "")) != "warden":

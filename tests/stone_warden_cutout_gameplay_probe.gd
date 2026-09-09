@@ -7,9 +7,9 @@ const InputRouter = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const Cutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
-const OUTPUT: String = "user://probes/stone_warden_gameplay_v1"
+const OUTPUT: String = "user://probes/stone_warden_gameplay_v2"
 const SIZE := Vector2i(1920, 1080)
-var _errors: Array[String] = []
+var _errors: Array[String]
 var _capture: bool = true
 var _instance: Node
 var _board: Control
@@ -39,7 +39,8 @@ func _run() -> void:
 	_render_viewport.add_child(_instance)
 	await _settle()
 	_board = _instance.get("board_view") as Control
-	var directions: Array[Vector2i] = [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
+	var directions: Array[Vector2i]
+	directions.assign([Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)])
 	for index: int in range(directions.size()):
 		var origin := Vector2i(3, 3)
 		await _fixture(origin + directions[index] * 2, origin)
@@ -102,6 +103,26 @@ func _run() -> void:
 		await _settle()
 		await _still("11_pointer_handoff")
 		router.call("clear_forced_state_for_test")
+	var around: Array[Vector2i]
+	around.assign([Vector2i(3, 4), Vector2i(4, 3), Vector2i(3, 2), Vector2i(2, 3)])
+	for index: int in range(around.size()):
+		var destination: Vector2i = around[(index + 1) % around.size()]
+		await _fixture(around[index], Vector2i(3, 3))
+		_texture_id = int(_snapshot()["texture_id"])
+		var before: Dictionary = _snapshot()
+		await _instance.call("_on_board_tile_clicked", around[index])
+		_instance.call("_on_board_tile_hovered", destination)
+		await _settle()
+		_assert(bool(_instance.get("_player_movement_selected")), "The actual player-selection input opens movement")
+		_instance.call("_on_board_tile_clicked", destination)
+		await _record("%02d_player_reposition_%s" % [12 + index, _direction_name((index + 1) % 4)], false, false, before)
+		var after: Dictionary = _instance.get("_combat_state")
+		_assert(after["player"]["pos"] == destination and int(after["player"]["hp"]) == 40, "Real two-tile player movement completes without damage")
+		_assert((_manifest["clips"][-1]["phases_seen"] as Array).has("player_walk"), "Facing proof exercises actual animated player movement")
+		var facing: Dictionary = Cutout.direction_for_delta(destination - Vector2i(3, 3))
+		_assert(_snapshot()["clip"] == "idle" and _snapshot()["facing"] == facing["facing"] and _snapshot()["mirrored"] == facing["mirrored"], "Warden idle turns toward the player's completed destination")
+		var player_idle: Dictionary = _board.call("protagonist_animation_snapshot")
+		_assert(player_idle["clip"] == "idle" and player_idle["facing"] == "front" and not player_idle["mirrored"], "Player still returns to camera-facing idle")
 	var portrait: String = str(_instance.TURN_ORDER_PORTRAITS.get("warden", ""))
 	_assert(portrait == "res://assets/art/portraits/stone_warden.png" and preload("res://scripts/asset_loader.gd").load_texture_source_first(portrait) != null, "Turn clock retains the dedicated Stone Warden portrait")
 	_manifest["errors"] = _errors
@@ -169,13 +190,13 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 		Input.warp_mouse(Vector2(960, 86))
 	await _settle()
 
-func _record(label: String, allow_death: bool, require_attack: bool) -> void:
+func _record(label: String, allow_death: bool, require_attack: bool, observer_before: Dictionary = {}) -> void:
 	var started: int = Time.get_ticks_usec()
 	var next_capture: int = started
 	var finish: int = 0
 	var phases: Dictionary = {}
-	var samples: Array[Dictionary] = []
-	var images: Array[Image] = []
+	var samples: Array[Dictionary]
+	var images: Array[Image]
 	var previous_support: Dictionary = {}
 	var max_drift: float = 0.0
 	while Time.get_ticks_usec() - started < 12000000:
@@ -187,6 +208,10 @@ func _record(label: String, allow_death: bool, require_attack: bool) -> void:
 		_assert((allow_death and snapshot.is_empty()) or int(snapshot.get("texture_id", 0)) == _texture_id, "One Warden texture remains live through " + label)
 		var presentation: Dictionary = _board.get("presentation")
 		var effect: Dictionary = presentation.get("effect", {})
+		var player_motion: Dictionary = presentation.get("protagonist_motion", {})
+		if not observer_before.is_empty() and str(player_motion.get("clip", "")) == "walk":
+			phases["player_walk"] = true
+			_assert(snapshot["facing"] == observer_before["facing"] and snapshot["mirrored"] == observer_before["mirrored"], "Warden waits until player movement finishes before turning")
 		phases[str(snapshot.get("clip", "gone"))] = true
 		var display_state: Dictionary = _board.get("combat_state")
 		var unit: Dictionary = {}
@@ -211,7 +236,7 @@ func _record(label: String, allow_death: bool, require_attack: bool) -> void:
 		if now >= next_capture:
 			next_capture = now + 33333
 			samples.append({"seconds": float(now - started) / 1000000.0, "animation": snapshot,
-				"effect": effect.duplicate(true), "effect_progress": float(presentation.get("effect_progress", 0.0)),
+				"player_motion": player_motion.duplicate(true), "effect": effect.duplicate(true), "effect_progress": float(presentation.get("effect_progress", 0.0)),
 				"player_hp": int(display_state.get("player", {}).get("hp", 0)),
 				"death_units": presentation.get("death_animation_units", []).duplicate(true)})
 			await RenderingServer.frame_post_draw
@@ -271,8 +296,10 @@ func _support_points(unit: Dictionary, snapshot: Dictionary) -> Dictionary:
 	return result
 
 func _check_direction(index: int) -> void:
-	var facings: Array[String] = ["front", "front", "rear", "rear"]
-	var mirrors: Array[bool] = [false, true, false, true]
+	var facings: Array[String]
+	facings.assign(["front", "front", "rear", "rear"])
+	var mirrors: Array[bool]
+	mirrors.assign([false, true, false, true])
 	for sample: Dictionary in _manifest["clips"][-1]["samples"]:
 		var animation: Dictionary = sample["animation"]
 		if str(animation.get("clip", "")) in ["walk", "attack"]:

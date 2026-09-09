@@ -1,0 +1,13 @@
+ffconcat version 1.0
+file '01_marching_southwest.mp4'
+file '02_marching_southeast.mp4'
+file '03_marching_northeast.mp4'
+file '04_marching_northwest.mp4'
+file '05_crushing_step.mp4'
+file '06_reduced_marching.mp4'
+file '07_bulwark.mp4'
+file '09_warden_death.mp4'
+file '12_player_reposition_southeast.mp4'
+file '13_player_reposition_northeast.mp4'
+file '14_player_reposition_northwest.mp4'
+file '15_player_reposition_southwest.mp4'

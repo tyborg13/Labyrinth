@@ -1,0 +1,15 @@
+{
+  "clips": [
+    "12_player_reposition_southeast",
+    "13_player_reposition_northeast",
+    "14_player_reposition_northwest",
+    "15_player_reposition_southwest"
+  ],
+  "seconds": 5.5,
+  "size": [
+    1920,
+    1080
+  ],
+  "full_decode": "PASS",
+  "timing": "Direct concatenation of the original-time gameplay clips; no frame changes"
+}

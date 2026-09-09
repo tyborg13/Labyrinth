@@ -1,0 +1,16 @@
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1
+  HOME: /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/godot.log --display-driver macos --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout --script tests/stone_warden_cutout_asset_probe.gd
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
+
+Saved /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/probes/stone_warden_cutout_assets
+WARDEN ASSET PROBE: PASS
+Validated 4 screenshot(s):
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/probes/stone_warden_cutout_assets/front_canvas.png 512x512 luma=4.7 range=242.7 stdev=19.4
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/probes/stone_warden_cutout_assets/front_rest.png 255x255 luma=19.0 range=255.0 stdev=35.1
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/probes/stone_warden_cutout_assets/rear_canvas.png 512x512 luma=3.9 range=232.6 stdev=17.7
+  /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/Library/Application Support/Escape the Umbra Visual Probe stone-warden-editable-front-rear-cut-1788976493965288000-60526-stone_warden_cutout_asse-1/probes/stone_warden_cutout_assets/rear_rest.png 255x255 luma=15.5 range=246.4 stdev=32.9
+Visual proof result manifest: /private/tmp/warden-runtime-v2-assets-final-2.json

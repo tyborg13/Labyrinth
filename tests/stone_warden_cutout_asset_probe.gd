@@ -4,7 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProductionRig = preload("res://scripts/stone_warden_cutout/rig.gd")
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
 const OUTPUT: String = "user://probes/stone_warden_cutout_assets"
-var _errors: Array[String] = []
+var _errors: Array[String]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()

@@ -1,6 +1,6 @@
 extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
-var _failures: Array[String] = []
+var _failures: Array[String]
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, _assert)
