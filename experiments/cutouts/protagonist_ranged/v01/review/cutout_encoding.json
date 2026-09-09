@@ -1,0 +1,89 @@
+{
+  "clips": [
+    {
+      "file": "videos/front_idle.mp4",
+      "source_frames": 42,
+      "source_seconds": 1.68,
+      "encoded_frames": 101,
+      "encoded_seconds": 1.6833333333333333,
+      "duration_error_seconds": 0.0033333333333334103
+    },
+    {
+      "file": "videos/front_walk.mp4",
+      "source_frames": 54,
+      "source_seconds": 0.9000000000000019,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": -1.887379141862766e-15
+    },
+    {
+      "file": "videos/front_attack.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.500000000000001,
+      "encoded_frames": 30,
+      "encoded_seconds": 0.5,
+      "duration_error_seconds": -9.992007221626409e-16
+    },
+    {
+      "file": "videos/front_cast.mp4",
+      "source_frames": 48,
+      "source_seconds": 0.9200000000000016,
+      "encoded_frames": 55,
+      "encoded_seconds": 0.9166666666666666,
+      "duration_error_seconds": -0.0033333333333349646
+    },
+    {
+      "file": "videos/front_shoot.mp4",
+      "source_frames": 36,
+      "source_seconds": 0.4399999999999992,
+      "encoded_frames": 26,
+      "encoded_seconds": 0.43333333333333335,
+      "duration_error_seconds": -0.006666666666665877
+    },
+    {
+      "file": "videos/rear_idle.mp4",
+      "source_frames": 42,
+      "source_seconds": 1.68,
+      "encoded_frames": 101,
+      "encoded_seconds": 1.6833333333333333,
+      "duration_error_seconds": 0.0033333333333334103
+    },
+    {
+      "file": "videos/rear_walk.mp4",
+      "source_frames": 54,
+      "source_seconds": 0.9000000000000019,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": -1.887379141862766e-15
+    },
+    {
+      "file": "videos/rear_attack.mp4",
+      "source_frames": 30,
+      "source_seconds": 0.500000000000001,
+      "encoded_frames": 30,
+      "encoded_seconds": 0.5,
+      "duration_error_seconds": -9.992007221626409e-16
+    },
+    {
+      "file": "videos/rear_cast.mp4",
+      "source_frames": 48,
+      "source_seconds": 0.9200000000000016,
+      "encoded_frames": 55,
+      "encoded_seconds": 0.9166666666666666,
+      "duration_error_seconds": -0.0033333333333349646
+    },
+    {
+      "file": "videos/rear_shoot.mp4",
+      "source_frames": 36,
+      "source_seconds": 0.4399999999999992,
+      "encoded_frames": 26,
+      "encoded_seconds": 0.43333333333333335,
+      "duration_error_seconds": -0.006666666666665877
+    }
+  ],
+  "reel": "videos/cutout_review.mp4",
+  "timing": "Case-declared playback speed; 60fps frame repetition, no synthesized poses; per-clip boundary rounding is at most one 60fps frame",
+  "full_decode": "PASS",
+  "source_seconds": 8.880000000000008,
+  "encoded_seconds": 8.866666666666667
+}

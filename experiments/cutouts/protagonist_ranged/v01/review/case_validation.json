@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "protagonist_ranged",
+  "layouts": {
+    "front": {
+      "joints": 22,
+      "parts": 21,
+      "meshes": 5,
+      "vertices": 4954
+    },
+    "rear": {
+      "joints": 22,
+      "parts": 21,
+      "meshes": 11,
+      "vertices": 10191
+    }
+  },
+  "errors": []
+}

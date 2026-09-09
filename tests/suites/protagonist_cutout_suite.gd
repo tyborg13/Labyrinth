@@ -5,6 +5,8 @@ const Board = preload("res://scripts/combat_board_view.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const RangedAction = preload("res://scripts/protagonist_cutout/ranged_action.gd")
+const AcceptedMotion = preload("res://experiments/cutouts/protagonist_ranged/v01/source/accepted_motion.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
@@ -22,7 +24,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var expected_mirrors: Array[bool] = [false, true, false, true]
 	var directions: Array[Vector2i] = [Vector2i(0, 1), Vector2i(1, 0), Vector2i(0, -1), Vector2i(-1, 0)]
 	for index: int in range(directions.size()):
-		for clip: String in ["walk", "attack"]:
+		for clip: String in ["walk", "attack", "cast", "shoot"]:
 			renderer.call("present", {"clip": clip, "phase": 0.42, "direction": directions[index]}, false)
 			var sample: Dictionary = renderer.call("snapshot")
 			expect.call(sample["facing"] == expected_facings[index] and sample["mirrored"] == expected_mirrors[index], "Cutout faces the actual board travel/attack direction %s" % directions[index])
@@ -70,7 +72,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	for facing: String in ["front", "rear"]:
 		var rig: Node2D = renderer.get("rigs")[facing] as Node2D
 		var layout: Dictionary = rig.get("layout")
-		expect.call((rig.get("bones") as Dictionary).size() == 21, "%s retains all 21 accepted painted joints" % facing)
+		expect.call((rig.get("bones") as Dictionary).size() == 22, "%s retains 21 accepted joints plus the offhand attachment" % facing)
 		for part: Dictionary in layout["parts"]:
 			expect.call(str(part["file"]).begins_with("res://assets/units/protagonist_cutout/") and AssetLoader.load_texture(part["file"]) != null, "Every runtime part is a loadable production asset")
 		var bob_pose: Dictionary = Motion.sample_pose("idle", 0.40, layout, facing)
@@ -97,7 +99,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			expect.call(absf(float(idle_end[bone]["rotation"])) < 0.0001, "Idle cloth/head return continuously to neutral at the loop seam")
 		for sample_index: int in range(13):
 			var t: float = float(sample_index) / 12.0
-			for clip: String in ["idle", "attack"]:
+			for clip: String in ["idle", "attack", "cast", "shoot"]:
 				var pose: Dictionary = Motion.sample_pose(clip, t, layout, facing)
 				for foot: String in ["foot_r", "foot_l"]:
 					var world: Transform2D = Motion._world_transform(pose, layout, foot)
@@ -116,12 +118,74 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		var action: Dictionary = GameData.card_def(card_id)["actions"][0]
 		expect.call(AttackFxLibrary.protagonist_uses_melee_motion(action), card_id + " triggers the cutout swing through its self-centered AoE action")
 	for action: Dictionary in [{"type": "ranged", "range": 3}, {"type": "aoe", "range": 4}, {"type": "block"}]:
-		expect.call(not AttackFxLibrary.protagonist_uses_melee_motion(action), "Ranged, targeted AoE and defensive actions retain idle")
+		expect.call(not AttackFxLibrary.protagonist_uses_melee_motion(action), "Ranged, targeted AoE and defensive actions do not trigger the sword swing")
 	var sweep: Dictionary = {"kind": "aoe", "action_type": "aoe", "range": 0, "protagonist_melee": true, "from": Vector2i(3, 3), "to": Vector2i(3, 3)}
 	var sweep_motion: Dictionary = scene.call("_protagonist_attack_motion", sweep, 0.38)
 	expect.call(is_equal_approx(float(sweep_motion["phase"]), 0.42) and sweep_motion["direction"] == Vector2i.ZERO, "Area melee contacts at its original 0.38 boundary and retains its current facing")
 	expect.call(AttackFxLibrary.animation_frame_count(sweep, 6, false) == 6 and is_equal_approx(AttackFxLibrary.animation_frame_seconds(sweep, 0.04, false), 0.04), "Area melee preserves the existing 0.24-second action clock")
 	expect.call(float(scene.call("_attack_feedback_elapsed_seconds", sweep, 0.37, 6, 0.04, false)) < 0.0 and is_zero_approx(float(scene.call("_attack_feedback_elapsed_seconds", sweep, 0.38, 6, 0.04, false))), "Area damage becomes visible once at the unchanged contact boundary")
+	_check_ranged(renderer, scene, expect)
 	scene.free()
 	board.queue_free()
 	await tree.process_frame
+
+static func _check_ranged(renderer: Node, scene: Node, expect: Callable) -> void:
+	for element: String in ["fire", "earth", "air", "lightning", "ice"]:
+		for kind: String in ["ranged", "aoe"]:
+			expect.call(RangedAction.clip_for_action({"type": kind, "element": element, "range": 3}) == "cast", "Elemental targeted attacks raise the casting hand: " + element + "/" + kind)
+	for kind: String in ["ranged", "push", "pull", "aoe"]:
+		expect.call(RangedAction.clip_for_action({"type": kind, "range": 3, "element": "none"}) == "shoot", "Physical ranged actions use the crossbow: " + kind)
+	for kind: String in ["melee", "block", "heal", "move", "blink", "detonate"]:
+		expect.call(RangedAction.clip_for_action({"type": kind}) == "", "Unrelated actions do not equip a crossbow or cast: " + kind)
+	for face: String in ["front", "rear"]:
+		var rig: Node2D = renderer.get("rigs")[face]
+		var layout: Dictionary = rig.get("layout")
+		for clip: String in ["idle", "walk", "attack"]:
+			for sample: int in range(25):
+				var t: float = float(sample) / 24.0
+				var before: Dictionary = AcceptedMotion.sample_pose(clip, t, layout, face)
+				var after: Dictionary = Motion.sample_pose(clip, t, layout, face)
+				for bone: String in before:
+					if bone == "weapon_l": continue
+					expect.call(before[bone] == after[bone], "Accepted %s/%s/%s pose is byte-for-byte unchanged" % [face, clip, bone])
+		for clip: String in ["cast", "shoot"]:
+			var pose: Dictionary = Motion.sample_pose(clip, 0.4, layout, face)
+			var shoulder: Transform2D = Motion._world_transform(pose, layout, "arm_l")
+			var elbow: Transform2D = Motion._world_transform(pose, layout, "forearm_l")
+			var hand: Transform2D = Motion._world_transform(pose, layout, "hand_l")
+			var upper: Vector2 = elbow.origin - shoulder.origin
+			var lower: Vector2 = hand.origin - elbow.origin
+			expect.call(upper.normalized().dot(lower.normalized()) > 0.99, "The user-requested reach lifts a nearly straight arm: " + face + "/" + clip)
+			expect.call(hand.origin.y < float(layout["joints"]["hand_l"]["position"][1]) - 15.0, "The offhand rises visibly above its resting position")
+			for bone: String in ["hand_l", "weapon_l"]:
+				var world: Transform2D = Motion._world_transform(pose, layout, bone)
+				expect.call(absf(world.x.length()-1.0) < 0.001 and absf(world.y.length()-1.0) < 0.001 and absf(world.x.dot(world.y)) < 0.001, "Straight reach retains rigid, unstretched glove and weapon paint")
+			for pair: Array in [["arm_l", "forearm_l"], ["forearm_l", "hand_l"]]:
+				var start: Array = layout["joints"][pair[0]]["position"]
+				var finish: Array = layout["joints"][pair[1]]["position"]
+				var perpendicular: Vector2 = Vector2(float(finish[0])-float(start[0]), float(finish[1])-float(start[1])).normalized().orthogonal()
+				var transform: Transform2D = Motion._world_transform(pose, layout, pair[0])
+				expect.call(absf((transform.basis_xform(perpendicular)).length() - 1.0) < 0.001, "Revealing the foreshortened rear arm preserves its painted width")
+			for bone: String in ["arm_r", "forearm_r", "hand_r", "weapon_r", "foot_l", "foot_r"]:
+				expect.call(pose[bone] == Motion.sample_pose("rest", 0.0, layout, face)[bone], "Offhand actions preserve the sword and planted feet")
+	for clip: String in ["cast", "shoot"]:
+		for delta: Vector2i in [Vector2i(0,2),Vector2i(2,0),Vector2i(0,-2),Vector2i(-2,0)]:
+			var effect: Dictionary = {"kind":"ranged", "action_type":"ranged", "element":"fire" if clip == "cast" else "none", "protagonist_ranged":clip, "from":Vector2i(3,3), "protagonist_origin":Vector2i(3,3), "to":Vector2i(3,3)+delta}
+			renderer.call("present", {"clip":clip, "phase":0.42, "direction":delta}, false)
+			var release: Vector2 = renderer.call("source_socket", clip == "shoot", true, delta)
+			var hand_socket: Vector2 = renderer.call("source_socket", clip == "shoot")
+			expect.call(release.distance_to(hand_socket) < 0.001, "Projectile origin exactly matches the visible hand/muzzle at release in each facing")
+			var sample: Dictionary = renderer.call("snapshot")
+			expect.call(bool(sample["crossbow_visible"]) == (clip == "shoot"), "Only shooting equips the temporary crossbow")
+			var style: String = AttackFxLibrary.style_for_effect(effect)
+			var contact: float = 0.66 if clip == "shoot" else AttackFxLibrary.travel_end_progress(style)
+			var before: float = float(scene.call("_attack_feedback_start_progress", effect))
+			expect.call(is_equal_approx(before, contact), "Preparation does not change the existing effect/contact boundary")
+			for t: float in [0.0,0.4,0.7,1.0]:
+				renderer.call("present", RangedAction.motion_for_effect(effect,t), false)
+				expect.call((renderer.call("source_socket", clip == "shoot", true, delta) as Vector2).distance_to(release) < 0.001, "Released origin remains fixed through recoil, recovery, and idle facing reset")
+			renderer.call("present", {"clip":clip,"phase":1.0,"direction":delta}, true)
+			sample = renderer.call("snapshot")
+			expect.call(sample["clip"] == clip and is_equal_approx(float(sample["phase"]),0.4) and bool(sample["crossbow_visible"]) == (clip == "shoot"), "Reduced motion uses a still raised hand or aimed crossbow")
+			renderer.call("present", {}, true)
+			expect.call(not bool(renderer.call("snapshot")["crossbow_visible"]), "Returning to idle removes temporary equipment")

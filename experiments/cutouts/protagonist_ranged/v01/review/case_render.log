@@ -1,0 +1,12 @@
+{
+  "ok": true,
+  "output": "/private/tmp/protagonist-ranged-case-final",
+  "preview": "/private/tmp/protagonist-ranged-case-final/videos/cutout_review.mp4",
+  "authored_frames": 420,
+  "verification": {
+    "ok": true,
+    "inputs": 933,
+    "outputs": 1087,
+    "errors": []
+  }
+}

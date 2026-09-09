@@ -1,0 +1,11 @@
+Running task-local command:
+  task: protagonist-spellcast-and-offhand-crossbow-animations
+  run: protagonist-spellcast-and-offhand-crossb-1788917241677323000-45986
+  HOME: /private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-crossb-1788917241677323000-45986
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-crossb-1788917241677323000-45986/godot.log --headless --path . --script tests/protagonist_cutout_pack_test.gd -- build /private/tmp/protagonist-ranged-export-v01/godot_export_debug.pck
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+PROTAGONIST CUTOUT PACK TEST RESULT: PASS (build, editor=true)

@@ -22818,6 +22818,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
 				"protagonist_melee": AttackFxLibrary.protagonist_uses_melee_motion(action),
+				"protagonist_ranged": preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
+				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
 				"center": effect_target_tile,
@@ -22834,6 +22836,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				effect["from"] = effect_target_tile
 				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await preload("res://scripts/protagonist_cutout/ranged_action.gd").prepare(self, before_state, effect, base_presentation)
 			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
 			if _has_electrical_trace(chain_hits):
 				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
@@ -24059,6 +24062,8 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	var cutout_effect: Dictionary = presentation.get("effect", {})
 	if bool(cutout_effect.get("protagonist_melee", false)):
 		rendered_presentation["protagonist_motion"] = _protagonist_attack_motion(cutout_effect, float(presentation.get("effect_progress", 1.0)))
+	elif not str(cutout_effect.get("protagonist_ranged", "")).is_empty():
+		rendered_presentation["protagonist_motion"] = preload("res://scripts/protagonist_cutout/ranged_action.gd").motion_for_effect(cutout_effect, float(presentation.get("effect_progress", 1.0)))
 	var run_mode: String = str(_run_state.get("mode", "room"))
 	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()

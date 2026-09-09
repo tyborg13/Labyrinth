@@ -1,0 +1,1301 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.703926874401315,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.47945512451113,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.78338800616364,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.46890355357668,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.43267153194537,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.45348984384765,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.768791636343654,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.57446423676928,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.698234126853123,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.508012822842204,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.778509118944452,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.48761071176645,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.32219999999998,
+          "luma_mean": 30.396432074495255,
+          "luma_min": 0.0,
+          "luma_range": 247.32219999999998,
+          "luma_stdev": 39.44499019007012,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.7744813429239,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.61646301864505,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.526855121000658,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.40502726124572,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.627232288036733,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.380658462508244,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.0374,
+          "luma_mean": 30.013130429446587,
+          "luma_min": 0.0,
+          "luma_range": 247.0374,
+          "luma_stdev": 39.276673182954795,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.65602361989332,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.57391195835935,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.54593691078236,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.38948050528897,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.623086970099337,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.360767211447374,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.955723406352725,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.162615851463954,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.556045843873175,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.40037859826477,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 36.4519532782307,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 43.52638345395076,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/controller_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.468221144410975,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.307098155892575,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.531166814294167,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.28061754459928,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 29.804061598380784,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.875008180502924,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.597805496672837,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.53990303603942,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.470421353996606,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.30523443581154,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 29.53981229436379,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 38.25870252787833,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.069484332483164,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.56440529147778,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.8010893941736,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.82247180522435,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 33.27175281951401,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 45.34705163363303,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/pointer_handoff.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.99999999999997,
+          "luma_mean": 33.26646437044711,
+          "luma_min": 0.0,
+          "luma_range": 248.99999999999997,
+          "luma_stdev": 43.02867711971619,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/pre_action.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.34217034561294,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.22771303316994,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.414940469782657,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.1966749444764,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.670760162917148,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.04028465731058,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.512033047289517,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.53609426102147,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.949363994773556,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.887128201335706,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.949363994773556,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.887128201335706,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.949363994773556,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.887128201335706,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.949363994773556,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.887128201335706,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.54394007433725,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.35313635273792,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.54394007433725,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.35313635273792,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.54394007433725,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.35313635273792,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 30.54394007433725,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 39.35313635273792,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.485259348302197,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.33965129928607,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.53947325608463,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.32186074763567,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.10959999999997,
+          "luma_mean": 29.860573232357346,
+          "luma_min": 0.0,
+          "luma_range": 248.10959999999997,
+          "luma_stdev": 38.901604968615146,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.501566047131657,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.33159014449594,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.671165663550358,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.43020017575667,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.771677471522803,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.4144038830501,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.732146848301948,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.5008623706322,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.699884775381996,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.463132444473835,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.675169416318496,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.459213199092396,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.726843340709625,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.45053700721881,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.747723244220985,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.55949453361554,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.70057121559084,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.49451274694292,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.49244333280074,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.353486155830375,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.556825229352576,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.345253405051054,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.416380136818493,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.32255575381128,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.521151119102544,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.38379587858904,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.510859882152207,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.335022190081474,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.589060843082617,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 38.29787992286922,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.435044254186465,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.30311169888082,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.0254,
+          "luma_mean": 29.538067530048437,
+          "luma_min": 0.0,
+          "luma_range": 245.0254,
+          "luma_stdev": 38.365520945856,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.464135301323363,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.26790708426522,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_charge.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.624480283133227,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.2356630951519,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_raise.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.5071474770573,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 40.13200735651291,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_recovery.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.9154,
+          "luma_mean": 29.494962385315777,
+          "luma_min": 0.0,
+          "luma_range": 246.9154,
+          "luma_stdev": 38.31098454129228,
+          "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_release.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/protagonist-spellcast-and-offhand-crossbow-animations",
+    "--script",
+    "tests/protagonist_ranged_gameplay_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.703926874401315,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.47945512451113,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.78338800616364,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.46890355357668,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.43267153194537,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.45348984384765,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.768791636343654,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.57446423676928,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northeast_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.698234126853123,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.508012822842204,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.778509118944452,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.48761071176645,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.32219999999998,
+      "luma_mean": 30.396432074495255,
+      "luma_min": 0.0,
+      "luma_range": 247.32219999999998,
+      "luma_stdev": 39.44499019007012,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.7744813429239,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.61646301864505,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_northwest_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.526855121000658,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.40502726124572,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.627232288036733,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.380658462508244,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.0374,
+      "luma_mean": 30.013130429446587,
+      "luma_min": 0.0,
+      "luma_range": 247.0374,
+      "luma_stdev": 39.276673182954795,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.65602361989332,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.57391195835935,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southeast_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.54593691078236,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.38948050528897,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.623086970099337,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.360767211447374,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.955723406352725,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.162615851463954,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.556045843873175,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.40037859826477,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/cast_southwest_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 36.4519532782307,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 43.52638345395076,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/controller_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.468221144410975,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.307098155892575,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.531166814294167,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.28061754459928,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 29.804061598380784,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.875008180502924,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.597805496672837,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.53990303603942,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/frostbolt_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.470421353996606,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.30523443581154,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 29.53981229436379,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 38.25870252787833,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.069484332483164,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.56440529147778,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.8010893941736,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.82247180522435,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/physical_targeted_aoe_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 33.27175281951401,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 45.34705163363303,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/pointer_handoff.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.99999999999997,
+      "luma_mean": 33.26646437044711,
+      "luma_min": 0.0,
+      "luma_range": 248.99999999999997,
+      "luma_stdev": 43.02867711971619,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/pre_action.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.34217034561294,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.22771303316994,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.414940469782657,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.1966749444764,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.670760162917148,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.04028465731058,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.512033047289517,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.53609426102147,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/razor_gale_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.949363994773556,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.887128201335706,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.949363994773556,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.887128201335706,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.949363994773556,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.887128201335706,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.949363994773556,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.887128201335706,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_cast_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.54394007433725,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.35313635273792,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.54394007433725,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.35313635273792,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.54394007433725,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.35313635273792,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 30.54394007433725,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 39.35313635273792,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/reduced_shoot_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.485259348302197,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.33965129928607,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.53947325608463,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.32186074763567,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.10959999999997,
+      "luma_mean": 29.860573232357346,
+      "luma_min": 0.0,
+      "luma_range": 248.10959999999997,
+      "luma_stdev": 38.901604968615146,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.501566047131657,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.33159014449594,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/root_snare_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.671165663550358,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.43020017575667,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.771677471522803,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.4144038830501,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.732146848301948,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.5008623706322,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.699884775381996,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.463132444473835,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northeast_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.675169416318496,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.459213199092396,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.726843340709625,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.45053700721881,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.747723244220985,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.55949453361554,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.70057121559084,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.49451274694292,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_northwest_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.49244333280074,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.353486155830375,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.556825229352576,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.345253405051054,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.416380136818493,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.32255575381128,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.521151119102544,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.38379587858904,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southeast_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.510859882152207,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.335022190081474,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.589060843082617,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 38.29787992286922,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.435044254186465,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.30311169888082,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.0254,
+      "luma_mean": 29.538067530048437,
+      "luma_min": 0.0,
+      "luma_range": 245.0254,
+      "luma_stdev": 38.365520945856,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/shoot_southwest_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.464135301323363,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.26790708426522,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_charge.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.624480283133227,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.2356630951519,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_raise.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.5071474770573,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 40.13200735651291,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_recovery.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.9154,
+      "luma_mean": 29.494962385315777,
+      "luma_min": 0.0,
+      "luma_range": 246.9154,
+      "luma_stdev": 38.31098454129228,
+      "path": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01/spark_dart_release.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "protagonist-spellcast-and-offhand-cr-1788915983332744000-45004-protagonist_ranged_gamep-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/protagonist_ranged_gameplay_probe.gd"
+}

@@ -1,0 +1,47 @@
+{
+  "clips": [
+    {
+      "label": "cast_southwest",
+      "file": "/private/tmp/ranged-cast_southwest.mp4",
+      "source_seconds": 1.8083543333333336
+    },
+    {
+      "label": "shoot_southwest",
+      "file": "/private/tmp/ranged-shoot_southwest.mp4",
+      "source_seconds": 1.6742883333333334
+    },
+    {
+      "label": "cast_northeast",
+      "file": "/private/tmp/ranged-cast_northeast.mp4",
+      "source_seconds": 1.7715523333333334
+    },
+    {
+      "label": "shoot_northeast",
+      "file": "/private/tmp/ranged-shoot_northeast.mp4",
+      "source_seconds": 1.7050913333333335
+    },
+    {
+      "label": "root_snare",
+      "file": "/private/tmp/ranged-root_snare.mp4",
+      "source_seconds": 1.8063213333333334
+    },
+    {
+      "label": "razor_gale",
+      "file": "/private/tmp/ranged-razor_gale.mp4",
+      "source_seconds": 1.7127983333333334
+    },
+    {
+      "label": "spark_dart",
+      "file": "/private/tmp/ranged-spark_dart.mp4",
+      "source_seconds": 1.6292853333333335
+    },
+    {
+      "label": "frostbolt",
+      "file": "/private/tmp/ranged-frostbolt.mp4",
+      "source_seconds": 1.7736033333333334
+    }
+  ],
+  "source_seconds": 13.881294666666669,
+  "timing": "actual captured timestamps, 60fps frame repetition, no synthesized poses",
+  "full_decode": "PASS"
+}

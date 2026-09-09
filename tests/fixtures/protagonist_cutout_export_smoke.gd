@@ -7,8 +7,8 @@ func _ready() -> void:
 	var passed: bool = not OS.has_feature("editor")
 	for facing: String in ["front", "rear"]:
 		var rig: Node = renderer.get("rigs")[facing]
-		passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 21
-		for clip: String in ["idle", "walk", "attack"]:
+		passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 22
+		for clip: String in ["idle", "walk", "attack", "cast", "shoot"]:
 			rig.call("apply_pose", clip, 0.42)
 	renderer.queue_free()
 	await get_tree().process_frame

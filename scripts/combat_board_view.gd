@@ -2132,8 +2132,8 @@ func _queue_presentation_change_redraws(
 				_queue_render_layer_redraw(_ambient_render_layer)
 				foreground_changed = true
 			"protagonist_motion":
-				# Live texture content changes without invalidating board geometry.
-				pass
+				# The rig keeps a stable texture; its small hand charge lives on FX.
+				effects_changed = true
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
 				pass
@@ -8641,6 +8641,7 @@ func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progre
 		ElementalSpellFx.floor_light(self, element_id, _tile_center(tile), _tile_width() * (0.79 if is_center else 0.60), envelope * (0.55 if is_center else 0.33))
 
 func _draw_effect_overlay() -> void:
+	_draw_protagonist_charge()
 	var effect: Dictionary = presentation.get("effect", {})
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
@@ -8786,6 +8787,38 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 		return null
 	return frames[frame_index] as Texture2D
 
+func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
+	var player: Dictionary = combat_state.get("player", {})
+	var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": player.get("pos", Vector2i.ZERO)}
+	var body: Rect2 = _unit_draw_rect(unit)
+	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
+	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
+
+func _protagonist_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	if str(effect.get("protagonist_ranged", "")).is_empty() or bool(effect.get("preview", false)) or not is_instance_valid(_protagonist_renderer):
+		return fallback
+	# A relic's explicitly remote origin remains on that ground. Enemy, trap,
+	# preview, and later chain-hop descriptors never carry this player marker.
+	if effect.get("from", Vector2i.ZERO) != effect.get("protagonist_origin", Vector2i.ZERO):
+		return fallback
+	return _protagonist_socket_world(str(effect["protagonist_ranged"]) == "shoot", true, (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("protagonist_origin", Vector2i.ZERO) as Vector2i))
+
+func _draw_protagonist_charge() -> void:
+	var motion: Dictionary = presentation.get("protagonist_motion", {})
+	var amount: float = float(motion.get("charge", 0.0))
+	if amount <= 0.0 or bool(presentation.get("reduced_motion", false)) or not is_instance_valid(_protagonist_renderer):
+		return
+	var center: Vector2 = _protagonist_socket_world(false)
+	var scale: float = protagonist_source_pixel_scale()
+	var accent: Color = _projectile_accent(str(motion.get("element", "none")))
+	var radius: float = lerpf(10.0, 4.0, amount) * scale
+	draw_circle(center, 4.0 * scale, Color(accent, amount * 0.23))
+	draw_arc(center, radius, amount * 2.0, amount * 2.0 + TAU * 0.76, 18, Color(accent, amount * 0.85), maxf(1.0, scale), true)
+	for index: int in range(4):
+		var ray: Vector2 = Vector2.from_angle(float(index) * TAU / 4.0 + amount * 1.6)
+		draw_line(center + ray * (radius + 3.0 * scale), center + ray * radius, Color(accent, amount), maxf(1.0, scale), true)
+	draw_circle(center, 1.4 * scale, Color(1.0, 0.97, 0.85, amount))
+
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	if bool(effect.get("preview", false)):
 		if _target_preview_curve_visible(effect):
@@ -8811,7 +8844,7 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
-	var start: Vector2 = from_point + Vector2(0.0, -24.0)
+	var start: Vector2 = _protagonist_launch_point(effect, from_point + Vector2(0.0, -24.0))
 	var end: Vector2 = to_point + Vector2(0.0, -24.0)
 	var control: Vector2 = _arc_control_point(start, end)
 	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
@@ -9433,7 +9466,7 @@ func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_p
 	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
 	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
 	if progress <= anticipation_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == from_tile):
-		_draw_elemental_release(style, start, start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+		_draw_elemental_release(style, _protagonist_launch_point(effect, start), start, end, AttackFxLibrary.release_progress_for_style(style, progress))
 	if progress >= anticipation_end and progress <= travel_end:
 		_draw_earth_spike_path(start, end, travel_progress, 1.0, from_tile, to_tile)
 	if progress >= travel_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile):
@@ -9457,7 +9490,7 @@ func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, re
 
 func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_AIR_GUST
-	var start: Vector2 = _elemental_air_point(from_point, 0.62)
+	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.62))
 	var end: Vector2 = _elemental_air_point(to_point, 0.56)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9486,7 +9519,7 @@ func _draw_air_gust_impact(center: Vector2, ground_center: Vector2, impact_progr
 
 func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
-	var start: Vector2 = _elemental_air_point(from_point, 0.66)
+	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.66))
 	var end: Vector2 = _elemental_air_point(to_point, 0.58)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9515,7 +9548,7 @@ func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_prog
 
 func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
-	var start: Vector2 = _elemental_air_point(from_point, 0.60)
+	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.60))
 	var end: Vector2 = _elemental_air_point(to_point, 0.40)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9544,7 +9577,7 @@ func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: floa
 
 func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_FIREBALL
-	var start: Vector2 = _elemental_air_point(from_point, 0.72)
+	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.72))
 	var end: Vector2 = _elemental_air_point(to_point, 0.66)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)

@@ -43,6 +43,7 @@ func apply_pose(clip_name: String, phase_value: float) -> void:
 		bone.rotation = float(override.get("rotation", 0.0))
 		bone.scale = override.get("scale", Vector2.ONE)
 		bone.skew = float(override.get("skew", 0.0))
+		bone.visible = bool(override.get("visible", true))
 
 func playback_phase(clip_name: String, progress: float) -> float:
 	var keys: Array = config["clips"][clip_name].get("phase_curve", [])
@@ -103,10 +104,12 @@ func save_editable(path: String) -> Error:
 		var tracks: Dictionary = {}
 		for bone_name: String in bones:
 			tracks[bone_name] = {}
-			for property: String in ["position", "rotation", "scale", "skew"]:
+			for property: String in ["position", "rotation", "scale", "skew", "visible"]:
 				var track: int = animation.add_track(Animation.TYPE_VALUE)
 				animation.track_set_path(track, NodePath(str(get_path_to(bones[bone_name])) + ":" + property))
-				animation.track_set_interpolation_type(track, Animation.INTERPOLATION_LINEAR)
+				animation.track_set_interpolation_type(track, Animation.INTERPOLATION_NEAREST if property == "visible" else Animation.INTERPOLATION_LINEAR)
+				if property == "visible":
+					animation.value_track_set_update_mode(track, Animation.UPDATE_DISCRETE)
 				tracks[bone_name][property] = track
 		for index: int in range(frames + 1):
 			var progress: float = minf(1.0, float(index) / float(frames if specification["loop"] else frames-1))

@@ -191,3 +191,4 @@ func apply_pose(clip_name: String, phase: float) -> void:
 		bone.rotation = float(override.get("rotation", 0.0))
 		bone.scale = override.get("scale", Vector2.ONE)
 		bone.skew = float(override.get("skew", 0.0))
+		bone.visible = bool(override.get("visible", true))

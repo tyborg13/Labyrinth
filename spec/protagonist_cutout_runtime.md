@@ -79,3 +79,7 @@ Affected UI rubric gates remain **Pass** at 1920×1080 and 100% UI scale: immedi
 ## Publication integration
 
 The accepted checkpoint was integrated with upstream performance work at `685c3dde` while preserving cutout initialization and staged asset reuse. [Fresh publication evidence](../experiments/cutouts/workflow_validation/publication/README.md) covers staged startup identity, native Continue, gameplay and the full test suite.
+
+## Offhand ranged actions
+
+The integrated straight-arm casting and temporary crossbow clips, their source sockets, timing, art provenance, and proof contract are documented in [protagonist_ranged_animations.md](protagonist_ranged_animations.md). The 21 accepted joints gain one independent offhand weapon attachment; existing rest paint and idle/walk/sword poses are protected by differential tests.

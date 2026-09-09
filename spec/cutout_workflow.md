@@ -100,3 +100,5 @@ The study tools do not automatically change enemy routing or live equipment sele
 ## Operationalization proof
 
 The retained [workflow rehearsal](../experiments/cutouts/workflow_validation/README.md) includes a fresh-agent animation variant, a distinct two-bone graph fixture, native/editable-scene proof, the observed failures and fixes, focused tests, and exact reproduction commands. The temporary salute is an authoring example with an explicitly recorded HP-clearance defect, not an accepted production action.
+
+Bone pose overrides may include `visible` (default true). Temporary rigid attachments can therefore remain hidden outside their own clips; the saved editable AnimationPlayer records visibility with discrete tracks alongside position, rotation, scale, and skew.

@@ -94,6 +94,8 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 			clip = "idle"
 		else:
 			phase = attack_pose_phase(phase)
+	if clip in ["cast", "shoot"] and phase >= 1.0 and not reduced_motion:
+		clip = "idle"
 	if clip == "idle":
 		facing = "front"
 		mirrored = false
@@ -118,8 +120,9 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "rest" if reduced_motion else clip
-	var shown_phase: float = 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	var shown_clip: String = clip if ranged_still else "rest" if reduced_motion else clip
+	var shown_phase: float = 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
 	if signature == _pose_signature:
 		return
@@ -137,7 +140,36 @@ func _apply_pose() -> void:
 func texture() -> Texture2D:
 	return viewport.get_texture() if viewport != null else null
 
+func source_socket(shot: bool = false, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
+	if rigs.is_empty():
+		return SOURCE_SIZE * 0.5
+	var socket_facing: String = facing
+	var socket_mirrored: bool = mirrored
+	if released and direction_delta != Vector2i.ZERO:
+		var direction: Dictionary = direction_for_delta(direction_delta)
+		socket_facing = direction["facing"]
+		socket_mirrored = bool(direction["mirrored"])
+	var rig: Node2D = rigs[socket_facing]
+	var bone_name: String = "weapon_l" if shot else "hand_l"
+	var point: Vector2
+	var offset: Vector2 = Vector2.ZERO
+	if shot:
+		var raw: Array = rig.layout.get("offhand_attachment", {}).get("muzzle_offset", [0, 0])
+		offset = Vector2(float(raw[0]), float(raw[1]))
+	else:
+		offset = Vector2(-2, 5)
+	if released:
+		var pose: Dictionary = Motion.sample_pose("shoot" if shot else "cast", 0.42, rig.layout, socket_facing)
+		point = Motion._world_transform(pose, rig.layout, bone_name) * offset
+	else:
+		point = rig.to_local((rig.bones[bone_name] as Bone2D).to_global(offset))
+	return Vector2(SOURCE_SIZE.x - point.x, point.y) if socket_mirrored else point
+
 func snapshot() -> Dictionary:
-	return {"art": "protagonist_cutout_pass7", "facing": facing, "mirrored": mirrored,
-		"clip": "rest" if reduced_motion else clip, "phase": 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	return {"art": "protagonist_cutout_pass9", "facing": facing, "mirrored": mirrored,
+		"clip": clip if ranged_still else "rest" if reduced_motion else clip,
+		"phase": 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
+		"hand_source": source_socket(), "muzzle_source": source_socket(true),
+		"crossbow_visible": (rigs[facing].bones["weapon_l"] as Bone2D).visible if rigs[facing].bones.has("weapon_l") else false,
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}

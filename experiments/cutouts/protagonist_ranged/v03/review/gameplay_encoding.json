@@ -1,0 +1,47 @@
+{
+  "timing": "original captured timestamps, no retiming; 60fps repeat-only output",
+  "full_decode": "PASS",
+  "segments": [
+    {
+      "label": "cast_southwest",
+      "captured_frames": 53,
+      "source_seconds": 1.7721103333333332
+    },
+    {
+      "label": "shoot_southwest",
+      "captured_frames": 50,
+      "source_seconds": 1.6821933333333337
+    },
+    {
+      "label": "cast_northeast",
+      "captured_frames": 53,
+      "source_seconds": 1.7813623333333335
+    },
+    {
+      "label": "shoot_northeast",
+      "captured_frames": 50,
+      "source_seconds": 1.6816873333333335
+    },
+    {
+      "label": "root_snare",
+      "captured_frames": 53,
+      "source_seconds": 1.7800803333333335
+    },
+    {
+      "label": "razor_gale",
+      "captured_frames": 52,
+      "source_seconds": 1.7397623333333334
+    },
+    {
+      "label": "spark_dart",
+      "captured_frames": 49,
+      "source_seconds": 1.6452813333333334
+    },
+    {
+      "label": "frostbolt",
+      "captured_frames": 53,
+      "source_seconds": 1.7731323333333333
+    }
+  ],
+  "raw_gameplay": "/private/tmp/labyrinth-godot-home/protagonist-spellcast-and-offhand-cr-1788917237043440000-45974-protagonist_ranged_gamep-1/Library/Application Support/Escape the Umbra Visual Probe protagonist-spellcast-and-offhand-cr-1788917237043440000-45974-protagonist_ranged_gamep-1/probes/protagonist_ranged_v01"
+}

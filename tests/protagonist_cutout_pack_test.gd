@@ -43,9 +43,9 @@ func _initialize() -> void:
 			for view: String in ["front", "rear"]:
 				var rig: Node = renderer.get("rigs")[view]
 				_check((rig.get("load_errors") as PackedStringArray).is_empty(), view + " packed paint loads")
-				for clip: String in ["idle", "walk", "attack"]:
+				for clip: String in ["idle", "walk", "attack", "cast", "shoot"]:
 					rig.call("apply_pose", clip, 0.42)
-				_check((rig.get("bones") as Dictionary).size() == 21, view + " packed skeleton is complete")
+				_check((rig.get("bones") as Dictionary).size() == 22, view + " packed skeleton is complete")
 			renderer.queue_free()
 			await process_frame
 	for message: String in _errors:
