@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "character_id": "stone_warden",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 1.0,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 32,
+      "duration": 0.9,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_r",
+    "weapon_r",
+    "shield_l",
+    "foot_r",
+    "foot_l"
+  ],
+  "contact_feet": [
+    "foot_r",
+    "foot_l"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_coverage.json",
+    "recipes/ownership_audit.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_underbody_generated.png",
+    "source/front_underbody_rejected_checker.png",
+    "source/generation_requests.json",
+    "source/pelvis_paint_generated.png",
+    "source/pelvis_registered.png",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_underbody_generated.png",
+    "source/rear_underbody_registered.png",
+    "source/underbody_registered.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "authored",
+    "identity": "warden; original front visible paint; generated rear and concealed armor; mechanics untouched",
+    "production_front_sha256": "4d49e429ed76f039681722a34fe0d353f00cab0c94fe38c43439c5e6c6ed1181"
+  }
+}

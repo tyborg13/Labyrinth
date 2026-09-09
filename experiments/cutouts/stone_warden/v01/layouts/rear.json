@@ -1,0 +1,323 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "rear",
+  "joints": {
+    "root": {
+      "position": [
+        128,
+        128
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        116,
+        124
+      ],
+      "parent": "root"
+    },
+    "chest": {
+      "position": [
+        117,
+        86
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        125,
+        55
+      ],
+      "parent": "chest"
+    },
+    "upper_r": {
+      "position": [
+        149,
+        76
+      ],
+      "parent": "chest"
+    },
+    "fore_r": {
+      "position": [
+        154,
+        111
+      ],
+      "parent": "upper_r"
+    },
+    "hand_r": {
+      "position": [
+        175,
+        145
+      ],
+      "parent": "fore_r"
+    },
+    "weapon_r": {
+      "position": [
+        181,
+        152
+      ],
+      "parent": "hand_r"
+    },
+    "upper_l": {
+      "position": [
+        87,
+        71
+      ],
+      "parent": "chest"
+    },
+    "fore_l": {
+      "position": [
+        78,
+        98
+      ],
+      "parent": "upper_l"
+    },
+    "hand_l": {
+      "position": [
+        75,
+        119
+      ],
+      "parent": "fore_l"
+    },
+    "shield_l": {
+      "position": [
+        66,
+        125
+      ],
+      "parent": "hand_l"
+    },
+    "thigh_r": {
+      "position": [
+        138,
+        141
+      ],
+      "parent": "pelvis"
+    },
+    "shin_r": {
+      "position": [
+        143,
+        172
+      ],
+      "parent": "thigh_r"
+    },
+    "foot_r": {
+      "position": [
+        145,
+        220
+      ],
+      "parent": "shin_r"
+    },
+    "thigh_l": {
+      "position": [
+        95,
+        139
+      ],
+      "parent": "pelvis"
+    },
+    "shin_l": {
+      "position": [
+        92,
+        172
+      ],
+      "parent": "thigh_l"
+    },
+    "foot_l": {
+      "position": [
+        89,
+        207
+      ],
+      "parent": "shin_l"
+    },
+    "tabard": {
+      "position": [
+        114,
+        123
+      ],
+      "parent": "pelvis"
+    }
+  },
+  "parts": [
+    {
+      "name": "hand_r",
+      "file": "segmented/rear/hand_r.png",
+      "offset": [
+        163,
+        131
+      ],
+      "bone": "hand_r",
+      "z_index": 16,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "mace",
+      "file": "segmented/rear/mace.png",
+      "offset": [
+        177,
+        146
+      ],
+      "bone": "weapon_r",
+      "z_index": 14,
+      "equipment_slot": "weapon"
+    },
+    {
+      "name": "head",
+      "file": "segmented/rear/head.png",
+      "offset": [
+        104,
+        12
+      ],
+      "bone": "head",
+      "z_index": 12,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "shield",
+      "file": "segmented/rear/shield.png",
+      "offset": [
+        40,
+        55
+      ],
+      "bone": "shield_l",
+      "z_index": -2,
+      "equipment_slot": "shield"
+    },
+    {
+      "name": "arm_l",
+      "file": "segmented/rear/arm_l.png",
+      "offset": [
+        66,
+        39
+      ],
+      "bone": "upper_l",
+      "z_index": 6,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "arm_r",
+      "file": "segmented/rear/arm_r.png",
+      "offset": [
+        128,
+        49
+      ],
+      "bone": "upper_r",
+      "z_index": 10,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "tabard",
+      "file": "segmented/rear/tabard.png",
+      "offset": [
+        98,
+        119
+      ],
+      "bone": "tabard",
+      "z_index": 9,
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "foot_l",
+      "file": "segmented/rear/foot_l.png",
+      "offset": [
+        78,
+        195
+      ],
+      "bone": "foot_l",
+      "z_index": 4,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "foot_r",
+      "file": "segmented/rear/foot_r.png",
+      "offset": [
+        134,
+        205
+      ],
+      "bone": "foot_r",
+      "z_index": 5,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "leg_l",
+      "file": "segmented/rear/leg_l.png",
+      "offset": [
+        75,
+        131
+      ],
+      "bone": "thigh_l",
+      "z_index": 1,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "leg_r",
+      "file": "segmented/rear/leg_r.png",
+      "offset": [
+        129,
+        132
+      ],
+      "bone": "thigh_r",
+      "z_index": 2,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "torso",
+      "file": "segmented/rear/torso.png",
+      "offset": [
+        87,
+        50
+      ],
+      "bone": "chest",
+      "z_index": 7,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "shoulder_cap_r",
+      "file": "assets/rear/shoulder_cap_r.png",
+      "offset": [
+        139,
+        72
+      ],
+      "bone": "upper_r",
+      "z_index": 5,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "pelvis_cover",
+      "file": "assets/rear/pelvis_cover.png",
+      "offset": [
+        101,
+        124
+      ],
+      "bone": "pelvis",
+      "z_index": 0,
+      "equipment_slot": "armor"
+    },
+    {
+      "name": "shoulder_socket_r",
+      "file": "assets/rear/shoulder_socket_r.png",
+      "offset": [
+        126,
+        63
+      ],
+      "bone": "chest",
+      "z_index": 6,
+      "equipment_slot": "armor"
+    }
+  ],
+  "landmarks": {
+    "mace_grip": [
+      181,
+      152
+    ],
+    "sole_r": [
+      149,
+      232
+    ],
+    "sole_l": [
+      89,
+      217
+    ]
+  }
+}

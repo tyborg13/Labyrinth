@@ -1,0 +1,56 @@
+{
+  "unique_poses": 176,
+  "board_frames": 288,
+  "roundtrips": [
+    {
+      "clip": "idle",
+      "facing": "front",
+      "frame": 10,
+      "pixel_identical": true
+    },
+    {
+      "clip": "walk",
+      "facing": "front",
+      "frame": 13,
+      "pixel_identical": true
+    },
+    {
+      "clip": "attack",
+      "facing": "front",
+      "frame": 13,
+      "pixel_identical": true
+    },
+    {
+      "clip": "idle",
+      "facing": "rear",
+      "frame": 10,
+      "pixel_identical": true
+    },
+    {
+      "clip": "walk",
+      "facing": "rear",
+      "frame": 13,
+      "pixel_identical": true
+    },
+    {
+      "clip": "attack",
+      "facing": "rear",
+      "frame": 13,
+      "pixel_identical": true
+    }
+  ],
+  "max_rigid_basis_error": 4.17232513427734e-07,
+  "max_foot_target_error": 6.47375563858077e-05,
+  "max_support_drift": 7.62939453125e-05,
+  "canvas_size": [
+    512,
+    512
+  ],
+  "board_size": [
+    1920,
+    1080
+  ],
+  "ui_scale": 1.0,
+  "native_errors": [],
+  "reel_seconds": 12.200000000000001
+}
