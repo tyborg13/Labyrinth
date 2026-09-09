@@ -1,0 +1,22 @@
+{
+  "mode": "built-in image_gen",
+  "requests": [
+    {
+      "prompt": "Use case: precise-object-edit. Asset type: one small repair patch for an existing painted pixel-art skeletal game character. Image 1 is the edit target: a tightly cropped isolated armored right arm, shoulder at top and wrist at bottom, transparent background. Image 2 is reference only: the complete Stone Warden showing how the chest and arm overlap. In image 1, a tiny sliver of gold-edged chest plate accidentally remains attached on the RIGHT INNER EDGE of the upper arm, immediately BELOW the shoulder pauldron, about 40%-60% down the image. Replace just that gold-edged chest sliver with a natural small continuation of the dark gray armored upper-arm sleeve beneath it, filling only a narrow amount of width (roughly 3-5 native source pixels) so the arm can lift without looking skinny. Preserve the large gold V-trimmed shoulder pauldron at the top, outer left outline, elbow, forearm plates, leather cuff, scale, pose, projection, dark iron colors, pixel clusters and all other details. Output the isolated full arm in exactly the same cropped composition and proportions as Image 1, with true transparent alpha around it. Do not include the torso or any chest plate, head, hand, weapon, text, checkerboard or other objects. Only change the small inner upper-arm repair area; keep the rest unchanged.",
+      "reference_roles": {
+        "arm_reference.png": "edit target: original cropped front arm enlarged 4x nearest",
+        "front_reference.png": "supporting full-character source enlarged 4x nearest"
+      },
+      "output": "front_arm_edit_rejected.png",
+      "disposition": "rejected: retained the chest plate and returned an RGB checkerboard; no pixels used"
+    },
+    {
+      "prompt": "Use case: precise-object-edit. Asset type: hidden upper-arm repair component for an existing pixel-art game cutout. Reference image is style reference only. Draw ONLY a short narrow continuous section of dark gray iron upper-arm sleeve that can fill the concealed inside edge beneath this character's chest plate. It should be a softly curved dark charcoal metal tube segment, viewed in the same isometric perspective, painterly pixel clusters and muted iron highlights, about 3 times taller than wide. No gold trim, NO chest plate, NO shoulder pauldron, no elbow ornament, no wrist or hand, no straps, no geometric decorations: only understated dark iron sleeve surface, a subtle curved highlight on the left and shadow on the right. Paint it as a small stand-alone repair swatch centered on a truly transparent background, with simple dark curved side edges and full material through top and bottom so it can overlap hidden joints. Preserve the reference's dark iron hue and restrained lighting. No checkerboard, no text.",
+      "reference_roles": {
+        "arm_reference.png": "style reference: original cropped front arm enlarged 4x nearest"
+      },
+      "output": "front_arm_infill_generated.png",
+      "disposition": "selected: use an explicitly registered narrow interior strip only; preserve generated alpha"
+    }
+  ]
+}

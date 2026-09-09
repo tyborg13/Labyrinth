@@ -1,0 +1,14 @@
+{
+  "source_clips": [
+    "00_idle_southwest",
+    "01_marching_southwest",
+    "00_idle_southeast",
+    "02_marching_southeast",
+    "00_idle_northeast",
+    "00_idle_northwest"
+  ],
+  "seconds": 21.016666666666666,
+  "decoded_frames": 1261,
+  "full_decode": "PASS",
+  "timing": "Concatenated existing native gameplay clips at original speed, no new frames or edits to poses"
+}

@@ -144,7 +144,7 @@ func texture() -> Texture2D:
 	return viewport.get_texture() if viewport != null else null
 
 func snapshot() -> Dictionary:
-	return {"art": "stone_warden_cutout_v03", "facing": facing, "mirrored": mirrored,
+	return {"art": "stone_warden_cutout_v04", "facing": facing, "mirrored": mirrored,
 		"clip": "rest" if reduced_motion else clip,
 		"phase": 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"active": active, "rig_count": rigs.size(),

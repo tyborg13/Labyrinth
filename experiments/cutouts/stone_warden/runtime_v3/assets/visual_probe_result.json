@@ -1,0 +1,285 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 512,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 4.76522902592077,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.415481594797523,
+          "path": "front_attack_10.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 4.76522902592077,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 19.415481594797523,
+          "path": "front_attack_13.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 251.67879999999997,
+          "luma_mean": 4.666354448873723,
+          "luma_min": 0.0,
+          "luma_range": 251.67879999999997,
+          "luma_stdev": 19.202359238930956,
+          "path": "front_attack_17.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 251.67879999999997,
+          "luma_mean": 4.69443674683859,
+          "luma_min": 0.0,
+          "luma_range": 251.67879999999997,
+          "luma_stdev": 19.331937513247006,
+          "path": "front_attack_21.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 242.6576,
+          "luma_mean": 4.739040794216949,
+          "luma_min": 0.0,
+          "luma_range": 242.6576,
+          "luma_stdev": 19.419300911359645,
+          "path": "front_canvas.png",
+          "width": 512
+        },
+        {
+          "height": 255,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 18.967268964244532,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.11972528569233,
+          "path": "front_rest.png",
+          "width": 255
+        },
+        {
+          "height": 512,
+          "luma_max": 237.31019999999995,
+          "luma_mean": 3.81319201205439,
+          "luma_min": 0.0,
+          "luma_range": 237.31019999999995,
+          "luma_stdev": 17.633460553488487,
+          "path": "rear_attack_10.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 237.31019999999995,
+          "luma_mean": 3.81319201205439,
+          "luma_min": 0.0,
+          "luma_range": 237.31019999999995,
+          "luma_stdev": 17.633460553488487,
+          "path": "rear_attack_13.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 237.0146,
+          "luma_mean": 3.847775471590153,
+          "luma_min": 0.0,
+          "luma_range": 237.0146,
+          "luma_stdev": 17.73385447144103,
+          "path": "rear_attack_17.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 237.0146,
+          "luma_mean": 3.8299767609529094,
+          "luma_min": 0.0,
+          "luma_range": 237.0146,
+          "luma_stdev": 17.69093264101791,
+          "path": "rear_attack_21.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 232.646,
+          "luma_mean": 3.8600543897461463,
+          "luma_min": 0.0,
+          "luma_range": 232.646,
+          "luma_stdev": 17.690513410528723,
+          "path": "rear_canvas.png",
+          "width": 512
+        },
+        {
+          "height": 255,
+          "luma_max": 246.39559999999997,
+          "luma_mean": 15.536875967704667,
+          "luma_min": 0.0,
+          "luma_range": 246.39559999999997,
+          "luma_stdev": 32.91282773621039,
+          "path": "rear_rest.png",
+          "width": 255
+        }
+      ],
+      "namespace": "stone-warden-editable-front-rear-cut-1788978331018711000-62087-stone_warden_cutout_asse-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout",
+    "--script",
+    "tests/stone_warden_cutout_asset_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      512,
+      512
+    ],
+    [
+      255,
+      255
+    ]
+  ],
+  "images": [
+    {
+      "height": 512,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 4.76522902592077,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.415481594797523,
+      "path": "front_attack_10.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 4.76522902592077,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 19.415481594797523,
+      "path": "front_attack_13.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 251.67879999999997,
+      "luma_mean": 4.666354448873723,
+      "luma_min": 0.0,
+      "luma_range": 251.67879999999997,
+      "luma_stdev": 19.202359238930956,
+      "path": "front_attack_17.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 251.67879999999997,
+      "luma_mean": 4.69443674683859,
+      "luma_min": 0.0,
+      "luma_range": 251.67879999999997,
+      "luma_stdev": 19.331937513247006,
+      "path": "front_attack_21.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 242.6576,
+      "luma_mean": 4.739040794216949,
+      "luma_min": 0.0,
+      "luma_range": 242.6576,
+      "luma_stdev": 19.419300911359645,
+      "path": "front_canvas.png",
+      "width": 512
+    },
+    {
+      "height": 255,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 18.967268964244532,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.11972528569233,
+      "path": "front_rest.png",
+      "width": 255
+    },
+    {
+      "height": 512,
+      "luma_max": 237.31019999999995,
+      "luma_mean": 3.81319201205439,
+      "luma_min": 0.0,
+      "luma_range": 237.31019999999995,
+      "luma_stdev": 17.633460553488487,
+      "path": "rear_attack_10.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 237.31019999999995,
+      "luma_mean": 3.81319201205439,
+      "luma_min": 0.0,
+      "luma_range": 237.31019999999995,
+      "luma_stdev": 17.633460553488487,
+      "path": "rear_attack_13.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 237.0146,
+      "luma_mean": 3.847775471590153,
+      "luma_min": 0.0,
+      "luma_range": 237.0146,
+      "luma_stdev": 17.73385447144103,
+      "path": "rear_attack_17.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 237.0146,
+      "luma_mean": 3.8299767609529094,
+      "luma_min": 0.0,
+      "luma_range": 237.0146,
+      "luma_stdev": 17.69093264101791,
+      "path": "rear_attack_21.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 232.646,
+      "luma_mean": 3.8600543897461463,
+      "luma_min": 0.0,
+      "luma_range": 232.646,
+      "luma_stdev": 17.690513410528723,
+      "path": "rear_canvas.png",
+      "width": 512
+    },
+    {
+      "height": 255,
+      "luma_max": 246.39559999999997,
+      "luma_mean": 15.536875967704667,
+      "luma_min": 0.0,
+      "luma_range": 246.39559999999997,
+      "luma_stdev": 32.91282773621039,
+      "path": "rear_rest.png",
+      "width": 255
+    }
+  ],
+  "namespace": "stone-warden-editable-front-rear-cut-1788978331018711000-62087-stone_warden_cutout_asse-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/stone_warden_cutout_asset_probe.gd"
+}

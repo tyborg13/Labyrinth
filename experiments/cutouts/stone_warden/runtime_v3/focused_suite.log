@@ -1,0 +1,11 @@
+Running task-local command:
+  task: stone-warden-editable-front-rear-cutout
+  run: stone-warden-editable-front-rear-cutout-1788978470139063000-62188
+  HOME: /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cutout-1788978470139063000-62188
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cutout-1788978470139063000-62188/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/stone-warden-editable-front-rear-cutout --script tests/stone_warden_cutout_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+WARDEN CUTOUT TEST RESULT: PASS

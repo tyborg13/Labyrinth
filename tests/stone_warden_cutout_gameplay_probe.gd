@@ -7,7 +7,7 @@ const InputRouter = preload("res://scripts/input_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const Cutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
-const OUTPUT: String = "user://probes/stone_warden_gameplay_v2"
+const OUTPUT: String = "user://probes/stone_warden_gameplay_v3"
 const SIZE := Vector2i(1920, 1080)
 var _errors: Array[String]
 var _capture: bool = true
@@ -46,6 +46,7 @@ func _run() -> void:
 		await _fixture(origin + directions[index] * 2, origin)
 		_texture_id = int(_snapshot().get("texture_id", 0))
 		_assert(_texture_id != 0, "Actual RunScene owns the Warden texture")
+		await _record("00_idle_" + _direction_name(index), false, false, {}, 3.2)
 		var before: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
 		var engine := CombatEngine.new()
 		var expected: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(before))["state"]
@@ -190,7 +191,7 @@ func _fixture(player_tile: Vector2i, enemy_tile: Vector2i, reduced: bool = false
 		Input.warp_mouse(Vector2(960, 86))
 	await _settle()
 
-func _record(label: String, allow_death: bool, require_attack: bool, observer_before: Dictionary = {}) -> void:
+func _record(label: String, allow_death: bool, require_attack: bool, observer_before: Dictionary = {}, minimum_seconds: float = 0.0) -> void:
 	var started: int = Time.get_ticks_usec()
 	var next_capture: int = started
 	var finish: int = 0
@@ -241,7 +242,7 @@ func _record(label: String, allow_death: bool, require_attack: bool, observer_be
 				"death_units": presentation.get("death_animation_units", []).duplicate(true)})
 			await RenderingServer.frame_post_draw
 			images.append(_render_viewport.get_texture().get_image())
-		if finish > 0 and now - finish > 250000:
+		if finish > 0 and now - finish > 250000 and float(now - started) / 1000000.0 >= minimum_seconds:
 			break
 	_assert(not bool(_instance.get("_animation_lock")), "Input returns after " + label)
 	_assert(max_drift < 0.2, "Native world-space support feet stay planted through " + label)

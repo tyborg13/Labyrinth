@@ -2,6 +2,7 @@ extends SceneTree
 
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProductionRig = preload("res://scripts/stone_warden_cutout/rig.gd")
+const AcceptedMotion = preload("res://experiments/cutouts/stone_warden/v03/motion.gd")
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
 const OUTPUT: String = "user://probes/stone_warden_cutout_assets"
 var _errors: Array[String]
@@ -22,7 +23,7 @@ func _run() -> void:
 		_check(production.load_rig(), "Production rig loads " + facing)
 		var reference := CaseRig.new()
 		accepted.add_child(reference)
-		_check(reference.configure("res://experiments/cutouts/stone_warden/v03/cutout.json"), "Reviewed case loads")
+		_check(reference.configure("res://experiments/cutouts/stone_warden/v04/cutout.json"), "Reviewed case loads")
 		_check(reference.set_facing(facing), "Reviewed facing loads")
 		production.position = Vector2(128, 128)
 		reference.position = Vector2(128, 128)
@@ -30,13 +31,19 @@ func _run() -> void:
 			var frames: int = 1 if clip == "rest" else 24 if clip == "idle" else 32
 			for index: int in range(frames):
 				var phase: float = float(index) / float(frames - 1 if clip == "attack" else frames)
+				if clip in ["walk", "attack"]:
+					_check(ProductionRig.WardenMotion.sample_pose(clip, phase, production.layout, facing) == AcceptedMotion.sample_pose(clip, phase, production.layout, facing), "Accepted walk/attack transforms remain identical")
 				production.apply_pose(clip, phase)
 				reference.apply_pose(clip, phase)
 				await _draw()
 				var image: Image = actual.get_texture().get_image()
 				_check(image.get_data() == accepted.get_texture().get_image().get_data(), "%s %s %d remains pixel-identical" % [facing, clip, index])
 				compared += 1
+				if clip == "attack" and index in [10, 13, 17, 21]:
+					image.save_png(OUTPUT.path_join("%s_attack_%02d.png" % [facing, index]))
 				if clip == "rest":
+					var baked: Image = Image.load_from_file("res://assets/units/stone_warden_cutout/" + facing + "/rest.png")
+					_check(image.get_region(Rect2i(128, 128, 255, 255)).get_data() == baked.get_data(), "Shipped rest silhouette matches the current assembly")
 					_check(image.save_png(OUTPUT.path_join(facing + "_canvas.png")) == OK, "Save native rest canvas")
 					_check(image.get_region(Rect2i(128, 128, 255, 255)).save_png(OUTPUT.path_join(facing + "_rest.png")) == OK, "Save logical rest silhouette")
 		production.free()

@@ -1,0 +1,393 @@
+{
+  "coordinate_space": "255x255 source pixels; images copied using Pillow nearest resampling; no procedural paint",
+  "whole_sources": [
+    {
+      "input": "source/front_original.png",
+      "output": "source/front_registered.png",
+      "crop": [
+        0,
+        0,
+        255,
+        255
+      ],
+      "resize": [
+        255,
+        255
+      ],
+      "offset": [
+        0,
+        0
+      ],
+      "note": "Exact production bytes."
+    },
+    {
+      "input": "source/rear_generated.png",
+      "output": "source/rear_registered.png",
+      "crop": [
+        232,
+        87,
+        1122,
+        1173
+      ],
+      "resize": [
+        183,
+        223
+      ],
+      "offset": [
+        40,
+        11
+      ],
+      "note": "Same native overall height as front; complete rear torso and heel painting; microscopic outer source-alpha feather outside selected art bounds excluded."
+    },
+    {
+      "input": "source/front_underbody_generated.png",
+      "output": "source/underbody_registered.png",
+      "crop": [
+        354,
+        61,
+        991,
+        1171
+      ],
+      "resize": [
+        128,
+        223
+      ],
+      "offset": [
+        75,
+        11
+      ],
+      "note": "Registered once; visible front head/boots remain the production source."
+    },
+    {
+      "input": "source/pelvis_paint_generated.png",
+      "output": "source/pelvis_registered.png",
+      "crop": [
+        354,
+        61,
+        991,
+        1171
+      ],
+      "resize": [
+        128,
+        223
+      ],
+      "offset": [
+        75,
+        11
+      ],
+      "note": "Only interior armor polygons are used; full registered image includes the rejected background."
+    },
+    {
+      "input": "source/rear_underbody_generated.png",
+      "output": "source/rear_underbody_registered.png",
+      "crop": [
+        232,
+        87,
+        1122,
+        1173
+      ],
+      "resize": [
+        183,
+        223
+      ],
+      "offset": [
+        40,
+        11
+      ],
+      "note": "Only interior armor polygons are used; full registered image includes the rejected background."
+    },
+    {
+      "input": "source/front_armor_v02_generated.png",
+      "output": "source/front_armor_v02_registered.png",
+      "crop": [
+        373,
+        40,
+        1030,
+        1186
+      ],
+      "resize": [
+        128,
+        223
+      ],
+      "offset": [
+        75,
+        11
+      ],
+      "note": "Muted concealed armor. Generated background remains opaque; explicitly owned interior armor polygons exclude it. Original visible leg pixels overlay this complete underpainting."
+    }
+  ],
+  "landmarks": {
+    "front": {
+      "root": {
+        "position": [
+          128,
+          128
+        ],
+        "parent": null
+      },
+      "pelvis": {
+        "position": [
+          126,
+          124
+        ],
+        "parent": "root"
+      },
+      "chest": {
+        "position": [
+          128,
+          90
+        ],
+        "parent": "pelvis"
+      },
+      "head": {
+        "position": [
+          131,
+          61
+        ],
+        "parent": "chest"
+      },
+      "upper_r": {
+        "position": [
+          104,
+          72
+        ],
+        "parent": "chest"
+      },
+      "fore_r": {
+        "position": [
+          96,
+          105
+        ],
+        "parent": "upper_r"
+      },
+      "hand_r": {
+        "position": [
+          89,
+          131
+        ],
+        "parent": "fore_r"
+      },
+      "weapon_r": {
+        "position": [
+          87,
+          138
+        ],
+        "parent": "hand_r"
+      },
+      "upper_l": {
+        "position": [
+          173,
+          70
+        ],
+        "parent": "chest"
+      },
+      "fore_l": {
+        "position": [
+          180,
+          105
+        ],
+        "parent": "upper_l"
+      },
+      "hand_l": {
+        "position": [
+          186,
+          133
+        ],
+        "parent": "fore_l"
+      },
+      "shield_l": {
+        "position": [
+          184,
+          134
+        ],
+        "parent": "hand_l"
+      },
+      "thigh_r": {
+        "position": [
+          108,
+          142
+        ],
+        "parent": "pelvis"
+      },
+      "shin_r": {
+        "position": [
+          103,
+          167
+        ],
+        "parent": "thigh_r"
+      },
+      "foot_r": {
+        "position": [
+          105,
+          199
+        ],
+        "parent": "shin_r"
+      },
+      "thigh_l": {
+        "position": [
+          148,
+          146
+        ],
+        "parent": "pelvis"
+      },
+      "shin_l": {
+        "position": [
+          151,
+          170
+        ],
+        "parent": "thigh_l"
+      },
+      "foot_l": {
+        "position": [
+          158,
+          211
+        ],
+        "parent": "shin_l"
+      },
+      "tabard": {
+        "position": [
+          124,
+          123
+        ],
+        "parent": "pelvis"
+      }
+    },
+    "rear": {
+      "root": {
+        "position": [
+          128,
+          128
+        ],
+        "parent": null
+      },
+      "pelvis": {
+        "position": [
+          116,
+          124
+        ],
+        "parent": "root"
+      },
+      "chest": {
+        "position": [
+          117,
+          86
+        ],
+        "parent": "pelvis"
+      },
+      "head": {
+        "position": [
+          125,
+          55
+        ],
+        "parent": "chest"
+      },
+      "upper_r": {
+        "position": [
+          149,
+          76
+        ],
+        "parent": "chest"
+      },
+      "fore_r": {
+        "position": [
+          154,
+          111
+        ],
+        "parent": "upper_r"
+      },
+      "hand_r": {
+        "position": [
+          175,
+          145
+        ],
+        "parent": "fore_r"
+      },
+      "weapon_r": {
+        "position": [
+          181,
+          152
+        ],
+        "parent": "hand_r"
+      },
+      "upper_l": {
+        "position": [
+          87,
+          71
+        ],
+        "parent": "chest"
+      },
+      "fore_l": {
+        "position": [
+          78,
+          98
+        ],
+        "parent": "upper_l"
+      },
+      "hand_l": {
+        "position": [
+          75,
+          119
+        ],
+        "parent": "fore_l"
+      },
+      "shield_l": {
+        "position": [
+          66,
+          125
+        ],
+        "parent": "hand_l"
+      },
+      "thigh_r": {
+        "position": [
+          138,
+          141
+        ],
+        "parent": "pelvis"
+      },
+      "shin_r": {
+        "position": [
+          143,
+          172
+        ],
+        "parent": "thigh_r"
+      },
+      "foot_r": {
+        "position": [
+          145,
+          220
+        ],
+        "parent": "shin_r"
+      },
+      "thigh_l": {
+        "position": [
+          95,
+          139
+        ],
+        "parent": "pelvis"
+      },
+      "shin_l": {
+        "position": [
+          92,
+          172
+        ],
+        "parent": "thigh_l"
+      },
+      "foot_l": {
+        "position": [
+          89,
+          207
+        ],
+        "parent": "shin_l"
+      },
+      "tabard": {
+        "position": [
+          114,
+          123
+        ],
+        "parent": "pelvis"
+      }
+    }
+  },
+  "projection": "2:1; front lower-left, rear upper-right. Separate projected hip/knee/ankle landmarks per limb.",
+  "uncertainty": "Shield-side front elbow/hand inferred from generated underpainting because production shield occludes them; hidden material is limited to the requested clip excursions."
+}

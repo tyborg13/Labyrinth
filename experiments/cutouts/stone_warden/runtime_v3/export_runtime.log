@@ -1,0 +1,11 @@
+Running task-local command:
+  task: stone-warden-editable-front-rear-cutout
+  run: stone-warden-editable-front-rear-cutout-1788978630456853000-62271
+  HOME: /private/tmp/labyrinth-godot-home/stone-warden-editable-front-rear-cutout-1788978630456853000-62271
+  Steam: disabled
+  command: /private/tmp/warden-cutout-export/godot_export_debug --headless
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+WARDEN CUTOUT EXPORT RUNTIME: PASS (editor=false)

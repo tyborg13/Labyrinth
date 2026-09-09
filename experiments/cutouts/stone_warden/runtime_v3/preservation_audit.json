@@ -1,0 +1,172 @@
+{
+  "ok": true,
+  "intentional_changed_paint": [
+    "assets/front/shoulder_cap_r.png",
+    "segmented/front/arm_r.png",
+    "segmented/front/torso.png"
+  ],
+  "checked_paint": {
+    "assets/front/pelvis_cover.png": {
+      "v03": "02723c2317479d1952941587e71eed276d3c352f8d06c944fbc6895aa2c79072",
+      "v04": "02723c2317479d1952941587e71eed276d3c352f8d06c944fbc6895aa2c79072",
+      "unchanged": true
+    },
+    "assets/front/shield_arm.png": {
+      "v03": "9535586bd48b3f26c7bb0f9aaa6a080e0498e40e53a4f5b9c692fb756ac8ef93",
+      "v04": "9535586bd48b3f26c7bb0f9aaa6a080e0498e40e53a4f5b9c692fb756ac8ef93",
+      "unchanged": true
+    },
+    "assets/front/shoulder_cap_r.png": {
+      "v03": "e1a5851a5499ff847e2d972a7dbe8256b62a7d59332edfb173ef0396ea1871d5",
+      "v04": "cc703e20d56607e57619ba8e57759f3d49f0ecdf123173f37b847b3e89d6f471",
+      "unchanged": false
+    },
+    "assets/front/thigh_cap_l.png": {
+      "v03": "2b49f8e62b051888e0ad3876b19403877aeab9b56690e89a03d2849f1a1551e3",
+      "v04": "2b49f8e62b051888e0ad3876b19403877aeab9b56690e89a03d2849f1a1551e3",
+      "unchanged": true
+    },
+    "assets/front/thigh_cap_r.png": {
+      "v03": "2016e121bbe7483527962d3c33c1e62adc875400dceebda66551b6409768b947",
+      "v04": "2016e121bbe7483527962d3c33c1e62adc875400dceebda66551b6409768b947",
+      "unchanged": true
+    },
+    "assets/rear/pelvis_cover.png": {
+      "v03": "aa46699cc4495a7dc8f850db692c97a312c489df2bd4ee8ff8c7e1820dccb456",
+      "v04": "aa46699cc4495a7dc8f850db692c97a312c489df2bd4ee8ff8c7e1820dccb456",
+      "unchanged": true
+    },
+    "assets/rear/shoulder_cap_r.png": {
+      "v03": "5e7af75afe06a26948605ca0dc7eb083c2278f27dfbc1c0cd5a37fa094196efc",
+      "v04": "5e7af75afe06a26948605ca0dc7eb083c2278f27dfbc1c0cd5a37fa094196efc",
+      "unchanged": true
+    },
+    "assets/rear/shoulder_socket_r.png": {
+      "v03": "8a2992cb71aa6c62f36434a725cd9490e8a464b9159793492acf782165eab8b3",
+      "v04": "8a2992cb71aa6c62f36434a725cd9490e8a464b9159793492acf782165eab8b3",
+      "unchanged": true
+    },
+    "segmented/front/arm_r.png": {
+      "v03": "7b86ca786839abad181fc07c7d29eccd72f645bb26f9a1fbbe3aa6931889e405",
+      "v04": "27766d5a52a770b2577e07465c0979bf0416b5a32481cd4e3bdd4b3599fe8989",
+      "unchanged": false
+    },
+    "segmented/front/foot_l.png": {
+      "v03": "ede5e905ae4169de86f7ba6dacbdf8152fef0889af801a95b0a3e3e3500dd3d8",
+      "v04": "ede5e905ae4169de86f7ba6dacbdf8152fef0889af801a95b0a3e3e3500dd3d8",
+      "unchanged": true
+    },
+    "segmented/front/foot_r.png": {
+      "v03": "7b3c8d3d0763cb526aed411d7b406f28a4c6868ac4224937da44f62506d9aeb1",
+      "v04": "7b3c8d3d0763cb526aed411d7b406f28a4c6868ac4224937da44f62506d9aeb1",
+      "unchanged": true
+    },
+    "segmented/front/hand_r.png": {
+      "v03": "3f8494f69fafdc2c0b07a555e63156ea428115305b0bb0011ebac8fe0b7a844d",
+      "v04": "3f8494f69fafdc2c0b07a555e63156ea428115305b0bb0011ebac8fe0b7a844d",
+      "unchanged": true
+    },
+    "segmented/front/head.png": {
+      "v03": "35f2bc3f4aea6ee81672dc1d59adef6319dfa9fe25755b8247bc683ce36e8bc3",
+      "v04": "35f2bc3f4aea6ee81672dc1d59adef6319dfa9fe25755b8247bc683ce36e8bc3",
+      "unchanged": true
+    },
+    "segmented/front/leg_l.png": {
+      "v03": "9568d61e52a23a0a4ed40fc4efe314f362e49366685e6e5ff09ff8a3283456b5",
+      "v04": "9568d61e52a23a0a4ed40fc4efe314f362e49366685e6e5ff09ff8a3283456b5",
+      "unchanged": true
+    },
+    "segmented/front/leg_r.png": {
+      "v03": "73bb11c0671abc5a50f0fdf237fcdada808c85e574e858c23aacc07997408021",
+      "v04": "73bb11c0671abc5a50f0fdf237fcdada808c85e574e858c23aacc07997408021",
+      "unchanged": true
+    },
+    "segmented/front/mace.png": {
+      "v03": "74bef48ce4991988cc54795cf08997fd87fe375f0efaf2fe9668a062de0b2f55",
+      "v04": "74bef48ce4991988cc54795cf08997fd87fe375f0efaf2fe9668a062de0b2f55",
+      "unchanged": true
+    },
+    "segmented/front/pauldron_l.png": {
+      "v03": "d2456f73d4326c854a5d4629e9f1eedeff8efb0ef8c94e3c6342640a6e60320d",
+      "v04": "d2456f73d4326c854a5d4629e9f1eedeff8efb0ef8c94e3c6342640a6e60320d",
+      "unchanged": true
+    },
+    "segmented/front/shield.png": {
+      "v03": "55f225792192a82f89b2fb1da4fe3b5507d1f7231db5b9258e8b29cb25f6e8c9",
+      "v04": "55f225792192a82f89b2fb1da4fe3b5507d1f7231db5b9258e8b29cb25f6e8c9",
+      "unchanged": true
+    },
+    "segmented/front/tabard.png": {
+      "v03": "d007a085fee01f7b807b82418503ffb1925f7b1beb9073b4c9cb289588d25904",
+      "v04": "d007a085fee01f7b807b82418503ffb1925f7b1beb9073b4c9cb289588d25904",
+      "unchanged": true
+    },
+    "segmented/front/torso.png": {
+      "v03": "c8253cb300c05b41c8ca3f68a4e45103bac3eafa29fdd7bf1901e72324ea0cce",
+      "v04": "5a467a584da93c39000f2a5f7f5355e07cc7e0fe9094c58ea836cc9e000c7f9c",
+      "unchanged": false
+    },
+    "segmented/rear/arm_l.png": {
+      "v03": "0e9b6bfdbfbd39dcf7e7b9f3044276d72470ec29fc5595e630e5e881c728f58b",
+      "v04": "0e9b6bfdbfbd39dcf7e7b9f3044276d72470ec29fc5595e630e5e881c728f58b",
+      "unchanged": true
+    },
+    "segmented/rear/arm_r.png": {
+      "v03": "9c326370805e0d29b29a2a6b928b8e2fe19b63002e5e2ebfc5f938fb7385fa6e",
+      "v04": "9c326370805e0d29b29a2a6b928b8e2fe19b63002e5e2ebfc5f938fb7385fa6e",
+      "unchanged": true
+    },
+    "segmented/rear/foot_l.png": {
+      "v03": "48d27b05ae74e7408302ab693a3258d2ef23efecb7fbfeb4439c9722f4a42c44",
+      "v04": "48d27b05ae74e7408302ab693a3258d2ef23efecb7fbfeb4439c9722f4a42c44",
+      "unchanged": true
+    },
+    "segmented/rear/foot_r.png": {
+      "v03": "0054aed297cab2d4d89c11173a67dabee1127fd445dd23d59af384632c85104f",
+      "v04": "0054aed297cab2d4d89c11173a67dabee1127fd445dd23d59af384632c85104f",
+      "unchanged": true
+    },
+    "segmented/rear/hand_r.png": {
+      "v03": "f3c5555a94334e054b0bcf71ced81a80d97b36ed03951dcfe5cd49d7f35c8dcc",
+      "v04": "f3c5555a94334e054b0bcf71ced81a80d97b36ed03951dcfe5cd49d7f35c8dcc",
+      "unchanged": true
+    },
+    "segmented/rear/head.png": {
+      "v03": "06b310870e5e82ceb7794c30379ac8f08cc2ef4a9df0dc409a3ace1341c99bb3",
+      "v04": "06b310870e5e82ceb7794c30379ac8f08cc2ef4a9df0dc409a3ace1341c99bb3",
+      "unchanged": true
+    },
+    "segmented/rear/leg_l.png": {
+      "v03": "40f45b077b2c143b85d7d0935a54d0c2ece5ec10d22cd2c55a48def4f658f14a",
+      "v04": "40f45b077b2c143b85d7d0935a54d0c2ece5ec10d22cd2c55a48def4f658f14a",
+      "unchanged": true
+    },
+    "segmented/rear/leg_r.png": {
+      "v03": "45db698edc039a9e8b0e34e56ca4b0c5b827f3d3948398fb9e70685595641649",
+      "v04": "45db698edc039a9e8b0e34e56ca4b0c5b827f3d3948398fb9e70685595641649",
+      "unchanged": true
+    },
+    "segmented/rear/mace.png": {
+      "v03": "97614c4cd8306396886371104ce6849fab0ef88058fa97fd74be0e7f9cd412cb",
+      "v04": "97614c4cd8306396886371104ce6849fab0ef88058fa97fd74be0e7f9cd412cb",
+      "unchanged": true
+    },
+    "segmented/rear/shield.png": {
+      "v03": "5b4011d413b24a61c273cc7f0fc0634a61a8be1cba745c0d2ee9598b4f824085",
+      "v04": "5b4011d413b24a61c273cc7f0fc0634a61a8be1cba745c0d2ee9598b4f824085",
+      "unchanged": true
+    },
+    "segmented/rear/tabard.png": {
+      "v03": "560791972ace52137484858b1f7b8c690e587935806572f0320782c18e21d290",
+      "v04": "560791972ace52137484858b1f7b8c690e587935806572f0320782c18e21d290",
+      "unchanged": true
+    },
+    "segmented/rear/torso.png": {
+      "v03": "02c29af835c296a65d8b902c5dd25a9d2ff7b3d4a715855b7dc1e97a794ade40",
+      "v04": "02c29af835c296a65d8b902c5dd25a9d2ff7b3d4a715855b7dc1e97a794ade40",
+      "unchanged": true
+    }
+  },
+  "rear_layout_unchanged": true,
+  "rest_note": "Native first assembly pixel comparison: both 255x255 resting silhouettes exactly equal to shipped v03 bakes; final native asset probe requires equality again."
+}

@@ -55,6 +55,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var recovered: Dictionary = board.warden_animation_snapshot("enemy_1")
 	expect.call(recovered["clip"] == "idle" and recovered["facing"] == "front" and recovered["mirrored"], "A completed attack immediately resumes player-facing idle")
 	var renderer: Node = (board.get("_warden_renderers") as Dictionary)["enemy_1"]
+	_verify_rigid_idle(renderer, expect)
 	renderer.call("present", {"clip": "walk", "phase": 2.25}, false)
 	expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), 0.25), "Distance-driven walking wraps across complete cycles")
 	for contact: float in [0.42, 0.38]:
@@ -127,3 +128,22 @@ static func fixture_state() -> Dictionary:
 		"enemies": [{"id": 1, "type": "warden", "pos": Vector2i(3, 3), "hp": 18, "max_hp": 18},
 			{"id": 2, "type": "warden", "pos": Vector2i(5, 5), "hp": 18, "max_hp": 18},
 			{"id": 3, "type": "crawler", "pos": Vector2i(6, 6), "hp": 9, "max_hp": 9}]}
+
+static func _verify_rigid_idle(renderer: Node, expect: Callable) -> void:
+	for facing: String in ["front", "rear"]:
+		var rig: Node2D = (renderer.get("rigs") as Dictionary)[facing]
+		var layout: Dictionary = rig.get("layout")
+		var rest: Dictionary = Cutout.Motion.sample_pose("rest", 0.0, layout, facing)
+		var lowest: float = 0.0
+		for index: int in range(25):
+			var pose: Dictionary = Cutout.Motion.sample_pose("idle", float(index) / 24.0, layout, facing)
+			var chest_offset: Vector2 = Cutout.Motion._world(pose, layout, "chest").origin - Cutout.Motion._world(rest, layout, "chest").origin
+			lowest = minf(lowest, chest_offset.y)
+			for name: String in layout["joints"]:
+				var actual: Transform2D = Cutout.Motion._world(pose, layout, name)
+				var neutral: Transform2D = Cutout.Motion._world(rest, layout, name)
+				expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Idle preserves every rigid bone basis without ripple: " + facing + "/" + name)
+				var fixed: bool = name == "root" or name.begins_with("thigh_") or name.begins_with("shin_") or name.begins_with("foot_")
+				var expected_offset: Vector2 = Vector2.ZERO if fixed else chest_offset
+				expect.call((actual.origin - neutral.origin).is_equal_approx(expected_offset), "Idle keeps legs planted while the complete upper body bobs together: " + facing + "/" + name)
+		expect.call(is_equal_approx(lowest, -1.4), "Idle retains the accepted 1.4 source-pixel bob in " + facing)

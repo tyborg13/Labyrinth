@@ -1,0 +1,7 @@
+ffconcat version 1.0
+file '00_idle_southwest.mp4'
+file '01_marching_southwest.mp4'
+file '00_idle_southeast.mp4'
+file '02_marching_southeast.mp4'
+file '00_idle_northeast.mp4'
+file '00_idle_northwest.mp4'
