@@ -1,0 +1,57 @@
+{
+  "clips": [
+    {
+      "file": "videos/front_idle.mp4",
+      "source_frames": 48,
+      "source_seconds": 3.200000000000001,
+      "encoded_frames": 192,
+      "encoded_seconds": 3.2,
+      "duration_error_seconds": -8.881784197001252e-16
+    },
+    {
+      "file": "videos/front_walk.mp4",
+      "source_frames": 128,
+      "source_seconds": 1.36,
+      "encoded_frames": 82,
+      "encoded_seconds": 1.3666666666666667,
+      "duration_error_seconds": 0.006666666666666599
+    },
+    {
+      "file": "videos/front_attack.mp4",
+      "source_frames": 32,
+      "source_seconds": 0.9,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": 0.0
+    },
+    {
+      "file": "videos/rear_idle.mp4",
+      "source_frames": 48,
+      "source_seconds": 3.200000000000001,
+      "encoded_frames": 192,
+      "encoded_seconds": 3.2,
+      "duration_error_seconds": -8.881784197001252e-16
+    },
+    {
+      "file": "videos/rear_walk.mp4",
+      "source_frames": 128,
+      "source_seconds": 1.36,
+      "encoded_frames": 82,
+      "encoded_seconds": 1.3666666666666667,
+      "duration_error_seconds": 0.006666666666666599
+    },
+    {
+      "file": "videos/rear_attack.mp4",
+      "source_frames": 32,
+      "source_seconds": 0.9,
+      "encoded_frames": 54,
+      "encoded_seconds": 0.9,
+      "duration_error_seconds": 0.0
+    }
+  ],
+  "reel": "videos/cutout_review.mp4",
+  "timing": "Case-declared playback speed; 60fps frame repetition, no synthesized poses; per-clip boundary rounding is at most one 60fps frame",
+  "full_decode": "PASS",
+  "source_seconds": 10.920000000000003,
+  "encoded_seconds": 10.933333333333335
+}

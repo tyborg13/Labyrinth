@@ -1,0 +1,166 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_leg_r",
+      "parts": [
+        "leg_r",
+        "thigh_cap_r"
+      ],
+      "bones": [
+        "thigh_r",
+        "shin_r",
+        "foot_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            103,
+            167
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            105,
+            194
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "front_leg_l",
+      "parts": [
+        "leg_l",
+        "thigh_cap_l"
+      ],
+      "bones": [
+        "thigh_l",
+        "shin_l",
+        "foot_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            151,
+            170
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            158,
+            206
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "front_arm_r",
+      "parts": [
+        "arm_r",
+        "shoulder_cap_r"
+      ],
+      "bones": [
+        "upper_r",
+        "fore_r",
+        "hand_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            96,
+            105
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            89,
+            131
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 9
+        }
+      ]
+    },
+    {
+      "name": "front_arm_l",
+      "parts": [
+        "shield_arm"
+      ],
+      "bones": [
+        "upper_l",
+        "fore_l",
+        "hand_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            180,
+            105
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            186,
+            133
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 9
+        }
+      ]
+    }
+  ]
+}

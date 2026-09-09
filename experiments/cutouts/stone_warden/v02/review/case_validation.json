@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "stone_warden",
+  "layouts": {
+    "front": {
+      "joints": 19,
+      "parts": 17,
+      "meshes": 7,
+      "vertices": 7688
+    },
+    "rear": {
+      "joints": 19,
+      "parts": 15,
+      "meshes": 5,
+      "vertices": 9468
+    }
+  },
+  "errors": []
+}

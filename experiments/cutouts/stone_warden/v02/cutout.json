@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "character_id": "stone_warden",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.34,
+      "loop": true,
+      "preview_cycles": 4,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 32,
+      "duration": 0.9,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_r",
+    "weapon_r",
+    "shield_l",
+    "foot_r",
+    "foot_l"
+  ],
+  "contact_feet": [
+    "foot_r",
+    "foot_l"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_coverage.json",
+    "recipes/ownership_audit.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_armor_v02_generated.png",
+    "source/front_armor_v02_registered.png",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_underbody_generated.png",
+    "source/front_underbody_rejected_checker.png",
+    "source/generation_requests.json",
+    "source/pelvis_paint_generated.png",
+    "source/pelvis_registered.png",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_underbody_generated.png",
+    "source/rear_underbody_registered.png",
+    "source/underbody_registered.png"
+  ],
+  "source_baseline": {
+    "kind": "case_fork",
+    "character_id": "stone_warden",
+    "files": {
+      "assets/front/pelvis_cover.png": "02723c2317479d1952941587e71eed276d3c352f8d06c944fbc6895aa2c79072",
+      "assets/front/shield_arm.png": "9535586bd48b3f26c7bb0f9aaa6a080e0498e40e53a4f5b9c692fb756ac8ef93",
+      "assets/front/shoulder_cap_r.png": "e1a5851a5499ff847e2d972a7dbe8256b62a7d59332edfb173ef0396ea1871d5",
+      "assets/front/thigh_cap_l.png": "e4e84e0fed863dedc90766dc379de44c44c55c17a47e734d7fa5e894b9a8b271",
+      "assets/front/thigh_cap_r.png": "97ff7e45427b9dbf327ce72e51bf400a41c3d6d18e266c78835f5548100599e9",
+      "assets/rear/pelvis_cover.png": "aa46699cc4495a7dc8f850db692c97a312c489df2bd4ee8ff8c7e1820dccb456",
+      "assets/rear/shoulder_cap_r.png": "5e7af75afe06a26948605ca0dc7eb083c2278f27dfbc1c0cd5a37fa094196efc",
+      "assets/rear/shoulder_socket_r.png": "8a2992cb71aa6c62f36434a725cd9490e8a464b9159793492acf782165eab8b3",
+      "cutout.json": "7d4ae79e0e8bc075ce03d0545bb26f7cc4ed8cd8a5440d5cd9a0d32e85808eee",
+      "layouts/front.json": "b6c05b30b3e841c483a3932cac4d89e1f631dd750c6f1f2fbc0afb06782d6ebf",
+      "layouts/front_skinned.json": "966161e7114a0ff8556cb11b85ec4c9ef0cee7fe83e13441c0542d5102cd8593",
+      "layouts/rear.json": "319f09fb0e216d4315e6e05724f71c875c57cfc514ff55c6670b1fa7d9f2ce70",
+      "layouts/rear_skinned.json": "bdfa83a29a2ee0bba8f20fe729d7b017d699806dcf8025b46f5d8430b3e2418a",
+      "motion.gd": "b6c262c9a9824d6e68ce22a3c6d55d33fb2628787121e1959e7d6e79cfd972c7",
+      "recipes/front_skinned.skin.json": "9938c70e3f8b69dca9fee640d5f4f82891d0774e5175ccb810573d0f441b7ea0",
+      "recipes/hidden_coverage.json": "b54edd8d86ef4a4df6f1336161e65448df293de43ffe6efad692be750a22792c",
+      "recipes/ownership_audit.json": "fb9b0aebebc17b1d95f0f6e9e851e6d1546c063208e26377ab347f26833b4d2c",
+      "recipes/rear_skinned.skin.json": "92b7870ffa74bed9f15905aedd32e7a9b9f14d057d9e69763ab24d4c3dc93fb7",
+      "recipes/registration.json": "c2458eb8eefa6727e6ee82c6f3c56c65366aab2fe16e2bee9e6aa0bac64a78fe",
+      "segmented/front/arm_r.png": "7b86ca786839abad181fc07c7d29eccd72f645bb26f9a1fbbe3aa6931889e405",
+      "segmented/front/foot_l.png": "ede5e905ae4169de86f7ba6dacbdf8152fef0889af801a95b0a3e3e3500dd3d8",
+      "segmented/front/foot_r.png": "7b3c8d3d0763cb526aed411d7b406f28a4c6868ac4224937da44f62506d9aeb1",
+      "segmented/front/hand_r.png": "3f8494f69fafdc2c0b07a555e63156ea428115305b0bb0011ebac8fe0b7a844d",
+      "segmented/front/head.png": "35f2bc3f4aea6ee81672dc1d59adef6319dfa9fe25755b8247bc683ce36e8bc3",
+      "segmented/front/leg_l.png": "9568d61e52a23a0a4ed40fc4efe314f362e49366685e6e5ff09ff8a3283456b5",
+      "segmented/front/leg_r.png": "73bb11c0671abc5a50f0fdf237fcdada808c85e574e858c23aacc07997408021",
+      "segmented/front/mace.png": "74bef48ce4991988cc54795cf08997fd87fe375f0efaf2fe9668a062de0b2f55",
+      "segmented/front/pauldron_l.png": "d2456f73d4326c854a5d4629e9f1eedeff8efb0ef8c94e3c6342640a6e60320d",
+      "segmented/front/shield.png": "55f225792192a82f89b2fb1da4fe3b5507d1f7231db5b9258e8b29cb25f6e8c9",
+      "segmented/front/tabard.png": "d007a085fee01f7b807b82418503ffb1925f7b1beb9073b4c9cb289588d25904",
+      "segmented/front/torso.png": "c8253cb300c05b41c8ca3f68a4e45103bac3eafa29fdd7bf1901e72324ea0cce",
+      "segmented/rear/arm_l.png": "0e9b6bfdbfbd39dcf7e7b9f3044276d72470ec29fc5595e630e5e881c728f58b",
+      "segmented/rear/arm_r.png": "9c326370805e0d29b29a2a6b928b8e2fe19b63002e5e2ebfc5f938fb7385fa6e",
+      "segmented/rear/foot_l.png": "48d27b05ae74e7408302ab693a3258d2ef23efecb7fbfeb4439c9722f4a42c44",
+      "segmented/rear/foot_r.png": "0054aed297cab2d4d89c11173a67dabee1127fd445dd23d59af384632c85104f",
+      "segmented/rear/hand_r.png": "f3c5555a94334e054b0bcf71ced81a80d97b36ed03951dcfe5cd49d7f35c8dcc",
+      "segmented/rear/head.png": "06b310870e5e82ceb7794c30379ac8f08cc2ef4a9df0dc409a3ace1341c99bb3",
+      "segmented/rear/leg_l.png": "40f45b077b2c143b85d7d0935a54d0c2ece5ec10d22cd2c55a48def4f658f14a",
+      "segmented/rear/leg_r.png": "45db698edc039a9e8b0e34e56ca4b0c5b827f3d3948398fb9e70685595641649",
+      "segmented/rear/mace.png": "97614c4cd8306396886371104ce6849fab0ef88058fa97fd74be0e7f9cd412cb",
+      "segmented/rear/shield.png": "5b4011d413b24a61c273cc7f0fc0634a61a8be1cba745c0d2ee9598b4f824085",
+      "segmented/rear/tabard.png": "560791972ace52137484858b1f7b8c690e587935806572f0320782c18e21d290",
+      "segmented/rear/torso.png": "02c29af835c296a65d8b902c5dd25a9d2ff7b3d4a715855b7dc1e97a794ade40",
+      "source/front_original.png": "4d49e429ed76f039681722a34fe0d353f00cab0c94fe38c43439c5e6c6ed1181",
+      "source/front_ownership.json": "ab34aa04e02d4158ef81b28a310de8eba39e43c4c35a98260c7c740df3af6f6b",
+      "source/front_registered.png": "4d49e429ed76f039681722a34fe0d353f00cab0c94fe38c43439c5e6c6ed1181",
+      "source/front_underbody_generated.png": "2794ca0edf6875471b24b52fed9e096e6259d99539d4713ed7eb507cf3e77ee5",
+      "source/front_underbody_rejected_checker.png": "2440f84c145614279b0ca65bc0f5e2f373c8967e80992690b0d2b9ed8476f5f0",
+      "source/generation_requests.json": "4235828651fe68e1640ae6688b06d15159adb652fa446a1c99aa80b8e34d496b",
+      "source/pelvis_paint_generated.png": "f92c15be258a0858094f25dac1a8981210943100e9d1da1bf3087e1dcf924ea4",
+      "source/pelvis_registered.png": "607815e61c03b4958c82532a4c0b07385fe62dd01e00dd9363dd09467719ad75",
+      "source/rear_generated.png": "ceb48cc435c1d8a0e000f19ad79a2820c27d194eadc4759dd74b10fcadaa3109",
+      "source/rear_ownership.json": "f518e18dc775c0ed3f77bb75e08c4007e5adbcc7c44ddf845a7025deb38d4bb8",
+      "source/rear_registered.png": "da0533e18f7b2b6849cea267f46932bf27ba75ed02ccdd24498568ca73e28fe2",
+      "source/rear_underbody_generated.png": "ecde57fd37630cdb68c6efe4a431928c296d9d9f53811cdafa12cb6f4d15e615",
+      "source/rear_underbody_registered.png": "631f333bcc420ca6724ddef6993d2fe20e251e13e2688247b37ccb9e0286ffb0",
+      "source/underbody_registered.png": "a1785a3b91735d4f992cc0a378a1fc1aeda4b51e618d36be37ad495b7262b583"
+    }
+  }
+}

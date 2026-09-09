@@ -1,0 +1,81 @@
+{
+  "scope": "Art-case preview; no production combat timings changed. Native transform measurements supplement inspected images; they do not certify anatomy.",
+  "walk_speed_source_px_per_second": {
+    "v01": 36.92307692307692,
+    "v02": 227.70398481973433,
+    "protagonist": 266.6666666666667,
+    "v02_fraction_of_protagonist": 0.8538899430740037
+  },
+  "front_hidden_leg_opaque_pixels": {
+    "thigh_cap_r": {
+      "v01": 285,
+      "v02": 1087
+    },
+    "thigh_cap_l": {
+      "v01": 189,
+      "v02": 1027
+    }
+  },
+  "facings": {
+    "front": {
+      "v01": {
+        "max_walk_foot_separation": 69.6132528452384,
+        "preparation_frame": 10,
+        "mace_head_landmark_world": [
+          13.114159345626838,
+          53.8831272125244
+        ],
+        "mace_angle_from_vertical_up_degrees": 44.821490782309795,
+        "mace_grip_world": [
+          48.7865753173828,
+          89.7785186767578
+        ]
+      },
+      "v02": {
+        "max_walk_foot_separation": 51.8189027890859,
+        "preparation_frame": 10,
+        "mace_head_landmark_world": [
+          81.58062744140626,
+          -0.7621513605117798
+        ],
+        "mace_angle_from_vertical_up_degrees": 6.744711162506621,
+        "mace_grip_world": [
+          75.6371307373047,
+          49.4939422607422
+        ]
+      }
+    },
+    "rear": {
+      "v01": {
+        "max_walk_foot_separation": 72.66755927820348,
+        "preparation_frame": 10,
+        "mace_head_landmark_world": [
+          237.80688691139218,
+          58.208755731582684
+        ],
+        "mace_angle_from_vertical_up_degrees": 47.46298203134881,
+        "mace_grip_world": [
+          213.47998046875,
+          80.5291900634766
+        ]
+      },
+      "v02": {
+        "max_walk_foot_separation": 53.32207950747029,
+        "preparation_frame": 10,
+        "mace_head_landmark_world": [
+          176.9221076965331,
+          9.355656027793898
+        ],
+        "mace_angle_from_vertical_up_degrees": 4.103215226625505,
+        "mace_grip_world": [
+          179.284454345703,
+          42.2861785888672
+        ]
+      }
+    }
+  },
+  "preserved_art": {
+    "original_visible_front_parts_unchanged": true,
+    "rear_parts_and_layout_unchanged": true
+  }
+}

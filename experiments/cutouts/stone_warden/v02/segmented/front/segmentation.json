@@ -1,0 +1,178 @@
+{
+  "ok": true,
+  "source_sha256": "4d49e429ed76f039681722a34fe0d353f00cab0c94fe38c43439c5e6c6ed1181",
+  "ownership_sha256": "ab34aa04e02d4158ef81b28a310de8eba39e43c4c35a98260c7c740df3af6f6b",
+  "parts": [
+    {
+      "name": "shield",
+      "file": "shield.png",
+      "offset": [
+        151,
+        77
+      ],
+      "bbox": [
+        151,
+        77,
+        225,
+        218
+      ]
+    },
+    {
+      "name": "hand_r",
+      "file": "hand_r.png",
+      "offset": [
+        80,
+        119
+      ],
+      "bbox": [
+        80,
+        119,
+        103,
+        144
+      ]
+    },
+    {
+      "name": "mace",
+      "file": "mace.png",
+      "offset": [
+        33,
+        139
+      ],
+      "bbox": [
+        33,
+        139,
+        96,
+        211
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        110,
+        11
+      ],
+      "bbox": [
+        110,
+        11,
+        156,
+        66
+      ]
+    },
+    {
+      "name": "pauldron_l",
+      "file": "pauldron_l.png",
+      "offset": [
+        148,
+        36
+      ],
+      "bbox": [
+        148,
+        36,
+        198,
+        86
+      ]
+    },
+    {
+      "name": "arm_r",
+      "file": "arm_r.png",
+      "offset": [
+        80,
+        43
+      ],
+      "bbox": [
+        80,
+        43,
+        114,
+        125
+      ]
+    },
+    {
+      "name": "tabard",
+      "file": "tabard.png",
+      "offset": [
+        107,
+        122
+      ],
+      "bbox": [
+        107,
+        122,
+        145,
+        197
+      ]
+    },
+    {
+      "name": "foot_r",
+      "file": "foot_r.png",
+      "offset": [
+        80,
+        189
+      ],
+      "bbox": [
+        80,
+        189,
+        124,
+        217
+      ]
+    },
+    {
+      "name": "foot_l",
+      "file": "foot_l.png",
+      "offset": [
+        143,
+        198
+      ],
+      "bbox": [
+        143,
+        198,
+        177,
+        234
+      ]
+    },
+    {
+      "name": "leg_r",
+      "file": "leg_r.png",
+      "offset": [
+        88,
+        138
+      ],
+      "bbox": [
+        88,
+        138,
+        116,
+        202
+      ]
+    },
+    {
+      "name": "leg_l",
+      "file": "leg_l.png",
+      "offset": [
+        139,
+        139
+      ],
+      "bbox": [
+        139,
+        139,
+        176,
+        209
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        99,
+        61
+      ],
+      "bbox": [
+        99,
+        61,
+        160,
+        139
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

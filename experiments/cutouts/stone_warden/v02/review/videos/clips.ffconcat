@@ -1,0 +1,7 @@
+ffconcat version 1.0
+file 'front_idle.mp4'
+file 'front_walk.mp4'
+file 'front_attack.mp4'
+file 'rear_idle.mp4'
+file 'rear_walk.mp4'
+file 'rear_attack.mp4'
