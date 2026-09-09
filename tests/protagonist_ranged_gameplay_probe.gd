@@ -3,7 +3,7 @@ extends "res://tests/protagonist_cutout_gameplay_probe.gd"
 const RangedAction = preload("res://scripts/protagonist_cutout/ranged_action.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const PROOF_OUTPUT: String = "user://probes/protagonist_ranged_v01"
-var _ranged_records: Array[Dictionary] = []
+var _ranged_records: Array[Dictionary]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -30,7 +30,8 @@ func _initialize() -> void:
 	await _settle()
 	_board = _instance.get("board_view") as Control
 	_texture_id = int(_snapshot()["texture_id"])
-	var directions: Array[Vector2i] = [Vector2i(0,2), Vector2i(2,0), Vector2i(0,-2), Vector2i(-2,0)]
+	var directions: Array[Vector2i]
+	directions.assign([Vector2i(0,2), Vector2i(2,0), Vector2i(0,-2), Vector2i(-2,0)])
 	for index: int in range(directions.size()):
 		await _play_ranged("guiding_flare", "cast_" + _direction_name(index), directions[index], 37)
 		await _play_ranged("pale_spark", "shoot_" + _direction_name(index), directions[index], 37)
@@ -88,8 +89,8 @@ func _play_ranged(card: String, label: String, delta: Vector2i, expected_hp: int
 func _record_ranged(label: String, delta: Vector2i, reduced: bool) -> void:
 	var started: int = Time.get_ticks_usec()
 	var finished: int = 0
-	var images: Array[Image] = []
-	var samples: Array[Dictionary] = []
+	var images: Array[Image]
+	var samples: Array[Dictionary]
 	var last_capture: int = 0
 	var saw_prepare: bool = false
 	var saw_effect: bool = false

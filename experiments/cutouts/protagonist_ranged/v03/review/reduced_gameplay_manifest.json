@@ -25,7 +25,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.007292
+					"seconds": 0.012436
 				},
 				{
 					"animation": {
@@ -46,7 +46,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.010779
+					"seconds": 0.018884
 				},
 				{
 					"animation": {
@@ -67,7 +67,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.015244
+					"seconds": 0.0268
 				},
 				{
 					"animation": {
@@ -88,7 +88,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.022056
+					"seconds": 0.033638
 				},
 				{
 					"animation": {
@@ -109,7 +109,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.030394
+					"seconds": 0.043072
 				},
 				{
 					"animation": {
@@ -130,7 +130,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.038757
+					"seconds": 0.049509
 				},
 				{
 					"animation": {
@@ -151,7 +151,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.047057
+					"seconds": 0.057153
 				},
 				{
 					"animation": {
@@ -172,7 +172,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.055347
+					"seconds": 0.064718
 				},
 				{
 					"animation": {
@@ -193,7 +193,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.063642
+					"seconds": 0.073478
 				},
 				{
 					"animation": {
@@ -214,7 +214,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.071961
+					"seconds": 0.081607
 				},
 				{
 					"animation": {
@@ -235,7 +235,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.080359
+					"seconds": 0.088967
 				},
 				{
 					"animation": {
@@ -256,7 +256,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.088705
+					"seconds": 0.097604
 				},
 				{
 					"animation": {
@@ -277,7 +277,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.097049
+					"seconds": 0.104585
 				},
 				{
 					"animation": {
@@ -298,7 +298,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.105365
+					"seconds": 0.110298
 				},
 				{
 					"animation": {
@@ -319,7 +319,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.113697
+					"seconds": 0.116215
 				},
 				{
 					"animation": {
@@ -340,7 +340,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.121913
+					"seconds": 0.124594
 				},
 				{
 					"animation": {
@@ -361,7 +361,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.130264
+					"seconds": 0.13289
 				},
 				{
 					"animation": {
@@ -382,7 +382,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.138566
+					"seconds": 0.141173
 				},
 				{
 					"animation": {
@@ -403,7 +403,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.147049
+					"seconds": 0.149574
 				},
 				{
 					"animation": {
@@ -424,7 +424,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.155319
+					"seconds": 0.158085
 				},
 				{
 					"animation": {
@@ -445,7 +445,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.163679
+					"seconds": 0.166133
 				},
 				{
 					"animation": {
@@ -466,7 +466,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.171971
+					"seconds": 0.174476
 				},
 				{
 					"animation": {
@@ -487,49 +487,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.180413
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.188665
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.197065
+					"seconds": 0.18282
 				},
 				{
 					"animation": {
@@ -564,7 +522,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(882.4781, 272.6751)",
-					"seconds": 0.21979
+					"seconds": 0.209005
 				},
 				{
 					"animation": {
@@ -585,7 +543,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.22848
+					"seconds": 0.218419
 				},
 				{
 					"animation": {
@@ -606,7 +564,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.234605
+					"seconds": 0.225495
 				},
 				{
 					"animation": {
@@ -627,7 +585,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.240232
+					"seconds": 0.231386
 				},
 				{
 					"animation": {
@@ -648,7 +606,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.247294
+					"seconds": 0.238427
 				},
 				{
 					"animation": {
@@ -669,7 +627,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.255379
+					"seconds": 0.243987
 				},
 				{
 					"animation": {
@@ -690,7 +648,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.263694
+					"seconds": 0.249829
 				},
 				{
 					"animation": {
@@ -711,7 +669,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.272222
+					"seconds": 0.257658
 				},
 				{
 					"animation": {
@@ -732,7 +690,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.280375
+					"seconds": 0.266035
 				},
 				{
 					"animation": {
@@ -753,7 +711,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.288761
+					"seconds": 0.274377
 				},
 				{
 					"animation": {
@@ -774,7 +732,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.297069
+					"seconds": 0.282605
 				},
 				{
 					"animation": {
@@ -795,7 +753,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.305328
+					"seconds": 0.290918
 				},
 				{
 					"animation": {
@@ -816,7 +774,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.313798
+					"seconds": 0.299522
 				},
 				{
 					"animation": {
@@ -837,7 +795,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.322026
+					"seconds": 0.307602
 				},
 				{
 					"animation": {
@@ -858,7 +816,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.330306
+					"seconds": 0.316014
 				},
 				{
 					"animation": {
@@ -879,7 +837,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.33861
+					"seconds": 0.324336
 				},
 				{
 					"animation": {
@@ -900,7 +858,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.347059
+					"seconds": 0.332718
 				},
 				{
 					"animation": {
@@ -921,7 +879,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.355367
+					"seconds": 0.341014
 				},
 				{
 					"animation": {
@@ -942,7 +900,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.363675
+					"seconds": 0.349482
 				},
 				{
 					"animation": {
@@ -963,7 +921,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.372007
+					"seconds": 0.357849
 				},
 				{
 					"animation": {
@@ -984,7 +942,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.380367
+					"seconds": 0.366141
 				},
 				{
 					"animation": {
@@ -1005,7 +963,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.38852
+					"seconds": 0.374322
 				},
 				{
 					"animation": {
@@ -1026,7 +984,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.397018
+					"seconds": 0.382623
 				},
 				{
 					"animation": {
@@ -1047,7 +1005,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.405334
+					"seconds": 0.391023
 				},
 				{
 					"animation": {
@@ -1068,7 +1026,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.413668
+					"seconds": 0.399373
 				},
 				{
 					"animation": {
@@ -1089,7 +1047,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.422055
+					"seconds": 0.407658
 				},
 				{
 					"animation": {
@@ -1110,7 +1068,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.430314
+					"seconds": 0.41597
 				},
 				{
 					"animation": {
@@ -1131,7 +1089,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.438779
+					"seconds": 0.424346
 				},
 				{
 					"animation": {
@@ -1152,7 +1110,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.447053
+					"seconds": 0.432755
 				},
 				{
 					"animation": {
@@ -1173,7 +1131,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.455346
+					"seconds": 0.441038
 				},
 				{
 					"animation": {
@@ -1194,7 +1152,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.463724
+					"seconds": 0.449366
 				},
 				{
 					"animation": {
@@ -1215,7 +1173,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.472062
+					"seconds": 0.457666
 				},
 				{
 					"animation": {
@@ -1236,7 +1194,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.480259
+					"seconds": 0.466033
 				},
 				{
 					"animation": {
@@ -1257,7 +1215,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.488668
+					"seconds": 0.474366
 				},
 				{
 					"animation": {
@@ -1278,7 +1236,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.497021
+					"seconds": 0.482666
 				},
 				{
 					"animation": {
@@ -1299,7 +1257,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.505305
+					"seconds": 0.491095
 				},
 				{
 					"animation": {
@@ -1320,7 +1278,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.513616
+					"seconds": 0.500055
 				},
 				{
 					"animation": {
@@ -1341,7 +1299,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.522055
+					"seconds": 0.507631
 				},
 				{
 					"animation": {
@@ -1362,7 +1320,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.530263
+					"seconds": 0.515994
 				},
 				{
 					"animation": {
@@ -1383,7 +1341,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.538689
+					"seconds": 0.524478
 				},
 				{
 					"animation": {
@@ -1404,7 +1362,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.547017
+					"seconds": 0.53287
 				},
 				{
 					"animation": {
@@ -1425,7 +1383,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.555276
+					"seconds": 0.541011
 				},
 				{
 					"animation": {
@@ -1446,7 +1404,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.563704
+					"seconds": 0.549332
 				},
 				{
 					"animation": {
@@ -1467,7 +1425,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.571993
+					"seconds": 0.557742
 				},
 				{
 					"animation": {
@@ -1488,7 +1446,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.580278
+					"seconds": 0.566172
 				},
 				{
 					"animation": {
@@ -1509,7 +1467,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.588706
+					"seconds": 0.574384
 				},
 				{
 					"animation": {
@@ -1530,7 +1488,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.596999
+					"seconds": 0.582799
 				},
 				{
 					"animation": {
@@ -1551,7 +1509,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.605352
+					"seconds": 0.591172
 				},
 				{
 					"animation": {
@@ -1572,7 +1530,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.613683
+					"seconds": 0.599383
 				},
 				{
 					"animation": {
@@ -1593,7 +1551,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.621957
+					"seconds": 0.607805
 				},
 				{
 					"animation": {
@@ -1614,7 +1572,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.630359
+					"seconds": 0.616023
 				},
 				{
 					"animation": {
@@ -1635,7 +1593,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.63863
+					"seconds": 0.624424
 				},
 				{
 					"animation": {
@@ -1656,7 +1614,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.646994
+					"seconds": 0.632691
 				},
 				{
 					"animation": {
@@ -1677,7 +1635,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.655333
+					"seconds": 0.641027
 				},
 				{
 					"animation": {
@@ -1698,7 +1656,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.663626
+					"seconds": 0.649458
 				},
 				{
 					"animation": {
@@ -1719,7 +1677,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.671933
+					"seconds": 0.657666
 				},
 				{
 					"animation": {
@@ -1740,7 +1698,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.680383
+					"seconds": 0.666141
 				},
 				{
 					"animation": {
@@ -1761,7 +1719,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.688622
+					"seconds": 0.674347
 				},
 				{
 					"animation": {
@@ -1782,7 +1740,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.696988
+					"seconds": 0.683085
 				},
 				{
 					"animation": {
@@ -1803,7 +1761,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.705383
+					"seconds": 0.691213
 				},
 				{
 					"animation": {
@@ -1824,7 +1782,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.714535
+					"seconds": 0.699518
 				},
 				{
 					"animation": {
@@ -1845,7 +1803,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.721897
+					"seconds": 0.707737
 				},
 				{
 					"animation": {
@@ -1866,7 +1824,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.730404
+					"seconds": 0.716082
 				},
 				{
 					"animation": {
@@ -1887,7 +1845,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.738776
+					"seconds": 0.724449
 				},
 				{
 					"animation": {
@@ -1908,7 +1866,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.760221
+					"seconds": 0.747907
 				},
 				{
 					"animation": {
@@ -1929,7 +1887,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.765367
+					"seconds": 0.753827
 				},
 				{
 					"animation": {
@@ -1950,7 +1908,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.772088
+					"seconds": 0.759776
 				},
 				{
 					"animation": {
@@ -1971,7 +1929,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.780369
+					"seconds": 0.766345
 				},
 				{
 					"animation": {
@@ -1992,7 +1950,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.78863
+					"seconds": 0.774432
 				},
 				{
 					"animation": {
@@ -2013,7 +1971,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.796986
+					"seconds": 0.782748
 				},
 				{
 					"animation": {
@@ -2034,7 +1992,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.805263
+					"seconds": 0.791132
 				},
 				{
 					"animation": {
@@ -2055,7 +2013,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.813737
+					"seconds": 0.799541
 				},
 				{
 					"animation": {
@@ -2076,7 +2034,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.821992
+					"seconds": 0.807769
 				},
 				{
 					"animation": {
@@ -2097,7 +2055,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.830355
+					"seconds": 0.816119
 				},
 				{
 					"animation": {
@@ -2118,7 +2076,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.838654
+					"seconds": 0.824575
 				},
 				{
 					"animation": {
@@ -2139,7 +2097,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.847099
+					"seconds": 0.832645
 				},
 				{
 					"animation": {
@@ -2160,7 +2118,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.855306
+					"seconds": 0.841282
 				},
 				{
 					"animation": {
@@ -2181,7 +2139,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.863723
+					"seconds": 0.849527
 				}
 			],
 			"label": "reduced_cast",
@@ -2212,7 +2170,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.005603
+					"seconds": 0.00965
 				},
 				{
 					"animation": {
@@ -2233,7 +2191,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.008845
+					"seconds": 0.017577
 				},
 				{
 					"animation": {
@@ -2254,7 +2212,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.014201
+					"seconds": 0.023798
 				},
 				{
 					"animation": {
@@ -2275,7 +2233,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.022493
+					"seconds": 0.03164
 				},
 				{
 					"animation": {
@@ -2296,7 +2254,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.030789
+					"seconds": 0.039637
 				},
 				{
 					"animation": {
@@ -2317,7 +2275,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.039163
+					"seconds": 0.04792
 				},
 				{
 					"animation": {
@@ -2338,7 +2296,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.047445
+					"seconds": 0.055367
 				},
 				{
 					"animation": {
@@ -2359,7 +2317,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.055874
+					"seconds": 0.062045
 				},
 				{
 					"animation": {
@@ -2380,7 +2338,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.064144
+					"seconds": 0.069055
 				},
 				{
 					"animation": {
@@ -2401,7 +2359,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.072452
+					"seconds": 0.074628
 				},
 				{
 					"animation": {
@@ -2422,7 +2380,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.080832
+					"seconds": 0.082984
 				},
 				{
 					"animation": {
@@ -2443,7 +2401,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.089194
+					"seconds": 0.091227
 				},
 				{
 					"animation": {
@@ -2464,7 +2422,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.097459
+					"seconds": 0.099517
 				},
 				{
 					"animation": {
@@ -2485,7 +2443,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.10585
+					"seconds": 0.108003
 				},
 				{
 					"animation": {
@@ -2506,7 +2464,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.114144
+					"seconds": 0.116173
 				},
 				{
 					"animation": {
@@ -2527,7 +2485,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.12254
+					"seconds": 0.12463
 				},
 				{
 					"animation": {
@@ -2548,7 +2506,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.130794
+					"seconds": 0.133313
 				},
 				{
 					"animation": {
@@ -2569,7 +2527,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.139169
+					"seconds": 0.14133
 				},
 				{
 					"animation": {
@@ -2590,7 +2548,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.147435
+					"seconds": 0.149599
 				},
 				{
 					"animation": {
@@ -2611,7 +2569,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.155861
+					"seconds": 0.158025
 				},
 				{
 					"animation": {
@@ -2632,7 +2590,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.164173
+					"seconds": 0.16618
 				},
 				{
 					"animation": {
@@ -2653,7 +2611,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.172479
+					"seconds": 0.174594
 				},
 				{
 					"animation": {
@@ -2674,70 +2632,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.180823
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.189208
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.197552
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.205902
+					"seconds": 0.183097
 				},
 				{
 					"animation": {
@@ -2772,7 +2667,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.223674
+					"seconds": 0.200317
 				},
 				{
 					"animation": {
@@ -2807,7 +2702,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.228357
+					"seconds": 0.204896
 				},
 				{
 					"animation": {
@@ -2842,7 +2737,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.233225
+					"seconds": 0.209289
 				},
 				{
 					"animation": {
@@ -2877,7 +2772,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.239222
+					"seconds": 0.21617
 				},
 				{
 					"animation": {
@@ -2912,7 +2807,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.247513
+					"seconds": 0.224565
 				},
 				{
 					"animation": {
@@ -2947,7 +2842,7 @@
 					},
 					"effect_progress": 0.166666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.255851
+					"seconds": 0.233125
 				},
 				{
 					"animation": {
@@ -2982,7 +2877,7 @@
 					},
 					"effect_progress": 0.333333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.26411
+					"seconds": 0.241142
 				},
 				{
 					"animation": {
@@ -3017,7 +2912,7 @@
 					},
 					"effect_progress": 0.333333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.27248
+					"seconds": 0.249381
 				},
 				{
 					"animation": {
@@ -3052,7 +2947,7 @@
 					},
 					"effect_progress": 0.333333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.280894
+					"seconds": 0.25778
 				},
 				{
 					"animation": {
@@ -3087,7 +2982,7 @@
 					},
 					"effect_progress": 0.333333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.289175
+					"seconds": 0.266249
 				},
 				{
 					"animation": {
@@ -3122,7 +3017,7 @@
 					},
 					"effect_progress": 0.333333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.297477
+					"seconds": 0.274471
 				},
 				{
 					"animation": {
@@ -3157,7 +3052,7 @@
 					},
 					"effect_progress": 0.5,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.30583
+					"seconds": 0.282792
 				},
 				{
 					"animation": {
@@ -3192,7 +3087,7 @@
 					},
 					"effect_progress": 0.5,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.314134
+					"seconds": 0.29115
 				},
 				{
 					"animation": {
@@ -3227,7 +3122,7 @@
 					},
 					"effect_progress": 0.5,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.322534
+					"seconds": 0.299625
 				},
 				{
 					"animation": {
@@ -3262,42 +3157,7 @@
 					},
 					"effect_progress": 0.5,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.330817
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "shoot",
-						"crossbow_visible": true,
-						"facing": "rear",
-						"hand_source": "(111.8017, 89.64049)",
-						"mirrored": true,
-						"muzzle_source": "(50.80171, 42.64047)",
-						"phase": 0.4,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-						"action_type": "ranged",
-						"center": "(1, 3)",
-						"element": "none",
-						"force_tiles": [],
-						"from": "(3, 3)",
-						"kind": "ranged",
-						"protagonist_melee": false,
-						"protagonist_origin": "(3, 3)",
-						"protagonist_ranged": "shoot",
-						"range": 5,
-						"tiles": [
-							"(1, 3)"
-						],
-						"to": "(1, 3)",
-						"triggered_traps": []
-					},
-					"effect_progress": 0.5,
-					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.339209
+					"seconds": 0.307742
 				},
 				{
 					"animation": {
@@ -3332,7 +3192,7 @@
 					},
 					"effect_progress": 0.666666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.347458
+					"seconds": 0.316755
 				},
 				{
 					"animation": {
@@ -3367,7 +3227,7 @@
 					},
 					"effect_progress": 0.666666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.355846
+					"seconds": 0.324512
 				},
 				{
 					"animation": {
@@ -3402,7 +3262,7 @@
 					},
 					"effect_progress": 0.666666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.364134
+					"seconds": 0.332865
 				},
 				{
 					"animation": {
@@ -3437,7 +3297,7 @@
 					},
 					"effect_progress": 0.666666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.372516
+					"seconds": 0.341112
 				},
 				{
 					"animation": {
@@ -3472,7 +3332,7 @@
 					},
 					"effect_progress": 0.666666666666667,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.380827
+					"seconds": 0.349477
 				},
 				{
 					"animation": {
@@ -3507,7 +3367,7 @@
 					},
 					"effect_progress": 0.833333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.389167
+					"seconds": 0.357752
 				},
 				{
 					"animation": {
@@ -3542,7 +3402,7 @@
 					},
 					"effect_progress": 0.833333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.397512
+					"seconds": 0.366123
 				},
 				{
 					"animation": {
@@ -3577,7 +3437,7 @@
 					},
 					"effect_progress": 0.833333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.405817
+					"seconds": 0.37447
 				},
 				{
 					"animation": {
@@ -3612,7 +3472,42 @@
 					},
 					"effect_progress": 0.833333333333333,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.414047
+					"seconds": 0.38284
+				},
+				{
+					"animation": {
+						"art": "protagonist_cutout_pass9",
+						"clip": "shoot",
+						"crossbow_visible": true,
+						"facing": "rear",
+						"hand_source": "(111.8017, 89.64049)",
+						"mirrored": true,
+						"muzzle_source": "(50.80171, 42.64047)",
+						"phase": 0.4,
+						"rig_count": 2,
+						"texture_id": -9223371944479422731
+					},
+					"charge": 0.0,
+					"effect": {
+						"action_type": "ranged",
+						"center": "(1, 3)",
+						"element": "none",
+						"force_tiles": [],
+						"from": "(3, 3)",
+						"kind": "ranged",
+						"protagonist_melee": false,
+						"protagonist_origin": "(3, 3)",
+						"protagonist_ranged": "shoot",
+						"range": 5,
+						"tiles": [
+							"(1, 3)"
+						],
+						"to": "(1, 3)",
+						"triggered_traps": []
+					},
+					"effect_progress": 0.833333333333333,
+					"launch_point": "(890.7165, 234.4952)",
+					"seconds": 0.391136
 				},
 				{
 					"animation": {
@@ -3647,7 +3542,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.422417
+					"seconds": 0.399464
 				},
 				{
 					"animation": {
@@ -3682,7 +3577,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.430773
+					"seconds": 0.408578
 				},
 				{
 					"animation": {
@@ -3717,7 +3612,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.439059
+					"seconds": 0.416153
 				},
 				{
 					"animation": {
@@ -3752,7 +3647,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.447435
+					"seconds": 0.424614
 				},
 				{
 					"animation": {
@@ -3787,7 +3682,7 @@
 					},
 					"effect_progress": 1.0,
 					"launch_point": "(890.7165, 234.4952)",
-					"seconds": 0.455889
+					"seconds": 0.432913
 				},
 				{
 					"animation": {
@@ -3808,7 +3703,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.464182
+					"seconds": 0.443356
 				},
 				{
 					"animation": {
@@ -3829,7 +3724,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.472503
+					"seconds": 0.451212
 				},
 				{
 					"animation": {
@@ -3850,7 +3745,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.480782
+					"seconds": 0.457916
 				},
 				{
 					"animation": {
@@ -3871,7 +3766,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.489176
+					"seconds": 0.466566
 				},
 				{
 					"animation": {
@@ -3892,7 +3787,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.497479
+					"seconds": 0.474601
 				},
 				{
 					"animation": {
@@ -3913,7 +3808,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.505774
+					"seconds": 0.482942
 				},
 				{
 					"animation": {
@@ -3934,7 +3829,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.514072
+					"seconds": 0.491235
 				},
 				{
 					"animation": {
@@ -3955,7 +3850,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.522516
+					"seconds": 0.499834
 				},
 				{
 					"animation": {
@@ -3976,7 +3871,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.53074
+					"seconds": 0.508728
 				},
 				{
 					"animation": {
@@ -3997,7 +3892,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.53912
+					"seconds": 0.516311
 				},
 				{
 					"animation": {
@@ -4018,7 +3913,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.547646
+					"seconds": 0.524656
 				},
 				{
 					"animation": {
@@ -4039,7 +3934,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.555859
+					"seconds": 0.533018
 				},
 				{
 					"animation": {
@@ -4060,7 +3955,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.564128
+					"seconds": 0.541534
 				},
 				{
 					"animation": {
@@ -4081,7 +3976,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.572428
+					"seconds": 0.549637
 				},
 				{
 					"animation": {
@@ -4102,7 +3997,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.580773
+					"seconds": 0.557958
 				},
 				{
 					"animation": {
@@ -4123,7 +4018,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.589109
+					"seconds": 0.56803
 				},
 				{
 					"animation": {
@@ -4144,7 +4039,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.597509
+					"seconds": 0.574761
 				},
 				{
 					"animation": {
@@ -4165,7 +4060,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.605766
+					"seconds": 0.582895
 				},
 				{
 					"animation": {
@@ -4186,7 +4081,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.614132
+					"seconds": 0.591218
 				},
 				{
 					"animation": {
@@ -4207,7 +4102,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.622525
+					"seconds": 0.599727
 				},
 				{
 					"animation": {
@@ -4228,7 +4123,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.630821
+					"seconds": 0.607844
 				},
 				{
 					"animation": {
@@ -4249,7 +4144,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.639112
+					"seconds": 0.616145
 				},
 				{
 					"animation": {
@@ -4270,7 +4165,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.647534
+					"seconds": 0.625118
 				},
 				{
 					"animation": {
@@ -4291,7 +4186,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.655809
+					"seconds": 0.633139
 				},
 				{
 					"animation": {
@@ -4312,7 +4207,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.664101
+					"seconds": 0.64109
 				},
 				{
 					"animation": {
@@ -4333,7 +4228,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.672447
+					"seconds": 0.64933
 				},
 				{
 					"animation": {
@@ -4354,7 +4249,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.680822
+					"seconds": 0.65775
 				},
 				{
 					"animation": {
@@ -4375,7 +4270,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.689207
+					"seconds": 0.666056
 				},
 				{
 					"animation": {
@@ -4396,7 +4291,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.697514
+					"seconds": 0.674343
 				},
 				{
 					"animation": {
@@ -4417,7 +4312,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.70581
+					"seconds": 0.682754
 				},
 				{
 					"animation": {
@@ -4438,7 +4333,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.714068
+					"seconds": 0.69117
 				},
 				{
 					"animation": {
@@ -4459,7 +4354,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.722523
+					"seconds": 0.699509
 				},
 				{
 					"animation": {
@@ -4480,7 +4375,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.730787
+					"seconds": 0.707753
 				},
 				{
 					"animation": {
@@ -4501,7 +4396,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.739254
+					"seconds": 0.716766
 				},
 				{
 					"animation": {
@@ -4522,7 +4417,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.747481
+					"seconds": 0.724357
 				},
 				{
 					"animation": {
@@ -4543,7 +4438,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.755822
+					"seconds": 0.732802
 				},
 				{
 					"animation": {
@@ -4564,7 +4459,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.764199
+					"seconds": 0.741088
 				},
 				{
 					"animation": {
@@ -4585,7 +4480,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.772521
+					"seconds": 0.749387
 				},
 				{
 					"animation": {
@@ -4606,7 +4501,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.780905
+					"seconds": 0.757731
 				},
 				{
 					"animation": {
@@ -4627,7 +4522,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.78919
+					"seconds": 0.76601
 				},
 				{
 					"animation": {
@@ -4648,7 +4543,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.797457
+					"seconds": 0.774393
 				},
 				{
 					"animation": {
@@ -4669,7 +4564,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.805849
+					"seconds": 0.782693
 				},
 				{
 					"animation": {
@@ -4690,7 +4585,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.814141
+					"seconds": 0.791021
 				},
 				{
 					"animation": {
@@ -4711,7 +4606,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.822644
+					"seconds": 0.799452
 				},
 				{
 					"animation": {
@@ -4732,7 +4627,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.83082
+					"seconds": 0.808289
 				},
 				{
 					"animation": {
@@ -4753,7 +4648,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.839167
+					"seconds": 0.816106
 				},
 				{
 					"animation": {
@@ -4774,7 +4669,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.847459
+					"seconds": 0.824386
 				},
 				{
 					"animation": {
@@ -4795,7 +4690,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.855796
+					"seconds": 0.832879
 				},
 				{
 					"animation": {
@@ -4816,7 +4711,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.864167
+					"seconds": 0.841159
 				},
 				{
 					"animation": {
@@ -4837,7 +4732,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.872427
+					"seconds": 0.849448
 				},
 				{
 					"animation": {
@@ -4858,7 +4753,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.880783
+					"seconds": 0.857704
 				},
 				{
 					"animation": {
@@ -4879,7 +4774,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.889255
+					"seconds": 0.866152
 				},
 				{
 					"animation": {
@@ -4900,7 +4795,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.897425
+					"seconds": 0.874288
 				},
 				{
 					"animation": {
@@ -4921,7 +4816,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.905819
+					"seconds": 0.882721
 				},
 				{
 					"animation": {
@@ -4942,7 +4837,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.914232
+					"seconds": 0.891123
 				},
 				{
 					"animation": {
@@ -4963,7 +4858,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.922531
+					"seconds": 0.89958
 				},
 				{
 					"animation": {
@@ -4984,7 +4879,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.930794
+					"seconds": 0.907723
 				},
 				{
 					"animation": {
@@ -5005,7 +4900,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.939131
+					"seconds": 0.916072
 				},
 				{
 					"animation": {
@@ -5026,7 +4921,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.947432
+					"seconds": 0.924356
 				},
 				{
 					"animation": {
@@ -5047,7 +4942,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.95581
+					"seconds": 0.932725
 				},
 				{
 					"animation": {
@@ -5068,7 +4963,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.964165
+					"seconds": 0.941088
 				},
 				{
 					"animation": {
@@ -5089,7 +4984,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.972466
+					"seconds": 0.949377
 				},
 				{
 					"animation": {
@@ -5110,7 +5005,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.991807
+					"seconds": 0.972723
 				},
 				{
 					"animation": {
@@ -5131,7 +5026,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 0.996784
+					"seconds": 0.978319
 				},
 				{
 					"animation": {
@@ -5152,7 +5047,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.001887
+					"seconds": 0.983441
 				},
 				{
 					"animation": {
@@ -5173,7 +5068,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.00671
+					"seconds": 0.991378
 				},
 				{
 					"animation": {
@@ -5194,7 +5089,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.014144
+					"seconds": 0.999463
 				},
 				{
 					"animation": {
@@ -5215,7 +5110,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.022548
+					"seconds": 1.007786
 				},
 				{
 					"animation": {
@@ -5236,7 +5131,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.030823
+					"seconds": 1.016272
 				},
 				{
 					"animation": {
@@ -5257,7 +5152,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.039181
+					"seconds": 1.024578
 				},
 				{
 					"animation": {
@@ -5278,7 +5173,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.047476
+					"seconds": 1.032859
 				},
 				{
 					"animation": {
@@ -5299,7 +5194,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.055877
+					"seconds": 1.04121
 				},
 				{
 					"animation": {
@@ -5320,7 +5215,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.064233
+					"seconds": 1.049567
 				},
 				{
 					"animation": {
@@ -5341,7 +5236,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.072526
+					"seconds": 1.057991
 				},
 				{
 					"animation": {
@@ -5362,7 +5257,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.080813
+					"seconds": 1.066121
 				},
 				{
 					"animation": {
@@ -5383,28 +5278,7 @@
 					},
 					"effect_progress": 0.0,
 					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.089202
-				},
-				{
-					"animation": {
-						"art": "protagonist_cutout_pass9",
-						"clip": "rest",
-						"crossbow_visible": false,
-						"facing": "front",
-						"hand_source": "(166.0, 148.0)",
-						"mirrored": false,
-						"muzzle_source": "(101.0, 171.0)",
-						"phase": 0.0,
-						"rig_count": 2,
-						"texture_id": -9223371944479422731
-					},
-					"charge": 0.0,
-					"effect": {
-
-					},
-					"effect_progress": 0.0,
-					"launch_point": "(0.0, 0.0)",
-					"seconds": 1.097548
+					"seconds": 1.074616
 				}
 			],
 			"label": "reduced_shoot",
