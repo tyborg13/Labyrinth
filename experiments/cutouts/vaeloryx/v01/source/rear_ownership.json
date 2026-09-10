@@ -1,0 +1,2852 @@
+{
+  "priority_polygons": [
+    [
+      "claw_near",
+      [
+        [
+          130,
+          157
+        ],
+        [
+          150,
+          158
+        ],
+        [
+          160,
+          175
+        ],
+        [
+          149,
+          185
+        ],
+        [
+          129,
+          180
+        ],
+        [
+          126,
+          167
+        ]
+      ]
+    ],
+    [
+      "claw_far",
+      [
+        [
+          166,
+          149
+        ],
+        [
+          181,
+          149
+        ],
+        [
+          188,
+          165
+        ],
+        [
+          177,
+          173
+        ],
+        [
+          162,
+          165
+        ]
+      ]
+    ],
+    [
+      "claw_hind",
+      [
+        [
+          82,
+          156
+        ],
+        [
+          101,
+          151
+        ],
+        [
+          106,
+          169
+        ],
+        [
+          95,
+          179
+        ],
+        [
+          80,
+          173
+        ]
+      ]
+    ],
+    [
+      "arm_near",
+      [
+        [
+          116,
+          137
+        ],
+        [
+          132,
+          137
+        ],
+        [
+          138,
+          150
+        ],
+        [
+          148,
+          163
+        ],
+        [
+          135,
+          172
+        ],
+        [
+          122,
+          158
+        ],
+        [
+          112,
+          146
+        ]
+      ]
+    ],
+    [
+      "arm_far",
+      [
+        [
+          148,
+          134
+        ],
+        [
+          160,
+          132
+        ],
+        [
+          169,
+          142
+        ],
+        [
+          181,
+          151
+        ],
+        [
+          176,
+          163
+        ],
+        [
+          163,
+          155
+        ],
+        [
+          148,
+          149
+        ]
+      ]
+    ],
+    [
+      "hind_limb",
+      [
+        [
+          96,
+          139
+        ],
+        [
+          112,
+          148
+        ],
+        [
+          107,
+          160
+        ],
+        [
+          96,
+          168
+        ],
+        [
+          84,
+          165
+        ],
+        [
+          84,
+          149
+        ]
+      ]
+    ],
+    [
+      "head",
+      [
+        [
+          115,
+          48
+        ],
+        [
+          153,
+          42
+        ],
+        [
+          173,
+          61
+        ],
+        [
+          174,
+          100
+        ],
+        [
+          153,
+          117
+        ],
+        [
+          133,
+          111
+        ],
+        [
+          139,
+          96
+        ],
+        [
+          122,
+          89
+        ],
+        [
+          110,
+          79
+        ]
+      ]
+    ],
+    [
+      "wing_near",
+      [
+        [
+          154,
+          20
+        ],
+        [
+          255,
+          20
+        ],
+        [
+          255,
+          209
+        ],
+        [
+          202,
+          215
+        ],
+        [
+          191,
+          185
+        ],
+        [
+          189,
+          156
+        ],
+        [
+          164,
+          146
+        ],
+        [
+          159,
+          124
+        ],
+        [
+          164,
+          94
+        ],
+        [
+          158,
+          63
+        ]
+      ]
+    ],
+    [
+      "wing_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          139,
+          0
+        ],
+        [
+          130,
+          64
+        ],
+        [
+          122,
+          88
+        ],
+        [
+          131,
+          111
+        ],
+        [
+          118,
+          128
+        ],
+        [
+          100,
+          140
+        ],
+        [
+          77,
+          142
+        ],
+        [
+          61,
+          154
+        ],
+        [
+          0,
+          177
+        ]
+      ]
+    ],
+    [
+      "neck",
+      [
+        [
+          126,
+          87
+        ],
+        [
+          158,
+          100
+        ],
+        [
+          165,
+          143
+        ],
+        [
+          145,
+          155
+        ],
+        [
+          126,
+          133
+        ],
+        [
+          116,
+          123
+        ]
+      ]
+    ],
+    [
+      "tail",
+      [
+        [
+          90,
+          119
+        ],
+        [
+          122,
+          123
+        ],
+        [
+          118,
+          144
+        ],
+        [
+          112,
+          160
+        ],
+        [
+          117,
+          177
+        ],
+        [
+          158,
+          171
+        ],
+        [
+          195,
+          179
+        ],
+        [
+          203,
+          243
+        ],
+        [
+          35,
+          243
+        ],
+        [
+          37,
+          156
+        ],
+        [
+          57,
+          130
+        ]
+      ]
+    ],
+    [
+      "torso",
+      [
+        [
+          86,
+          115
+        ],
+        [
+          137,
+          109
+        ],
+        [
+          155,
+          123
+        ],
+        [
+          166,
+          147
+        ],
+        [
+          146,
+          160
+        ],
+        [
+          110,
+          153
+        ],
+        [
+          81,
+          143
+        ]
+      ]
+    ]
+  ],
+  "pixel_overrides": [
+    {
+      "point": [
+        154,
+        36
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        153,
+        37
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        151,
+        38
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        152,
+        38
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        154,
+        38
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        38
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        151,
+        39
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        153,
+        39
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        154,
+        39
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        39
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        150,
+        40
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        152,
+        40
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        153,
+        40
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        154,
+        40
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        40
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        149,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        151,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        152,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        153,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        154,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        41
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        148,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        150,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        151,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        152,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        154,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        42
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        155,
+        43
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        124,
+        91
+      ],
+      "name": "head"
+    },
+    {
+      "point": [
+        156,
+        154
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        154
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        154
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        159,
+        154
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        154
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        115,
+        155
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        155
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        155
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        155
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        155
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        155,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        159,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        161,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        155
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        185,
+        155
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        186,
+        155
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        114,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        115,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        156
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        153,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        154,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        161,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        163,
+        156
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        185,
+        156
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        186,
+        156
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        156
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        156
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        115,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        120,
+        157
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        153,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        154,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        159,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        163,
+        157
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        185,
+        157
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        186,
+        157
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        157
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        157
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        114,
+        158
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        158
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        158
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        158
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        158
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        151,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        153,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        154,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        159,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        163,
+        158
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        186,
+        158
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        158
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        158
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        113,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        115,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        120,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        121,
+        159
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        153,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        154,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        160,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        163,
+        159
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        186,
+        159
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        159
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        159
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        113,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        115,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        118,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        120,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        121,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        122,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        123,
+        160
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        152,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        153,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        154,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        157,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        161,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        160
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        187,
+        160
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        160
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        114,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        116,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        117,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        119,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        120,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        121,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        123,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        124,
+        161
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        154,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        158,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        161,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        161
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        187,
+        161
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        161
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        118,
+        162
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        121,
+        162
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        122,
+        162
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        123,
+        162
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        153,
+        162
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        155,
+        162
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        162
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        162
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        188,
+        162
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        119,
+        163
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        120,
+        163
+      ],
+      "name": "arm_near"
+    },
+    {
+      "point": [
+        154,
+        163
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        162,
+        163
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        188,
+        163
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        116,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        164
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        155,
+        164
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        156,
+        164
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        161,
+        164
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        189,
+        164
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        114,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        115,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        165
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        161,
+        165
+      ],
+      "name": "arm_far"
+    },
+    {
+      "point": [
+        116,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        166
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        189,
+        166
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        115,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        116,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        167
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        163,
+        167
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        164,
+        167
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        165,
+        167
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        186,
+        167
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        167
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        167
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        189,
+        167
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        115,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        116,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        168
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        185,
+        168
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        186,
+        168
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        188,
+        168
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        116,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        169
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        167,
+        169
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        168,
+        169
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        169,
+        169
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        169
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        184,
+        169
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        185,
+        169
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        169
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        116,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        170
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        169,
+        170
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        170,
+        170
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        182,
+        170
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        170
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        184,
+        170
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        185,
+        170
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        186,
+        170
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        187,
+        170
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        116,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        117,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        171
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        172,
+        171
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        181,
+        171
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        182,
+        171
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        171
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        184,
+        171
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        186,
+        171
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        117,
+        172
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        172
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        172
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        172
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        170,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        171,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        179,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        180,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        181,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        182,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        172
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        185,
+        172
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        117,
+        173
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        173
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        173
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        173
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        173
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        176,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        178,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        179,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        180,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        181,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        182,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        184,
+        173
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        185,
+        173
+      ],
+      "name": "wing_near"
+    },
+    {
+      "point": [
+        117,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        118,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        124,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        125,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        126,
+        174
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        175,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        176,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        177,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        178,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        179,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        180,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        181,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        182,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        184,
+        174
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        117,
+        175
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        126,
+        175
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        177,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        178,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        179,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        180,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        181,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        183,
+        175
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        118,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        119,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        120,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        121,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        122,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        123,
+        176
+      ],
+      "name": "claw_near"
+    },
+    {
+      "point": [
+        182,
+        176
+      ],
+      "name": "claw_far"
+    },
+    {
+      "point": [
+        14,
+        184
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        24,
+        189
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        24,
+        190
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        24,
+        191
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        26,
+        193
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        27,
+        193
+      ],
+      "name": "tail"
+    },
+    {
+      "point": [
+        27,
+        194
+      ],
+      "name": "tail"
+    }
+  ],
+  "registration": "255px whole-source coordinates, first owner wins"
+}

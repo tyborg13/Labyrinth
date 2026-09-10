@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "character_id": "grave_surgeon",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_p06_skinned.json",
+    "rear": "layouts/rear_p06_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.68,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 40,
+      "duration": 0.7,
+      "loop": false
+    },
+    "treat": {
+      "frames": 24,
+      "duration": 0.48,
+      "loop": false
+    },
+    "ward": {
+      "frames": 24,
+      "duration": 0.48,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "hood",
+    "wrist_saw",
+    "saw",
+    "wrist_vial",
+    "vial",
+    "foot_r",
+    "foot_l"
+  ],
+  "contact_feet": [
+    "foot_r",
+    "foot_l"
+  ],
+  "sources": [
+    "bakes/front_rest.png",
+    "bakes/rear_rest.png",
+    "layouts/front_p03.json",
+    "layouts/front_p04.json",
+    "layouts/front_p05.json",
+    "layouts/front_p06.json",
+    "layouts/rear_p05.json",
+    "layouts/rear_p06.json",
+    "recipes/build_case.py",
+    "recipes/front_p03_skin.json",
+    "recipes/front_p03_skinned.skin.json",
+    "recipes/front_p04_skin.json",
+    "recipes/front_p04_skinned.skin.json",
+    "recipes/front_p05_skin.json",
+    "recipes/front_p05_skinned.skin.json",
+    "recipes/front_p06_skin.json",
+    "recipes/front_p06_skinned.skin.json",
+    "recipes/hidden_material.json",
+    "recipes/production_copy.json",
+    "recipes/promote.py",
+    "recipes/rear_p05_skin.json",
+    "recipes/rear_p05_skinned.skin.json",
+    "recipes/rear_p06_skin.json",
+    "recipes/rear_p06_skinned.skin.json",
+    "recipes/registration.json",
+    "recipes/rest_bake.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_underbody_alpha.png",
+    "source/front_underbody_generated.png",
+    "source/generation_addendum.json",
+    "source/generation_requests.json",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_underbody_alpha_rejected.png",
+    "source/rear_underbody_alpha_v2_rejected.png",
+    "source/rear_underbody_generated.png",
+    "source/rear_underbody_v3_generated.png",
+    "source/rear_v2_generated.png",
+    "source/source_sha256.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "original front preserved; generated rear and selected concealed cloth"
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_leg_r",
+      "Skin_thigh_fill_r",
+      "foot_r",
+      "Skin_leg_l",
+      "Skin_thigh_fill_l",
+      "foot_l"
+    ],
+    "rear": [
+      "Skin_leg_r",
+      "Skin_thigh_fill_r",
+      "foot_r",
+      "Skin_leg_l",
+      "Skin_thigh_fill_l",
+      "foot_l"
+    ]
+  }
+}

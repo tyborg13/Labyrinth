@@ -1,0 +1,230 @@
+[
+  {
+    "facing": "front",
+    "part": "arm_fill_near",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 6,
+    "width": 8,
+    "joints": [
+      "upper_near",
+      "fore_near",
+      "claw_near"
+    ]
+  },
+  {
+    "facing": "front",
+    "part": "leg_fill_near",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 8,
+    "width": 10,
+    "joints": [
+      "thigh_near",
+      "shin_near",
+      "foot_near"
+    ]
+  },
+  {
+    "facing": "front",
+    "part": "arm_fill_far",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 6,
+    "width": 8,
+    "joints": [
+      "upper_far",
+      "fore_far",
+      "claw_far"
+    ]
+  },
+  {
+    "facing": "front",
+    "part": "leg_fill_far",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 8,
+    "width": 10,
+    "joints": [
+      "thigh_far",
+      "shin_far",
+      "foot_far"
+    ]
+  },
+  {
+    "facing": "front",
+    "part": "shoulder_pocket",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "polygon": [
+      [
+        129,
+        104
+      ],
+      [
+        141,
+        105
+      ],
+      [
+        145,
+        117
+      ],
+      [
+        132,
+        122
+      ],
+      [
+        127,
+        114
+      ]
+    ],
+    "bone": "body"
+  },
+  {
+    "facing": "rear",
+    "part": "arm_fill_near",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 6,
+    "width": 8,
+    "joints": [
+      "upper_near",
+      "fore_near",
+      "claw_near"
+    ]
+  },
+  {
+    "facing": "rear",
+    "part": "leg_fill_near",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 8,
+    "width": 10,
+    "joints": [
+      "thigh_near",
+      "shin_near",
+      "foot_near"
+    ]
+  },
+  {
+    "facing": "rear",
+    "part": "arm_fill_far",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 6,
+    "width": 8,
+    "joints": [
+      "upper_far",
+      "fore_far",
+      "claw_far"
+    ]
+  },
+  {
+    "facing": "rear",
+    "part": "leg_fill_far",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "texture_registration": "nearest 37x9 tile; preserved generated alpha; repeated for concealed native flesh texture",
+    "mask": "complete concealed limb shafts plus proximal/middle caps",
+    "radius": 8,
+    "width": 10,
+    "joints": [
+      "thigh_far",
+      "shin_far",
+      "foot_far"
+    ]
+  },
+  {
+    "facing": "rear",
+    "part": "shoulder_pocket",
+    "source": "source/hidden_transparent.png",
+    "source_crop": [
+      500,
+      790,
+      760,
+      850
+    ],
+    "polygon": [
+      [
+        145,
+        77
+      ],
+      [
+        159,
+        77
+      ],
+      [
+        163,
+        87
+      ],
+      [
+        155,
+        94
+      ],
+      [
+        143,
+        90
+      ]
+    ],
+    "bone": "body"
+  }
+]

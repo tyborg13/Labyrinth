@@ -1,0 +1,42 @@
+{
+  "input": "front_generated_02_checkerboard.png",
+  "input_sha256": "598a87874124d47d350f83592d349cd760a3d789c457f3b15778478eddf7765d",
+  "input_size": [
+    1254,
+    1254
+  ],
+  "crop": [
+    0,
+    0,
+    1254,
+    1254
+  ],
+  "resize": [
+    255,
+    255
+  ],
+  "resampling": "nearest; one uniform full-canvas registration",
+  "offset": [
+    0,
+    0
+  ],
+  "registered": "front_registered_with_background.png",
+  "registered_sha256": "def0e6bd5913c5f94c4bc25332bf004f9f94fdb8753155c6943d885e3c40ea2e",
+  "source_alpha": "RGB generation has no alpha; explicit background owner excluded from assembly",
+  "background_pixels": 42981,
+  "preserved_creature_pixels": 22044,
+  "ownership_recipe": "front_background_ownership.json",
+  "no_new_rgb_pixels": true,
+  "assembly": "Copy creature owner at [34,9] onto transparent 255px canvas, two pixels above its segmentation offset [34,11], matching the original grounded bottom of 248; discard background owner",
+  "final_bbox": [
+    34,
+    9,
+    225,
+    248
+  ],
+  "final_sha256": "581c0f8ace6a783e75ed3a782709f8478402ea2529a9dc8f1be49db09be5e3b6",
+  "final_translation": [
+    0,
+    -2
+  ]
+}

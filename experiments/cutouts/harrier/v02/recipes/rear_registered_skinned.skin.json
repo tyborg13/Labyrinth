@@ -1,0 +1,145 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear_registered_anatomy.json",
+  "output_layout": "layouts/rear_registered_skinned.json",
+  "fields": [
+    {
+      "name": "rear_leg_r",
+      "parts": [
+        "leg_r",
+        "hip_cap_r",
+        "thigh_fill_r"
+      ],
+      "bones": [
+        "thigh_r",
+        "shin_r",
+        "foot_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            157,
+            160
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 8
+        },
+        {
+          "center": [
+            144,
+            196
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 6
+        }
+      ]
+    },
+    {
+      "name": "rear_arm_r",
+      "parts": [
+        "arm_r",
+        "shoulder_cap_r"
+      ],
+      "bones": [
+        "upper_r",
+        "fore_r"
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            175,
+            113
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 6
+        }
+      ]
+    },
+    {
+      "name": "rear_leg_l",
+      "parts": [
+        "leg_l",
+        "hip_cap_l",
+        "thigh_fill_l"
+      ],
+      "bones": [
+        "thigh_l",
+        "shin_l",
+        "foot_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            92,
+            176
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 8
+        },
+        {
+          "center": [
+            69,
+            218
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 6
+        }
+      ]
+    },
+    {
+      "name": "rear_arm_l",
+      "parts": [
+        "arm_l",
+        "shoulder_cap_l"
+      ],
+      "bones": [
+        "upper_l",
+        "fore_l"
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            76,
+            108
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 6
+        }
+      ]
+    }
+  ]
+}

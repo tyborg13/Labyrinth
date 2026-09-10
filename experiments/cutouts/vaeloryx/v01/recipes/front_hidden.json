@@ -1,0 +1,107 @@
+[
+  {
+    "name": "wing_socket_far",
+    "source": "source/front_underbody_generated.png",
+    "crop": [
+      500,
+      565,
+      596,
+      661
+    ],
+    "target_size": [
+      26,
+      26
+    ],
+    "offset": [
+      96,
+      89
+    ],
+    "bone": "body",
+    "alpha_recipe": "ellipse intersect accepted rest alpha==255; fully occluded in neutral assembly",
+    "opaque_pixels": 362
+  },
+  {
+    "name": "wing_socket_near",
+    "source": "source/front_underbody_generated.png",
+    "crop": [
+      597,
+      543,
+      693,
+      639
+    ],
+    "target_size": [
+      26,
+      26
+    ],
+    "offset": [
+      128,
+      115
+    ],
+    "bone": "body",
+    "alpha_recipe": "ellipse intersect accepted rest alpha==255; fully occluded in neutral assembly",
+    "opaque_pixels": 524
+  },
+  {
+    "name": "arm_cap_far",
+    "source": "source/front_underbody_generated.png",
+    "crop": [
+      439,
+      677,
+      507,
+      745
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "offset": [
+      92,
+      135
+    ],
+    "bone": "arm_far",
+    "alpha_recipe": "ellipse intersect accepted rest alpha==255; fully occluded in neutral assembly",
+    "opaque_pixels": 86
+  },
+  {
+    "name": "arm_cap_near",
+    "source": "source/front_underbody_generated.png",
+    "crop": [
+      657,
+      633,
+      737,
+      713
+    ],
+    "target_size": [
+      18,
+      18
+    ],
+    "offset": [
+      132,
+      131
+    ],
+    "bone": "arm_near",
+    "alpha_recipe": "ellipse intersect accepted rest alpha==255; fully occluded in neutral assembly",
+    "opaque_pixels": 251
+  },
+  {
+    "name": "hind_cap",
+    "source": "source/front_underbody_generated.png",
+    "crop": [
+      776,
+      676,
+      856,
+      756
+    ],
+    "target_size": [
+      18,
+      18
+    ],
+    "offset": [
+      155,
+      138
+    ],
+    "bone": "hind_limb",
+    "alpha_recipe": "ellipse intersect accepted rest alpha==255; fully occluded in neutral assembly",
+    "opaque_pixels": 194
+  }
+]

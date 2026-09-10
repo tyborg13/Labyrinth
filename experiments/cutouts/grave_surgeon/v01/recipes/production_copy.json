@@ -1,0 +1,192 @@
+[
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/hand_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/front/hand_saw.png",
+    "sha256": "9fc079f1933b8910bf364760ecdc3dbed3eb71450cc9d6bc82fd0a0e1f85b621"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/saw.png",
+    "production": "assets/units/grave_surgeon_cutout/front/saw.png",
+    "sha256": "6becc17929319532048dab732162788bcbb06da9fc63ded21cc1463beef66e4c"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/vial.png",
+    "production": "assets/units/grave_surgeon_cutout/front/vial.png",
+    "sha256": "bbc95bc61d8f37e815462b73d6997360e40c2835c60bdce8d9e05ea1f1d45e56"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/hand_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/front/hand_vial.png",
+    "sha256": "b10494a78d7d186379655e31f98e34e8a67bbb9131a6337b7deebc7701e1bd27"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/sleeve_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/front/sleeve_saw.png",
+    "sha256": "4d6810f89c2a2cd03f42f3ee78e868b577de8befd0a21a0361186a8f14b57a15"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/sleeve_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/front/sleeve_vial.png",
+    "sha256": "4a40cf373744a02a4ae3d18f98ac1af98ab93fb0b58a85f53889f1e167fa37d7"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/foot_r.png",
+    "production": "assets/units/grave_surgeon_cutout/front/foot_r.png",
+    "sha256": "6e25d637c7d89ee808ca5b91b86ae6c4dfb62d97dfb0eefe60fd11411f4f9e86"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/foot_l.png",
+    "production": "assets/units/grave_surgeon_cutout/front/foot_l.png",
+    "sha256": "4b67b495c23ce8ea3e97fbb09ec489584a3afcd15b9b3a946e953b8d507574e0"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/leg_r.png",
+    "production": "assets/units/grave_surgeon_cutout/front/leg_r.png",
+    "sha256": "657e7825838d8500cf28ed4955c836dfc219cc4725bde10b9183c2467bfdfe04"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/leg_l.png",
+    "production": "assets/units/grave_surgeon_cutout/front/leg_l.png",
+    "sha256": "ad0a25236d4b652aeb021c433f1c89594afa0ddb46e5de4b353b44bc24981302"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/hood.png",
+    "production": "assets/units/grave_surgeon_cutout/front/hood.png",
+    "sha256": "9575854f225f37153f4e42723ca44e183322ac2f913969886c217e36a7e7e82c"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/belt_kit.png",
+    "production": "assets/units/grave_surgeon_cutout/front/belt_kit.png",
+    "sha256": "20480710f2c71d0225c106227122b1ee6b65e42405fa9437639a01a732edf336"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/torso.png",
+    "production": "assets/units/grave_surgeon_cutout/front/torso.png",
+    "sha256": "0607861770362269aa66310c6a181889dcb84a04be30368bba27776d52f5e827"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/front_p06/robe.png",
+    "production": "assets/units/grave_surgeon_cutout/front/robe.png",
+    "sha256": "ace59a33c4e1ed26b598ff86bc17b939a21c495d92b47b1a5653ebe7a4f360b5"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/front_p06/hip_fill.png",
+    "production": "assets/units/grave_surgeon_cutout/front/hip_fill.png",
+    "sha256": "9c731cbf3cff07df222945f2bd24a7e26c7d9989ef9556ab645428c9133e7af8"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/front_p06/thigh_fill_r.png",
+    "production": "assets/units/grave_surgeon_cutout/front/thigh_fill_r.png",
+    "sha256": "d7b50e0b0c5afeeee812f397e4844ecafcebeeb0369bc04eb006a880b7d3a203"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/front_p06/thigh_fill_l.png",
+    "production": "assets/units/grave_surgeon_cutout/front/thigh_fill_l.png",
+    "sha256": "382364d22c7757cd850a163efcd1aad4d0a3e187bd3ee99ad93bc7fb9c854d76"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/front_p06/sleeve_cap_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/front/sleeve_cap_saw.png",
+    "sha256": "2cec4304080eae128d9b2d7a0385d408ae39277f5c703124ef709f66fa39405b"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/front_p06/sleeve_cap_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/front/sleeve_cap_vial.png",
+    "sha256": "487dab2c10e0e9bddbbecd210d5b7d02a2d8f8404ff1991f8b95a74c4d0e7a0e"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/hand_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/hand_saw.png",
+    "sha256": "f8fbe6e229f7090eb76e51500f04ab539efff346c818f42019a7eb83646e5b26"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/saw.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/saw.png",
+    "sha256": "4bc4959e52fb94f11cdb5fdff9d9f160973a32fa499972a29a008c7097fc07dc"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/vial.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/vial.png",
+    "sha256": "4f33846ceba9e60ba059a519063d80dbe3e47b9108ae71583f60ffee67dead67"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/hand_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/hand_vial.png",
+    "sha256": "2394b5963313a277b37d7e853987dc8d27744fd020db2fded00708088c274336"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/sleeve_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/sleeve_saw.png",
+    "sha256": "7068622f301a3b78c50a9ddfad4140f074b210d6cf922fe5a32c9bba05dc975b"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/sleeve_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/sleeve_vial.png",
+    "sha256": "e35afc4a2878066a0dde05d0fdb71ed8b95ac6b01aa9ad6eb8fae7269b6e4d7b"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/foot_l.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/foot_l.png",
+    "sha256": "5f1581854e96c38cd795edc74db3e16b664993d6fc26b830dd08f5ed98caa8da"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/foot_r.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/foot_r.png",
+    "sha256": "dad28c170c85ac7492c51c70e0a9d1ba03e7b77c59c307e0cfe6b403e4586870"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/leg_l.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/leg_l.png",
+    "sha256": "6c93d330e75dc0e073c3669325bb54f61e66a5846fc0e1976449bfc5d4744e94"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/leg_r.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/leg_r.png",
+    "sha256": "5890b44ddee2a10e074f5c5fdf9c8d792518fc248a782d52f91b93a3dc85216f"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/hood.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/hood.png",
+    "sha256": "b54003194cd6b54c1abe770b5a8c4f4d3abdb365be90d7939dbc4662afafdd7d"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/belt_kit.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/belt_kit.png",
+    "sha256": "0432ba83b9cd59f0f6eade3358f6d0f3bf69d208a661c6c00d9259878293634e"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/torso.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/torso.png",
+    "sha256": "e47b4e057eade0e6147a30150fb7eb80da324c2395e93eb1f283daa879e3843f"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/segmented/rear_p06/robe.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/robe.png",
+    "sha256": "e597345a17e68bd358893e2ecdc112ad104566e8c2b5ddfdda4190a08536e6c4"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/rear_p06/hip_fill.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/hip_fill.png",
+    "sha256": "f02ca5ce29a45fd6ba389d007c937b91c2df849ddd6eafc564a98b7d032f2742"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/rear_p06/thigh_fill_r.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/thigh_fill_r.png",
+    "sha256": "74b49db35a29665568ea1d72c51bb6ebfde49350853fbb93e46f98c2d8d5b96f"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/rear_p06/thigh_fill_l.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/thigh_fill_l.png",
+    "sha256": "06ffc982b0f7bd4e581d7295de042cd00f2ec19c4878c6bf34308ac0145d22dd"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/rear_p06/sleeve_cap_saw.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/sleeve_cap_saw.png",
+    "sha256": "9e8e4a6da5b094e07fc539deb60c7b07e3aac37ff2cf09c69ed077a607a96935"
+  },
+  {
+    "source": "experiments/cutouts/grave_surgeon/v01/assets/rear_p06/sleeve_cap_vial.png",
+    "production": "assets/units/grave_surgeon_cutout/rear/sleeve_cap_vial.png",
+    "sha256": "5916c6fbf3d826c7b1e0a420477dd57caa252316382d8099ad2d1ece12cc6408"
+  }
+]

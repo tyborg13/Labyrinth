@@ -1,0 +1,57 @@
+{
+  "polygon": [
+    [
+      94,
+      166
+    ],
+    [
+      112,
+      161
+    ],
+    [
+      136,
+      164
+    ],
+    [
+      149,
+      171
+    ],
+    [
+      155,
+      181
+    ],
+    [
+      151,
+      192
+    ],
+    [
+      140,
+      199
+    ],
+    [
+      111,
+      198
+    ],
+    [
+      95,
+      193
+    ],
+    [
+      87,
+      185
+    ],
+    [
+      88,
+      174
+    ]
+  ],
+  "alpha_rule": "Selected only where accepted registered source alpha is 255; no source pixel repainting.",
+  "source": "source/hidden_belly_registered.png",
+  "part": "hidden_belly",
+  "bbox": [
+    87,
+    161,
+    156,
+    200
+  ]
+}

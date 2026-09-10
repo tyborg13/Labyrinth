@@ -1,0 +1,34 @@
+{
+  "tool": "built-in image_gen",
+  "reference_roles": {
+    "front_original.png": "accepted front identity/style reference; sole edit target for hidden material"
+  },
+  "requests": [
+    {
+      "prompt": "rear_prompt.txt",
+      "output": "rear_rejected_frontlike.png",
+      "disposition": "rejected: chest/toes read as mirrored front; no runtime pixels"
+    },
+    {
+      "prompt": "rear_v2_prompt.txt",
+      "output": "rear_generated.png",
+      "disposition": "selected: true back of skull, spine and heel view; requires native registration/rig inspection"
+    },
+    {
+      "prompt": "hidden_prompt.txt",
+      "output": "hidden_generated.png",
+      "disposition": "selected concealed material source only; do not use as front visible repaint"
+    }
+  ],
+  "sha256": {
+    "front_registered.png": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224",
+    "front_original.png": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224",
+    "hidden_prompt.txt": "89380ea440576de933163e2159718f444ca1196b3b923e434a878e1292cb9ccd",
+    "rear_v2_prompt.txt": "fdca57785702444f4d9dcc165d481272e49de2f2bea3ed78f50b24c6f76cb783",
+    "rear_registered.png": "3d9c31b1d2905b96d5e68182f1b9d11ccfe932c7233d2c545d8341c181be37f0",
+    "rear_prompt.txt": "0c65b4fa48643367eb522a5ca771467dcfc57884c15e7658eecb85c59e1d19d7",
+    "rear_generated.png": "acad52eaacb9b5609b59547e6d88c568ac14800ffef7ca54215aaf39e117b74b",
+    "hidden_generated.png": "53f1418c3d575476993e97edc6b69607c3cdef9f4a84e1a6d698f16badac8f89",
+    "rear_rejected_frontlike.png": "9d789d258f3a213dbad9a224cd263fc5a5cde293c1cf6634dca1bebcd5dfed4a"
+  }
+}

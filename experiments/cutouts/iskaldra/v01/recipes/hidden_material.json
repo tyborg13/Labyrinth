@@ -1,0 +1,595 @@
+{
+  "source": "source/hidden_body_generated.png",
+  "source_crop": [
+    622,
+    568,
+    782,
+    728
+  ],
+  "scale": 0.25,
+  "patch_size": [
+    40,
+    40
+  ],
+  "resample": "Lanczos",
+  "selected_material": "opaque interior cobalt torso scales; no background pixels",
+  "registration": "one-to-one patch pixels into explicit native overlap polygons; no stretching",
+  "rest_constraint": "front only alpha 255; rear alpha >=250 (generator interiors are alpha 253); all fills below visible paint",
+  "facings": {
+    "front": [
+      {
+        "name": "neck_socket",
+        "bone": "torso",
+        "polygon": [
+          [
+            91,
+            92
+          ],
+          [
+            105,
+            90
+          ],
+          [
+            112,
+            101
+          ],
+          [
+            105,
+            122
+          ],
+          [
+            90,
+            127
+          ],
+          [
+            83,
+            114
+          ]
+        ],
+        "offset": [
+          83,
+          90
+        ],
+        "selected_pixels": 650
+      },
+      {
+        "name": "wing_socket_near",
+        "bone": "torso",
+        "polygon": [
+          [
+            130,
+            117
+          ],
+          [
+            147,
+            115
+          ],
+          [
+            160,
+            131
+          ],
+          [
+            150,
+            147
+          ],
+          [
+            131,
+            141
+          ],
+          [
+            123,
+            130
+          ]
+        ],
+        "offset": [
+          123,
+          115
+        ],
+        "selected_pixels": 805
+      },
+      {
+        "name": "wing_socket_far",
+        "bone": "torso",
+        "polygon": [
+          [
+            86,
+            79
+          ],
+          [
+            105,
+            80
+          ],
+          [
+            112,
+            95
+          ],
+          [
+            100,
+            107
+          ],
+          [
+            86,
+            99
+          ]
+        ],
+        "offset": [
+          86,
+          79
+        ],
+        "selected_pixels": 555
+      },
+      {
+        "name": "arm_socket_near",
+        "bone": "arm_near",
+        "polygon": [
+          [
+            140,
+            125
+          ],
+          [
+            154,
+            125
+          ],
+          [
+            162,
+            139
+          ],
+          [
+            152,
+            152
+          ],
+          [
+            137,
+            145
+          ]
+        ],
+        "offset": [
+          137,
+          125
+        ],
+        "selected_pixels": 506
+      },
+      {
+        "name": "arm_socket_far",
+        "bone": "arm_far",
+        "polygon": [
+          [
+            85,
+            122
+          ],
+          [
+            100,
+            122
+          ],
+          [
+            104,
+            135
+          ],
+          [
+            95,
+            146
+          ],
+          [
+            81,
+            140
+          ]
+        ],
+        "offset": [
+          81,
+          122
+        ],
+        "selected_pixels": 331
+      },
+      {
+        "name": "hip_fill_near",
+        "bone": "hip_near",
+        "polygon": [
+          [
+            166,
+            140
+          ],
+          [
+            181,
+            137
+          ],
+          [
+            190,
+            150
+          ],
+          [
+            177,
+            169
+          ],
+          [
+            160,
+            166
+          ],
+          [
+            157,
+            151
+          ]
+        ],
+        "offset": [
+          157,
+          137
+        ],
+        "selected_pixels": 693
+      },
+      {
+        "name": "hip_fill_far",
+        "bone": "hip_far",
+        "polygon": [
+          [
+            107,
+            147
+          ],
+          [
+            122,
+            145
+          ],
+          [
+            133,
+            157
+          ],
+          [
+            127,
+            174
+          ],
+          [
+            111,
+            178
+          ],
+          [
+            100,
+            165
+          ]
+        ],
+        "offset": [
+          100,
+          145
+        ],
+        "selected_pixels": 613
+      },
+      {
+        "name": "tail_socket",
+        "bone": "pelvis",
+        "polygon": [
+          [
+            180,
+            134
+          ],
+          [
+            196,
+            137
+          ],
+          [
+            199,
+            153
+          ],
+          [
+            187,
+            164
+          ],
+          [
+            176,
+            151
+          ]
+        ],
+        "offset": [
+          176,
+          134
+        ],
+        "selected_pixels": 412
+      }
+    ],
+    "rear": [
+      {
+        "name": "pelvic_bridge",
+        "bone": "pelvis",
+        "polygon": [
+          [
+            136,
+            128
+          ],
+          [
+            164,
+            128
+          ],
+          [
+            175,
+            138
+          ],
+          [
+            174,
+            154
+          ],
+          [
+            143,
+            156
+          ],
+          [
+            136,
+            145
+          ]
+        ],
+        "offset": [
+          136,
+          128
+        ],
+        "selected_pixels": 983
+      },
+      {
+        "name": "neck_socket",
+        "bone": "torso",
+        "polygon": [
+          [
+            142,
+            55
+          ],
+          [
+            162,
+            53
+          ],
+          [
+            173,
+            67
+          ],
+          [
+            162,
+            83
+          ],
+          [
+            141,
+            81
+          ],
+          [
+            136,
+            67
+          ]
+        ],
+        "offset": [
+          136,
+          53
+        ],
+        "selected_pixels": 837
+      },
+      {
+        "name": "wing_socket_near",
+        "bone": "torso",
+        "polygon": [
+          [
+            102,
+            96
+          ],
+          [
+            116,
+            90
+          ],
+          [
+            132,
+            104
+          ],
+          [
+            125,
+            120
+          ],
+          [
+            108,
+            124
+          ],
+          [
+            97,
+            111
+          ]
+        ],
+        "offset": [
+          97,
+          90
+        ],
+        "selected_pixels": 763
+      },
+      {
+        "name": "wing_socket_far",
+        "bone": "torso",
+        "polygon": [
+          [
+            159,
+            95
+          ],
+          [
+            176,
+            94
+          ],
+          [
+            187,
+            110
+          ],
+          [
+            178,
+            124
+          ],
+          [
+            161,
+            119
+          ],
+          [
+            153,
+            108
+          ]
+        ],
+        "offset": [
+          153,
+          94
+        ],
+        "selected_pixels": 709
+      },
+      {
+        "name": "arm_socket_near",
+        "bone": "arm_near",
+        "polygon": [
+          [
+            86,
+            127
+          ],
+          [
+            101,
+            124
+          ],
+          [
+            108,
+            140
+          ],
+          [
+            98,
+            151
+          ],
+          [
+            82,
+            143
+          ]
+        ],
+        "offset": [
+          82,
+          124
+        ],
+        "selected_pixels": 486
+      },
+      {
+        "name": "arm_socket_far",
+        "bone": "arm_far",
+        "polygon": [
+          [
+            171,
+            120
+          ],
+          [
+            184,
+            118
+          ],
+          [
+            195,
+            133
+          ],
+          [
+            188,
+            146
+          ],
+          [
+            173,
+            139
+          ]
+        ],
+        "offset": [
+          171,
+          118
+        ],
+        "selected_pixels": 384
+      },
+      {
+        "name": "hip_fill_near",
+        "bone": "hip_near",
+        "polygon": [
+          [
+            149,
+            142
+          ],
+          [
+            169,
+            138
+          ],
+          [
+            178,
+            151
+          ],
+          [
+            166,
+            170
+          ],
+          [
+            149,
+            175
+          ],
+          [
+            139,
+            160
+          ]
+        ],
+        "offset": [
+          139,
+          138
+        ],
+        "selected_pixels": 885
+      },
+      {
+        "name": "hip_fill_far",
+        "bone": "hip_far",
+        "polygon": [
+          [
+            116,
+            144
+          ],
+          [
+            132,
+            144
+          ],
+          [
+            139,
+            156
+          ],
+          [
+            133,
+            173
+          ],
+          [
+            118,
+            176
+          ],
+          [
+            109,
+            161
+          ]
+        ],
+        "offset": [
+          109,
+          144
+        ],
+        "selected_pixels": 639
+      },
+      {
+        "name": "tail_socket",
+        "bone": "pelvis",
+        "polygon": [
+          [
+            115,
+            140
+          ],
+          [
+            131,
+            135
+          ],
+          [
+            145,
+            147
+          ],
+          [
+            138,
+            162
+          ],
+          [
+            119,
+            168
+          ],
+          [
+            110,
+            155
+          ]
+        ],
+        "offset": [
+          110,
+          135
+        ],
+        "selected_pixels": 704
+      }
+    ]
+  }
+}

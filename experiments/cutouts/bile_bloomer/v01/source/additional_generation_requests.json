@@ -1,0 +1,26 @@
+{
+  "alpha_correction": {
+    "prompt": "Use case: background-extraction\nPrimary request: Remove only the grey-and-white checkerboard surrounding and inside the gaps of this Shale Bloomer rear-view sprite. Return the exact creature as an RGBA PNG with genuinely transparent alpha=0 background. The existing checkerboard is baked into RGB and must be removed. Preserve the creature's painted pixels, silhouette, roots, curled tendrils, stone flower crown and amber growths; do not redraw or change its anatomy, colors, pose or framing. No checkerboard squares or opaque background may remain. The background must be actual transparency.",
+    "tool": "image_gen.imagegen",
+    "references": [
+      {
+        "path": "source/rear_generated.png",
+        "role": "background extraction edit target"
+      }
+    ],
+    "output": "source/rear_alpha_correction_rejected.png",
+    "disposition": "rejected: RGB checkerboard persists; creature repainted; no runtime pixels"
+  },
+  "hidden_calyx": {
+    "prompt": "Use case: precise-object-edit\nAsset type: concealed anatomical insert for an editable game cutout\nPrimary request: For this exact Shale Bloomer reference, expose ONLY the hidden inner bloom by removing the outer pale stone petals from the flower at the very top. Reveal a compact rounded cluster of orange amber shale shards seated in a dark brown bark calyx/collar, with enough complete dark collar behind where the petals hinged. Keep this insert in its exact existing position and scale at the top of the creature. Keep the rest of the creature, its mineral trunk, side crystals, tendrils and root feet exactly as in the reference. This is hidden material under the existing flower, not a redesign. Same painterly pixel-readable texture, sharp outlines, top-left light, warm muted shale and amber palette.\nComposition: same square full-body framing and camera, real transparent background; no floor/shadow/text/checkerboard. Only selected concealed pixels of the inner core/collar will be used in the rig; the accepted front paint remains untouched.",
+    "tool": "image_gen.imagegen",
+    "references": [
+      {
+        "path": "source/front_original.png",
+        "role": "edit target and exact accepted identity"
+      }
+    ],
+    "output": "source/hidden_calyx_generated.png",
+    "disposition": "only concealed crown/calyx material selected; all other pixels excluded"
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "character_id": "vyraketh",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned_v2.json",
+    "rear": "layouts/rear_skinned_v2.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 32,
+      "duration": 2.0,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 0.9,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "maw": {
+      "frames": 40,
+      "duration": 0.85,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.42,
+          0.55
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "kindle": {
+      "frames": 40,
+      "duration": 0.68,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.29411764705882354,
+          0.55
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "crownfire": {
+      "frames": 40,
+      "duration": 0.95,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.38,
+          0.55
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "cinderfall": {
+      "frames": 40,
+      "duration": 1.0,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.38,
+          0.55
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "jaw",
+    "claw_fore_far",
+    "claw_fore_near",
+    "claw_hind_far",
+    "claw_hind_near"
+  ],
+  "contact_feet": [
+    "claw_fore_far",
+    "claw_fore_near",
+    "claw_hind_far",
+    "claw_hind_near"
+  ],
+  "sources": [
+    "author_rig.py",
+    "build_vyraketh.py",
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/front_skinned_v2.skin.json",
+    "recipes/hidden_coverage.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/rear_skinned_v2.skin.json",
+    "recipes/registration.json",
+    "source/front_hidden_alpha.png",
+    "source/front_hidden_alpha.png.import",
+    "source/front_hidden_generated.png",
+    "source/front_hidden_generated.png.import",
+    "source/front_original.png",
+    "source/front_original.png.import",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_registered.png.import",
+    "source/generation_requests.json",
+    "source/maw_interior_generated.png",
+    "source/maw_interior_generated.png.import",
+    "source/rear_generated.png",
+    "source/rear_generated.png.import",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_registered.png.import",
+    "source/rear_selected.png",
+    "source/rear_selected.png.import",
+    "source/rear_turn_rejected.png",
+    "source/rear_turn_rejected.png.import"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "accepted_front_sha256": "70b841c5e3bf28ab4c0f5490b966ae76a21a92c240c0191255eeb34465d9f574",
+    "anatomy": "crouched four-legged dragon with two wings, long neck, separate jaws and coiled tail; hidden fourth leg is occluded at rest in each painted view"
+  }
+}

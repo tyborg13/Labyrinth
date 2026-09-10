@@ -1,0 +1,191 @@
+{
+  "schema_version": 1,
+  "character_id": "chainbound_gaoler",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned_v02.json",
+    "rear": "layouts/rear_skinned_v02.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 48,
+      "duration": 0.36,
+      "loop": true,
+      "preview_cycles": 3,
+      "travel": "motion"
+    },
+    "chain_reel": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "manacle_pin": {
+      "frames": 39,
+      "duration": 0.57,
+      "loop": false
+    },
+    "strike": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_hook",
+    "hand_fist",
+    "hook",
+    "foot_hook",
+    "foot_fist"
+  ],
+  "contact_feet": [
+    "foot_hook",
+    "foot_fist"
+  ],
+  "sources": [
+    "art_phase_review.json",
+    "art_phase_sha256.json",
+    "final_art_registration_sha256.json",
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/build_rig.py",
+    "recipes/front_background_ownership.json",
+    "recipes/front_background_ownership_v02.json",
+    "recipes/front_background_ownership_v03.json",
+    "recipes/front_hidden_coverage.json",
+    "recipes/front_ownership.json",
+    "recipes/front_registration.json",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/front_skinned_v02.skin.json",
+    "recipes/front_under_background.json",
+    "recipes/hidden_material.py",
+    "recipes/inspect_gameplay.py",
+    "recipes/pack_gameplay.py",
+    "recipes/promote_runtime.py",
+    "recipes/rear_background_ownership_v02.json",
+    "recipes/rear_background_ownership_v03.json",
+    "recipes/rear_hidden_coverage.json",
+    "recipes/rear_ownership.json",
+    "recipes/rear_registration.json",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/rear_skinned_v02.skin.json",
+    "recipes/rear_under_background.json",
+    "recipes/register_front.py",
+    "recipes/register_rear.py",
+    "recipes/render_with_queue.py",
+    "recipes/skin_and_configure.py",
+    "source/crawler_style.png",
+    "source/front_alpha_mask.png",
+    "source/front_alpha_prompt.txt",
+    "source/front_background_split/creature.png",
+    "source/front_background_split/excluded_background.png",
+    "source/front_background_split/ownership.png",
+    "source/front_background_split/reconstructed.png",
+    "source/front_background_split/segmentation.json",
+    "source/front_background_split_v02/creature.png",
+    "source/front_background_split_v02/excluded_background.png",
+    "source/front_background_split_v02/ownership.png",
+    "source/front_background_split_v02/reconstructed.png",
+    "source/front_background_split_v02/segmentation.json",
+    "source/front_background_split_v03/creature.png",
+    "source/front_background_split_v03/excluded_background.png",
+    "source/front_background_split_v03/ownership.png",
+    "source/front_background_split_v03/reconstructed.png",
+    "source/front_background_split_v03/segmentation.json",
+    "source/front_chain_ownership_detail.png",
+    "source/front_generated_v01.png",
+    "source/front_generated_v02.png",
+    "source/front_landmark_grid.png",
+    "source/front_parts_audit.png",
+    "source/front_prompt.txt",
+    "source/front_registered.png",
+    "source/front_registered_at_style_review.png",
+    "source/front_registered_rgb.png",
+    "source/front_under_background_split/excluded_background.png",
+    "source/front_under_background_split/ownership.png",
+    "source/front_under_background_split/reconstructed.png",
+    "source/front_under_background_split/segmentation.json",
+    "source/front_under_background_split/underbody.png",
+    "source/front_under_generated.png",
+    "source/front_under_prompt.txt",
+    "source/front_under_registered.png",
+    "source/front_under_registered_rgb.png",
+    "source/gaoler_original.png",
+    "source/harrier_style.png",
+    "source/native_roster_comparison.png",
+    "source/rear_alpha_mask.png",
+    "source/rear_background_split_v02/creature.png",
+    "source/rear_background_split_v02/excluded_background.png",
+    "source/rear_background_split_v02/ownership.png",
+    "source/rear_background_split_v02/reconstructed.png",
+    "source/rear_background_split_v02/segmentation.json",
+    "source/rear_background_split_v03/creature.png",
+    "source/rear_background_split_v03/excluded_background.png",
+    "source/rear_background_split_v03/ownership.png",
+    "source/rear_background_split_v03/reconstructed.png",
+    "source/rear_background_split_v03/segmentation.json",
+    "source/rear_generated_v01.png",
+    "source/rear_landmark_grid.png",
+    "source/rear_parts_audit.png",
+    "source/rear_prompt.txt",
+    "source/rear_registered.png",
+    "source/rear_registered_rgb.png",
+    "source/rear_under_background_split/excluded_background.png",
+    "source/rear_under_background_split/ownership.png",
+    "source/rear_under_background_split/reconstructed.png",
+    "source/rear_under_background_split/segmentation.json",
+    "source/rear_under_background_split/underbody.png",
+    "source/rear_under_generated.png",
+    "source/rear_under_prompt.txt",
+    "source/rear_under_registered.png",
+    "source/rear_under_registered_rgb.png",
+    "source/reference_roles.json",
+    "source/surgeon_style.png",
+    "source/warden_style.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "imagegen repaint; front style accepted before anatomy ownership; no old-paint rig"
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_leg_hook",
+      "Skin_leg_fist",
+      "Skin_thigh_hook_under",
+      "Skin_thigh_fist_under",
+      "foot_hook",
+      "foot_fist",
+      "hand_fist"
+    ],
+    "rear": [
+      "Skin_leg_hook",
+      "Skin_leg_fist",
+      "Skin_thigh_hook_under",
+      "Skin_thigh_fist_under",
+      "foot_hook",
+      "foot_fist",
+      "hand_fist"
+    ]
+  }
+}

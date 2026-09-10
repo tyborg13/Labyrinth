@@ -229,6 +229,13 @@ Worldspine and cinder-mark pressure, forced Gale movement, crystal armor, Last
 Eclipse pressure, and realized enemy damage observable without changing the
 append-only schema.
 
+Zekarion's cutout presentation reads an additive `spawned_enemies` snapshot on
+the existing summon animation step. It reveals those already-resolved minions
+at the calling gesture's release; it never invokes summoning again. This is
+presentation data, not a new saved-state field or analytics event. Claw damage,
+lightning launch/arrival, Skybreak results, and the atomic enemy-action event
+boundaries retain their existing semantics.
+
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and

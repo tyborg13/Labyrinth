@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "character_id": "acolyte",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 36,
+      "duration": 0.72,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "dust_bolt": {
+      "frames": 40,
+      "duration": 1.2,
+      "loop": false
+    },
+    "siphon": {
+      "frames": 40,
+      "duration": 1.2,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "hood",
+    "cast_hand",
+    "rest_hand",
+    "hem_l",
+    "hem_r"
+  ],
+  "contact_feet": [
+    "hem_l",
+    "hem_r"
+  ],
+  "sources": [
+    "recipes/front_robe.json",
+    "recipes/front_sleeve.json",
+    "recipes/front_sleeved.skin.json",
+    "recipes/rear_robe.json",
+    "recipes/rear_sleeve.json",
+    "recipes/rear_sleeved.skin.json",
+    "recipes/registration.json",
+    "source/front_landmark_grid.png",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/generation_requests.json",
+    "source/hidden_sleeve_generated.png",
+    "source/rear_alpha_attempt.png",
+    "source/rear_generated.png",
+    "source/rear_landmark_grid.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_selected_alpha.png",
+    "author.py",
+    "layouts/front.json",
+    "layouts/rear.json",
+    "layouts/front_sleeved.json",
+    "layouts/rear_sleeved.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "accepted_front_sha256": "de45fa8548befd346a539252630a5861eca7a305e02f666ee63be87bf7c710e3",
+    "art_status": "native-inspected registered caster; front preserved, rear generated, production integrated"
+  }
+}

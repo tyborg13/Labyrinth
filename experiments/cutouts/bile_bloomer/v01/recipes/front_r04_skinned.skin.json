@@ -1,0 +1,88 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front_r04.json",
+  "output_layout": "layouts/front_r04_skinned.json",
+  "fields": [
+    {
+      "name": "root_l",
+      "parts": [
+        "root_stem_l"
+      ],
+      "bones": [
+        "trunk",
+        "root_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            98,
+            207
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 36
+        }
+      ]
+    },
+    {
+      "name": "root_c",
+      "parts": [
+        "root_stem_c"
+      ],
+      "bones": [
+        "trunk",
+        "root_c"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            205
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 20
+        }
+      ]
+    },
+    {
+      "name": "root_r",
+      "parts": [
+        "root_stem_r"
+      ],
+      "bones": [
+        "trunk",
+        "root_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            190,
+            207
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 36
+        }
+      ]
+    }
+  ]
+}

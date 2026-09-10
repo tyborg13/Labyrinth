@@ -1,0 +1,81 @@
+{
+  "anatomy": {
+    "left_outer": [
+      [
+        74,
+        168
+      ],
+      [
+        68,
+        185
+      ],
+      [
+        48,
+        199
+      ]
+    ],
+    "left_inner": [
+      [
+        94,
+        172
+      ],
+      [
+        90,
+        191
+      ],
+      [
+        85,
+        209
+      ]
+    ],
+    "center": [
+      [
+        124,
+        173
+      ],
+      [
+        128,
+        190
+      ],
+      [
+        132,
+        208
+      ]
+    ],
+    "right_inner": [
+      [
+        144,
+        157
+      ],
+      [
+        151,
+        184
+      ],
+      [
+        166,
+        210
+      ]
+    ],
+    "right_outer": [
+      [
+        168,
+        151
+      ],
+      [
+        177,
+        175
+      ],
+      [
+        196,
+        190
+      ]
+    ]
+  },
+  "global_grid": [
+    2,
+    2
+  ],
+  "field": "Same source-space weights for every painted part. Rigid core above 166 front / 150 rear, 18px smooth flesh transition. Below, inverse-sixth-power distance to the five registered tendril chains, radius 5px; each chain blends base/bend/rigid terminal over 14px/8px. No frame-dependent pixel edits. Registered toe contact patches are rigid within 6px and blend into the common field over 4px.",
+  "hidden_paint_disposition": "Generated belly retained but not selected: the coherent shared mesh preserves the complete original molten surface without exposed cut seams.",
+  "recipe": "recipes/author_rig.py:shared_weights"
+}

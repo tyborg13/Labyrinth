@@ -1,0 +1,13 @@
+{
+  "tool": "image_gen.imagegen",
+  "reference_roles": [
+    {
+      "path": "assets/art/enemies/cinder_ooze.png",
+      "role": "charred soft material only"
+    }
+  ],
+  "prompt": "Use case: precise-object-edit\nAsset type: concealed overlap material for a skeletal cutout of Cinder Ooze.\nInput image 1 is a reference for the existing creature's charred soft body/tendril material, color, texture and lighting. It is not a replacement target; the accepted front shell and face will remain untouched.\nPrimary request: paint one complete low, squat, soft molten underbody lobe without the hard shell, eyes or surface plates, suitable for use only behind the creature's existing shell and tendril roots. A broad cohesive dark coal-black/brown leathery molten mass with restrained thin red-orange cracks, softly scalloped rounded perimeter and short broad blended tendril root nubs. The center should be uninterrupted shadowed soft material. Maintain the source's gritty painterly game-sprite texture and solid dark contour. No recognizable head, hands, limbs, eyes, teeth, weapons, spikes, bright lava pool, smoke or floating particles. This patch will fill tiny concealed overlaps; do not design another creature.\nComposition: single broad oval component in an approximately 2:1 width-to-height silhouette, full component with padding on every side. Genuinely transparent RGBA background, no checkerboard, ground or shadow, text or labels.",
+  "disposition": "selected for registration; original retained unchanged",
+  "output": "source/hidden_generated.png",
+  "sha256": "04fb03e444922f1492aa69c660b59f825be923045ae2e61aadd8f8d7d60a6045"
+}

@@ -1,0 +1,20 @@
+{
+  "source": "front_registered.png",
+  "crop": [
+    65,
+    17,
+    175,
+    135
+  ],
+  "resize": [
+    118,
+    126
+  ],
+  "offset": [
+    5,
+    1
+  ],
+  "source_sha256": "581c0f8ace6a783e75ed3a782709f8478402ea2529a9dc8f1be49db09be5e3b6",
+  "sha256": "34f9f378cccb4b5580ef3fe9593618d1b0ba62397f46a4606a3d388729f0c58f",
+  "no_new_paint": true
+}

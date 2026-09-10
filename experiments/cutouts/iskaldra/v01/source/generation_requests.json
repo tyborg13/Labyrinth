@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "front_source": {
+    "path": "source/front_original.png",
+    "original_runtime_path": "res://assets/art/enemies/iskaldra.png",
+    "sha256": "2cec2c774387ddf351bb3fe9277b983df3f9e5ad663feb6b69925e004bb957ac",
+    "disposition": "accepted visible paint copied unchanged"
+  },
+  "requests": [
+    {
+      "tool": "built-in image_gen.imagegen",
+      "output": "source/rear_frontlike_rejected.png",
+      "sha256": "7aa78733f95ff1e339f5f9ba13ed6d960f0f2a46ef85fd2c6004e376f8399bd2",
+      "disposition": "rejected: camera still shows chest and face; no runtime pixels",
+      "input_images": [
+        {
+          "path": "source/front_original.png",
+          "role": "authoritative character/design/style reference",
+          "sha256": "2cec2c774387ddf351bb3fe9277b983df3f9e5ad663feb6b69925e004bb957ac"
+        }
+      ],
+      "actual_prompt": "Use case: identity-preserve. Asset type: matching rear-view game sprite for editable dragon cutout. Input image 1 is the authoritative character/design/style reference; do not replace or redesign the accepted front sprite. Generate ONLY the same Iskaldra ice-crystal dragon seen from the opposite rear three-quarter direction, facing upper-right on a 2:1 isometric dungeon board. Same crouched bipedal dragon anatomy, two huge upright crystalline batlike wings, two separate forward taloned forearms, two grounded hind legs with claws, long thick curled crystal-plated tail. Rear back and wing attachment surfaces visible; head beyond shoulders, muzzle points away upper-right. Match exact cobalt blue, cyan-white ice edge highlights, sharp angular crystal clusters, dark navy crevices, dense hand-painted pixel-readable fantasy sprite texture, proportions and silhouette of reference. Preserve rigid angular plates, wide limbs and substantial talons. Entire body in square canvas with padding around wing tips and curled tail. Genuine transparent background, no checkerboard, no floor, no cast shadow, no text or labels. This is one coherent full-body rear painting; not a sprite sheet or separated-part atlas."
+    },
+    {
+      "tool": "built-in image_gen.imagegen",
+      "output": "source/rear_checker_rejected.png",
+      "sha256": "34642b7409284950bc314a73938d1594e3d516efb1c7f655aad79af977f2595f",
+      "disposition": "rear anatomy selected; RGB checker background rejected; reference for alpha extraction only",
+      "input_images": [
+        {
+          "path": "source/front_original.png",
+          "role": "design and paint style reference, not camera angle",
+          "sha256": "2cec2c774387ddf351bb3fe9277b983df3f9e5ad663feb6b69925e004bb957ac"
+        }
+      ],
+      "actual_prompt": "Use case: identity-preserve. Create the REAR VIEW of this exact crystalline blue dragon game character, on genuine transparent background. Reference image is DESIGN AND PAINT STYLE ONLY, NOT the camera angle. Rotate the CAMERA around to look at the dragon's BACK. We see its broad dorsal back, rear surfaces of two upright crystal wings, backs of hind legs and heels, and tail attached at center bottom of its rump curling toward viewer. The dragon looks AWAY from the viewer toward the UPPER RIGHT. Its head is on the FAR SIDE of the shoulders, with back of skull and horns visible beyond shoulders. Its face, eyes, mouth, white chest scales, palms and front toes are occluded. Do not show a face looking at the viewer. Do not mirror the front view. Rear three-quarter 2:1 isometric projection. Preserve identical cobalt blue scales, sharp icy white/cyan crystalline plates and upright crystal wing shapes, two forearms with claws beyond torso, two hind legs, large curled armored tail, crouched proportions and painterly pixel-readable texture. Square full-body sprite with margin, no floor, no shadow, no text, no checkerboard. Single coherent dragon painting, not atlas."
+    },
+    {
+      "tool": "built-in image_gen.imagegen",
+      "output": "source/rear_generated.png",
+      "sha256": "b4a151ccb84230a1f5e9e17a53bd3325df9b7f44f0bcb07eaa93f1485a6a11a8",
+      "disposition": "selected: rear paint with actual alpha; registered uniformly before segmentation",
+      "input_images": [
+        {
+          "path": "source/rear_checker_rejected.png",
+          "role": "edit target: remove painted checker background only",
+          "sha256": "34642b7409284950bc314a73938d1594e3d516efb1c7f655aad79af977f2595f"
+        }
+      ],
+      "actual_prompt": "Use case: background-extraction. Edit target: attached rear-view ice dragon sprite. Remove ONLY the painted gray-and-white checkerboard background and replace it with genuine transparent alpha, including all enclosed gaps between wings, limbs and tail. Preserve the exact dragon painting, every pixel of its silhouette, color, pose, dorsal scales, rear view and framing. Do not redraw, recolor or restyle the dragon. The output must be RGBA with actual zero-alpha background, not RGB checkerboard."
+    },
+    {
+      "tool": "built-in image_gen.imagegen",
+      "output": "source/hidden_body_generated.png",
+      "sha256": "2c737978bf7076149798ac61b8ee93f5bb52019564a7ca6fdfeb97531de1e71e",
+      "disposition": "selected only opaque torso interior crop [622,568,782,728] for small concealed joints; full assembly rejected (remaining wing and RGB checker); neither wing nor background supplies pixels",
+      "input_images": [
+        {
+          "path": "source/front_original.png",
+          "role": "edit target: hidden-anatomy support painting; accepted visible front never replaced",
+          "sha256": "2cec2c774387ddf351bb3fe9277b983df3f9e5ad663feb6b69925e004bb957ac"
+        }
+      ],
+      "actual_prompt": "Use case: precise-object-edit. Edit target: attached accepted front three-quarter Iskaldra dragon sprite. Create a hidden-anatomy support painting for skeletal cutout joints. Keep the SAME dragon torso, neck and crouched hind legs in EXACT original pose, proportions and framing. Remove both wings, both forward arms/talons and the curled foreground tail, revealing the naturally concealed cobalt-blue scaled shoulders, chest sides, belly, hips and complete hind legs/paws underneath them. Preserve the existing head and white throat plates. Fill those previously hidden surfaces with the matching dark cobalt/navy small reptile scales, retaining real broad body and limb width. Existing visible body paint should stay as close as possible. No added crystal ornaments. No anatomy diagram or labels. One coherent body, not separate parts/atlas. Genuine transparent RGBA background, no checkerboard, floor or cast shadow. This will only supply small concealed shoulder/hip/joint overlap pieces under the untouched accepted visible source paint."
+    }
+  ]
+}

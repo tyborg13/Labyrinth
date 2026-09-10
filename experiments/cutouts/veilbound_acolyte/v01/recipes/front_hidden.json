@@ -1,0 +1,134 @@
+[
+  {
+    "name": "under_cast",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      580,
+      690,
+      635,
+      885
+    ],
+    "target_rect": [
+      96,
+      106,
+      107,
+      145
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "clip only to original fully opaque rest coverage",
+    "purpose": "torso concealed width"
+  },
+  {
+    "name": "under_strike",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      558,
+      710,
+      654,
+      920
+    ],
+    "target_rect": [
+      145,
+      110,
+      177,
+      180
+    ],
+    "scale": [
+      0.3333333333333333,
+      0.3333333333333333
+    ],
+    "alpha_rule": "clip only to original fully opaque rest coverage",
+    "purpose": "concealed torso flank under the full forward sleeve stroke",
+    "torso_coverage_polygon": [
+      [
+        145,
+        110
+      ],
+      [
+        159,
+        110
+      ],
+      [
+        166,
+        135
+      ],
+      [
+        177,
+        180
+      ],
+      [
+        145,
+        180
+      ]
+    ]
+  },
+  {
+    "name": "cast_cap",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      590,
+      690,
+      650,
+      805
+    ],
+    "target_rect": [
+      96,
+      96,
+      108,
+      119
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "clip only to original fully opaque rest coverage",
+    "purpose": "cast_arm concealed width"
+  },
+  {
+    "name": "strike_cap",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      585,
+      680,
+      660,
+      830
+    ],
+    "target_rect": [
+      151,
+      92,
+      166,
+      122
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "clip only to original fully opaque rest coverage",
+    "purpose": "strike_arm concealed width"
+  },
+  {
+    "name": "under_strike_hand",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      560,
+      530,
+      700,
+      665
+    ],
+    "target_rect": [
+      119,
+      112,
+      147,
+      139
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "original alpha255 only",
+    "purpose": "full robe beneath the moving free skeletal hand"
+  }
+]

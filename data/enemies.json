@@ -621,13 +621,9 @@
     "base_initiative": 13,
     "reward_embers": 12,
     "accent": "#b66a32",
-    "art_path": "res://assets/art/enemies/chainbound_gaoler.png",
+    "art_path": "res://assets/units/chainbound_gaoler_cutout/front/rest.png",
     "art_scale": 0.9,
     "art_offset_y": -16,
-    "idle_sheet_columns": 4,
-    "idle_sheet_rows": 4,
-    "idle_sheet_order": "row_major",
-    "idle_sheet_ping_pong": false,
     "intents": [
       {
         "id": "chain_reel",
@@ -1460,7 +1456,7 @@
     "base_initiative": 14,
     "reward_embers": 80,
     "accent": "#f5d96c",
-    "art_path": "res://assets/placeholders/units/zekarion.png",
+    "art_path": "res://assets/units/zekarion_cutout/front/rest.png",
     "art_scale": 1.92,
     "art_offset_y": 18,
     "idle_sheet_columns": 4,

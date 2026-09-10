@@ -1,0 +1,533 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "front",
+  "joints": {
+    "root": {
+      "position": [
+        128,
+        245
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        141,
+        132
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        141,
+        109
+      ],
+      "parent": "pelvis"
+    },
+    "head": {
+      "position": [
+        142,
+        58
+      ],
+      "parent": "torso"
+    },
+    "upper_hook": {
+      "position": [
+        108,
+        79
+      ],
+      "parent": "torso"
+    },
+    "fore_hook": {
+      "position": [
+        91,
+        101
+      ],
+      "parent": "upper_hook"
+    },
+    "hand_hook": {
+      "position": [
+        63,
+        85
+      ],
+      "parent": "fore_hook"
+    },
+    "upper_fist": {
+      "position": [
+        178,
+        84
+      ],
+      "parent": "torso"
+    },
+    "fore_fist": {
+      "position": [
+        193,
+        110
+      ],
+      "parent": "upper_fist"
+    },
+    "hand_fist": {
+      "position": [
+        200,
+        146
+      ],
+      "parent": "fore_fist"
+    },
+    "thigh_hook": {
+      "position": [
+        112,
+        150
+      ],
+      "parent": "pelvis"
+    },
+    "shin_hook": {
+      "position": [
+        100,
+        192
+      ],
+      "parent": "thigh_hook"
+    },
+    "foot_hook": {
+      "position": [
+        98,
+        222
+      ],
+      "parent": "shin_hook"
+    },
+    "thigh_fist": {
+      "position": [
+        165,
+        150
+      ],
+      "parent": "pelvis"
+    },
+    "shin_fist": {
+      "position": [
+        179,
+        194
+      ],
+      "parent": "thigh_fist"
+    },
+    "foot_fist": {
+      "position": [
+        188,
+        224
+      ],
+      "parent": "shin_fist"
+    },
+    "tabard": {
+      "position": [
+        144,
+        124
+      ],
+      "parent": "pelvis"
+    },
+    "coat_hook": {
+      "position": [
+        119,
+        125
+      ],
+      "parent": "pelvis"
+    },
+    "coat_fist": {
+      "position": [
+        167,
+        125
+      ],
+      "parent": "pelvis"
+    },
+    "chain_a": {
+      "position": [
+        43,
+        82
+      ],
+      "parent": "hand_hook"
+    },
+    "chain_b": {
+      "position": [
+        43,
+        103
+      ],
+      "parent": "chain_a"
+    },
+    "chain_c": {
+      "position": [
+        43,
+        124
+      ],
+      "parent": "chain_b"
+    },
+    "hook": {
+      "position": [
+        43,
+        144
+      ],
+      "parent": "chain_c"
+    },
+    "drape_a": {
+      "position": [
+        76,
+        101
+      ],
+      "parent": "pelvis"
+    },
+    "drape_b": {
+      "position": [
+        82,
+        121
+      ],
+      "parent": "pelvis"
+    },
+    "drape_c": {
+      "position": [
+        96,
+        136
+      ],
+      "parent": "pelvis"
+    },
+    "drape_d": {
+      "position": [
+        112,
+        136
+      ],
+      "parent": "pelvis"
+    },
+    "wrist_strap": {
+      "position": [
+        69,
+        97
+      ],
+      "parent": "hand_hook"
+    }
+  },
+  "parts": [
+    {
+      "name": "hook",
+      "file": "segmented/front_v05/hook.png",
+      "offset": [
+        23,
+        144
+      ],
+      "bone": "hook",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "chain_a",
+      "file": "segmented/front_v05/chain_a.png",
+      "offset": [
+        37,
+        69
+      ],
+      "bone": "chain_a",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "chain_b",
+      "file": "segmented/front_v05/chain_b.png",
+      "offset": [
+        37,
+        103
+      ],
+      "bone": "chain_b",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "chain_c",
+      "file": "segmented/front_v05/chain_c.png",
+      "offset": [
+        37,
+        124
+      ],
+      "bone": "chain_c",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "hand_hook",
+      "file": "segmented/front_v05/hand_hook.png",
+      "offset": [
+        46,
+        63
+      ],
+      "bone": "hand_hook",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "hand_fist",
+      "file": "segmented/front_v05/hand_fist.png",
+      "offset": [
+        187,
+        136
+      ],
+      "bone": "hand_fist",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "wrist_strap",
+      "file": "segmented/front_v05/wrist_strap.png",
+      "offset": [
+        61,
+        98
+      ],
+      "bone": "wrist_strap",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "drape_a",
+      "file": "segmented/front_v05/drape_a.png",
+      "offset": [
+        74,
+        98
+      ],
+      "bone": "drape_a",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "drape_b",
+      "file": "segmented/front_v05/drape_b.png",
+      "offset": [
+        80,
+        117
+      ],
+      "bone": "drape_b",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "drape_c",
+      "file": "segmented/front_v05/drape_c.png",
+      "offset": [
+        95,
+        132
+      ],
+      "bone": "drape_c",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "drape_d",
+      "file": "segmented/front_v05/drape_d.png",
+      "offset": [
+        104,
+        122
+      ],
+      "bone": "drape_d",
+      "z_index": 15,
+      "equipment_slot": ""
+    },
+    {
+      "name": "head",
+      "file": "segmented/front_v05/head.png",
+      "offset": [
+        121,
+        10
+      ],
+      "bone": "head",
+      "z_index": 13,
+      "equipment_slot": ""
+    },
+    {
+      "name": "torso",
+      "file": "segmented/front_v05/torso.png",
+      "offset": [
+        98,
+        44
+      ],
+      "bone": "torso",
+      "z_index": 12,
+      "equipment_slot": ""
+    },
+    {
+      "name": "belt",
+      "file": "segmented/front_v05/belt.png",
+      "offset": [
+        111,
+        110
+      ],
+      "bone": "pelvis",
+      "z_index": 10,
+      "equipment_slot": ""
+    },
+    {
+      "name": "tabard",
+      "file": "segmented/front_v05/tabard.png",
+      "offset": [
+        127,
+        122
+      ],
+      "bone": "tabard",
+      "z_index": 7,
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "coat_hook",
+      "file": "segmented/front_v05/coat_hook.png",
+      "offset": [
+        77,
+        122
+      ],
+      "bone": "coat_hook",
+      "z_index": 7,
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "coat_fist",
+      "file": "segmented/front_v05/coat_fist.png",
+      "offset": [
+        158,
+        122
+      ],
+      "bone": "coat_fist",
+      "z_index": 7,
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "arm_hook",
+      "file": "segmented/front_v05/arm_hook.png",
+      "offset": [
+        72,
+        72
+      ],
+      "bone": "upper_hook",
+      "z_index": 11,
+      "equipment_slot": ""
+    },
+    {
+      "name": "arm_fist",
+      "file": "segmented/front_v05/arm_fist.png",
+      "offset": [
+        175,
+        64
+      ],
+      "bone": "upper_fist",
+      "z_index": 11,
+      "equipment_slot": ""
+    },
+    {
+      "name": "foot_hook",
+      "file": "segmented/front_v05/foot_hook.png",
+      "offset": [
+        65,
+        217
+      ],
+      "bone": "foot_hook",
+      "z_index": 4,
+      "equipment_slot": ""
+    },
+    {
+      "name": "foot_fist",
+      "file": "segmented/front_v05/foot_fist.png",
+      "offset": [
+        170,
+        217
+      ],
+      "bone": "foot_fist",
+      "z_index": 4,
+      "equipment_slot": ""
+    },
+    {
+      "name": "leg_hook",
+      "file": "segmented/front_v05/leg_hook.png",
+      "offset": [
+        80,
+        179
+      ],
+      "bone": "thigh_hook",
+      "z_index": 4,
+      "equipment_slot": ""
+    },
+    {
+      "name": "leg_fist",
+      "file": "segmented/front_v05/leg_fist.png",
+      "offset": [
+        168,
+        181
+      ],
+      "bone": "thigh_fist",
+      "z_index": 4,
+      "equipment_slot": ""
+    },
+    {
+      "name": "pelvis_under",
+      "file": "assets/front/pelvis_under.png",
+      "offset": [
+        111,
+        121
+      ],
+      "bone": "pelvis",
+      "z_index": 1,
+      "equipment_slot": "chest"
+    },
+    {
+      "name": "thigh_hook_under",
+      "file": "assets/front/thigh_hook_under.png",
+      "offset": [
+        94,
+        134
+      ],
+      "bone": "thigh_hook",
+      "z_index": 2,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "thigh_fist_under",
+      "file": "assets/front/thigh_fist_under.png",
+      "offset": [
+        153,
+        136
+      ],
+      "bone": "thigh_fist",
+      "z_index": 2,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "shoulder_hook_under",
+      "file": "assets/front/shoulder_hook_under.png",
+      "offset": [
+        96,
+        70
+      ],
+      "bone": "upper_hook",
+      "z_index": 9,
+      "equipment_slot": "chest"
+    },
+    {
+      "name": "shoulder_fist_under",
+      "file": "assets/front/shoulder_fist_under.png",
+      "offset": [
+        164,
+        74
+      ],
+      "bone": "upper_fist",
+      "z_index": 9,
+      "equipment_slot": "chest"
+    }
+  ],
+  "landmarks": {
+    "sole_hook": [
+      86,
+      246
+    ],
+    "sole_fist": [
+      198,
+      250
+    ],
+    "chain_tip": [
+      43,
+      210
+    ],
+    "drape_end": [
+      125,
+      126
+    ]
+  }
+}

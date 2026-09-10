@@ -1,0 +1,63 @@
+{
+  "source": "source/hidden_roots_generated.png",
+  "source_sha256": "9fbf8c0518a1cea779587f20ce3b6e61504e12349b2c3141945e229c15b9ee34",
+  "uniform_scale": 0.20334928229665072,
+  "offset": [
+    0,
+    0
+  ],
+  "ownership_polygon": [
+    [
+      87,
+      181
+    ],
+    [
+      105,
+      173
+    ],
+    [
+      117,
+      192
+    ],
+    [
+      139,
+      182
+    ],
+    [
+      160,
+      170
+    ],
+    [
+      170,
+      183
+    ],
+    [
+      167,
+      215
+    ],
+    [
+      147,
+      220
+    ],
+    [
+      130,
+      220
+    ],
+    [
+      108,
+      217
+    ],
+    [
+      90,
+      211
+    ]
+  ],
+  "additional_mask": "Original alpha>=250; donor stays behind the trunk/root owners and appears only in moving-root gaps",
+  "result_bbox": [
+    87,
+    170,
+    171,
+    221
+  ],
+  "resampler": "nearest"
+}

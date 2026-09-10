@@ -1,0 +1,6 @@
+Use case: identity-preserve
+Asset type: matching rear-facing sprite source for an editable dark fantasy Lightning Wisp game cutout.
+Input image 1: reference image, the accepted front artwork. Preserve this exact character identity, painterly pixel-readable texture, charcoal black core, thin warm gold/white jagged lightning and sparse violet inner filaments.
+Primary request: paint only the matching rear three-quarter view of this same floating Lightning Wisp, facing away/up-right on a 2:1 isometric game board. It is a compact dark energy core encased in jagged lightning, pointed vertically, with no arms, legs, clothing, equipment, or humanoid anatomy. Show the dark rounded rear of the core with subdued electrical filaments and the same recognizable surrounding gold lightning silhouette. The single small bright golden slit on the lower front is a forward-facing aperture; hide that aperture on this rear view. Keep the same projected height, width, scale, volume, and centered complete silhouette with comfortable transparent margins.
+Scene/backdrop: genuinely transparent RGBA background, no ground or shadow.
+Constraints: matching rear view only, one character, no text, no labels, no border, no redesign, no invented limbs, no broad glow haze, no blue recolor, no ground effects. Do not alter or provide a replacement for the accepted front image.

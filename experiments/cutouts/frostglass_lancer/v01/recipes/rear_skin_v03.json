@@ -1,0 +1,167 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear_v03.json",
+  "output_layout": "layouts/rear_skinned_v03.json",
+  "fields": [
+    {
+      "name": "rear_leg_r",
+      "parts": [
+        "leg_r",
+        "thigh_cover_r"
+      ],
+      "bones": [
+        "thigh_r",
+        "shin_r",
+        "foot_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            152,
+            182
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            155,
+            224
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "rear_arm_r",
+      "parts": [
+        "arm_r",
+        "sleeve_r"
+      ],
+      "bones": [
+        "upper_r",
+        "fore_r",
+        "hand_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            174,
+            118
+          ],
+          "axis": [
+            14,
+            30
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            191,
+            128
+          ],
+          "axis": [
+            17,
+            10
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_leg_l",
+      "parts": [
+        "leg_l",
+        "thigh_cover_l"
+      ],
+      "bones": [
+        "thigh_l",
+        "shin_l",
+        "foot_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            112,
+            183
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            108,
+            221
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "rear_arm_l",
+      "parts": [
+        "arm_l",
+        "sleeve_l"
+      ],
+      "bones": [
+        "upper_l",
+        "fore_l",
+        "hand_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            94,
+            111
+          ],
+          "axis": [
+            -9,
+            28
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            102,
+            142
+          ],
+          "axis": [
+            8,
+            31
+          ],
+          "width": 8
+        }
+      ]
+    }
+  ]
+}

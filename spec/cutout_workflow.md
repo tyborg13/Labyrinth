@@ -33,6 +33,8 @@ python3 tools/cutout_workflow.py inspect experiments/cutouts/protagonist_guard/v
 
 `render` runs the native probe through `visual_probe_runner.py`, copies its output to the fresh proof directory, packs a timed `videos/cutout_review.mp4`, decodes it, verifies each encoded clip duration against authored timing, and binds sources/outputs with hash manifests. Use `--backend metal` for the explicit macOS Metal backend when needed, or leave backend selection to the repo runner. `inspect` launches the same surface through `godot_task_runner.py` with an intentionally unbounded timeout; close its window to finish. Pointer controls select facing/action, playback/step, reflection and cloak visibility. Space pauses and arrows step. The full 512px pose remains separate from the board preview.
 
+When several tasks are capturing at once, `render --gui-lease-timeout 1200` forwards a longer wait to the runner's existing shared GUI lease. Omitting it preserves the runner default. It does not extend the native capture timeout or the startup watchdog, and never bypasses serialization.
+
 ## Case format
 
 `cutout.json` contains:

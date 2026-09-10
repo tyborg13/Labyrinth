@@ -1,0 +1,2975 @@
+{
+  "schema_version": 1,
+  "archive": {
+    "bundle": "reviewed-roster-with-proofs.bundle",
+    "bytes": 10486064868,
+    "sha256": "4e86b528df6b339b8fcc66b7e2bc49d1ae03d58ae7b78a7e3d478d8db360c230",
+    "prerequisite_commit": "01c7dccbc931ae7dddf3eb8f797fb3d1d33def3e",
+    "archived_integration_commit": "3f6d2f2e162222153ecb1b5842c56f56508bcb97",
+    "ref": "refs/heads/codex/integrate-enemy-cutout-roster",
+    "native_proof": "combined-native-proof",
+    "checks": "checks",
+    "location": "Local workspace archive outside the Git repository"
+  },
+  "base": "01c7dccbc931ae7dddf3eb8f797fb3d1d33def3e",
+  "runtime_witness_sha256": "2657cffa4c8f9922fd9a2e441848326c32d9ef7536f4f32d77e4897151ebb33b",
+  "runtime_files": 2480,
+  "retained_source_paths": 5157,
+  "archived_paths": 42812,
+  "sources": [
+    {
+      "branch": "codex/animate-acolyte-cutout",
+      "head": "a35397555fad80d7be3ff2874ff5011a252d4004"
+    },
+    {
+      "branch": "codex/animate-bile-bloomer-cutout",
+      "head": "adbb0189791a0df1ef31ba00ec01e9108a323459"
+    },
+    {
+      "branch": "codex/animate-chainbound-gaoler-cutout",
+      "head": "3b9d973c865d79d176dd63a0b3c84cda19c8d7cc"
+    },
+    {
+      "branch": "codex/animate-cinder-droplet-cutout",
+      "head": "5c9e5154e94e7f206f104cf018117348e0bccdf3"
+    },
+    {
+      "branch": "codex/animate-cinder-ooze-cutout",
+      "head": "c27339224a486d2fea9a287e91ce7131a0364110"
+    },
+    {
+      "branch": "codex/animate-crawler-cutout",
+      "head": "9ab3c0355aca5d05edee7938e325412b49d3c2f1"
+    },
+    {
+      "branch": "codex/animate-frostglass-lancer-cutout",
+      "head": "050d5d95346ca64161120c2cb17f444d1b12105c"
+    },
+    {
+      "branch": "codex/animate-grave-surgeon-cutout",
+      "head": "d5cf1ff542a352af335d76c2b109179d604d863b"
+    },
+    {
+      "branch": "codex/animate-harrier-cutout",
+      "head": "88aced154837c5a92255810ed70d4e31fae7c023"
+    },
+    {
+      "branch": "codex/animate-iskaldra-cutout",
+      "head": "da370a7da73a0e9736d8b6b3dc2000d127d5be5e"
+    },
+    {
+      "branch": "codex/animate-lightning-wisp-cutout",
+      "head": "82bfac2373775bcb56330de75b25b66017b0ef51"
+    },
+    {
+      "branch": "codex/animate-noctyrax-cutout",
+      "head": "df47004ef70be5bb95cc74d58d12e8861e3d752c"
+    },
+    {
+      "branch": "codex/animate-tharokh-cutout",
+      "head": "9dbc19cfeae0088d9464859b6c8e00ead3f78b89"
+    },
+    {
+      "branch": "codex/animate-vaeloryx-cutout",
+      "head": "50f8ab239e7aff637c8038581d06a9e6b22c1a94"
+    },
+    {
+      "branch": "codex/animate-veilbound-acolyte-cutout",
+      "head": "9661f4c5d7ccf0148c47f413cf2c65b71bdc8c18"
+    },
+    {
+      "branch": "codex/animate-vyraketh-cutout",
+      "head": "43ec3547af9f8f8094fee2580eeb7ec4619f78e2"
+    },
+    {
+      "branch": "codex/animate-zekarion-cutout",
+      "head": "f2eda18cd93fcadc792e18735d9ebff02589ee09"
+    }
+  ],
+  "verification": {
+    "full_godot_suite": "PASS on both complete and compact checkouts",
+    "focused_enemy_suites": 17,
+    "cutout_workflow_tests": 16,
+    "visual_probe_runner_tests": 16,
+    "authoring_cases": 18,
+    "authoring_validation": "PASS after removing archived proof paths",
+    "export_runtime": "Unmodified Godot 4.6.1 macOS export template; editor=false; all 17 renderers PASS"
+  },
+  "native": {
+    "ok": true,
+    "renderer": "macOS Metal, Forward Mobile",
+    "size": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1.0,
+    "normal_intents": 59,
+    "reduced_sequences": 17,
+    "facing_views": 68,
+    "death_views": 17,
+    "samples": 22457,
+    "screenshots": 271,
+    "errors": [],
+    "clips": [
+      {
+        "label": "crawler_skitter_strike",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.411741
+      },
+      {
+        "label": "crawler_coil",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "coil:"
+        ],
+        "seconds": 4.195189
+      },
+      {
+        "label": "crawler_lunge",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.210062
+      },
+      {
+        "label": "crawler_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 2.112418
+      },
+      {
+        "label": "acolyte_dust_bolt",
+        "reduced": false,
+        "phases": [
+          "idle:dust_bolt",
+          "attack:dust_bolt"
+        ],
+        "seconds": 3.876895
+      },
+      {
+        "label": "acolyte_ward_chant",
+        "reduced": false,
+        "phases": [
+          "idle:dust_bolt",
+          "walk:dust_bolt"
+        ],
+        "seconds": 4.311934
+      },
+      {
+        "label": "acolyte_siphon",
+        "reduced": false,
+        "phases": [
+          "idle:dust_bolt",
+          "attack:siphon",
+          "idle:siphon"
+        ],
+        "seconds": 3.664656
+      },
+      {
+        "label": "acolyte_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:dust_bolt"
+        ],
+        "seconds": 1.125046
+      },
+      {
+        "label": "harrier_pelt",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cast:"
+        ],
+        "seconds": 3.812488
+      },
+      {
+        "label": "harrier_retreat_step",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "retreat:"
+        ],
+        "seconds": 4.810047
+      },
+      {
+        "label": "harrier_rush",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.215335
+      },
+      {
+        "label": "harrier_darting_pelt",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cast:"
+        ],
+        "seconds": 3.850541
+      },
+      {
+        "label": "harrier_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.594407
+      },
+      {
+        "label": "cinder_ooze_smolder_slide",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 5.350118
+      },
+      {
+        "label": "cinder_ooze_cinder_bloom",
+        "reduced": false,
+        "phases": [
+          "idle:"
+        ],
+        "seconds": 2.393398
+      },
+      {
+        "label": "cinder_ooze_slag_shell",
+        "reduced": false,
+        "phases": [
+          "idle:"
+        ],
+        "seconds": 3.212428
+      },
+      {
+        "label": "cinder_ooze_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 3.303121
+      },
+      {
+        "label": "cinder_droplet_spatter",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.702409
+      },
+      {
+        "label": "cinder_droplet_hiss_back",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:"
+        ],
+        "seconds": 4.523624
+      },
+      {
+        "label": "cinder_droplet_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 2.388774
+      },
+      {
+        "label": "bile_bloomer_bile_burst",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "burst:"
+        ],
+        "seconds": 3.410634
+      },
+      {
+        "label": "bile_bloomer_spore_mark",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "mark:"
+        ],
+        "seconds": 3.532079
+      },
+      {
+        "label": "bile_bloomer_pustule_shell",
+        "reduced": false,
+        "phases": [
+          "idle:"
+        ],
+        "seconds": 3.220794
+      },
+      {
+        "label": "bile_bloomer_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.148059
+      },
+      {
+        "label": "chainbound_gaoler_chain_reel",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "chain_reel:"
+        ],
+        "seconds": 3.333965
+      },
+      {
+        "label": "chainbound_gaoler_manacle_pin",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "manacle_pin:"
+        ],
+        "seconds": 3.526224
+      },
+      {
+        "label": "chainbound_gaoler_cudgel_press",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "strike:"
+        ],
+        "seconds": 3.796102
+      },
+      {
+        "label": "chainbound_gaoler_iron_guard",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:"
+        ],
+        "seconds": 3.612061
+      },
+      {
+        "label": "chainbound_gaoler_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.649271
+      },
+      {
+        "label": "grave_surgeon_triage_suture",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "treat:"
+        ],
+        "seconds": 3.130405
+      },
+      {
+        "label": "grave_surgeon_saw_jab",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.315161
+      },
+      {
+        "label": "grave_surgeon_field_brace",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "ward:"
+        ],
+        "seconds": 3.145253
+      },
+      {
+        "label": "grave_surgeon_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.121927
+      },
+      {
+        "label": "frostglass_lancer_glass_lunge",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "thrust:"
+        ],
+        "seconds": 3.42489
+      },
+      {
+        "label": "frostglass_lancer_spear_cast",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cast:"
+        ],
+        "seconds": 3.936224
+      },
+      {
+        "label": "frostglass_lancer_refract_guard",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:"
+        ],
+        "seconds": 3.737731
+      },
+      {
+        "label": "frostglass_lancer_frost_pin",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "pin:"
+        ],
+        "seconds": 3.71612
+      },
+      {
+        "label": "frostglass_lancer_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.156397
+      },
+      {
+        "label": "tharokh_stonewake",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "brace:"
+        ],
+        "seconds": 3.312704
+      },
+      {
+        "label": "tharokh_worldspine_claw",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "claw:"
+        ],
+        "seconds": 5.316665
+      },
+      {
+        "label": "tharokh_faultline",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "faultline:"
+        ],
+        "seconds": 3.643677
+      },
+      {
+        "label": "tharokh_bedrock_aegis",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "brace:"
+        ],
+        "seconds": 4.119249
+      },
+      {
+        "label": "tharokh_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.128072
+      },
+      {
+        "label": "vyraketh_kindle_ground",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "kindle:"
+        ],
+        "seconds": 3.12949
+      },
+      {
+        "label": "vyraketh_crownfire",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "crownfire:"
+        ],
+        "seconds": 3.512014
+      },
+      {
+        "label": "vyraketh_cinder_maw",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "maw:"
+        ],
+        "seconds": 4.376537
+      },
+      {
+        "label": "vyraketh_cinderfall",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cinderfall:"
+        ],
+        "seconds": 3.364916
+      },
+      {
+        "label": "vyraketh_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.109888
+      },
+      {
+        "label": "vaeloryx_hollow_gale",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "gale:"
+        ],
+        "seconds": 3.372122
+      },
+      {
+        "label": "vaeloryx_skyhook",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "pull:"
+        ],
+        "seconds": 3.39462
+      },
+      {
+        "label": "vaeloryx_razor_dive",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "dive:"
+        ],
+        "seconds": 4.033536
+      },
+      {
+        "label": "vaeloryx_eye_of_storm",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "guard:"
+        ],
+        "seconds": 4.389513
+      },
+      {
+        "label": "vaeloryx_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.130881
+      },
+      {
+        "label": "iskaldra_crystal_mantle",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "mantle:"
+        ],
+        "seconds": 3.098605
+      },
+      {
+        "label": "iskaldra_rime_talon",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "talon:"
+        ],
+        "seconds": 5.156238
+      },
+      {
+        "label": "iskaldra_whiteout_lance",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "lance:"
+        ],
+        "seconds": 3.471705
+      },
+      {
+        "label": "iskaldra_shatterstorm",
+        "reduced": false,
+        "phases": [
+          "idle:"
+        ],
+        "seconds": 2.37718
+      },
+      {
+        "label": "iskaldra_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.108871
+      },
+      {
+        "label": "noctyrax_last_eclipse",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "eclipse:"
+        ],
+        "seconds": 4.252579
+      },
+      {
+        "label": "noctyrax_void_claw",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "claw:"
+        ],
+        "seconds": 4.786474
+      },
+      {
+        "label": "noctyrax_starless_breath",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "breath:"
+        ],
+        "seconds": 3.856243
+      },
+      {
+        "label": "noctyrax_night_coil",
+        "reduced": false,
+        "phases": [
+          "idle:"
+        ],
+        "seconds": 2.575651
+      },
+      {
+        "label": "noctyrax_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.195414
+      },
+      {
+        "label": "zekarion_storm_claw",
+        "reduced": false,
+        "phases": [
+          "idle:claw",
+          "walk:claw",
+          "attack:claw"
+        ],
+        "seconds": 4.544003
+      },
+      {
+        "label": "zekarion_tempest_breath",
+        "reduced": false,
+        "phases": [
+          "idle:claw",
+          "attack:breath",
+          "idle:breath"
+        ],
+        "seconds": 3.691404
+      },
+      {
+        "label": "zekarion_skybreak",
+        "reduced": false,
+        "phases": [
+          "idle:breath",
+          "attack:charge",
+          "idle:charge"
+        ],
+        "seconds": 3.502253
+      },
+      {
+        "label": "zekarion_call_wisps",
+        "reduced": false,
+        "phases": [
+          "idle:charge",
+          "attack:call",
+          "idle:call"
+        ],
+        "seconds": 3.477981
+      },
+      {
+        "label": "zekarion_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:call"
+        ],
+        "seconds": 2.165008
+      },
+      {
+        "label": "veilbound_acolyte_veil_needle",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cast:"
+        ],
+        "seconds": 3.64886
+      },
+      {
+        "label": "veilbound_acolyte_shroudstep",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:"
+        ],
+        "seconds": 5.012196
+      },
+      {
+        "label": "veilbound_acolyte_closing_shade",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 4.647167
+      },
+      {
+        "label": "veilbound_acolyte_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.133484
+      },
+      {
+        "label": "lightning_wisp_spark_dart",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "attack:"
+        ],
+        "seconds": 3.791049
+      },
+      {
+        "label": "lightning_wisp_static_lash",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "cast:"
+        ],
+        "seconds": 4.092291
+      },
+      {
+        "label": "lightning_wisp_blinding_arc",
+        "reduced": false,
+        "phases": [
+          "idle:",
+          "walk:",
+          "cast:"
+        ],
+        "seconds": 4.756093
+      },
+      {
+        "label": "lightning_wisp_reduced",
+        "reduced": true,
+        "phases": [
+          "rest:"
+        ],
+        "seconds": 1.750843
+      }
+    ],
+    "images": [
+      {
+        "path": "acolyte_death.png",
+        "sha256": "840f8320e55997fcdc724e26283e028f8718f1d23b5fa64e437468e942ed3321",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_dust_bolt_contact.png",
+        "sha256": "3b7fae5b0afaa09c9a0c563f60c4450ba655d19e6cc98ef172531fe1d1179107",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_dust_bolt_motion.png",
+        "sha256": "82ece585033ed8bb9894867c614f7ccf0c7c27ee910918cf91ff8ce15ee25e79",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_dust_bolt_settled.png",
+        "sha256": "86da98e269e5b346299844d2e6d364340ec4e18440eda04a503cdd74f4225b28",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_facing_0.png",
+        "sha256": "de8c0bf84e1aa2b0c56d1c15bc3318973825df75a59678797973963679809738",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_facing_1.png",
+        "sha256": "049dae23404b892c8cd69de928ec76724216697e13e64cc54eea370608988586",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_facing_2.png",
+        "sha256": "d5b330f365c45cf8b269791e7d92179d36cc3085f126da2b857f843fc57322ef",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_facing_3.png",
+        "sha256": "9d952a4e19a232bfda4f04038cd6c89b26e924e8162f7f664d6096829244d094",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_reduced_settled.png",
+        "sha256": "798eb43689bea4729498a1c7dee2dbc9da035e95b540fe77189081e57997dd8c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_siphon_contact.png",
+        "sha256": "5d602199cf2694c2173d394ff6e3f6a6dcd67b8e69bb5ec7f7619de6d105dc5d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_siphon_motion.png",
+        "sha256": "65de2528ec9e6d80b6c2ddccbf82cf66fa9ffb50d392946eafe7415d66bb28a8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_siphon_settled.png",
+        "sha256": "dbee44dcec6e3ab9c9f25b64c4c42ecfc7d382cc5d17fd276087cf489cce3165",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_ward_chant_contact.png",
+        "sha256": "47ff3072000c3084f7e8fdca246b55ce8f9ea24b0ab0f2de1a1cbd4bae81a077",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_ward_chant_motion.png",
+        "sha256": "552a04d0175f9d7290b7a33659e2ad38ca0fa4f76f7f51a2f1773fd679ec15d9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "acolyte_ward_chant_settled.png",
+        "sha256": "9ff9d33788970639cb2f25539724375c227faa3a576192e793cb3ed833638fbf",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_bile_burst_contact.png",
+        "sha256": "12e4c6ccdebe196f90e13a40340522a8c095a8ea6963274fc482b4dea039232c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_bile_burst_motion.png",
+        "sha256": "e9b3e0c73751a30aa81b3cd78a0ac9b1a642fbe441ed6a72f5368916f6c53e6c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_bile_burst_settled.png",
+        "sha256": "30d93de95cd35b058d2ea36ada72d617a899ac72140da2297fb0b81bf4eb8482",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_death.png",
+        "sha256": "3625b77f94d186b1d898dd2c842f1c6dc4fdeb8e061732ba1ad82cb66f5fb68d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_facing_0.png",
+        "sha256": "a76e4e233b89ce42a372c1a49cbb4faeabbb9fe8f10abb5ad6eab942382d1e2f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_facing_1.png",
+        "sha256": "91c0c967143fac0e9e3609e33fa1e0d8bf291c388b46ddbeaabac3487860c786",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_facing_2.png",
+        "sha256": "1807e1f0781d04aeea9b64ce8c6a93d6bb5d476e1690aa6d7dc4abe8f7608067",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_facing_3.png",
+        "sha256": "9b97c7f04a161152ca740d9d520ab45d621ec773efd5cd2b230665fa18c55879",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_pustule_shell_contact.png",
+        "sha256": "8503b68b1df0b16749031a404a85ecc48f74f9651accb62cd485b365ae819dd4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_pustule_shell_settled.png",
+        "sha256": "a93e292ffc7f60acf6f95febee73a733ff34bb0791f6da3fbca9fad2f13caf94",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_reduced_settled.png",
+        "sha256": "bfb5036a8d2fb4413591268c1b133fa7ad8c2e3bc10d26e30f90a8d09f268059",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_spore_mark_contact.png",
+        "sha256": "7667526c90d064668bcbdcbd5e93889678b4cb7ffed0c0bdce476ce7f7e049f8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_spore_mark_motion.png",
+        "sha256": "6c33ac5159a02b38079ab89e940c3d0227b2c86d2091c6cdaabd8a9210166cb9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "bile_bloomer_spore_mark_settled.png",
+        "sha256": "ce4a5999d1952fef308266f47ea9993bdca557a7065777588ed5e8ee0aeb5223",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_chain_reel_motion.png",
+        "sha256": "afb14190abf4f0f4d4b388b823eda4112a631d175a2c51f46253247520a1dfea",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_chain_reel_settled.png",
+        "sha256": "368cec8fb4e9aefc20c1175cf3aa1c260411abd2fd87a109253c2397b4083939",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_cudgel_press_contact.png",
+        "sha256": "918effe8f0d0b1956467504674ffa30522e880f1f8a94eef591d3b4aecd563b1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_cudgel_press_motion.png",
+        "sha256": "109b535062590dc378f0534b8dfd0eba14757a0ac5fb969f059d1065772cb851",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_cudgel_press_settled.png",
+        "sha256": "2badd53b1d77388da1c19a075dd54e0bf2da5fb408c62453a0427deed2bc60d0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_death.png",
+        "sha256": "9e4c17614f496efb9f75b57df82d6a73587d3986d62163fd2d19d5cb16fa1c04",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_facing_0.png",
+        "sha256": "2775ee958419a730724aa7984baddd1b310b87e00b9386488344b328d6f72d0a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_facing_1.png",
+        "sha256": "7894c178c43119b8f4400295f900e15cd20400cd08396066052ab141663d1363",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_facing_2.png",
+        "sha256": "6a6e29ec9f0942a3f1d0405f6c628f725c03287c00134e834295614cdc376d32",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_facing_3.png",
+        "sha256": "f11a9dcc71ccc2058b3f64487698c3973f8d8469ed5f711bd25955d20fb40720",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_iron_guard_contact.png",
+        "sha256": "3f31702a00178de337b090ba2deb473e0989373fffebc8a91301951d7e11cb65",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_iron_guard_motion.png",
+        "sha256": "a9960849f884ba770cf1fe2002334f3da7801f383c277ce1e9357018dd3de8e3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_iron_guard_settled.png",
+        "sha256": "e1bde79e3009a9d6f336310669d2cc0646757995e94fed4998e2cfa9d7c2ca58",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_manacle_pin_contact.png",
+        "sha256": "6436ece0c45fd9c0c7d1e546da62e42c2e34cbd37774060c19356fa739ad43f2",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_manacle_pin_motion.png",
+        "sha256": "3d40046618366fe9d995b8fef0eccc4aec3d892de828ec6081dd26f69867a79d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_manacle_pin_settled.png",
+        "sha256": "55c5df1eb2d566666f6e636d6bb119e761b7518a3bae26fc716b42b1d03a68b8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_reduced_contact.png",
+        "sha256": "388dab3f6e0fdf1e8d3843d97de7de94118771c5c996a434b8fa1771d9313c73",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "chainbound_gaoler_reduced_settled.png",
+        "sha256": "1a27d213097ea7c9c5f94f6d6ffec4827068575a65c9efba1ab2dd5b6ccf724d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_death.png",
+        "sha256": "fa633890f210acdcb07ccff89777c514d115be592061920ede05c5f082f0d385",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_facing_0.png",
+        "sha256": "e11397b45f99543016fa6a47d48f3ecf5cddc4c18551971141bd9c61b950b3da",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_facing_1.png",
+        "sha256": "104931c20ea3dfea47ef8e2691f2501ac824bdd26a76e13c309d6fd59fc0dd7d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_facing_2.png",
+        "sha256": "1097827cd711b39c9f9360af02446242962d66e50918783738b503d9db1a6b24",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_facing_3.png",
+        "sha256": "de9a5db4fa78ee0946822b895ac261d66549f6d485074235a8539f77336758ff",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_hiss_back_contact.png",
+        "sha256": "b795c9b6b2ca082cf43fa1d332a549b72aba74f8e9d64deb9d0d0a74d4dd1285",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_hiss_back_motion.png",
+        "sha256": "6762fada340eae501541d4f546aaeb5b5f9ad1b6f3ec9f0ff192e5f6aea86d80",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_hiss_back_settled.png",
+        "sha256": "4961357e8f1a622e0a027410cf42a58432f96c611f79312573dad924606e17c5",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_reduced_settled.png",
+        "sha256": "15131c0fc9fcb2ebee33c3a35a7d32e1686060d4cb14998dc52fa6e25e782da0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_spatter_contact.png",
+        "sha256": "bfeccfdc7330d4f15a6dae6d6e302559999e14d7032dcac4930a33ad7ece7af0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_spatter_motion.png",
+        "sha256": "a0209e3c2b1901fe143f4614ef0d79e705fd387af34eb7014df74261e82c00ba",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_droplet_spatter_settled.png",
+        "sha256": "f5951362c17b9bb9ee40962e78c50b7f29ae58213a0701145abd5854e9003dc9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_cinder_bloom_settled.png",
+        "sha256": "d1a30a0c4bdd3e0de1701b852b0d0e0c3aab00d9828e8be31b2cb59a58380230",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_death.png",
+        "sha256": "0ee751493689ef3e3e9ad7d6fe748b36d009e583a94f8afd74a36a9639215469",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_facing_0.png",
+        "sha256": "d8aca60d6547af0d3db4b2f34a2e54ecb1af0d210fc7b5fd96e46dd6467a6ec4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_facing_1.png",
+        "sha256": "6c298f10a569558aa23367efe42684eeea498a1b17ac16fd383c55351761c310",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_facing_2.png",
+        "sha256": "6142a1ece4f8d811c176719d862c4abb9c8393696ff53054c2d0f76d03ac0b1a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_facing_3.png",
+        "sha256": "1d306f9cf7a45181b0a2fcbf93c429db943f3f8b90f762a349232481ea06ccf5",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_reduced_settled.png",
+        "sha256": "84bef9e4f58f6cbeb20905ba9de9f803956ecaf9e7a371deabd068a592453da4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_slag_shell_contact.png",
+        "sha256": "3336f6a905223e17c343f5b257af2f8dc5aa4e9d3dabfbfd2abe597e10351ec2",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_slag_shell_settled.png",
+        "sha256": "1be3e14a045405a83de20691acb8361d77666421a67711caf32d40ecf3f7139b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_smolder_slide_contact.png",
+        "sha256": "9d2ffd4f4a54139abe84f90bb2e3caf5fe79ea6f2ff3bcff4e363836fc6e2bcd",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_smolder_slide_motion.png",
+        "sha256": "f1cd4f4155a03bf2993d30bd86fe9dd97776c0f338e12575f38bfa2aa1360eb1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_smolder_slide_settled.png",
+        "sha256": "a4eaa25e7ee22497c2a69c0e1cb8650ff1caf6eb1fa4f06b6d5214b908978026",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_coil_contact.png",
+        "sha256": "4871e62963220c784a94d0b92879202c57ed51cd4a23afa84039ce0dd5f9f938",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_coil_motion.png",
+        "sha256": "97266ea26e89811995e977d2a68b62078ef76daa4246ab393a57331158205396",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_coil_settled.png",
+        "sha256": "443d110137b5a6f3d1603483093d9dd8e488c071fd4895435fd5e207c750092c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_death.png",
+        "sha256": "10165fd2dbd474c14c941ee5f5334afd88143c7117fac76ef81b09eb082d65ab",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_facing_0.png",
+        "sha256": "89ce83eabcd1c4362155ef9432df21f6e38dc88f01ca040aea97efe9e3de083c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_facing_1.png",
+        "sha256": "bdc02f1755b6d534dd0714d6710634cfb20d779c1eac1bc8521252aa6a2ea270",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_facing_2.png",
+        "sha256": "678f4cf41e0768121270c8f912c6a0e89dda7c9f3fd56bd0359b4587e6196b39",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_facing_3.png",
+        "sha256": "c872f0d36714c7a654ba81988859aaf9f6af600854d8ce15af687667541dc022",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_lunge_contact.png",
+        "sha256": "284a53f7ea7eaa617ccf806fdf47933f699f0ec7aff1f4200b11c7952c14184b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_lunge_motion.png",
+        "sha256": "a01e233b9061828e417d3cb91342183adda96b8f51cd5d5c1a43d859210e45b5",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_lunge_settled.png",
+        "sha256": "6c669e15951e2644f518ec643cf4e6a7ea65528c2cd62d4f056d4065584da8a8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_reduced_settled.png",
+        "sha256": "c92733b21206eb33565fc4a741ae653739d398967dc0090e55fae553a76db471",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_skitter_strike_contact.png",
+        "sha256": "970f073afeeb89a1254dcc4dc19bb2270a7c4561a1171321e6dd6ea0dd22e158",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_skitter_strike_motion.png",
+        "sha256": "3a7c9f0987d9f3f7bf8b7d0c1bdae2c239235dfc14cd34b11953bd21848095ff",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "crawler_skitter_strike_settled.png",
+        "sha256": "76fffe075f6e4a65f6ffa0346657b597a7d5d2f4e3e601f14f1042d700c92681",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_death.png",
+        "sha256": "5077b28ea30c17770f52d0a499a305eb9f0d4ce5557decc469bd0b01384d4498",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_facing_0.png",
+        "sha256": "2bca1456b54a03256cd11edcce65056970aeeeda5aa4d34050c3986082ba17ed",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_facing_1.png",
+        "sha256": "90ed2c1f8301794b2792f4d47a6db3612c9f9aca99d6e90a612f4e9f15a54f76",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_facing_2.png",
+        "sha256": "b38fcbbc3ac1c67074f0695b31354d72cf14f5ea63bd912386517b773f4d41fc",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_facing_3.png",
+        "sha256": "4600e0e15651406b13e6ae91156ff80cf0edf97f14c268926ead8913b424b692",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_frost_pin_contact.png",
+        "sha256": "b1de1544c961c2fc2681a37812cccb1b67bad1aa7fc1a488f7c159ecfe6436b1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_frost_pin_motion.png",
+        "sha256": "e4b020beb73287e5f3ea316dccfba7074c7c2bade5ba6557d88e3a564a7376d0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_frost_pin_settled.png",
+        "sha256": "69bee2e31a7186b24e0ac93cf0172f75063ea1d372cc15656fbe92d1f893cb84",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_glass_lunge_contact.png",
+        "sha256": "87dd1f91f6839ebd0218e4239866c4f1bf63db86a98683d9e2d39bd17eff2308",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_glass_lunge_motion.png",
+        "sha256": "9eba6b30a5472a722b23af22a371ab50649f540946986844331d969190ee89d3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_glass_lunge_settled.png",
+        "sha256": "d8f730794b5b987c0c457d5edba897aa9686d9881d85568fcfe8652cbcf49ec7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_reduced_settled.png",
+        "sha256": "cec74caa086e009e821f93e48a5dd5f01b959a4fe07f6c5db412fd1b1c3212f3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_refract_guard_contact.png",
+        "sha256": "070575bea2a086dbe64ae16233d4fd78fc2de41ae8d9cfc8b178df9a955fac4f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_refract_guard_motion.png",
+        "sha256": "0d41eabe2915874b027cb29257d11135c6f55e20ee885c31722e09a228471cef",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_refract_guard_settled.png",
+        "sha256": "c3b7321c11094cf96c4445afb4a0bd17f2d9148670bb96c5ef38df9e5ec0b866",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_spear_cast_contact.png",
+        "sha256": "f0c375759fe52c294ad145bebe72002af48e6c70c9d18e9ac77b4fbc02d1b022",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_spear_cast_motion.png",
+        "sha256": "b839fef24a38fae922d034f2947880a8741546493396235fc1e414bfbcf892ac",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "frostglass_lancer_spear_cast_settled.png",
+        "sha256": "7408b3fa09822895e64f506a4e0e26021aca1ecabb1ceb6d22ad86197a65386e",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_death.png",
+        "sha256": "acd16009d4254975174e01d2cb4a90b790cb22415e236fd621a7b926bbd651c4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_facing_0.png",
+        "sha256": "3ce8f4c899a30ff026930127b8d8cc1b56c358dbfbc27cb7bcb7507033f37e66",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_facing_1.png",
+        "sha256": "6f8af201e3f941884978da2b3d959ead568e3e1eb52dbd1c8e7f05ae3e2828db",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_facing_2.png",
+        "sha256": "65ecf24870d43938636ea73e3afe215ba7af17a98334552ff6fc889f4a11270c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_facing_3.png",
+        "sha256": "d757dc810789bf689690713f6fcf90edfe4cf7619e416480b755872302611427",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_field_brace_contact.png",
+        "sha256": "cdc8da933f382b8004cc973480a96013ae55b501d37eb22544989a5b45a0a108",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_field_brace_motion.png",
+        "sha256": "187753753e7d195650bb9a31c33423881aa0a0ce1eaa07e4aab0a3fb0edc20b7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_field_brace_settled.png",
+        "sha256": "e46541564d983b3dae654153188fe41d781f69ff544ec0947bc527c11cac1893",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_reduced_settled.png",
+        "sha256": "d4a12e1e44a55edfed5534efc4899ec291ac3a1584898f8491215c262197dfdb",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_saw_jab_contact.png",
+        "sha256": "84aeddd3cd144f6c06918f492a0a7f68b96f938e6bc9e8298866ea370da41e50",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_saw_jab_motion.png",
+        "sha256": "df87432a654f4fb1df5e2cba42c3af5a6edc436bc62ffb5de1194b201ecbef8c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_saw_jab_settled.png",
+        "sha256": "057a57cbf0e6d0f04d6eaa6687968f97944115651d3d15a8938f5072dbf51583",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_triage_suture_contact.png",
+        "sha256": "0ade4647b0ecb20e15f3d7f048606f5cd7971134eb8fa95122c620d25b9f199c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_triage_suture_motion.png",
+        "sha256": "de72128007d8546a3c17f6ec7d32afee712e2540aadceff6daa6dff6a754b7be",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "grave_surgeon_triage_suture_settled.png",
+        "sha256": "d4ee344f03ed5dec8f1cb32aa5daf357b2052b7a725f45312839a5940a12dd0f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_darting_pelt_contact.png",
+        "sha256": "faf1ff876ec07ff50b496abb7dacb686a652e96e0452340b9f489e9bfae2f3c4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_darting_pelt_motion.png",
+        "sha256": "d7596aed7b3e5c56882e06a24492acc1b0a624b735bb469e7ecb09175784e5d6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_darting_pelt_settled.png",
+        "sha256": "50a84656a635f6633dac2aab5eb9759b8296f36add45cbe470679182d9d2a6de",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_death.png",
+        "sha256": "1a71d15f5fab2267887727cf856ea1d20465c7ee278d04891b5ab474f4a9783b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_facing_0.png",
+        "sha256": "e3e58824f9c98a7dd6eb530002f2a6e9e86c8db3567a6c09b567b0c732caaea9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_facing_1.png",
+        "sha256": "3acf43665e4a4e6c3c16378edbe46cb47cbd8b7ff7d9f334eb01571d948e6ff6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_facing_2.png",
+        "sha256": "9f1771c25b8ed05b93151af9df5c58a9864669fba421059bd64df246a82ca85c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_facing_3.png",
+        "sha256": "c100a839464974645042fc7292cf30d2bcdcc911ab822dae0aa9b5557c5a97a3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_pelt_contact.png",
+        "sha256": "bdfba41d73ccf8e7d62f6fba68ba631f0a7409ce7c0ae3d2e3bb8f67436fb499",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_pelt_motion.png",
+        "sha256": "ed0d4a850f9c8debcb41dcd406d7ae09a5fca3fe5599b520531d292be75cb7d1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_pelt_settled.png",
+        "sha256": "a98792af087a331c6228914c0deb3196da8df9f7691154f819f0b5f8a4401ac8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_reduced_contact.png",
+        "sha256": "d412a98fb3dcf5605387dccddbea12f8179c98f049c01c08dcdbac14db90f446",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_reduced_settled.png",
+        "sha256": "96b81568ac1a85a8e67b40587b87b6566d04658b891aa69a3d711526e25537a9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_retreat_step_contact.png",
+        "sha256": "8786055af27a636dd38612fd9dc7c628ff4bd92a2483211a529341bf02ab24b8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_retreat_step_motion.png",
+        "sha256": "4dfcba511582583041516f84951fca1d915c4890b2f7048d9a679e747dcb0205",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_retreat_step_settled.png",
+        "sha256": "079a97ab9776f5f16e10a7c7d858aa0cec9cc57bc1c3a6f01546df415c311ae6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_rush_contact.png",
+        "sha256": "289db86a7d9028bf0642c62032a51e8c025ade63bbb99f146b61b58b8e0d3368",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_rush_motion.png",
+        "sha256": "49a5b121e8229da93d69bdcb544333e3f1d10432f88c708596c575a92eb3cfe9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "harrier_rush_settled.png",
+        "sha256": "66117a85ead7665de1d22acfee8c5755295ff1645542f8cf57e0e588a5c801d1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_crystal_mantle_contact.png",
+        "sha256": "a65df45d644fca875700880398a99802c9b9ec8046926f7b50721beac0472ba0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_crystal_mantle_motion.png",
+        "sha256": "fe50fa0afd931980616005450f3dda4a8db15d1b262d44676f76f0471ca6a63a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_crystal_mantle_settled.png",
+        "sha256": "7153298baeb0a432e21bac0cbca32e9a5c9e7d9f19af6fbfc8d78870c8b9e557",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_death.png",
+        "sha256": "bd37f33b75ce9f794d3926fd505d8ee028340c732c21c1a054badbc805086912",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_facing_0.png",
+        "sha256": "a2ffdfe59a62b262eb9fa4319db62af86ba527b01641fba2bb7c541c801750fa",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_facing_1.png",
+        "sha256": "df264e1effae8635ff5926d9bfa30ce48fc2bbf52c4d05c923aeff0f45c1c01b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_facing_2.png",
+        "sha256": "8e5ac3922ba4810fef7afec1754c4792f8bed211c023d05aa0fb5dd4a7e888bd",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_facing_3.png",
+        "sha256": "5cd2e0fdc881ec6c38e5c21f2b04963ba43402a30bdd463e569565f06d6e4004",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_reduced_settled.png",
+        "sha256": "095d4583d68fbd2cee42156f06ee679428b17464f9d5742c4a44248689aefe73",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_rime_talon_contact.png",
+        "sha256": "817a2d2d8978f86a9ce74e12fd0f449ee468bf3dc5455052d457a2fa2b26418c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_rime_talon_motion.png",
+        "sha256": "c01a4e0ccf71e938041905f3dbf601ef7f4481e76761f492d63ab249d9d988e5",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_rime_talon_settled.png",
+        "sha256": "99904175aecab8c7966ed8971b674025946480d63d233b28a9228c48ad212aa1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_shatterstorm_settled.png",
+        "sha256": "1bd430a38fe73f5caa9d15a6a9ed78e64157e81b2a80a06dd1c9c0d3c2d6b03c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_whiteout_lance_contact.png",
+        "sha256": "bf68888f537dbff6c0eb56a646385c724e36e3a3c318ec543b72e1b48a7088b8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_whiteout_lance_motion.png",
+        "sha256": "b19c7625f7d4ecce2a5db4df688e2d041a2089d5c20e9f57ba0a5c1f521e2089",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_whiteout_lance_settled.png",
+        "sha256": "23f04a4a23e0146fccf0cae7c81a6e87ac8d1a1f75a5324e0dc01a2f399e9a97",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_blinding_arc_contact.png",
+        "sha256": "19e3fac0e520f0bc3a1d9c5262069abac2dea3fb86d04a999f6168ba9144530f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_blinding_arc_motion.png",
+        "sha256": "aab3dbb757278629ef625ae5f51de5294bf5614f102e8f6b845ac69a453401a7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_blinding_arc_settled.png",
+        "sha256": "24dc78cde8e2c30fb3f96479efbfeb8826aa4715a162992e8b47590d9cfa627c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_death.png",
+        "sha256": "738567be96d6fc326eabb009d74d1b470a0d77510fb0fd66198d0f4c1162f695",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_facing_0.png",
+        "sha256": "e97cc8ea01f99e3264cfaedb3a1b906f2061d1c6cbdce0775396f18b7d15e325",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_facing_1.png",
+        "sha256": "e1730e0d03ffe4c814237290e9f875b6a34b7dbe035dda1a7402be0545d1c10d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_facing_2.png",
+        "sha256": "dcedfd5d07f5e2e4a93b8cce94aaef9924d7ef4bfeb5132927b97532fbf25d14",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_facing_3.png",
+        "sha256": "75aef6e8fba403e4d9452df8e67baaea7f17b08e70f97512bc8742e914063898",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_reduced_settled.png",
+        "sha256": "e5009d61a9bef03ecb71d97af759f651e18000903fc07bf86296102ab4d2618c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_spark_dart_contact.png",
+        "sha256": "e7e3a30be99c0b46bdcdb4cc9e41bd577d07ecef9bd50a128187abb5d17773da",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_spark_dart_motion.png",
+        "sha256": "4eb6b9441c42b6a91368774c6eee47fd59b60ed4314be152bbf662a81c336625",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_spark_dart_settled.png",
+        "sha256": "53e6d6571a2573fe01cb49f98b4c0cfe12735373677e778eea11fc8e49714810",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_static_lash_contact.png",
+        "sha256": "d76878a78a14ec6de040b7f26550c5df1bad2085e8da098f6a950354c69d73d1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_static_lash_motion.png",
+        "sha256": "11c2fc4342161458981c9b9e65c8946d44d5080fb4014fb00504d9b97441935a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "lightning_wisp_static_lash_settled.png",
+        "sha256": "588b8a8946fd1686a64765d2e0dad84dc6ee9957af4e59641fd69818a74e7ac2",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_death.png",
+        "sha256": "878506eea4ec0c4728979ffadae0d8dc3765225de67596d8f08da51ea807e44d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_facing_0.png",
+        "sha256": "711f33661b4c4775d470fff4f5dd48b66fd6dcf099c662530420ae11516d7656",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_facing_1.png",
+        "sha256": "2a151a9d4afb67a3aff60ad221e4fa9437170ea875758c96f794a5c1e5b451b1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_facing_2.png",
+        "sha256": "b8e707459d5beb5f3f95fe9f5ce2ab3a97eb472a821543f75b770021a6ba7474",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_facing_3.png",
+        "sha256": "e8023a0f8c4a801ca17c6f755ae7aac2acc4d74c12465410fbb51461fc208b77",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_last_eclipse_contact.png",
+        "sha256": "022867f56d8010c31cb87e44e9ce3031272875d9f4061dac9cbabe394fa556a8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_last_eclipse_motion.png",
+        "sha256": "21766eb9ea91372340e70f40935ffd1934ae041c9aba4c2155a6275941b0b8f6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_last_eclipse_settled.png",
+        "sha256": "dc1c5c50b32192a890b5d3a904f2131ad9b1b457752d28e6cefcad92edad72aa",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_night_coil_settled.png",
+        "sha256": "39a7bcc3ecb46f943ab2749ad952b0efa324b6e8197eb41d1697920d37093677",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_reduced_settled.png",
+        "sha256": "605ce9b7e83aeb7ab1b13ae6cc57ec6915dca0b4cdbe955638f97cf3750d3e92",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_starless_breath_contact.png",
+        "sha256": "db1d24c8eafa42f9ea6e72da77c32b35e94de3b3e7e5bcb787e33f5011c265cb",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_starless_breath_motion.png",
+        "sha256": "df72c6dbc11bf1fe41b6fdce4bca5a06c91693ba08db94eff9a94de70f20c091",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_starless_breath_settled.png",
+        "sha256": "49473f2f35e19a6153944f4240f40e8e70a2d669bc23cec6f96e1e225e53feae",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_void_claw_contact.png",
+        "sha256": "5e67c5cb7e7232adfabf7124a9807d21ee4f7288a438a4d363ca4488c12335f4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_void_claw_motion.png",
+        "sha256": "941d957a1707034ec63c4919d3cd9598f78a0f96cbd89a14f95aa70200749eee",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_void_claw_settled.png",
+        "sha256": "71af46835657e41d29fbfeef7229df9d11ba67b978d3bb93e0490f2b7331dc4a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_bedrock_aegis_contact.png",
+        "sha256": "fb7e3dc130449728c1fec93643d4dcf0a9f405ec2a7865cf0be850560d9801bd",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_bedrock_aegis_motion.png",
+        "sha256": "c95b95aebc1d7dc416cdf752ede90afd197db42412ec15795394658854d52ad9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_bedrock_aegis_settled.png",
+        "sha256": "dd1f8a0d2ebae2b81198d3d5323c1222770ece9487649883fef618c81744ca26",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_death.png",
+        "sha256": "30569d09d08246065ecbfd645a2b6a0e3ccffaa29d3e357c48dab8a1316eb33a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_facing_0.png",
+        "sha256": "cd41ec586fba00ea4456c54280dd7c19137165976da70229261fc94dd925b3ab",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_facing_1.png",
+        "sha256": "14a61644f2a1b3437ad906eb86032fcddaf38bae0cccc955c2da2854a442c9cf",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_facing_2.png",
+        "sha256": "037a2be486f17ac0df152e823d0af4c6aed57db754ead1c3dfa93141bbdca7a9",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_facing_3.png",
+        "sha256": "a084d8372bad30606a26051803b78b656824293d4534bc49ca9baa276cc66e9b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_faultline_contact.png",
+        "sha256": "46409c26e88ff371830138ff7e1d0deb2ae562f296ba39a589645c5035580804",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_faultline_motion.png",
+        "sha256": "f97a709b1d7c8388a35aa16c2605c946b6b7dd1a0424d4ea751e38420ab00b64",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_faultline_settled.png",
+        "sha256": "7eabe29ed3e7852d3bba817852b34ead671e861947a30126910c285212e0b8cd",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_reduced_settled.png",
+        "sha256": "efd1b0913d521c25460240b0b887202568e97c141c3bdfc53adbf3f5dbfe2c4e",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_stonewake_contact.png",
+        "sha256": "5cf27622c8d679b06a69a12364a96fb94a4b9899a8f77f33c95e6c06f27068d4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_stonewake_motion.png",
+        "sha256": "6fb3804db3630d9b49f725abf49b3d303be7355484527d14eb2e23590c5b2f9a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_stonewake_settled.png",
+        "sha256": "a19a8ca7e791f42387c151bcce942b84bc7157f4b7d2293792b30777f1fa5e04",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_worldspine_claw_contact.png",
+        "sha256": "e8f971e865abb6d3dbe3c87c8775bf9e67a41a82ca14feaa2bb656feb516851b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_worldspine_claw_motion.png",
+        "sha256": "c141b880950ff431174f057ee3d5623b9cd7f8efa782740ed6f842913b6479c2",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "tharokh_worldspine_claw_settled.png",
+        "sha256": "d2c64de129b6f377f28141f05093e78fb371f93373475a3cec0f6a57948ea210",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_death.png",
+        "sha256": "6f2b3d57e8e1fb8f9984a026b2c80f8d2c583531dedbe65f8a290fb1b7149bc3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_eye_of_storm_contact.png",
+        "sha256": "7a2140563b6423258e6af3e7345b7be12242ab23fbc2f510e8223d457364dab4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_eye_of_storm_motion.png",
+        "sha256": "573039e7246920425f2529df60864bbd6d837ea44905042c6a1b3ce980c51e4a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_eye_of_storm_settled.png",
+        "sha256": "634cf3877cb4f7b1b4d1263e42344c2d66b47de9f142a5d039bda0e1aa27759d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_facing_0.png",
+        "sha256": "b038421255830bfccc838ec35672c85da43a37bab169d8d402bfe467b447b36c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_facing_1.png",
+        "sha256": "4c595d7672b7c7de056c9eea59a8b837a9761d6ee193d6f5e7b2cee1ebf596c0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_facing_2.png",
+        "sha256": "903a213dd807758f0c9f453d8657e2369e96c57f60a9520b0d424f0d101e62df",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_facing_3.png",
+        "sha256": "4a46accf8a3b67badd9d15c7bc38c9a227d7bc683e92049eb1ca341bb5651551",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_hollow_gale_contact.png",
+        "sha256": "1d0de6c7de8f65dd1b7d23aef0928cdf8614acbac3c690d80aab0f8726632900",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_hollow_gale_motion.png",
+        "sha256": "358a4f34481a9143e92da2bb424f7a445539680a141695ed787cfa65cf4de871",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_hollow_gale_settled.png",
+        "sha256": "08600b70e8aa8f7a21befb16c00f17dde7dd374243a5c522b6dfcdaf691b03fe",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_razor_dive_contact.png",
+        "sha256": "950238bca3baac43a05a66658eae854ad721503893460f1b7eaaedce9a9ed62d",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_razor_dive_motion.png",
+        "sha256": "923c502e289d2ff7eef817d039c8bc41ec0ed8cfee5fe9e60c521e08411b3926",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_razor_dive_settled.png",
+        "sha256": "0d1a1a8c9f92023bd1f90eeb073c229fe88aef24f21b85d713f60b4bf03d22f3",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_reduced_settled.png",
+        "sha256": "2fd2c491f81bafe9a67a30c91df11da9db25a255a0477eabbed2fb02cff95378",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_skyhook_contact.png",
+        "sha256": "1d071120c91bd0716821fb0b5d495597b06314aeece82533ccc247861167cc5b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_skyhook_motion.png",
+        "sha256": "9d8e2338da84a343646c0760428a8bc8604a4e66ef3e1e5f128d1d19a159ac6f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vaeloryx_skyhook_settled.png",
+        "sha256": "18f8686bd0ba2a1320197069046faadb68ab86dcadcc062a35fa3d15ae3e9146",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_closing_shade_contact.png",
+        "sha256": "fdbe8b0a37b9e83a76f97ca656befd63d0879db6ad468fc01d655896996c7c3c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_closing_shade_motion.png",
+        "sha256": "902f6df0d989e31edcb8065af2c7582e11792884bea727a6dc3250b7155d75a7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_closing_shade_settled.png",
+        "sha256": "42c1533de7c33520022d75334c674c1748a96af8fa2746916920e8ad15887b99",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_death.png",
+        "sha256": "09880a2e4a891c2d32f47ac78339b1510e5cfea35c8ac46d0f7ad5105ee6d71a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_facing_0.png",
+        "sha256": "3099976c5061781ea779f19234a170bf605c246ba7b23d2a4b6cacb6a6c7a2dc",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_facing_1.png",
+        "sha256": "6001a2914d0baa5074f14f2b855025b219aa0e6b14d3f0276407863afd6d0fe0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_facing_2.png",
+        "sha256": "f427690c7e0966a0fffaf08422be8146f151ede2532bc42e3cfb595ba372ea7a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_facing_3.png",
+        "sha256": "645790f7df5eed994aed4c49e29a3314fc339d378f3022f6f301e07d114a6ec6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_reduced_settled.png",
+        "sha256": "491736488f89acfc68cb9cc83a49ddd9317fafb51914ce09e53e35060f9faedb",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_shroudstep_motion.png",
+        "sha256": "3295b9b8817b0fc65fc741579ed4d8e025c0972e2cff227c556d21a2651ab3a6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_shroudstep_settled.png",
+        "sha256": "4be758d66d94d2d1c365782e9ca3140eef4e6036bb3b3c71dfd7759483afd70a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_veil_needle_contact.png",
+        "sha256": "a33c2ac572e14ba8dd121dbd0c1e6cc7049fd12cfe4691dfe049929ea77716cd",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_veil_needle_motion.png",
+        "sha256": "6254c046ad08a43893d3fc9924b0c97ef3a6c102780ac7ce1d9546419ecb48cf",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "veilbound_acolyte_veil_needle_settled.png",
+        "sha256": "99295827fa95ad04b083b8c940d18dbad25580a779a79bc2ccb8e21c47db2656",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinder_maw_contact.png",
+        "sha256": "6f7354353ab5b9a45d92fbdae4ea32a5cbd15e16e8760b5fe9366494d269485f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinder_maw_motion.png",
+        "sha256": "5ad0b35d4fa71cd49ca791a7a833254c171fc599b4613cad15b4cd7e70ba9e46",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinder_maw_settled.png",
+        "sha256": "4e1f1325f46fa03a1bbea4bf5ae10f6eec27ad02515540cbfdc7fb352da0d407",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinderfall_contact.png",
+        "sha256": "6f10ea44aec9210c16490145ab48a7acae2fd66bdc1579556c884ccebabd0836",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinderfall_motion.png",
+        "sha256": "d02e03315fa868ed626a8115bb3420aaa7a3d0ea35f98d7c2064b230f8d92269",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_cinderfall_settled.png",
+        "sha256": "0f5ccc326def94b63eaea88d4dcbeecab2d52a91ec386756adad28d2ad5d31ab",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_crownfire_contact.png",
+        "sha256": "c55d0fde0930cb8121e50001eee4bdedea948b29298343f46a82c811f58db3f8",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_crownfire_motion.png",
+        "sha256": "b900c7c4b4f71fbe7bd095aeffecd1ac96e2c6f249ee5428700a75b396d1bbe6",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_crownfire_settled.png",
+        "sha256": "cf7101262be389b0a45de2f7a3a0a3092e8f9bbc01f3b1fa79ab8e8995f97c5b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_death.png",
+        "sha256": "187d21475afdc9d4594ad6e90f28f89c78fe5918585572ddc74c8297cdaf2d0f",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_facing_0.png",
+        "sha256": "b3a2cb04ecfa9b884d04a762af86834fde15e333b08090dc6d1a86b2ef8e2a1a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_facing_1.png",
+        "sha256": "ebdb2d89d5dfafaa70c308cb6618c1bfe4f2d663fbb1f7590f9be6a121c2e031",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_facing_2.png",
+        "sha256": "c12b224079d29e143dcb5c4703288b092c89366c5e36a5d73ee5d19f1f030503",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_facing_3.png",
+        "sha256": "a0ff9b6b13a4988409d2aa6dd28b7cafdca1fb2e9f4688e24727d7a6432a62cc",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_kindle_ground_contact.png",
+        "sha256": "093c3318ba0f2fca05da9298c8ea5be9d6dff1eead786abfee0e62f80451a274",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_kindle_ground_motion.png",
+        "sha256": "6a0405a651669200ba20a0f70aecff2f25c634cdcfd5d841a5cd345a37904abe",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_kindle_ground_settled.png",
+        "sha256": "cc64c26d5c592f3b99573bb172aa0940a474fe29625072e394780393cd9e94a4",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "vyraketh_reduced_settled.png",
+        "sha256": "89bdb4222aaab1ec1e56419da11bb28a0a49df73009e0376615b330d6da75376",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_call_wisps_contact.png",
+        "sha256": "3f4edf8456c7bebb8c73ec8e92a8d177d28719793a38735de43da88ddcf88622",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_call_wisps_motion.png",
+        "sha256": "f5ceaab4c184fdb2ffd4b7f833b6e181f77c6af730cf8f080f9badab1ca41b48",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_call_wisps_settled.png",
+        "sha256": "d85f72ff7a4c27188dd31506056e1f81bd70895141ecb5cb274788de7250b440",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_death.png",
+        "sha256": "daca3ceafc9175c442e07baa07cbee6d6e90ca9f7a4b49504d8364da89dbb709",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_facing_0.png",
+        "sha256": "84539732ecc9498c2c6bf48f75be32dbdc743c1c510afaf131eebe314299b510",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_facing_1.png",
+        "sha256": "5b2b6f4d96a468b908d0e3f00f1ca78046cb6485db1361f7ca157a5801460ba2",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_facing_2.png",
+        "sha256": "04d8ab0d121968131ec00937ef1c2723608c77dd9ad76ff202d98c70bb02a7ee",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_facing_3.png",
+        "sha256": "4666ee9075e813f28aa3581258aad4bf459dbe3c9ea45e9c2b004db70bfdf078",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_reduced_settled.png",
+        "sha256": "0f7421a7c32e8dfd13e4c3420e5f0a645dcc9b5e1f6ebbe21ad086962b42ac78",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_skybreak_contact.png",
+        "sha256": "999d09ab0d47cd6d9002dff2fa5ab5d603c984ae38ea590da63fe1169efa8a8b",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_skybreak_motion.png",
+        "sha256": "fb43fe7bb44dbe9333e34d8a8d790e761da2c87d5f98ef533b567be000bf434c",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_skybreak_settled.png",
+        "sha256": "54964a7268fd7c73becc35751d9d7dd126c594072cad8c438631c94d301e2cef",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_storm_claw_contact.png",
+        "sha256": "42bcfa8ecd53d514fe1a2f58553267d4361ecfb3407037f62ae57c44d740ab33",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_storm_claw_motion.png",
+        "sha256": "9f9fbba294d9addfa410e48f798764dd5eee388a85c03908e908dd5c39b67383",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_storm_claw_settled.png",
+        "sha256": "0ef091cc132bad927a73c03a79647345bb84f81e63bbb1bb4baf5c04947f81f7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_tempest_breath_contact.png",
+        "sha256": "7e545cb53864ec09196b703a6ff570b3099cf07545325563046632e94e3fae5a",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_tempest_breath_motion.png",
+        "sha256": "c9d98694025325f34e1155ec740ed41c7940fc254bb7dfdf038f19f36029da41",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "zekarion_tempest_breath_settled.png",
+        "sha256": "abb60b3f0088a7e1a83b3af3e65749102b8de29580f8d860c4f70c6f3b769e01",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "Native visuals were checked on macOS at 1920x1080 and 100% UI scale.",
+    "Existing static neutral shadows and the user-deferred art polish remain as accepted on the individual branches.",
+    "The archive is local storage outside Git; no external archival service was requested."
+  ]
+}

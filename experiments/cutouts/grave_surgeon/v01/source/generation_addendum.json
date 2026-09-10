@@ -1,0 +1,53 @@
+{
+  "tool": "built-in image_gen",
+  "requests": [
+    {
+      "output": "rear_underbody_alpha_rejected.png",
+      "prompt": "Extract the single character from this image. Replace every grey and white checkerboard background pixel with zero-opacity transparency. Keep all character pixels, pose, size and colors unchanged. Return the same canvas with the isolated character and a genuine alpha channel. This is a background removal edit only.",
+      "references": [
+        {
+          "path": "rear_underbody_generated.png",
+          "role": "background removal edit target"
+        }
+      ],
+      "disposition": "Rejected. Output remains RGB with painted checkerboard; no runtime pixels selected."
+    },
+    {
+      "output": "rear_underbody_alpha_v2_rejected.png",
+      "prompt": "Use case: background-extraction. Input is the rear hidden undergarment source for Grave Surgeon. Change ONLY the grey-white checkerboard background into genuinely transparent alpha (zero opacity). Preserve the character drawing, all internal colors and dark edges, clothing, pose and proportions exactly. Do not redraw, restyle, crop, add a shadow, or change the canvas framing. The output must be RGBA with transparent background, not a picture of a checkerboard.",
+      "references": [
+        {
+          "path": "rear_underbody_generated.png",
+          "role": "background removal edit target"
+        }
+      ],
+      "disposition": "Rejected. Output remains RGB with painted checkerboard; no runtime pixels selected."
+    },
+    {
+      "output": "rear_v2_generated.png",
+      "prompt": "Use case: stylized-concept. Matching REAR THREE-QUARTER game sprite of the exact Grave Surgeon in input image 1 (front design/style reference only). Character faces AWAY FROM CAMERA toward the UPPER RIGHT of the image, along a 2:1 isometric board diagonal. Show back of hood and robe; only a small sliver of beaked bone mask at upper-right edge, NOT a left-facing profile. His RIGHT arm is nearest the viewer on image RIGHT and carries the long pale toothed BONE SAW down and right. LEFT arm is farther away on image LEFT and holds the small green round vial. The right shoulder and right boot are lower in the picture than left shoulder and left boot. Preserve the thin hunched undead surgeon design: muted brown layered ragged robe, leather straps and belt, spare small vials, skeletal hands, wrapped sleeves and boots. Preserve front reference's fine painterly pixel-readable detail, muted dark cloth, same slender proportions. Single full body matching relaxed rest pose, all visible on clear genuinely TRANSPARENT ALPHA background, no ground or shadow, no text, no checkerboard. The front reference must remain untouched.",
+      "references": [
+        {
+          "path": "front_original.png",
+          "role": "accepted front design and style reference"
+        }
+      ],
+      "disposition": "Selected rear design, correctly faces upper-right as required by the shared directional policy. Supersedes rear_generated.png, whose upper-left viewpoint was rejected before rigging."
+    },
+    {
+      "output": "rear_underbody_v3_generated.png",
+      "prompt": "Use case: stylized-concept. Create the rear undergarment counterpart of image 2, matching EXACTLY the rear three-quarter pose, proportions, placement of hands and feet, and upper-right facing of image 1. Image 1 is rear pose/design reference; image 2 is a hidden-underbody clothing/material reference. Show a single lean undead surgeon with a plain dark brown tunic and wrapped sleeves, narrow brown trousers and wrapped lower legs in the same boots. Remove the outer hood/shawl, long robe skirt, belt, all bottles, saw and handheld vial so the complete shoulder sleeves, hips and legs are available as concealed rigging material. Arms stay down in the identical pose. NO new visible costume decoration. Head may stay simple because it is unused. Same fine painterly pixel-readable shading. Genuinely transparent alpha background, preserve transparency like image 2; full body only, no floor or cast shadow.",
+      "references": [
+        {
+          "path": "rear_v2_generated.png",
+          "role": "correct rear pose and design reference"
+        },
+        {
+          "path": "front_underbody_alpha.png",
+          "role": "concealed undergarment material reference"
+        }
+      ],
+      "disposition": "Selected internal brown cloth crops only. RGB checkerboard remains in untouched source; it is never selected. Explicit ownership crops and opaque-rest masks in recipes/hidden_material.json produce RGBA patches. All selected pixels are checked for background contamination. No generated outer silhouette or front-facing paint is used."
+    }
+  ]
+}

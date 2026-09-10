@@ -1,0 +1,192 @@
+{
+  "ok": true,
+  "source_sha256": "70b841c5e3bf28ab4c0f5490b966ae76a21a92c240c0191255eeb34465d9f574",
+  "ownership_sha256": "67cc76f120f2b0808b34918ef63607fef64ab2575833d1c81955765999b9ccca",
+  "parts": [
+    {
+      "name": "jaw",
+      "file": "jaw.png",
+      "offset": [
+        61,
+        124
+      ],
+      "bbox": [
+        61,
+        124,
+        79,
+        150
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        45,
+        34
+      ],
+      "bbox": [
+        45,
+        34,
+        150,
+        156
+      ]
+    },
+    {
+      "name": "claw_fore_far",
+      "file": "claw_fore_far.png",
+      "offset": [
+        40,
+        164
+      ],
+      "bbox": [
+        40,
+        164,
+        83,
+        196
+      ]
+    },
+    {
+      "name": "claw_fore_near",
+      "file": "claw_fore_near.png",
+      "offset": [
+        106,
+        172
+      ],
+      "bbox": [
+        106,
+        172,
+        153,
+        204
+      ]
+    },
+    {
+      "name": "claw_hind_near",
+      "file": "claw_hind_near.png",
+      "offset": [
+        153,
+        177
+      ],
+      "bbox": [
+        153,
+        177,
+        192,
+        204
+      ]
+    },
+    {
+      "name": "fore_far",
+      "file": "fore_far.png",
+      "offset": [
+        65,
+        131
+      ],
+      "bbox": [
+        65,
+        131,
+        110,
+        175
+      ]
+    },
+    {
+      "name": "fore_near",
+      "file": "fore_near.png",
+      "offset": [
+        102,
+        139
+      ],
+      "bbox": [
+        102,
+        139,
+        165,
+        187
+      ]
+    },
+    {
+      "name": "hind_near",
+      "file": "hind_near.png",
+      "offset": [
+        161,
+        150
+      ],
+      "bbox": [
+        161,
+        150,
+        199,
+        189
+      ]
+    },
+    {
+      "name": "wing_near",
+      "file": "wing_near.png",
+      "offset": [
+        131,
+        11
+      ],
+      "bbox": [
+        131,
+        11,
+        245,
+        197
+      ]
+    },
+    {
+      "name": "wing_far",
+      "file": "wing_far.png",
+      "offset": [
+        14,
+        11
+      ],
+      "bbox": [
+        14,
+        11,
+        119,
+        167
+      ]
+    },
+    {
+      "name": "neck",
+      "file": "neck.png",
+      "offset": [
+        85,
+        89
+      ],
+      "bbox": [
+        85,
+        89,
+        147,
+        163
+      ]
+    },
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        65,
+        118
+      ],
+      "bbox": [
+        65,
+        118,
+        230,
+        245
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        85,
+        123
+      ],
+      "bbox": [
+        85,
+        123,
+        183,
+        190
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

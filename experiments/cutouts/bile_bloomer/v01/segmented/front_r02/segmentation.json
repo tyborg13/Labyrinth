@@ -1,0 +1,261 @@
+{
+  "ok": false,
+  "source_sha256": "263e00ef73d1671bb619ee330bb176bec9878f1609b3016041c07e9bba625aa9",
+  "ownership_sha256": "cbac46570c1e09c1351e3dbc6758e0e9355d5a86b55951bf9da86ee47ab7cf8a",
+  "parts": [
+    {
+      "name": "core",
+      "file": "core.png",
+      "offset": [
+        99,
+        30
+      ],
+      "bbox": [
+        99,
+        30,
+        151,
+        66
+      ]
+    },
+    {
+      "name": "petal_near_l",
+      "file": "petal_near_l.png",
+      "offset": [
+        62,
+        47
+      ],
+      "bbox": [
+        62,
+        47,
+        124,
+        88
+      ]
+    },
+    {
+      "name": "petal_near_r",
+      "file": "petal_near_r.png",
+      "offset": [
+        120,
+        46
+      ],
+      "bbox": [
+        120,
+        46,
+        188,
+        92
+      ]
+    },
+    {
+      "name": "petal_far_l",
+      "file": "petal_far_l.png",
+      "offset": [
+        53,
+        3
+      ],
+      "bbox": [
+        53,
+        3,
+        128,
+        55
+      ]
+    },
+    {
+      "name": "petal_far_r",
+      "file": "petal_far_r.png",
+      "offset": [
+        126,
+        2
+      ],
+      "bbox": [
+        126,
+        2,
+        192,
+        54
+      ]
+    },
+    {
+      "name": "tendril_high_l",
+      "file": "tendril_high_l.png",
+      "offset": [
+        49,
+        61
+      ],
+      "bbox": [
+        49,
+        61,
+        81,
+        115
+      ]
+    },
+    {
+      "name": "tendril_high_r",
+      "file": "tendril_high_r.png",
+      "offset": [
+        175,
+        55
+      ],
+      "bbox": [
+        175,
+        55,
+        205,
+        110
+      ]
+    },
+    {
+      "name": "tendril_mid_l",
+      "file": "tendril_mid_l.png",
+      "offset": [
+        23,
+        96
+      ],
+      "bbox": [
+        23,
+        96,
+        67,
+        153
+      ]
+    },
+    {
+      "name": "tendril_low_l",
+      "file": "tendril_low_l.png",
+      "offset": [
+        21,
+        144
+      ],
+      "bbox": [
+        21,
+        144,
+        75,
+        205
+      ]
+    },
+    {
+      "name": "tendril_low_r",
+      "file": "tendril_low_r.png",
+      "offset": [
+        190,
+        113
+      ],
+      "bbox": [
+        190,
+        113,
+        233,
+        206
+      ]
+    },
+    {
+      "name": "root_tip_l",
+      "file": "root_tip_l.png",
+      "offset": [
+        26,
+        226
+      ],
+      "bbox": [
+        26,
+        226,
+        120,
+        253
+      ]
+    },
+    {
+      "name": "root_tip_r",
+      "file": "root_tip_r.png",
+      "offset": [
+        146,
+        225
+      ],
+      "bbox": [
+        146,
+        225,
+        226,
+        251
+      ]
+    },
+    {
+      "name": "root_tip_c",
+      "file": "root_tip_c.png",
+      "offset": [
+        113,
+        215
+      ],
+      "bbox": [
+        113,
+        215,
+        142,
+        230
+      ]
+    },
+    {
+      "name": "root_stem_l",
+      "file": "root_stem_l.png",
+      "offset": [
+        24,
+        176
+      ],
+      "bbox": [
+        24,
+        176,
+        115,
+        226
+      ]
+    },
+    {
+      "name": "root_stem_r",
+      "file": "root_stem_r.png",
+      "offset": [
+        136,
+        175
+      ],
+      "bbox": [
+        136,
+        175,
+        232,
+        226
+      ]
+    },
+    {
+      "name": "root_stem_c",
+      "file": "root_stem_c.png",
+      "offset": [
+        111,
+        193
+      ],
+      "bbox": [
+        111,
+        193,
+        143,
+        225
+      ]
+    },
+    {
+      "name": "trunk",
+      "file": "trunk.png",
+      "offset": [
+        41,
+        78
+      ],
+      "bbox": [
+        41,
+        78,
+        216,
+        232
+      ]
+    }
+  ],
+  "unassigned_pixels": 3,
+  "unassigned_coordinates": [
+    [
+      60,
+      61
+    ],
+    [
+      61,
+      61
+    ],
+    [
+      63,
+      62
+    ]
+  ],
+  "coordinate_space": "unchanged registered source pixels"
+}

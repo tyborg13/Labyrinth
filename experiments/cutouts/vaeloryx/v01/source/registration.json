@@ -1,0 +1,36 @@
+{
+  "front": {
+    "source": "source/front_original.png",
+    "transform": "identity, untouched 255x255 RGBA source",
+    "native_bounds": [
+      13,
+      20,
+      247,
+      235
+    ]
+  },
+  "rear": {
+    "source": "source/rear_generated_v03.png",
+    "crop": [
+      40,
+      80,
+      1220,
+      1200
+    ],
+    "uniform_scale": 0.19196428571428573,
+    "rounded_raster_size": [
+      227,
+      215
+    ],
+    "target_offset": [
+      14,
+      20
+    ],
+    "resample": "Lanczos",
+    "target_canvas": [
+      255,
+      255
+    ],
+    "reason": "Uniform whole-dragon registration within matching native silhouette envelope. Source rectangle excludes incidental alpha noise outside painted dragon; no component fitting or repainting."
+  }
+}

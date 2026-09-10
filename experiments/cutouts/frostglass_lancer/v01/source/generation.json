@@ -1,0 +1,134 @@
+{
+  "tool": "built-in imagegen",
+  "reference_roles": [
+    {
+      "path": "source/original_front.png",
+      "original": "assets/art/enemies/frostglass_lancer.png",
+      "role": "composition and identity; rejected old detail density",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "520448c51cc09dc527bf3b4b127a0a0737312fa010c7e43971ab05512802a925"
+    },
+    {
+      "path": "source/stone_warden.png",
+      "original": "assets/units/stone_warden_cutout/front/rest.png",
+      "role": "approved front/rest style reference only",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "d3060d437d2250e4845fca3c3f3f1644414bdb8e2632bd4600fe89992ab14ac5"
+    },
+    {
+      "path": "source/tunnel_crawler.png",
+      "original": "assets/placeholders/units/crawler_anime_trial.png",
+      "role": "style reference only",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "cf6f983a2a343119c8e92fcd19fff53845046b405f4a1d8c4794b7f4f1026dc7"
+    },
+    {
+      "path": "source/bone_harrier.png",
+      "original": "assets/placeholders/units/harrier_anime_trial.png",
+      "role": "style reference only",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224"
+    },
+    {
+      "path": "source/grave_surgeon.png",
+      "original": "assets/art/enemies/grave_surgeon.png",
+      "role": "style reference only",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "f6651f373d35054087b04c9a56250c41c0be8644427003109c103de030104502"
+    },
+    {
+      "path": "source/stone_warden_rear.png",
+      "original": "assets/units/stone_warden_cutout/rear/rest.png",
+      "role": "approved rear projection/style reference only",
+      "size": [
+        255,
+        255
+      ],
+      "sha256": "525ef5e8e9d263481922d607a492ecda48e4adeaac72acec5cb9634d34c1fa66"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "source/front_generated_01_opaque.png",
+      "prompt": "source/front_prompt.txt",
+      "mode": "RGB",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ],
+      "sha256": "5c79167a286d989b81aac71102f9090213279f562441dc5145ca5e642e7d0cc3",
+      "disposition": "painting candidate; rejected alpha (opaque RGB)"
+    },
+    {
+      "path": "source/front_generated_02_checkerboard.png",
+      "prompt": "source/front_alpha_prompt.txt",
+      "mode": "RGB",
+      "size": [
+        1254,
+        1254
+      ],
+      "alpha_extrema": [
+        255,
+        255
+      ],
+      "sha256": "598a87874124d47d350f83592d349cd760a3d789c457f3b15778478eddf7765d",
+      "disposition": "Selected new front painting after explicit background ownership exclusion and native/board QA; generated RGB remains untouched"
+    },
+    {
+      "path": "source/rear_generated.png",
+      "prompt": "source/rear_prompt.txt",
+      "reference": "source/front_registered.png",
+      "mode": "RGB",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "43200a74e7484ceda822f94340f0c2ba6a7f9b21c0364272e87bb620d12289a3",
+      "disposition": "Matching rear paint; facing reference is the accepted front plus Warden rear projection; untouched imagegen bytes, explicit background ownership and registration"
+    },
+    {
+      "path": "source/front_underbody_generated.png",
+      "prompt": "source/front_underbody_prompt.txt",
+      "reference": "source/front_registered.png",
+      "mode": "RGB",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "feacc2b84ceb592d2f0e99c9206e65783bdc927fb66ef32c4d7240d41b7de588",
+      "disposition": "Concealed front armor behind cloth; untouched imagegen bytes, explicit background ownership and registration"
+    },
+    {
+      "path": "source/rear_underbody_generated.png",
+      "prompt": "source/rear_underbody_prompt.txt",
+      "reference": "source/rear_registered.png",
+      "mode": "RGB",
+      "size": [
+        1254,
+        1254
+      ],
+      "sha256": "5cfa6bc49b86955046e2c0f64e77400edbfccff9d0687b811ed6b8237a57e8d4",
+      "disposition": "Concealed rear armor behind cloth; untouched imagegen bytes, explicit background ownership and registration"
+    }
+  ],
+  "registration": "Front, rear and underbody *_registration.json recipes record explicit background ownership and fixed-canvas translation; portrait_registration.json records the selected crop."
+}

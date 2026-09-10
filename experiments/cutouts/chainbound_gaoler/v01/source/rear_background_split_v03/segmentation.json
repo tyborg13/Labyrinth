@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "source_sha256": "14acf86103f5ce2807352c067dfe73e35bb91b30f749f63a93edff5134ef3617",
+  "ownership_sha256": "969149dc1df8e5b77bdc44a229196b608ff18a904278c68912a0ca825d9e88a1",
+  "parts": [
+    {
+      "name": "creature",
+      "file": "creature.png",
+      "offset": [
+        66,
+        8
+      ],
+      "bbox": [
+        66,
+        8,
+        253,
+        251
+      ]
+    },
+    {
+      "name": "excluded_background",
+      "file": "excluded_background.png",
+      "offset": [
+        26,
+        2
+      ],
+      "bbox": [
+        26,
+        2,
+        255,
+        255
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

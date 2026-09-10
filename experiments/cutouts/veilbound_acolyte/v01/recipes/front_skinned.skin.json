@@ -1,0 +1,141 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_cast_sleeve",
+      "parts": [
+        "cast_sleeve",
+        "cast_cap"
+      ],
+      "bones": [
+        "torso",
+        "cast_arm",
+        "cast_hand"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            102,
+            98
+          ],
+          "axis": [
+            -21,
+            18
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            81,
+            116
+          ],
+          "axis": [
+            -21,
+            18
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "front_strike_sleeve",
+      "parts": [
+        "strike_sleeve",
+        "strike_cap"
+      ],
+      "bones": [
+        "torso",
+        "strike_arm",
+        "strike_hand"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            163,
+            97
+          ],
+          "axis": [
+            -19,
+            27
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            144,
+            124
+          ],
+          "axis": [
+            -19,
+            27
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "front_skirt_l",
+      "parts": [
+        "skirt_l"
+      ],
+      "bones": [
+        "torso",
+        "support_l"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            205
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 54
+        }
+      ]
+    },
+    {
+      "name": "front_skirt_r",
+      "parts": [
+        "skirt_r"
+      ],
+      "bones": [
+        "torso",
+        "support_r"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            205
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 54
+        }
+      ]
+    }
+  ]
+}

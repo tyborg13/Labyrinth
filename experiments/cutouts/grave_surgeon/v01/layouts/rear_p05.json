@@ -1,0 +1,444 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "rear",
+  "joints": {
+    "root": {
+      "position": [
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "pelvis": {
+      "position": [
+        162,
+        115
+      ],
+      "parent": "root"
+    },
+    "torso": {
+      "position": [
+        164,
+        94
+      ],
+      "parent": "pelvis"
+    },
+    "hood": {
+      "position": [
+        180,
+        61
+      ],
+      "parent": "torso"
+    },
+    "robe": {
+      "position": [
+        162,
+        116
+      ],
+      "parent": "pelvis"
+    },
+    "upper_saw": {
+      "position": [
+        184,
+        94
+      ],
+      "parent": "torso"
+    },
+    "fore_saw": {
+      "position": [
+        195,
+        116
+      ],
+      "parent": "upper_saw"
+    },
+    "wrist_saw": {
+      "position": [
+        203,
+        134
+      ],
+      "parent": "fore_saw"
+    },
+    "saw": {
+      "position": [
+        209,
+        140
+      ],
+      "parent": "wrist_saw"
+    },
+    "upper_vial": {
+      "position": [
+        136,
+        86
+      ],
+      "parent": "torso"
+    },
+    "fore_vial": {
+      "position": [
+        126,
+        99
+      ],
+      "parent": "upper_vial"
+    },
+    "wrist_vial": {
+      "position": [
+        124,
+        111
+      ],
+      "parent": "fore_vial"
+    },
+    "vial": {
+      "position": [
+        125,
+        118
+      ],
+      "parent": "wrist_vial"
+    },
+    "thigh_r": {
+      "position": [
+        179,
+        136
+      ],
+      "parent": "pelvis"
+    },
+    "shin_r": {
+      "position": [
+        190,
+        168
+      ],
+      "parent": "thigh_r"
+    },
+    "foot_r": {
+      "position": [
+        194,
+        200
+      ],
+      "parent": "shin_r"
+    },
+    "thigh_l": {
+      "position": [
+        149,
+        130
+      ],
+      "parent": "pelvis"
+    },
+    "shin_l": {
+      "position": [
+        138,
+        157
+      ],
+      "parent": "thigh_l"
+    },
+    "foot_l": {
+      "position": [
+        135,
+        179
+      ],
+      "parent": "shin_l"
+    }
+  },
+  "parts": [
+    {
+      "name": "hand_saw",
+      "file": "segmented/rear_p05/hand_saw.png",
+      "offset": [
+        192,
+        128
+      ],
+      "bbox": [
+        192,
+        128,
+        213,
+        145
+      ],
+      "bone": "wrist_saw",
+      "z_index": 16,
+      "equipment_slot": "hands"
+    },
+    {
+      "name": "saw",
+      "file": "segmented/rear_p05/saw.png",
+      "offset": [
+        199,
+        129
+      ],
+      "bbox": [
+        199,
+        129,
+        254,
+        194
+      ],
+      "bone": "saw",
+      "z_index": 15,
+      "equipment_slot": "weapon"
+    },
+    {
+      "name": "vial",
+      "file": "segmented/rear_p05/vial.png",
+      "offset": [
+        119,
+        105
+      ],
+      "bbox": [
+        119,
+        105,
+        136,
+        127
+      ],
+      "bone": "vial",
+      "z_index": 17,
+      "equipment_slot": "offhand"
+    },
+    {
+      "name": "hand_vial",
+      "file": "segmented/rear_p05/hand_vial.png",
+      "offset": [
+        116,
+        103
+      ],
+      "bbox": [
+        116,
+        103,
+        135,
+        116
+      ],
+      "bone": "wrist_vial",
+      "z_index": 18,
+      "equipment_slot": "hands"
+    },
+    {
+      "name": "sleeve_saw",
+      "file": "segmented/rear_p05/sleeve_saw.png",
+      "offset": [
+        180,
+        97
+      ],
+      "bbox": [
+        180,
+        97,
+        210,
+        134
+      ],
+      "bone": "upper_saw",
+      "z_index": 10,
+      "equipment_slot": "arms"
+    },
+    {
+      "name": "sleeve_vial",
+      "file": "segmented/rear_p05/sleeve_vial.png",
+      "offset": [
+        116,
+        77
+      ],
+      "bbox": [
+        116,
+        77,
+        144,
+        103
+      ],
+      "bone": "upper_vial",
+      "z_index": 10,
+      "equipment_slot": "arms"
+    },
+    {
+      "name": "foot_l",
+      "file": "segmented/rear_p05/foot_l.png",
+      "offset": [
+        127,
+        175
+      ],
+      "bbox": [
+        127,
+        175,
+        151,
+        194
+      ],
+      "bone": "foot_l",
+      "z_index": 3,
+      "equipment_slot": "boots"
+    },
+    {
+      "name": "foot_r",
+      "file": "segmented/rear_p05/foot_r.png",
+      "offset": [
+        186,
+        193
+      ],
+      "bbox": [
+        186,
+        193,
+        217,
+        214
+      ],
+      "bone": "foot_r",
+      "z_index": 3,
+      "equipment_slot": "boots"
+    },
+    {
+      "name": "leg_l",
+      "file": "segmented/rear_p05/leg_l.png",
+      "offset": [
+        130,
+        166
+      ],
+      "bbox": [
+        130,
+        166,
+        145,
+        177
+      ],
+      "bone": "thigh_l",
+      "z_index": 2,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "leg_r",
+      "file": "segmented/rear_p05/leg_r.png",
+      "offset": [
+        185,
+        180
+      ],
+      "bbox": [
+        185,
+        180,
+        204,
+        197
+      ],
+      "bone": "thigh_r",
+      "z_index": 2,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "hood",
+      "file": "segmented/rear_p05/hood.png",
+      "offset": [
+        150,
+        27
+      ],
+      "bbox": [
+        150,
+        27,
+        199,
+        73
+      ],
+      "bone": "hood",
+      "z_index": 22,
+      "equipment_slot": "head"
+    },
+    {
+      "name": "belt_kit",
+      "file": "segmented/rear_p05/belt_kit.png",
+      "offset": [
+        133,
+        96
+      ],
+      "bbox": [
+        133,
+        96,
+        158,
+        138
+      ],
+      "bone": "torso",
+      "z_index": 21,
+      "equipment_slot": "belt"
+    },
+    {
+      "name": "torso",
+      "file": "segmented/rear_p05/torso.png",
+      "offset": [
+        127,
+        58
+      ],
+      "bbox": [
+        127,
+        58,
+        203,
+        123
+      ],
+      "bone": "torso",
+      "z_index": 20,
+      "equipment_slot": "chest"
+    },
+    {
+      "name": "robe",
+      "file": "segmented/rear_p05/robe.png",
+      "offset": [
+        122,
+        115
+      ],
+      "bbox": [
+        122,
+        115,
+        211,
+        191
+      ],
+      "bone": "robe",
+      "z_index": 12,
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "thigh_fill_r",
+      "file": "assets/rear_p05/thigh_fill_r.png",
+      "offset": [
+        188,
+        189
+      ],
+      "bone": "thigh_r",
+      "z_index": 0,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "thigh_fill_l",
+      "file": "assets/rear_p05/thigh_fill_l.png",
+      "offset": [
+        131,
+        166
+      ],
+      "bone": "thigh_l",
+      "z_index": 0,
+      "equipment_slot": "legs"
+    },
+    {
+      "name": "sleeve_cap_saw",
+      "file": "assets/rear_p05/sleeve_cap_saw.png",
+      "offset": [
+        196,
+        95
+      ],
+      "bone": "upper_saw",
+      "z_index": 7,
+      "equipment_slot": "arms"
+    },
+    {
+      "name": "sleeve_cap_vial",
+      "file": "assets/rear_p05/sleeve_cap_vial.png",
+      "offset": [
+        140,
+        91
+      ],
+      "bone": "upper_vial",
+      "z_index": 7,
+      "equipment_slot": "arms"
+    }
+  ],
+  "landmarks": {
+    "sole_r": [
+      197,
+      211
+    ],
+    "sole_l": [
+      136,
+      189
+    ],
+    "weapon_grip": [
+      209,
+      140
+    ],
+    "vial_grip": [
+      125,
+      118
+    ]
+  }
+}

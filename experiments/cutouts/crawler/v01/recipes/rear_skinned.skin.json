@@ -1,0 +1,167 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned.json",
+  "fields": [
+    {
+      "name": "rear_arm_near",
+      "parts": [
+        "arm_near",
+        "arm_fill_near"
+      ],
+      "bones": [
+        "upper_near",
+        "fore_near",
+        "claw_near"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            171,
+            124
+          ],
+          "axis": [
+            18,
+            14
+          ],
+          "width": 9
+        },
+        {
+          "center": [
+            189,
+            138
+          ],
+          "axis": [
+            18,
+            14
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_leg_near",
+      "parts": [
+        "leg_near",
+        "leg_fill_near"
+      ],
+      "bones": [
+        "thigh_near",
+        "shin_near",
+        "foot_near"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            158
+          ],
+          "axis": [
+            -23,
+            32
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            105,
+            190
+          ],
+          "axis": [
+            -23,
+            32
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_arm_far",
+      "parts": [
+        "arm_far",
+        "arm_fill_far"
+      ],
+      "bones": [
+        "upper_far",
+        "fore_far",
+        "claw_far"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            141,
+            122
+          ],
+          "axis": [
+            1,
+            11
+          ],
+          "width": 9
+        },
+        {
+          "center": [
+            142,
+            133
+          ],
+          "axis": [
+            1,
+            11
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_leg_far",
+      "parts": [
+        "leg_far",
+        "leg_fill_far"
+      ],
+      "bones": [
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            45,
+            157
+          ],
+          "axis": [
+            0,
+            18
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            45,
+            175
+          ],
+          "axis": [
+            0,
+            18
+          ],
+          "width": 8
+        }
+      ]
+    }
+  ]
+}

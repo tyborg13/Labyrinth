@@ -1,0 +1,18 @@
+{
+  "source": "source/hidden_generated.png",
+  "crop": [
+    560,
+    340,
+    1230,
+    625
+  ],
+  "resized_size": [
+    160,
+    68
+  ],
+  "offset": [
+    46,
+    151
+  ],
+  "usage": "Only pixels behind eroded fully opaque proximal seam bands. Never overwrites accepted source; no exposed rest silhouette change."
+}

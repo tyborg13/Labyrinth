@@ -1,0 +1,218 @@
+[
+  {
+    "name": "torso_under",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        115,
+        60
+      ],
+      [
+        143,
+        61
+      ],
+      [
+        151,
+        81
+      ],
+      [
+        150,
+        116
+      ],
+      [
+        110,
+        116
+      ],
+      [
+        106,
+        84
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  },
+  {
+    "name": "pelvis_under",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        113,
+        115
+      ],
+      [
+        149,
+        115
+      ],
+      [
+        158,
+        138
+      ],
+      [
+        150,
+        153
+      ],
+      [
+        119,
+        152
+      ],
+      [
+        107,
+        137
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  },
+  {
+    "name": "sleeve_r",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        153,
+        83
+      ],
+      [
+        168,
+        91
+      ],
+      [
+        178,
+        111
+      ],
+      [
+        185,
+        120
+      ],
+      [
+        185,
+        133
+      ],
+      [
+        172,
+        131
+      ],
+      [
+        159,
+        119
+      ],
+      [
+        151,
+        100
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  },
+  {
+    "name": "sleeve_l",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        96,
+        84
+      ],
+      [
+        109,
+        89
+      ],
+      [
+        106,
+        110
+      ],
+      [
+        109,
+        141
+      ],
+      [
+        99,
+        148
+      ],
+      [
+        89,
+        135
+      ],
+      [
+        85,
+        112
+      ],
+      [
+        88,
+        97
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  },
+  {
+    "name": "thigh_cover_r",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        137,
+        134
+      ],
+      [
+        154,
+        135
+      ],
+      [
+        162,
+        157
+      ],
+      [
+        162,
+        181
+      ],
+      [
+        151,
+        189
+      ],
+      [
+        140,
+        183
+      ],
+      [
+        136,
+        163
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  },
+  {
+    "name": "thigh_cover_l",
+    "source": "source/rear_underbody_registered.png",
+    "polygon": [
+      [
+        110,
+        133
+      ],
+      [
+        129,
+        134
+      ],
+      [
+        132,
+        146
+      ],
+      [
+        123,
+        170
+      ],
+      [
+        119,
+        188
+      ],
+      [
+        102,
+        190
+      ],
+      [
+        102,
+        163
+      ]
+    ],
+    "clip_to_registered_silhouette": true,
+    "no_new_rgb_pixels": true
+  }
+]

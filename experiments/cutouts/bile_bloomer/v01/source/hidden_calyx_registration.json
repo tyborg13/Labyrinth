@@ -1,0 +1,15 @@
+{
+  "source": "hidden_calyx_generated.png",
+  "source_sha256": "e05a3677496257768ed6b8fc69f40bf00f21c83ebc593fb0b6d88d0f3a41d22b",
+  "source_bbox": [
+    101,
+    101,
+    1145,
+    1238
+  ],
+  "background_rule": "Exclude neutral pixels where channel range <12 and min RGB >135",
+  "foreground_inclusion_polygons_registered": [],
+  "source_rgb_preserved": true,
+  "mask": "hidden_calyx_source_ownership_mask.png",
+  "mask_sha256": "2eb62ecc5762139f5bbd4b9fa6585fb6b6dbfcee26db22245e8253a023b5ae76"
+}

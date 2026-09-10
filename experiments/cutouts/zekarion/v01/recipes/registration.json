@@ -1,0 +1,29 @@
+{
+  "source_size": [
+    255,
+    255
+  ],
+  "front": "byte-identical original; no transforms",
+  "rear": {
+    "untouched_source": "source/rear_alpha_generated.png",
+    "uniform_scale": 0.1937799043062201,
+    "destination": [
+      6,
+      3
+    ],
+    "size": [
+      243,
+      243
+    ]
+  },
+  "projection": "2:1 board floor; individual limb contacts recorded in layouts",
+  "digests": {
+    "source/front_registered.png": "6a2729de56f2658fffe0a54818499679668d8b021836f3fb45afb01b72db299c",
+    "source/front_original.png": "6a2729de56f2658fffe0a54818499679668d8b021836f3fb45afb01b72db299c",
+    "source/rear_registered.png": "851bccd7d9eef1b96775e44e67de968dee5007b296e75ecd514e4c6f414e259b",
+    "source/front_underbody_rejected.png": "b586289ba28a6b1a8438bccc26e144aaf4b03a3732593c6a9f17b36518655129",
+    "source/concealed_scales_generated.png": "05dc812c9afab89b8ba997a75cf607cb33f1dbf3576d033be5709b9b44a773c5",
+    "source/rear_generated.png": "4ab88738c656cd9c9283b9c285a6158f1a2b6ba74f8a9bffd1a2b039ae9f5b77",
+    "source/rear_alpha_generated.png": "fbb0a43d1faee0f73a3dcc1f6cd412b3d2cb07484d2c62b8fe0d118d3c7f4ab1"
+  }
+}

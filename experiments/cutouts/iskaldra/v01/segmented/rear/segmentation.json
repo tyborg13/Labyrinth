@@ -1,0 +1,192 @@
+{
+  "ok": true,
+  "source_sha256": "3ee6be6b9043b1adfc740656d940fc48d8369a3c487d389276133018ad1d3578",
+  "ownership_sha256": "76bfe0bf25a86555b9cb6b174faf2218dbf84dc0f679c73f5bfbf1f2eb34dd88",
+  "parts": [
+    {
+      "name": "wing_far",
+      "file": "wing_far.png",
+      "offset": [
+        150,
+        13
+      ],
+      "bbox": [
+        150,
+        13,
+        243,
+        184
+      ]
+    },
+    {
+      "name": "wing_near",
+      "file": "wing_near.png",
+      "offset": [
+        24,
+        9
+      ],
+      "bbox": [
+        24,
+        9,
+        130,
+        178
+      ]
+    },
+    {
+      "name": "talon_far",
+      "file": "talon_far.png",
+      "offset": [
+        190,
+        139
+      ],
+      "bbox": [
+        190,
+        139,
+        213,
+        161
+      ]
+    },
+    {
+      "name": "arm_far",
+      "file": "arm_far.png",
+      "offset": [
+        173,
+        115
+      ],
+      "bbox": [
+        173,
+        115,
+        210,
+        154
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        127,
+        40
+      ],
+      "bbox": [
+        127,
+        40,
+        164,
+        78
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        136,
+        168
+      ],
+      "bbox": [
+        136,
+        168,
+        192,
+        200
+      ]
+    },
+    {
+      "name": "leg_near",
+      "file": "leg_near.png",
+      "offset": [
+        137,
+        137
+      ],
+      "bbox": [
+        137,
+        137,
+        187,
+        175
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        114,
+        166
+      ],
+      "bbox": [
+        114,
+        166,
+        138,
+        182
+      ]
+    },
+    {
+      "name": "leg_far",
+      "file": "leg_far.png",
+      "offset": [
+        108,
+        143
+      ],
+      "bbox": [
+        108,
+        143,
+        138,
+        173
+      ]
+    },
+    {
+      "name": "talon_near",
+      "file": "talon_near.png",
+      "offset": [
+        56,
+        171
+      ],
+      "bbox": [
+        56,
+        171,
+        80,
+        191
+      ]
+    },
+    {
+      "name": "arm_near",
+      "file": "arm_near.png",
+      "offset": [
+        64,
+        136
+      ],
+      "bbox": [
+        64,
+        136,
+        102,
+        177
+      ]
+    },
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        54,
+        127
+      ],
+      "bbox": [
+        54,
+        127,
+        197,
+        242
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        68,
+        54
+      ],
+      "bbox": [
+        68,
+        54,
+        180,
+        177
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

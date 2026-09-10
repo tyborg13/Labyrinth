@@ -1,0 +1,36 @@
+{
+  "front": {
+    "operation": "byte-identical copy of accepted source",
+    "sha256": "26ad12c259a1617520f6c1b2d98309e25e468368671f1d614e6cb740c9b9e6a3",
+    "bbox": [
+      14,
+      12,
+      240,
+      231
+    ]
+  },
+  "rear": {
+    "source": "source/rear_generated.png",
+    "crop": [
+      95,
+      93,
+      1166,
+      1098
+    ],
+    "crop_rule": "bounding box of generated alpha >=32 excludes distant invisible alpha noise; preserve alpha within selected crop",
+    "uniform_scale": 0.21101774042950514,
+    "resized_size": [
+      226,
+      212
+    ],
+    "offset": [
+      14,
+      19
+    ],
+    "ground_line": 231,
+    "target_size": [
+      255,
+      255
+    ]
+  }
+}

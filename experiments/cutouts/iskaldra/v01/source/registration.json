@@ -1,0 +1,29 @@
+{
+  "front": {
+    "source": "front_original.png",
+    "operation": "byte-identical copy; 255px native coordinates"
+  },
+  "rear": {
+    "source": "rear_generated.png",
+    "source_alpha_bbox": [
+      0,
+      17,
+      1222,
+      1254
+    ],
+    "uniform_fit_box": [
+      235,
+      235
+    ],
+    "resample": "Lanczos",
+    "registered_size": [
+      232,
+      235
+    ],
+    "offset": [
+      11,
+      9
+    ],
+    "projection": "2:1 board; front lower-left, rear upper-right; x reflection provides other two directions"
+  }
+}

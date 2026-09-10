@@ -1,0 +1,79 @@
+[
+  {
+    "name": "upper_near",
+    "center": [
+      149,
+      145
+    ],
+    "radius": 11,
+    "clip": "registered source alpha == 255",
+    "owner": "torso",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "upper_far",
+    "center": [
+      95,
+      148
+    ],
+    "radius": 8,
+    "clip": "registered source alpha == 255",
+    "owner": "torso",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "head",
+    "center": [
+      111,
+      99
+    ],
+    "radius": 9,
+    "clip": "registered source alpha == 255",
+    "owner": "neck",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "jaw",
+    "center": [
+      93,
+      126
+    ],
+    "radius": 5,
+    "clip": "registered source alpha == 255",
+    "owner": "head",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "wing_near",
+    "center": [
+      145,
+      135
+    ],
+    "radius": 9,
+    "clip": "registered source alpha == 255",
+    "owner": "torso",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "wing_far",
+    "center": [
+      107,
+      99
+    ],
+    "radius": 8,
+    "clip": "registered source alpha == 255",
+    "owner": "torso",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  },
+  {
+    "name": "tail_base",
+    "center": [
+      200,
+      157
+    ],
+    "radius": 10,
+    "clip": "registered source alpha == 255",
+    "owner": "root",
+    "texture_registration": "whole generated material uniformly resized to 64px; crop begins at [12,12]"
+  }
+]

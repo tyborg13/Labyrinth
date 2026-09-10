@@ -1,0 +1,47 @@
+[
+  {
+    "prompt": "Use case: identity-preserve. Asset type: editable game dragon cutout source painting. Input image 1 is the APPROVED FRONT DESIGN reference, not to be replaced. Generate ONLY a matching rear three-quarter view of exactly this same dark shadow dragon, Noctyrax. It is crouched on four clawed feet, two broad ragged bat wings raised, a long curled tail, many curved horns and dorsal spikes; charcoal black scales with sparse muted violet glints. Match its original painterly pixel-readable detail and heavy dark silhouette. Camera looks from above at a 2:1 isometric board angle; rear view faces away and to the upper-right, so broad back, rear wing membranes, hindquarters, tail attachment and backs of claws are visible. Keep same proportions, squat torso, long arched neck and all appendages fully inside frame. No dramatic new pose, no redesign, no equipment. Isolated single full creature, true transparent RGBA background, no ground shadow, no text, no border, no checkerboard. Deliver square 1024 canvas.",
+    "reference": "source/front_original.png",
+    "role": "approved front design reference",
+    "output": "source/rear_rejected_rgb.png",
+    "disposition": "rejected: opaque white RGB and head looks back at camera",
+    "output_sha256": "e161d47d3f94f97067cf19d3655183c20a3c58738772b27e075d6f0995c69af4",
+    "reference_sha256": "4356b8fdf2e9b5f106ca4d2c4ad31cfa1e5a19baf806b4718e56d9b2713973f7"
+  },
+  {
+    "prompt": "Use case: identity-preserve. Image 1 is approved front DESIGN REFERENCE. Create the SAME black/violet crouched dragon from a TRUE rear three-quarter angle looking AWAY toward upper-right. We see its back, wing backs and back of head, absolutely NO visible eye, no face turned back toward the viewer. The snout points away toward upper-right. Maintain broad ragged raised wings, curled tail, hunched crouching FOUR LEGGED anatomy, curved horns and dark scaled painterly pixel-readable style from the reference. Full creature entirely in square frame, transparent RGBA background (actual alpha, NOT white, NOT checkerboard). No ground, no shadows, no text, no border. Native game sprite source for 255px registered body. This is rear-view paint, do not create another front-facing dragon.",
+    "reference": "source/front_original.png",
+    "role": "approved front design reference",
+    "output": "source/rear_generated_rgb.png",
+    "disposition": "selected rear anatomy; generated RGB backdrop removed during explicit registration",
+    "output_sha256": "383de9c6bf50a481b6fb148fbd77c664b7556bf5cb4db7dc2cf7e688f9069dba",
+    "reference_sha256": "4356b8fdf2e9b5f106ca4d2c4ad31cfa1e5a19baf806b4718e56d9b2713973f7"
+  },
+  {
+    "prompt": "Use case: background-extraction. EDIT TARGET: image 1, the rear-view dragon. Remove the entire baked checkerboard background, including enclosed holes between the wings and limbs. Output actual transparent RGBA alpha everywhere outside the creature. Preserve every dragon pixel, contours, posture and exact proportions. Do not paint a new checkerboard or simulate transparency visually. Do not change the dragon. This is a game cutout needing a real alpha channel.",
+    "reference": "source/rear_generated_rgb.png",
+    "role": "background extraction edit target",
+    "output": "source/rear_alpha_rejected_rgb.png",
+    "disposition": "rejected: imagegen still returned RGB with painted checkerboard",
+    "output_sha256": "cb905065636ea591cf7afc65a921c29af88172d683bb9d426e4388ee538344df",
+    "reference_sha256": "383de9c6bf50a481b6fb148fbd77c664b7556bf5cb4db7dc2cf7e688f9069dba"
+  },
+  {
+    "prompt": "Use case: precise-object-edit. Image 1 is the approved FRONT Noctyrax dragon design. Make a source for its concealed anatomy: keep exactly the same crouched torso, neck, scales, colors and viewpoint; REMOVE the two large wings and the near/front foreleg (the large claw at lower center-right), revealing complete charcoal scaly shoulder, chest and foreleg socket underneath. Preserve all remaining body proportions. This image supplies only tiny hidden shoulder and wing-joint patches; the original front painting remains in use. Sharp dark scaled material matching reference, muted violet glints, no new armor or patterns. Single complete body, no text, no border. Plain solid bright magenta background so the material is easy to register. Do not make an atlas or arrange separate pieces.",
+    "reference": "source/front_original.png",
+    "role": "hidden-anatomy edit reference",
+    "output": "source/front_hidden_generated.png",
+    "disposition": "selected only for small concealed scaly patches; hollow socket will not be used",
+    "output_sha256": "c0d63833f98c0e63d2d393585bbf705d5c92e6cc632bd49c9d762acd9ee55c45",
+    "reference_sha256": "4356b8fdf2e9b5f106ca4d2c4ad31cfa1e5a19baf806b4718e56d9b2713973f7"
+  },
+  {
+    "prompt": "Use case: precise-object-edit. Image 1 is the selected rear-view Noctyrax dragon, a quadruped black/violet dragon crouched facing away upper-right. Make concealed-anatomy source paint ONLY: remove both wings and remove the near foreleg (at image right), showing the complete scaly torso and the FAR foreleg that was hidden behind it. Keep all other proportions, position, design, camera view, charcoal/violet material and rear orientation fixed. Four-legged crouching dragon with long curled tail. This image supplies only hidden body and far foreleg material for an editable cutout; original visible rear paint remains in use. Plain solid bright magenta background. No checkerboard, no text, no atlas, no border.",
+    "reference": "source/rear_registered.png",
+    "role": "hidden rear anatomy edit reference",
+    "output": "source/rear_hidden_generated.png",
+    "disposition": "selected concealed scaly joint caps and the far foreleg; registered extraction removes magenta background and fringe",
+    "output_sha256": "2f64fa77e0050bdbbeda62618693990bbd4abbc10e14b4671dbffa66bb14d930",
+    "reference_sha256": "447ed10f1a6b6ab811879553adb0f7b849e4372389d64ff136134044093a472a"
+  }
+]

@@ -1,0 +1,178 @@
+{
+  "ok": true,
+  "source_sha256": "6a942e1420c3699d7fb2bdc9e26a42eb09c9c28eed044e3c8e7d8346bd6e2ac8",
+  "ownership_sha256": "8c16433eabd46dfbcf02c5d00ff77287e5ede125a8626e9f5eafb91be92a77e4",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        106,
+        30
+      ],
+      "bbox": [
+        106,
+        30,
+        155,
+        76
+      ]
+    },
+    {
+      "name": "hand_r",
+      "file": "hand_r.png",
+      "offset": [
+        178,
+        64
+      ],
+      "bbox": [
+        178,
+        64,
+        201,
+        89
+      ]
+    },
+    {
+      "name": "spear",
+      "file": "spear.png",
+      "offset": [
+        145,
+        35
+      ],
+      "bbox": [
+        145,
+        35,
+        255,
+        111
+      ]
+    },
+    {
+      "name": "arm_r",
+      "file": "arm_r.png",
+      "offset": [
+        147,
+        81
+      ],
+      "bbox": [
+        147,
+        81,
+        201,
+        125
+      ]
+    },
+    {
+      "name": "hand_l",
+      "file": "hand_l.png",
+      "offset": [
+        49,
+        132
+      ],
+      "bbox": [
+        49,
+        132,
+        83,
+        160
+      ]
+    },
+    {
+      "name": "arm_l",
+      "file": "arm_l.png",
+      "offset": [
+        51,
+        77
+      ],
+      "bbox": [
+        51,
+        77,
+        112,
+        134
+      ]
+    },
+    {
+      "name": "foot_r",
+      "file": "foot_r.png",
+      "offset": [
+        134,
+        185
+      ],
+      "bbox": [
+        134,
+        185,
+        167,
+        208
+      ]
+    },
+    {
+      "name": "foot_l",
+      "file": "foot_l.png",
+      "offset": [
+        58,
+        210
+      ],
+      "bbox": [
+        58,
+        210,
+        88,
+        231
+      ]
+    },
+    {
+      "name": "waistcloth",
+      "file": "waistcloth.png",
+      "offset": [
+        75,
+        121
+      ],
+      "bbox": [
+        75,
+        121,
+        149,
+        194
+      ]
+    },
+    {
+      "name": "leg_r",
+      "file": "leg_r.png",
+      "offset": [
+        134,
+        137
+      ],
+      "bbox": [
+        134,
+        137,
+        170,
+        198
+      ]
+    },
+    {
+      "name": "leg_l",
+      "file": "leg_l.png",
+      "offset": [
+        56,
+        161
+      ],
+      "bbox": [
+        56,
+        161,
+        107,
+        222
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        94,
+        64
+      ],
+      "bbox": [
+        94,
+        64,
+        160,
+        131
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

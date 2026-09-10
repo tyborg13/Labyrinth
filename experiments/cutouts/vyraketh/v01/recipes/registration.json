@@ -1,0 +1,29 @@
+{
+  "coordinate_space": "255px source; 2:1 board projection; source offset 128:128 in fixed 512 canvas",
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "identity, unchanged accepted front pixels",
+    "sha256": "70b841c5e3bf28ab4c0f5490b966ae76a21a92c240c0191255eeb34465d9f574"
+  },
+  "rear": {
+    "source": "source/rear_selected.png",
+    "alpha_bbox_threshold": 8,
+    "crop": [
+      25,
+      57,
+      1234,
+      1179
+    ],
+    "uniform_scale": 0.19106699751861042,
+    "rounded_size": [
+      231,
+      214
+    ],
+    "offset": [
+      12,
+      31
+    ],
+    "reflect_after_registration": true,
+    "rationale": "Front faces lower-left; unreflected production rear faces upper-right under enemy_cutout_facing.gd; reflection creates the other two views."
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "source_sha256": "8f7499fcfd8cda7dcb2a4606bfa18470bb07dd83d536be76814bb9288e99e93c",
+  "ownership_sha256": "d2b25db733bd5037f30dcd334fd53dcb42dd2277bd767f81ed912e90ccd11e97",
+  "parts": [
+    {
+      "name": "left_outer",
+      "file": "left_outer.png",
+      "offset": [
+        39,
+        163
+      ],
+      "bbox": [
+        39,
+        163,
+        81,
+        211
+      ]
+    },
+    {
+      "name": "left_inner",
+      "file": "left_inner.png",
+      "offset": [
+        66,
+        167
+      ],
+      "bbox": [
+        66,
+        167,
+        109,
+        217
+      ]
+    },
+    {
+      "name": "center",
+      "file": "center.png",
+      "offset": [
+        109,
+        171
+      ],
+      "bbox": [
+        109,
+        171,
+        148,
+        219
+      ]
+    },
+    {
+      "name": "right_inner",
+      "file": "right_inner.png",
+      "offset": [
+        139,
+        155
+      ],
+      "bbox": [
+        139,
+        155,
+        185,
+        219
+      ]
+    },
+    {
+      "name": "right_outer",
+      "file": "right_outer.png",
+      "offset": [
+        160,
+        144
+      ],
+      "bbox": [
+        160,
+        144,
+        215,
+        209
+      ]
+    },
+    {
+      "name": "core",
+      "file": "core.png",
+      "offset": [
+        48,
+        80
+      ],
+      "bbox": [
+        48,
+        80,
+        198,
+        202
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

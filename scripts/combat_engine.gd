@@ -3048,6 +3048,9 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 				"actor_name": actor_name,
 				"tile": after_enemy.get("pos", Vector2i.ZERO),
 				"amount": after_count - before_count,
+				# Resolved snapshots let Zekarion's calling gesture reveal exactly the
+				# already-created minions. Presentation must never summon them again.
+				"spawned_enemies": after_enemies.slice(before_count).duplicate(true),
 				"label": "Summon"
 			}
 		_:

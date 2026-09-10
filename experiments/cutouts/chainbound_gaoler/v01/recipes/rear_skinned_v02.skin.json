@@ -1,0 +1,167 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned_v02.json",
+  "fields": [
+    {
+      "name": "leg_hook",
+      "parts": [
+        "leg_hook",
+        "thigh_hook_under"
+      ],
+      "bones": [
+        "thigh_hook",
+        "shin_hook",
+        "foot_hook"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            181,
+            193
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            182,
+            214
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "arm_hook",
+      "parts": [
+        "arm_hook",
+        "shoulder_hook_under"
+      ],
+      "bones": [
+        "upper_hook",
+        "fore_hook",
+        "hand_hook"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            191,
+            104
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            223,
+            81
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "leg_fist",
+      "parts": [
+        "leg_fist",
+        "thigh_fist_under"
+      ],
+      "bones": [
+        "thigh_fist",
+        "shin_fist",
+        "foot_fist"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            101,
+            193
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            98,
+            213
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "arm_fist",
+      "parts": [
+        "arm_fist",
+        "shoulder_fist_under"
+      ],
+      "bones": [
+        "upper_fist",
+        "fore_fist",
+        "hand_fist"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            91,
+            111
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            84,
+            137
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    }
+  ]
+}

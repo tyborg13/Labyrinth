@@ -1,0 +1,12 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: precise-object-edit. Input 1 is EDIT TARGET and exact pose/design/registration reference. Create a concealed underbody painting for this crouched blue lightning dragon's skeletal cutout. Keep the existing torso, chest, pelvis, hindlegs and neck in their exact same places and widths. Remove ONLY both wings, the entire long head above its neck attachment, the two forearms/claws, and the curled tail; reveal the missing dark navy scaled body surfaces and broad rounded shoulder/neck/tail joint sockets underneath those removals. Continue the existing scale texture and muted golden seams coherently. No severed gore; these are hidden overlapping animation drawing surfaces. Do not add detached parts or arrange an atlas; retain one coherent registered body in exactly the original full square canvas and position. Original 255px front will remain authoritative and only concealed coverage patches from this result will be used. Genuinely transparent RGBA background and removed areas, no checkerboard pixels, no shadow, no text.",
+  "references": [
+    {
+      "path": "front_original.png",
+      "role": "edit target and registration reference"
+    }
+  ],
+  "output": "front_underbody_rejected.png",
+  "disposition": "rejected; enlarged/redesigned torso and hollow socket rims, painted checkerboard. Supplies no production pixels."
+}

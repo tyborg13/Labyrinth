@@ -1,0 +1,144 @@
+{
+  "generated_registration": {
+    "source": "source/hidden_generated.png",
+    "resize": [
+      251,
+      251
+    ],
+    "offset": [
+      5,
+      1
+    ],
+    "filter": "Lanczos"
+  },
+  "parts": [
+    {
+      "facing": "front",
+      "part": "shoulder_cap_r",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        82,
+        172,
+        89
+      ],
+      "target_offset": [
+        109,
+        88
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "front",
+      "part": "hip_cap_r",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        132,
+        172,
+        139
+      ],
+      "target_offset": [
+        127,
+        128
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "front",
+      "part": "shoulder_cap_l",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        82,
+        172,
+        89
+      ],
+      "target_offset": [
+        164,
+        82
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "front",
+      "part": "hip_cap_l",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        132,
+        172,
+        139
+      ],
+      "target_offset": [
+        160,
+        134
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "rear",
+      "part": "shoulder_cap_r",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        82,
+        172,
+        89
+      ],
+      "target_offset": [
+        148,
+        85
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "rear",
+      "part": "hip_cap_r",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        132,
+        172,
+        139
+      ],
+      "target_offset": [
+        132,
+        139
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "rear",
+      "part": "shoulder_cap_l",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        82,
+        172,
+        89
+      ],
+      "target_offset": [
+        98,
+        83
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    },
+    {
+      "facing": "rear",
+      "part": "hip_cap_l",
+      "source": "source/hidden_registered.png",
+      "source_box": [
+        165,
+        132,
+        172,
+        139
+      ],
+      "target_offset": [
+        98,
+        150
+      ],
+      "selection": "Only under bind-source alpha >=250. Small joint coverage, no visible body repaint."
+    }
+  ]
+}

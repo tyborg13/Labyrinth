@@ -1,0 +1,50 @@
+{
+  "input": "rear_generated.png",
+  "offset": [
+    0,
+    4
+  ],
+  "seeds": [
+    [
+      0,
+      0
+    ],
+    [
+      254,
+      254
+    ],
+    [
+      126,
+      232
+    ],
+    [
+      177,
+      146
+    ],
+    [
+      168,
+      211
+    ]
+  ],
+  "revision": "v02",
+  "resize": [
+    255,
+    255
+  ],
+  "resampling": "nearest; whole canvas, uniform",
+  "input_sha256": "43200a74e7484ceda822f94340f0c2ba6a7f9b21c0364272e87bb620d12289a3",
+  "output": "rear_registered.png",
+  "output_sha256": "07307dbc13792171060bc809f7188a85a19bc3f628760c7e959de05d381da35a",
+  "bbox": [
+    35,
+    16,
+    222,
+    248
+  ],
+  "alpha_range": [
+    0,
+    255
+  ],
+  "background_owner_discarded": true,
+  "no_new_rgb_pixels": true
+}

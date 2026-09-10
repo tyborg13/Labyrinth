@@ -1,0 +1,52 @@
+{
+  "source_layout": "layouts/front_sleeved.json",
+  "grid": [
+    2,
+    2
+  ],
+  "panels": {
+    "robe_l": "torso to hem_l",
+    "robe_r": "torso to hem_r"
+  },
+  "weights": "smoothstep over y146..216; constant at each horizontal source row to preserve panel width",
+  "underrobe": {
+    "source": "source/hidden_sleeve_generated.png",
+    "crop": [
+      480,
+      430,
+      730,
+      930
+    ],
+    "size": [
+      45,
+      90
+    ],
+    "uniform_scale": 0.18,
+    "offset": [
+      118,
+      139
+    ],
+    "mask": "existing source fully opaque pixels; bottom y226",
+    "owner": "torso",
+    "purpose": "concealed cloth behind separating panels, below both source-painted skirts"
+  },
+  "shoulder_socket": {
+    "generated_source": "source/hidden_sleeve_generated.png",
+    "crop": [
+      520,
+      490,
+      680,
+      690
+    ],
+    "size": [
+      16,
+      20
+    ],
+    "offset": [
+      94,
+      100
+    ],
+    "mask": "existing source fully opaque pixels only",
+    "owner": "torso"
+  }
+}

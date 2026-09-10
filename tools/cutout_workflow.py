@@ -50,6 +50,7 @@ def parser() -> argparse.ArgumentParser:
             command.add_argument("--godot", default="godot")
         if name == "render":
             command.add_argument("--backend", help="Explicit native backend, e.g. metal on macOS; default is the repo runner's selection")
+            command.add_argument("--gui-lease-timeout", type=float, help="Forward the native runner's shared GUI lease wait; does not change capture or startup timeouts")
             command.add_argument("--ffmpeg", default="ffmpeg")
     return result
 
@@ -85,7 +86,7 @@ def main() -> int:
             report = {"ok": True, "asset": str(replace_part(args.case, args.facing, args.part, args.image, offset))}
         elif args.command == "render":
             from cutout_pipeline.proof import render
-            report = render(args.case, args.output, args.task_id, args.godot, args.backend, args.ffmpeg)
+            report = render(args.case, args.output, args.task_id, args.godot, args.backend, args.ffmpeg, args.gui_lease_timeout)
         elif args.command == "verify-render":
             from cutout_pipeline.proof import verify_render
             report = verify_render(args.case, args.output)

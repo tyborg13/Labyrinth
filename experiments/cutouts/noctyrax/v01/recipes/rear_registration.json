@@ -1,0 +1,73 @@
+{
+  "source": "source/rear_generated_rgb.png",
+  "source_size": [
+    1254,
+    1254
+  ],
+  "output": "source/rear_registered.png",
+  "scale": 0.19457735247208932,
+  "translation": [
+    6,
+    3
+  ],
+  "alpha_operation": "connected neutral background removal; min RGB >=90, channel span <=18; explicit hole seeds",
+  "seed_fractions": [
+    [
+      0,
+      0
+    ],
+    [
+      0.21,
+      0.36
+    ],
+    [
+      0.145,
+      0.455
+    ],
+    [
+      0.162,
+      0.514
+    ],
+    [
+      0.229,
+      0.463
+    ],
+    [
+      0.35,
+      0.4
+    ],
+    [
+      0.414,
+      0.439
+    ],
+    [
+      0.835,
+      0.543
+    ],
+    [
+      0.921,
+      0.541
+    ],
+    [
+      0.786,
+      0.563
+    ],
+    [
+      0.37,
+      0.805
+    ],
+    [
+      0.453,
+      0.801
+    ],
+    [
+      0.716,
+      0.716
+    ],
+    [
+      0.487,
+      0.912
+    ]
+  ],
+  "untouched_source_sha256": "383de9c6bf50a481b6fb148fbd77c664b7556bf5cb4db7dc2cf7e688f9069dba"
+}

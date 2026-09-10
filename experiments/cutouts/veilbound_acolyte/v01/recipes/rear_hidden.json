@@ -1,0 +1,68 @@
+[
+  {
+    "name": "under_cast",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      580,
+      680,
+      675,
+      930
+    ],
+    "target_rect": [
+      151,
+      96,
+      170,
+      146
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "rear interior alpha>=250 only, underneath new generated rear paint; source alpha unmodified",
+    "purpose": "torso concealed width"
+  },
+  {
+    "name": "under_strike",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      580,
+      690,
+      645,
+      860
+    ],
+    "target_rect": [
+      99,
+      98,
+      112,
+      132
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "rear interior alpha>=250 only, underneath new generated rear paint; source alpha unmodified",
+    "purpose": "torso concealed width"
+  },
+  {
+    "name": "cast_cap",
+    "source": "source/hidden_generated.png",
+    "source_crop": [
+      580,
+      680,
+      675,
+      810
+    ],
+    "target_rect": [
+      150,
+      87,
+      169,
+      113
+    ],
+    "scale": [
+      0.2,
+      0.2
+    ],
+    "alpha_rule": "rear interior alpha>=250 only, underneath new generated rear paint; source alpha unmodified",
+    "purpose": "cast_arm concealed width"
+  }
+]

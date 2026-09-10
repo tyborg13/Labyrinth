@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "source_sha256": "b038b8934428fc7791b2a17fe41e63a1fbb6b458a071cbf4074f34a980c57702",
+  "ownership_sha256": "ca66a3881fe97e9c49a7521f5b7ce1f6fbf3fce5d748de38b842525887632ffc",
+  "parts": [
+    {
+      "name": "orb",
+      "file": "orb.png",
+      "offset": [
+        190,
+        68
+      ],
+      "bbox": [
+        190,
+        68,
+        216,
+        93
+      ]
+    },
+    {
+      "name": "cast_hand",
+      "file": "cast_hand.png",
+      "offset": [
+        193,
+        93
+      ],
+      "bbox": [
+        193,
+        93,
+        218,
+        117
+      ]
+    },
+    {
+      "name": "cast_sleeve",
+      "file": "cast_sleeve.png",
+      "offset": [
+        158,
+        84
+      ],
+      "bbox": [
+        158,
+        84,
+        200,
+        163
+      ]
+    },
+    {
+      "name": "rest_sleeve",
+      "file": "rest_sleeve.png",
+      "offset": [
+        99,
+        90
+      ],
+      "bbox": [
+        99,
+        90,
+        119,
+        151
+      ]
+    },
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        111,
+        20
+      ],
+      "bbox": [
+        111,
+        20,
+        172,
+        79
+      ]
+    },
+    {
+      "name": "robe_l",
+      "file": "robe_l.png",
+      "offset": [
+        82,
+        130
+      ],
+      "bbox": [
+        82,
+        130,
+        140,
+        235
+      ]
+    },
+    {
+      "name": "robe_r",
+      "file": "robe_r.png",
+      "offset": [
+        140,
+        130
+      ],
+      "bbox": [
+        140,
+        130,
+        196,
+        235
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        103,
+        75
+      ],
+      "bbox": [
+        103,
+        75,
+        177,
+        130
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

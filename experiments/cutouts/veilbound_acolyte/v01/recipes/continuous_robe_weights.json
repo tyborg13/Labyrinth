@@ -1,0 +1,10 @@
+{
+  "after": "maintained skin",
+  "parts": [
+    "skirt_l",
+    "skirt_r"
+  ],
+  "field": "lower=smoothstep(178,232,y); right=smoothstep(75,185,x); torso=1-lower; support_l=lower*(1-right); support_r=lower*right",
+  "reason": "identical shared source-space weights across vertical robe panel boundary",
+  "rear_field": "same field evaluated at x-18 to preserve the registered weights after whole-source translation"
+}

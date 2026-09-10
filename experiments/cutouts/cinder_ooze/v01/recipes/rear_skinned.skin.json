@@ -1,0 +1,246 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned.json",
+  "fields": [
+    {
+      "name": "rear_left_outer",
+      "parts": [
+        "left_outer",
+        "bridge_left_outer"
+      ],
+      "bones": [
+        "mass",
+        "bend_left_outer",
+        "contact_left_outer"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            38,
+            174
+          ],
+          "axis": [
+            -0.8,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            26.0,
+            182.4
+          ],
+          "axis": [
+            -0.8,
+            1
+          ],
+          "width": 8.4
+        }
+      ]
+    },
+    {
+      "name": "rear_front_left",
+      "parts": [
+        "front_left",
+        "bridge_front_left"
+      ],
+      "bones": [
+        "mass",
+        "bend_front_left",
+        "contact_front_left"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            58,
+            179
+          ],
+          "axis": [
+            -0.55,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            49.6,
+            189.2
+          ],
+          "axis": [
+            -0.55,
+            1
+          ],
+          "width": 10.2
+        }
+      ]
+    },
+    {
+      "name": "rear_front_mid",
+      "parts": [
+        "front_mid",
+        "bridge_front_mid"
+      ],
+      "bones": [
+        "mass",
+        "bend_front_mid",
+        "contact_front_mid"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            86,
+            187
+          ],
+          "axis": [
+            0.25,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            94.4,
+            209.8
+          ],
+          "axis": [
+            0.25,
+            1
+          ],
+          "width": 22.8
+        }
+      ]
+    },
+    {
+      "name": "rear_near_right",
+      "parts": [
+        "near_right",
+        "bridge_near_right"
+      ],
+      "bones": [
+        "mass",
+        "bend_near_right",
+        "contact_near_right"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            165,
+            187
+          ],
+          "axis": [
+            0.5,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            177.6,
+            205.0
+          ],
+          "axis": [
+            0.5,
+            1
+          ],
+          "width": 18.0
+        }
+      ]
+    },
+    {
+      "name": "rear_right_outer",
+      "parts": [
+        "right_outer",
+        "bridge_right_outer"
+      ],
+      "bones": [
+        "mass",
+        "bend_right_outer",
+        "contact_right_outer"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            202,
+            179
+          ],
+          "axis": [
+            0.35,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            208.0,
+            191.6
+          ],
+          "axis": [
+            0.35,
+            1
+          ],
+          "width": 12.6
+        }
+      ]
+    },
+    {
+      "name": "rear_far_right",
+      "parts": [
+        "far_right"
+      ],
+      "bones": [
+        "mass",
+        "bend_far_right",
+        "contact_far_right"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            225,
+            179
+          ],
+          "axis": [
+            0.8,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            231.6,
+            185.6
+          ],
+          "axis": [
+            0.8,
+            1
+          ],
+          "width": 8
+        }
+      ]
+    }
+  ]
+}

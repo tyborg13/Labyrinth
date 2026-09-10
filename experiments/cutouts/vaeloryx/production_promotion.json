@@ -1,0 +1,146 @@
+{
+  "paint": {
+    "assets/units/vaeloryx_cutout/front/claw_near.png": {
+      "case_source": "segmented/front_v03/claw_near.png",
+      "sha256": "aef1355e41f7afa1c6cba4885c7fa9a161cc468fb91806ccefe4c506e8d1a86f"
+    },
+    "assets/units/vaeloryx_cutout/front/claw_far.png": {
+      "case_source": "segmented/front_v03/claw_far.png",
+      "sha256": "b807dbb80fe2de151dbd92835fcba7db3c19292d482000bca0836898ce7fd5e5"
+    },
+    "assets/units/vaeloryx_cutout/front/claw_hind.png": {
+      "case_source": "segmented/front_v03/claw_hind.png",
+      "sha256": "122972c9fccc124c127021881854f7d37547fd5ecac9a64b493bb0a380a0df53"
+    },
+    "assets/units/vaeloryx_cutout/front/arm_near.png": {
+      "case_source": "segmented/front_v03/arm_near.png",
+      "sha256": "a50040dd0009b2809489b46ecf9903f6f18210e084a38941e231393d51cda90e"
+    },
+    "assets/units/vaeloryx_cutout/front/arm_far.png": {
+      "case_source": "segmented/front_v03/arm_far.png",
+      "sha256": "5e6a912e131bab44a193ef57e7e5019fcf432f308dc78b0e578210ee8a1f5784"
+    },
+    "assets/units/vaeloryx_cutout/front/hind_limb.png": {
+      "case_source": "segmented/front_v03/hind_limb.png",
+      "sha256": "35883adf1a1d72ed5f61bfb68b0e0478b1d58e5c25655151fedcb17229dda062"
+    },
+    "assets/units/vaeloryx_cutout/front/head.png": {
+      "case_source": "segmented/front_v03/head.png",
+      "sha256": "36bceac51a8159850c0a9d299d9498cbda0ff54cd110d096a7361ddb8ac58f5c"
+    },
+    "assets/units/vaeloryx_cutout/front/wing_near.png": {
+      "case_source": "segmented/front_v03/wing_near.png",
+      "sha256": "b5780dbfa84c871cfd102492abfb5862bf70ba03a57fb304779c3d16217c7763"
+    },
+    "assets/units/vaeloryx_cutout/front/wing_far.png": {
+      "case_source": "segmented/front_v03/wing_far.png",
+      "sha256": "1016b71f638fdb65b99d55661d1ec45149e7fe7e7a689ee2d4aebc076fa7d6b6"
+    },
+    "assets/units/vaeloryx_cutout/front/neck.png": {
+      "case_source": "segmented/front_v03/neck.png",
+      "sha256": "08d8221a6b445d84a6e57a4ee7f4193dc93598a906b9b3afbe7580dde4ea3688"
+    },
+    "assets/units/vaeloryx_cutout/front/tail.png": {
+      "case_source": "segmented/front_v03/tail.png",
+      "sha256": "8200aeca7b13e3fbfc7acfaf05f4aa6f061963acd3e74f8338155c2f4479f518"
+    },
+    "assets/units/vaeloryx_cutout/front/torso.png": {
+      "case_source": "segmented/front_v03/torso.png",
+      "sha256": "34eb5fa2a259ae3e65aae65210ded1ab485813c3f4532badcfd6fb2d0b55b57f"
+    },
+    "assets/units/vaeloryx_cutout/front/wing_socket_far.png": {
+      "case_source": "assets/front/wing_socket_far.png",
+      "sha256": "21b656d278cdafe9f75f6fcb507a80ef562833f5a6072d6398cee2b8615bfeea"
+    },
+    "assets/units/vaeloryx_cutout/front/wing_socket_near.png": {
+      "case_source": "assets/front/wing_socket_near.png",
+      "sha256": "4d6a89b3be6a6169983d33fbdbbdbc3303c67108c7f640ec882e5f4dd9bcefb5"
+    },
+    "assets/units/vaeloryx_cutout/front/arm_cap_far.png": {
+      "case_source": "assets/front/arm_cap_far.png",
+      "sha256": "4364506565c79209c32800e83eab0738f8b37da971ef668b5c377a93fb8dd4b4"
+    },
+    "assets/units/vaeloryx_cutout/front/arm_cap_near.png": {
+      "case_source": "assets/front/arm_cap_near.png",
+      "sha256": "98226c8112d23784d08f0da18f0139fd758b250b5e8ab950b10fcb2c0389cddd"
+    },
+    "assets/units/vaeloryx_cutout/front/hind_cap.png": {
+      "case_source": "assets/front/hind_cap.png",
+      "sha256": "5e68ac1ce174427d28639b87aae1a5ced20ff93514efcdd295bdda7ce7433430"
+    },
+    "assets/units/vaeloryx_cutout/front/back_underwing.png": {
+      "case_source": "assets/front/back_underwing.png",
+      "sha256": "9377cafa51e276c55d28ed6c9e1db96b6badd33c0916a765c41580cd3dca6ad9"
+    },
+    "assets/units/vaeloryx_cutout/rear/claw_near.png": {
+      "case_source": "segmented/rear_v02/claw_near.png",
+      "sha256": "c9924e7713262c40d69d34cc8de70e2e5b6846cb60761b498ff91c8c954973e7"
+    },
+    "assets/units/vaeloryx_cutout/rear/claw_far.png": {
+      "case_source": "segmented/rear_v02/claw_far.png",
+      "sha256": "56cc8edc9cf59a8a2437f97d0360674fb03b49da9a9d587682c7cdd08e05c5f2"
+    },
+    "assets/units/vaeloryx_cutout/rear/claw_hind.png": {
+      "case_source": "segmented/rear_v02/claw_hind.png",
+      "sha256": "136fd5318bf0b18b91c334414640445ca8d51d6ccdad350d30de348df4583676"
+    },
+    "assets/units/vaeloryx_cutout/rear/arm_near.png": {
+      "case_source": "segmented/rear_v02/arm_near.png",
+      "sha256": "8d8ad56ac50e96743e5a560d6f7f1625e895e57e4a488384c23e728d943aa8db"
+    },
+    "assets/units/vaeloryx_cutout/rear/arm_far.png": {
+      "case_source": "segmented/rear_v02/arm_far.png",
+      "sha256": "deeccbaab093658f2fc554446881f3b766ec0bf48dc5b462cd8b34efbc61be37"
+    },
+    "assets/units/vaeloryx_cutout/rear/hind_limb.png": {
+      "case_source": "segmented/rear_v02/hind_limb.png",
+      "sha256": "720ef1efaa06db73f862f655129f4608d9414ce05ee86da12b51210ef05a2bcc"
+    },
+    "assets/units/vaeloryx_cutout/rear/head.png": {
+      "case_source": "segmented/rear_v02/head.png",
+      "sha256": "cf29457be652504a3d17b5bef00d249f252aa927c4b061c7cd6196405ba48c14"
+    },
+    "assets/units/vaeloryx_cutout/rear/wing_near.png": {
+      "case_source": "segmented/rear_v02/wing_near.png",
+      "sha256": "e1f0c37b1e1af6cd662d24750bd02e883547d5cc7c7c86de2eb52d3dcc71964c"
+    },
+    "assets/units/vaeloryx_cutout/rear/wing_far.png": {
+      "case_source": "segmented/rear_v02/wing_far.png",
+      "sha256": "f6569c9115d506af0316ff30e23e8ec33a5c51fe64b18173180f12c5d921290e"
+    },
+    "assets/units/vaeloryx_cutout/rear/neck.png": {
+      "case_source": "segmented/rear_v02/neck.png",
+      "sha256": "0f9c3889517c4bd0e4301b636e4f08a42fb870e30b787367bc4511437cf1b753"
+    },
+    "assets/units/vaeloryx_cutout/rear/tail.png": {
+      "case_source": "segmented/rear_v02/tail.png",
+      "sha256": "a9f0a4962bea34808e547415e6ec9eebc3ad6e79483ee00417634a48ad82f5ad"
+    },
+    "assets/units/vaeloryx_cutout/rear/torso.png": {
+      "case_source": "segmented/rear_v02/torso.png",
+      "sha256": "26eb699410c8f463f08c9d6698f6e6575d5287ebe9d749eef2a4ade3f505614c"
+    },
+    "assets/units/vaeloryx_cutout/rear/wing_socket_far.png": {
+      "case_source": "assets/rear/wing_socket_far.png",
+      "sha256": "12ac5466be7df0e6267aa1e71095622d7141c1e382a22fe1b235de9723e75e35"
+    },
+    "assets/units/vaeloryx_cutout/rear/wing_socket_near.png": {
+      "case_source": "assets/rear/wing_socket_near.png",
+      "sha256": "e9dfc42b5aed20418de95df386091c4c7432158be8cf893e5baf13de0840848e"
+    },
+    "assets/units/vaeloryx_cutout/rear/arm_cap_far.png": {
+      "case_source": "assets/rear/arm_cap_far.png",
+      "sha256": "2ce6d5a2f745bb9fd6b0af96c184cc8bc7130bd3c07bb54ac04bf40d1345317b"
+    },
+    "assets/units/vaeloryx_cutout/rear/arm_cap_near.png": {
+      "case_source": "assets/rear/arm_cap_near.png",
+      "sha256": "9fdfe676af7f9a5494f7f6645d9204ad8c983de2014aef74b68b8f521af6ce6f"
+    },
+    "assets/units/vaeloryx_cutout/rear/hind_cap.png": {
+      "case_source": "assets/rear/hind_cap.png",
+      "sha256": "13fa02eff852de911c358bde1b6cbe4f2b9c397f0835d863c93ea482994540ad"
+    }
+  },
+  "native_rest_proof": "experiments/cutouts/vaeloryx/author_v02",
+  "verification": "runtime_v01/assets/comparison.json: all 772 native production/case frames, fixed-canvas bounds and both shipped-rest equality checks passed."
+}

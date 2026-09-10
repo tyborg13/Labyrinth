@@ -1,0 +1,136 @@
+{
+  "ok": true,
+  "source_sha256": "de45fa8548befd346a539252630a5861eca7a305e02f666ee63be87bf7c710e3",
+  "ownership_sha256": "a014254bcda8f6207c2199a77e5809e3584d1a53b7c41469008096221d553dd2",
+  "parts": [
+    {
+      "name": "orb",
+      "file": "orb.png",
+      "offset": [
+        58,
+        61
+      ],
+      "bbox": [
+        58,
+        61,
+        96,
+        94
+      ]
+    },
+    {
+      "name": "cast_hand",
+      "file": "cast_hand.png",
+      "offset": [
+        53,
+        94
+      ],
+      "bbox": [
+        53,
+        94,
+        88,
+        123
+      ]
+    },
+    {
+      "name": "strike_hand",
+      "file": "strike_hand.png",
+      "offset": [
+        119,
+        112
+      ],
+      "bbox": [
+        119,
+        112,
+        147,
+        136
+      ]
+    },
+    {
+      "name": "cast_sleeve",
+      "file": "cast_sleeve.png",
+      "offset": [
+        70,
+        93
+      ],
+      "bbox": [
+        70,
+        93,
+        109,
+        165
+      ]
+    },
+    {
+      "name": "strike_sleeve",
+      "file": "strike_sleeve.png",
+      "offset": [
+        140,
+        85
+      ],
+      "bbox": [
+        140,
+        85,
+        182,
+        178
+      ]
+    },
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        99,
+        19
+      ],
+      "bbox": [
+        99,
+        19,
+        165,
+        84
+      ]
+    },
+    {
+      "name": "skirt_l",
+      "file": "skirt_l.png",
+      "offset": [
+        77,
+        148
+      ],
+      "bbox": [
+        77,
+        148,
+        128,
+        237
+      ]
+    },
+    {
+      "name": "skirt_r",
+      "file": "skirt_r.png",
+      "offset": [
+        128,
+        146
+      ],
+      "bbox": [
+        128,
+        146,
+        202,
+        237
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        95,
+        69
+      ],
+      "bbox": [
+        95,
+        69,
+        176,
+        154
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

@@ -1,0 +1,98 @@
+{
+  "rear_source_bbox": [
+    374,
+    231,
+    1095,
+    886
+  ],
+  "rear_target_size": [
+    44,
+    41
+  ],
+  "rear_target_offset": [
+    96,
+    120
+  ],
+  "filter": "Lanczos",
+  "source_alpha_preserved": true,
+  "selected_parts": [
+    {
+      "view": "front",
+      "part": "pelvis_undercloth",
+      "source": "source/hidden_registered.png",
+      "bbox": [
+        130,
+        114,
+        178,
+        151
+      ],
+      "owner": "pelvis",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    },
+    {
+      "view": "front",
+      "part": "thigh_fill_r",
+      "source": "source/hidden_registered.png",
+      "bbox": [
+        123,
+        133,
+        141,
+        152
+      ],
+      "owner": "thigh_r",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    },
+    {
+      "view": "front",
+      "part": "thigh_fill_l",
+      "source": "source/hidden_registered.png",
+      "bbox": [
+        159,
+        135,
+        180,
+        173
+      ],
+      "owner": "thigh_l",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    },
+    {
+      "view": "rear",
+      "part": "pelvis_undercloth",
+      "source": "source/rear_pelvis_registered.png",
+      "bbox": [
+        96,
+        122,
+        138,
+        161
+      ],
+      "owner": "pelvis",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    },
+    {
+      "view": "rear",
+      "part": "thigh_fill_r",
+      "source": "source/rear_pelvis_registered.png",
+      "bbox": [
+        130,
+        142,
+        140,
+        161
+      ],
+      "owner": "thigh_r",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    },
+    {
+      "view": "rear",
+      "part": "thigh_fill_l",
+      "source": "source/rear_pelvis_registered.png",
+      "bbox": [
+        99,
+        142,
+        111,
+        161
+      ],
+      "owner": "thigh_l",
+      "selection": "Generated bone pixels only under original waistcloth alpha>=250; hidden pelvis remains distinct from proximal thighs."
+    }
+  ]
+}

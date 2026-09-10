@@ -1,0 +1,88 @@
+extends SceneTree
+
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const ProductionRig = preload("res://scripts/crawler_cutout/rig.gd")
+const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
+const OUTPUT: String = "user://probes/crawler_cutout_assets"
+var _errors: Array[String]
+var _records: Array[Dictionary]
+
+func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
+	call_deferred("_run")
+
+func _run() -> void:
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	var actual: SubViewport = _viewport()
+	var accepted: SubViewport = _viewport()
+	var compared: int = 0
+	for facing: String in ["front", "rear"]:
+		var production := ProductionRig.new()
+		production.facing = facing
+		actual.add_child(production)
+		_check(production.load_rig(), "Production rig loads " + facing)
+		var reference := CaseRig.new()
+		accepted.add_child(reference)
+		_check(reference.configure("res://experiments/cutouts/crawler/v01/cutout.json"), "Crawler case loads")
+		_check(reference.set_facing(facing), "Case facing loads")
+		for mirrored: bool in [false, true]:
+			production.position = Vector2(383,128) if mirrored else Vector2(128,128)
+			reference.position = production.position
+			production.scale = Vector2(-1,1) if mirrored else Vector2.ONE
+			reference.scale = production.scale
+			for clip: String in ["rest", "idle", "walk", "attack", "lunge", "coil"]:
+				var specification: Dictionary = reference.config["clips"].get(clip, {"frames":1,"loop":false,"duration":0.1})
+				var frames: int = int(specification["frames"])
+				var folder: String = "%s_%s_%s" % [facing, "reflected" if mirrored else "painted", clip]
+				DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT.path_join(folder)))
+				var bounds_union := Rect2i()
+				for index: int in range(frames):
+					var progress: float = float(index) / float(maxi(1, frames if bool(specification["loop"]) else frames-1))
+					var phase: float = 0.0 if clip == "rest" else reference.playback_phase(clip, progress)
+					production.apply_pose(clip, phase)
+					reference.apply_pose(clip, phase)
+					await _draw()
+					var image: Image = actual.get_texture().get_image()
+					_check(image.get_data() == accepted.get_texture().get_image().get_data(), "%s/%d case and production remain pixel-identical" % [folder,index])
+					var bounds: Rect2i = image.get_used_rect()
+					_check(bounds.has_area() and bounds.position.x >= 3 and bounds.position.y >= 3 and bounds.end.x <= 509 and bounds.end.y <= 509, "Complete fixed canvas bounds: " + folder)
+					bounds_union = bounds if index == 0 else bounds_union.merge(bounds)
+					compared += 1
+					_check(image.save_png(OUTPUT.path_join(folder).path_join("pose_%04d.png" % index)) == OK, "Native sample saves")
+					if clip == "rest" and not mirrored:
+						var native: Image = image.get_region(Rect2i(128,128,255,255))
+						var baked: Image = Image.load_from_file("res://assets/units/crawler_cutout/" + facing + "/rest.png")
+						_check(native.get_data() == baked.get_data(), "Shipped rest silhouette matches current native assembly: " + facing)
+						native.save_png(OUTPUT.path_join(facing + "_rest.png"))
+				_records.append({"facing":facing,"mirrored":mirrored,"clip":clip,"frames":frames,"duration":specification["duration"],"folder":folder,"bounds":bounds_union})
+		production.free()
+		reference.free()
+	var output := FileAccess.open(OUTPUT.path_join("comparison.json"), FileAccess.WRITE)
+	output.store_string(JSON.stringify({"ok":_errors.is_empty(),"native_identical_frames":compared,"clips":_records,"errors":_errors}, "\t"))
+	output.close()
+	actual.free()
+	accepted.free()
+	for error: String in _errors:
+		push_error(error)
+	print("Saved " + ProjectSettings.globalize_path(OUTPUT))
+	print("CRAWLER ASSET PROBE: " + ("PASS" if _errors.is_empty() else "FAIL"))
+	quit(0 if _errors.is_empty() else 1)
+
+func _viewport() -> SubViewport:
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(512,512)
+	viewport.transparent_bg = true
+	viewport.disable_3d = true
+	viewport.world_2d = World2D.new()
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	return viewport
+
+func _draw() -> void:
+	await process_frame
+	await process_frame
+	await RenderingServer.frame_post_draw
+
+func _check(condition: bool, message: String) -> void:
+	if not condition and not _errors.has(message):
+		_errors.append(message)

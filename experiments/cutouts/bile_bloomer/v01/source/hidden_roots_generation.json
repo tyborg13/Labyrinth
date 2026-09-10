@@ -1,0 +1,13 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: precise-object-edit\nAsset type: hidden lower-trunk material for this existing skeletal game cutout\nPrimary request: Reveal the hidden surface beneath the foreground roots of the exact Shale Bloomer in the reference. Remove ONLY the two thick roots that cross the lower front of its trunk and the foreground curled root loop at its lower right. Show the complete dark porous mineral-bark lower trunk beneath those roots, tapering to a short rough base. Keep its scale, position, top flower, upper trunk and all other design features unchanged. Match the accepted painting's dark pitted bark with amber mineral seams, muted earth palette, painterly pixel-readable texture and top-left light. The source is a donor: only narrow concealed joint material beneath moving roots will be used; no visible accepted pixels will be replaced.\nComposition: same full square framing, exact same camera and body proportions, genuinely transparent background, no floor, no shadow, no text, no checkerboard.",
+  "references": [
+    {
+      "path": "source/front_original.png",
+      "role": "accepted front edit target; preserve identity and registration"
+    }
+  ],
+  "output": "source/hidden_roots_generated.png",
+  "disposition": "selected only concealed pitted-bark under root articulation; all visible original paint preserved",
+  "recipe": "recipes/build_case.py and per-facing hidden_roots_registration.json"
+}

@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "source_sha256": "935cc0c133676ad92a40f0d94c5e468b49bf6399efe238acd6eb60b1effd94c0",
+  "ownership_sha256": "8fca2ef7e5d032a6a47cea3499eea8d7efb09beb1d4f3c4e02288203b32a2e36",
+  "parts": [
+    {
+      "name": "orb",
+      "file": "orb.png",
+      "offset": [
+        189,
+        61
+      ],
+      "bbox": [
+        189,
+        61,
+        217,
+        91
+      ]
+    },
+    {
+      "name": "cast_hand",
+      "file": "cast_hand.png",
+      "offset": [
+        187,
+        91
+      ],
+      "bbox": [
+        187,
+        91,
+        217,
+        114
+      ]
+    },
+    {
+      "name": "cast_sleeve",
+      "file": "cast_sleeve.png",
+      "offset": [
+        148,
+        84
+      ],
+      "bbox": [
+        148,
+        84,
+        197,
+        166
+      ]
+    },
+    {
+      "name": "strike_sleeve",
+      "file": "strike_sleeve.png",
+      "offset": [
+        92,
+        87
+      ],
+      "bbox": [
+        92,
+        87,
+        113,
+        141
+      ]
+    },
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        95,
+        19
+      ],
+      "bbox": [
+        95,
+        19,
+        165,
+        79
+      ]
+    },
+    {
+      "name": "skirt_l",
+      "file": "skirt_l.png",
+      "offset": [
+        76,
+        140
+      ],
+      "bbox": [
+        76,
+        140,
+        146,
+        237
+      ]
+    },
+    {
+      "name": "skirt_r",
+      "file": "skirt_r.png",
+      "offset": [
+        146,
+        145
+      ],
+      "bbox": [
+        146,
+        145,
+        211,
+        237
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        98,
+        73
+      ],
+      "bbox": [
+        98,
+        73,
+        169,
+        151
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

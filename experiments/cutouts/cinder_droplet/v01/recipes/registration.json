@@ -1,0 +1,72 @@
+{
+  "coordinate_space": "255x255 native pixels; nearest-neighbor whole-source registration; unchanged front RGBA",
+  "projection": "2:1 board; front faces lower-left, rear faces upper-right; reflected views use the shared facing policy",
+  "front": {
+    "input": "source/front_original.png",
+    "output": "source/front_registered.png",
+    "crop": [
+      0,
+      0,
+      255,
+      255
+    ],
+    "size": [
+      255,
+      255
+    ],
+    "offset": [
+      0,
+      0
+    ]
+  },
+  "rear": {
+    "input": "source/rear_generated.png",
+    "output": "source/rear_registered.png",
+    "crop": [
+      208,
+      327,
+      1085,
+      1022
+    ],
+    "size": [
+      175,
+      139
+    ],
+    "offset": [
+      40,
+      80
+    ],
+    "matte": "source/rear_explicit_matte.png",
+    "background_rule": "Within the inspected source bounding rectangle, exclude pixels with min(R,G,B)>=145 and max-min<=35; no other RGB edits. All outside pixels excluded.",
+    "registration_rounding": "Uniform 0.2 scale rounded to whole pixels; 877x695 -> 175x139."
+  },
+  "hidden_belly": {
+    "input": "source/hidden_belly_generated.png",
+    "output": "source/hidden_belly_registered.png",
+    "crop": [
+      290,
+      322,
+      946,
+      962
+    ],
+    "size": [
+      131,
+      128
+    ],
+    "offset": [
+      62,
+      80
+    ],
+    "selection": "Only interior concealed belly and socket ownership, never cap/face or background."
+  },
+  "digests": {
+    "front_original.png": "8f7499fcfd8cda7dcb2a4606bfa18470bb07dd83d536be76814bb9288e99e93c",
+    "front_registered.png": "8f7499fcfd8cda7dcb2a4606bfa18470bb07dd83d536be76814bb9288e99e93c",
+    "hidden_belly_generated.png": "d3ad64e413c428fb51eb05f8936ca56e46b85abf825f4fc84b44ffa1c8b6eb60",
+    "hidden_belly_registered.png": "a8836ae1170753943abac44ec77f2aee2c7653f543b90e00c51fbacba54a6524",
+    "rear_alpha_attempt_rejected.png": "54e451e710738337f69d1c00b93b09117a66d409bbe1e58de247ccec94bfe477",
+    "rear_explicit_matte.png": "c3175f95a80de4427075b02281f10a5f4bcdf6801ea3eecc497405643ece9dd7",
+    "rear_generated.png": "4f8443fd722f748320c0eeade1d29e67381da4f12b9d5b72111cf38523829249",
+    "rear_registered.png": "cfd7e0c3edd36b09f0c49c019b07f66f709502d4b6fa61642437cbae57a8fb91"
+  }
+}

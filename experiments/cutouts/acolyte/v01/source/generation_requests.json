@@ -1,0 +1,41 @@
+{
+  "rear": {
+    "prompt": "Use case: identity-preserve. Asset type: rear-view game sprite for an editable 2D skeletal cutout. Input image 1 is the accepted Dust Acolyte FRONT reference (identity, exact proportions, silhouette, palette, painted pixel texture and clothing), not a replacement target. Draw ONLY the matching rear three-quarter view of this same skeletal hooded caster, as if turned 180 degrees on a 2:1 isometric tactical board. Preserve the tall dark umber/brown hood, long weathered brown robe, tan narrow trim and angular pixel-readable paint; no redesign. The open casting skeletal hand and small orange ember/orb stay on the same anatomical side: in this rear view they appear on the viewer RIGHT, arm extended slightly with open palm up and the orb floating above it. The other hand hangs/rests modestly on viewer LEFT and is largely concealed by its sleeve. Show the back of the hood, shoulders and full rear robe all the way to the ragged grounded hem, with no invented staff, sword, armor, shoes, face visible through the back, wings or decorative effects. Match the original body/hood/arm scale and floor projection; a full body composition with generous transparent margin, no cast shadow, no border, no text. Keep the orb separate in silhouette above the hand. Genuinely transparent RGBA background; no checkerboard or solid backdrop. One character only.",
+    "reference_roles": [
+      {
+        "path": "source/front_original.png",
+        "role": "accepted front identity/style/proportion reference"
+      }
+    ],
+    "tool": "built-in image_gen",
+    "disposition": "Selected for design; original RGB checkerboard excludes use without the recorded background selection.",
+    "output": "source/rear_generated.png",
+    "output_sha256": "c76e562ece7d25a1b2f404034dc21690e0ba86c1a77f83a0783e8e2f2d3ce14d"
+  },
+  "rear_background_edit": {
+    "tool": "built-in image_gen",
+    "prompt": "Use case: background-extraction. Input image is the EDIT TARGET. Remove the grey checkerboard background completely, including between the floating orb and hand and all openings outside the character. Return this exact rear-view brown hooded skeletal caster sprite with genuinely transparent RGBA alpha background. The checkerboard in the supplied image is incorrectly painted into RGB; it must not remain in the output. Preserve every part of the character, its proportions, pixel-painted texture, colors, edges, clothing, palm, orb, pose and full composition unchanged. No redesign, no white/black/grey/magenta background, no replacement checkerboard, no cast shadow. Output transparency is required.",
+    "reference_roles": [
+      {
+        "path": "source/rear_generated.png",
+        "role": "edit target; preserve all character paint while removing background"
+      }
+    ],
+    "output": "source/rear_alpha_attempt.png",
+    "disposition": "Still RGB, not alpha. Character paint selected with explicit exterior background ownership in recipes/registration.json; no RGB checkerboard shipped.",
+    "output_sha256": "24af938cd988d97d7b2b92fa00e3c739f5450ad5eb5edcd561a2221e01852699"
+  },
+  "hidden_cloth": {
+    "tool": "built-in image_gen",
+    "prompt": "Use case: precise-object-edit. Asset type: hidden cloth insert for the exact existing Dust Acolyte cutout. Input image is an identity/style reference. Generate a small swatch of this character's dark umber brown coarse robe fabric, a single short rounded sleeve/shoulder socket viewed from the front three-quarter isometric angle. This is concealed fill beneath the existing arm and torso, not a new character drawing. Paint the full roughly oval shoulder width, about 26 pixels wide by 32 pixels high at source scale, with subdued near-black brown interior shading and very modest warm brown folds matching the supplied robe. No trim, no armor, no hands, no orb, no face, no body, no text, no checkerboard, no cast shadow. Show ONE small complete sleeve/socket cloth patch enlarged for image quality in the center of an otherwise empty genuinely transparent RGBA canvas. Keep painted pixel-readable texture and dark restrained values; no bright highlights.",
+    "reference_roles": [
+      {
+        "path": "source/front_original.png",
+        "role": "accepted cloth palette/texture reference"
+      }
+    ],
+    "output": "source/hidden_sleeve_generated.png",
+    "disposition": "Selected RGBA interior cloth for tiny concealed shoulder sockets and under-robe seam fill; crop/scale/alpha masks recorded per view in recipes/*_robe.json.",
+    "output_sha256": "852ffa04da6d39ee0eac3188a75a26c4cd08fb0f167897b7bf432ebdc1657110"
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned_v3.json",
+  "fields": [
+    {
+      "name": "front_hind_near",
+      "parts": [
+        "leg_near",
+        "hip_fill_near"
+      ],
+      "bones": [
+        "hip_near",
+        "knee_near",
+        "foot_near"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            167,
+            168
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            170,
+            178
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 6
+        }
+      ]
+    },
+    {
+      "name": "front_hind_far",
+      "parts": [
+        "leg_far",
+        "hip_fill_far"
+      ],
+      "bones": [
+        "hip_far",
+        "knee_far",
+        "foot_far"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            111,
+            170
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            105,
+            176
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 6
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,265 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "front",
+  "joints": {
+    "root": {
+      "position": [
+        128,
+        200
+      ],
+      "parent": null
+    },
+    "core": {
+      "position": [
+        125,
+        152
+      ],
+      "parent": "root"
+    },
+    "left_outer_base": {
+      "position": [
+        74,
+        168
+      ],
+      "parent": "core"
+    },
+    "left_outer_bend": {
+      "position": [
+        68,
+        185
+      ],
+      "parent": "left_outer_base"
+    },
+    "left_outer_tip": {
+      "position": [
+        48,
+        199
+      ],
+      "parent": "left_outer_bend"
+    },
+    "left_inner_base": {
+      "position": [
+        94,
+        172
+      ],
+      "parent": "core"
+    },
+    "left_inner_bend": {
+      "position": [
+        90,
+        191
+      ],
+      "parent": "left_inner_base"
+    },
+    "left_inner_tip": {
+      "position": [
+        85,
+        209
+      ],
+      "parent": "left_inner_bend"
+    },
+    "center_base": {
+      "position": [
+        124,
+        173
+      ],
+      "parent": "core"
+    },
+    "center_bend": {
+      "position": [
+        128,
+        190
+      ],
+      "parent": "center_base"
+    },
+    "center_tip": {
+      "position": [
+        132,
+        208
+      ],
+      "parent": "center_bend"
+    },
+    "right_inner_base": {
+      "position": [
+        144,
+        157
+      ],
+      "parent": "core"
+    },
+    "right_inner_bend": {
+      "position": [
+        151,
+        184
+      ],
+      "parent": "right_inner_base"
+    },
+    "right_inner_tip": {
+      "position": [
+        166,
+        210
+      ],
+      "parent": "right_inner_bend"
+    },
+    "right_outer_base": {
+      "position": [
+        168,
+        151
+      ],
+      "parent": "core"
+    },
+    "right_outer_bend": {
+      "position": [
+        177,
+        175
+      ],
+      "parent": "right_outer_base"
+    },
+    "right_outer_tip": {
+      "position": [
+        196,
+        190
+      ],
+      "parent": "right_outer_bend"
+    }
+  },
+  "parts": [
+    {
+      "name": "left_outer",
+      "file": "segmented/front/left_outer.png",
+      "offset": [
+        39,
+        163
+      ],
+      "bbox": [
+        39,
+        163,
+        81,
+        211
+      ],
+      "bone": "left_outer_base",
+      "z_index": 10,
+      "equipment_slot": "tendril"
+    },
+    {
+      "name": "left_inner",
+      "file": "segmented/front/left_inner.png",
+      "offset": [
+        66,
+        167
+      ],
+      "bbox": [
+        66,
+        167,
+        109,
+        217
+      ],
+      "bone": "left_inner_base",
+      "z_index": 10,
+      "equipment_slot": "tendril"
+    },
+    {
+      "name": "center",
+      "file": "segmented/front/center.png",
+      "offset": [
+        109,
+        171
+      ],
+      "bbox": [
+        109,
+        171,
+        148,
+        219
+      ],
+      "bone": "center_base",
+      "z_index": 10,
+      "equipment_slot": "tendril"
+    },
+    {
+      "name": "right_inner",
+      "file": "segmented/front/right_inner.png",
+      "offset": [
+        139,
+        155
+      ],
+      "bbox": [
+        139,
+        155,
+        185,
+        219
+      ],
+      "bone": "right_inner_base",
+      "z_index": 10,
+      "equipment_slot": "tendril"
+    },
+    {
+      "name": "right_outer",
+      "file": "segmented/front/right_outer.png",
+      "offset": [
+        160,
+        144
+      ],
+      "bbox": [
+        160,
+        144,
+        215,
+        209
+      ],
+      "bone": "right_outer_base",
+      "z_index": 10,
+      "equipment_slot": "tendril"
+    },
+    {
+      "name": "core",
+      "file": "segmented/front/core.png",
+      "offset": [
+        48,
+        80
+      ],
+      "bbox": [
+        48,
+        80,
+        198,
+        202
+      ],
+      "bone": "core",
+      "z_index": 12,
+      "equipment_slot": "core_and_cap"
+    },
+    {
+      "name": "hidden_belly",
+      "file": "assets/front/hidden_belly.png",
+      "offset": [
+        87,
+        161
+      ],
+      "bone": "core",
+      "z_index": 0,
+      "equipment_slot": "concealed_core"
+    }
+  ],
+  "landmarks": {
+    "left_outer_support": [
+      48,
+      199
+    ],
+    "left_inner_support": [
+      85,
+      209
+    ],
+    "center_support": [
+      132,
+      208
+    ],
+    "right_inner_support": [
+      166,
+      210
+    ],
+    "right_outer_support": [
+      196,
+      190
+    ]
+  }
+}

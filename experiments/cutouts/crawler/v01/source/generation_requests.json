@@ -1,0 +1,44 @@
+{
+  "tool": "built-in imagegen",
+  "requests": [
+    {
+      "id": "rear",
+      "prompt": "Use case: identity-preserve. Asset type: rear-facing sprite source for an editable skeletal cutout in Escape the Umbra. Input image 1 is the sole character identity/style reference, the accepted front sprite; it is NOT to be redrawn or replaced. Generate ONE matching three-quarter REAR view of precisely this hunched Tunnel Crawler, turned away toward upper-left on a 2:1 isometric ground plane. Preserve the bulky rounded mottled brown back, bald small head tucked forward, pale blind eyes (mostly hidden from behind), emaciated long arms with distinct hooked claw hands, thick crouching hind thighs, skinny digitigrade ankles and claw toes. Exactly four limbs: two long arms and two rear legs; no tail, no extra arms, no gear. Preserve its grubby brown/grey flesh palette, dark outlines and chunky painterly pixel cluster detail rather than smooth rendering. Same full-body proportions and crouching height as the reference. Show anatomically coherent upper arms/elbows/wrists, both hind legs and planted ground contact, with modest space separating the hands and feet for later segmentation. Camera from above, looking at back and left side, no front face aimed at viewer. One whole assembled creature centered with generous transparent padding, full claws visible, truly transparent alpha background, no floor, shadow, labels, grid or checkerboard. Do not restyle, beautify, add clothes, horns, shell, weapon or different anatomy.",
+      "references": [
+        {
+          "path": "front_original.png",
+          "role": "sole identity and style reference, accepted source untouched"
+        }
+      ],
+      "output": "rear_generated.png",
+      "disposition": "Selected matching back/side view; uniformly register and reflect to upper-right canonical rear.",
+      "output_sha256": "b6db67020d31a27a7a422d6823b191ceaeeb824d2b2bfbc3fbe10215a1d9783f"
+    },
+    {
+      "id": "hidden",
+      "prompt": "Use case: identity-preserve. Asset type: concealed joint flesh material for the SAME Tunnel Crawler shown in the reference. Input 1 is character/style reference. Create ONE simple rounded oblong patch of the creature's grubby dark brown bare skin, underarm underside material that will only fill small hidden shoulder/elbow/hip joint overlaps on a skeletal cutout. No creature, no face, no anatomy atlas, no labels. Muted warm brown with sparse chunky pixel-art mottling and dark edge, same shadow values as the reference's lower arm. An opaque fleshy oval patch, center filling 60% of frame, surrounded by genuinely transparent alpha. Nearly uniform thickness and low-contrast texture; no folds that imply movement, no eyeballs, nails, ribs, spikes, clothing, light rim or broad bright highlights. Preserve the reference's worn painterly pixel cluster texture; this is concealed flesh, not armor. No ground or checkerboard.",
+      "references": [
+        {
+          "path": "front_original.png",
+          "role": "skin material identity/style reference"
+        }
+      ],
+      "output": "hidden_generated.png",
+      "disposition": "Rejected RGB checkerboard background. No runtime pixels used from this original; corrected through built-in imagegen.",
+      "output_sha256": "cff833b6fcd016212d53d682f7df096a4f065dc04cd89415fe7a51b5bebeb8d3"
+    },
+    {
+      "id": "hidden_alpha_repair",
+      "prompt": "Use case: background-extraction. Edit target: the provided brown skin material oval. Change only the background: remove every checkerboard square and make the area outside the brown oval genuinely transparent alpha. Keep every skin pixel, the brown palette, pixel-art contour and texture unchanged. Single opaque brown skin oval on a truly transparent background, no checkerboard, no shadows, no other paint.",
+      "references": [
+        {
+          "path": "hidden_generated.png",
+          "role": "edit target, remove painted checkerboard"
+        }
+      ],
+      "output": "hidden_transparent.png",
+      "disposition": "Selected. RGBA background alpha zero, darker interior crop used for concealed joints.",
+      "output_sha256": "8fa565ade0674356d80448382eb3f4823ec61eaf3482ce70e304a911ede8a16a"
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_neck",
+      "parts": [
+        "neck"
+      ],
+      "bones": [
+        "body",
+        "neck"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            117,
+            125
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 24
+        }
+      ]
+    },
+    {
+      "name": "front_arm_far",
+      "parts": [
+        "arm_far",
+        "arm_cap_far"
+      ],
+      "bones": [
+        "body",
+        "arm_far"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            96,
+            145
+          ],
+          "axis": [
+            -1,
+            1
+          ],
+          "width": 14
+        }
+      ]
+    },
+    {
+      "name": "front_arm_near",
+      "parts": [
+        "arm_near",
+        "arm_cap_near"
+      ],
+      "bones": [
+        "body",
+        "arm_near"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            138,
+            143
+          ],
+          "axis": [
+            -1,
+            1
+          ],
+          "width": 14
+        }
+      ]
+    },
+    {
+      "name": "front_tail",
+      "parts": [
+        "tail"
+      ],
+      "bones": [
+        "body",
+        "tail_base",
+        "tail_mid",
+        "tail_tip"
+      ],
+      "grid": [
+        3,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            177,
+            150
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 24
+        },
+        {
+          "center": [
+            188,
+            178
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 28
+        },
+        {
+          "center": [
+            141,
+            205
+          ],
+          "axis": [
+            -1,
+            0
+          ],
+          "width": 44
+        }
+      ]
+    }
+  ]
+}

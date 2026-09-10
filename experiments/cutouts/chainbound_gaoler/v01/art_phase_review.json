@@ -1,0 +1,16 @@
+{
+  "art_phase": "front accepted before anatomy segmentation or animation",
+  "selected_paint": "source/front_generated_v01.png",
+  "registered": "source/front_registered.png",
+  "native_comparison": "source/native_roster_comparison.png",
+  "board_comparison": "art_proof_v03/board_comparison_native_crop.png",
+  "native_qa": "Broad cloth and worn iron planes, clean dark contour, readable orange tabard, chunky links; helmet and equipment identity retained. Source RGB is never repainted by registration/ownership. Front alpha endpoints are 0/255. Native edge inspection passes after explicit neutral-background exclusion v02.",
+  "board_qa": "Inspected original/repaint actual RunScene at 1920x1080/100%; new lighter coherent planes, hook and fist read beside Warden/Crawler/Harrier/Surgeon. Logical scale 0.9 and offset -16 preserved.",
+  "historical_proof": "art_proof is crowded. art_proof_v02 did not invalidate retained draw commands; rejected as repaint proof. art_proof_v03 explicitly refreshes retained layers and asserts selected texture identity.",
+  "remaining": "Portrait must be updated from selected helmet/torso. Rear and concealed joint paint next.",
+  "native_rig_review": {
+    "proof": "proof_v01",
+    "result": "rest/idle and chain accepted; stride ankle seam and low attack hands required revision",
+    "correction": "skinned_v02 makes ankle seam rigid with boot; lifted action poses; rear far fist occludes behind torso; final proof pending"
+  }
+}

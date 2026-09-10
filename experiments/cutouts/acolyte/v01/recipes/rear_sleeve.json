@@ -1,0 +1,34 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_sleeved.json",
+  "fields": [
+    {
+      "name": "rear_cast_sleeve",
+      "parts": [
+        "cast_sleeve"
+      ],
+      "bones": [
+        "torso",
+        "cast_hand"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            173,
+            110
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 18
+        }
+      ]
+    }
+  ]
+}

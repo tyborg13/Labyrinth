@@ -1,0 +1,115 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_crown",
+      "parts": [
+        "crown"
+      ],
+      "bones": [
+        "core",
+        "crown"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            127,
+            42
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 36
+        }
+      ]
+    },
+    {
+      "name": "front_tail",
+      "parts": [
+        "tail"
+      ],
+      "bones": [
+        "core",
+        "tail"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            127,
+            200
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 40
+        }
+      ]
+    },
+    {
+      "name": "front_arc_left",
+      "parts": [
+        "arc_left"
+      ],
+      "bones": [
+        "core",
+        "arc_left"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            74,
+            124
+          ],
+          "axis": [
+            -1,
+            0
+          ],
+          "width": 30
+        }
+      ]
+    },
+    {
+      "name": "front_arc_right",
+      "parts": [
+        "arc_right"
+      ],
+      "bones": [
+        "core",
+        "arc_right"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            182,
+            124
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 38
+        }
+      ]
+    }
+  ]
+}

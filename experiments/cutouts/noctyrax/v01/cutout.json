@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "character_id": "noctyrax",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 32,
+      "duration": 2.4,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 0.85,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "claw": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.42,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "breath": {
+      "frames": 40,
+      "duration": 1.2,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.12,
+          0.3
+        ],
+        [
+          0.18,
+          0.5
+        ],
+        [
+          0.66,
+          0.63
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "coil": {
+      "frames": 40,
+      "duration": 1.2,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.38,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "eclipse": {
+      "frames": 40,
+      "duration": 1.6,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.38,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far",
+    "wing_near",
+    "wing_far"
+  ],
+  "contact_feet": [
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far"
+  ],
+  "sources": [
+    "recipes/build_front.py",
+    "recipes/build_rear.py",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_material.py",
+    "recipes/hidden_registration.json",
+    "recipes/rear_registration.json",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/register_rear.py",
+    "recipes/skin_and_promote.py",
+    "source/front_hidden_generated.png",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_rest.png",
+    "source/generation_requests.json",
+    "source/rear_alpha_rejected_rgb.png",
+    "source/rear_generated_rgb.png",
+    "source/rear_hidden_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_rejected_rgb.png",
+    "source/rear_rest.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "front unchanged; rear generated and registered",
+    "front_sha256": "4356b8fdf2e9b5f106ca4d2c4ad31cfa1e5a19baf806b4718e56d9b2713973f7"
+  }
+}

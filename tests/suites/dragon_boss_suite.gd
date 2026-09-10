@@ -376,7 +376,10 @@ static func _test_boss_animation_sheets_and_death_presentations(expect: Callable
 	for boss_id: String in NEW_BOSS_IDS:
 		var unit: Dictionary = {"key": "enemy_%s" % boss_id, "id": 91, "role": "enemy", "type": boss_id, "pos": Vector2i(5, 3)}
 		var idle_frames: Array = board.call("_unit_idle_frames", unit)
-		expect.call(idle_frames.size() == 16, "%s idle animation should load all 16 authored frames" % boss_id)
+		if boss_id in ["iskaldra", "noctyrax", "tharokh", "vaeloryx", "vyraketh"]:
+			expect.call(idle_frames.is_empty() and bool(board.call("_unit_uses_cutout", unit)), "%s uses its persistent skeletal cutout instead of a legacy sheet" % boss_id)
+		else:
+			expect.call(idle_frames.size() == 16, "%s idle animation should load all 16 authored frames" % boss_id)
 		if idle_frames.size() == 16:
 			var idle_first: AtlasTexture = idle_frames[0] as AtlasTexture
 			var idle_last: AtlasTexture = idle_frames[15] as AtlasTexture

@@ -1,0 +1,12 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: identity-preserve. Asset type: matching rear three-quarter game sprite for a skeletal cutout. Input image 1 is the approved FRONT design reference, not an edit target. Draw exactly this blue lightning dragon from behind, facing upper-right (opposite the original lower-left heading), seen from the same elevated 2:1 isometric camera. Preserve its crouched bulky dragon anatomy, enormous two bat wings, indigo/navy scales, pale gold narrow lightning cracks, horned elongated head, two foreclaws and two hindfeet, long thick curled tail, painterly pixel-readable edges and restrained highlights. The head and long neck are visible above/around the right side from behind; rear wing membranes and back plates face camera. Both grounded hindfeet and foreclaws have coherent projected floor contact. Keep the wings raised similarly, do not turn into flight, do not add equipment. Whole body centered, full tail/wings unclipped with padding. Transparent background with real alpha. No ground shadow, no effects outside body, no text/grid/frame. This is one coherent rear painting to register as a whole at 255px; not a parts atlas and not a redesign.",
+  "references": [
+    {
+      "path": "front_original.png",
+      "role": "approved front design reference"
+    }
+  ],
+  "output": "rear_generated.png",
+  "disposition": "rejected as runtime input: painted RGB checkerboard. Used only as the edit target for rear_alpha_generated.png."
+}

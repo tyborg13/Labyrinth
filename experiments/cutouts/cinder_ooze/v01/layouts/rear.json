@@ -1,0 +1,548 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "rear",
+  "joints": {
+    "root": {
+      "position": [
+        128,
+        207
+      ],
+      "parent": null
+    },
+    "mass": {
+      "position": [
+        128,
+        137
+      ],
+      "parent": "root"
+    },
+    "bend_left_outer": {
+      "position": [
+        38,
+        174
+      ],
+      "parent": "root"
+    },
+    "contact_left_outer": {
+      "position": [
+        18,
+        188
+      ],
+      "parent": "root"
+    },
+    "bend_front_left": {
+      "position": [
+        58,
+        179
+      ],
+      "parent": "root"
+    },
+    "contact_front_left": {
+      "position": [
+        44,
+        196
+      ],
+      "parent": "root"
+    },
+    "bend_front_mid": {
+      "position": [
+        86,
+        187
+      ],
+      "parent": "root"
+    },
+    "contact_front_mid": {
+      "position": [
+        100,
+        225
+      ],
+      "parent": "root"
+    },
+    "bend_near_right": {
+      "position": [
+        165,
+        187
+      ],
+      "parent": "root"
+    },
+    "contact_near_right": {
+      "position": [
+        186,
+        217
+      ],
+      "parent": "root"
+    },
+    "bend_right_outer": {
+      "position": [
+        202,
+        179
+      ],
+      "parent": "root"
+    },
+    "contact_right_outer": {
+      "position": [
+        212,
+        200
+      ],
+      "parent": "root"
+    },
+    "bend_far_right": {
+      "position": [
+        225,
+        179
+      ],
+      "parent": "root"
+    },
+    "contact_far_right": {
+      "position": [
+        236,
+        190
+      ],
+      "parent": "root"
+    }
+  },
+  "parts": [
+    {
+      "name": "left_outer",
+      "file": "segmented/rear/left_outer.png",
+      "offset": [
+        14,
+        159
+      ],
+      "bbox": [
+        14,
+        159,
+        49,
+        197
+      ],
+      "bone": "bend_left_outer",
+      "z_index": 12
+    },
+    {
+      "name": "bridge_left_outer",
+      "file": "assets/rear/bridge_left_outer.png",
+      "offset": [
+        46,
+        170
+      ],
+      "bone": "bend_left_outer",
+      "z_index": 2
+    },
+    {
+      "name": "front_left",
+      "file": "segmented/rear/front_left.png",
+      "offset": [
+        32,
+        167
+      ],
+      "bbox": [
+        32,
+        167,
+        73,
+        211
+      ],
+      "bone": "bend_front_left",
+      "z_index": 13
+    },
+    {
+      "name": "bridge_front_left",
+      "file": "assets/rear/bridge_front_left.png",
+      "offset": [
+        48,
+        172
+      ],
+      "bone": "bend_front_left",
+      "z_index": 2
+    },
+    {
+      "name": "front_mid",
+      "file": "segmented/rear/front_mid.png",
+      "offset": [
+        71,
+        170
+      ],
+      "bbox": [
+        71,
+        170,
+        133,
+        231
+      ],
+      "bone": "bend_front_mid",
+      "z_index": 14
+    },
+    {
+      "name": "bridge_front_mid",
+      "file": "assets/rear/bridge_front_mid.png",
+      "offset": [
+        76,
+        180
+      ],
+      "bone": "bend_front_mid",
+      "z_index": 2
+    },
+    {
+      "name": "near_right",
+      "file": "segmented/rear/near_right.png",
+      "offset": [
+        151,
+        174
+      ],
+      "bbox": [
+        151,
+        174,
+        204,
+        224
+      ],
+      "bone": "bend_near_right",
+      "z_index": 15
+    },
+    {
+      "name": "bridge_near_right",
+      "file": "assets/rear/bridge_near_right.png",
+      "offset": [
+        155,
+        180
+      ],
+      "bone": "bend_near_right",
+      "z_index": 2
+    },
+    {
+      "name": "right_outer",
+      "file": "segmented/rear/right_outer.png",
+      "offset": [
+        183,
+        167
+      ],
+      "bbox": [
+        183,
+        167,
+        227,
+        209
+      ],
+      "bone": "bend_right_outer",
+      "z_index": 16
+    },
+    {
+      "name": "bridge_right_outer",
+      "file": "assets/rear/bridge_right_outer.png",
+      "offset": [
+        192,
+        172
+      ],
+      "bone": "bend_right_outer",
+      "z_index": 2
+    },
+    {
+      "name": "far_right",
+      "file": "segmented/rear/far_right.png",
+      "offset": [
+        213,
+        170
+      ],
+      "bbox": [
+        213,
+        170,
+        240,
+        201
+      ],
+      "bone": "bend_far_right",
+      "z_index": 17
+    },
+    {
+      "name": "crust_mass",
+      "file": "segmented/rear/crust_mass.png",
+      "offset": [
+        29,
+        19
+      ],
+      "bbox": [
+        29,
+        19,
+        225,
+        229
+      ],
+      "bone": "mass",
+      "z_index": 10
+    }
+  ],
+  "contact_lobes": [
+    {
+      "name": "left_outer",
+      "root": [
+        38,
+        174
+      ],
+      "tip": [
+        18,
+        188
+      ],
+      "polygon": [
+        [
+          0,
+          160
+        ],
+        [
+          33,
+          159
+        ],
+        [
+          48,
+          171
+        ],
+        [
+          40,
+          188
+        ],
+        [
+          27,
+          198
+        ],
+        [
+          0,
+          197
+        ]
+      ],
+      "axis": [
+        -0.8,
+        1
+      ]
+    },
+    {
+      "name": "front_left",
+      "root": [
+        58,
+        179
+      ],
+      "tip": [
+        44,
+        196
+      ],
+      "polygon": [
+        [
+          38,
+          177
+        ],
+        [
+          55,
+          167
+        ],
+        [
+          68,
+          170
+        ],
+        [
+          72,
+          197
+        ],
+        [
+          53,
+          211
+        ],
+        [
+          30,
+          208
+        ]
+      ],
+      "axis": [
+        -0.55,
+        1
+      ]
+    },
+    {
+      "name": "front_mid",
+      "root": [
+        86,
+        187
+      ],
+      "tip": [
+        100,
+        225
+      ],
+      "polygon": [
+        [
+          73,
+          170
+        ],
+        [
+          91,
+          177
+        ],
+        [
+          103,
+          190
+        ],
+        [
+          115,
+          193
+        ],
+        [
+          132,
+          217
+        ],
+        [
+          117,
+          232
+        ],
+        [
+          90,
+          239
+        ],
+        [
+          74,
+          223
+        ],
+        [
+          71,
+          205
+        ]
+      ],
+      "axis": [
+        0.25,
+        1
+      ]
+    },
+    {
+      "name": "near_right",
+      "root": [
+        165,
+        187
+      ],
+      "tip": [
+        186,
+        217
+      ],
+      "polygon": [
+        [
+          151,
+          174
+        ],
+        [
+          170,
+          175
+        ],
+        [
+          180,
+          186
+        ],
+        [
+          188,
+          198
+        ],
+        [
+          203,
+          203
+        ],
+        [
+          204,
+          224
+        ],
+        [
+          170,
+          233
+        ],
+        [
+          156,
+          217
+        ],
+        [
+          151,
+          198
+        ]
+      ],
+      "axis": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "name": "right_outer",
+      "root": [
+        202,
+        179
+      ],
+      "tip": [
+        212,
+        200
+      ],
+      "polygon": [
+        [
+          187,
+          167
+        ],
+        [
+          207,
+          171
+        ],
+        [
+          222,
+          185
+        ],
+        [
+          230,
+          207
+        ],
+        [
+          200,
+          216
+        ],
+        [
+          181,
+          203
+        ],
+        [
+          183,
+          186
+        ]
+      ],
+      "axis": [
+        0.35,
+        1
+      ]
+    },
+    {
+      "name": "far_right",
+      "root": [
+        225,
+        179
+      ],
+      "tip": [
+        236,
+        190
+      ],
+      "polygon": [
+        [
+          214,
+          170
+        ],
+        [
+          244,
+          177
+        ],
+        [
+          255,
+          196
+        ],
+        [
+          244,
+          205
+        ],
+        [
+          219,
+          198
+        ],
+        [
+          210,
+          184
+        ]
+      ],
+      "axis": [
+        0.8,
+        1
+      ]
+    }
+  ],
+  "grounding": "six distributed contact tendrils; 2:1 projected travel; shell is a rigid mass"
+}

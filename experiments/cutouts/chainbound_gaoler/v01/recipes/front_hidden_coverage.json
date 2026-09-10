@@ -1,0 +1,202 @@
+{
+  "source": "source/front_under_generated.png",
+  "source_sha256": "0185eb6e7cda7d884ea6a3517b1badbb04806ee9d4daf86306000b9f8d7871b1",
+  "registration": "whole output 1254x1254 -> 255x255 NEAREST, no shift; only these masked source pixels used",
+  "patches": [
+    {
+      "polygon": [
+        [
+          115,
+          121
+        ],
+        [
+          164,
+          121
+        ],
+        [
+          169,
+          158
+        ],
+        [
+          154,
+          166
+        ],
+        [
+          128,
+          163
+        ],
+        [
+          111,
+          151
+        ]
+      ],
+      "bone": "pelvis",
+      "z": 1,
+      "name": "pelvis_under",
+      "bbox": [
+        111,
+        121,
+        170,
+        167
+      ],
+      "source": "source/front_under_generated.png",
+      "output_sha256": "a8404aee7c29fc517ffb6c1ef12f673de5d6d7c199abfd46100ea56c916a27f2"
+    },
+    {
+      "polygon": [
+        [
+          111,
+          134
+        ],
+        [
+          132,
+          143
+        ],
+        [
+          124,
+          171
+        ],
+        [
+          114,
+          191
+        ],
+        [
+          94,
+          190
+        ],
+        [
+          96,
+          165
+        ]
+      ],
+      "bone": "thigh_hook",
+      "z": 2,
+      "name": "thigh_hook_under",
+      "bbox": [
+        94,
+        134,
+        133,
+        192
+      ],
+      "source": "source/front_under_generated.png",
+      "output_sha256": "bb59efdb42627889e9e8ab8c8c9556122e2208186a06b904fb262a3417aa6cce"
+    },
+    {
+      "polygon": [
+        [
+          153,
+          140
+        ],
+        [
+          173,
+          136
+        ],
+        [
+          184,
+          167
+        ],
+        [
+          186,
+          193
+        ],
+        [
+          164,
+          194
+        ],
+        [
+          157,
+          173
+        ]
+      ],
+      "bone": "thigh_fist",
+      "z": 2,
+      "name": "thigh_fist_under",
+      "bbox": [
+        153,
+        136,
+        187,
+        195
+      ],
+      "source": "source/front_under_generated.png",
+      "output_sha256": "901058970f3dc41874dc31349890a3d5ea603675ca67c8ed9cc458f0dfa8486c"
+    },
+    {
+      "polygon": [
+        [
+          104,
+          70
+        ],
+        [
+          118,
+          72
+        ],
+        [
+          121,
+          86
+        ],
+        [
+          113,
+          98
+        ],
+        [
+          98,
+          94
+        ],
+        [
+          96,
+          80
+        ]
+      ],
+      "bone": "upper_hook",
+      "z": 9,
+      "name": "shoulder_hook_under",
+      "bbox": [
+        96,
+        70,
+        122,
+        99
+      ],
+      "source": "source/front_under_generated.png",
+      "output_sha256": "cd83138eedc5a4d36a66d5cb30f59de29cd9cf8165ddcd0cd5b8f79ed9dc9455"
+    },
+    {
+      "polygon": [
+        [
+          169,
+          74
+        ],
+        [
+          179,
+          75
+        ],
+        [
+          187,
+          87
+        ],
+        [
+          184,
+          102
+        ],
+        [
+          170,
+          102
+        ],
+        [
+          164,
+          90
+        ]
+      ],
+      "bone": "upper_fist",
+      "z": 9,
+      "name": "shoulder_fist_under",
+      "bbox": [
+        164,
+        74,
+        188,
+        103
+      ],
+      "source": "source/front_under_generated.png",
+      "output_sha256": "d9786f8fca15429fd0e4f261a615a319a709f73a853b8ce53208a5203af4490a"
+    }
+  ]
+}

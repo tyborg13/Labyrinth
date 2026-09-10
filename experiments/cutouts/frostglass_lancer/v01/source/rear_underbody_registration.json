@@ -1,0 +1,49 @@
+{
+  "input": "rear_underbody_generated.png",
+  "offset": [
+    0,
+    4
+  ],
+  "seeds": [
+    [
+      0,
+      0
+    ],
+    [
+      254,
+      254
+    ],
+    [
+      126,
+      232
+    ],
+    [
+      109,
+      111
+    ],
+    [
+      177,
+      145
+    ]
+  ],
+  "resize": [
+    255,
+    255
+  ],
+  "resampling": "nearest; whole canvas, uniform",
+  "input_sha256": "5cfa6bc49b86955046e2c0f64e77400edbfccff9d0687b811ed6b8237a57e8d4",
+  "output": "rear_underbody_registered.png",
+  "output_sha256": "23986a36725b7ff1cd83a5cd5a5dac6a515a7041fba3f6183d9c550fa756f47f",
+  "bbox": [
+    84,
+    16,
+    222,
+    248
+  ],
+  "alpha_range": [
+    0,
+    255
+  ],
+  "background_owner_discarded": true,
+  "no_new_rgb_pixels": true
+}

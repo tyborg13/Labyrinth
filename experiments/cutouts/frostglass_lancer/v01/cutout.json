@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "character_id": "frostglass_lancer",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned_v06.json",
+    "rear": "layouts/rear_skinned_v06.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.48,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "thrust": {
+      "frames": 36,
+      "duration": 0.7,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.285,
+          0.32
+        ],
+        [
+          0.38,
+          0.5
+        ],
+        [
+          0.5784,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "cast": {
+      "frames": 40,
+      "duration": 0.88,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.31818181818181823,
+          0.32
+        ],
+        [
+          0.4409090909090909,
+          0.5
+        ],
+        [
+          0.7681818181818182,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "pin": {
+      "frames": 40,
+      "duration": 0.892,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.24663677130044842,
+          0.32
+        ],
+        [
+          0.3183856502242153,
+          0.5
+        ],
+        [
+          0.4977578475336323,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_r",
+    "hand_l",
+    "lance",
+    "foot_r",
+    "foot_l"
+  ],
+  "contact_feet": [
+    "foot_r",
+    "foot_l"
+  ],
+  "sources": [
+    "author.py",
+    "layouts/front_v06.json",
+    "layouts/front_v06.json",
+    "layouts/rear_v06.json",
+    "layouts/rear_v06.json",
+    "recipes/front_skinned_v06.skin.json",
+    "recipes/front_skinned_v06.skin.json",
+    "recipes/rear_skinned_v06.skin.json",
+    "recipes/rear_skinned_v06.skin.json",
+    "source/bone_harrier.png",
+    "source/front_alpha_prompt.txt",
+    "source/front_background_ownership.json",
+    "source/front_creature_mask.png",
+    "source/front_generated_01_opaque.png",
+    "source/front_generated_02_checkerboard.png",
+    "source/front_prompt.txt",
+    "source/front_registered.png",
+    "source/front_registered_with_background.png",
+    "source/front_registration.json",
+    "source/front_underbody_background_ownership.json",
+    "source/front_underbody_creature_mask.png",
+    "source/front_underbody_generated.png",
+    "source/front_underbody_prompt.txt",
+    "source/front_underbody_registered.png",
+    "source/front_underbody_registration.json",
+    "source/front_underbody_with_background.png",
+    "source/generation.json",
+    "source/grave_surgeon.png",
+    "source/landmark_grid.png",
+    "source/native_roster_comparison.png",
+    "source/native_roster_comparison_v02.png",
+    "source/native_roster_comparison_v03.png",
+    "source/original_front.png",
+    "source/original_portrait.png",
+    "source/portrait_registered.png",
+    "source/portrait_registration.json",
+    "source/rear_background_ownership.json",
+    "source/rear_creature_mask.png",
+    "source/rear_generated.png",
+    "source/rear_prompt.txt",
+    "source/rear_registered.png",
+    "source/rear_registration.json",
+    "source/rear_underbody_background_ownership.json",
+    "source/rear_underbody_creature_mask.png",
+    "source/rear_underbody_generated.png",
+    "source/rear_underbody_prompt.txt",
+    "source/rear_underbody_registered.png",
+    "source/rear_underbody_registration.json",
+    "source/rear_underbody_with_background.png",
+    "source/rear_with_background.png",
+    "source/register_front.py",
+    "source/register_generated.py",
+    "source/stone_warden.png",
+    "source/stone_warden_rear.png",
+    "source/tunnel_crawler.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "front repaint art gate inspected before segmentation",
+    "art_gate": "../art_phase_v03 (documentation only, no runtime reference)"
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_thigh_cover_r",
+      "Skin_leg_r",
+      "foot_r",
+      "Skin_thigh_cover_l",
+      "Skin_leg_l",
+      "foot_l"
+    ],
+    "rear": [
+      "Skin_thigh_cover_r",
+      "Skin_leg_r",
+      "foot_r",
+      "Skin_thigh_cover_l",
+      "Skin_leg_l",
+      "foot_l"
+    ]
+  }
+}

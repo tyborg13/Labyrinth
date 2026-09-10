@@ -3,9 +3,50 @@ class_name CombatBoardView
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
+const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
+const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
+const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
 const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
+const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
+var _acolyte_renderers: Dictionary = {}
+const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
+const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
+const CinderOozePresentation = preload("res://scripts/cinder_ooze_cutout/presentation.gd")
+const CinderOozeActionFx = preload("res://scripts/cinder_ooze_cutout/action_fx.gd")
+const HarrierCutout = preload("res://scripts/harrier_cutout/renderer.gd")
+const IskaldraCutout = preload("res://scripts/iskaldra_cutout/renderer.gd")
+const TharokhCutout = preload("res://scripts/tharokh_cutout/renderer.gd")
+const VaeloryxCutout = preload("res://scripts/vaeloryx_cutout/renderer.gd")
+const VaeloryxWind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
+const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
+const VeilboundAcolyteFx = preload("res://scripts/veilbound_acolyte_cutout/fx.gd")
 const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 var _warden_renderers: Dictionary = {}
+const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
+var _crawler_renderers: Dictionary = {}
+const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
+const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
+const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
+var _bile_bloomer_renderers: Dictionary = {}
+const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
+var _gaoler_renderers: Dictionary = {}
+var _cinder_droplet_renderers: Dictionary = {}
+var _cinder_ooze_renderers: Dictionary = {}
+const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
+var _frostglass_renderers: Dictionary = {}
+const GraveSurgeonCutout = preload("res://scripts/grave_surgeon_cutout/renderer.gd")
+const GraveSurgeonAttackFx = preload("res://scripts/grave_surgeon_cutout/attack_fx.gd")
+var _grave_surgeon_renderers: Dictionary = {}
+var _harrier_renderers: Dictionary = {}
+var _iskaldra_renderers: Dictionary = {}
+var _lightning_wisp_renderers: Dictionary = {}
+const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
+var _noctyrax_renderers: Dictionary = {}
+var _tharokh_renderers: Dictionary = {}
+var _vaeloryx_renderers: Dictionary = {}
+var _veilbound_acolyte_renderers: Dictionary = {}
+var _vyraketh_renderers: Dictionary = {}
+var _zekarion_renderers: Dictionary = {}
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -740,9 +781,33 @@ func protagonist_source_pixel_scale() -> float:
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player"}
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
 
+func harrier_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _harrier_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func harrier_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "harrier"}
+	_ensure_unit_assets_for_type("harrier")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / HarrierCutout.SOURCE_SIZE.x
+
+func _harrier_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "harrier":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Harrier, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _harrier_renderers.get(actor_key, null) as Node
+
 func warden_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _warden_renderers.get(actor_key, null) as Node
 	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_ooze_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _cinder_ooze_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_ooze_source_pixel_scale() -> float:
+	return CinderOozePresentation.source_pixel_scale(self)
 
 func warden_source_pixel_scale() -> float:
 	var unit: Dictionary = {"type": "warden"}
@@ -757,8 +822,202 @@ func _warden_renderer_for_unit(unit: Dictionary) -> Node:
 	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
 	return _warden_renderers.get(actor_key, null) as Node
 
+func iskaldra_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func iskaldra_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "iskaldra"}
+	_ensure_unit_assets_for_type("iskaldra")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / IskaldraCutout.SOURCE_SIZE.x
+
+func _iskaldra_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "iskaldra":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Iskaldra, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _iskaldra_renderers.get(actor_key, null) as Node
+
+func lightning_wisp_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _lightning_wisp_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func lightning_wisp_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "lightning_wisp"}
+	_ensure_unit_assets_for_type("lightning_wisp")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / LightningWispCutout.SOURCE_SIZE.x
+
+func _lightning_wisp_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "lightning_wisp":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Lightning Wisp, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _lightning_wisp_renderers.get(actor_key, null) as Node
+
+func tharokh_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _tharokh_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func tharokh_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "tharokh"}
+	_ensure_unit_assets_for_type("tharokh")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / TharokhCutout.SOURCE_SIZE.x
+
+func _tharokh_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "tharokh":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Tharokh, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _tharokh_renderers.get(actor_key, null) as Node
+
+func veilbound_acolyte_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func veilbound_acolyte_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "veilbound_acolyte"}
+	_ensure_unit_assets_for_type("veilbound_acolyte")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VeilboundAcolyteCutout.SOURCE_SIZE.x
+
+func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "veilbound_acolyte":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Veilbound Acolyte, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
+
 func _unit_uses_cutout(unit: Dictionary) -> bool:
-	return (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) == "warden"
+	return (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
+
+func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _bile_bloomer_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func bile_bloomer_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "bile_bloomer"}
+	_ensure_unit_assets_for_type("bile_bloomer")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
+
+func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	match str(unit.get("type", "")):
+		"vyraketh":
+			return _vyraketh_renderer_for_unit(unit)
+		"crawler":
+			return _crawler_renderer_for_unit(unit)
+		"acolyte":
+			return _acolyte_renderer_for_unit(unit)
+		"chainbound_gaoler":
+			return _gaoler_renderer_for_unit(unit)
+		"cinder_droplet":
+			return _cinder_droplet_renderer_for_unit(unit)
+		"frostglass_lancer":
+			return _frostglass_renderer_for_unit(unit)
+		"grave_surgeon":
+			return _grave_surgeon_renderer_for_unit(unit)
+		"harrier":
+			return _harrier_renderer_for_unit(unit)
+		"iskaldra":
+			return _iskaldra_renderer_for_unit(unit)
+		"lightning_wisp":
+			return _lightning_wisp_renderer_for_unit(unit)
+		"noctyrax":
+			return _noctyrax_renderer_for_unit(unit)
+		"tharokh":
+			return _tharokh_renderer_for_unit(unit)
+		"bile_bloomer":
+			return _bile_bloomer_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
+		"cinder_ooze":
+			return CinderOozePresentation.renderer_for_unit(self, unit)
+	return _warden_renderer_for_unit(unit)
+
+func _sync_bile_bloomer_renderers() -> void:
+	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
+		BileBloomerPool.sync(self, _bile_bloomer_renderers, combat_state, presentation)
+
+func _sync_harrier_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "harrier" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "harrier":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("harrier_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _harrier_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = HarrierCutout.new()
+			renderer.name = "HarrierCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_harrier_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _harrier_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _harrier_renderers[actor_key]
+			_harrier_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func vaeloryx_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _vaeloryx_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func vaeloryx_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "vaeloryx"}
+	_ensure_unit_assets_for_type("vaeloryx")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VaeloryxCutout.SOURCE_SIZE.x
+
+func _directional_enemy_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) == "vaeloryx":
+		# Destination echoes share the actual actor's persistent texture.
+		return _vaeloryx_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
+	return _enemy_cutout_renderer_for_unit(unit)
+
+func _sync_vaeloryx_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "vaeloryx" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "vaeloryx":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("vaeloryx_motion", {})
+	var player: Dictionary = combat_state.get("player", {})
+	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _vaeloryx_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VaeloryxCutout.new()
+			renderer.name = "VaeloryxCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_vaeloryx_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not player.is_empty():
+			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+			# The dragon's center is halfway between its four occupied tiles.
+			# Integer doubled coordinates retain the shared facing policy.
+			motion = EnemyCutoutFacing.with_idle_direction(motion, origin * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _vaeloryx_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _vaeloryx_renderers[actor_key]
+			_vaeloryx_renderers.erase(actor_key)
+			renderer.queue_free()
 
 func _sync_warden_renderers() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
@@ -789,6 +1048,565 @@ func _sync_warden_renderers() -> void:
 		if not actors.has(actor_key):
 			var renderer: Node = _warden_renderers[actor_key]
 			_warden_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func crawler_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _crawler_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func crawler_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "crawler"}
+	_ensure_unit_assets_for_type("crawler")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / CrawlerCutout.SOURCE_SIZE.x
+
+func _crawler_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "crawler":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Crawler, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _crawler_renderers.get(actor_key, null) as Node
+
+func _sync_crawler_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "crawler" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "crawler":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("crawler_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _crawler_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = CrawlerCutout.new()
+			renderer.name = "CrawlerCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_crawler_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _crawler_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _crawler_renderers[actor_key]
+			_crawler_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func acolyte_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _acolyte_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func acolyte_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "acolyte"}
+	_ensure_unit_assets_for_type("acolyte")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / AcolyteCutout.SOURCE_SIZE.x
+
+func _acolyte_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "acolyte":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Acolyte, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _acolyte_renderers.get(actor_key, null) as Node
+
+func _sync_acolyte_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "acolyte" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "acolyte":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("acolyte_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _acolyte_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = AcolyteCutout.new()
+			renderer.name = "AcolyteCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_acolyte_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _acolyte_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _acolyte_renderers[actor_key]
+			_acolyte_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func gaoler_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func gaoler_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "chainbound_gaoler"}
+	_ensure_unit_assets_for_type("chainbound_gaoler")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / GaolerCutout.SOURCE_SIZE.x
+
+func _gaoler_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "chainbound_gaoler":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Gaoler, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _gaoler_renderers.get(actor_key, null) as Node
+
+func _sync_gaoler_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "chainbound_gaoler" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "chainbound_gaoler":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("gaoler_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = GaolerCutout.new()
+			renderer.name = "GaolerCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_gaoler_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _gaoler_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _gaoler_renderers[actor_key]
+			_gaoler_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func cinder_droplet_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _cinder_droplet_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_droplet_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "cinder_droplet"}
+	_ensure_unit_assets_for_type("cinder_droplet")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / CinderDropletCutout.SOURCE_SIZE.x
+
+func _cinder_droplet_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "cinder_droplet":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second CinderDroplet, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _cinder_droplet_renderers.get(actor_key, null) as Node
+
+func _sync_cinder_droplet_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "cinder_droplet" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "cinder_droplet":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("cinder_droplet_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _cinder_droplet_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = CinderDropletCutout.new()
+			renderer.name = "CinderDropletCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_cinder_droplet_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _cinder_droplet_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _cinder_droplet_renderers[actor_key]
+			_cinder_droplet_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func frostglass_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func frostglass_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "frostglass_lancer"}
+	_ensure_unit_assets_for_type("frostglass_lancer")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / FrostglassCutout.SOURCE_SIZE.x
+
+func _frostglass_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "frostglass_lancer":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Frostglass Lancer, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _frostglass_renderers.get(actor_key, null) as Node
+
+func _sync_frostglass_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "frostglass_lancer" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "frostglass_lancer":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("frostglass_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = FrostglassCutout.new()
+			renderer.name = "FrostglassCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_frostglass_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _frostglass_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _frostglass_renderers[actor_key]
+			_frostglass_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func grave_surgeon_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _grave_surgeon_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func grave_surgeon_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "grave_surgeon"}
+	_ensure_unit_assets_for_type("grave_surgeon")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / GraveSurgeonCutout.SOURCE_SIZE.x
+
+func _grave_surgeon_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "grave_surgeon":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Grave Surgeon, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _grave_surgeon_renderers.get(actor_key, null) as Node
+
+func _sync_grave_surgeon_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "grave_surgeon" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "grave_surgeon":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("grave_surgeon_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _grave_surgeon_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = GraveSurgeonCutout.new()
+			renderer.name = "GraveSurgeonCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_grave_surgeon_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _grave_surgeon_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _grave_surgeon_renderers[actor_key]
+			_grave_surgeon_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_iskaldra_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "iskaldra" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "iskaldra":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("iskaldra_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = IskaldraCutout.new()
+			renderer.name = "IskaldraCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_iskaldra_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+			# Doubled tiles preserve the half-tile center of a 2x2 boss.
+			motion = EnemyCutoutFacing.with_idle_direction(motion, origin * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _iskaldra_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _iskaldra_renderers[actor_key]
+			_iskaldra_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_lightning_wisp_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "lightning_wisp":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("lightning_wisp_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _lightning_wisp_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = LightningWispCutout.new()
+			renderer.name = "LightningWispCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_lightning_wisp_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _lightning_wisp_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _lightning_wisp_renderers[actor_key]
+			_lightning_wisp_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func noctyrax_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func noctyrax_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "noctyrax"}
+	_ensure_unit_assets_for_type("noctyrax")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / NoctyraxCutout.SOURCE_SIZE.x
+
+func _noctyrax_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "noctyrax":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Noctyrax, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _noctyrax_renderers.get(actor_key, null) as Node
+
+func _sync_noctyrax_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "noctyrax":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("noctyrax_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = NoctyraxCutout.new()
+			renderer.name = "NoctyraxCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_noctyrax_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _noctyrax_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _noctyrax_renderers[actor_key]
+			_noctyrax_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_tharokh_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "tharokh" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "tharokh":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("tharokh_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _tharokh_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = TharokhCutout.new()
+			renderer.name = "TharokhCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_tharokh_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i) * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _tharokh_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _tharokh_renderers[actor_key]
+			_tharokh_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_veilbound_acolyte_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "veilbound_acolyte" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "veilbound_acolyte":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("veilbound_acolyte_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VeilboundAcolyteCutout.new()
+			renderer.name = "VeilboundAcolyteCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_veilbound_acolyte_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _veilbound_acolyte_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _veilbound_acolyte_renderers[actor_key]
+			_veilbound_acolyte_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func vyraketh_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _vyraketh_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func vyraketh_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "vyraketh"}
+	_ensure_unit_assets_for_type("vyraketh")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VyrakethCutout.SOURCE_SIZE.x
+
+func _vyraketh_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "vyraketh":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Vyraketh, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _vyraketh_renderers.get(actor_key, null) as Node
+
+func _sync_vyraketh_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "vyraketh" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "vyraketh":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("vyraketh_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _vyraketh_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VyrakethCutout.new()
+			renderer.name = "VyrakethCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_vyraketh_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _vyraketh_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _vyraketh_renderers[actor_key]
+			_vyraketh_renderers.erase(actor_key)
+			renderer.queue_free()
+
+
+func zekarion_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _zekarion_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func zekarion_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "zekarion"}
+	_ensure_unit_assets_for_type("zekarion")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / ZekarionCutout.SOURCE_SIZE.x
+
+func _zekarion_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "zekarion":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Zekarion, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _zekarion_renderers.get(actor_key, null) as Node
+
+func _sync_zekarion_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "zekarion" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "zekarion":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("zekarion_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _zekarion_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = ZekarionCutout.new()
+			renderer.name = "ZekarionCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_zekarion_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+Vector2i.ONE, player_pos*2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _zekarion_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _zekarion_renderers[actor_key]
+			_zekarion_renderers.erase(actor_key)
 			renderer.queue_free()
 
 func _exit_tree() -> void:
@@ -1009,7 +1827,7 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
 		elif effect.get_parent() != target_layer:
 			effect.reparent(target_layer, false)
-		var source_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit)) if is_instance_valid(_warden_renderer_for_unit(unit)) else _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
+		var source_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit)) if is_instance_valid(_directional_enemy_renderer_for_unit(unit)) or is_instance_valid(_veilbound_acolyte_renderer_for_unit(unit)) or is_instance_valid(_zekarion_renderer_for_unit(unit)) else _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
 		effect.call(
 			"configure",
 			source_texture,
@@ -1102,7 +1920,8 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
 			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
@@ -1764,6 +2583,23 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
 	_sync_warden_renderers()
+	_sync_crawler_renderers()
+	_sync_acolyte_renderers()
+	_sync_bile_bloomer_renderers()
+	_sync_gaoler_renderers()
+	_sync_cinder_droplet_renderers()
+	CinderOozePresentation.sync(self)
+	_sync_frostglass_renderers()
+	_sync_grave_surgeon_renderers()
+	_sync_harrier_renderers()
+	_sync_iskaldra_renderers()
+	_sync_lightning_wisp_renderers()
+	_sync_noctyrax_renderers()
+	_sync_tharokh_renderers()
+	_sync_vaeloryx_renderers()
+	_sync_veilbound_acolyte_renderers()
+	_sync_vyraketh_renderers()
+	_sync_zekarion_renderers()
 	if is_instance_valid(_protagonist_renderer):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
@@ -2189,7 +3025,7 @@ func _queue_presentation_change_redraws(
 			"protagonist_motion":
 				# The rig keeps a stable texture; its small hand charge lives on FX.
 				effects_changed = true
-			"warden_motion":
+			"warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Per-actor viewports retain their texture RID between poses.
 				pass
 			"tile_drag_aiming":
@@ -8704,6 +9540,7 @@ func _draw_effect_overlay() -> void:
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
+	_draw_bile_bloomer_fragments(effect, progress)
 	var kind: String = str(effect.get("kind", ""))
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
@@ -8728,9 +9565,36 @@ func _draw_effect_overlay() -> void:
 		"melee":
 			if to_tile.x < 0:
 				return
+			if str(effect.get("cinder_ooze_action", "")) == "attack":
+				CinderOozeActionFx.draw_contact(self, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+				return
+			if bool(effect.get("grave_surgeon_melee", false)):
+				GraveSurgeonAttackFx.draw_jab(self, from_point, to_point, progress, _tile_width(), bool(presentation.get("reduced_motion", false)))
+				return
+			if bool(effect.get("harrier_thrust", false)) and not bool(presentation.get("reduced_motion", false)):
+				var thrust: float = HarrierCutout.attack_trail_phase(progress)
+				if thrust >= 0:
+					var contact: Vector2 = to_point + Vector2(0,-24)
+					var direction: Vector2 = (to_point-from_point).normalized()
+					draw_line(contact-direction*22,contact+direction*8,Color(0.85,0.73,0.49,sin(thrust*PI)*0.60),2.0,true)
+				return
+			if bool(effect.get("veilbound_acolyte_melee", false)):
+				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
+				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
+				return
 			var slash_progress: float = progress
 			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
 				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("crawler_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = CrawlerCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("noctyrax_claw", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = NoctyraxCutout.claw_trail_phase(progress)
 				if trail_phase < 0.0:
 					return
 				slash_progress = trail_phase * 0.82
@@ -8739,9 +9603,39 @@ func _draw_effect_overlay() -> void:
 				if trail_phase < 0.0:
 					return
 				slash_progress = trail_phase * 0.82
-			_draw_melee_slash_effect(from_point, to_point, slash_progress)
+			elif bool(effect.get("cinder_droplet_melee", false)):
+				var reduced: bool = bool(presentation.get("reduced_motion", false))
+				var impact_phase: float = .38 if reduced else CinderDropletCutout.spatter_impact_phase(progress)
+				if impact_phase < 0.0:
+					return
+				ElementalSpellFx.impact(self, "fire", to_point - Vector2(0.0, _tile_width() * .12),
+					_tile_width() * .28, impact_phase, .85, reduced, true)
+				return
+			elif bool(effect.get("tharokh_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = TharokhCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("vaeloryx_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = VaeloryxCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("zekarion_claw", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = ZekarionCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase*0.82
+				from_point = _zekarion_effect_socket(effect, "strike", from_point)
+			if bool(effect.get("vyraketh_maw", false)):
+				_draw_vyraketh_bite_effect(from_point, to_point, progress)
+			else:
+				_draw_melee_slash_effect(from_point, to_point, slash_progress)
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			if VaeloryxWind.handles(effect):
+				_draw_vaeloryx_wind_feedback(effect, progress)
 				return
 			var force_from: Vector2i = effect.get("umbra_original_from", from_tile)
 			var force_to: Vector2i = effect.get("umbra_original_to", to_tile)
@@ -8754,6 +9648,8 @@ func _draw_effect_overlay() -> void:
 				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
 			_draw_aoe_cast_preview(effect, from_point, center_point)
+			if str(effect.get("cinder_ooze_action", "")) == "bloom":
+				CinderOozeActionFx.draw_bloom(self, from_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
 		"chain":
 			_draw_surface_chain_effect(effect, progress)
 		"lightning_strikes":
@@ -8762,8 +9658,9 @@ func _draw_effect_overlay() -> void:
 			for tile: Vector2i in strike_tiles:
 				var tile_point: Vector2 = _tile_center(tile)
 				var top_point: Vector2 = tile_point + Vector2(-10.0 + sin(float(tile.x + tile.y)) * 8.0, -_tile_height() * 1.45)
-				draw_line(top_point, tile_point, Color(1.0, 0.94, 0.42, bolt_alpha), 3.0, true)
-				draw_line(top_point + Vector2(7.0, 22.0), tile_point + Vector2(-5.0, -6.0), Color(0.58, 0.78, 1.0, bolt_alpha * 0.76), 2.0, true)
+				if not bool(effect.get("zekarion_cutout", false)) or progress >= 0.38 or bool(presentation.get("reduced_motion",false)):
+					draw_line(top_point, tile_point, Color(1.0, 0.94, 0.42, bolt_alpha), 3.0, true)
+					draw_line(top_point + Vector2(7.0, 22.0), tile_point + Vector2(-5.0, -6.0), Color(0.58, 0.78, 1.0, bolt_alpha * 0.76), 2.0, true)
 				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.08), 0.0, TAU, 18, Color(1.0, 0.86, 0.28, 0.48 + progress * 0.24), 3.0)
 				draw_circle(tile_point, _tile_width() * 0.10, Color(1.0, 0.95, 0.50, 0.16 + progress * 0.18))
 		"block":
@@ -8783,6 +9680,20 @@ func _draw_effect_overlay() -> void:
 			if stoneskin_tile.x < 0:
 				return
 			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
+
+func _draw_vaeloryx_wind_feedback(effect: Dictionary, progress: float) -> void:
+	var actor_key: String = str(effect.get("actor_key", ""))
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key", "")) != actor_key:
+			continue
+		var ground: Vector2 = _unit_center(unit)
+		var body: Rect2 = _unit_draw_rect_for_center(unit, ground)
+		var target: Vector2i = effect.get("player_from", effect.get("to", Vector2i.ZERO))
+		var target_ground: Vector2 = _tile_center(target)
+		VaeloryxWind.draw(self, effect, progress, body.position + body.size * Vector2(0.5, 0.52),
+			target_ground - Vector2(0.0, _tile_height() * 0.70), ground, target_ground,
+			_tile_width(), bool(presentation.get("reduced_motion", false)))
+		return
 
 func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
 	_draw_cast_icon_effect("block", tile, progress, -0.30, 0.50)
@@ -8857,7 +9768,69 @@ func _protagonist_socket_world(shot: bool, released: bool = false, direction_del
 	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
 	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
 
+func _acolyte_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	# Umbra callers pass the visible segment's start, even during impact and
+	# reduced motion. A hidden orb must never replace that clipped origin.
+	if not bool(effect.get("acolyte_cast", false)) or bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)):
+		return fallback
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _acolyte_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != key:
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = key
+		var body: Rect2 = _unit_draw_rect(unit)
+		# Freeze the launch socket at the release pose so the flight origin
+		# cannot drift back with the recovering casting hand.
+		return body.position + body.size * Vector2(renderer.call("source_socket", true)) / AcolyteCutout.SOURCE_SIZE
+	return fallback
+
+func _veilbound_acolyte_launch_point(effect: Dictionary, fallback: Vector2, ranged: bool = true) -> Vector2:
+	if not bool(effect.get("veilbound_acolyte_ranged" if ranged else "veilbound_acolyte_melee", false)) or bool(effect.get("preview", false)):
+		return fallback
+	var actor_key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		# Umbra-clipped remote origins keep the established clipping geometry.
+		if enemy.get("pos", Vector2i.ZERO) != effect.get("from", Vector2i.ZERO):
+			return fallback
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = actor_key
+		unit["role"] = "enemy"
+		var body: Rect2 = _unit_draw_rect(unit)
+		var direction: Vector2i = (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)
+		var socket: Vector2 = renderer.call("release_source_socket", direction, ranged)
+		return body.position + body.size * socket / VeilboundAcolyteCutout.SOURCE_SIZE
+	return fallback
+
+func _zekarion_effect_socket(effect: Dictionary, socket_name: String, fallback: Vector2) -> Vector2:
+	if not bool(effect.get("zekarion_cutout", false)) or bool(effect.get("preview", false)):
+		return fallback
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _zekarion_renderers.get(key) as Node
+	if not is_instance_valid(renderer): return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key == "enemy_%d" % int(enemy.get("id", -1)):
+			var unit: Dictionary = enemy.duplicate(false)
+			unit["key"] = key
+			var rect: Rect2 = _unit_draw_rect_for_center(unit, _unit_center(unit))
+			return rect.position + Vector2(renderer.call("socket_source_point",socket_name))*rect.size/255.0
+	return fallback
+
 func _protagonist_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	fallback = _acolyte_launch_point(effect, fallback)
+	var bloomer_socket: Variant = _bile_bloomer_socket_world(effect)
+	if bloomer_socket is Vector2:
+		return bloomer_socket
+	if bool(effect.get("harrier_ranged", false)) and not bool(effect.get("preview", false)):
+		return _harrier_launch_point(effect, fallback)
 	if str(effect.get("protagonist_ranged", "")).is_empty() or bool(effect.get("preview", false)) or not is_instance_valid(_protagonist_renderer):
 		return fallback
 	# A relic's explicitly remote origin remains on that ground. Enemy, trap,
@@ -8865,6 +9838,75 @@ func _protagonist_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2
 	if effect.get("from", Vector2i.ZERO) != effect.get("protagonist_origin", Vector2i.ZERO):
 		return fallback
 	return _protagonist_socket_world(str(effect["protagonist_ranged"]) == "shoot", true, (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("protagonist_origin", Vector2i.ZERO) as Vector2i))
+
+func _bile_bloomer_socket_world(effect: Dictionary) -> Variant:
+	if not bool(effect.get("bile_bloomer_release", false)) or bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)):
+		return null
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _bile_bloomer_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer) or not bool(renderer.get("active")):
+		return null
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key == "enemy_%d" % int(enemy.get("id", -1)):
+			var unit: Dictionary = enemy.duplicate(false)
+			unit.merge({"key": key, "role": "enemy"}, true)
+			var body: Rect2 = _unit_draw_rect(unit)
+			return body.position + body.size * (renderer.call("source_socket") as Vector2) / BileBloomerCutout.SOURCE_SIZE
+	return null
+
+func _draw_bile_bloomer_fragments(effect: Dictionary, progress: float) -> void:
+	if bool(presentation.get("reduced_motion", false)):
+		return
+	var socket: Variant = _bile_bloomer_socket_world(effect)
+	if not socket is Vector2:
+		return
+	var target: Vector2 = _elemental_ground_point(_tile_center(effect.get("to", Vector2i.ZERO)))
+	BileBloomerFx.draw_fragments(self, socket, target, progress, str(effect.get("kind", "")) == "aoe", bile_bloomer_source_pixel_scale())
+
+func _cutout_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	var action: String = str(effect.get("frostglass_action", ""))
+	if action.is_empty() or bool(effect.get("preview", false)):
+		return _protagonist_launch_point(effect, fallback)
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _frostglass_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key != "enemy_%d" % int(enemy.get("id", -1)):
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = key
+		var body: Rect2 = _unit_draw_rect(unit)
+		var delta: Vector2i = (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)
+		var source: Vector2 = renderer.call("source_socket", action, delta)
+		return body.position + body.size * source / FrostglassCutout.SOURCE_SIZE
+	return fallback
+
+func _harrier_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	var renderer: Node = _harrier_renderers.get(str(effect.get("actor_key", "")), null) as Node
+	if not is_instance_valid(renderer) or bool(effect.get("umbra_action_clipped", false)):
+		return fallback
+	var origin: Vector2i = effect.get("from", Vector2i.ZERO)
+	var unit: Dictionary = {"type":"harrier","pos":origin,"id":int(str(effect.get("actor_key", "enemy_-1")).trim_prefix("enemy_"))}
+	var body: Rect2 = _unit_draw_rect(unit)
+	var socket: Vector2 = renderer.call("source_release_socket", (effect.get("to", Vector2i.ZERO) as Vector2i)-origin)
+	return body.position + body.size * socket / HarrierCutout.SOURCE_SIZE
+
+func _iskaldra_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	if bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)) or str(effect.get("kind", "")) != "ranged":
+		return fallback
+	var actor_key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer) or not bool(renderer.get("active")):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit.merge({"key": actor_key, "role": "enemy"}, true)
+		var body: Rect2 = _unit_draw_rect(unit)
+		return body.position + body.size * Vector2(renderer.call("source_socket", true)) / IskaldraCutout.SOURCE_SIZE
+	return fallback
 
 func _draw_protagonist_charge() -> void:
 	var motion: Dictionary = presentation.get("protagonist_motion", {})
@@ -8882,10 +9924,23 @@ func _draw_protagonist_charge() -> void:
 		draw_line(center + ray * (radius + 3.0 * scale), center + ray * radius, Color(accent, amount), maxf(1.0, scale), true)
 	draw_circle(center, 1.4 * scale, Color(1.0, 0.97, 0.85, amount))
 
+func _noctyrax_maw_point(actor_key: String, fallback: Vector2) -> Vector2:
+	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key", "")) == actor_key:
+			var logical: Rect2 = _unit_draw_rect(unit)
+			return logical.position + (Vector2(renderer.call("maw_canvas_position")) - NoctyraxCutout.SOURCE_OFFSET) * logical.size / NoctyraxCutout.SOURCE_SIZE
+	return fallback
+
 func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	if bool(effect.get("preview", false)):
 		if _target_preview_curve_visible(effect):
 			_draw_ranged_target_preview_curve(effect, from_point, to_point)
+		return
+	if bool(effect.get("noctyrax_breath", false)):
+		_draw_noctyrax_breath(effect, progress, from_point, to_point)
 		return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	match style:
@@ -8907,9 +9962,12 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 	var element_id: String = _projectile_element_id(_effect_element(effect))
 	var accent: Color = _projectile_accent(element_id)
 	var secondary: Color = _projectile_secondary(element_id)
-	var start: Vector2 = _protagonist_launch_point(effect, from_point + Vector2(0.0, -24.0))
+	var start: Vector2 = _veilbound_acolyte_launch_point(effect, _cutout_launch_point(effect, from_point + Vector2(0.0, -24.0)))
 	var end: Vector2 = to_point + Vector2(0.0, -24.0)
 	var control: Vector2 = _arc_control_point(start, end)
+	if bool(effect.get("veilbound_acolyte_ranged", false)):
+		VeilboundAcolyteFx.ranged(self,progress,start,control,end,_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
+		return
 	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
 	var arc_alpha: float = 0.11 + 0.08 * warmup_progress
 	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
@@ -8920,6 +9978,56 @@ func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_po
 		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
 		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
 		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
+
+func _draw_noctyrax_breath(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	# Starless Breath is exhaled shadow, not the default physical projectile.
+	# Keep the resolver's 18% launch and 66% impact boundaries. Hidden intervals
+	# still use the common Umbra-clipped fragment path below.
+	var start: Vector2 = _noctyrax_maw_point(str(effect.get("actor_key", "")), from_point + Vector2(0.0, -24.0))
+	var end: Vector2 = to_point + Vector2(0.0, -24.0)
+	var scale: float = clampf(_tile_width() / 96.0, 0.65, 1.5)
+	var reduced: bool = bool(presentation.get("reduced_motion", false))
+	if progress >= 0.66 or reduced:
+		var impact: float = 0.45 if reduced else clampf((progress - 0.66) / 0.34, 0.0, 1.0)
+		var alpha: float = 0.75 if reduced else 1.0 - impact
+		draw_circle(end, (5.0 + 12.0 * impact) * scale, Color(0.12, 0.04, 0.22, alpha * 0.72))
+		draw_arc(end, (7.0 + 16.0 * impact) * scale, 0.0, TAU, 28, Color(0.65, 0.40, 0.90, alpha), 2.0 * scale, true)
+		return
+	if bool(effect.get("umbra_action_clipped", false)):
+		return
+	if progress < 0.18:
+		var charge: float = clampf(progress / 0.18, 0.0, 1.0)
+		draw_circle(start, (2.0 + charge * 3.0) * scale, Color(0.61, 0.32, 0.88, charge * 0.60))
+		return
+	var travel: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	if travel <= 0.001:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	var normal := Vector2(-direction.y, direction.x)
+	var upper := PackedVector2Array()
+	var lower := PackedVector2Array()
+	var spine := PackedVector2Array()
+	for index: int in range(19):
+		var along: float = float(index) / 18.0
+		var t: float = along * travel
+		var wave: float = sin(along * TAU * 2.5 - travel * TAU * 2.0)
+		var center: Vector2 = start.lerp(end, t) + normal * wave * 2.2 * along * scale
+		var width: float = (1.5 + 6.5 * along + 1.4 * sin(along * TAU * 4.0 - travel * 9.0)) * scale
+		upper.append(center + normal * width)
+		lower.append(center - normal * width)
+		spine.append(center)
+	lower.reverse()
+	upper.append_array(lower)
+	draw_colored_polygon(upper, Color(0.16, 0.055, 0.27, 0.88))
+	draw_polyline(spine, Color(0.48, 0.23, 0.70, 0.66), 4.0 * scale, true)
+	for index: int in range(1, 7):
+		var t: float = travel * float(index) / 7.0
+		var center: Vector2 = start.lerp(end, t)
+		center += normal * sin(float(index) * 2.4 - travel * 11.0) * (2.0 + 7.0 * t) * scale
+		draw_circle(center, (1.0 + 1.7 * t) * scale, Color(0.75, 0.52, 0.93, 0.62))
+	var tip: Vector2 = spine[spine.size() - 1]
+	draw_circle(tip, 8.0 * scale, Color(0.28, 0.09, 0.43, 0.88))
+	draw_arc(tip, 7.0 * scale, direction.angle() - PI * 0.65, direction.angle() + PI * 0.65, 14, Color(0.77, 0.51, 0.96, 0.90), 2.0 * scale, true)
 
 func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> void:
 	var original_from: Vector2i = effect.get("umbra_original_from", Vector2i(-1, -1))
@@ -9009,8 +10117,8 @@ func _draw_umbra_projectile_fragment(
 	var tip: Vector2 = center + direction * head_length
 	var half_width: float = minf(_tile_width() * 0.060, maxf(2.5, segment_length * 0.10))
 	var element_id: String = _projectile_element_id(_effect_element(effect))
-	var accent: Color = _projectile_accent(element_id)
-	var secondary: Color = _projectile_secondary(element_id)
+	var accent: Color = Color(0.65, 0.40, 0.90) if bool(effect.get("noctyrax_breath", false)) else _projectile_accent(element_id)
+	var secondary: Color = Color(0.20, 0.055, 0.32) if bool(effect.get("noctyrax_breath", false)) else _projectile_secondary(element_id)
 	var outer := PackedVector2Array([
 		back,
 		shoulder + normal * half_width * 1.35,
@@ -9066,7 +10174,7 @@ func _draw_umbra_projectile_fragment(
 func _umbra_projectile_fragment_texture(effect: Dictionary, _progress: float) -> Texture2D:
 	# Elemental spells use clipped material geometry, including when only a short
 	# visible interval crosses Umbra. Do not resurrect the removed spell atlases.
-	if AttackFxLibrary.uses_authored_elemental_attack(effect):
+	if bool(effect.get("noctyrax_breath", false)) or AttackFxLibrary.uses_authored_elemental_attack(effect):
 		return null
 	return _projectile_texture(_projectile_element_id(_effect_element(effect)))
 
@@ -9529,7 +10637,7 @@ func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_p
 	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
 	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
 	if progress <= anticipation_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == from_tile):
-		_draw_elemental_release(style, _protagonist_launch_point(effect, start), start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+		_draw_elemental_release(style, _cutout_launch_point(effect, start), start, end, AttackFxLibrary.release_progress_for_style(style, progress))
 	if progress >= anticipation_end and progress <= travel_end:
 		_draw_earth_spike_path(start, end, travel_progress, 1.0, from_tile, to_tile)
 	if progress >= travel_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile):
@@ -9553,7 +10661,7 @@ func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, re
 
 func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_AIR_GUST
-	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.62))
+	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.62))
 	var end: Vector2 = _elemental_air_point(to_point, 0.56)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9582,7 +10690,7 @@ func _draw_air_gust_impact(center: Vector2, ground_center: Vector2, impact_progr
 
 func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
-	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.66))
+	var start: Vector2 = _zekarion_effect_socket(effect, "maw", _cutout_launch_point(effect, _elemental_air_point(from_point, 0.66)))
 	var end: Vector2 = _elemental_air_point(to_point, 0.58)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9611,7 +10719,7 @@ func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_prog
 
 func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
-	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.60))
+	var start: Vector2 = _iskaldra_launch_point(effect, _cutout_launch_point(effect, _elemental_air_point(from_point, 0.60)))
 	var end: Vector2 = _elemental_air_point(to_point, 0.40)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -9640,7 +10748,7 @@ func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: floa
 
 func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
 	var style: String = AttackFxLibrary.STYLE_FIREBALL
-	var start: Vector2 = _protagonist_launch_point(effect, _elemental_air_point(from_point, 0.72))
+	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.72))
 	var end: Vector2 = _elemental_air_point(to_point, 0.66)
 	var ground_start: Vector2 = _elemental_ground_point(from_point)
 	var ground_end: Vector2 = _elemental_ground_point(to_point)
@@ -10384,6 +11492,20 @@ func _floating_text_target_rect(tile: Vector2i) -> Rect2:
 	var width: float = _tile_width() * 0.72
 	var height: float = _tile_height() * 0.92
 	return Rect2(center - Vector2(width * 0.5, height * 0.72), Vector2(width, height))
+
+func _draw_vyraketh_bite_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
+	var phase: float = VyrakethCutout.bite_trail_phase(progress)
+	if phase < 0.0 and not bool(presentation.get("reduced_motion", false)):
+		return
+	phase = 0.5 if phase < 0.0 else phase
+	var forward: Vector2 = (to_point-from_point).normalized()
+	var side: Vector2 = forward.orthogonal()
+	var spread: float = 7.0 + 14.0 * absf(phase-0.35)
+	var color := Color(1.0, 0.36, 0.07, 0.82*(1.0-phase))
+	for sign: float in [-1.0, 1.0]:
+		var points := PackedVector2Array([to_point-forward*15.0+side*spread*sign,
+			to_point-forward*3.0+side*4.0*sign, to_point+forward*13.0+side*spread*sign])
+		draw_polyline(points, color, 2.0, true)
 
 func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
 	if progress >= 0.82:
@@ -12101,8 +13223,76 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	_unit_assets_loaded[unit_type] = true
 	var art_path: String = ""
+	if unit_type == "crawler":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CrawlerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "acolyte":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(AcolyteCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "chainbound_gaoler":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GaolerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "cinder_droplet":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CinderDropletCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "cinder_ooze":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CinderOozeCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "frostglass_lancer":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(FrostglassCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "grave_surgeon":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GraveSurgeonCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "harrier":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(HarrierCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "iskaldra":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(IskaldraCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "lightning_wisp":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(LightningWispCutout.REST_PATH)
+		return
+	if unit_type == "noctyrax":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(NoctyraxCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		_unit_assets_loaded[unit_type] = true
+		return
+	if unit_type == "tharokh":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(TharokhCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "vaeloryx":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VaeloryxCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "veilbound_acolyte":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VeilboundAcolyteCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "vyraketh":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VyrakethCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "zekarion":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ZekarionCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
 	if unit_type == "warden":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(WardenCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "bile_bloomer":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(BileBloomerCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "player" and _uses_protagonist_cutout():
@@ -12324,9 +13514,15 @@ func _door_opening_frame_canvas_size() -> Vector2i:
 	return canvas_size
 
 func _texture_for_unit(unit: Dictionary) -> Texture2D:
-	var warden: Node = _warden_renderer_for_unit(unit)
-	if is_instance_valid(warden):
-		return warden.call("texture") as Texture2D
+	var zekarion: Node = _zekarion_renderer_for_unit(unit)
+	if is_instance_valid(zekarion):
+		return zekarion.call("texture") as Texture2D
+	var veilbound: Node = _veilbound_acolyte_renderer_for_unit(unit)
+	if is_instance_valid(veilbound):
+		return veilbound.call("texture") as Texture2D
+	var cutout: Node = _directional_enemy_renderer_for_unit(unit)
+	if is_instance_valid(cutout):
+		return cutout.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
 	if unit_type == "player" and is_instance_valid(_protagonist_renderer):
 		return _protagonist_renderer.call("texture") as Texture2D
@@ -12346,9 +13542,15 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 
 
 func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
-	var warden: Node = _warden_renderer_for_unit(unit)
-	if is_instance_valid(warden):
-		return warden.call("texture") as Texture2D
+	var zekarion: Node = _zekarion_renderer_for_unit(unit)
+	if is_instance_valid(zekarion):
+		return zekarion.call("texture") as Texture2D
+	var veilbound: Node = _veilbound_acolyte_renderer_for_unit(unit)
+	if is_instance_valid(veilbound):
+		return veilbound.call("texture") as Texture2D
+	var cutout: Node = _directional_enemy_renderer_for_unit(unit)
+	if is_instance_valid(cutout):
+		return cutout.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if not idle_frames.is_empty():
@@ -12670,7 +13872,7 @@ func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: floa
 		rect = _death_animation_render_rect(unit, rect)
 	if not is_equal_approx(body_scale, 1.0):
 		rect = _scaled_unit_rect(rect, body_scale)
-	if (str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer)) or is_instance_valid(_warden_renderer_for_unit(unit)):
+	if (str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer)) or is_instance_valid(_directional_enemy_renderer_for_unit(unit)) or is_instance_valid(_veilbound_acolyte_renderer_for_unit(unit)) or is_instance_valid(_zekarion_renderer_for_unit(unit)):
 		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
 			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
 	return rect

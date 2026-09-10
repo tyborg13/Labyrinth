@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "character_id": "harrier",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 32,
+      "duration": 1.45,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 0.48,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 40,
+      "duration": 0.65,
+      "loop": false
+    },
+    "cast": {
+      "frames": 40,
+      "duration": 0.75,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_r",
+    "hand_l",
+    "weapon_r",
+    "foot_r",
+    "foot_l"
+  ],
+  "contact_feet": [
+    "foot_r",
+    "foot_l"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/build_case.py",
+    "recipes/build_layouts.py",
+    "recipes/complete_edges.py",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_coverage.json",
+    "recipes/rear_discarded_alpha_speckles.json",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/generation_requests.json",
+    "source/hidden_generated.png",
+    "source/hidden_prompt.txt",
+    "source/hidden_registered.png",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_prompt.txt",
+    "source/rear_registered.png",
+    "source/rear_rejected_frontlike.png",
+    "source/rear_v2_prompt.txt"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "original accepted front; selected generated true rear and small hidden joint material",
+    "front_original_sha256": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224"
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_leg_r",
+      "Skin_hip_cap_r",
+      "foot_r",
+      "Skin_leg_l",
+      "Skin_hip_cap_l",
+      "foot_l"
+    ],
+    "rear": [
+      "Skin_leg_r",
+      "Skin_hip_cap_r",
+      "foot_r",
+      "Skin_leg_l",
+      "Skin_hip_cap_l",
+      "foot_l"
+    ]
+  }
+}

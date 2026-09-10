@@ -1,7 +1,29 @@
 extends Control
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
+const LightningWispAction = preload("res://scripts/lightning_wisp_cutout/action.gd")
+const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
+const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
+const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
+const ZekarionAction = preload("res://scripts/zekarion_cutout/action.gd")
 const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
+const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
+const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
+const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
+const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
+const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
+const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
+const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
+const FrostglassAction = preload("res://scripts/frostglass_lancer_cutout/action.gd")
+const GraveSurgeonCutout = preload("res://scripts/grave_surgeon_cutout/renderer.gd")
+const HarrierCutout = preload("res://scripts/harrier_cutout/renderer.gd")
+const HarrierAction = preload("res://scripts/harrier_cutout/action.gd")
+const IskaldraCutout = preload("res://scripts/iskaldra_cutout/renderer.gd")
+const IskaldraAction = preload("res://scripts/iskaldra_cutout/action.gd")
+const TharokhCutout = preload("res://scripts/tharokh_cutout/renderer.gd")
+const VaeloryxCutout = preload("res://scripts/vaeloryx_cutout/renderer.gd")
+const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
@@ -23259,24 +23281,36 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"intent":
 				_clear_enemy_block_by_key(animated_state, step_actor_key)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("intent_name", ""))])
-				_render_board_state(animated_state, {
-					"focus_actor_keys": [step_actor_key],
-					"focus_actor_color": PLAYER_ATTACK_FOCUS,
-					"focus_tiles": [step_actor_tile],
-					"focus_color": Color(0.95, 0.62, 0.37, 0.18)
-				})
-				await get_tree().create_timer(0.20).timeout
+				var intent_presentation: Dictionary = {"focus_actor_keys":[step_actor_key], "focus_actor_color":PLAYER_ATTACK_FOCUS,
+					"focus_tiles":[step_actor_tile], "focus_color":Color(0.95,0.62,0.37,0.18)}
+				var intent_actor: Dictionary = _animation_actor_unit(animated_state, step_actor_key)
+				if str(intent_actor.get("type", "")) == "vyraketh" and str(intent_actor.get("intent", {}).get("id", "")) == "kindle_ground" and not _reduced_motion_enabled():
+					await _play_timed_animation_frames(12, 1.0/60.0, func(frame: int) -> void:
+						var kindle_presentation: Dictionary = intent_presentation.duplicate(false)
+						kindle_presentation["vyraketh_motion"] = {step_actor_key:{"clip":"attack", "action":"kindle", "authored_phase":true,
+							"phase":0.55*float(frame)/12.0, "direction":(animated_state["player"]["pos"] as Vector2i)-(intent_actor["pos"] as Vector2i)}}
+						_render_board_state(animated_state, kindle_presentation, true)
+					)
+				else:
+					_render_board_state(animated_state, intent_presentation)
+					await get_tree().create_timer(0.20).timeout
 			"intent_refresh":
 				_apply_animation_step(animated_state, step)
 				_render_board_state(animated_state, {})
 			"move":
 				await _animate_move_step(animated_state, step)
+			"summon":
+				if ZekarionCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)):
+					await ZekarionAction.play_summon(self, animated_state, step)
 			"surface":
 				var before_ground: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
+				if TharokhCutout.action_clip(step, _animation_actor_unit(animated_state, step_actor_key)) == "brace":
+					await _animate_tharokh_ground_call(animated_state, step)
+					continue
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
@@ -23296,12 +23330,59 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if str(step.get("kind", "")) in ["aoe", "lightning_strikes"]:
 					focus_tiles = _vector2i_array(step.get("tiles", []))
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
-				_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
+				var frostglass_action: String = FrostglassAction.action_for_effect(step, _animation_actor_unit(animated_state, step_actor_key))
+				if not frostglass_action.is_empty():
+					await FrostglassAction.prepare(self, animated_state, step, frostglass_action, {
+						"focus_actor_keys": [step_actor_key], "focus_actor_color": PLAYER_ATTACK_FOCUS,
+						"focus_tiles": focus_tiles, "focus_color": Color(0.95, 0.62, 0.37, 0.18)})
+				var harrier_attack: bool = HarrierCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				if harrier_attack:
+					await HarrierAction.prepare(self, animated_state, step)
+				await IskaldraAction.prepare(self, animated_state, step)
+				if not LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)) or str(step.get("kind", "")) != "ranged":
+					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
+				var wisp_attack: bool = LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				if wisp_attack and str(step.get("kind", "")) == "ranged":
+					await LightningWispAction.prepare(self, animated_state, step)
+					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
+				var noctyrax_attack: bool = NoctyraxCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var warden_attack: bool = WardenCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
-				var attack_frame_count: int = (1 if _reduced_motion_enabled() else WardenCutout.ATTACK_FRAMES) if warden_attack else AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
-				var attack_frame_seconds: float = (0.0 if _reduced_motion_enabled() else WardenCutout.ATTACK_FRAME_SECONDS) if warden_attack else AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				var crawler_attack: bool = CrawlerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var acolyte_attack: bool = AcolyteCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var bloomer_attack: bool = BileBloomerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				if bloomer_attack and str(step.get("kind", "")) == "ranged" and not _reduced_motion_enabled():
+					await _animate_bile_bloomer_preparation(animated_state, step, step_actor_key)
+				var gaoler_attack: bool = GaolerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var cinder_droplet_attack: bool = CinderDropletCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var cinder_ooze_attack: bool = CinderOozeCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var surgeon_attack: bool = GraveSurgeonCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var cutout_frames: int = GraveSurgeonCutout.ATTACK_FRAMES if surgeon_attack else WardenCutout.ATTACK_FRAMES
+				var cutout_seconds: float = GraveSurgeonCutout.ATTACK_FRAME_SECONDS if surgeon_attack else WardenCutout.ATTACK_FRAME_SECONDS
+				var iskaldra_attack: bool = IskaldraAction.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var tharokh_attack: bool = TharokhCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var vaeloryx_attack: bool = VaeloryxCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var veilbound_attack: bool = VeilboundAcolyteCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var vyraketh_attack: bool = not VyrakethCutout.action_for_effect(step, _animation_actor_unit(animated_state, step_actor_key)).is_empty()
+				var attack_frame_count: int = NoctyraxCutout.action_frames(step, _reduced_motion_enabled()) if noctyrax_attack else (1 if _reduced_motion_enabled() else VyrakethCutout.attack_frame_count(step, _animation_actor_unit(animated_state, step_actor_key))) if vyraketh_attack else (1 if _reduced_motion_enabled() else cutout_frames) if warden_attack or surgeon_attack else (1 if _reduced_motion_enabled() else CrawlerCutout.attack_frames(step)) if crawler_attack else (1 if _reduced_motion_enabled() else AcolyteCutout.ATTACK_FRAMES) if acolyte_attack else (1 if _reduced_motion_enabled() else CinderDropletCutout.ATTACK_FRAMES) if cinder_droplet_attack else (1 if _reduced_motion_enabled() else HarrierCutout.ATTACK_FRAMES) if harrier_attack and str(step.get("kind", "")) == "melee" else (1 if _reduced_motion_enabled() else LightningWispCutout.ATTACK_FRAMES) if wisp_attack and str(step.get("kind", "")) == "melee" else (1 if _reduced_motion_enabled() else TharokhCutout.attack_frames(step)) if tharokh_attack else (1 if _reduced_motion_enabled() else VeilboundAcolyteCutout.attack_frame_count(step)) if veilbound_attack else AttackFxLibrary.animation_frame_count(step, ATTACK_FRAMES, _reduced_motion_enabled())
+				var attack_frame_seconds: float = (0.0 if _reduced_motion_enabled() else VyrakethCutout.ATTACK_FRAME_SECONDS) if vyraketh_attack else (0.0 if _reduced_motion_enabled() else NoctyraxCutout.ATTACK_FRAME_SECONDS) if noctyrax_attack else (0.0 if _reduced_motion_enabled() else cutout_seconds) if warden_attack or surgeon_attack else (0.0 if _reduced_motion_enabled() else CrawlerCutout.ATTACK_FRAME_SECONDS) if crawler_attack else (0.0 if _reduced_motion_enabled() else AcolyteCutout.ATTACK_FRAME_SECONDS) if acolyte_attack else (0.0 if _reduced_motion_enabled() else CinderDropletCutout.ATTACK_FRAME_SECONDS) if cinder_droplet_attack else (0.0 if _reduced_motion_enabled() else HarrierCutout.ATTACK_FRAME_SECONDS) if harrier_attack and str(step.get("kind", "")) == "melee" else (0.0 if _reduced_motion_enabled() else LightningWispCutout.ATTACK_FRAME_SECONDS) if wisp_attack and str(step.get("kind", "")) == "melee" else (0.0 if _reduced_motion_enabled() else TharokhCutout.ATTACK_FRAME_SECONDS) if tharokh_attack else (0.0 if _reduced_motion_enabled() else VeilboundAcolyteCutout.ATTACK_FRAME_SECONDS) if veilbound_attack else AttackFxLibrary.animation_frame_seconds(step, ATTACK_FRAME_SECONDS, _reduced_motion_enabled())
+				if bloomer_attack and str(step.get("kind", "")) == "aoe":
+					attack_frame_count = 1 if _reduced_motion_enabled() else BileBloomerCutout.BURST_FRAMES
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else BileBloomerCutout.BURST_FRAME_SECONDS
+				if cinder_ooze_attack:
+					attack_frame_count = 1 if _reduced_motion_enabled() else CinderOozeCutout.attack_frame_count(step)
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else CinderOozeCutout.ATTACK_FRAME_SECONDS
+				if not frostglass_action.is_empty():
+					attack_frame_count = FrostglassAction.frame_count(step, frostglass_action, _reduced_motion_enabled())
+					attack_frame_seconds = FrostglassAction.frame_seconds(step, frostglass_action, _reduced_motion_enabled())
+				if vaeloryx_attack:
+					attack_frame_count = 1 if _reduced_motion_enabled() else VaeloryxCutout.attack_frame_count(step, _animation_actor_unit(animated_state, step_actor_key))
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else VaeloryxCutout.ATTACK_FRAME_SECONDS
+				var zekarion_attack: bool = ZekarionCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				if zekarion_attack:
+					attack_frame_count = 1 if _reduced_motion_enabled() else ZekarionCutout.action_frames(step)
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else ZekarionCutout.ATTACK_FRAME_SECONDS
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
 				if not trap_detonation_follows:
@@ -23334,7 +23415,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						"effect": step,
 						"effect_progress": t
 					}
-					if str(step.get("kind", "")) == "melee" and not warden_attack:
+					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack:
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}
@@ -23396,6 +23477,42 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						final_feedback_elapsed_seconds
 					)
 				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
+
+func _tharokh_action_direction(effect: Dictionary, actor: Dictionary) -> Vector2i:
+	# Double coordinates retain the exact half-tile center of this 2x2 boss.
+	# Target selection and footprint/pathing remain owned by CombatEngine.
+	var origin: Vector2i = effect.get("from", actor.get("pos", Vector2i.ZERO))
+	var target: Vector2i = effect.get("to", origin)
+	return target * 2 - (origin * 2 + Vector2i.ONE)
+
+func _animate_tharokh_ground_call(animated_state: Dictionary, step: Dictionary) -> void:
+	var actor_key: String = str(step.get("actor_key", ""))
+	var actor: Dictionary = _animation_actor_unit(animated_state, actor_key)
+	var player_tile: Vector2i = (animated_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var direction: Vector2i = player_tile * 2 - ((actor.get("pos", Vector2i.ZERO) as Vector2i) * 2 + Vector2i.ONE)
+	var after: Dictionary = animated_state.duplicate(true)
+	_apply_animation_step(after, step)
+	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+	var reduced: bool = _reduced_motion_enabled()
+	var count: int = 1 if reduced else 48
+	var seconds: float = 0.0 if reduced else 1.0 / 60.0
+	# The resolver's immutable status/terrain snapshot is displayed at release.
+	# Only this existing animation step is applied; no combat action is rerun.
+	await _play_timed_animation_frames(count, seconds, func(frame: int) -> void:
+		var progress: float = float(frame) / float(count)
+		var released: bool = progress >= 0.55
+		var presentation: Dictionary = _enemy_phase_status_presentation(step)
+		presentation["tharokh_motion"] = {actor_key: {"clip": "attack", "action": "brace", "phase": progress, "direction": direction}}
+		presentation["effect_progress"] = progress
+		if released:
+			presentation["floating_texts"] = FloatingCombatText.animate_entries(_floating_texts_for_step(step), (progress - 0.55) * 0.8, reduced)
+		else:
+			presentation.erase("effect")
+			presentation.erase("floating_texts")
+		_render_board_state(after if released else animated_state, presentation, true)
+	)
+	_apply_animation_step(animated_state, step)
+	await _animate_floating_text_presentation(animated_state, _enemy_phase_status_presentation(step), 0.36 if not reduced else 0.0)
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
 	var final_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
@@ -23678,6 +23795,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 		"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 		"path_tiles": presented_path,
 		"path_color": ENEMY_PATH_PREVIEW_COLOR,
+		"harrier_travel_variant": "retreat" if str(step.get("label", "")) == "Retreat" else "walk",
 		"umbra_reveal_actor_on_visible_tiles": bool(step.get("umbra_reveal_actor_on_visible_tiles", false))
 	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
@@ -23723,19 +23841,43 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
 	var segment_count: int = maxi(0, path.size() - 1)
 	var player_walk: bool = actor_key == "player"
+	var wisp_walk: bool = str(actor_unit.get("type", "")) == "lightning_wisp"
+	var noctyrax_walk: bool = str(actor_unit.get("type", "")) == "noctyrax"
 	var warden_walk: bool = str(actor_unit.get("type", "")) == "warden"
-	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else WardenCutout.WALK_FRAME_SECONDS if warden_walk else MOVE_FRAME_SECONDS
+	var crawler_walk: bool = str(actor_unit.get("type", "")) == "crawler"
+	var acolyte_walk: bool = str(actor_unit.get("type", "")) == "acolyte"
+	var bloomer_walk: bool = str(actor_unit.get("type", "")) == "bile_bloomer"
+	var gaoler_walk: bool = str(actor_unit.get("type", "")) == "chainbound_gaoler"
+	var cinder_droplet_walk: bool = str(actor_unit.get("type", "")) == "cinder_droplet"
+	var cinder_droplet_retreat: bool = cinder_droplet_walk and str((actor_unit.get("intent", {}) as Dictionary).get("id", "")) == "hiss_back"
+	var cinder_ooze_walk: bool = str(actor_unit.get("type", "")) == "cinder_ooze"
+	var frostglass_walk: bool = str(actor_unit.get("type", "")) == "frostglass_lancer"
+	var surgeon_walk: bool = str(actor_unit.get("type", "")) == "grave_surgeon"
+	var harrier_walk: bool = str(actor_unit.get("type", "")) == "harrier"
+	var iskaldra_walk: bool = str(actor_unit.get("type", "")) == "iskaldra"
+	var tharokh_walk: bool = str(actor_unit.get("type", "")) == "tharokh"
+	var vaeloryx_walk: bool = str(actor_unit.get("type", "")) == "vaeloryx"
+	var veilbound_walk: bool = str(actor_unit.get("type", "")) == "veilbound_acolyte"
+	var vyraketh_walk: bool = str(actor_unit.get("type", "")) == "vyraketh"
+	var zekarion_walk: bool = str(actor_unit.get("type", "")) == "zekarion"
+	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else WardenCutout.WALK_FRAME_SECONDS if warden_walk else CrawlerCutout.WALK_FRAME_SECONDS if crawler_walk else AcolyteCutout.WALK_FRAME_SECONDS if acolyte_walk else BileBloomerCutout.WALK_FRAME_SECONDS if bloomer_walk else CinderDropletCutout.WALK_FRAME_SECONDS if cinder_droplet_walk else FrostglassCutout.WALK_FRAME_SECONDS if frostglass_walk else GraveSurgeonCutout.WALK_FRAME_SECONDS if surgeon_walk else HarrierCutout.WALK_FRAME_SECONDS if harrier_walk else IskaldraCutout.WALK_FRAME_SECONDS if iskaldra_walk else LightningWispCutout.WALK_FRAME_SECONDS if wisp_walk else NoctyraxCutout.WALK_FRAME_SECONDS if noctyrax_walk else TharokhCutout.WALK_FRAME_SECONDS if tharokh_walk else VaeloryxCutout.WALK_FRAME_SECONDS if vaeloryx_walk else VeilboundAcolyteCutout.WALK_FRAME_SECONDS if veilbound_walk else VyrakethCutout.WALK_FRAME_SECONDS if vyraketh_walk else ZekarionCutout.WALK_FRAME_SECONDS if zekarion_walk else MOVE_FRAME_SECONDS
+	if cinder_ooze_walk:
+		frame_seconds = CinderOozeCutout.WALK_FRAME_SECONDS
 	var segment_frame_counts: Array[int] = []
 	var segment_start_frames: Array[int] = []
 	var distance_before: Array[float] = []
 	var distance: float = 0.0
 	var total_frame_count: int = 0
-	var source_scale: float = maxf(0.001, board_view.warden_source_pixel_scale() if warden_walk else board_view.protagonist_source_pixel_scale())
+	var source_scale: float = maxf(0.001, board_view.vaeloryx_source_pixel_scale() if vaeloryx_walk else board_view.tharokh_source_pixel_scale() if tharokh_walk else board_view.gaoler_source_pixel_scale() if gaoler_walk else board_view.warden_source_pixel_scale() if warden_walk else board_view.crawler_source_pixel_scale() if crawler_walk else board_view.acolyte_source_pixel_scale() if acolyte_walk else board_view.bile_bloomer_source_pixel_scale() if bloomer_walk else board_view.cinder_droplet_source_pixel_scale() if cinder_droplet_walk else board_view.frostglass_source_pixel_scale() if frostglass_walk else board_view.grave_surgeon_source_pixel_scale() if surgeon_walk else board_view.harrier_source_pixel_scale() if harrier_walk else board_view.iskaldra_source_pixel_scale() if iskaldra_walk else board_view.lightning_wisp_source_pixel_scale() if wisp_walk else board_view.noctyrax_source_pixel_scale() if noctyrax_walk else board_view.veilbound_acolyte_source_pixel_scale() if veilbound_walk else board_view.vyraketh_source_pixel_scale() if vyraketh_walk else board_view.zekarion_source_pixel_scale() if zekarion_walk else board_view.protagonist_source_pixel_scale())
+	if cinder_ooze_walk:
+		source_scale = maxf(0.001, board_view.cinder_ooze_source_pixel_scale())
 	for index: int in range(segment_count):
 		var from: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index])
 		var to: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index + 1])
 		var length: float = from.distance_to(to)
-		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else WardenCutout.walk_segment_frames(length / source_scale) if warden_walk else MOVE_STEP_FRAMES
+		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else WardenCutout.walk_segment_frames(length / source_scale) if warden_walk else CrawlerCutout.walk_segment_frames(length / source_scale) if crawler_walk else AcolyteCutout.walk_segment_frames(length / source_scale) if acolyte_walk else BileBloomerCutout.walk_segment_frames(length / source_scale) if bloomer_walk else CinderDropletCutout.walk_segment_frames(length / source_scale) if cinder_droplet_walk else FrostglassCutout.walk_segment_frames(length / source_scale) if frostglass_walk else GraveSurgeonCutout.walk_segment_frames(length / source_scale) if surgeon_walk else HarrierCutout.walk_segment_frames(length / source_scale) if harrier_walk else IskaldraCutout.walk_segment_frames(length / source_scale) if iskaldra_walk else LightningWispCutout.walk_segment_frames(length / source_scale) if wisp_walk else NoctyraxCutout.walk_segment_frames(length / source_scale) if noctyrax_walk else TharokhCutout.walk_segment_frames(length / source_scale) if tharokh_walk else VaeloryxCutout.walk_segment_frames(length / source_scale) if vaeloryx_walk else VeilboundAcolyteCutout.walk_segment_frames(length / source_scale) if veilbound_walk else VyrakethCutout.walk_segment_frames(length / source_scale) if vyraketh_walk else ZekarionCutout.walk_segment_frames(length / source_scale) if zekarion_walk else MOVE_STEP_FRAMES
+		if cinder_ooze_walk:
+			frames = CinderOozeCutout.walk_segment_frames(length / source_scale)
 		segment_frame_counts.append(frames)
 		segment_start_frames.append(total_frame_count)
 		distance_before.append(distance)
@@ -23787,10 +23929,78 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			# drives phase so planted feet counter the actual root translation.
 			presentation["protagonist_motion"] = {"clip": "walk", "direction": segment_to - segment_from,
 				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / ProtagonistCutout.walk_cycle_distance()}
+		elif gaoler_walk:
+			presentation["gaoler_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / GaolerCutout.walk_cycle_distance()}}
+		elif harrier_walk:
+			presentation["harrier_motion"] = {actor_key:{"clip":"walk","travel_variant":str(base_presentation.get("harrier_travel_variant", "walk")),"direction":segment_to-segment_from,
+				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/HarrierCutout.walk_cycle_distance()}}
 		elif warden_walk:
 			presentation["warden_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
 				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / WardenCutout.walk_cycle_distance()}}
+		elif crawler_walk:
+			presentation["crawler_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / CrawlerCutout.walk_cycle_distance()}}
+		elif acolyte_walk:
+			presentation["acolyte_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / AcolyteCutout.walk_cycle_distance()}}
+		elif bloomer_walk:
+			presentation["bile_bloomer_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / BileBloomerCutout.walk_cycle_distance()}}
+		elif cinder_droplet_walk:
+			# Hiss Back watches the threat while the same supported gait runs
+			# backward along the resolved retreat. Root distance still drives phase.
+			var travel_sign: float = -1.0 if cinder_droplet_retreat else 1.0
+			presentation["cinder_droplet_motion"] = {actor_key: {"clip": "walk",
+				"direction": segment_from - segment_to if cinder_droplet_retreat else segment_to - segment_from,
+				"backward": cinder_droplet_retreat,
+				"phase": travel_sign * (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / CinderDropletCutout.walk_cycle_distance()}}
+		elif cinder_ooze_walk:
+			presentation["cinder_ooze_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / CinderOozeCutout.walk_cycle_distance()}}
+		elif frostglass_walk:
+			presentation["frostglass_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / FrostglassCutout.walk_cycle_distance()}}
+		elif surgeon_walk:
+			presentation["grave_surgeon_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / GraveSurgeonCutout.walk_cycle_distance()}}
+		elif iskaldra_walk:
+			var source_distance: float = from_point.distance_to(to_point) / source_scale
+			var cycles: int = IskaldraCutout.walk_segment_cycles(source_distance)
+			presentation["iskaldra_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": float(cycles) * t, "travel_per_cycle": source_distance / float(cycles)}}
+		elif wisp_walk:
+			presentation["lightning_wisp_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / LightningWispCutout.walk_cycle_distance()}}
+
+		elif noctyrax_walk:
+			presentation["noctyrax_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / NoctyraxCutout.walk_cycle_distance()}}
+		elif tharokh_walk:
+			presentation["tharokh_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / TharokhCutout.walk_cycle_distance()}}
+		elif vaeloryx_walk:
+			presentation["vaeloryx_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / VaeloryxCutout.walk_cycle_distance()}}
+		elif veilbound_walk:
+			presentation["veilbound_acolyte_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
+				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / VeilboundAcolyteCutout.walk_cycle_distance()}}
+		elif vyraketh_walk:
+			presentation["vyraketh_motion"] = {actor_key: {"clip":"walk", "direction":segment_to-segment_from,
+				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/VyrakethCutout.walk_cycle_distance()}}
+		elif zekarion_walk:
+			presentation["zekarion_motion"] = {actor_key: {"clip":"walk", "direction":segment_to-segment_from,
+				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/ZekarionCutout.walk_cycle_distance()}}
 		_render_board_state(display_state, presentation, true)
+	)
+
+func _animate_bile_bloomer_preparation(display_state: Dictionary, effect: Dictionary, actor_key: String) -> void:
+	# A short readable aim precedes the existing earth effect. This does not
+	# apply a step, emit an outcome, change FX phase boundaries or change targets.
+	await _play_timed_animation_frames(BileBloomerCutout.MARK_PREPARE_FRAMES, BileBloomerCutout.MARK_PREPARE_FRAME_SECONDS, func(frame: int) -> void:
+		var progress: float = float(frame) / float(BileBloomerCutout.MARK_PREPARE_FRAMES)
+		_render_board_state(display_state, {"focus_actor_keys": [actor_key],
+			"bile_bloomer_motion": {actor_key: BileBloomerCutout.preparation_motion(effect, progress)}}, true)
 	)
 
 func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
@@ -24067,6 +24277,45 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
 	var effect_actor_key: String = str(cutout_effect.get("actor_key", ""))
+	if not effect_actor_key.is_empty() and BileBloomerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var bloomer_motions: Dictionary = (presentation.get("bile_bloomer_motion", {}) as Dictionary).duplicate(false)
+		bloomer_motions[effect_actor_key] = BileBloomerCutout.motion_for_effect(cutout_effect, float(presentation.get("effect_progress", 1.0)), (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
+		rendered_presentation["bile_bloomer_motion"] = bloomer_motions
+		var bloomer_effect: Dictionary = cutout_effect.duplicate(false)
+		bloomer_effect["bile_bloomer_release"] = true
+		rendered_presentation["effect"] = bloomer_effect
+	var surgeon_source_key: String = str(cutout_effect.get("source_actor_key", effect_actor_key))
+	var surgeon_source: Dictionary = _animation_actor_unit(display_state, surgeon_source_key)
+	var surgeon_support: String = GraveSurgeonCutout.support_clip(cutout_effect, surgeon_source)
+	if GraveSurgeonCutout.uses_attack(cutout_effect, surgeon_source) or not surgeon_support.is_empty():
+		var surgeon_motions: Dictionary = (presentation.get("grave_surgeon_motion", {}) as Dictionary).duplicate(false)
+		var progress: float = float(presentation.get("effect_progress", 1.0))
+		var direction: Vector2i = (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)
+		if not surgeon_support.is_empty():
+			# Ally results already applied at the existing status boundary. This
+			# gesture follows the source actor while the recipient's popup runs.
+			progress = clampf(progress * FloatingCombatText.ANIMATION_DURATION_SECONDS / GraveSurgeonCutout.SUPPORT_SECONDS, 0.0, 1.0)
+			direction = (cutout_effect.get("tile", Vector2i.ZERO) as Vector2i) - (surgeon_source.get("pos", Vector2i.ZERO) as Vector2i)
+		else:
+			var surgeon_effect: Dictionary = cutout_effect.duplicate(false)
+			surgeon_effect["grave_surgeon_melee"] = true
+			rendered_presentation["effect"] = surgeon_effect
+		surgeon_motions[surgeon_source_key] = {"clip": "attack", "action": surgeon_support, "phase": progress,
+			"contact": _attack_feedback_start_progress(cutout_effect), "direction": direction}
+		rendered_presentation["grave_surgeon_motion"] = surgeon_motions
+	if not effect_actor_key.is_empty():
+		var vaeloryx_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
+		var vaeloryx_action: String = VaeloryxCutout.action_for_effect(cutout_effect, vaeloryx_actor)
+		if not vaeloryx_action.is_empty():
+			var vaeloryx_motions: Dictionary = (presentation.get("vaeloryx_motion", {}) as Dictionary).duplicate(false)
+			vaeloryx_motions[effect_actor_key] = {"clip": "attack", "action": vaeloryx_action,
+				"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
+				"direction": VaeloryxCutout.effect_direction(cutout_effect, vaeloryx_actor, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))}
+			rendered_presentation["vaeloryx_motion"] = vaeloryx_motions
+			if vaeloryx_action == "dive":
+				var vaeloryx_effect: Dictionary = cutout_effect.duplicate(false)
+				vaeloryx_effect["vaeloryx_melee"] = true
+				rendered_presentation["effect"] = vaeloryx_effect
 	if not effect_actor_key.is_empty() and WardenCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var warden_motions: Dictionary = (presentation.get("warden_motion", {}) as Dictionary).duplicate(false)
 		warden_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
@@ -24077,6 +24326,145 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			var warden_effect: Dictionary = cutout_effect.duplicate(false)
 			warden_effect["warden_melee"] = true
 			rendered_presentation["effect"] = warden_effect
+	if not effect_actor_key.is_empty():
+		var crawler_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
+		if CrawlerCutout.uses_attack(cutout_effect, crawler_actor) or CrawlerCutout.uses_coil(cutout_effect, crawler_actor):
+			var crawler_motions: Dictionary = (presentation.get("crawler_motion", {}) as Dictionary).duplicate(false)
+			var crawler_attack: bool = CrawlerCutout.uses_attack(cutout_effect, crawler_actor)
+			crawler_motions[effect_actor_key] = {"clip": "attack" if crawler_attack else "coil",
+				"variant": CrawlerCutout.attack_clip(cutout_effect), "phase": float(presentation.get("effect_progress", 1.0)),
+				"contact": _attack_feedback_start_progress(cutout_effect),
+				"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+			rendered_presentation["crawler_motion"] = crawler_motions
+			if crawler_attack:
+				var crawler_effect: Dictionary = cutout_effect.duplicate(false)
+				crawler_effect["crawler_melee"] = true
+				rendered_presentation["effect"] = crawler_effect
+	if not effect_actor_key.is_empty() and AcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var acolyte_motions: Dictionary = (presentation.get("acolyte_motion", {}) as Dictionary).duplicate(false)
+		var style: String = AttackFxLibrary.style_for_effect(cutout_effect)
+		acolyte_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
+			"action": "siphon" if str(cutout_effect.get("intent_id", "")) == "siphon" else "dust_bolt",
+			"release": 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style),
+			"contact": _attack_feedback_start_progress(cutout_effect),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["acolyte_motion"] = acolyte_motions
+		var acolyte_effect: Dictionary = cutout_effect.duplicate(false)
+		acolyte_effect["acolyte_cast"] = true
+		rendered_presentation["effect"] = acolyte_effect
+	if not effect_actor_key.is_empty() and GaolerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var gaoler_motions: Dictionary = (presentation.get("gaoler_motion", {}) as Dictionary).duplicate(false)
+		gaoler_motions[effect_actor_key] = {"clip": "attack", "action": GaolerCutout.action_clip(cutout_effect),
+			"phase": float(presentation.get("effect_progress", 1.0)),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["gaoler_motion"] = gaoler_motions
+	if not effect_actor_key.is_empty() and CinderDropletCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var cinder_droplet_motions: Dictionary = (presentation.get("cinder_droplet_motion", {}) as Dictionary).duplicate(false)
+		cinder_droplet_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
+			"contact": _attack_feedback_start_progress(cutout_effect),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["cinder_droplet_motion"] = cinder_droplet_motions
+		if str(cutout_effect.get("kind", "")) == "melee":
+			var cinder_droplet_effect: Dictionary = cutout_effect.duplicate(false)
+			cinder_droplet_effect["cinder_droplet_melee"] = true
+			rendered_presentation["effect"] = cinder_droplet_effect
+	if not effect_actor_key.is_empty() and CinderOozeCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var ooze_motions: Dictionary = (presentation.get("cinder_ooze_motion", {}) as Dictionary).duplicate(false)
+		var ooze_direction: Vector2i = (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)
+		if ooze_direction == Vector2i.ZERO:
+			ooze_direction = (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) - _animation_actor_unit(display_state, effect_actor_key).get("pos", Vector2i.ZERO)
+		ooze_motions[effect_actor_key] = {"clip": "attack", "action": CinderOozeCutout.action_clip(cutout_effect),
+			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect), "direction": ooze_direction}
+		rendered_presentation["cinder_ooze_motion"] = ooze_motions
+		var ooze_effect: Dictionary = cutout_effect.duplicate(false)
+		ooze_effect["cinder_ooze_action"] = CinderOozeCutout.action_clip(cutout_effect)
+		rendered_presentation["effect"] = ooze_effect
+	var frostglass_action: String = FrostglassAction.action_for_effect(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)) if not effect_actor_key.is_empty() else ""
+	if not frostglass_action.is_empty():
+		var frostglass_motions: Dictionary = (presentation.get("frostglass_motion", {}) as Dictionary).duplicate(false)
+		frostglass_motions[effect_actor_key] = FrostglassAction.motion_for_effect(cutout_effect, frostglass_action,
+			float(presentation.get("effect_progress", 1.0)), _attack_feedback_start_progress(cutout_effect))
+		rendered_presentation["frostglass_motion"] = frostglass_motions
+		if frostglass_action in ["cast", "pin"]:
+			var frostglass_effect: Dictionary = cutout_effect.duplicate(false)
+			frostglass_effect["frostglass_action"] = frostglass_action
+			rendered_presentation["effect"] = frostglass_effect
+	if not effect_actor_key.is_empty() and HarrierCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var harrier_motions: Dictionary = (presentation.get("harrier_motion", {}) as Dictionary).duplicate(false)
+		var harrier_motion: Dictionary = HarrierAction.motion_for_effect(cutout_effect,float(presentation.get("effect_progress",1.0)))
+		if str(cutout_effect.get("kind", "")) == "melee":harrier_motion["contact"] = _attack_feedback_start_progress(cutout_effect)
+		harrier_motions[effect_actor_key] = harrier_motion
+		rendered_presentation["harrier_motion"] = harrier_motions
+		var harrier_effect: Dictionary = cutout_effect.duplicate(false)
+		harrier_effect["harrier_ranged" if str(cutout_effect.get("kind", "")) == "ranged" else "harrier_thrust"] = true
+		rendered_presentation["effect"] = harrier_effect
+	if not effect_actor_key.is_empty():
+		var iskaldra_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
+		if not IskaldraAction.clip_for_effect(cutout_effect, iskaldra_actor).is_empty():
+			var iskaldra_motions: Dictionary = (presentation.get("iskaldra_motion", {}) as Dictionary).duplicate(false)
+			var iskaldra_progress: float = float(presentation.get("impact_progress", 1.0)) if str(cutout_effect.get("kind", "")) == "status" else float(presentation.get("effect_progress", 1.0))
+			iskaldra_motions[effect_actor_key] = IskaldraAction.motion_for_effect(cutout_effect, iskaldra_actor, iskaldra_progress, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
+			rendered_presentation["iskaldra_motion"] = iskaldra_motions
+	if not effect_actor_key.is_empty() and LightningWispCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var wisp_motions: Dictionary = (presentation.get("lightning_wisp_motion", {}) as Dictionary).duplicate(false)
+		wisp_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
+			"action": "cast" if str(cutout_effect.get("kind", "")) == "ranged" else "dart",
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["lightning_wisp_motion"] = wisp_motions
+	if not effect_actor_key.is_empty() and NoctyraxCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var noctyrax_motions: Dictionary = (presentation.get("noctyrax_motion", {}) as Dictionary).duplicate(false)
+		noctyrax_motions[effect_actor_key] = {"clip": NoctyraxCutout.clip_for_effect(cutout_effect),
+			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["noctyrax_motion"] = noctyrax_motions
+		var noctyrax_effect: Dictionary = cutout_effect.duplicate(false)
+		noctyrax_effect["noctyrax_claw"] = str(cutout_effect.get("kind", "")) == "melee"
+		noctyrax_effect["noctyrax_breath"] = str(cutout_effect.get("kind", "")) == "ranged"
+		rendered_presentation["effect"] = noctyrax_effect
+	var tharokh_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
+	if not effect_actor_key.is_empty() and TharokhCutout.uses_attack(cutout_effect, tharokh_actor):
+		var tharokh_motions: Dictionary = (presentation.get("tharokh_motion", {}) as Dictionary).duplicate(false)
+		tharokh_motions[effect_actor_key] = {"clip": "attack", "action": TharokhCutout.action_clip(cutout_effect, tharokh_actor),
+			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
+			"direction": _tharokh_action_direction(cutout_effect, tharokh_actor)}
+		rendered_presentation["tharokh_motion"] = tharokh_motions
+		if str(cutout_effect.get("kind", "")) == "melee":
+			var tharokh_effect: Dictionary = cutout_effect.duplicate(false)
+			tharokh_effect["tharokh_melee"] = true
+			rendered_presentation["effect"] = tharokh_effect
+	if not effect_actor_key.is_empty() and VeilboundAcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var veilbound_motions: Dictionary = (presentation.get("veilbound_acolyte_motion", {}) as Dictionary).duplicate(false)
+		veilbound_motions[effect_actor_key] = {"clip": "attack", "action": str(cutout_effect.get("kind", "")),
+			"phase": float(presentation.get("effect_progress", 1.0)),
+			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
+		rendered_presentation["veilbound_acolyte_motion"] = veilbound_motions
+		var veilbound_effect: Dictionary = cutout_effect.duplicate(false)
+		veilbound_effect["veilbound_acolyte_" + str(cutout_effect.get("kind", ""))] = true
+		rendered_presentation["effect"] = veilbound_effect
+	var vyraketh_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key) if not effect_actor_key.is_empty() else {}
+	var vyraketh_action: String = VyrakethCutout.action_for_effect(cutout_effect, vyraketh_actor)
+	if not vyraketh_action.is_empty():
+		var vyraketh_motions: Dictionary = (presentation.get("vyraketh_motion", {}) as Dictionary).duplicate(false)
+		var progress: float = float(presentation.get("effect_progress", 0.0 if vyraketh_action == "kindle" else 1.0))
+		var origin: Vector2i = cutout_effect.get("from", vyraketh_actor.get("pos", Vector2i.ZERO))
+		var target: Vector2i = cutout_effect.get("to", display_state.get("player", {}).get("pos", origin))
+		vyraketh_motions[effect_actor_key] = {"clip":"attack", "action":vyraketh_action,
+			"phase":lerpf(0.55,1.0,progress) if vyraketh_action == "kindle" else progress,
+			"authored_phase":vyraketh_action == "kindle", "contact":_attack_feedback_start_progress(cutout_effect), "direction":target-origin}
+		rendered_presentation["vyraketh_motion"] = vyraketh_motions
+		if vyraketh_action == "maw":
+			var maw_effect: Dictionary = cutout_effect.duplicate(false)
+			maw_effect["vyraketh_maw"] = true
+			rendered_presentation["effect"] = maw_effect
+	if not effect_actor_key.is_empty() and ZekarionCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var dragon_motions: Dictionary = (presentation.get("zekarion_motion", {}) as Dictionary).duplicate(false)
+		dragon_motions[effect_actor_key] = ZekarionAction.motion_for_effect(cutout_effect,
+			float(presentation.get("effect_progress",1.0)), _animation_actor_unit(display_state,effect_actor_key), display_state.get("player",{}), _attack_feedback_start_progress(cutout_effect))
+		rendered_presentation["zekarion_motion"] = dragon_motions
+		var dragon_effect: Dictionary = cutout_effect.duplicate(false)
+		dragon_effect["zekarion_cutout"] = true
+		dragon_effect["zekarion_claw"] = str(cutout_effect.get("kind","")) == "melee"
+		rendered_presentation["effect"] = dragon_effect
 	if bool(cutout_effect.get("protagonist_melee", false)):
 		rendered_presentation["protagonist_motion"] = _protagonist_attack_motion(cutout_effect, float(presentation.get("effect_progress", 1.0)))
 	elif not str(cutout_effect.get("protagonist_ranged", "")).is_empty():

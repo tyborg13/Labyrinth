@@ -1,0 +1,14 @@
+{
+  "front": {
+    "file": "bakes/front_rest.png",
+    "sha256": "d28b91748ac5e899df889bc7512351fceb6576f0d2d9917d0cda15f05dcbfbb0",
+    "source": "../runtime_v1/assets/front_rest.png",
+    "method": "Native production/case pixel-identical assembly, extracted at Rect2i(128,128,255,255)"
+  },
+  "rear": {
+    "file": "bakes/rear_rest.png",
+    "sha256": "cc1ffd17b0674d2591824644a8b8850b783b885f311799975fa8b63bf2bb4ee4",
+    "source": "../runtime_v1/assets/rear_rest.png",
+    "method": "Native production/case pixel-identical assembly, extracted at Rect2i(128,128,255,255)"
+  }
+}

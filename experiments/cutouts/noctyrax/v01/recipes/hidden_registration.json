@@ -1,0 +1,220 @@
+[
+  {
+    "facing": "front",
+    "source": "source/front_hidden_generated.png",
+    "native_grid_source_crop": [
+      119,
+      110,
+      140,
+      132
+    ],
+    "source_crop": [
+      585,
+      541,
+      688,
+      649
+    ],
+    "output": "assets/front/hidden_fore_near.png",
+    "target_rect": [
+      133,
+      133,
+      161,
+      156
+    ],
+    "mask": "opaque source pixels owned by fore_near",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "front",
+    "source": "source/front_hidden_generated.png",
+    "native_grid_source_crop": [
+      119,
+      110,
+      140,
+      132
+    ],
+    "source_crop": [
+      585,
+      541,
+      688,
+      649
+    ],
+    "output": "assets/front/hidden_wing_near.png",
+    "target_rect": [
+      139,
+      116,
+      164,
+      139
+    ],
+    "mask": "opaque source pixels owned by wing_near",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "front",
+    "source": "source/front_hidden_generated.png",
+    "native_grid_source_crop": [
+      119,
+      110,
+      140,
+      132
+    ],
+    "source_crop": [
+      585,
+      541,
+      688,
+      649
+    ],
+    "output": "assets/front/hidden_wing_near_base.png",
+    "target_rect": [
+      170,
+      127,
+      201,
+      151
+    ],
+    "mask": "opaque source pixels owned by wing_near",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "rear",
+    "source": "source/rear_hidden_generated.png",
+    "native_grid_source_crop": [
+      173,
+      120,
+      188,
+      143
+    ],
+    "source_crop": [
+      851,
+      590,
+      925,
+      703
+    ],
+    "output": "assets/rear/hidden_fore_near.png",
+    "target_rect": [
+      165,
+      141,
+      184,
+      160
+    ],
+    "mask": "opaque source pixels owned by fore_near",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "rear",
+    "source": "source/rear_hidden_generated.png",
+    "native_grid_source_crop": [
+      173,
+      120,
+      188,
+      143
+    ],
+    "source_crop": [
+      851,
+      590,
+      925,
+      703
+    ],
+    "output": "assets/rear/hidden_wing_near.png",
+    "target_rect": [
+      89,
+      127,
+      114,
+      150
+    ],
+    "mask": "opaque source pixels owned by wing_near",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "rear",
+    "source": "source/rear_hidden_generated.png",
+    "native_grid_source_crop": [
+      173,
+      120,
+      188,
+      143
+    ],
+    "source_crop": [
+      851,
+      590,
+      925,
+      703
+    ],
+    "output": "assets/rear/hidden_wing_far.png",
+    "target_rect": [
+      153,
+      115,
+      176,
+      138
+    ],
+    "mask": "opaque source pixels owned by wing_far",
+    "owner": "body",
+    "purpose": "narrow concealed socket beneath moving owner"
+  },
+  {
+    "facing": "rear",
+    "source": "source/rear_hidden_generated.png",
+    "full_source_registration": {
+      "native_size": [
+        214,
+        214
+      ],
+      "translation": [
+        3,
+        21
+      ]
+    },
+    "mask_polygon_native_255": [
+      [
+        180,
+        139
+      ],
+      [
+        188,
+        142
+      ],
+      [
+        197,
+        161
+      ],
+      [
+        211,
+        176
+      ],
+      [
+        221,
+        177
+      ],
+      [
+        228,
+        188
+      ],
+      [
+        225,
+        200
+      ],
+      [
+        208,
+        199
+      ],
+      [
+        191,
+        186
+      ],
+      [
+        179,
+        169
+      ],
+      [
+        173,
+        151
+      ]
+    ],
+    "claw_split_y": 169,
+    "purpose": "complete concealed far foreleg; behind accepted torso and near leg"
+  }
+]

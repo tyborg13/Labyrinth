@@ -1,0 +1,26 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "requests": [
+    {
+      "output": "source/rear_generated.png",
+      "prompt": "Use case: identity-preserve. Asset type: matching rear-view game character sprite for an editable 2D skeletal cutout. Reference image 1 is the authoritative accepted FRONT three-quarter painting of Tharokh, the Worldspine. Generate its matching REAR three-quarter view, facing away toward upper right on the same 2:1 isometric board projection. Preserve exactly the same creature identity and proportions: massive low crouching rock-armored dragon, four short sturdy clawed legs, long tapered neck and spiky dragon head, two high folded dark leathery wings with jagged stone ribs, broad rocky back, long curled armored tail. Same muted charcoal/brown granite paint, tiny ochre cracks, painterly pixel-readable texture and lighting. This is the opposite camera-side view of the same pose, not a redesign or humanoid. Reveal the backs of the wings, back armor and tail root coherently; distinguish four legs without inventing extra limbs. Full body centered on a square TRANSPARENT background with small clear margin, no floor/shadow, no text, no frame, no other character. Match native body proportions and art sharpness; no broad restyling, no glow or effects. Output a single complete assembled rear view, not a parts atlas.",
+      "reference": "assets/art/enemies/tharokh.png",
+      "role": "authoritative front design reference",
+      "disposition": "selected; whole rear registration"
+    },
+    {
+      "output": "source/front_underbody_generated.png",
+      "prompt": "Use case: precise-object-edit. Asset type: concealed anatomy underpainting for a 2D skeletal cutout. Input image 1 is the authoritative FRONT painting of Tharokh, a massive crouched stone-armored dragon, used as an edit target and exact proportion/style reference. Keep the same front three-quarter camera, body proportions, position, neck, head, folded wings, hindlegs, tail and all surviving paint. Remove ONLY the two large FORELEGS and their claws that project toward the lower left of the image, exposing the broad intact armored chest and belly normally hidden behind them. Paint the genuinely missing concealed chest and rounded shoulder sockets in matching charcoal-brown rocky scales. The resulting torso underpainting will be cropped only inside the original foreground limb footprints; do not redesign the creature. Preserve the original outer silhouette elsewhere. No separate parts atlas, no extra limbs, no text, no ground or shadow. Transparent background.",
+      "reference": "source/front_reference.png",
+      "role": "front edit target; nearest-neighbor 4x reference",
+      "disposition": "selected only for concealed body/socket patches; no visible source paint replacement"
+    },
+    {
+      "output": "source/rear_underbody_generated.png",
+      "prompt": "Use case: precise-object-edit. Asset type: concealed anatomy underpainting for an editable dragon cutout. Input image 1 is the chosen REAR three-quarter Tharokh painting and edit target. Preserve its exact view, proportions, position, rocky back plates, head, folded wings and curled tail. Remove ONLY the visible legs and claws below the shoulder and hip sockets, including the foreleg projecting to image-right and the bent near hindleg. Reveal and complete the broad intact charcoal-brown rock-armored flank, chest and rounded shoulder/hip sockets that these limbs hide. Keep their proper original widths; only hidden body material will be cropped from this result and used behind the untouched original paint. No restyling or pose change elsewhere, no extra anatomy, no parts atlas, no floor/shadow, no text. Genuinely transparent background.",
+      "reference": "source/rear_reference.png",
+      "role": "rear edit target; nearest-neighbor 4x reference",
+      "disposition": "selected only for concealed body/socket patches"
+    }
+  ]
+}

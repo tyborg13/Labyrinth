@@ -58,7 +58,7 @@ def pack(output: Path, ffmpeg: str = "ffmpeg") -> dict:
     return report
 
 
-def render(case: Path, output: Path, task_id: str | None, godot: str, backend: str | None, ffmpeg: str) -> dict:
+def render(case: Path, output: Path, task_id: str | None, godot: str, backend: str | None, ffmpeg: str, gui_lease_timeout: float | None = None) -> dict:
     validation = validate(case)
     if not validation["ok"]:
         raise CutoutError("; ".join(validation["errors"]))
@@ -77,6 +77,8 @@ def render(case: Path, output: Path, task_id: str | None, godot: str, backend: s
             command += ["--task-id", task_id]
         if backend:
             command += ["--rendering-method", "mobile", "--rendering-driver", backend]
+        if gui_lease_timeout is not None:
+            command += ["--gui-lease-timeout", str(gui_lease_timeout)]
         command += ["--", "--case", str(path)]
         process = subprocess.run(command, cwd=PROJECT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if process.returncode:

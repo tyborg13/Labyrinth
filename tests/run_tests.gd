@@ -291,15 +291,15 @@ func _initialize() -> void:
 	_test_combat_board_keeps_equipment_data_off_player_sprite()
 	_test_combat_board_surfaces_illusion_units()
 	_test_combat_board_surfaces_illusion_preview_units()
-	_test_trial_enemy_art_uses_matching_idle_sheets()
+	_test_trial_enemy_art_uses_registered_cutouts()
 	_test_bile_bloomer_art_loads_for_board()
 	_test_bile_bloomer_turn_order_portrait_loads()
-	_test_zekarion_uses_matching_idle_sheet()
+	_test_zekarion_uses_registered_cutout_art()
 	_test_dragon_idle_redraw_targets_footprint_draw_layer()
-	_test_lightning_wisp_uses_normal_loop_idle_sheet()
+	_test_lightning_wisp_uses_registered_cutout_art()
 	_test_cinder_enemies_use_final_raster_art()
 	_test_cinder_enemies_have_turn_order_portraits()
-	_test_final_art_units_use_authored_idle_sheets()
+	_test_final_art_units_use_registered_cutouts()
 	_test_enemy_shadow_dissolve_unifies_full_roster()
 	_test_terrain_destruction_sheets_load_for_full_prop_roster()
 	_test_elemental_trap_animation_sheets_load_and_respect_reduced_motion()
@@ -367,6 +367,23 @@ func _initialize() -> void:
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/crawler_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/bile_bloomer_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/chainbound_gaoler_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/cinder_droplet_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/cinder_ooze_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/frostglass_lancer_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/grave_surgeon_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/harrier_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/iskaldra_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/lightning_wisp_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/noctyrax_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/tharokh_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/vaeloryx_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/veilbound_acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/vyraketh_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/zekarion_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
@@ -5679,11 +5696,8 @@ func _test_unit_shadow_uses_alpha_silhouette() -> void:
 	var foot_point: Vector2 = board.call("_unit_shadow_foot_point", texture, draw_rect, bounds, "crawler")
 	_assert(foot_point.y < draw_rect.end.y, "Unit shadow anchor should use opaque feet instead of transparent texture padding")
 	var stable_ratio: float = float(board.call("_unit_shadow_stable_bottom_ratio", "crawler", texture, bounds))
-	var max_idle_ratio: float = 0.0
-	for frame_texture: Texture2D in board.call("_unit_idle_frames", unit):
-		var frame_bounds: Rect2 = board.call("_unit_shadow_bounds_for_texture", frame_texture)
-		max_idle_ratio = maxf(max_idle_ratio, float(board.call("_unit_shadow_bottom_ratio", frame_texture, frame_bounds)))
-	_assert(stable_ratio < max_idle_ratio, "Unit shadow anchor should ignore occasional low-contact idle pixels instead of following every claw/limb frame")
+	_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "Crawler cutout shadows should use one neutral silhouette without per-frame cache entries")
+	_assert(is_equal_approx(stable_ratio, float(board.call("_unit_shadow_bottom_ratio", texture, bounds))), "Crawler shadow anchor should remain on the baked neutral feet")
 	var projected: PackedVector2Array = board.call(
 		"_project_unit_shadow_polygon",
 		local_polygons[0],
@@ -5801,28 +5815,14 @@ func _test_combat_board_surfaces_illusion_preview_units() -> void:
 	_assert(board.call("_texture_for_unit", preview_unit) != null, "Illusion previews should resolve the player texture for drawing")
 	board.free()
 
-func _test_trial_enemy_art_uses_matching_idle_sheets() -> void:
+func _test_trial_enemy_art_uses_registered_cutouts() -> void:
 	var board := CombatBoardView.new()
-	board.visible = true
 	board.call("_load_assets")
-	board.presentation = {}
-	# Warden now has dedicated cutout coverage; these retain the trial idle sheets.
 	for enemy_type: String in ["crawler", "acolyte", "harrier"]:
-		var enemy_unit := {"key": "enemy_%s" % enemy_type, "type": enemy_type}
-		var idle_frames: Array = board.call("_unit_idle_frames", enemy_unit)
-		var texture: Texture2D = board.call("_texture_for_unit", enemy_unit)
-		var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
-		var seventh_frame: AtlasTexture = idle_frames[6] as AtlasTexture
-		var eighth_frame: AtlasTexture = idle_frames[7] as AtlasTexture
-		var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
-		_assert(idle_frames.size() == 12, "%s anime trial art should skip the final source frame and ping-pong without duplicated endpoints" % enemy_type)
-		_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "%s anime trial idle sheet should use 4x2 frames" % enemy_type)
-		_assert(first_frame != null and seventh_frame != null and eighth_frame != null and last_frame != null, "%s anime trial idle frames should be atlas-backed slices" % enemy_type)
-		_assert(first_frame.region.position == Vector2.ZERO, "%s anime trial idle loop should keep the source frame at the start of the sheet" % enemy_type)
-		_assert(seventh_frame.region != eighth_frame.region, "%s anime trial idle loop should not hold the final frame at the turn-around" % enemy_type)
-		_assert(first_frame.region != last_frame.region, "%s anime trial idle loop should not hold the first frame at the loop boundary" % enemy_type)
-		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", enemy_unit)), 0.1), "%s anime trial idle loop should use the original frame cadence" % enemy_type)
-		_assert(texture != null, "%s anime trial art should load for board rendering" % enemy_type)
+		var unit := {"type": enemy_type}
+		_assert(bool(board.call("_unit_uses_cutout", unit)), "%s uses its registered skeletal cutout" % enemy_type)
+		_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s excludes its retired whole-body idle sheet" % enemy_type)
+		_assert(board.call("_texture_for_unit", unit) != null, "%s loads its baked cutout rest art before entering the tree" % enemy_type)
 	board.free()
 
 func _test_bile_bloomer_art_loads_for_board() -> void:
@@ -5871,7 +5871,7 @@ func _test_bile_bloomer_turn_order_portrait_loads() -> void:
 	run_scene.free()
 	_assert(found_bloomer, "Bile Bloomer should appear in the visible turn-order queue")
 
-func _test_zekarion_uses_matching_idle_sheet() -> void:
+func _test_zekarion_uses_registered_cutout_art() -> void:
 	var board := CombatBoardView.new()
 	board.visible = true
 	board.call("_load_assets")
@@ -5879,9 +5879,8 @@ func _test_zekarion_uses_matching_idle_sheet() -> void:
 	var boss_unit := {"key": "enemy_zekarion", "type": "zekarion"}
 	var idle_frames: Array = board.call("_unit_idle_frames", boss_unit)
 	var texture: Texture2D = board.call("_texture_for_unit", boss_unit)
-	_assert(idle_frames.size() == 12, "Zekarion should load a matching 4x2 ping-pong idle sheet")
-	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Zekarion idle frames should use 1020px 4x2 source cells")
-	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", boss_unit)), 0.1), "Zekarion idle loop should use the boss frame cadence")
+	_assert(idle_frames.is_empty(), "Zekarion cutout must not load the legacy whole-body idle sheet")
+	_assert(texture != null and texture.get_size() == Vector2(255,255), "Before entering the tree, Zekarion uses its registered 255px cutout rest art")
 	_assert(texture != null, "Zekarion idle art should load for board rendering")
 	board.free()
 
@@ -5905,29 +5904,20 @@ func _test_dragon_idle_redraw_targets_footprint_draw_layer() -> void:
 		}
 		var expected_draw_tile: Vector2i = board.call("draw_tile_for_unit_origin", unit, origin)
 		var redraw_tile: Vector2i = board.call("_scene_render_tile_for_unit", unit)
-		_assert(not (board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s should retain idle frames for the dragon redraw regression" % boss_type)
+		_assert(bool(board.call("_unit_uses_cutout", unit)) and (board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s retains its skeletal cutout on the full-footprint draw layer" % boss_type)
 		_assert(footprint == Vector2i(2, 2), "%s should retain its authored 2x2 dragon footprint" % boss_type)
 		_assert(redraw_tile == expected_draw_tile, "%s idle redraw should invalidate the retained layer that actually draws its full footprint" % boss_type)
 		_assert(redraw_tile != origin, "%s regression coverage must distinguish the rendered footprint tile from its origin" % boss_type)
 	board.free()
 
-func _test_lightning_wisp_uses_normal_loop_idle_sheet() -> void:
+func _test_lightning_wisp_uses_registered_cutout_art() -> void:
 	var board := CombatBoardView.new()
-	board.visible = true
 	board.call("_load_assets")
-	board.presentation = {}
-	var wisp_unit := {"key": "enemy_wisp", "type": "lightning_wisp"}
-	var idle_frames: Array = board.call("_unit_idle_frames", wisp_unit)
-	var texture: Texture2D = board.call("_texture_for_unit", wisp_unit)
-	var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
-	var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
-	_assert(idle_frames.size() == 16, "Lightning wisp should load all 16 source frames without ping-ponging")
-	_assert((idle_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Lightning wisp idle frames should use 1020px 4x4 source cells")
-	_assert(first_frame != null and last_frame != null, "Lightning wisp idle frames should be atlas-backed slices")
-	_assert(first_frame.region.position == Vector2.ZERO, "Lightning wisp normal loop should start at the first source frame")
-	_assert(last_frame.region.position == Vector2(3060.0, 3060.0), "Lightning wisp normal loop should include the final source frame")
-	_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", wisp_unit)), 0.15), "Lightning wisp idle loop should match the downloaded GIF cadence")
-	_assert(texture != null, "Lightning wisp idle art should load for board rendering")
+	var unit := {"type": "lightning_wisp"}
+	var texture: Texture2D = board.call("_unit_hud_anchor_texture", unit)
+	_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "Lightning Wisp excludes the legacy whole-body idle sheet")
+	_assert(texture != null and texture.get_size() == Vector2(255, 255), "Lightning Wisp retains its registered 255px logical silhouette")
+	_assert(str(texture.get_meta("asset_source_path", "")) == preload("res://scripts/lightning_wisp_cutout/renderer.gd").REST_PATH, "Lightning Wisp HUD/shadows load the production rest bake")
 	board.free()
 
 func _test_cinder_enemies_use_final_raster_art() -> void:
@@ -5996,40 +5986,14 @@ func _test_cinder_enemies_have_turn_order_portraits() -> void:
 			slot.free()
 	instance.free()
 
-func _test_final_art_units_use_authored_idle_sheets() -> void:
+func _test_final_art_units_use_registered_cutouts() -> void:
 	var board := CombatBoardView.new()
-	board.visible = true
 	board.call("_load_assets")
-	board.presentation = {}
-	var unit_types: Array[String] = [
-		"cinder_ooze",
-		"cinder_droplet",
-		"bile_bloomer",
-		"chainbound_gaoler",
-		"grave_surgeon",
-		"frostglass_lancer"
-	]
-	for unit_type: String in unit_types:
-		var definition: Dictionary = GameData.enemy_def(unit_type)
-		var role: String = "enemy"
-		if definition.is_empty():
-			definition = GameData.npc_def(unit_type)
-			role = "npc"
-		var art_path: String = str(definition.get("art_path", ""))
-		var idle_path: String = "%s_idle.%s" % [art_path.get_basename(), art_path.get_extension()]
-		var unit := {"key": "%s_%s" % [role, unit_type], "role": role, "type": unit_type}
-		var idle_frames: Array = board.call("_unit_idle_frames", unit)
-		var first_frame: AtlasTexture = idle_frames[0] as AtlasTexture
-		var last_frame: AtlasTexture = idle_frames[idle_frames.size() - 1] as AtlasTexture
-		_assert(FileAccess.file_exists(idle_path), "%s idle sheet should exist beside the static art" % unit_type)
-		var expected_frame_count: int = 12 if unit_type == "bile_bloomer" else 16
-		_assert(idle_frames.size() == expected_frame_count, "%s idle sheet should load its authored loop including Shale's returning breath" % unit_type)
-		_assert((idle_frames[0] as Texture2D).get_size() == Vector2(255.0, 255.0), "%s idle frames should use native 255px source cells" % unit_type)
-		_assert(first_frame != null and last_frame != null, "%s idle frames should be atlas-backed slices" % unit_type)
-		_assert(first_frame.region.position == Vector2.ZERO, "%s idle loop should start at the first source frame" % unit_type)
-		var expected_last_origin := Vector2(255.0, 0.0) if unit_type == "bile_bloomer" else Vector2(765.0, 765.0)
-		_assert(last_frame.region.position == expected_last_origin, "%s idle loop should preserve its authored final frame without a repeated boundary hold" % unit_type)
-		_assert(is_equal_approx(float(board.call("_unit_idle_frame_seconds", unit)), 0.1), "%s idle loop should use the default frame cadence" % unit_type)
+	for enemy_type: String in ["cinder_ooze", "cinder_droplet", "bile_bloomer", "chainbound_gaoler", "grave_surgeon", "frostglass_lancer"]:
+		var unit := {"type": enemy_type}
+		_assert(bool(board.call("_unit_uses_cutout", unit)), "%s uses its registered skeletal cutout" % enemy_type)
+		_assert((board.call("_unit_idle_frames", unit) as Array).is_empty(), "%s excludes its retired whole-body idle sheet" % enemy_type)
+		_assert(board.call("_texture_for_unit", unit) != null, "%s loads its baked cutout rest art before entering the tree" % enemy_type)
 	board.free()
 
 func _test_enemy_shadow_dissolve_unifies_full_roster() -> void:
@@ -6248,8 +6212,7 @@ func _test_final_art_idle_shadows_keep_silhouettes_for_every_frame() -> void:
 		"cinder_droplet",
 		"bile_bloomer",
 		"chainbound_gaoler",
-		"grave_surgeon",
-		"frostglass_lancer"
+		"grave_surgeon"
 	]
 	for unit_type: String in unit_types:
 		var unit := {"key": "shadow_%s" % unit_type, "role": "enemy", "type": unit_type, "pos": Vector2i.ZERO}

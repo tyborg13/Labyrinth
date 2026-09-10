@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "character_id": "vaeloryx",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_repaired_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 2.0,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.8,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "dive": {
+      "frames": 32,
+      "duration": 0.8,
+      "loop": false
+    },
+    "gale": {
+      "frames": 36,
+      "duration": 1.0,
+      "loop": false
+    },
+    "pull": {
+      "frames": 36,
+      "duration": 1.0,
+      "loop": false
+    },
+    "guard": {
+      "frames": 24,
+      "duration": 0.48,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "wing_far",
+    "wing_near",
+    "claw_far",
+    "claw_near",
+    "claw_hind"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "author_case.py",
+    "layouts/front.json",
+    "layouts/front_repaired.json",
+    "layouts/rear.json",
+    "recipes/anatomy.json",
+    "recipes/front_back_underwing.json",
+    "recipes/front_hidden.json",
+    "recipes/front_repaired_skin.json",
+    "recipes/front_repaired_skinned.skin.json",
+    "recipes/front_semantic_repair.json",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/rear_hidden.json",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "repair_ownership.py",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_ownership_v03.json",
+    "source/front_registered.png",
+    "source/front_shoulder_landmarks.png",
+    "source/front_underbody_generated.png",
+    "source/generation_requests.json",
+    "source/rear_alpha_attempt_v02.png",
+    "source/rear_generated_v01.png",
+    "source/rear_generated_v03.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/registration.json",
+    "source/registration_landmark_grid.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "source_commit": "01c7dccbc931ae7dddf3eb8f797fb3d1d33def3e",
+    "front": "unchanged original production painting",
+    "rear": "selected imagegen rear v03",
+    "art_status": "explicit ownership and dragon graph; verification is recorded in the proof manifests"
+  }
+}

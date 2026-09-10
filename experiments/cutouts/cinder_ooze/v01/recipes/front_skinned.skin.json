@@ -1,0 +1,246 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_left_outer",
+      "parts": [
+        "left_outer",
+        "bridge_left_outer"
+      ],
+      "bones": [
+        "mass",
+        "bend_left_outer",
+        "contact_left_outer"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            38,
+            174
+          ],
+          "axis": [
+            -0.55,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            26.6,
+            188.4
+          ],
+          "axis": [
+            -0.55,
+            1
+          ],
+          "width": 14.399999999999999
+        }
+      ]
+    },
+    {
+      "name": "front_front_left",
+      "parts": [
+        "front_left",
+        "bridge_front_left"
+      ],
+      "bones": [
+        "mass",
+        "bend_front_left",
+        "contact_front_left"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            69,
+            185
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            68.4,
+            202.4
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 17.4
+        }
+      ]
+    },
+    {
+      "name": "front_front_mid",
+      "parts": [
+        "front_mid",
+        "bridge_front_mid"
+      ],
+      "bones": [
+        "mass",
+        "bend_front_mid",
+        "contact_front_mid"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            103,
+            188
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            101.8,
+            202.4
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 14.399999999999999
+        }
+      ]
+    },
+    {
+      "name": "front_near_right",
+      "parts": [
+        "near_right",
+        "bridge_near_right"
+      ],
+      "bones": [
+        "mass",
+        "bend_near_right",
+        "contact_near_right"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            177,
+            178
+          ],
+          "axis": [
+            -0.35,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            166.2,
+            206.8
+          ],
+          "axis": [
+            -0.35,
+            1
+          ],
+          "width": 28.799999999999997
+        }
+      ]
+    },
+    {
+      "name": "front_right_outer",
+      "parts": [
+        "right_outer",
+        "bridge_right_outer"
+      ],
+      "bones": [
+        "mass",
+        "bend_right_outer",
+        "contact_right_outer"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            202,
+            178
+          ],
+          "axis": [
+            0.25,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            200.8,
+            191.8
+          ],
+          "axis": [
+            0.25,
+            1
+          ],
+          "width": 13.799999999999999
+        }
+      ]
+    },
+    {
+      "name": "front_far_right",
+      "parts": [
+        "far_right"
+      ],
+      "bones": [
+        "mass",
+        "bend_far_right",
+        "contact_far_right"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            220,
+            161
+          ],
+          "axis": [
+            0.7,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            229.0,
+            171.2
+          ],
+          "axis": [
+            0.7,
+            1
+          ],
+          "width": 10.2
+        }
+      ]
+    }
+  ]
+}

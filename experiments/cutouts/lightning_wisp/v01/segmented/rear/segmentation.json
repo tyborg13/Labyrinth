@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "source_sha256": "8b2bc0efdf78fbdb9071408d1d5ff198426c7b386bb77e66263bc1c01f73003d",
+  "ownership_sha256": "eb6df79aa524df07deb101ac00174498453f6603edd795214c7b86e559661e5a",
+  "parts": [
+    {
+      "name": "crown",
+      "file": "crown.png",
+      "offset": [
+        106,
+        17
+      ],
+      "bbox": [
+        106,
+        17,
+        173,
+        61
+      ]
+    },
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        88,
+        180
+      ],
+      "bbox": [
+        88,
+        180,
+        181,
+        228
+      ]
+    },
+    {
+      "name": "arc_left",
+      "file": "arc_left.png",
+      "offset": [
+        66,
+        81
+      ],
+      "bbox": [
+        66,
+        81,
+        89,
+        165
+      ]
+    },
+    {
+      "name": "arc_right",
+      "file": "arc_right.png",
+      "offset": [
+        163,
+        61
+      ],
+      "bbox": [
+        163,
+        61,
+        197,
+        180
+      ]
+    },
+    {
+      "name": "core",
+      "file": "core.png",
+      "offset": [
+        89,
+        61
+      ],
+      "bbox": [
+        89,
+        61,
+        163,
+        180
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

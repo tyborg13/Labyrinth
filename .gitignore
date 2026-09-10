@@ -26,3 +26,12 @@ Thumbs.db
 /playtest/board_surface_v4_*/
 /playtest/board_surface_20260906_*/
 /playtest/board_surface_v5_*/
+
+# Generated cutout evidence is archived outside Git; retain editable v*/ cases.
+# See spec/enemy_cutout_roster_integration.md for the verified evidence archive.
+/experiments/cutouts/*/runtime*/
+/experiments/cutouts/*/native*/
+/experiments/cutouts/*/art_phase*/
+/experiments/cutouts/*/v*/proof*/
+/experiments/cutouts/*/v*/art_proof*/
+/output/cutout-roster/

@@ -12,7 +12,7 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 
 static func with_idle_direction(motion: Dictionary, enemy_tile: Vector2i, player_tile: Vector2i) -> Dictionary:
 	var clip: String = str(motion.get("clip", "idle"))
-	if clip == "walk" or (clip == "attack" and float(motion.get("phase", 0.0)) < 1.0):
+	if clip == "walk" or (clip not in ["idle", "rest"] and float(motion.get("phase", 0.0)) < 1.0):
 		return motion
 	var result: Dictionary = motion.duplicate(false)
 	result["direction"] = player_tile - enemy_tile

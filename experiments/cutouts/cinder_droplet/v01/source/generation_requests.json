@@ -1,0 +1,28 @@
+{
+  "requests": [
+    {
+      "tool": "built-in image_gen.imagegen",
+      "source": "rear_generated.png",
+      "sha256": "4f8443fd722f748320c0eeade1d29e67381da4f12b9d5b72111cf38523829249",
+      "prompt": "Use case: identity-preserve. Asset type: rear-view game character cutout source painting on a genuinely transparent background. Input image 1 is the accepted Cinder Droplet FRONT DESIGN REFERENCE, not an edit target; preserve it unchanged in the project. Primary request: paint the matching REAR three-quarter view of this exact small armored molten tentacled creature, facing upper-right away from the viewer on a 2:1 isometric board. Same apparent size, body proportions, low stance, dark cooled-lava tendrils, orange molten fissures, angular broken iron cap with rust edges and single swept triangular spike. From the rear there are NO eyes or face; show a coherent dark crusted back with sparse matching fissures beneath the same cap. Grounded rounded body with the same short spreading tendril contacts. Match the reference's painterly pixel-readable detail, hard dark outlines, subdued charcoal/umber iron and localized orange glow exactly; avoid a smooth vector style, cute mascot, humanoid limbs, weapons or redesign. Entire creature fits a square image with generous transparent margins. No floor, cast shadow, checker pattern, lettering, border, new props or extra creatures. This will be uniformly registered to the accepted 255x255 canvas after generation; do not draw a layout sheet.",
+      "reference_roles": "Accepted front_original.png is the identity and anatomy reference; generation of a matching rear view.",
+      "disposition": "Selected rear paint; generated RGB checkerboard excluded by recorded ownership matte."
+    },
+    {
+      "tool": "built-in image_gen.imagegen",
+      "source": "rear_alpha_attempt_rejected.png",
+      "sha256": "54e451e710738337f69d1c00b93b09117a66d409bbe1e58de247ccec94bfe477",
+      "prompt": "Use case: background-extraction. EDIT TARGET: image 1. Change only the background: remove ALL gray/white checkerboard and make every background pixel genuinely transparent with alpha=0. Preserve the creature and all its exact existing painted pixels, proportions, colors and pose. No new paint. The checkerboard in this input is painted into RGB and must not remain or be replaced with another checkerboard; output a true transparent RGBA PNG. Preserve the tiny detached molten droplet near its base. No text, no shadow, no background.",
+      "reference_roles": "rear_generated.png is the edit target for an attempted transparent background extraction.",
+      "disposition": "Rejected: returned another RGB checkerboard and altered proportions; supplies no runtime pixels."
+    },
+    {
+      "tool": "built-in image_gen.imagegen",
+      "source": "hidden_belly_generated.png",
+      "sha256": "d3ad64e413c428fb51eb05f8936ca56e46b85abf825f4fc84b44ffa1c8b6eb60",
+      "prompt": "Use case: precise-object-edit. Asset type: concealed lower-body underpainting for an editable skeletal game cutout. Image 1 is the accepted Cinder Droplet anatomy and paint reference. Paint the SAME creature viewed from the front, with its spreading hanging tendrils temporarily removed to expose the small continuous rounded molten belly and short, thick, dark-crusted tendril attachment sockets hidden beneath them. Keep the broken iron cap, eyes, upper body and proportions matching the reference; these regions will not supply runtime pixels. The only selected pixels will be the concealed lower belly and tendril root/socket interiors, registered beneath the accepted visible source art. Dense charcoal/brown cooled-lava crust with sparse orange fissures; no bright flat lava disc, no new limbs, no face change, no extra props or text. Keep it compact and broad beneath the round body. Plain solid flat magenta background for explicit ownership registration, absolutely no checkerboard. This is source paint for hidden areas only; the accepted front will not be replaced.",
+      "reference_roles": "front_original.png is the matching concealed molten belly/socket material reference.",
+      "disposition": "Retained but not selected in the final continuous surface mesh; no exposed cutting seam needs an independent underpaint."
+    }
+  ]
+}

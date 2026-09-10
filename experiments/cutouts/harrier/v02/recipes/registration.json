@@ -1,0 +1,155 @@
+{
+  "source_size": [
+    255,
+    255
+  ],
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "byte-identical copy, no redraw or registration change"
+  },
+  "rear": {
+    "source": "source/rear_generated.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "operation": "uniform full-image Lanczos resize to 251x251, composite at [10,5] on 255x255; original retained",
+    "scale": 0.2,
+    "offset": [
+      10,
+      5
+    ]
+  },
+  "front_landmarks": {
+    "skull": [
+      126,
+      71
+    ],
+    "shoulder_r": [
+      112,
+      91
+    ],
+    "elbow_r": [
+      98,
+      110
+    ],
+    "grip": [
+      79,
+      86
+    ],
+    "spear_tip": [
+      24,
+      124
+    ],
+    "shoulder_l": [
+      167,
+      85
+    ],
+    "elbow_l": [
+      195,
+      102
+    ],
+    "wrist_l": [
+      204,
+      135
+    ],
+    "hip_r": [
+      130,
+      131
+    ],
+    "knee_r": [
+      103,
+      152
+    ],
+    "ankle_r": [
+      117,
+      184
+    ],
+    "sole_r": [
+      109,
+      196
+    ],
+    "hip_l": [
+      163,
+      137
+    ],
+    "knee_l": [
+      163,
+      171
+    ],
+    "ankle_l": [
+      181,
+      203
+    ],
+    "sole_l": [
+      178,
+      223
+    ]
+  },
+  "rear_landmarks": {
+    "skull": [
+      135,
+      55
+    ],
+    "shoulder_r": [
+      151,
+      88
+    ],
+    "elbow_r": [
+      175,
+      113
+    ],
+    "grip": [
+      190,
+      78
+    ],
+    "spear_tip": [
+      250,
+      35
+    ],
+    "shoulder_l": [
+      101,
+      86
+    ],
+    "elbow_l": [
+      76,
+      108
+    ],
+    "wrist_l": [
+      60,
+      138
+    ],
+    "hip_r": [
+      135,
+      142
+    ],
+    "knee_r": [
+      157,
+      160
+    ],
+    "ankle_r": [
+      144,
+      196
+    ],
+    "sole_r": [
+      146,
+      205
+    ],
+    "hip_l": [
+      101,
+      153
+    ],
+    "knee_l": [
+      92,
+      176
+    ],
+    "ankle_l": [
+      69,
+      218
+    ],
+    "sole_l": [
+      71,
+      229
+    ]
+  }
+}

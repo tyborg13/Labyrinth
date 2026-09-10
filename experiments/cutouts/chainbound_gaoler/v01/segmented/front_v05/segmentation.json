@@ -1,0 +1,332 @@
+{
+  "ok": true,
+  "source_sha256": "9caa306a44f5d4c5bca4d7e00161f3ccd2c46d393d90b6a116a997a33fd3a104",
+  "ownership_sha256": "79bc900e0b6d52f99e0a8128c54bc2f2387623cdff504e82c5e08b5dc82ba358",
+  "parts": [
+    {
+      "name": "hook",
+      "file": "hook.png",
+      "offset": [
+        23,
+        144
+      ],
+      "bbox": [
+        23,
+        144,
+        68,
+        217
+      ]
+    },
+    {
+      "name": "chain_a",
+      "file": "chain_a.png",
+      "offset": [
+        37,
+        69
+      ],
+      "bbox": [
+        37,
+        69,
+        61,
+        103
+      ]
+    },
+    {
+      "name": "chain_b",
+      "file": "chain_b.png",
+      "offset": [
+        37,
+        103
+      ],
+      "bbox": [
+        37,
+        103,
+        61,
+        124
+      ]
+    },
+    {
+      "name": "chain_c",
+      "file": "chain_c.png",
+      "offset": [
+        37,
+        124
+      ],
+      "bbox": [
+        37,
+        124,
+        53,
+        144
+      ]
+    },
+    {
+      "name": "hand_hook",
+      "file": "hand_hook.png",
+      "offset": [
+        46,
+        63
+      ],
+      "bbox": [
+        46,
+        63,
+        79,
+        101
+      ]
+    },
+    {
+      "name": "hand_fist",
+      "file": "hand_fist.png",
+      "offset": [
+        187,
+        136
+      ],
+      "bbox": [
+        187,
+        136,
+        217,
+        163
+      ]
+    },
+    {
+      "name": "wrist_strap",
+      "file": "wrist_strap.png",
+      "offset": [
+        61,
+        98
+      ],
+      "bbox": [
+        61,
+        98,
+        77,
+        141
+      ]
+    },
+    {
+      "name": "drape_a",
+      "file": "drape_a.png",
+      "offset": [
+        74,
+        98
+      ],
+      "bbox": [
+        74,
+        98,
+        91,
+        123
+      ]
+    },
+    {
+      "name": "drape_b",
+      "file": "drape_b.png",
+      "offset": [
+        80,
+        117
+      ],
+      "bbox": [
+        80,
+        117,
+        104,
+        142
+      ]
+    },
+    {
+      "name": "drape_c",
+      "file": "drape_c.png",
+      "offset": [
+        95,
+        132
+      ],
+      "bbox": [
+        95,
+        132,
+        115,
+        144
+      ]
+    },
+    {
+      "name": "drape_d",
+      "file": "drape_d.png",
+      "offset": [
+        104,
+        122
+      ],
+      "bbox": [
+        104,
+        122,
+        130,
+        143
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        121,
+        10
+      ],
+      "bbox": [
+        121,
+        10,
+        165,
+        66
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        98,
+        44
+      ],
+      "bbox": [
+        98,
+        44,
+        181,
+        112
+      ]
+    },
+    {
+      "name": "belt",
+      "file": "belt.png",
+      "offset": [
+        111,
+        110
+      ],
+      "bbox": [
+        111,
+        110,
+        175,
+        122
+      ]
+    },
+    {
+      "name": "tabard",
+      "file": "tabard.png",
+      "offset": [
+        127,
+        122
+      ],
+      "bbox": [
+        127,
+        122,
+        162,
+        227
+      ]
+    },
+    {
+      "name": "coat_hook",
+      "file": "coat_hook.png",
+      "offset": [
+        77,
+        122
+      ],
+      "bbox": [
+        77,
+        122,
+        129,
+        213
+      ]
+    },
+    {
+      "name": "coat_fist",
+      "file": "coat_fist.png",
+      "offset": [
+        158,
+        122
+      ],
+      "bbox": [
+        158,
+        122,
+        208,
+        217
+      ]
+    },
+    {
+      "name": "arm_hook",
+      "file": "arm_hook.png",
+      "offset": [
+        72,
+        72
+      ],
+      "bbox": [
+        72,
+        72,
+        115,
+        114
+      ]
+    },
+    {
+      "name": "arm_fist",
+      "file": "arm_fist.png",
+      "offset": [
+        175,
+        64
+      ],
+      "bbox": [
+        175,
+        64,
+        217,
+        142
+      ]
+    },
+    {
+      "name": "foot_hook",
+      "file": "foot_hook.png",
+      "offset": [
+        65,
+        217
+      ],
+      "bbox": [
+        65,
+        217,
+        113,
+        250
+      ]
+    },
+    {
+      "name": "foot_fist",
+      "file": "foot_fist.png",
+      "offset": [
+        170,
+        217
+      ],
+      "bbox": [
+        170,
+        217,
+        213,
+        251
+      ]
+    },
+    {
+      "name": "leg_hook",
+      "file": "leg_hook.png",
+      "offset": [
+        80,
+        179
+      ],
+      "bbox": [
+        80,
+        179,
+        118,
+        217
+      ]
+    },
+    {
+      "name": "leg_fist",
+      "file": "leg_fist.png",
+      "offset": [
+        168,
+        181
+      ],
+      "bbox": [
+        168,
+        181,
+        204,
+        217
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

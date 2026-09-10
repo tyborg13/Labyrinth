@@ -1,0 +1,32 @@
+{
+  "gaoler_original": {
+    "path": "gaoler_original.png",
+    "original_path": "assets/art/enemies/chainbound_gaoler.png",
+    "role": "composition/identity edit target",
+    "sha256": "a1106b850258eb72c70a625177e1d855eebc2b6d451536517ecb5818486ee632"
+  },
+  "warden_style": {
+    "path": "warden_style.png",
+    "original_path": "assets/units/stone_warden_cutout/front/rest.png",
+    "role": "native-scale style reference only",
+    "sha256": "d3060d437d2250e4845fca3c3f3f1644414bdb8e2632bd4600fe89992ab14ac5"
+  },
+  "crawler_style": {
+    "path": "crawler_style.png",
+    "original_path": "assets/placeholders/units/crawler.png",
+    "role": "native-scale style reference only",
+    "sha256": "8be9bb486015cacfc6e008b6a234b9f67772fd66b29846d6cee134f3c7b02bd4"
+  },
+  "harrier_style": {
+    "path": "harrier_style.png",
+    "original_path": "assets/placeholders/units/harrier.png",
+    "role": "native-scale style reference only",
+    "sha256": "e3b26f0177aa0c90c7238c3459136a33d9f7ac82806ef8f8bbce83ea996c50e1"
+  },
+  "surgeon_style": {
+    "path": "surgeon_style.png",
+    "original_path": "assets/art/enemies/grave_surgeon.png",
+    "role": "native-scale style reference only",
+    "sha256": "f6651f373d35054087b04c9a56250c41c0be8644427003109c103de030104502"
+  }
+}

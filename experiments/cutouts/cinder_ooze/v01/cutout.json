@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "character_id": "cinder_ooze",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 36,
+      "duration": 0.62,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 36,
+      "duration": 0.7,
+      "loop": false
+    },
+    "bloom": {
+      "frames": 40,
+      "duration": 0.8,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "mass",
+    "contact_left_outer",
+    "contact_front_left",
+    "contact_front_mid",
+    "contact_near_right",
+    "contact_right_outer",
+    "contact_far_right"
+  ],
+  "contact_feet": [
+    "contact_left_outer",
+    "contact_front_left",
+    "contact_front_mid",
+    "contact_near_right",
+    "contact_right_outer",
+    "contact_far_right"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/build_case.py",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_registration.json",
+    "recipes/rear_skinned.skin.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_registration_grid.png",
+    "source/hidden_generated.png",
+    "source/hidden_registered.png",
+    "source/hidden_request.json",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_registration_grid.png",
+    "source/rear_request.json",
+    "source/registration.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "accepted front preserved; matching generated rear; explicit soft-lobe ownership",
+    "front_sha256": "26ad12c259a1617520f6c1b2d98309e25e468368671f1d614e6cb740c9b9e6a3"
+  }
+}

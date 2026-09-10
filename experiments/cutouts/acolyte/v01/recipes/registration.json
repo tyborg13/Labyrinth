@@ -1,0 +1,30 @@
+{
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "byte-identical copy",
+    "sha256": "de45fa8548befd346a539252630a5861eca7a305e02f666ee63be87bf7c710e3"
+  },
+  "rear": {
+    "source": "source/rear_alpha_attempt.png",
+    "sha256": "24af938cd988d97d7b2b92fa00e3c739f5450ad5eb5edcd561a2221e01852699",
+    "background_selection": "4-connected flood from (0,0), min RGB >=65 and RGB spread <=26; two generator outputs supplied opaque RGB checkerboard",
+    "excluded_pixels": 1162761,
+    "crop": [
+      305,
+      104,
+      981,
+      1176
+    ],
+    "uniform_scale": 0.20055970149253732,
+    "rounded_size": [
+      136,
+      215
+    ],
+    "resample": "nearest",
+    "offset": [
+      82,
+      20
+    ],
+    "landmarks": "hood top y20; hem bottom y234; grounded robe center x140, matching accepted front"
+  }
+}

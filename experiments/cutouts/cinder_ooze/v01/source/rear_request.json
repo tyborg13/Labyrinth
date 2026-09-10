@@ -1,0 +1,13 @@
+{
+  "tool": "image_gen.imagegen",
+  "reference_roles": [
+    {
+      "path": "assets/art/enemies/cinder_ooze.png",
+      "role": "identity and style reference; never an edit target"
+    }
+  ],
+  "prompt": "Use case: stylized-concept\nAsset type: matching rear-facing transparent enemy sprite for an editable game cutout.\nInput image 1 is the identity, paint style, anatomy, proportions and front-view reference: the accepted Cinder Ooze painting. Do not redesign or replace the front artwork.\nPrimary request: paint this same creature viewed from the opposite rear three-quarter direction, facing away toward upper-right, on the same 2:1 isometric ground plane. It is a squat, massive molten ooze with an asymmetric high dorsal crown of coarse cracked dark basalt plates, orange-red molten fissures beneath, and a skirt of thick irregular fleshy-charred contact tendrils. Preserve the shell height, plate density, rugged dark texture, restrained orange accents, long low tendrils, overall width/height ratio and game sprite brushwork. The front face with large glowing eyes is turned away and should not be visible. Show coherent unseen backs of the existing plates and rear tendril lobes, with the same heavy grounded silhouette. No humanoid anatomy, no arms, no hands, no weapons, no added faces or eyes on the back.\nComposition: one full creature, all tendril tips in frame, centered with transparent padding, approximately square canvas, same native-scale texture density as the reference. No ground plane or cast shadow, no labels, border, background color or checkerboard. Genuinely transparent RGBA background.",
+  "disposition": "selected for registration; original retained unchanged",
+  "output": "source/rear_generated.png",
+  "sha256": "24259c21f99da73d14974547785305d09da5b4ab87d3acf25b992cc954a116e4"
+}

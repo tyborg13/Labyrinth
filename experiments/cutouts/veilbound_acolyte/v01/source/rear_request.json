@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: identity-preserve. Asset type: rear-view raster cutout source for the existing Escape the Umbra Veilbound Acolyte. Input image 1 is the reference identity and style, not a repaint target; preserve its exact hooded skeletal caster design, brown tattered floor-length robe with narrow ochre trim, small skull, bare bone hands, floating ember orb, silhouette proportions and pixel-art cluster/outline treatment. Generate only the matching full-body REAR THREE-QUARTER view at the same 2:1 isometric board perspective, facing away toward upper right (the reference faces down-left). Camera sees the back of the hood, shoulder drape and robe. Match the resting pose: one bent arm carries an open palm with the small orb floating above it, other arm bends forward near waist; preserve anatomical handedness when turned. The orb is on the far side now and may be partially occluded. Hood/robe fully cover body and feet; do not invent visible legs or shoes. Keep the subtle floor-length torn hem grounded, no shadow or floor. Match the reference's sparse painterly pixel detail, dark outlines, restrained warm brown palette, no restyling, no additions. Transparent background with actual alpha, full silhouette and generous margin, no checkerboard, no text. Single character only. Output a crisp square source painting suitable for registration to a 255x255 canvas.",
+  "references": [
+    {
+      "path": "front_original.png",
+      "role": "identity, palette, anatomy and pixel treatment reference"
+    }
+  ],
+  "output": "rear_generated.png",
+  "disposition": "selected for registered rear view; original retained"
+}

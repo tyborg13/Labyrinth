@@ -1,0 +1,98 @@
+{
+  "source_size": [
+    255,
+    255
+  ],
+  "board_projection": "2:1",
+  "front": {
+    "source": "source/front_original.png",
+    "registered": "source/front_registered.png",
+    "transform": "identity; RGBA pixels unchanged",
+    "landmarks": {
+      "saw_shoulder": [
+        137,
+        100
+      ],
+      "saw_elbow": [
+        128,
+        111
+      ],
+      "saw_wrist": [
+        123,
+        125
+      ],
+      "saw_grip": [
+        112,
+        137
+      ],
+      "vial_shoulder": [
+        187,
+        88
+      ],
+      "vial_wrist": [
+        209,
+        122
+      ],
+      "sole_r": [
+        129,
+        202
+      ],
+      "sole_l": [
+        198,
+        212
+      ]
+    }
+  },
+  "rear": {
+    "source": "source/rear_v2_generated.png",
+    "registered": "source/rear_registered.png",
+    "subject_selection": [
+      380,
+      150,
+      1080,
+      1080
+    ],
+    "selection_reason": "Exclude remote near-transparent generation specks; all main subject alpha retained.",
+    "uniform_scale": 0.205,
+    "translation": [
+      36,
+      -7
+    ],
+    "resampler": "Pillow bicubic affine",
+    "facing": "upper-right, rear unmirrored",
+    "landmarks": {
+      "saw_shoulder": [
+        184,
+        94
+      ],
+      "saw_elbow": [
+        195,
+        116
+      ],
+      "saw_wrist": [
+        203,
+        134
+      ],
+      "saw_grip": [
+        209,
+        140
+      ],
+      "vial_shoulder": [
+        136,
+        86
+      ],
+      "vial_wrist": [
+        124,
+        111
+      ],
+      "sole_r": [
+        197,
+        211
+      ],
+      "sole_l": [
+        136,
+        189
+      ]
+    }
+  }
+}

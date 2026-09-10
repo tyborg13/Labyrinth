@@ -1,0 +1,206 @@
+{
+  "ok": true,
+  "source_sha256": "f6651f373d35054087b04c9a56250c41c0be8644427003109c103de030104502",
+  "ownership_sha256": "c1a71c34939586207eafcbbb9fe585fad833c0177b3bf17d995ceb0ecc1bce69",
+  "parts": [
+    {
+      "name": "hand_saw",
+      "file": "hand_saw.png",
+      "offset": [
+        106,
+        120
+      ],
+      "bbox": [
+        106,
+        120,
+        135,
+        145
+      ]
+    },
+    {
+      "name": "saw",
+      "file": "saw.png",
+      "offset": [
+        61,
+        126
+      ],
+      "bbox": [
+        61,
+        126,
+        125,
+        198
+      ]
+    },
+    {
+      "name": "vial",
+      "file": "vial.png",
+      "offset": [
+        193,
+        130
+      ],
+      "bbox": [
+        193,
+        130,
+        216,
+        151
+      ]
+    },
+    {
+      "name": "hand_vial",
+      "file": "hand_vial.png",
+      "offset": [
+        197,
+        110
+      ],
+      "bbox": [
+        197,
+        110,
+        221,
+        138
+      ]
+    },
+    {
+      "name": "sleeve_saw",
+      "file": "sleeve_saw.png",
+      "offset": [
+        110,
+        99
+      ],
+      "bbox": [
+        110,
+        99,
+        142,
+        122
+      ]
+    },
+    {
+      "name": "sleeve_vial",
+      "file": "sleeve_vial.png",
+      "offset": [
+        187,
+        86
+      ],
+      "bbox": [
+        187,
+        86,
+        217,
+        119
+      ]
+    },
+    {
+      "name": "foot_r",
+      "file": "foot_r.png",
+      "offset": [
+        108,
+        191
+      ],
+      "bbox": [
+        108,
+        191,
+        144,
+        208
+      ]
+    },
+    {
+      "name": "foot_l",
+      "file": "foot_l.png",
+      "offset": [
+        187,
+        198
+      ],
+      "bbox": [
+        187,
+        198,
+        210,
+        216
+      ]
+    },
+    {
+      "name": "leg_r",
+      "file": "leg_r.png",
+      "offset": [
+        121,
+        179
+      ],
+      "bbox": [
+        121,
+        179,
+        143,
+        191
+      ]
+    },
+    {
+      "name": "leg_l",
+      "file": "leg_l.png",
+      "offset": [
+        187,
+        181
+      ],
+      "bbox": [
+        187,
+        181,
+        208,
+        198
+      ]
+    },
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        120,
+        27
+      ],
+      "bbox": [
+        120,
+        27,
+        188,
+        92
+      ]
+    },
+    {
+      "name": "belt_kit",
+      "file": "belt_kit.png",
+      "offset": [
+        172,
+        106
+      ],
+      "bbox": [
+        172,
+        106,
+        198,
+        149
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        123,
+        60
+      ],
+      "bbox": [
+        123,
+        60,
+        210,
+        131
+      ]
+    },
+    {
+      "name": "robe",
+      "file": "robe.png",
+      "offset": [
+        114,
+        124
+      ],
+      "bbox": [
+        114,
+        124,
+        218,
+        197
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

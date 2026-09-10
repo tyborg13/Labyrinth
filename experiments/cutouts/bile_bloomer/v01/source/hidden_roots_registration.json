@@ -1,0 +1,15 @@
+{
+  "source": "hidden_roots_generated.png",
+  "source_sha256": "9fbf8c0518a1cea779587f20ce3b6e61504e12349b2c3141945e229c15b9ee34",
+  "source_bbox": [
+    100,
+    7,
+    1146,
+    1214
+  ],
+  "background_rule": "Exclude neutral pixels where channel range <12 and min RGB >135",
+  "foreground_inclusion_polygons_registered": [],
+  "source_rgb_preserved": true,
+  "mask": "hidden_roots_source_ownership_mask.png",
+  "mask_sha256": "b25653a0b8ca4db8c065bba096ffc14744dc6d346b0d1011d0a1e3129710f4b3"
+}

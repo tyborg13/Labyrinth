@@ -1,0 +1,64 @@
+{
+  "requests": [
+    {
+      "id": "rear_v01",
+      "mode": "built-in image_gen",
+      "reference_roles": [
+        {
+          "path": "source/front_original.png",
+          "role": "character identity, proportions, painting style and palette reference; not an edit target",
+          "sha256": "688b7de29a7c5ba604ba3637169724729063ee3f5b1499a555f06d03ee2bc04a"
+        }
+      ],
+      "output": "source/rear_generated_v01.png",
+      "disposition": "rejected: opaque painted checkerboard and face too visible for rear orientation",
+      "prompt": "Use case: stylized-concept. Asset type: matching rear three-quarter 2D game dragon cutout source, on a genuinely transparent background. Input image 1 role: character identity, proportions, painting style and palette reference, not an edit target. Create the reverse-facing REAR three-quarter view of this exact pale ivory and muted teal air dragon, seen from slightly above with the same 2:1 isometric game camera. Preserve its design: very long serpentine curled body and tail, slender crested narrow dragon head with horns, two broad tall bat-like wings with ivory filigree curls in dark turquoise membranes and ivory bone ribs, small distinct clawed forelimbs and hindlimbs. The dragon in this rear view points away toward upper RIGHT, showing the back of its head/neck, back and rear wing surfaces; keep the entire dragon including tail and both wing tips visible at comparable proportions to the reference. Coherent hover with claws slightly tucked, no ground or shadow. This is the matching unseen side of the same creature, not a redesign. Preserve the sharp worn painterly pixel-readable detail and muted palette. Full-body isolated sprite centered in a square, ample transparent margin, no text, no layout panels, no checkerboard painted into RGB, no extra objects. Do not alter or replace the accepted front art.",
+      "output_sha256": "5250d16b4435e577aadd55c884e46a8844a7a7161ec17d1e5b64c49d1b6a3596"
+    },
+    {
+      "id": "rear_alpha_v02",
+      "mode": "built-in image_gen",
+      "reference_roles": [
+        {
+          "path": "source/rear_generated_v01.png",
+          "role": "edit target",
+          "sha256": "5250d16b4435e577aadd55c884e46a8844a7a7161ec17d1e5b64c49d1b6a3596"
+        }
+      ],
+      "output": "source/rear_alpha_attempt_v02.png",
+      "disposition": "rejected: still RGB with opaque checkerboard; no runtime pixels used",
+      "prompt": "Use case: background-extraction. Input image 1 is the edit target. Remove ALL of the gray checkerboard background, including inside holes between the dragon's wings, limbs and curled tail. Output an RGBA PNG with actual fully transparent alpha outside the dragon. The reference currently contains an opaque checkerboard painted into RGB: do not retain it or invent a new checkerboard. Preserve the complete existing dragon painting exactly, including pale ivory edges and all wing/tail tips. Change only the background to transparency. No shadow, new scenery, text or border.",
+      "output_sha256": "a73238efd4ab1e105ec27a383296b8efdb2826cadb21cfa4ffbff2869f092f51"
+    },
+    {
+      "id": "rear_v03",
+      "mode": "built-in image_gen",
+      "reference_roles": [
+        {
+          "path": "source/front_original.png",
+          "role": "identity and style reference",
+          "sha256": "688b7de29a7c5ba604ba3637169724729063ee3f5b1499a555f06d03ee2bc04a"
+        }
+      ],
+      "output": "source/rear_generated_v03.png",
+      "disposition": "selected for matching reverse silhouette after native-size inspection; actual RGBA. Whole-view registration excludes incidental low-alpha border noise, retains original raw output and alpha. Interior alpha is typically 251–252, not opaque 255.",
+      "prompt": "Create a production rear three-quarter view sprite of the EXACT dragon from image 1 (identity/style reference). Rotate the dragon to face AWAY from the viewer toward the UPPER RIGHT: we see the back of the neck and skull, never an eye or front of its muzzle. The full long serpentine ivory-and-teal body and curled tail, two large ivory-ribbed dark-teal wings and small clawed limbs must remain visible; same slender anatomy, proportions, ragged edges and dark worn painterly pixel-readable style as image 1. Back wing surfaces, back scales and spine face us. Preserve the two-wing silhouette and detailed spiral patterns while depicting the true reverse side. 2:1 isometric game camera, slightly above. Coherent hovering pose. Generate actual transparent-background PNG with an alpha channel. Do NOT draw a checkerboard. If transparency is unsupported, use a completely uniform saturated magenta (#ff00ff) backdrop with no shadow so the lack of alpha is unambiguous. Full dragon contained in square canvas with ample empty margins. No text, frame, panel, ground, extra appendages or objects. The referenced front artwork must not be redrawn or replaced.",
+      "output_sha256": "174649906849cb5f125c596b214b9b8cd6516b75040729b63caca034c49c0d3c"
+    },
+    {
+      "id": "front_hidden_v01",
+      "mode": "built-in image_gen",
+      "reference_roles": [
+        {
+          "path": "source/front_original.png",
+          "role": "edit target and exact character/style reference",
+          "sha256": "688b7de29a7c5ba604ba3637169724729063ee3f5b1499a555f06d03ee2bc04a"
+        }
+      ],
+      "output": "source/front_underbody_generated.png",
+      "disposition": "selected only for small opaque interior scale crops under wing/limb joints; full underbody and RGB checkerboard are not used as visible paint. Explicit crops and coverage in front_hidden/rear_hidden recipes.",
+      "prompt": "Use case: precise-object-edit. Input image 1 role: edit target and exact character/style reference. Create the hidden underbody paint for this exact front three-quarter pale ivory and muted teal serpentine air dragon for an editable 2D cutout. Remove only the two wings so the COMPLETE narrow head and crested neck, shoulder/chest surface, wing attachment sockets, small clawed forelimbs, tucked hindlimbs and curled tail are exposed with natural continuous scales. Preserve the original pose, proportions, projected landmarks and existing worn painterly texture. Do not enlarge the body, change the anatomy or invent armor, clothing, weapons or ornaments. Complete small concealed shoulder and elbow scales so the limbs remain their original width when raised. This underpainting will supply only small occluded patches beneath the original accepted pixels, never replace the original visible artwork. Whole dragon in same framing, fully visible. Actual transparent RGBA PNG with alpha, no checkerboard. If alpha unavailable use solid uniform magenta #ff00ff with no shadow. No text, panels, extra pieces or scenery.",
+      "output_sha256": "91808f14331b760f876f8fc3654a51d456585b3b44a20974d2c94c48ecb5ca24"
+    }
+  ]
+}

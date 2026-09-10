@@ -1,0 +1,94 @@
+{
+  "source": "rear_generated.png",
+  "source_sha256": "38af12761ed098882fef8459131d656cfa821bc5d5a9ceacb92a75814979d718",
+  "source_bbox": [
+    125,
+    27,
+    1141,
+    1228
+  ],
+  "background_rule": "Exclude neutral pixels where channel range <12 and min RGB >135",
+  "foreground_inclusion_polygons_registered": [
+    [
+      [
+        80,
+        25
+      ],
+      [
+        120,
+        13
+      ],
+      [
+        152,
+        25
+      ],
+      [
+        171,
+        42
+      ],
+      [
+        153,
+        73
+      ],
+      [
+        102,
+        79
+      ],
+      [
+        76,
+        49
+      ]
+    ],
+    [
+      [
+        82,
+        76
+      ],
+      [
+        163,
+        77
+      ],
+      [
+        185,
+        150
+      ],
+      [
+        166,
+        209
+      ],
+      [
+        130,
+        214
+      ],
+      [
+        105,
+        203
+      ],
+      [
+        73,
+        166
+      ],
+      [
+        67,
+        114
+      ]
+    ]
+  ],
+  "source_rgb_preserved": true,
+  "mask": "rear_source_ownership_mask.png",
+  "mask_sha256": "419fd3cef31cca852ef1caa7272d9329c8e5115fd18369d11c34ffd3acbc1e9c",
+  "target_size": [
+    255,
+    255
+  ],
+  "uniform_scale": 0.208992506244796,
+  "raster_size_rounding": [
+    212,
+    251
+  ],
+  "offset": [
+    21,
+    2
+  ],
+  "resampler": "nearest; entire creature at once"
+}

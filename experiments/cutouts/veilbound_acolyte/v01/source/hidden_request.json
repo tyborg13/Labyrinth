@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: precise-object-edit. Asset: hidden underpainting only for an editable 2D character rig. Input image 1 is the edit target and exact design/style reference: brown hooded skeletal caster from Escape the Umbra. Produce the same front three-quarter full body view on true transparent background, same character proportions, same sparse pixel-art texture and palette. Remove ONLY both arms and hands and floating orb, and reconstruct the complete uninterrupted brown robe torso and waist previously concealed behind those bent arms. Preserve the hood/head/collar, broad lower robe, gold trim identity, framing and grounded hem. Show the ordinary intact dark brown cloth in the hidden shoulder/armpit areas, not holes or sockets; no visible legs, no shoes, no new accessories. This image is concealed restoration material, not a replacement for the accepted visible art. Match exactly the old paint outline/detail scale. No checkerboard, text, floor or shadows.",
+  "references": [
+    {
+      "path": "front_original.png",
+      "role": "edit target, identity and pixel treatment reference"
+    }
+  ],
+  "output": "hidden_generated.png",
+  "disposition": "Full output rejected as replacement: RGB checkerboard and retained sleeves. Only central uninterrupted interior brown cloth is eligible for concealed torso and sleeve-cap crops; background and new silhouette supply no rig pixels."
+}

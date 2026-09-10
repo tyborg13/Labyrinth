@@ -1,0 +1,71 @@
+{
+  "tool": "built-in imagegen",
+  "requests": [
+    {
+      "id": "rear",
+      "prompt": "Use case: stylized-concept. Asset type: matching rear-view game enemy cutout source, transparent RGBA. Image 1 is the accepted front-view reference of Vyraketh, the Cinder Crown; preserve that exact creature identity, painterly sharp pixel-readable texture, black charcoal volcanic scales with orange-red magma seams, narrow horn-crowned elongated dragon head, long serpentine neck, two great ragged bat wings with burning orange membranes, four clawed legs and long curled thorny tail. Create only the matching REAR THREE-QUARTER VIEW, facing away toward the upper left on a 2:1 isometric dungeon board. Camera looks down modestly; show its back, back of head, dorsal neck spines and rear wing surfaces. Keep both wings raised in the same crouched stance, matching proportions and scale density; long tail curves toward foreground. Keep the whole dragon visible with generous transparent padding, no environment, ground, shadow, floor, labels, grid, glow cloud, or checkerboard. This is a coherent single creature source for subsequent manual segmentation, not an atlas. Do not redesign, simplify, cartoonify, equip weapons, add limbs or alter the accepted front image. Truly transparent background.",
+      "reference_roles": {
+        "assets/art/enemies/vyraketh.png": "accepted identity reference"
+      },
+      "output": "source/rear_generated.png",
+      "disposition": "rejected: head looks back toward viewer"
+    },
+    {
+      "id": "front_hidden",
+      "prompt": "Use case: precise-object-edit. Asset type: concealed anatomy underpainting for the referenced dragon sprite. Image 1 is the EDIT TARGET and immutable design/style reference of Vyraketh. Keep its same pose, proportions, camera, charcoal molten scale texture and placement on a transparent canvas. Remove ONLY both wings and the two foreground forelegs/claws and curled foreground tail so the body surfaces underneath can be painted. Preserve and complete the continuous broad chest/ribcage/shoulders and hindquarters with rounded shoulder sockets; retain the horned long neck and head. Paint genuinely missing charcoal-red scaled underbody where removed parts obscured it. Do not add scars, armor, limbs, glow effects, labels or background. Same crouched three-quarter front dragon; do not redraw into a different character. This will supply only tiny hidden patches beneath the original untouched front parts, not replacement front artwork. Actual transparent RGBA background, no checkerboard, floor, shadow or environment.",
+      "reference_roles": {
+        "assets/art/enemies/vyraketh.png": "edit target and identity reference"
+      },
+      "disposition": "rejected painted checkerboard; superseded by alpha correction",
+      "output": "source/front_hidden_generated.png"
+    },
+    {
+      "id": "front_hidden_alpha",
+      "prompt": "Use case: background-extraction. Image 1 is the edit target. Remove only the gray checkerboard backdrop; preserve the dragon underpainting pixels, composition, silhouette and color exactly. Return genuinely transparent RGBA with alpha=0 outside the dragon. No painted checkerboard, no replacement background, no redesign, no cropping, no shadow. This is a concealed body source for an existing game sprite.",
+      "reference_roles": {
+        "source/front_hidden_generated.png": "edit target"
+      },
+      "output": "source/front_hidden_alpha.png",
+      "disposition": "selected: RGBA concealed body patch source; generated shape shifted so register only individual concealed crops"
+    },
+    {
+      "id": "rear_turn",
+      "prompt": "Use case: precise-object-edit. Image 1 is the EDIT TARGET, generated rear three-quarter view of Vyraketh. Correct ONLY the head/neck orientation: the dragon must face AWAY toward the upper-left corner of this image, aligned with the 2:1 isometric floor direction. Show the back of its narrow horn-crowned head, ears/horns and long spined neck; the muzzle extends away to upper-left, not turned over its shoulder toward the viewer or down-right. Preserve the wing shapes, crouched four-legged body, tail curve, exact volcanic charcoal/orange painterly texture and framing. Keep full body on truly transparent RGBA, no checkerboard or background. Image 2 is supporting identity reference for the accepted front view, do not reproduce that front viewpoint.",
+      "reference_roles": {
+        "source/rear_generated.png": "edit target",
+        "assets/art/enemies/vyraketh.png": "identity reference"
+      },
+      "output": "source/rear_turn_rejected.png",
+      "disposition": "rejected: head still looks back and painted checkerboard"
+    },
+    {
+      "id": "rear_selected",
+      "prompt": "Create a matching REAR VIEW sprite of this exact molten dragon, Vyraketh, on a truly transparent RGBA canvas. Image 1 is an identity/style reference ONLY. Camera is above and behind the dragon's RIGHT shoulder as it faces diagonally AWAY AND LEFT, as on a 2:1 isometric floor. The long dragon muzzle visibly projects to UPPER LEFT of the neck; pointed horns sweep BACK toward the RIGHT, never forward. Its nose must be LEFT of its head, never right of its head. It is NOT looking back over its shoulder. Show dorsal neck, spinal ridge, back surfaces of the two large ragged raised bat wings, four crouched clawed limbs and the same curled long thorny tail across the bottom foreground. Rear view shows the broad charcoal-scaled back, not orange chest plates. Retain reference creature proportions, painterly pixel-readable sharp black volcanic scales and molten orange seams, orange-red wing membranes, long narrow crowned head and serpentine neck. Full body composition with margins. No backdrop, checkerboard, floor, shadows, border, text, watermark or extra creature.",
+      "reference_roles": {
+        "assets/art/enemies/vyraketh.png": "identity/style reference"
+      },
+      "output": "source/rear_selected.png",
+      "disposition": "selected: rear torso and muzzle toward upper-left"
+    },
+    {
+      "id": "maw_interior",
+      "prompt": "Use case: stylized-concept. Asset type: missing open-maw interior paint for the referenced volcanic dragon's skeletal cutout. Image 1 is Vyraketh's accepted front sprite, an immutable identity and scale-texture reference. Draw a close view of ONLY this same narrow horn-crowned dragon head in the SAME downward-left front three-quarter orientation, with the lower jaw opened modestly for a bite. Show the previously hidden dark burnt-red inner mouth, small ember glow at the back of the throat, tiny uneven teeth and a continuous dark scaled lower jaw. Preserve long narrow angular muzzle, charcoal scales and sharp painterly pixel-readable red-orange fissures; do not change into a broad dinosaur or humanoid head. Whole head on a genuinely transparent RGBA canvas with generous margin. No checkerboard, backdrop, floor, shadow, labels or extra heads. Only a small concealed inner-mouth patch will be used under the original front head and jaw.",
+      "reference_roles": {
+        "assets/art/enemies/vyraketh.png": "immutable identity reference"
+      },
+      "output": "source/maw_interior_generated.png",
+      "disposition": "selected; tiny inner-mouth crop concealed under original jaw/head, no replacement front art"
+    }
+  ],
+  "sha256": {
+    "front_hidden_alpha.png": "42799d7dc4154cd3e9793a158cb2f01d2329c1852bfe76aa1b850278f4bf7a1d",
+    "front_hidden_generated.png": "bf39c38f9634cbb7435ffb80992382cf86139ae280dff8c6ed912343e3a83caa",
+    "front_original.png": "70b841c5e3bf28ab4c0f5490b966ae76a21a92c240c0191255eeb34465d9f574",
+    "front_registered.png": "70b841c5e3bf28ab4c0f5490b966ae76a21a92c240c0191255eeb34465d9f574",
+    "maw_interior_generated.png": "18877b3b10ddfd2ebdda1daefc5e676c6bb851264a52ad241f5e626b58b2fe41",
+    "rear_generated.png": "ebad64b388e0312128d2648d28e771cb42ea3e0268d3561aefa6822e2110b231",
+    "rear_registered.png": "9ad6db38bef5d6d2346864a24b1f216df54b6a709171f171da09556278360cfe",
+    "rear_selected.png": "2cb674efb12cf8cd9260278a3b8ce34982c168806928667c9e5b4500767d1733",
+    "rear_turn_rejected.png": "e6045f49b2fe57b79c95c9cd723376b76a5947b5e1486cb3cf085d541802a2be"
+  }
+}

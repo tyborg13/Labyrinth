@@ -1,0 +1,59 @@
+{
+  "front": {
+    "source": "front_original.png",
+    "operation": "unchanged copy",
+    "canvas": [
+      255,
+      255
+    ],
+    "bounds": [
+      59,
+      17,
+      203,
+      227
+    ]
+  },
+  "rear": {
+    "source": "rear_generated.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "uniform_resample_size": [
+      251,
+      251
+    ],
+    "filter": "nearest",
+    "canvas": [
+      255,
+      255
+    ],
+    "offset": [
+      5,
+      0
+    ],
+    "bounds": [
+      66,
+      17,
+      197,
+      228
+    ],
+    "ownership": "rear_background_ownership.json",
+    "discarded_owner": "background",
+    "rgb_repainted": false,
+    "foreground_pixels": 12721,
+    "selector": "neutral connected components with grey seed; explicit saved pixel overrides authoritative"
+  },
+  "projection": "2:1 isometric; front aperture points down-left, rear turns up-right; reflected views provided by renderer",
+  "anchors": {
+    "hover": [
+      127,
+      227
+    ],
+    "core": [
+      127,
+      124
+    ]
+  },
+  "hidden_material": "No new hidden core paint required: outer arc meshes blend to rigid core at each segmented root; all requested motion uses continuous paint."
+}

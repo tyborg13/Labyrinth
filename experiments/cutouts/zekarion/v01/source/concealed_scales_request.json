@@ -1,0 +1,12 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: stylized-concept. Input image 1 is STYLE/MATERIAL reference only. Make one simple full-frame continuous patch of the dragon's dark navy blue overlapping scales, like the dark interior/proximal forelimb near its shoulder. Painterly pixel-readable scale plates with restrained muted blue edges, deep indigo shadows, very sparse thin dim gold lightning cracks; match reference scale material. This is concealed animation joint paint to crop small interior fragments from, no anatomy layout, no holes, no sockets or rims, no labels. Fill the ENTIRE square image with this continuous scaled skin material. No background, transparency, checkerboard, border, round ball, separate parts or wide bright highlights. Only the surface texture, intended to be minified and registered into tiny shoulder/neck/knee overlap caps behind the unchanged visible source paint.",
+  "references": [
+    {
+      "path": "front_original.png",
+      "role": "material/style reference only"
+    }
+  ],
+  "output": "concealed_scales_generated.png",
+  "disposition": "selected for small explicitly masked internal joint caps only; no visible source paint replaced"
+}

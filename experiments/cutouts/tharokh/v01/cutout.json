@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "character_id": "tharokh",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 2.4,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 1.12,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "claw": {
+      "frames": 40,
+      "duration": 1.05,
+      "loop": false
+    },
+    "brace": {
+      "frames": 32,
+      "duration": 0.8,
+      "loop": false
+    },
+    "faultline": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "wing_near",
+    "wing_far",
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far"
+  ],
+  "contact_feet": [
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far"
+  ],
+  "sources": [
+    "author.py",
+    "layouts/front.json",
+    "layouts/rear.json",
+    "promote.py",
+    "recipes/front_hidden_coverage.json",
+    "recipes/front_owners_at_shared_scale.png",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/ownership_audit.json",
+    "recipes/rear_hidden_coverage.json",
+    "recipes/rear_owners_at_shared_scale.png",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_reference.png",
+    "source/front_registered.png",
+    "source/front_underbody_generated.png",
+    "source/front_underbody_registered.png",
+    "source/generation_requests.json",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_reference.png",
+    "source/rear_registered.png",
+    "source/rear_underbody_generated.png",
+    "source/rear_underbody_registered.png",
+    "source/source_sha256.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "built from preserved front and generated matching rear",
+    "front_sha256": "be22b565551314d9d80fd46358801c735b35f16d7af0b1196b8a03f9c4a1a26e"
+  }
+}

@@ -1,0 +1,442 @@
+{
+  "front": {
+    "spine_undercloth": {
+      "polygon": [
+        [
+          145,
+          106
+        ],
+        [
+          158,
+          106
+        ],
+        [
+          159,
+          130
+        ],
+        [
+          145,
+          130
+        ]
+      ],
+      "source_landmarks": [
+        [
+          153,
+          110
+        ],
+        [
+          153,
+          127
+        ],
+        [
+          148,
+          115
+        ]
+      ],
+      "target_landmarks": [
+        [
+          146,
+          110
+        ],
+        [
+          146,
+          131
+        ],
+        [
+          141,
+          115
+        ]
+      ],
+      "offset": [
+        138,
+        115
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "pelvis_undercloth": {
+      "polygon": [
+        [
+          134,
+          119
+        ],
+        [
+          171,
+          119
+        ],
+        [
+          159,
+          146
+        ],
+        [
+          147,
+          146
+        ],
+        [
+          137,
+          134
+        ]
+      ],
+      "source_landmarks": [
+        [
+          137,
+          131
+        ],
+        [
+          165,
+          136
+        ],
+        [
+          153,
+          122
+        ]
+      ],
+      "target_landmarks": [
+        [
+          130,
+          131
+        ],
+        [
+          163,
+          137
+        ],
+        [
+          145,
+          122
+        ]
+      ],
+      "offset": [
+        127,
+        114
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "thigh_fill_r": {
+      "polygon": [
+        [
+          133,
+          130
+        ],
+        [
+          142,
+          136
+        ],
+        [
+          114,
+          160
+        ],
+        [
+          103,
+          157
+        ]
+      ],
+      "source_landmarks": [
+        [
+          137,
+          135
+        ],
+        [
+          109,
+          156
+        ],
+        [
+          135,
+          143
+        ]
+      ],
+      "target_landmarks": [
+        [
+          130,
+          131
+        ],
+        [
+          103,
+          152
+        ],
+        [
+          128,
+          139
+        ]
+      ],
+      "offset": [
+        114,
+        126
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "thigh_fill_l": {
+      "polygon": [
+        [
+          164,
+          133
+        ],
+        [
+          173,
+          135
+        ],
+        [
+          173,
+          171
+        ],
+        [
+          161,
+          170
+        ]
+      ],
+      "source_landmarks": [
+        [
+          168,
+          138
+        ],
+        [
+          166,
+          169
+        ],
+        [
+          173,
+          139
+        ]
+      ],
+      "target_landmarks": [
+        [
+          163,
+          137
+        ],
+        [
+          163,
+          169
+        ],
+        [
+          168,
+          138
+        ]
+      ],
+      "offset": [
+        157,
+        130
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    }
+  },
+  "rear": {
+    "spine_undercloth": {
+      "polygon": [
+        [
+          111,
+          126
+        ],
+        [
+          124,
+          126
+        ],
+        [
+          127,
+          145
+        ],
+        [
+          111,
+          145
+        ]
+      ],
+      "source_landmarks": [
+        [
+          118,
+          128
+        ],
+        [
+          118,
+          141
+        ],
+        [
+          113,
+          132
+        ]
+      ],
+      "target_landmarks": [
+        [
+          115,
+          119
+        ],
+        [
+          119,
+          135
+        ],
+        [
+          111,
+          125
+        ]
+      ],
+      "offset": [
+        108,
+        122
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "pelvis_undercloth": {
+      "polygon": [
+        [
+          96,
+          120
+        ],
+        [
+          140,
+          120
+        ],
+        [
+          138,
+          149
+        ],
+        [
+          129,
+          152
+        ],
+        [
+          107,
+          150
+        ],
+        [
+          98,
+          138
+        ]
+      ],
+      "source_landmarks": [
+        [
+          107,
+          146
+        ],
+        [
+          134,
+          144
+        ],
+        [
+          118,
+          130
+        ]
+      ],
+      "target_landmarks": [
+        [
+          101,
+          151
+        ],
+        [
+          135,
+          142
+        ],
+        [
+          117,
+          130
+        ]
+      ],
+      "offset": [
+        89,
+        122
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "thigh_fill_l": {
+      "polygon": [
+        [
+          102,
+          142
+        ],
+        [
+          111,
+          142
+        ],
+        [
+          114,
+          160
+        ],
+        [
+          105,
+          160
+        ]
+      ],
+      "source_landmarks": [
+        [
+          106,
+          146
+        ],
+        [
+          109,
+          157
+        ],
+        [
+          111,
+          146
+        ]
+      ],
+      "target_landmarks": [
+        [
+          101,
+          153
+        ],
+        [
+          96,
+          166
+        ],
+        [
+          106,
+          153
+        ]
+      ],
+      "offset": [
+        94,
+        142
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    },
+    "thigh_fill_r": {
+      "polygon": [
+        [
+          129,
+          141
+        ],
+        [
+          140,
+          142
+        ],
+        [
+          143,
+          160
+        ],
+        [
+          132,
+          162
+        ]
+      ],
+      "source_landmarks": [
+        [
+          134,
+          146
+        ],
+        [
+          137,
+          157
+        ],
+        [
+          139,
+          146
+        ]
+      ],
+      "target_landmarks": [
+        [
+          135,
+          142
+        ],
+        [
+          145,
+          150
+        ],
+        [
+          139,
+          139
+        ]
+      ],
+      "offset": [
+        126,
+        135
+      ],
+      "selection": "Generated pixels masked by original cloth alpha >=250; front baseline alpha=255, rear alpha>=250"
+    }
+  }
+}

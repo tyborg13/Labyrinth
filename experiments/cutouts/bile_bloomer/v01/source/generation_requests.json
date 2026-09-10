@@ -1,0 +1,15 @@
+{
+  "rear": {
+    "tool": "image_gen.imagegen",
+    "prompt": "Use case: identity-preserve\nAsset type: rear-view game enemy cutout source paint\nPrimary request: Draw the matching rear three-quarter view of this exact Shale Bloomer creature, turned away from the camera, for a 2:1 isometric board. The reference is the accepted FRONT identity and style; it will remain unchanged. Show the back of the same rooted mineral/fungal trunk, full crown, root feet and branching curled tendrils. The crown opens upward and slightly away so only a narrow hint of its orange amber core is visible behind the rear petals. Keep the silhouette proportions, anatomy, pale brown shale plates, dark porous trunk, amber crystal growths and painterly pixel-readable sharp detail. No face, no humanoid limbs, no weapon.\nComposition: one full creature centered, same relative height/width and grounded root spread as reference, all tips inside canvas, transparent background with real alpha, no floor or shadow. Same camera elevation looking down and same top-left lighting. No labels, no border, no checkerboard paint.\nConstraints: This is the unseen rear of the supplied design, not a restyle. Retain earth/mineral identity. No green poison, liquid bile, slime, neon glow or new adornments.",
+    "references": [
+      {
+        "path": "assets/art/enemies/bile_bloomer.png",
+        "role": "accepted front identity and style; unchanged"
+      }
+    ],
+    "output": "source/rear_generated.png",
+    "disposition": "Selected rear creature paint after explicit background ownership; original RGB retained untouched, neutral backdrop excluded with an auditable mask; matching native scale inspected",
+    "sha256": "38af12761ed098882fef8459131d656cfa821bc5d5a9ceacb92a75814979d718"
+  }
+}

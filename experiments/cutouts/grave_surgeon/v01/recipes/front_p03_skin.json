@@ -1,0 +1,167 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front_p03.json",
+  "output_layout": "layouts/front_p03_skinned.json",
+  "fields": [
+    {
+      "name": "front_leg_r",
+      "parts": [
+        "leg_r",
+        "thigh_fill_r"
+      ],
+      "bones": [
+        "thigh_r",
+        "shin_r",
+        "foot_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            135,
+            171
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            133,
+            190
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "front_leg_l",
+      "parts": [
+        "leg_l",
+        "thigh_fill_l"
+      ],
+      "bones": [
+        "thigh_l",
+        "shin_l",
+        "foot_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            191,
+            178
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            198,
+            197
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 10
+        }
+      ]
+    },
+    {
+      "name": "front_sleeve_saw",
+      "parts": [
+        "sleeve_saw",
+        "sleeve_cap_saw"
+      ],
+      "bones": [
+        "upper_saw",
+        "fore_saw",
+        "wrist_saw"
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            111
+          ],
+          "axis": [
+            -14,
+            25
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            123,
+            125
+          ],
+          "axis": [
+            -14,
+            25
+          ],
+          "width": 6
+        }
+      ]
+    },
+    {
+      "name": "front_sleeve_vial",
+      "parts": [
+        "sleeve_vial",
+        "sleeve_cap_vial"
+      ],
+      "bones": [
+        "upper_vial",
+        "fore_vial",
+        "wrist_vial"
+      ],
+      "grid": [
+        1,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            201,
+            108
+          ],
+          "axis": [
+            22,
+            34
+          ],
+          "width": 10
+        },
+        {
+          "center": [
+            209,
+            122
+          ],
+          "axis": [
+            22,
+            34
+          ],
+          "width": 6
+        }
+      ]
+    }
+  ]
+}

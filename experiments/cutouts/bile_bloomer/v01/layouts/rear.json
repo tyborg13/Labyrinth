@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "facing": "rear",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        128,
+        211
+      ]
+    }
+  },
+  "parts": [],
+  "joint_meshes": []
+}

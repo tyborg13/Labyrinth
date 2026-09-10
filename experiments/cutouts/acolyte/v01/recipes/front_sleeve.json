@@ -1,0 +1,34 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_sleeved.json",
+  "fields": [
+    {
+      "name": "front_cast_sleeve",
+      "parts": [
+        "cast_sleeve"
+      ],
+      "bones": [
+        "torso",
+        "cast_hand"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            98,
+            110
+          ],
+          "axis": [
+            -1,
+            0
+          ],
+          "width": 18
+        }
+      ]
+    }
+  ]
+}

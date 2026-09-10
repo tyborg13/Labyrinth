@@ -1,0 +1,203 @@
+{
+  "schema_version": 1,
+  "character_id": "zekarion",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.96,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "claw": {
+      "frames": 32,
+      "duration": 0.9,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.315,
+          0.3
+        ],
+        [
+          0.378,
+          0.42
+        ],
+        [
+          0.42,
+          0.55
+        ],
+        [
+          0.594,
+          0.68
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "breath": {
+      "frames": 32,
+      "duration": 1.3,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.08666666666666667,
+          0.3
+        ],
+        [
+          0.11333333333333333,
+          0.42
+        ],
+        [
+          0.13333333333333333,
+          0.55
+        ],
+        [
+          0.26666666666666666,
+          0.68
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "charge": {
+      "frames": 32,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.28500000000000003,
+          0.3
+        ],
+        [
+          0.342,
+          0.42
+        ],
+        [
+          0.38,
+          0.55
+        ],
+        [
+          0.5660000000000001,
+          0.68
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "call": {
+      "frames": 32,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.375,
+          0.3
+        ],
+        [
+          0.45,
+          0.42
+        ],
+        [
+          0.5,
+          0.55
+        ],
+        [
+          0.65,
+          0.68
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "jaw",
+    "claw_far",
+    "claw_near",
+    "foot_far",
+    "foot_near"
+  ],
+  "contact_feet": [
+    "claw_far",
+    "claw_near",
+    "foot_far",
+    "foot_near"
+  ],
+  "sources": [
+    "source/concealed_scales_generated.png",
+    "source/concealed_scales_request.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_underbody_rejected.png",
+    "source/front_underbody_request.json",
+    "source/rear_alpha_generated.png",
+    "source/rear_alpha_request.json",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_request.json",
+    "recipes/build_case.py",
+    "recipes/front_concealed_caps.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/promote_runtime.py",
+    "recipes/rear_concealed_caps.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "layouts/front.json",
+    "layouts/rear.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "registered original front plus generated matching rear; explicit semantic parts and concealed caps"
+  }
+}

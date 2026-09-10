@@ -18,7 +18,7 @@ static func run(expect: Callable) -> void:
 	_test_compass_family_tints_preserve_shape_cues(expect)
 	_test_compass_emblems_are_contained_and_nondirectional(expect)
 	_test_compasses_persist_and_refresh_during_enemy_animation(expect)
-	_test_movement_and_follow_up_keep_the_idle_sprite_source(expect)
+	_test_movement_and_follow_up_keep_the_registered_source(expect)
 	_test_grave_surgeon_footing_is_centered(expect)
 	_test_compass_has_no_inline_number(expect)
 
@@ -281,7 +281,7 @@ static func _test_compasses_persist_and_refresh_during_enemy_animation(expect: C
 	scene.free()
 
 
-static func _test_movement_and_follow_up_keep_the_idle_sprite_source(expect: Callable) -> void:
+static func _test_movement_and_follow_up_keep_the_registered_source(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1920.0, 1080.0)
 	board.combat_state = {"grid": _grid(11, 9)}
@@ -296,18 +296,18 @@ static func _test_movement_and_follow_up_keep_the_idle_sprite_source(expect: Cal
 		"pos": Vector2i(7, 6), "hp": 24, "max_hp": 24,
 	}
 	board.set("_idle_elapsed", 0.0)
-	var boss_idle_frames: Array = board.call("_unit_idle_frames", boss) as Array
-	expect.call(not boss_idle_frames.is_empty(), "Zekarion should expose its authored idle frames for action continuity")
-	if not boss_idle_frames.is_empty():
-		board.presentation = {"unit_world_positions": {"enemy_91": Vector2(720.0, 420.0)}}
-		var moving_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
-		board.presentation = {}
-		var landed_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
-		board.presentation = {"effect": {"kind": "ranged"}, "focus_actor_keys": ["enemy_91"]}
-		var follow_up_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
-		expect.call(moving_texture == boss_idle_frames[0], "The final boss movement frame should use the authored idle sheet rather than the separately framed static texture")
-		expect.call(landed_texture == moving_texture, "The first landed frame should retain the exact same grounded sprite source as the final movement frame")
-		expect.call(follow_up_texture == landed_texture, "Zekarion's post-move action should keep the landed sprite source instead of snapping to static art")
+	# Detached layout inspection uses the registered rest silhouette; the live
+	# texture continuity contract is exercised by the Zekarion cutout suite.
+	expect.call((board.call("_unit_idle_frames", boss) as Array).is_empty(), "Zekarion must not load its retired sprite sheet")
+	board.presentation = {"unit_world_positions": {"enemy_91": Vector2(720.0, 420.0)}}
+	var moving_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
+	board.presentation = {}
+	var landed_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
+	board.presentation = {"effect": {"kind": "ranged"}, "focus_actor_keys": ["enemy_91"]}
+	var follow_up_texture: Texture2D = board.call("_texture_for_unit", boss) as Texture2D
+	expect.call(moving_texture != null and moving_texture.get_size() == Vector2(255,255), "Detached boss layout uses its registered logical source")
+	expect.call(landed_texture == moving_texture, "The first landed frame retains the same source")
+	expect.call(follow_up_texture == landed_texture, "Zekarion's post-move action retains its registered source")
 	board.presentation = {"unit_world_positions": {"player": Vector2(940.0, 650.0)}}
 	var player_moving_texture: Texture2D = board.call("_texture_for_unit", player) as Texture2D
 	board.presentation = {"effect": {"kind": "block"}, "focus_actor_keys": ["player"]}

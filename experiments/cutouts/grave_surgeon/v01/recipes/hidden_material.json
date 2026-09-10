@@ -1,0 +1,436 @@
+[
+  {
+    "part": "hip_fill",
+    "source": "source/front_underbody_alpha.png",
+    "source_crop": [
+      682,
+      610,
+      816,
+      711
+    ],
+    "target_polygon": [
+      [
+        142,
+        121
+      ],
+      [
+        177,
+        121
+      ],
+      [
+        186,
+        142
+      ],
+      [
+        176,
+        153
+      ],
+      [
+        156,
+        153
+      ],
+      [
+        135,
+        143
+      ]
+    ],
+    "target_bbox": [
+      135,
+      121,
+      187,
+      154
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 1357,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "thigh_fill_r",
+    "source": "source/front_underbody_alpha.png",
+    "source_crop": [
+      607,
+      735,
+      673,
+      816
+    ],
+    "target_polygon": [
+      [
+        137,
+        137
+      ],
+      [
+        157,
+        142
+      ],
+      [
+        148,
+        166
+      ],
+      [
+        141,
+        185
+      ],
+      [
+        126,
+        183
+      ],
+      [
+        128,
+        161
+      ]
+    ],
+    "target_bbox": [
+      126,
+      137,
+      158,
+      185
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 911,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "thigh_fill_l",
+    "source": "source/front_underbody_alpha.png",
+    "source_crop": [
+      824,
+      736,
+      885,
+      820
+    ],
+    "target_polygon": [
+      [
+        171,
+        138
+      ],
+      [
+        187,
+        140
+      ],
+      [
+        197,
+        166
+      ],
+      [
+        201,
+        188
+      ],
+      [
+        185,
+        192
+      ],
+      [
+        177,
+        166
+      ]
+    ],
+    "target_bbox": [
+      171,
+      138,
+      201,
+      191
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 923,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "sleeve_cap_saw",
+    "source": "source/front_underbody_alpha.png",
+    "source_crop": [
+      613,
+      438,
+      651,
+      485
+    ],
+    "target_polygon": [
+      [
+        132,
+        93
+      ],
+      [
+        143,
+        97
+      ],
+      [
+        142,
+        104
+      ],
+      [
+        137,
+        111
+      ],
+      [
+        128,
+        105
+      ]
+    ],
+    "target_bbox": [
+      128,
+      93,
+      144,
+      111
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 172,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "sleeve_cap_vial",
+    "source": "source/front_underbody_alpha.png",
+    "source_crop": [
+      850,
+      393,
+      905,
+      451
+    ],
+    "target_polygon": [
+      [
+        178,
+        77
+      ],
+      [
+        191,
+        81
+      ],
+      [
+        198,
+        91
+      ],
+      [
+        191,
+        101
+      ],
+      [
+        180,
+        91
+      ]
+    ],
+    "target_bbox": [
+      178,
+      77,
+      199,
+      99
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 270,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "hip_fill",
+    "source": "source/rear_underbody_v3_generated.png",
+    "source_crop": [
+      564,
+      581,
+      695,
+      694
+    ],
+    "target_polygon": [
+      [
+        143,
+        109
+      ],
+      [
+        179,
+        108
+      ],
+      [
+        186,
+        133
+      ],
+      [
+        173,
+        145
+      ],
+      [
+        154,
+        143
+      ],
+      [
+        137,
+        132
+      ]
+    ],
+    "target_bbox": [
+      138,
+      108,
+      187,
+      146
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 1434,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "thigh_fill_r",
+    "source": "source/rear_underbody_v3_generated.png",
+    "source_crop": [
+      711,
+      759,
+      759,
+      816
+    ],
+    "target_polygon": [
+      [
+        171,
+        128
+      ],
+      [
+        187,
+        129
+      ],
+      [
+        197,
+        157
+      ],
+      [
+        202,
+        189
+      ],
+      [
+        185,
+        193
+      ],
+      [
+        179,
+        161
+      ]
+    ],
+    "target_bbox": [
+      171,
+      128,
+      201,
+      193
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 1106,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "thigh_fill_l",
+    "source": "source/rear_underbody_v3_generated.png",
+    "source_crop": [
+      545,
+      724,
+      590,
+      777
+    ],
+    "target_polygon": [
+      [
+        142,
+        123
+      ],
+      [
+        158,
+        128
+      ],
+      [
+        150,
+        149
+      ],
+      [
+        143,
+        174
+      ],
+      [
+        127,
+        174
+      ],
+      [
+        131,
+        148
+      ]
+    ],
+    "target_bbox": [
+      129,
+      123,
+      159,
+      175
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 852,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "sleeve_cap_saw",
+    "source": "source/rear_underbody_v3_generated.png",
+    "source_crop": [
+      691,
+      390,
+      736,
+      441
+    ],
+    "target_polygon": [
+      [
+        177,
+        86
+      ],
+      [
+        190,
+        88
+      ],
+      [
+        198,
+        98
+      ],
+      [
+        194,
+        108
+      ],
+      [
+        181,
+        101
+      ]
+    ],
+    "target_bbox": [
+      177,
+      86,
+      196,
+      109
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 275,
+    "checkerboard_pixels": 0
+  },
+  {
+    "part": "sleeve_cap_vial",
+    "source": "source/rear_underbody_v3_generated.png",
+    "source_crop": [
+      474,
+      410,
+      518,
+      451
+    ],
+    "target_polygon": [
+      [
+        130,
+        76
+      ],
+      [
+        141,
+        81
+      ],
+      [
+        144,
+        88
+      ],
+      [
+        133,
+        96
+      ],
+      [
+        125,
+        88
+      ]
+    ],
+    "target_bbox": [
+      125,
+      78,
+      145,
+      95
+    ],
+    "registration": "Explicit local width/length fit of generated interior cloth; front clipped under alpha-255 paint, rear under eroded alpha-at-least-245 interior at rest.",
+    "selected_pixels": 181,
+    "checkerboard_pixels": 0
+  }
+]

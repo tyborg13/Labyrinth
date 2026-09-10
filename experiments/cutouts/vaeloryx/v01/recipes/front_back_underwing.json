@@ -1,0 +1,22 @@
+{
+  "source": "source/front_underbody_generated.png",
+  "crop": [
+    716,
+    581,
+    908,
+    701
+  ],
+  "uniform_scale": 0.16666666666666666,
+  "target_size": [
+    32,
+    20
+  ],
+  "offset": [
+    160,
+    120
+  ],
+  "alpha": "ellipse intersect accepted front alpha==255",
+  "bone": "body",
+  "z_index": -1,
+  "reason": "Complete the concealed back below the diagonal near-wing rib, exposed during the outward wing stroke. Fully behind accepted opaque front pixels at rest."
+}

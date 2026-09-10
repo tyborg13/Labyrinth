@@ -1,0 +1,57 @@
+{
+  "source": "source/hidden_calyx_generated.png",
+  "source_sha256": "e05a3677496257768ed6b8fc69f40bf00f21c83ebc593fb0b6d88d0f3a41d22b",
+  "uniform_scale": 0.15,
+  "offset": [
+    34,
+    -2
+  ],
+  "source_landmarks": {
+    "core": [
+      600,
+      245
+    ],
+    "collar": [
+      600,
+      380
+    ]
+  },
+  "ownership_polygon": [
+    [
+      103,
+      25
+    ],
+    [
+      142,
+      25
+    ],
+    [
+      153,
+      42
+    ],
+    [
+      142,
+      67
+    ],
+    [
+      132,
+      79
+    ],
+    [
+      114,
+      78
+    ],
+    [
+      102,
+      48
+    ]
+  ],
+  "additional_mask": "Only pixels behind alpha>=250 accepted source paint; visible only during opened attack, original paint above this fill",
+  "result_bbox": [
+    102,
+    25,
+    154,
+    80
+  ],
+  "resampler": "nearest"
+}

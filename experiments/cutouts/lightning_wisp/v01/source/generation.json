@@ -1,0 +1,31 @@
+{
+  "tool": "built-in image_gen",
+  "requests": [
+    {
+      "prompt_file": "rear_prompt.txt",
+      "reference_roles": [
+        {
+          "path": "front_original.png",
+          "role": "accepted character identity and palette reference",
+          "sha256": "e26325e1bead4db65eed3593f4eeb4bf82fe1487d7f9b5450dcc0a11e1f672c4"
+        }
+      ],
+      "output": "rear_generated.png",
+      "sha256": "4f3036bb2ee8b5f817b770c6b5ade9a26be458ba9ddda181217b227a734af9a2",
+      "disposition": "selected rear character paint; painted backdrop assigned to excluded background owner"
+    },
+    {
+      "prompt": "Use case: background-extraction. Edit target: the provided rear Lightning Wisp sprite. Remove the painted grey and white checkerboard completely, including gaps inside the lightning, and return actual transparent alpha RGBA pixels. Preserve the character itself exactly, its silhouette, all dark core paint, gold lightning and purple filaments. This is a background repair only. No checkerboard drawn into RGB, no white background, no black background, no shadow or glow rectangle. Keep a single full rear character.",
+      "reference_roles": [
+        {
+          "path": "rear_generated.png",
+          "role": "edit target",
+          "sha256": "4f3036bb2ee8b5f817b770c6b5ade9a26be458ba9ddda181217b227a734af9a2"
+        }
+      ],
+      "output": "rear_alpha_attempt.png",
+      "sha256": "ae5712a9ec3895d663ca0c9dd8836de2b6bfacbd7d35c2caa4bc0ef42f8f0ac2",
+      "disposition": "rejected: still RGB checkerboard and smoother paint; no runtime pixels selected"
+    }
+  ]
+}

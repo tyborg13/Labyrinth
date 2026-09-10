@@ -1,0 +1,83 @@
+{
+  "tool": "built-in image_gen",
+  "reference_roles": {
+    "front_original.png": "accepted front identity/style reference; sole edit target for hidden material"
+  },
+  "requests": [
+    {
+      "prompt": "rear_prompt.txt",
+      "output": "rear_rejected_frontlike.png",
+      "disposition": "rejected: chest/toes read as mirrored front; no runtime pixels",
+      "reference_roles": {
+        "front_original.png": "identity/style reference; new rear view"
+      }
+    },
+    {
+      "prompt": "rear_v2_prompt.txt",
+      "output": "rear_generated.png",
+      "disposition": "selected: true back of skull, spine and heel view; requires native registration/rig inspection",
+      "reference_roles": {
+        "front_original.png": "identity/style reference; new rear view"
+      }
+    },
+    {
+      "prompt": "hidden_prompt.txt",
+      "output": "hidden_generated.png",
+      "disposition": "selected concealed material source only; do not use as front visible repaint",
+      "reference_roles": {
+        "front_original.png": "edit target; remove cloth and spear to reveal concealed anatomy"
+      }
+    },
+    {
+      "prompt": "rear_hidden_prompt.txt",
+      "output": "rear_hidden_rejected_checker.png",
+      "disposition": "rejected RGB painted checkerboard; no selected pixels",
+      "reference_roles": {
+        "rear_generated.png": "edit target; reveal concealed rear pelvis"
+      }
+    },
+    {
+      "prompt": "rear_alpha_prompt.txt",
+      "output": "rear_hidden_rejected_checker_v2.png",
+      "disposition": "rejected background extraction still RGB checkerboard and altered paint; no selected pixels",
+      "reference_roles": {
+        "rear_hidden_rejected_checker.png": "edit target; attempted alpha recovery, rejected"
+      }
+    },
+    {
+      "prompt": "rear_pelvis_rejected_prompt.txt",
+      "output": "rear_pelvis_rejected_checker.png",
+      "disposition": "rejected RGB checkerboard; no selected pixels",
+      "reference_roles": {
+        "rear_generated.png": "rear identity/style reference for concealed pelvis component"
+      }
+    },
+    {
+      "prompt": "rear_pelvis_prompt.txt",
+      "output": "rear_pelvis_generated.png",
+      "reference_roles": {},
+      "disposition": "selected actual RGBA rear sacrum/pelvis with transparent holes; manually fitted as concealed pelvis and femur caps"
+    }
+  ],
+  "sha256": {
+    "front_registered.png": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224",
+    "rear_alpha_prompt.txt": "abb26d00cb977074d96f32a471317900e6b3dd23a90f4def26731aafeaaf3adf",
+    "rear_hidden_prompt.txt": "8089197332ad444802cba29d292471c1f52a6c02048fe6ff912dbcbb4be9441d",
+    "front_original.png": "8b4b9e01f62a564b1205d4cb3bec1d762bb31d28197f9fc62f20be2fb153f224",
+    "hidden_prompt.txt": "89380ea440576de933163e2159718f444ca1196b3b923e434a878e1292cb9ccd",
+    "rear_pelvis_rejected_prompt.txt": "65d5efe0a896b77814e24dcc99ee9ed9c75b5b1c20d4208c2cadf0b528c15217",
+    "rear_pelvis_rejected_checker.png": "8fc87869b58dd84f4370fb4342b32fd654889f916c0424bfe3ee37ac8c68eac7",
+    "rear_hidden_rejected_checker_v2.png": "eb26b664ab335b36d5c0b4c6fb4a0d5291b9dd10694de3ee005c3b6f1041cef6",
+    "rear_v2_prompt.txt": "fdca57785702444f4d9dcc165d481272e49de2f2bea3ed78f50b24c6f76cb783",
+    "rear_registered.png": "6a942e1420c3699d7fb2bdc9e26a42eb09c9c28eed044e3c8e7d8346bd6e2ac8",
+    "rear_pelvis_prompt.txt": "35a6896e4a70c7653acde9ad4c9f1e2074ced92c2b1a6d6f8b7f9ccbce05daff",
+    "rear_hidden_rejected_checker.png": "4fdce4f88c95d810d85399396c1f907ac9063a21fd0f38f82562a6bb67fff633",
+    "rear_prompt.txt": "0c65b4fa48643367eb522a5ca771467dcfc57884c15e7658eecb85c59e1d19d7",
+    "rear_generated.png": "acad52eaacb9b5609b59547e6d88c568ac14800ffef7ca54215aaf39e117b74b",
+    "rear_pelvis_generated.png": "98e1dc1d4567e44b4e047db2adb0eb85084f2286a3663ec05117acea4e38a4ec",
+    "hidden_registered.png": "b63b95cbb43e80b1eabdd31badbb35a79dac791ab8be25a84d02be8fc9310d42",
+    "hidden_generated.png": "53f1418c3d575476993e97edc6b69607c3cdef9f4a84e1a6d698f16badac8f89",
+    "rear_rejected_frontlike.png": "9d789d258f3a213dbad9a224cd263fc5a5cde293c1cf6634dca1bebcd5dfed4a",
+    "rear_pelvis_registered.png": "1f0ca315ff15971274d1b29e2e8ebd60f5290225e689ba2b3bee32070566c936"
+  }
+}

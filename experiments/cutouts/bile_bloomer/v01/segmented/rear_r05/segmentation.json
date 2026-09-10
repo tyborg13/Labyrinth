@@ -1,0 +1,269 @@
+{
+  "ok": false,
+  "source_sha256": "5e5a604ddabac775217b4ffdbf05700c261d34b6f1c39a93edee500b3b0873fa",
+  "ownership_sha256": "a86980a27bed75382243c8d746f0e9d5951ab8340dab67c86dcde69e5d87679a",
+  "parts": [
+    {
+      "name": "core",
+      "file": "core.png",
+      "offset": [
+        107,
+        24
+      ],
+      "bbox": [
+        107,
+        24,
+        149,
+        49
+      ]
+    },
+    {
+      "name": "petal_near_l",
+      "file": "petal_near_l.png",
+      "offset": [
+        56,
+        34
+      ],
+      "bbox": [
+        56,
+        34,
+        129,
+        89
+      ]
+    },
+    {
+      "name": "petal_near_r",
+      "file": "petal_near_r.png",
+      "offset": [
+        120,
+        42
+      ],
+      "bbox": [
+        120,
+        42,
+        201,
+        83
+      ]
+    },
+    {
+      "name": "petal_far_l",
+      "file": "petal_far_l.png",
+      "offset": [
+        52,
+        2
+      ],
+      "bbox": [
+        52,
+        2,
+        128,
+        43
+      ]
+    },
+    {
+      "name": "petal_far_r",
+      "file": "petal_far_r.png",
+      "offset": [
+        128,
+        4
+      ],
+      "bbox": [
+        128,
+        4,
+        201,
+        56
+      ]
+    },
+    {
+      "name": "tendril_high_l",
+      "file": "tendril_high_l.png",
+      "offset": [
+        47,
+        54
+      ],
+      "bbox": [
+        47,
+        54,
+        84,
+        103
+      ]
+    },
+    {
+      "name": "tendril_high_r",
+      "file": "tendril_high_r.png",
+      "offset": [
+        171,
+        64
+      ],
+      "bbox": [
+        171,
+        64,
+        207,
+        126
+      ]
+    },
+    {
+      "name": "tendril_mid_r",
+      "file": "tendril_mid_r.png",
+      "offset": [
+        193,
+        103
+      ],
+      "bbox": [
+        193,
+        103,
+        230,
+        163
+      ]
+    },
+    {
+      "name": "tendril_low_l",
+      "file": "tendril_low_l.png",
+      "offset": [
+        22,
+        114
+      ],
+      "bbox": [
+        22,
+        114,
+        66,
+        194
+      ]
+    },
+    {
+      "name": "tendril_low_r",
+      "file": "tendril_low_r.png",
+      "offset": [
+        185,
+        157
+      ],
+      "bbox": [
+        185,
+        157,
+        233,
+        204
+      ]
+    },
+    {
+      "name": "root_tip_l",
+      "file": "root_tip_l.png",
+      "offset": [
+        28,
+        225
+      ],
+      "bbox": [
+        28,
+        225,
+        103,
+        251
+      ]
+    },
+    {
+      "name": "root_tip_r",
+      "file": "root_tip_r.png",
+      "offset": [
+        126,
+        226
+      ],
+      "bbox": [
+        126,
+        226,
+        220,
+        253
+      ]
+    },
+    {
+      "name": "root_tip_c",
+      "file": "root_tip_c.png",
+      "offset": [
+        105,
+        210
+      ],
+      "bbox": [
+        105,
+        210,
+        134,
+        230
+      ]
+    },
+    {
+      "name": "root_stem_l",
+      "file": "root_stem_l.png",
+      "offset": [
+        21,
+        139
+      ],
+      "bbox": [
+        21,
+        139,
+        105,
+        225
+      ]
+    },
+    {
+      "name": "root_stem_r",
+      "file": "root_stem_r.png",
+      "offset": [
+        134,
+        160
+      ],
+      "bbox": [
+        134,
+        160,
+        229,
+        226
+      ]
+    },
+    {
+      "name": "root_stem_c",
+      "file": "root_stem_c.png",
+      "offset": [
+        103,
+        181
+      ],
+      "bbox": [
+        103,
+        181,
+        144,
+        218
+      ]
+    },
+    {
+      "name": "trunk",
+      "file": "trunk.png",
+      "offset": [
+        45,
+        70
+      ],
+      "bbox": [
+        45,
+        70,
+        202,
+        219
+      ]
+    }
+  ],
+  "unassigned_pixels": 5,
+  "unassigned_coordinates": [
+    [
+      54,
+      35
+    ],
+    [
+      55,
+      36
+    ],
+    [
+      55,
+      37
+    ],
+    [
+      56,
+      38
+    ],
+    [
+      57,
+      40
+    ]
+  ],
+  "coordinate_space": "unchanged registered source pixels"
+}

@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "character_id": "crawler",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.4,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.34,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 32,
+      "duration": 0.6,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3024,
+          0.3
+        ],
+        [
+          0.378,
+          0.4
+        ],
+        [
+          0.42,
+          0.52
+        ],
+        [
+          0.6055999999999999,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "lunge": {
+      "frames": 40,
+      "duration": 0.75,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3024,
+          0.3
+        ],
+        [
+          0.378,
+          0.4
+        ],
+        [
+          0.42,
+          0.52
+        ],
+        [
+          0.6055999999999999,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "coil": {
+      "frames": 24,
+      "duration": 0.48,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "claw_near",
+    "claw_far",
+    "foot_near",
+    "foot_far"
+  ],
+  "contact_feet": [
+    "claw_near",
+    "claw_far",
+    "foot_near",
+    "foot_far"
+  ],
+  "sources": [
+    "author.py",
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/hidden_coverage.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/generation_requests.json",
+    "source/hidden_generated.png",
+    "source/hidden_transparent.png",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "verify_poses.gd"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "accepted front plus matched generated rear; original design preserved"
+  }
+}

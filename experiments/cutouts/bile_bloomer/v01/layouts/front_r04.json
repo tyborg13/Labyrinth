@@ -1,0 +1,430 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "front",
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        127,
+        223
+      ]
+    },
+    "trunk": {
+      "parent": "root",
+      "position": [
+        127,
+        176
+      ]
+    },
+    "bloom": {
+      "parent": "trunk",
+      "position": [
+        126,
+        76
+      ]
+    },
+    "core": {
+      "parent": "bloom",
+      "position": [
+        124,
+        48
+      ]
+    },
+    "hidden_calyx": {
+      "parent": "bloom",
+      "position": [
+        126,
+        76
+      ]
+    },
+    "petal_near_l": {
+      "parent": "bloom",
+      "position": [
+        111,
+        64
+      ]
+    },
+    "petal_near_r": {
+      "parent": "bloom",
+      "position": [
+        134,
+        64
+      ]
+    },
+    "petal_far_l": {
+      "parent": "bloom",
+      "position": [
+        107,
+        48
+      ]
+    },
+    "petal_far_r": {
+      "parent": "bloom",
+      "position": [
+        143,
+        47
+      ]
+    },
+    "tendril_high_l": {
+      "parent": "trunk",
+      "position": [
+        72,
+        107
+      ]
+    },
+    "tendril_high_r": {
+      "parent": "trunk",
+      "position": [
+        187,
+        95
+      ]
+    },
+    "tendril_mid_l": {
+      "parent": "trunk",
+      "position": [
+        59,
+        139
+      ]
+    },
+    "tendril_low_l": {
+      "parent": "trunk",
+      "position": [
+        62,
+        184
+      ]
+    },
+    "tendril_low_r": {
+      "parent": "trunk",
+      "position": [
+        199,
+        184
+      ]
+    },
+    "root_l": {
+      "parent": "trunk",
+      "position": [
+        98,
+        237
+      ]
+    },
+    "root_r": {
+      "parent": "trunk",
+      "position": [
+        190,
+        237
+      ]
+    },
+    "root_c": {
+      "parent": "trunk",
+      "position": [
+        128,
+        223
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "core",
+      "file": "segmented/front_r04/core.png",
+      "offset": [
+        99,
+        30
+      ],
+      "bbox": [
+        99,
+        30,
+        151,
+        66
+      ],
+      "bone": "core",
+      "z_index": 23
+    },
+    {
+      "name": "petal_near_l",
+      "file": "segmented/front_r04/petal_near_l.png",
+      "offset": [
+        60,
+        47
+      ],
+      "bbox": [
+        60,
+        47,
+        124,
+        88
+      ],
+      "bone": "petal_near_l",
+      "z_index": 24
+    },
+    {
+      "name": "petal_near_r",
+      "file": "segmented/front_r04/petal_near_r.png",
+      "offset": [
+        120,
+        46
+      ],
+      "bbox": [
+        120,
+        46,
+        188,
+        92
+      ],
+      "bone": "petal_near_r",
+      "z_index": 24
+    },
+    {
+      "name": "petal_far_l",
+      "file": "segmented/front_r04/petal_far_l.png",
+      "offset": [
+        53,
+        3
+      ],
+      "bbox": [
+        53,
+        3,
+        128,
+        55
+      ],
+      "bone": "petal_far_l",
+      "z_index": 21
+    },
+    {
+      "name": "petal_far_r",
+      "file": "segmented/front_r04/petal_far_r.png",
+      "offset": [
+        126,
+        2
+      ],
+      "bbox": [
+        126,
+        2,
+        192,
+        54
+      ],
+      "bone": "petal_far_r",
+      "z_index": 21
+    },
+    {
+      "name": "tendril_high_l",
+      "file": "segmented/front_r04/tendril_high_l.png",
+      "offset": [
+        49,
+        61
+      ],
+      "bbox": [
+        49,
+        61,
+        81,
+        115
+      ],
+      "bone": "tendril_high_l",
+      "z_index": 4
+    },
+    {
+      "name": "tendril_high_r",
+      "file": "segmented/front_r04/tendril_high_r.png",
+      "offset": [
+        175,
+        55
+      ],
+      "bbox": [
+        175,
+        55,
+        205,
+        110
+      ],
+      "bone": "tendril_high_r",
+      "z_index": 4
+    },
+    {
+      "name": "tendril_mid_l",
+      "file": "segmented/front_r04/tendril_mid_l.png",
+      "offset": [
+        23,
+        96
+      ],
+      "bbox": [
+        23,
+        96,
+        67,
+        153
+      ],
+      "bone": "tendril_mid_l",
+      "z_index": 4
+    },
+    {
+      "name": "tendril_low_l",
+      "file": "segmented/front_r04/tendril_low_l.png",
+      "offset": [
+        21,
+        144
+      ],
+      "bbox": [
+        21,
+        144,
+        75,
+        205
+      ],
+      "bone": "tendril_low_l",
+      "z_index": 8
+    },
+    {
+      "name": "tendril_low_r",
+      "file": "segmented/front_r04/tendril_low_r.png",
+      "offset": [
+        190,
+        113
+      ],
+      "bbox": [
+        190,
+        113,
+        233,
+        206
+      ],
+      "bone": "tendril_low_r",
+      "z_index": 8
+    },
+    {
+      "name": "root_tip_l",
+      "file": "segmented/front_r04/root_tip_l.png",
+      "offset": [
+        26,
+        226
+      ],
+      "bbox": [
+        26,
+        226,
+        120,
+        253
+      ],
+      "bone": "root_l",
+      "z_index": 12
+    },
+    {
+      "name": "root_tip_r",
+      "file": "segmented/front_r04/root_tip_r.png",
+      "offset": [
+        146,
+        225
+      ],
+      "bbox": [
+        146,
+        225,
+        226,
+        251
+      ],
+      "bone": "root_r",
+      "z_index": 12
+    },
+    {
+      "name": "root_tip_c",
+      "file": "segmented/front_r04/root_tip_c.png",
+      "offset": [
+        113,
+        215
+      ],
+      "bbox": [
+        113,
+        215,
+        142,
+        230
+      ],
+      "bone": "root_c",
+      "z_index": 12
+    },
+    {
+      "name": "root_stem_l",
+      "file": "segmented/front_r04/root_stem_l.png",
+      "offset": [
+        24,
+        176
+      ],
+      "bbox": [
+        24,
+        176,
+        115,
+        226
+      ],
+      "bone": "trunk",
+      "z_index": 12
+    },
+    {
+      "name": "root_stem_r",
+      "file": "segmented/front_r04/root_stem_r.png",
+      "offset": [
+        136,
+        175
+      ],
+      "bbox": [
+        136,
+        175,
+        232,
+        226
+      ],
+      "bone": "trunk",
+      "z_index": 12
+    },
+    {
+      "name": "root_stem_c",
+      "file": "segmented/front_r04/root_stem_c.png",
+      "offset": [
+        111,
+        193
+      ],
+      "bbox": [
+        111,
+        193,
+        143,
+        225
+      ],
+      "bone": "trunk",
+      "z_index": 12
+    },
+    {
+      "name": "trunk",
+      "file": "segmented/front_r04/trunk.png",
+      "offset": [
+        41,
+        78
+      ],
+      "bbox": [
+        41,
+        78,
+        216,
+        232
+      ],
+      "bone": "trunk",
+      "z_index": 10
+    },
+    {
+      "name": "hidden_calyx",
+      "file": "assets/front/hidden_calyx.png",
+      "offset": [
+        101,
+        31
+      ],
+      "bone": "hidden_calyx",
+      "z_index": 19
+    }
+  ],
+  "landmarks": {
+    "sole_l": [
+      98,
+      249
+    ],
+    "sole_r": [
+      190,
+      249
+    ],
+    "sole_c": [
+      128,
+      227
+    ],
+    "bloom_muzzle": [
+      124,
+      48
+    ]
+  }
+}

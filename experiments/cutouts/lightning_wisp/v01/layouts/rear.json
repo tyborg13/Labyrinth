@@ -1,0 +1,149 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "rear",
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        127,
+        227
+      ]
+    },
+    "core": {
+      "parent": "root",
+      "position": [
+        127,
+        124
+      ]
+    },
+    "crown": {
+      "parent": "core",
+      "position": [
+        127,
+        60
+      ]
+    },
+    "tail": {
+      "parent": "core",
+      "position": [
+        127,
+        180
+      ]
+    },
+    "arc_left": {
+      "parent": "core",
+      "position": [
+        89,
+        124
+      ]
+    },
+    "arc_right": {
+      "parent": "core",
+      "position": [
+        163,
+        124
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "crown",
+      "file": "segmented/rear/crown.png",
+      "offset": [
+        106,
+        17
+      ],
+      "bbox": [
+        106,
+        17,
+        173,
+        61
+      ],
+      "bone": "crown",
+      "z_index": 2,
+      "equipment_slot": "electrical_arcs"
+    },
+    {
+      "name": "tail",
+      "file": "segmented/rear/tail.png",
+      "offset": [
+        88,
+        180
+      ],
+      "bbox": [
+        88,
+        180,
+        181,
+        228
+      ],
+      "bone": "tail",
+      "z_index": 2,
+      "equipment_slot": "electrical_arcs"
+    },
+    {
+      "name": "arc_left",
+      "file": "segmented/rear/arc_left.png",
+      "offset": [
+        66,
+        81
+      ],
+      "bbox": [
+        66,
+        81,
+        89,
+        165
+      ],
+      "bone": "arc_left",
+      "z_index": 2,
+      "equipment_slot": "electrical_arcs"
+    },
+    {
+      "name": "arc_right",
+      "file": "segmented/rear/arc_right.png",
+      "offset": [
+        163,
+        61
+      ],
+      "bbox": [
+        163,
+        61,
+        197,
+        180
+      ],
+      "bone": "arc_right",
+      "z_index": 2,
+      "equipment_slot": "electrical_arcs"
+    },
+    {
+      "name": "core",
+      "file": "segmented/rear/core.png",
+      "offset": [
+        89,
+        61
+      ],
+      "bbox": [
+        89,
+        61,
+        163,
+        180
+      ],
+      "bone": "core",
+      "z_index": 3,
+      "equipment_slot": "core"
+    }
+  ],
+  "landmarks": {
+    "hover_anchor": [
+      127,
+      227
+    ],
+    "energy_core": [
+      127,
+      124
+    ],
+    "aperture": null
+  }
+}

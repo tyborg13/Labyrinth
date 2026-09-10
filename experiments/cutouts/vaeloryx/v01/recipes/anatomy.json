@@ -1,0 +1,132 @@
+{
+  "kind": "15-joint serpentine winged dragon; coherent airborne contact model",
+  "projection": "2:1; front travels down-left, rear travels up-right; reflections supply other two lanes",
+  "landmarks": {
+    "front": {
+      "root": [
+        128,
+        165
+      ],
+      "body": [
+        134,
+        135
+      ],
+      "neck": [
+        115,
+        115
+      ],
+      "head": [
+        109,
+        91
+      ],
+      "wing_far": [
+        109,
+        102
+      ],
+      "wing_near": [
+        141,
+        128
+      ],
+      "arm_far": [
+        99,
+        142
+      ],
+      "claw_far": [
+        64,
+        165
+      ],
+      "arm_near": [
+        141,
+        140
+      ],
+      "claw_near": [
+        126,
+        170
+      ],
+      "hind_limb": [
+        164,
+        147
+      ],
+      "claw_hind": [
+        165,
+        166
+      ],
+      "tail_base": [
+        177,
+        143
+      ],
+      "tail_mid": [
+        191,
+        183
+      ],
+      "tail_tip": [
+        122,
+        209
+      ]
+    },
+    "rear": {
+      "root": [
+        128,
+        165
+      ],
+      "body": [
+        126,
+        134
+      ],
+      "neck": [
+        144,
+        122
+      ],
+      "head": [
+        141,
+        95
+      ],
+      "wing_far": [
+        124,
+        118
+      ],
+      "wing_near": [
+        157,
+        119
+      ],
+      "arm_far": [
+        154,
+        141
+      ],
+      "claw_far": [
+        173,
+        156
+      ],
+      "arm_near": [
+        121,
+        145
+      ],
+      "claw_near": [
+        139,
+        167
+      ],
+      "hind_limb": [
+        103,
+        147
+      ],
+      "claw_hind": [
+        93,
+        161
+      ],
+      "tail_base": [
+        105,
+        141
+      ],
+      "tail_mid": [
+        74,
+        180
+      ],
+      "tail_tip": [
+        122,
+        206
+      ]
+    }
+  },
+  "uncertainty": "Front cranial surface is largely occluded by the far wing; rear head is occluded by the near wing. Hidden shoulder/neck material is used only beneath source-owned pixels.",
+  "ownership": "The wings, cranial surface, neck, torso, each forelimb and its rigid claws, tucked hindlimb and claws, and curled tail have separate semantic owners. No unassigned-pixel sweep is permitted."
+}

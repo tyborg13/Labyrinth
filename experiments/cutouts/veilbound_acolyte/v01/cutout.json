@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "character_id": "veilbound_acolyte",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 32,
+      "duration": 0.68,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "cast": {
+      "frames": 32,
+      "duration": 0.9,
+      "loop": false
+    },
+    "attack": {
+      "frames": 32,
+      "duration": 0.6,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "hood",
+    "cast_hand",
+    "strike_hand",
+    "orb",
+    "support_l",
+    "support_r"
+  ],
+  "contact_feet": [
+    "support_l",
+    "support_r"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/build_case.py",
+    "recipes/capture_case.py",
+    "recipes/continuous_robe_weights.json",
+    "recipes/front_hidden.json",
+    "recipes/front_skin.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/rear_hidden.json",
+    "recipes/rear_skin.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/registration.json",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/generation_digests.json",
+    "source/hidden_generated.png",
+    "source/hidden_request.json",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_registered.png",
+    "source/rear_request.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "preserved accepted front; generated matching rear and concealed interior cloth",
+    "base_commit": "01c7dccbc931ae7dddf3eb8f797fb3d1d33def3e",
+    "front_sha256": "de45fa8548befd346a539252630a5861eca7a305e02f666ee63be87bf7c710e3"
+  }
+}

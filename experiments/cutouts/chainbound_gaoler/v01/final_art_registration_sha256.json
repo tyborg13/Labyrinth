@@ -1,0 +1,24 @@
+{
+  "stage": "Final whole-image registration following the original front-style review",
+  "source_note": "art_phase_sha256.json is the historical pre-rig review snapshot. Its registered image later received only the documented whole-image translation; generation files remain untouched.",
+  "files": {
+    "source/front_generated_v01.png": "ad713e25a59d85d8a97ca12d2205cbe140c0ac56d4acf8eab135837347d249ae",
+    "source/rear_generated_v01.png": "8e37dd3674e62eda7ecb3cf9e13584775de69186d263d134eecde8c554f1efff",
+    "source/front_registered.png": "9caa306a44f5d4c5bca4d7e00161f3ccd2c46d393d90b6a116a997a33fd3a104",
+    "source/rear_registered.png": "a9cf5be38c9ea88c23fe7af618de2978017c20fe00528c380c7e1e8d40071e85",
+    "source/front_under_generated.png": "0185eb6e7cda7d884ea6a3517b1badbb04806ee9d4daf86306000b9f8d7871b1",
+    "source/rear_under_generated.png": "dacb425afadd570ca989fd65d1415f543512e315582366c9873a00dcc2e578fb",
+    "source/front_under_registered.png": "396e6d65dee84c077a0ea8e804374b5b0f9fe08567752129c3beed82c447e409",
+    "source/rear_under_registered.png": "7e22b9dcc085709913cea0f0a77329915333dd3cd7d5db2737208a600d43da14",
+    "recipes/register_front.py": "861d5d44b23a2d8fbc61eb1dfec6afb0b38357511f32fd5f8aadeca4f207cdb8",
+    "recipes/register_rear.py": "7b94c453ffcb419a968cc3c00ef964a93aff0e5499a82cd9b7ce4dd0fb012b70",
+    "recipes/front_registration.json": "aff2b0ba2d40a4de6ceb21a4778907800e4684fa90cc25daba9ebb094a8405b9",
+    "recipes/rear_registration.json": "ea5e069475712ad8cd87e8e9dbbed2b73601f09b427345baa3a53961860140c4"
+  },
+  "historical_front_registration": {
+    "path": "source/front_registered_at_style_review.png",
+    "sha256": "ce88e5de44bd458493111b3d412a013cf21de79f9a141e7ad7ddadbb3e5cbb5f",
+    "matches": "art_phase_sha256.json source/front_registered.png exactly",
+    "recovery": "Undo only the final -10px horizontal registration shift; resulting PNG byte hash equals the original pre-rig style-review snapshot."
+  }
+}

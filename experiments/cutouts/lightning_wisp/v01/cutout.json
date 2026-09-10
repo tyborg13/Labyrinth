@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "character_id": "lightning_wisp",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 24,
+      "duration": 0.48,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 36,
+      "duration": 0.6,
+      "loop": false
+    },
+    "cast": {
+      "frames": 36,
+      "duration": 0.565,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3893805309734514,
+          0.36
+        ],
+        [
+          0.4707964601769912,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "root",
+    "core",
+    "crown",
+    "tail",
+    "arc_left",
+    "arc_right"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "build_case.py",
+    "promote.py",
+    "recipes/front_skin_input.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/rear_skin_input.json",
+    "recipes/rear_skinned.skin.json",
+    "source/front_original.png",
+    "source/front_original.png.import",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/front_registered.png.import",
+    "source/front_rest_baked.png",
+    "source/generation.json",
+    "source/rear_alpha_attempt.png",
+    "source/rear_alpha_attempt.png.import",
+    "source/rear_background_ownership.json",
+    "source/rear_generated.png",
+    "source/rear_generated.png.import",
+    "source/rear_ownership.json",
+    "source/rear_prompt.txt",
+    "source/rear_registered.png",
+    "source/rear_registered_with_background.png",
+    "source/rear_rest_baked.png",
+    "source/register_rear.py",
+    "source/registration.json"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "accepted front preserved; generated rear registered once",
+    "production_front": "res://assets/placeholders/units/lightning_wisp.png",
+    "anatomy": "floating energy core with four outer electrical branches; six bones; no humanoid limbs"
+  }
+}

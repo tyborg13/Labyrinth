@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "character_id": "cinder_droplet",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.5,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 0.34,
+      "loop": true,
+      "preview_cycles": 3,
+      "travel": "motion"
+    },
+    "attack": {
+      "frames": 41,
+      "duration": 0.6,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          0.3
+        ],
+        [
+          0.37,
+          0.38
+        ],
+        [
+          0.42,
+          0.52
+        ],
+        [
+          0.62,
+          0.68
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "retreat": {
+      "frames": 40,
+      "duration": 0.34,
+      "loop": true,
+      "preview_cycles": 3
+    }
+  },
+  "rigid_bones": [
+    "core",
+    "left_outer_tip",
+    "left_inner_tip",
+    "center_tip",
+    "right_inner_tip",
+    "right_outer_tip"
+  ],
+  "contact_feet": [
+    "left_outer_tip",
+    "left_inner_tip",
+    "center_tip",
+    "right_inner_tip",
+    "right_outer_tip"
+  ],
+  "sources": [
+    "layouts/front.json",
+    "layouts/rear.json",
+    "recipes/author_rig.py",
+    "recipes/front_continuous_field.json",
+    "recipes/front_hidden_ownership.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/promote_case.py",
+    "recipes/rear_continuous_field.json",
+    "recipes/rear_hidden_ownership.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/register_sources.py",
+    "recipes/registration.json",
+    "source/alpha_attempt_prompt.txt",
+    "source/front_original.png",
+    "source/front_ownership.json",
+    "source/front_registered.png",
+    "source/generation_requests.json",
+    "source/hidden_belly_generated.png",
+    "source/hidden_belly_prompt.txt",
+    "source/hidden_belly_registered.png",
+    "source/rear_alpha_attempt_rejected.png",
+    "source/rear_explicit_matte.png",
+    "source/rear_generated.png",
+    "source/rear_ownership.json",
+    "source/rear_prompt.txt",
+    "source/rear_registered.png",
+    "source/registered_views_review.png"
+  ],
+  "source_baseline": {
+    "kind": "new_character",
+    "art_status": "accepted front retained; new matching rear with explicit matte; generated concealed belly retained but unselected",
+    "front_original_sha256": "8f7499fcfd8cda7dcb2a4606bfa18470bb07dd83d536be76814bb9288e99e93c"
+  }
+}

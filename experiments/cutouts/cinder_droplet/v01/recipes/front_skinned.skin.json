@@ -1,0 +1,262 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skinned.json",
+  "fields": [
+    {
+      "name": "front_left_outer",
+      "parts": [
+        "left_outer"
+      ],
+      "bones": [
+        "core",
+        "left_outer_base",
+        "left_outer_bend",
+        "left_outer_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            71.9,
+            173.95
+          ],
+          "axis": [
+            -6,
+            17
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            68,
+            185
+          ],
+          "axis": [
+            -26,
+            31
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            51.0,
+            196.9
+          ],
+          "axis": [
+            -20,
+            14
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "front_left_inner",
+      "parts": [
+        "left_inner"
+      ],
+      "bones": [
+        "core",
+        "left_inner_base",
+        "left_inner_bend",
+        "left_inner_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            92.6,
+            178.65
+          ],
+          "axis": [
+            -4,
+            19
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            90,
+            191
+          ],
+          "axis": [
+            -9,
+            37
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            85.75,
+            206.3
+          ],
+          "axis": [
+            -5,
+            18
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "front_center",
+      "parts": [
+        "center"
+      ],
+      "bones": [
+        "core",
+        "center_base",
+        "center_bend",
+        "center_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            125.4,
+            178.95
+          ],
+          "axis": [
+            4,
+            17
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            128,
+            190
+          ],
+          "axis": [
+            8,
+            35
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            131.4,
+            205.3
+          ],
+          "axis": [
+            4,
+            18
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "front_right_inner",
+      "parts": [
+        "right_inner"
+      ],
+      "bones": [
+        "core",
+        "right_inner_base",
+        "right_inner_bend",
+        "right_inner_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            146.45,
+            166.45
+          ],
+          "axis": [
+            7,
+            27
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            151,
+            184
+          ],
+          "axis": [
+            22,
+            53
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            163.75,
+            206.1
+          ],
+          "axis": [
+            15,
+            26
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "front_right_outer",
+      "parts": [
+        "right_outer"
+      ],
+      "bones": [
+        "core",
+        "right_outer_base",
+        "right_outer_bend",
+        "right_outer_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            171.15,
+            159.4
+          ],
+          "axis": [
+            9,
+            24
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            177,
+            175
+          ],
+          "axis": [
+            28,
+            39
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            193.15,
+            187.75
+          ],
+          "axis": [
+            19,
+            15
+          ],
+          "width": 8
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "selected": "source/rear_generated_v01.png",
+  "rejected": null,
+  "rejection_reason": null,
+  "source_sha256": "8e37dd3674e62eda7ecb3cf9e13584775de69186d263d134eecde8c554f1efff",
+  "input_size": [
+    1254,
+    1254
+  ],
+  "registered_size": [
+    255,
+    255
+  ],
+  "uniform_scale": 0.20334928229665072,
+  "resize": "nearest; complete canvas without crop or independent part fitting",
+  "translation": [
+    26,
+    2
+  ],
+  "translation_reason": "Align average projected boot contacts across front and rear without scaling individual parts or changing paint",
+  "exclude_part": "excluded_background",
+  "kept_part": "creature",
+  "kept_rgb": "exact nearest source pixels; no recolor or synthesized pixels",
+  "background_ownership_sha256": "969149dc1df8e5b77bdc44a229196b608ff18a904278c68912a0ca825d9e88a1",
+  "output_sha256": "a9cf5be38c9ea88c23fe7af618de2978017c20fe00528c380c7e1e8d40071e85",
+  "mask_sha256": "12da53bcaea81bfc5b2ff61f77f57c620f9c46f6defca3baf858955bc40c6c5c",
+  "visible_bbox": [
+    66,
+    8,
+    253,
+    251
+  ],
+  "background_pixels": 34560
+}

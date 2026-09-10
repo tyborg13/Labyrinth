@@ -1,0 +1,154 @@
+{
+  "front/core.png": {
+    "case_source": "segmented/front_r11/core.png",
+    "sha256": "85393887eafb0def6e170db1a87174027a86b61743e7482f5aa368f61ae14750"
+  },
+  "front/petal_near_l.png": {
+    "case_source": "segmented/front_r11/petal_near_l.png",
+    "sha256": "72a4ba8644ebb5957b0c81521b04505d723857d2f7f12977ba0c6e3856e109d2"
+  },
+  "front/petal_near_r.png": {
+    "case_source": "segmented/front_r11/petal_near_r.png",
+    "sha256": "67d1f759fa5f482abbe7360f363f7eef3c90b214f0d3a3a3b9c4f8d5734482a8"
+  },
+  "front/petal_far_l.png": {
+    "case_source": "segmented/front_r11/petal_far_l.png",
+    "sha256": "b8cd052a7298ded949328c3801ab0f80b8d0ba9325d6ead59b476ce7b7fbc68f"
+  },
+  "front/petal_far_r.png": {
+    "case_source": "segmented/front_r11/petal_far_r.png",
+    "sha256": "726bf7a15a45d6a874e487c0e39b75339798316c62f5cbc76fb3f574c51643cb"
+  },
+  "front/tendril_high_l.png": {
+    "case_source": "segmented/front_r11/tendril_high_l.png",
+    "sha256": "de8c3a6e8a5b23b5ea805f0e44ba7979296ce2caa742650fa567c5eca34195b7"
+  },
+  "front/tendril_high_r.png": {
+    "case_source": "segmented/front_r11/tendril_high_r.png",
+    "sha256": "2506220b3934884580616fc5ba0f0c292ded885dc1320059fbbee46f7dd118de"
+  },
+  "front/trunk.png": {
+    "case_source": "segmented/front_r11/trunk.png",
+    "sha256": "aa4308976d4adf6f6a7d4401b6601575f3001aab819d0ec8ba6775141c514b47"
+  },
+  "front/tendril_mid_l.png": {
+    "case_source": "segmented/front_r11/tendril_mid_l.png",
+    "sha256": "293cc2a2e87a3c35c2ea39dca9efb93a3086f2b642db6e172681a70d7a5fc043"
+  },
+  "front/tendril_low_l.png": {
+    "case_source": "segmented/front_r11/tendril_low_l.png",
+    "sha256": "bea817bde2a2c7a31d80d53d0d14f1be08a75092f4f14aa6fd12fbb3b7597591"
+  },
+  "front/tendril_low_r.png": {
+    "case_source": "segmented/front_r11/tendril_low_r.png",
+    "sha256": "c1f450b9abce5e501fefef4c3b05a6889535dc6c2da314df19deaa634e9da259"
+  },
+  "front/root_tip_l.png": {
+    "case_source": "segmented/front_r11/root_tip_l.png",
+    "sha256": "de14401e64e223c2f62c3267051c8fd4683259d3c19fd6a7fb02cfca54024527"
+  },
+  "front/root_tip_r.png": {
+    "case_source": "segmented/front_r11/root_tip_r.png",
+    "sha256": "5fc8753148b4efc618aa4f220d4b05b6b9786e9d0ae1154b896b401a36d0b809"
+  },
+  "front/root_tip_c.png": {
+    "case_source": "segmented/front_r11/root_tip_c.png",
+    "sha256": "d0e3d3a36dc755bf19948f92de13c19b6006ce511286495bb33ecda582e790c3"
+  },
+  "front/root_stem_l.png": {
+    "case_source": "segmented/front_r11/root_stem_l.png",
+    "sha256": "fe08e93c027f35e00538de17a8bccaaeec995c22175a8d2d204bb77de74e43ac"
+  },
+  "front/root_stem_r.png": {
+    "case_source": "segmented/front_r11/root_stem_r.png",
+    "sha256": "6718d728751eee71f56090988b41530e2ea435496c8f3d79b3fcdb4d309bc962"
+  },
+  "front/root_stem_c.png": {
+    "case_source": "segmented/front_r11/root_stem_c.png",
+    "sha256": "1d3c734d74e003201d0155034325efc4f3a8271465710d3d92c2a3549f9e916a"
+  },
+  "front/hidden_calyx.png": {
+    "case_source": "assets/front/hidden_calyx.png",
+    "sha256": "912a58e367b81f4a5201da32b3cf9f1811e32c61a4557f581fd75b5c36420fec"
+  },
+  "front/hidden_roots.png": {
+    "case_source": "assets/front/hidden_roots.png",
+    "sha256": "f82837d081c0ce88dbfaac1839c19c699c64c33a9b26717a681164de40069ab6"
+  },
+  "rear/core.png": {
+    "case_source": "segmented/rear_r11/core.png",
+    "sha256": "d905ff62b49b41d86021fb0ee50a9fc172ec5545bb8fe1e41b8efb6fdbccd71d"
+  },
+  "rear/petal_near_l.png": {
+    "case_source": "segmented/rear_r11/petal_near_l.png",
+    "sha256": "f2b6864a81137ed3b4cb05147d9674271407503ecfe64f20cb223ca06e003e42"
+  },
+  "rear/petal_near_r.png": {
+    "case_source": "segmented/rear_r11/petal_near_r.png",
+    "sha256": "7a1b644cb1074a79409f1f54824fce188737d92f901848d8b7b7ee10a6edd813"
+  },
+  "rear/petal_far_l.png": {
+    "case_source": "segmented/rear_r11/petal_far_l.png",
+    "sha256": "da4f6ad95a6de9bb47f34feb46c1d5be6ae5ad6b773d3111e0e3573d23854035"
+  },
+  "rear/petal_far_r.png": {
+    "case_source": "segmented/rear_r11/petal_far_r.png",
+    "sha256": "624c99e9cd3db15a71996f4da97ecb7b23688da794af96bbd60f00ccb9852157"
+  },
+  "rear/trunk.png": {
+    "case_source": "segmented/rear_r11/trunk.png",
+    "sha256": "27a6772744ef17c1ce3fc99e6fb66854ad46186914cb89b74afb06b508ebe516"
+  },
+  "rear/tendril_high_l.png": {
+    "case_source": "segmented/rear_r11/tendril_high_l.png",
+    "sha256": "8c4eb72ca4a5da0b55bb8b1ca8825143913e65cffa276658a8b8261b3a59b1c7"
+  },
+  "rear/tendril_high_r.png": {
+    "case_source": "segmented/rear_r11/tendril_high_r.png",
+    "sha256": "6d1257020ffef49e3821e85e7500ac5de065675e91666066973586fb1ba8051f"
+  },
+  "rear/tendril_mid_r.png": {
+    "case_source": "segmented/rear_r11/tendril_mid_r.png",
+    "sha256": "4908144596bce87191fe31026370613f0d1993a15aaa28d3763e631cd5f8cb88"
+  },
+  "rear/tendril_low_l.png": {
+    "case_source": "segmented/rear_r11/tendril_low_l.png",
+    "sha256": "f24f99becb13ec7cbe372a89ff8caacc04c2e8c805c7e35860eccafffc61ceb6"
+  },
+  "rear/tendril_low_r.png": {
+    "case_source": "segmented/rear_r11/tendril_low_r.png",
+    "sha256": "b7bbc8100b6d7f34dbb2029176985298481ad88cdf97ba58a616e658ce2818e5"
+  },
+  "rear/root_tip_l.png": {
+    "case_source": "segmented/rear_r11/root_tip_l.png",
+    "sha256": "1687a2e5eda1c99833301d3ca6618d80db0644e977131e731107897f7dfb36b3"
+  },
+  "rear/root_tip_r.png": {
+    "case_source": "segmented/rear_r11/root_tip_r.png",
+    "sha256": "6c51d751d1bdcefbd7571e7f1d28825116e363c2032b2c291b60b33d58c9858b"
+  },
+  "rear/root_tip_c.png": {
+    "case_source": "segmented/rear_r11/root_tip_c.png",
+    "sha256": "82ed814b65c7b054b6994a49aa99c181356c63ba39c98d9d64a8efdf1441265a"
+  },
+  "rear/root_stem_l.png": {
+    "case_source": "segmented/rear_r11/root_stem_l.png",
+    "sha256": "58e57273e28b116aa8814413026ddeac976ba08914f3e427fc49729dab91ee74"
+  },
+  "rear/root_stem_r.png": {
+    "case_source": "segmented/rear_r11/root_stem_r.png",
+    "sha256": "6a0cb297c8c03bb6e1436b75155f63330419b197cd22d0e992bdd33903dbf2a2"
+  },
+  "rear/root_stem_c.png": {
+    "case_source": "segmented/rear_r11/root_stem_c.png",
+    "sha256": "3a8d2a92f89f269d829e45cd563ee2f2dbf58608d4bbc875ec782a4d4a7bbbc9"
+  },
+  "rear/hidden_calyx.png": {
+    "case_source": "assets/rear/hidden_calyx.png",
+    "sha256": "468abb19391e62c1fa3b70208625bec139d1050405f9d68061077dbf0d4cfd68"
+  },
+  "rear/hidden_roots.png": {
+    "case_source": "assets/rear/hidden_roots.png",
+    "sha256": "2637b53f98f310a54acfb79a4f6a2486395165eff719f60b5265eb6ddc38e8e0"
+  }
+}

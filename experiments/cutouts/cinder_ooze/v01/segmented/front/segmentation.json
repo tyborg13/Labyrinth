@@ -1,0 +1,108 @@
+{
+  "ok": true,
+  "source_sha256": "26ad12c259a1617520f6c1b2d98309e25e468368671f1d614e6cb740c9b9e6a3",
+  "ownership_sha256": "aac799e6b6780526af3d05b8bec98608f5d2f368b97b991d6ef1ba23e8c18694",
+  "parts": [
+    {
+      "name": "left_outer",
+      "file": "left_outer.png",
+      "offset": [
+        14,
+        162
+      ],
+      "bbox": [
+        14,
+        162,
+        46,
+        210
+      ]
+    },
+    {
+      "name": "front_left",
+      "file": "front_left.png",
+      "offset": [
+        50,
+        176
+      ],
+      "bbox": [
+        50,
+        176,
+        83,
+        223
+      ]
+    },
+    {
+      "name": "front_mid",
+      "file": "front_mid.png",
+      "offset": [
+        85,
+        179
+      ],
+      "bbox": [
+        85,
+        179,
+        125,
+        220
+      ]
+    },
+    {
+      "name": "near_right",
+      "file": "near_right.png",
+      "offset": [
+        135,
+        161
+      ],
+      "bbox": [
+        135,
+        161,
+        191,
+        231
+      ]
+    },
+    {
+      "name": "right_outer",
+      "file": "right_outer.png",
+      "offset": [
+        180,
+        167
+      ],
+      "bbox": [
+        180,
+        167,
+        224,
+        217
+      ]
+    },
+    {
+      "name": "far_right",
+      "file": "far_right.png",
+      "offset": [
+        210,
+        151
+      ],
+      "bbox": [
+        210,
+        151,
+        240,
+        195
+      ]
+    },
+    {
+      "name": "crust_mass",
+      "file": "crust_mass.png",
+      "offset": [
+        30,
+        12
+      ],
+      "bbox": [
+        30,
+        12,
+        226,
+        222
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

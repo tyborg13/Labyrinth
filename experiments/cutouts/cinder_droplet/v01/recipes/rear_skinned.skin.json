@@ -1,0 +1,262 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned.json",
+  "fields": [
+    {
+      "name": "rear_left_outer",
+      "parts": [
+        "left_outer"
+      ],
+      "bones": [
+        "core",
+        "left_outer_base",
+        "left_outer_bend",
+        "left_outer_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            85.5,
+            154.45
+          ],
+          "axis": [
+            -10,
+            27
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            79,
+            172
+          ],
+          "axis": [
+            -37,
+            47
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            56.05,
+            189.0
+          ],
+          "axis": [
+            -27,
+            20
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_left_inner",
+      "parts": [
+        "left_inner"
+      ],
+      "bones": [
+        "core",
+        "left_inner_base",
+        "left_inner_bend",
+        "left_inner_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            110.75,
+            162.05
+          ],
+          "axis": [
+            -15,
+            23
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            101,
+            177
+          ],
+          "axis": [
+            -35,
+            47
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            84.0,
+            197.4
+          ],
+          "axis": [
+            -20,
+            24
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_center",
+      "parts": [
+        "center"
+      ],
+      "bones": [
+        "core",
+        "center_base",
+        "center_bend",
+        "center_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            129.25,
+            175.35
+          ],
+          "axis": [
+            -5,
+            21
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            126,
+            189
+          ],
+          "axis": [
+            -23,
+            43
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            110.7,
+            207.7
+          ],
+          "axis": [
+            -18,
+            22
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_right_inner",
+      "parts": [
+        "right_inner"
+      ],
+      "bones": [
+        "core",
+        "right_inner_base",
+        "right_inner_bend",
+        "right_inner_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            145.65,
+            158.15
+          ],
+          "axis": [
+            -1,
+            29
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            145,
+            177
+          ],
+          "axis": [
+            16,
+            62
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            159.45,
+            205.05
+          ],
+          "axis": [
+            17,
+            33
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_right_outer",
+      "parts": [
+        "right_outer"
+      ],
+      "bones": [
+        "core",
+        "right_outer_base",
+        "right_outer_bend",
+        "right_outer_tip"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            172.8,
+            158.35
+          ],
+          "axis": [
+            8,
+            21
+          ],
+          "width": 18
+        },
+        {
+          "center": [
+            178,
+            172
+          ],
+          "axis": [
+            29,
+            44
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            195.85,
+            191.55
+          ],
+          "axis": [
+            21,
+            23
+          ],
+          "width": 8
+        }
+      ]
+    }
+  ]
+}

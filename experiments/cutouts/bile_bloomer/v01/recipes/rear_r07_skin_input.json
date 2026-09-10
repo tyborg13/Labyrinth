@@ -1,0 +1,88 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear_r07.json",
+  "output_layout": "layouts/rear_r07_skinned.json",
+  "fields": [
+    {
+      "name": "root_l",
+      "parts": [
+        "root_stem_l"
+      ],
+      "bones": [
+        "trunk",
+        "root_l"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            86,
+            207
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 36
+        }
+      ]
+    },
+    {
+      "name": "root_c",
+      "parts": [
+        "root_stem_c"
+      ],
+      "bones": [
+        "trunk",
+        "root_c"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            119,
+            205
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 20
+        }
+      ]
+    },
+    {
+      "name": "root_r",
+      "parts": [
+        "root_stem_r"
+      ],
+      "bones": [
+        "trunk",
+        "root_r"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            158,
+            207
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 36
+        }
+      ]
+    }
+  ]
+}

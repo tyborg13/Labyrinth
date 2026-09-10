@@ -1,0 +1,49 @@
+{
+  "tool": "built-in image_gen",
+  "requests": [
+    {
+      "output": "rear_generated.png",
+      "prompt": "Use case: stylized-concept. Asset type: matching rear-view game cutout source on genuinely transparent background. Input image 1 is the accepted front design and style reference ONLY; do not modify it. Draw the exact same Grave Surgeon from the rear three-quarter view, facing upper-left in the image, following the game's 2:1 isometric board projection. A thin hooded undead plague surgeon in ragged muted brown robes, bone beaked skull mask mostly hidden from behind, tied leather belt with small spare vials, skeletal wrapped wrists, worn wrapped boots. His right hand carries the SAME long pale toothed bone saw down at his side; his left hand holds the SAME small green round vial. From this rear view the saw is on the viewer's RIGHT and the vial on the viewer's LEFT. Preserve the hunched narrow anatomy, asymmetrical ragged hem, brown cloth values, precise dark outline, pixel-readable painterly texture and scale proportions of the reference. Full body centered with clear space on all sides and visible heel contacts; elevated rear view, not flat side or front. Relaxed matching rest pose. No extra equipment, no second character, no labels, no shadows, no ground, no checkerboard. Preserve real alpha transparency.",
+      "references": [
+        {
+          "path": "front_original.png",
+          "role": "accepted front design/style reference"
+        }
+      ],
+      "disposition": "Rejected before rigging: the upper-left viewpoint does not match the shared upper-right rear-facing policy. Superseded by rear_v2_generated.png in generation_addendum.json; no runtime pixels selected."
+    },
+    {
+      "output": "front_underbody_generated.png",
+      "prompt": "Use case: precise-object-edit. Asset: hidden undergarment material for an editable 2D game character rig. Input image is the accepted Grave Surgeon front paint and exact pose/style reference. Create a same-pose anatomical UNDERLAYER: remove only the outer hood/shawl, long ragged skirt panels and belt equipment, saw and vial, exposing the narrow dark brown cloth tunic underneath, the COMPLETE shoulder sleeve caps behind the shawl, elbows, hips and wrapped trouser legs down into the same wrapped boots. Keep the shoulders, elbows, wrists, hips, knees and boots in exactly the same places and the same proportions as the original, including the 2:1 three-quarter projection facing lower-left. Plain head silhouette is enough; it will not be used. Narrow lean undead build, dark brown rough cloth with bandage-wrapped sleeves and lower legs, same painterly pixel-readable shading and dark outlines. Bare hands may remain but no tools. No new armor or decorations. Full-body single character on genuinely transparent alpha, no checkerboard, ground or shadow. This source will only supply small concealed cloth overlaps and hidden trouser material; all visible original front art remains unchanged.",
+      "references": [
+        {
+          "path": "front_original.png",
+          "role": "exact design/pose underbody reference"
+        }
+      ],
+      "disposition": "Rejected runtime input: RGB painted checkerboard. Retained as alpha repair target."
+    },
+    {
+      "output": "front_underbody_alpha.png",
+      "prompt": "Use case: background-extraction. Input is the hidden undergarment source for Grave Surgeon. Change ONLY the grey-white checkerboard background into genuinely transparent alpha (zero opacity). Preserve the character drawing, all internal colors and dark edges, clothing, pose and proportions exactly. Do not redraw, restyle, crop, add a shadow, or change the canvas framing. The output must be RGBA with transparent background, not a picture of a checkerboard.",
+      "references": [
+        {
+          "path": "front_underbody_generated.png",
+          "role": "alpha repair edit target"
+        }
+      ],
+      "disposition": "Selected interior cloth crops for concealed sleeve caps and trouser coverage. Exact crops and opaque-rest masks are recorded in recipes/hidden_material.json; none of this source replaces visible original front paint."
+    },
+    {
+      "output": "rear_underbody_generated.png",
+      "prompt": "Use case: precise-object-edit. Asset: hidden undergarment material for an editable 2D rear-view rig. Input is Grave Surgeon's accepted rear-view source, exact pose/style reference. Create the same-pose anatomical UNDERLAYER by removing the outer hood/shawl, long ragged skirt, belt with equipment, bone saw and green vial. Reveal complete narrow brown shoulder sleeve caps, elbows, wrists, dark brown tunic, hips and wrapped trouser legs that fit into the original boots. Keep the rear three-quarter body facing upper-left, exactly the same silhouette proportions and joint/boot locations. Arms remain in the same relaxed pose, with empty hands. Rear hood can become a plain head shape; not used in final. Lean undead proportions, dark brown worn cloth and wrapped sleeves/lower legs, same painterly pixel-readable style and values. Only concealed internal cloth material will be selected from this output, all visible rear robe and tool paint will remain from the reference. Single full-body figure on genuinely transparent alpha; NO checkerboard, ground, shadow, text, added objects or decoration.",
+      "references": [
+        {
+          "path": "rear_generated.png",
+          "role": "rear design/pose underbody reference"
+        }
+      ],
+      "disposition": "Rejected runtime input: painted checkerboard. Retained as alpha repair target."
+    }
+  ]
+}

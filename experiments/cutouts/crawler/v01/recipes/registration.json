@@ -1,0 +1,38 @@
+{
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "byte-identical copy at [0,0], no scale/reflection",
+    "canvas": [
+      255,
+      255
+    ],
+    "source_sha256": "cf6f983a2a343119c8e92fcd19fff53845046b405f4a1d8c4794b7f4f1026dc7"
+  },
+  "rear": {
+    "source": "source/rear_generated.png",
+    "crop": [
+      253,
+      253,
+      1061,
+      1026
+    ],
+    "crop_reason": "alpha >=8 bounding box excludes isolated generator alpha 1..7 specks outside the painted silhouette; interior alpha unchanged",
+    "uniform_scale": 0.22897800776196636,
+    "resize": [
+      185,
+      177
+    ],
+    "filter": "nearest",
+    "reflection": "horizontal to canonical northeast rear view",
+    "offset": [
+      35,
+      32
+    ],
+    "canvas": [
+      255,
+      255
+    ],
+    "source_sha256": "b6db67020d31a27a7a422d6823b191ceaeeb824d2b2bfbc3fbe10215a1d9783f"
+  },
+  "projection": "2:1. Joints and distinct terminal contact landmarks retained in each layout; no independently resized limb pieces."
+}

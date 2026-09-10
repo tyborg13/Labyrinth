@@ -1,0 +1,136 @@
+{
+  "ok": true,
+  "source_sha256": "de45fa8548befd346a539252630a5861eca7a305e02f666ee63be87bf7c710e3",
+  "ownership_sha256": "c1c9598b3b282632ed202d2d119dff215baef64cfc615f982db37426459d545d",
+  "parts": [
+    {
+      "name": "orb",
+      "file": "orb.png",
+      "offset": [
+        58,
+        61
+      ],
+      "bbox": [
+        58,
+        61,
+        96,
+        94
+      ]
+    },
+    {
+      "name": "cast_hand",
+      "file": "cast_hand.png",
+      "offset": [
+        53,
+        94
+      ],
+      "bbox": [
+        53,
+        94,
+        87,
+        120
+      ]
+    },
+    {
+      "name": "rest_hand",
+      "file": "rest_hand.png",
+      "offset": [
+        117,
+        112
+      ],
+      "bbox": [
+        117,
+        112,
+        146,
+        137
+      ]
+    },
+    {
+      "name": "cast_sleeve",
+      "file": "cast_sleeve.png",
+      "offset": [
+        70,
+        90
+      ],
+      "bbox": [
+        70,
+        90,
+        109,
+        162
+      ]
+    },
+    {
+      "name": "rest_sleeve",
+      "file": "rest_sleeve.png",
+      "offset": [
+        137,
+        85
+      ],
+      "bbox": [
+        137,
+        85,
+        182,
+        174
+      ]
+    },
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        99,
+        19
+      ],
+      "bbox": [
+        99,
+        19,
+        166,
+        84
+      ]
+    },
+    {
+      "name": "robe_l",
+      "file": "robe_l.png",
+      "offset": [
+        70,
+        134
+      ],
+      "bbox": [
+        70,
+        134,
+        140,
+        237
+      ]
+    },
+    {
+      "name": "robe_r",
+      "file": "robe_r.png",
+      "offset": [
+        140,
+        136
+      ],
+      "bbox": [
+        140,
+        136,
+        202,
+        237
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        86,
+        72
+      ],
+      "bbox": [
+        86,
+        72,
+        178,
+        134
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

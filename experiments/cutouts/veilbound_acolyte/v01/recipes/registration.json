@@ -1,0 +1,40 @@
+{
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "unchanged 255px copy",
+    "bounds": [
+      53,
+      19,
+      202,
+      237
+    ]
+  },
+  "rear": {
+    "source": "source/rear_generated.png",
+    "crop": [
+      303,
+      117,
+      972,
+      1151
+    ],
+    "uniform_scale": 0.21083172147001933,
+    "target_origin": [
+      76,
+      19
+    ],
+    "target_size": [
+      141,
+      218
+    ],
+    "filter": "nearest; retain alpha",
+    "ground_registration": {
+      "front_lower_hem_alpha_centroid_x": 133.39687965929966,
+      "rear_before_x": 115.38014074299949,
+      "rear_translation_x": 18,
+      "rear_after_x": 133.3801407429995,
+      "region": "native y222..236; explicit hem/body comparison, not whole silhouette bbox"
+    }
+  },
+  "projection": "2:1 board; front looks down-left, rear up-right; reflection supplies the other two directions",
+  "concealed_supports": "The source shows a grounded floor-length robe and no feet. Support joints are inferred beneath the hem, not a visible boot anatomy claim."
+}

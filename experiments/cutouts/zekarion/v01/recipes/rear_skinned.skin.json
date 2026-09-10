@@ -1,0 +1,343 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned.json",
+  "fields": [
+    {
+      "name": "fore_near",
+      "parts": [
+        "foreleg_near"
+      ],
+      "bones": [
+        "torso",
+        "upper_near",
+        "lower_near",
+        "claw_near"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            168,
+            147
+          ],
+          "axis": [
+            12,
+            28
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            176,
+            160
+          ],
+          "axis": [
+            12,
+            28
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            176.06080701420834,
+            165.80854969981942
+          ],
+          "axis": [
+            12,
+            28
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "hind_near",
+      "parts": [
+        "hindleg_near"
+      ],
+      "bones": [
+        "root",
+        "thigh_near",
+        "shin_near",
+        "foot_near"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            144,
+            155
+          ],
+          "axis": [
+            2,
+            37
+          ],
+          "width": 24
+        },
+        {
+          "center": [
+            145,
+            172
+          ],
+          "axis": [
+            2,
+            37
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            145.46024741985,
+            182.01457726722492
+          ],
+          "axis": [
+            2,
+            37
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "fore_far",
+      "parts": [
+        "foreleg_far"
+      ],
+      "bones": [
+        "torso",
+        "upper_far",
+        "lower_far",
+        "claw_far"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            178,
+            145
+          ],
+          "axis": [
+            25,
+            18
+          ],
+          "width": 16
+        },
+        {
+          "center": [
+            190,
+            153
+          ],
+          "axis": [
+            25,
+            18
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            194.88465658548506,
+            157.15695274154925
+          ],
+          "axis": [
+            25,
+            18
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "hind_far",
+      "parts": [
+        "hindleg_far"
+      ],
+      "bones": [
+        "root",
+        "thigh_far",
+        "shin_far",
+        "foot_far"
+      ],
+      "grid": [
+        2,
+        1
+      ],
+      "bands": [
+        {
+          "center": [
+            89,
+            155
+          ],
+          "axis": [
+            -7,
+            27
+          ],
+          "width": 24
+        },
+        {
+          "center": [
+            82,
+            169
+          ],
+          "axis": [
+            -7,
+            27
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            84.50962158783726,
+            172.32003101834198
+          ],
+          "axis": [
+            -7,
+            27
+          ],
+          "width": 12
+        }
+      ]
+    },
+    {
+      "name": "neck",
+      "parts": [
+        "neck"
+      ],
+      "bones": [
+        "torso",
+        "neck",
+        "head"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            145,
+            115
+          ],
+          "axis": [
+            2,
+            -41
+          ],
+          "width": 14
+        },
+        {
+          "center": [
+            147,
+            74
+          ],
+          "axis": [
+            2,
+            -41
+          ],
+          "width": 20
+        }
+      ]
+    },
+    {
+      "name": "wing_near",
+      "parts": [
+        "wing_near"
+      ],
+      "bones": [
+        "torso",
+        "wing_near"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            162,
+            128
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 18
+        }
+      ]
+    },
+    {
+      "name": "wing_far",
+      "parts": [
+        "wing_far"
+      ],
+      "bones": [
+        "torso",
+        "wing_far"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            108,
+            113
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 18
+        }
+      ]
+    },
+    {
+      "name": "tail",
+      "parts": [
+        "tail"
+      ],
+      "bones": [
+        "tail_base",
+        "tail_mid",
+        "tail_tip"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            60,
+            205
+          ],
+          "axis": [
+            0,
+            1
+          ],
+          "width": 34
+        },
+        {
+          "center": [
+            142,
+            222
+          ],
+          "axis": [
+            1,
+            0
+          ],
+          "width": 38
+        }
+      ]
+    }
+  ]
+}

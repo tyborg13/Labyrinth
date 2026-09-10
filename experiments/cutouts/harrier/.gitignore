@@ -1,0 +1,3 @@
+# Generated gameplay frames live in the external roster evidence archive.
+# The repository-wide cutout ignore rules also cover complete proof directories.
+runtime_v*/gameplay/*/frame_*.jpg

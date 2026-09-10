@@ -1,0 +1,12 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: background-extraction. Image 1 is the EDIT TARGET, the rear-view blue lightning dragon painting. Remove the gray/white checkerboard background completely and supply a genuinely transparent RGBA alpha channel, including all gaps between wings, claws, tail and neck. Preserve the dragon exactly: same pixels/design, silhouette, pose, proportions, colors, outline and small gold lightning marks. No new painting, no shadow, no background pattern. This is transparent game-sprite production, so a visible checkerboard painted into RGB is not acceptable.",
+  "references": [
+    {
+      "path": "rear_generated.png",
+      "role": "edit target: remove invalid painted checkerboard"
+    }
+  ],
+  "output": "rear_alpha_generated.png",
+  "disposition": "selected for registration; alpha validated"
+}
