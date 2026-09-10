@@ -515,4 +515,8 @@ and revealing the next horizon. Invalid/empty Scout and repeated event requests
 emit nothing. Physical Reach the Exit destinations are committed by the existing
 combat outcome and reward flow; the route event is emitted when that saved
 transition enters its destination. Opening/closing the map and browsing history
-are presentation actions, not room visits or reward choices.
+are presentation actions, not room visits or reward choices. Direct room
+activation uses the same saved route-commit boundary as the former confirmation
+button. Hover/focus previews and entering or cancelling Scout targeting emit
+nothing; `map_scout_used` is emitted only after a valid branch reveal is saved.
+Showing a physical exit on the board remains an inspection action.

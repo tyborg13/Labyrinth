@@ -60,59 +60,87 @@ the encounter. Reward, dialogue and animation locks keep their input priority.
 Scavenger dialogue/shop remains its own interaction; leaving the shop opens
 the map once for onward travel. Closing that map is respected on later refreshes.
 
-A node selects a route preview. The action button commits legal adjacent travel.
-The preview identifies its physical north/east/south door, known next rooms and
-landmarks kept or left behind by this decision; already bypassed landmarks do
-not appear as a new consequence. In a Reach the Exit encounter the action is
-**Show door**: close the map and highlight the matching board exit. The player
-must reach that actual exit. Crossing it commits its exact destination through
-rewards, saving, reloading and automatic travel; it cannot reopen free route
-selection. Each outgoing branch has its own door, separate from the arrival.
+A single click, Enter, or controller confirm on an available room commits its
+legal adjacent travel immediately. There is no persistent room selection or
+second confirmation button. Hover or native focus exposes a shared tooltip
+with the room identity, physical north/east/south door, known next rooms, and
+landmarks kept or left behind. Already bypassed landmarks do not appear as a
+new consequence. Inspecting an unavailable room shows its reason without travel.
+
+Scout is a separate, fixed action beside the legend: activate Scout, then choose
+an available branch to reveal it. Entering targeting mode spends nothing; only
+a valid branch activation spends a use, returns to normal travel, and keeps the
+player in the current room. Escape/controller Back first cancels targeting and
+restores Scout-button focus. A second Back closes the map. Clicking Cancel Scout
+also cancels, and closing or changing sections discards targeting.
+
+In a Reach the Exit encounter, a room activation closes the map and highlights
+the matching board exit. The tooltip explains that the player must reach that
+actual door. Crossing it commits its exact destination through rewards, saving,
+reloading and automatic travel; it cannot reopen free route selection. Each
+outgoing branch has its own door, separate from the arrival. Ordinary combat
+allows inspection and scouting but does not allow map travel.
+
+The Lost Cartographer uses a dedicated encounter panel with its two choices;
+room travel stays blocked until one resolves. This event panel replaces the
+former overloaded map footer. Controller focus starts on the event's first
+choice and returns to available rooms after resolving it.
 
 Section tabs allow reviewing reached sections with discovered history intact.
-A cleared boss keeps a dedicated Next section action available while inspecting
-its map, including after reopening; controller focus starts on that action.
-Future tabs are disabled and do not disclose the future boss order. History
-cannot travel or spend the active section's Scout uses. All interactive pieces
-remain native focusable buttons with mouse, keyboard and controller input.
+A cleared boss exposes Next section in the header, including after reopening;
+controller focus starts on that action. Future tabs are disabled and do not
+disclose the future boss order. History cannot travel or spend the active
+section's Scout uses. Switching sections restores focus to the rebuilt tab.
+The user-approved round bronze section seals are preserved. Up/down navigation
+visits immediate choices in screen order, then reaches the section tabs or Scout;
+left/right and normal native navigation remain available for route inspection.
+The active controller prompt names the focused action: Enter, Scout, Show exit,
+Inspect, an event choice, or section navigation. Back says Cancel Scout while
+targeting and Close otherwise. These labels use the existing device glyph system.
 
-`section_map_panel.gd` composes independent header, tabs, legend, preview and
-actions. `section_map_node.gd` renders each independent room button with painted
+`section_map_panel.gd` composes independent header, tabs, legend, optional
+focus/hover tooltip, Scout targeting and event choice surfaces.
+`section_map_node.gd` renders independent native room buttons with painted
 emblems and medallions. `section_map_canvas.gd` owns route curves; the fog shader
 receives dynamic openings. No routes, labels, icons, fog or taglines are baked
-into the six background paintings. `section_map_skin.gd` owns this menu's
-purpose-built frame treatment. Action buttons extend the shared `UiSkin` forged
-metal family at native proportions; travel has the selected/primary treatment,
-Scout is secondary, and focus has its own brackets. Section navigation keeps
-the user-approved round painted bronze seals, with a separate focus outline.
-Switching sections restores focus to the corresponding rebuilt tab. A compact,
-separately composed legend pairs the painted room symbols with their names and uses a broken-ring swatch for unknown rooms.
+into the six background paintings. Shared `UiSkin` action buttons and
+`UiTooltipPanel` tooltips retain the established metal and brass vocabulary.
 
-The map answers “where am I, and which door should I take?” before showing
-secondary route details. The current room retains its encounter emblem under a
-filled **You are here** marker. Available doors use larger bright medallions and
-physical door labels; the selected door gets a filled **Selected** marker.
-Visited rooms have a check seal and **Visited** label. Bypassed rooms have a
-minus seal, **Not taken** label and faint dashed connections. Known rooms ahead
-retain smaller medallions; unknown identities have broken rings. These states
-combine labels, shape, size and contrast, without relying on color or motion.
-Focus brackets remain distinct from persistent selection. The footer carries
-exact route consequences and reasons that inspected rooms cannot be entered.
+The map answers “which room can I enter now?” in a static frame. Available rooms
+have larger bright seals with four small cardinal points. A slow, 5.5% maximum
+scale pulse draws attention to them; reduced motion freezes their geometry
+without changing the static availability mark. Current position retains its
+room emblem with a filled downward pointer. Visited rooms carry a broad stamped
+ring and a large check seal. Bypassed rooms recede with dark emblems and faint
+dashed paths. Future room icons are smaller and muted; unknown identities have
+broken rings. Boss medallions are approximately three times the diameter of
+ordinary future rooms and almost twice the diameter of immediate choices.
+
+Room nodes have no attached room names, door labels, status captions, or recovery
+amount text. The compact independent legend names the room symbols. Exact
+identities, room state and lost-Ember amounts appear on hover or keyboard/controller
+focus. Focus brackets remain distinct from availability and completion marks.
+The four depth captions are removed from the field; depth-compatible encounter
+rules and graph coordinates are unchanged. The map does not require hover to
+inspect mechanics: native focus exposes the same tooltip.
 
 Connections leave and enter medallions horizontally, then curve between lanes.
-Only immediate exits carry small direction cues, aligned to the curve tangent.
-The selected exit is strongest, its possible continuation is subdued, and
-completed travel remains visible without competing with the next decision. Generation prompts are retained beside this
-specification.
+Only immediate exits carry small direction cues aligned to the curve tangent.
+The inspected branch's possible continuation is subdued; completed travel stays
+visible without competing with immediate choices. Generation prompts are
+retained beside this specification.
 
-UI rubric: native 1920×1080 at 100% scale is the acceptance configuration.
-Hierarchy, body-text readability, clear interaction/disabled/focus states,
-consistent painted materials, independent assets, rule-accurate action text and
-no ornamental taglines apply. The bespoke mostly full-screen map and dedicated
-frame assets are explicit user-requested exceptions to preferring shared small
-modal surfaces. Fresh renderer proofs cover start, a three-room fork, scouting,
-history, all six backgrounds, reward entry, keyboard/controller focus, event
-resolution and physical door inspection.
+Design statement: this is the map/room-choice surface. The player's question is
+which available room to enter; a single room activation advances that choice.
+Availability, current position and completion are persistent, while exact route
+consequences are optional hover/focus details. Pointer, keyboard and controller
+share the same activation rules, with explicit Scout targeting/cancel and focus
+recovery. Native 1920×1080 at 100% scale proofs cover opening choices, history,
+boss hierarchy, normal/reduced motion, optional details, Scout cancel/commit,
+single-action travel by all three inputs, event resolution, physical door
+inspection, recovery and all six backgrounds. The mostly full-screen map and
+its authored frames remain explicit user-requested exceptions to preferring
+shared small modal surfaces.
 
 ## Saves, recovery and analytics
 
@@ -122,8 +150,8 @@ legacy generation/repair rules. No in-progress run is converted to a different
 route. New-run recovery maps lost Embers to an existing combat/boss near the old
 depth, keeping every generated service and connection intact. The selected
 recovery coordinate is saved and the matching encounter owns the Ember pile.
-The map exposes its recovery badge and amount through fog without granting the
-unknown room identity. Route previews explicitly keep or leave those lost Embers;
+The map exposes its recovery badge through fog without granting the unknown
+room identity; focus/hover details retain the exact amount. Route previews explicitly keep or leave those lost Embers;
 the badge survives resume and disappears after collection.
 
 Map decisions and reveals enter a saved ordered outbox. The live game and

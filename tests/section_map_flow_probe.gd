@@ -5,7 +5,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
-var output_dir: String = "user://section_map_flow_v1"
+var output_dir: String = "user://section_map_flow_v2"
 var viewport: SubViewport
 var instance: Node
 var failed: bool = false
@@ -29,21 +29,37 @@ func _initialize() -> void:
 	var panel: Control = instance.get("_large_map_view")
 	var choices: Array = panel.call("available_destinations")
 	var selected: Vector2i = choices[0]
+	var before_coord: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room", Vector2i.ZERO)
 	var target_button: Control = (panel.get("node_buttons") as Dictionary).get(selected)
-	await _pointer_click(target_button.global_position + Vector2(50, 48))
-	_check(panel.get("selected_coord") == selected, "Pointer selection updates the actual route preview")
-	_check((target_button.get("status_label") as Label).text == "SELECTED", "Selected available route is explicitly labeled")
-	var current_button: Control = (panel.get("node_buttons") as Dictionary).get(state.get("current_room"))
-	_check((current_button.get("status_label") as Label).text == "YOU ARE HERE", "The player's position remains distinct from the selected destination")
-	await _capture("01b_pointer_selection.png")
+	# Current, bypassed, and future rooms remain inspectable but cannot travel.
+	var blocked_states: Dictionary = {}
+	for coord: Vector2i in (panel.get("node_buttons") as Dictionary):
+		var blocked: Control = (panel.get("node_buttons") as Dictionary)[coord]
+		var route_state: String = str(blocked.get("route_state"))
+		if route_state == "reachable" or blocked_states.has(route_state): continue
+		blocked_states[route_state] = true
+		await _pointer_click(blocked.get_global_rect().get_center())
+		_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord and _route_choices(instance.get("_run_state")) == _route_choices(state), "Activating " + route_state + " only inspects; no travel or route event")
+	await _pointer_hover(target_button.get_global_rect().get_center())
+	_check(panel.get("selected_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Hover previews the branch without requiring a selection or moving the player")
+	_check(str(panel.get("_preview_text")).contains("door"), "Optional tooltip retains the physical door identity")
+	await _capture("01b_pointer_preview.png")
 	panel.call("focus_controller_on_current")
 	await _capture("02_keyboard_focus.png")
-	_check(viewport.gui_get_focus_owner() != null, "Map selection owns visible native keyboard/controller focus")
-	var before_coord: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room", Vector2i.ZERO)
+	_check(viewport.gui_get_focus_owner() != null and panel.get("_preview") != null, "Native keyboard/controller focus exposes the same route details without hover")
 	var scout_button: Button = panel.get("_scout")
 	scout_button.grab_focus()
 	await _key(KEY_ENTER)
-	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 1, "Keyboard activation spends one Scout use through the actual button")
+	_check(bool(panel.get("scout_targeting")) and int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2, "Scout activation starts branch targeting without spending a use")
+	_check(_prompt_labels().has("Scout") and _prompt_labels().has("Cancel Scout"), "Controller cues distinguish Scout targeting from travel and closing")
+	await _capture("02b_scout_targeting.png")
+	await _key(KEY_ESCAPE)
+	_check(scrim.visible and not bool(panel.get("scout_targeting")), "Keyboard cancel leaves the map open and exits Scout targeting")
+	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2, "Cancelling Scout does not spend a use")
+	scout_button.grab_focus()
+	await _key(KEY_ENTER)
+	await _key(KEY_ENTER)
+	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 1 and not bool(panel.get("scout_targeting")), "Confirming a branch spends one Scout use and exits targeting")
 	_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Scouting cannot move the player")
 	await _capture("03_scout_result.png")
 	await _key(KEY_ESCAPE)
@@ -61,8 +77,34 @@ func _initialize() -> void:
 	await _joy(JOY_BUTTON_DPAD_RIGHT)
 	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner() != old_focus, "Controller direction moves native focus between map controls")
 	await _capture("04b_controller_navigation.png")
+	# Use a fresh horizon: the first Scout may have revealed every nearby branch.
+	_load(state.duplicate(true))
+	await process_frame
+	await process_frame
+	scout_button.grab_focus()
+	await _joy(JOY_BUTTON_A)
+	_check(bool(panel.get("scout_targeting")), "Controller activation starts Scout targeting")
 	await _joy(JOY_BUTTON_B)
-	_check(not scrim.visible, "Controller cancel closes the map")
+	_check(scrim.visible and not bool(panel.get("scout_targeting")), "Controller Back cancels Scout before closing the map")
+	await _joy(JOY_BUTTON_B)
+	_check(not scrim.visible, "Controller cancel closes the map outside Scout targeting")
+	# Actual pointer, keyboard, and controller activation each commit travel once.
+	for input_kind: String in ["pointer", "keyboard", "controller"]:
+		router.call("set_forced_state_for_test", "controller" if input_kind == "controller" else "pointer", "xbox")
+		_load(state.duplicate(true))
+		await process_frame
+		await process_frame
+		target_button = (panel.get("node_buttons") as Dictionary).get(selected)
+		if input_kind == "pointer":
+			await _pointer_click(target_button.get_global_rect().get_center())
+		else:
+			target_button.grab_focus()
+			if input_kind == "keyboard": await _key(KEY_ENTER)
+			else: await _joy(JOY_BUTTON_A)
+		await _wait_travel(selected)
+		_check(_route_choices(instance.get("_run_state")) == _route_choices(state) + 1, "Direct " + input_kind + " activation commits exactly one route analytics event")
+		_check((instance.get("_run_state") as Dictionary).get("current_room") == selected, "One " + input_kind + " activation enters the exact chosen room")
+		await _capture("04c_direct_" + input_kind + ".png")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	# Match a generated reach-exit room to its real board doors.
 	state = engine.create_new_run(92, Progression.default_data())
@@ -90,11 +132,10 @@ func _initialize() -> void:
 	await _capture("05_reach_exit_map.png")
 	choices = panel.call("available_destinations")
 	if not choices.is_empty():
-		panel.call("select_room", choices[0])
 		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
-		var door_button: Button = panel.get("_enter")
+		var door_button: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
 		await _pointer_click(door_button.get_global_rect().get_center())
-		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "Show door returns to combat without committing travel")
+		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "One room click shows its physical exit without committing travel")
 	await _capture("06_reach_exit_board.png")
 	state = engine.create_new_run(93, Progression.default_data())
 	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
@@ -107,11 +148,27 @@ func _initialize() -> void:
 	_load(state)
 	await process_frame
 	await _capture("07_event.png")
-	_check(scrim.visible, "Event choices appear in the live map flow")
-	var event_button: Button = panel.get("_enter")
+	_check(scrim.visible and (panel.get("_event_panel") as Control).visible, "Event choices appear as a dedicated encounter surface")
+	for coord: Vector2i in panel.call("available_destinations"):
+		_check(not bool(panel.call("can_activate_room", coord)), "Event resolution blocks direct room travel")
+	var event_button: Button = panel.get("_event_embers")
 	await _pointer_click(event_button.get_global_rect().get_center())
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "The event releases normal route selection")
 	await _capture("08_event_resolved.png")
+	_load(state.duplicate(true))
+	await process_frame
+	await process_frame
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	panel.call("focus_controller_on_current")
+	_check(viewport.gui_get_focus_owner() == panel.get("_event_embers"), "Controller focus enters the dedicated event choices")
+	_check(_prompt_labels().has("Take Embers"), "The event confirm cue names the focused choice")
+	await _capture("08b_event_controller.png")
+	await _joy(JOY_BUTTON_A)
+	await process_frame
+	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "Controller confirm resolves the event")
+	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner().get_parent() == panel.get("_nodes"), "Controller event resolution restores room focus")
+	_check(_prompt_labels().has("Enter"), "The room confirm cue explicitly means direct entry")
+	await _capture("08c_event_focus_restored.png")
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(output_dir))
@@ -203,3 +260,30 @@ func _setup() -> void:
 	viewport.add_child(instance)
 	await process_frame
 	await process_frame
+
+func _pointer_hover(position: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	viewport.push_input(motion, true)
+	await process_frame
+	await process_frame
+
+func _wait_travel(destination: Vector2i) -> void:
+	for tick: int in range(100):
+		if (instance.get("_run_state") as Dictionary).get("current_room") == destination and not bool(instance.get("_animation_lock")):
+			break
+		await create_timer(0.05).timeout
+	await process_frame
+	await process_frame
+
+func _route_choices(state: Dictionary) -> int:
+	var count: int = 0
+	for event: Dictionary in state.get("map_events", []):
+		if str(event.get("type", "")) == "route_choice_committed": count += 1
+	return count
+
+func _prompt_labels() -> Array[String]:
+	var labels: Array[String]
+	for prompt: Dictionary in instance.get("_controller_prompt_bar").call("prompts_snapshot"):
+		labels.append(str(prompt.get("label", "")))
+	return labels

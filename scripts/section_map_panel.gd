@@ -13,12 +13,15 @@ const TooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const NodeButton = preload("res://scripts/section_map_node.gd")
 const Canvas = preload("res://scripts/section_map_canvas.gd")
 const LegacyMap = preload("res://scripts/labyrinth_map_view.gd")
+const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
+const Settings = preload("res://scripts/settings_store.gd")
 const Fog = preload("res://shaders/section_map_fog.gdshader")
 
 signal room_selected(coord: Vector2i)
 signal scout_requested(coord: Vector2i)
 signal door_requested(coord: Vector2i)
 signal event_requested(choice: String)
+signal interaction_changed
 signal close_requested
 
 var run_state: Dictionary = {}
@@ -36,16 +39,21 @@ var _header: HBoxContainer
 var _title: Label
 var _progress: Label
 var _tabs: HBoxContainer
-var _detail: Label
-var _consequence: Label
 var _scout: Button
-var _enter: Button
+var _continue: Button
 var _close: Button
 var _legacy: Control
 var _layout: VBoxContainer
 var _field: Control
-var _selection_status: Label
 var _boss_legend_icon: TextureRect
+var scout_targeting: bool = false
+var _scout_hint: Label
+var _preview: PanelContainer
+var _preview_text: String = ""
+var _event_panel: PanelContainer
+var _event_embers: Button
+var _event_survey: Button
+var _reduced_motion: bool = false
 
 func _ready() -> void:
 	_build()
@@ -80,7 +88,13 @@ func _build() -> void:
 	_tabs.add_theme_constant_override("separation", 8)
 	_tabs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_header.add_child(_tabs)
-	_close = _button("X", func() -> void: close_requested.emit(), UiSkin.VARIANT_ICON)
+	_continue = _button("Next section", _request_onward, UiSkin.VARIANT_SELECTED)
+	_continue.name = "NextSectionButton"
+	_skin.apply_button_native_size(_continue, 56, 224, false, UiSkin.VARIANT_SELECTED)
+	_continue.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_header.add_child(_continue)
+	_continue.hide()
+	_close = _button("X", _request_close, UiSkin.VARIANT_ICON)
 	_close.name = "CloseButton"
 	_close.custom_minimum_size = Vector2(48, 48)
 	_close.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -113,39 +127,25 @@ func _build() -> void:
 	_full_field(_nodes)
 	var footer: PanelContainer = _panel()
 	_layout.add_child(footer)
-	var footer_stack := VBoxContainer.new()
-	footer_stack.add_theme_constant_override("separation", 12)
-	footer.add_child(footer_stack)
-	var actions := HBoxContainer.new()
-	actions.add_theme_constant_override("separation", 16)
-	footer_stack.add_child(actions)
-	var detail_stack := VBoxContainer.new()
-	detail_stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	detail_stack.custom_minimum_size.x = 470
-	actions.add_child(detail_stack)
-	_selection_status = _label("", Typography.ROLE_CAPTION)
-	_selection_status.add_theme_color_override("font_color", Color("bca77d"))
-	detail_stack.add_child(_selection_status)
-	_detail = _label("", Typography.ROLE_TITLE)
-	detail_stack.add_child(_detail)
-	_consequence = _label("", Typography.ROLE_BODY_LARGE)
-	_consequence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_consequence.custom_minimum_size.y = 48
-	detail_stack.add_child(_consequence)
-	_scout = _button("Scout", _request_scout)
+	var legend_row := HBoxContainer.new()
+	legend_row.add_theme_constant_override("separation", 24)
+	footer.add_child(legend_row)
+	var legend := _build_legend()
+	legend.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	legend.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	legend_row.add_child(legend)
+	_scout_hint = _label("Choose a branch", Typography.ROLE_BODY)
+	_scout_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	legend_row.add_child(_scout_hint)
+	_scout = _button("Scout", _toggle_scout)
 	_scout.name = "ScoutButton"
 	_skin.apply_button_native_size(_scout, 56, 224, false, UiSkin.VARIANT_STANDARD)
 	_scout.icon = MapSkin.icon_texture("scout")
 	_scout.expand_icon = true
 	_scout.add_theme_constant_override("icon_max_width", 28)
 	_scout.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	actions.add_child(_scout)
-	_enter = _button("Enter room", _request_entry, UiSkin.VARIANT_SELECTED)
-	_enter.name = "EnterRoomButton"
-	_skin.apply_button_native_size(_enter, 60, 264, false, UiSkin.VARIANT_SELECTED)
-	_enter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	actions.add_child(_enter)
-	footer_stack.add_child(_build_legend())
+	legend_row.add_child(_scout)
+	_build_event()
 	_legacy = LegacyMap.new()
 	_legacy.name = "LegacyMap"
 	_legacy.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -161,10 +161,11 @@ func _build() -> void:
 func _build_legend() -> HBoxContainer:
 	var legend := HBoxContainer.new()
 	legend.name = "MapLegend"
-	legend.add_theme_constant_override("separation", 22)
+	legend.add_theme_constant_override("separation", 18)
 	for type: String in ["combat", "event", "scavenger", "treasure", "campfire", "boss", "unknown"]:
 		var item := HBoxContainer.new()
 		item.add_theme_constant_override("separation", 6)
+		item.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		legend.add_child(item)
 		if type == "unknown":
 			var mark := Control.new()
@@ -205,6 +206,8 @@ func _button(text: String, action: Callable, variant: String = UiSkin.VARIANT_ST
 	button.text = text
 	MapSkin.button(button, variant)
 	button.pressed.connect(action)
+	button.focus_entered.connect(interaction_changed.emit)
+	button.focus_exited.connect(interaction_changed.emit)
 	return button
 
 func _full_field(control: Control) -> void:
@@ -222,13 +225,14 @@ func set_run_state(source: Dictionary) -> void:
 	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
 	if previous_current != run_state.get("current_room", Graph.INVALID):
 		viewed_section = Graph.active_section(run_state)
-		selected_coord = Graph.INVALID
+		reset_interaction()
 	if _built:
 		_refresh()
 
 func _refresh() -> void:
 	if not _built or run_state.is_empty():
 		return
+	_reduced_motion = Settings.reduced_motion_enabled(Settings.load_settings())
 	var modern: bool = Graph.enabled(run_state)
 	_layout.visible = modern
 	_legacy.visible = not modern
@@ -251,6 +255,7 @@ func _refresh() -> void:
 		var tab := TooltipButton.new()
 		tab.text = _roman(index)
 		tab.pressed.connect(select_section.bind(index))
+		tab.focus_entered.connect(interaction_changed.emit)
 		tab.name = "Section%d" % (index + 1)
 		tab.custom_minimum_size = Vector2(62, 62)
 		tab.toggle_mode = true
@@ -260,11 +265,10 @@ func _refresh() -> void:
 		tab.tooltip_text = str(Graph.section(run_state, index).get("title", "")) if not tab.disabled else "Unreached section"
 		_tabs.add_child(tab)
 	_background.texture = Assets.load_texture("res://assets/art/backgrounds/sections/%s.png" % str(info.get("boss_id", "tharokh")))
-	if selected_coord == Graph.INVALID or int(Graph.room(run_state, selected_coord).get("section_index", -1)) != viewed_section:
-		var choices: Array[Vector2i] = available_destinations()
-		selected_coord = choices[0] if viewed_section == Graph.active_section(run_state) and not choices.is_empty() else info.get("boss", Graph.INVALID)
 	_layout_nodes()
-	_refresh_detail()
+	_refresh_actions()
+	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord):
+		_show_preview(selected_coord)
 
 func available_destinations() -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -283,7 +287,7 @@ func select_section(index: int) -> void:
 	for tab: Control in _tabs.get_children():
 		restore_tab_focus = restore_tab_focus or tab.has_focus()
 	viewed_section = index
-	selected_coord = Graph.INVALID
+	reset_interaction()
 	_refresh()
 	# Refresh rebuilds the reached-section tabs. Restore the native focus owner
 	# so keyboard/controller users can keep navigating after switching history.
@@ -291,16 +295,46 @@ func select_section(index: int) -> void:
 		(_tabs.get_child(index) as Control).grab_focus()
 
 func select_room(coord: Vector2i) -> void:
-	if not node_buttons.has(coord):
+	# Inspection is optional and never a prerequisite for activating a room.
+	_show_preview(coord)
+
+func can_activate_room(coord: Vector2i) -> bool:
+	if viewed_section != Graph.active_section(run_state) or not available_destinations().has(coord): return false
+	var mode: String = str(run_state.get("mode", ""))
+	if scout_targeting:
+		return mode in ["room", "combat", "pre_battle"] and not Graph.scout_targets(run_state, coord).is_empty()
+	return mode == "room" or (mode == "combat" and bool(run_state.get("reach_exit", false)))
+
+func activate_room(coord: Vector2i) -> void:
+	if not can_activate_room(coord):
+		_show_preview(coord)
 		return
-	selected_coord = coord
-	for key: Vector2i in node_buttons:
-		var button: Button = node_buttons[key]
-		button.set("selected", key == selected_coord)
-		button.call("refresh_state")
-	_canvas.set("selected", coord)
-	_canvas.queue_redraw()
-	_refresh_detail()
+	if scout_targeting:
+		scout_targeting = false
+		_hide_preview()
+		scout_requested.emit(coord)
+		_refresh_actions()
+	elif str(run_state.get("mode", "")) == "combat":
+		_hide_preview()
+		door_requested.emit(coord)
+	else:
+		_hide_preview()
+		room_selected.emit(coord)
+
+func cancel_action() -> bool:
+	if not scout_targeting: return false
+	scout_targeting = false
+	_hide_preview()
+	_refresh_actions()
+	_scout.grab_focus()
+	return true
+
+func reset_interaction() -> void:
+	scout_targeting = false
+	_hide_preview()
+
+func _request_close() -> void:
+	if not cancel_action(): close_requested.emit()
 
 func _layout_nodes() -> void:
 	if not _built or not Graph.enabled(run_state) or _field.size.x < 100:
@@ -315,18 +349,6 @@ func _layout_nodes() -> void:
 	node_buttons.clear()
 	var info: Dictionary = Graph.section(run_state, viewed_section)
 	var count: int = int(info.get("room_count", 11))
-	for band: int in range(4):
-		var low_step: int = count
-		var high_step: int = 0
-		for candidate: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
-			if int(candidate.get("section_index", -1)) == viewed_section and int(candidate.get("depth", -1)) == viewed_section * 4 + band + 1:
-				low_step = mini(low_step, int(candidate.get("map_step", count)))
-				high_step = maxi(high_step, int(candidate.get("map_step", 0)))
-		var band_label: Label = _label("DEPTH " + _roman(band), Typography.ROLE_BODY_LARGE)
-		band_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		band_label.position = Vector2(68 + (_field.size.x - 136) * float(low_step + high_step) / (2.0 * count) - 60, 18)
-		band_label.size = Vector2(120, 28)
-		_nodes.add_child(band_label)
 	var available: Array[Vector2i] = available_destinations()
 	var future: Dictionary = Graph.descendants(run_state, run_state.get("current_room", Graph.INVALID))
 	var positions: Dictionary = {}
@@ -335,26 +357,29 @@ func _layout_nodes() -> void:
 		if int(node.get("section_index", -1)) != viewed_section or not (bool(node.get("revealed", false)) or bool(node.get("map_outline", false)) or _has_recovery(node)):
 			continue
 		var coord: Vector2i = node.get("coord", Graph.INVALID)
-		var x: float = 68 + (_field.size.x - 136) * float(node.get("map_step", 0)) / float(count)
-		var y: float = 152 + (_field.size.y - 282) * (float(node.get("map_lane", 1)) / 2.0)
+		var x: float = 80 + (_field.size.x - 204) * float(node.get("map_step", 0)) / float(count)
+		var y: float = 116 + (_field.size.y - 232) * (float(node.get("map_lane", 1)) / 2.0)
 		var point := Vector2(x, y)
 		positions[coord] = point
 		var button: Button = NodeButton.new()
 		button.name = "Room_%s" % Graph.key(coord).replace("-", "n").replace(",", "_")
-		button.position = point - Vector2(50, 48)
-		button.size = Vector2(100, 160)
+		var extent: float = 106.0 if str(node.get("type", "")) == "boss" else 61.0
+		button.position = point - Vector2.ONE * extent
+		button.size = Vector2.ONE * extent * 2.0
 		var state: String = _node_route_state(node, available, future)
-		var caption: String = _room_label(node).replace(" Fight", "\nFight")
-		button.call("configure", node, caption, state)
-		button.set("selected", selected_coord == coord)
-		button.set("door_label", _door_name(coord).to_upper())
+		button.call("configure", node, _room_label(node), state, _reduced_motion)
+		button.set("actionable", can_activate_room(coord))
 		button.call("refresh_state")
-		button.pressed.connect(select_room.bind(coord))
-		button.focus_entered.connect(select_room.bind(coord))
+		button.pressed.connect(activate_room.bind(coord))
+		button.focus_entered.connect(_show_preview.bind(coord))
+		button.focus_exited.connect(_hide_preview_for.bind(coord))
+		button.mouse_entered.connect(_show_preview.bind(coord))
+		button.mouse_exited.connect(_hide_preview_for.bind(coord))
 		_nodes.add_child(button)
 		node_buttons[coord] = button
 		if bool(node.get("revealed", false)) or _has_recovery(node):
 			openings.append(Vector4(x / _field.size.x, y / _field.size.y, 0.081, 0.21))
+	_wire_choice_focus()
 	if focused_coord != Graph.INVALID and node_buttons.has(focused_coord):
 		(node_buttons[focused_coord] as Control).grab_focus()
 	var opening_count: int = mini(32, openings.size())
@@ -378,16 +403,14 @@ func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dic
 	if available.has(coord) and viewed_section == Graph.active_section(run_state): return "reachable"
 	return "ahead"
 
-func _refresh_detail() -> void:
-	var node: Dictionary = Graph.room(run_state, selected_coord)
+func room_description(coord: Vector2i) -> String:
+	var node: Dictionary = Graph.room(run_state, coord)
 	var mode: String = str(run_state.get("mode", "room"))
 	var active: bool = viewed_section == Graph.active_section(run_state)
-	var available: bool = active and available_destinations().has(selected_coord)
+	var available: bool = active and available_destinations().has(coord)
 	var known: bool = bool(node.get("revealed", false))
-	_detail.text = _room_label(node)
 	var future: Dictionary = Graph.descendants(run_state, run_state.get("current_room", Graph.INVALID))
 	var route_state: String = _node_route_state(node, available_destinations(), future)
-	_selection_status.text = {"current": "YOU ARE HERE", "visited": "VISITED ROOM", "bypassed": "ROUTE NOT TAKEN", "reachable": _door_name(selected_coord).to_upper() + " · SELECTED", "ahead": "AHEAD · " + ("KNOWN ROOM" if known else "UNEXPLORED")}.get(route_state, "")
 	var next_names: Array[String] = []
 	if known:
 		for link: Dictionary in node.get("connections", []):
@@ -400,7 +423,7 @@ func _refresh_detail() -> void:
 	if available:
 		var keeps: Array[String] = []
 		var leaves: Array[String] = []
-		var descendants: Dictionary = Graph.descendants(run_state, selected_coord)
+		var descendants: Dictionary = Graph.descendants(run_state, coord)
 		for candidate: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
 			if int(candidate.get("section_index", -1)) != viewed_section or not future.has(candidate.get("coord", Graph.INVALID)):
 				continue
@@ -412,48 +435,176 @@ func _refresh_detail() -> void:
 		if not keeps.is_empty(): detail += "\nKeeps: %s" % ", ".join(keeps)
 		if not leaves.is_empty(): detail += "  ·  Leaves: %s" % ", ".join(leaves)
 	elif not active:
-		detail = "Completed section · Discovered routes"
+		detail = "Completed section"
 	elif bool(node.get("visited", false)):
-		detail = "Current room" if selected_coord == run_state.get("current_room", Graph.INVALID) else "Already visited"
+		detail = "Current room" if coord == run_state.get("current_room", Graph.INVALID) else "Already visited"
 	else:
 		detail = ("This route is no longer reachable." if route_state == "bypassed" else "Reach an earlier room on this route first.") + ("  ·  " + detail if not detail.is_empty() else "")
 	if _has_recovery(node):
 		detail += "\nRecover %d lost Embers here." % int(node.get("recovery_amount", 0))
-	_consequence.text = detail
-	var targets: Array[Vector2i] = Graph.scout_targets(run_state, selected_coord)
-	_scout.text = "Scout · %d / 2" % int(Graph.section(run_state, viewed_section).get("scouts", 0))
-	_scout.disabled = not available or targets.is_empty() or mode not in ["room", "combat", "pre_battle"]
-	_scout.tooltip_text = "Reveal %d rooms along this branch, up to four steps ahead." % targets.size() if not targets.is_empty() else "This branch has no new rooms to reveal."
-	if int(Graph.section(run_state, viewed_section).get("scouts", 0)) <= 0:
-		_scout.tooltip_text = "Both Scouts have been used in this section."
-	elif not available:
-		_scout.tooltip_text = "Select an available door to scout its route." if active else "Scouting is unavailable in completed sections."
-	_enter.disabled = not available or mode != "room"
-	_enter.text = "Enter %s" % _type_label(str(node.get("type", "room"))) if available else {"current": "Current room", "visited": "Already visited", "bypassed": "Route not taken"}.get(route_state, "Further ahead")
-	if mode == "combat":
-		_enter.text = "Show door" if bool(run_state.get("reach_exit", false)) and available else "Combat in progress"
-		_enter.disabled = not (bool(run_state.get("reach_exit", false)) and available)
-		if bool(run_state.get("reach_exit", false)) and available:
-			_consequence.text = detail + "\nReach this door to take this route."
-	if active and mode == "event":
-		_selection_status.text = "CURRENT EVENT"
-		_detail.text = "The Lost Cartographer"
-		_consequence.text = "Take 25 Embers or reveal every route up to four rooms ahead."
-		_enter.text = "Take 25 Embers"
-		_enter.disabled = false
-		_scout.text = "Reveal routes"
-		_scout.disabled = not event_has_discoveries()
+	var heading: String = _room_label(node)
+	if available:
+		heading += " · " + _door_name(coord)
+		if scout_targeting:
+			var targets: Array[Vector2i] = Graph.scout_targets(run_state, coord)
+			detail = ("Scout: reveal %d rooms ahead." % targets.size() if not targets.is_empty() else "No new rooms to reveal on this branch.") + "\n" + detail
+		elif mode == "combat":
+			detail = ("Show this exit on the board. Reach the door to take this route." if bool(run_state.get("reach_exit", false)) else "Finish combat before entering this room.") + "\n" + detail
+		elif mode != "room":
+			detail = "Resolve the current room first.\n" + detail
+	return heading + "\n" + detail
+
+func _show_preview(coord: Vector2i) -> void:
+	if not node_buttons.has(coord) or _event_panel.visible: return
+	_hide_preview()
+	selected_coord = coord
+	_preview_text = room_description(coord)
+	_preview = Tooltip.make_text(_preview_text)
+	_preview.name = "RoomPreview"
+	# Shared inset ornaments draw one layer behind their parent. Keep both
+	# the tooltip body and its text above the map background and nodes.
+	_preview.z_index = 2
+	_field.add_child(_preview)
+	_preview.reset_size()
+	_position_preview.call_deferred(coord)
+	_canvas.set("selected", coord)
+	_canvas.queue_redraw()
+	interaction_changed.emit()
+
+func _position_preview(coord: Vector2i) -> void:
+	if _preview == null or selected_coord != coord or not node_buttons.has(coord): return
+	var button: Control = node_buttons[coord]
+	var center: Vector2 = button.position + button.size * 0.5
+	var radius: float = float(button.call("visual_radius")) + 18.0
+	var y: float = center.y + radius if center.y < _field.size.y * 0.55 else center.y - radius - _preview.size.y
+	_preview.position = Vector2(clampf(center.x - _preview.size.x * 0.5, 12, _field.size.x - _preview.size.x - 12), clampf(y, 12, _field.size.y - _preview.size.y - 12))
+
+func _hide_preview_for(coord: Vector2i) -> void:
+	if selected_coord == coord: _hide_preview()
+
+func _hide_preview() -> void:
+	selected_coord = Graph.INVALID
+	_preview_text = ""
+	if is_instance_valid(_preview):
+		_preview.hide()
+		_preview.queue_free()
+	_preview = null
+	if _canvas != null:
+		_canvas.set("selected", Graph.INVALID)
+		_canvas.queue_redraw()
+	interaction_changed.emit()
+
+func _refresh_actions() -> void:
+	var return_room_focus: bool = _event_panel.visible and (_event_embers.has_focus() or _event_survey.has_focus())
+	var active: bool = viewed_section == Graph.active_section(run_state)
+	var mode: String = str(run_state.get("mode", ""))
+	var uses: int = int(Graph.section(run_state, viewed_section).get("scouts", 0))
+	var has_targets: bool = false
+	for coord: Vector2i in available_destinations():
+		has_targets = has_targets or not Graph.scout_targets(run_state, coord).is_empty()
+	_scout.disabled = not active or uses <= 0 or not has_targets or mode not in ["room", "combat", "pre_battle"]
+	if _scout.disabled: scout_targeting = false
+	_scout.text = "Cancel Scout" if scout_targeting else "Scout · %d / 2" % uses
+	_scout.tooltip_text = "Choose an available branch to reveal rooms up to four steps ahead."
+	if uses <= 0: _scout.tooltip_text = "Both Scouts have been used in this section."
+	elif not active: _scout.tooltip_text = "Scouting is unavailable in completed sections."
+	elif not has_targets: _scout.tooltip_text = "No new rooms to reveal on the available branches."
+	elif mode not in ["room", "combat", "pre_battle"]: _scout.tooltip_text = "Resolve the current room first."
+	_scout_hint.visible = scout_targeting
+	_continue.visible = _next_section_destination() != Graph.INVALID
+	_continue.disabled = not _continue.visible
+	_event_panel.visible = active and mode == "event"
+	_event_survey.disabled = not event_has_discoveries()
+	_event_survey.tooltip_text = "All routes within four rooms are already revealed." if _event_survey.disabled else "Reveal every route up to four rooms ahead."
+	for coord: Vector2i in node_buttons:
+		var button: Button = node_buttons[coord]
+		button.set("actionable", can_activate_room(coord))
+		button.focus_mode = Control.FOCUS_NONE if _event_panel.visible else Control.FOCUS_ALL
+		button.mouse_filter = Control.MOUSE_FILTER_IGNORE if _event_panel.visible else Control.MOUSE_FILTER_STOP
+		button.call("refresh_state")
+	_wire_choice_focus()
+	if return_room_focus and not _event_panel.visible:
+		focus_controller_on_current()
+	interaction_changed.emit()
+
+func _wire_choice_focus() -> void:
+	# Vertical navigation follows the current decision before visiting other
+	# depths. The ends lead to tabs/Scout so this does not trap native focus.
+	for button: Control in node_buttons.values():
+		button.focus_neighbor_top = NodePath("")
+		button.focus_neighbor_bottom = NodePath("")
+		button.focus_neighbor_left = NodePath("")
+	if _event_panel.visible or viewed_section != Graph.active_section(run_state): return
+	var choices: Array[Vector2i]
+	for coord: Vector2i in available_destinations():
+		if node_buttons.has(coord) and (not scout_targeting or can_activate_room(coord)):
+			choices.append(coord)
+	choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return (node_buttons[a] as Control).position.y < (node_buttons[b] as Control).position.y)
+	for index: int in range(choices.size()):
+		var button: Control = node_buttons[choices[index]]
+		var above: Control = node_buttons[choices[index - 1]] if index > 0 else _tabs.get_child(viewed_section)
+		var below: Control = node_buttons[choices[index + 1]] if index + 1 < choices.size() else _scout
+		button.focus_neighbor_top = button.get_path_to(above)
+		button.focus_neighbor_bottom = button.get_path_to(below)
+		var current: Control = node_buttons.get(run_state.get("current_room", Graph.INVALID))
+		if current != null: button.focus_neighbor_left = button.get_path_to(current)
+	if not choices.is_empty():
+		_scout.focus_neighbor_top = _scout.get_path_to(node_buttons[choices.back()])
+		var tab: Control = _tabs.get_child(viewed_section)
+		tab.focus_neighbor_bottom = tab.get_path_to(node_buttons[choices.front()])
+
+func controller_action_label() -> String:
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused == _scout: return "Cancel Scout" if scout_targeting else "Scout"
+	if focused == _continue: return "Continue"
+	if focused == _close: return "Close"
+	if focused == _event_embers: return "Take Embers"
+	if focused == _event_survey: return "Reveal routes"
+	if focused != null and focused.get_parent() == _tabs: return "View section"
+	for coord: Vector2i in node_buttons:
+		if node_buttons[coord] != focused: continue
+		if not can_activate_room(coord): return "Inspect"
+		if scout_targeting: return "Scout"
+		return "Show exit" if str(run_state.get("mode", "")) == "combat" else "Enter"
+	return "Confirm"
+
+func _toggle_scout() -> void:
+	if _scout.disabled: return
+	if cancel_action(): return
+	scout_targeting = true
+	_hide_preview()
+	_refresh_actions()
+	focus_controller_on_current()
+
+func _build_event() -> void:
+	_event_panel = _panel()
+	_event_panel.name = "CartographerEvent"
+	_event_panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_event_panel.position = Vector2(-340, -114)
+	_event_panel.custom_minimum_size = Vector2(680, 228)
+	_field.add_child(_event_panel)
+	var stack := VBoxContainer.new()
+	stack.add_theme_constant_override("separation", 20)
+	_event_panel.add_child(stack)
+	stack.add_child(_label("The Lost Cartographer", Typography.ROLE_TITLE))
+	var description := _label("Take 25 Embers, or reveal every route up to four rooms ahead.", Typography.ROLE_BODY_LARGE)
+	description.custom_minimum_size.x = 540
+	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	stack.add_child(description)
+	var choices := HBoxContainer.new()
+	choices.add_theme_constant_override("separation", 20)
+	stack.add_child(choices)
+	_event_embers = _button("Take 25 Embers", func() -> void: event_requested.emit("embers"), UiSkin.VARIANT_SELECTED)
+	_event_survey = _button("Reveal routes", func() -> void: event_requested.emit("survey"))
+	for button: Button in [_event_embers, _event_survey]:
+		_skin.apply_button_native_size(button, 56, 264, false, UiSkin.VARIANT_STANDARD)
+		choices.add_child(button)
+	_event_panel.hide()
+
+func _request_onward() -> void:
 	var onward: Vector2i = _next_section_destination()
-	if onward != Graph.INVALID:
-		_selection_status.text = "BOSS DEFEATED"
-		_detail.text = "Section complete"
-		_consequence.text = "Next: " + str(Graph.section(run_state, int(Graph.room(run_state, onward).get("section_index", 0))).get("title", ""))
-		_enter.text = "Next section"
-		_enter.disabled = false
-		_scout.disabled = true
-	if not active:
-		_selection_status.text = "SECTION HISTORY"
-		_enter.text = "Section complete"
+	if onward != Graph.INVALID: room_selected.emit(onward)
 
 func _has_recovery(node: Dictionary) -> bool:
 	return bool(node.get("recovery_marker", false)) and int(node.get("recovery_amount", 0)) > 0
@@ -474,25 +625,6 @@ func event_has_discoveries() -> bool:
 		if not bool(Graph.room(run_state, coord).get("revealed", false)):
 			return true
 	return false
-
-func _request_scout() -> void:
-	if _scout.disabled:
-		return
-	if str(run_state.get("mode", "")) == "event":
-		event_requested.emit("survey")
-	else:
-		scout_requested.emit(selected_coord)
-
-func _request_entry() -> void:
-	if _enter.disabled:
-		return
-	if str(run_state.get("mode", "")) == "event":
-		event_requested.emit("embers")
-	elif str(run_state.get("mode", "")) == "combat":
-		door_requested.emit(selected_coord)
-	else:
-		var onward: Vector2i = _next_section_destination()
-		room_selected.emit(onward if onward != Graph.INVALID else selected_coord)
 
 func _door_name(coord: Vector2i) -> String:
 	for link: Dictionary in Graph.room(run_state, run_state.get("current_room", Vector2i.ZERO)).get("connections", []):
@@ -521,16 +653,22 @@ func center_on_current(_reset_zoom: bool = true) -> void:
 		if _legacy != null: _legacy.call("center_on_current", _reset_zoom)
 		return
 	viewed_section = Graph.active_section(run_state)
+	reset_interaction()
 	_refresh()
 
 func focus_controller_on_current() -> void:
 	if not Graph.enabled(run_state):
 		_legacy.call("focus_controller_on_current")
+	elif _event_panel.visible:
+		_event_embers.grab_focus()
 	elif _next_section_destination() != Graph.INVALID:
-		_enter.grab_focus()
-	elif node_buttons.has(selected_coord):
-		(node_buttons[selected_coord] as Control).grab_focus()
+		_continue.grab_focus()
 	else:
+		var choices: Array[Vector2i] = available_destinations()
+		for coord: Vector2i in choices:
+			if node_buttons.has(coord) and (not scout_targeting or can_activate_room(coord)):
+				(node_buttons[coord] as Control).grab_focus()
+				return
 		_close.grab_focus()
 
 func begin_travel_animation(from: Vector2i, to: Vector2i) -> bool:

@@ -35,8 +35,8 @@ func _draw() -> void:
 				curve.add_point(a, Vector2.ZERO, Vector2(reach, 0))
 				curve.add_point(b, Vector2(-reach, 0), Vector2.ZERO)
 				var points: PackedVector2Array = curve.get_baked_points()
-				var color := Color("b29666") if traversed else Color("817d7e")
-				if bypassed: color = Color(0.48, 0.46, 0.51, 0.46)
+				var color := Color("b29666") if traversed else Color("595661")
+				if bypassed: color = Color(0.36, 0.34, 0.41, 0.34)
 				if ahead: color = Color("a18e6a")
 				if immediate: color = Color("e9ce97") if chosen else Color("b9a783")
 				if bypassed:
@@ -52,9 +52,9 @@ func _draw() -> void:
 					draw_colored_polygon(PackedVector2Array([point + tangent * 5, point - tangent * 4 + tangent.orthogonal() * 3.5, point - tangent * 4 - tangent.orthogonal() * 3.5]), color)
 
 func _radius(node: Dictionary, prominent: bool) -> float:
-	if not bool(node.get("revealed", false)): return 33.0
-	if str(node.get("type", "")) == "boss": return 58.0
-	return 49.0 if prominent else 40.0
+	if str(node.get("type", "")) == "boss": return 91.0
+	if prominent: return 52.0
+	return 42.0 if bool(node.get("visited", false)) else 31.0
 
 func _draw_dashed(curve: Curve2D, color: Color) -> void:
 	var distance: float = 0

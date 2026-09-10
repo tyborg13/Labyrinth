@@ -2,7 +2,7 @@ extends "res://tests/section_map_flow_probe.gd"
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 func _initialize() -> void:
-	output_dir = "user://section_map_review_v1"
+	output_dir = "user://section_map_review_v2"
 	await _setup()
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())
@@ -20,7 +20,7 @@ func _initialize() -> void:
 	await process_frame
 	var panel: Control = instance.get("_large_map_view")
 	var scrim: Control = instance.get("_large_map_scrim")
-	var enter: Button = panel.get("_enter")
+	var enter: Button = panel.get("_continue")
 	panel.call("select_room", state.get("current_room"))
 	_check(enter.text == "Next section" and not enter.disabled, "Inspecting the defeated boss preserves the onward action")
 	await _capture("01_boss_inspected.png")
@@ -64,6 +64,33 @@ func _initialize() -> void:
 	_check(int(panel.get("viewed_section")) == 0 and viewport.gui_get_focus_owner() == (panel.get("_tabs") as HBoxContainer).get_child(0), "Keyboard activation also preserves history-tab focus")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 
+	# Three-way choice navigation follows the immediate options in screen order.
+	state = engine.create_new_run(90429, Progression.default_data())
+	for step: int in range(3):
+		state = _resolve_room(engine, state)
+		state = engine.move_to_room(state, engine.available_moves(state)[0])
+	state = _resolve_room(engine, state)
+	_load(state)
+	await process_frame
+	await process_frame
+	var choices: Array = panel.call("available_destinations")
+	choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return ((panel.get("node_buttons") as Dictionary)[a] as Control).position.y < ((panel.get("node_buttons") as Dictionary)[b] as Control).position.y)
+	_check(choices.size() == 3, "Choice navigation fixture reaches the three-way fork")
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	var first: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
+	first.grab_focus()
+	await _joy(JOY_BUTTON_DPAD_DOWN)
+	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[1]], "Controller Down moves directly between immediate choices")
+	await _capture("05c_available_navigation.png")
+	await _key(KEY_DOWN)
+	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[2]], "Keyboard Down follows the next immediate choice")
+	await _key(KEY_DOWN)
+	_check(viewport.gui_get_focus_owner() == panel.get("_scout"), "The choice list leads to Scout without trapping focus")
+	await _key(KEY_UP)
+	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[2]], "Scout returns focus to the nearest available choice")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+
 	# A distant recoverable pile is visible without revealing its room identity.
 	var baseline: Dictionary = engine.create_new_run(81, Progression.default_data())
 	var target: Vector2i = Graph.INVALID
@@ -81,9 +108,9 @@ func _initialize() -> void:
 	_check(not bool(Graph.room(state, target).get("revealed", false)), "Recovery presence does not reveal the unknown encounter identity")
 	_check((panel.get("node_buttons") as Dictionary).has(target), "The distant recovery landmark is rendered through fog")
 	var recovery_button: Control = (panel.get("node_buttons") as Dictionary).get(target)
-	_check((recovery_button.get("recovery_label") as Label).visible and (recovery_button.get("recovery_label") as Label).text == "23", "Recovery badge carries the exact lost-Ember amount")
+	_check(bool(recovery_button.call("has_recovery")) and str(panel.call("room_description", target)).contains("23 lost Embers"), "Recovery badge retains the exact lost-Ember amount in focus/hover details")
 	panel.call("select_room", target)
-	_check((panel.get("_consequence") as Label).text.contains("23 lost Embers"), "Inspecting the pile explains the recovery amount")
+	_check(str(panel.get("_preview_text")).contains("23 lost Embers"), "Inspecting the pile explains the recovery amount")
 	await _capture("06_recovery_distant.png")
 	_check(Progression.save_run_state(state), "Recovery fixture saves before discovery")
 	state = engine.repair_loaded_run_state(Progression.load_saved_run())
@@ -108,7 +135,7 @@ func _initialize() -> void:
 	for link: Dictionary in fork.get("connections", []):
 		var choice: Vector2i = link.get("coord")
 		panel.call("select_room", choice)
-		var description: String = (panel.get("_consequence") as Label).text
+		var description: String = str(panel.get("_preview_text"))
 		_check(not description.contains("Event"), "Branch consequences omit the Event landmark already bypassed before this fork")
 		if Graph.descendants(state, choice).has(target):
 			found_keeps = description.contains("Keeps:") and description.contains("23 lost Embers")
@@ -130,7 +157,7 @@ func _initialize() -> void:
 	_load(state)
 	instance.call("_open_large_map")
 	recovery_button = (panel.get("node_buttons") as Dictionary).get(target)
-	_check(not (recovery_button.get("recovery_label") as Label).visible, "Collected recovery marker disappears")
+	_check(not bool(recovery_button.call("has_recovery")), "Collected recovery marker disappears")
 	await _capture("09_recovery_collected.png")
 
 	state = engine.create_new_run(90429, Progression.default_data())

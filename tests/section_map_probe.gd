@@ -4,13 +4,18 @@ const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
-const OUTPUT: String = "user://section_map_probe_v1"
+const Settings = preload("res://scripts/settings_store.gd")
+const OUTPUT: String = "user://section_map_probe_v2"
 var proof_viewport: SubViewport
 var panel: Control
 var failed: bool = false
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	Settings.set_storage_path("user://section_map_panel_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["reduced_motion"] = false
+	Settings.save_settings(settings)
 	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 	DisplayServer.window_set_size(Vector2i(1920, 1080))
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
@@ -45,6 +50,23 @@ func _initialize() -> void:
 		Graph.refresh_knowledge(state)
 	panel.call("set_run_state", state)
 	await _capture("02_three_rooms.png")
+	var available: Array = panel.call("available_destinations")
+	var pulsing: Control = (panel.get("node_buttons") as Dictionary)[available[0]]
+	var phase_before: float = float(pulsing.get("pulse_phase"))
+	await create_timer(0.35).timeout
+	_check(float(pulsing.get("pulse_phase")) != phase_before and pulsing.is_processing(), "Available rooms pulse with normal motion")
+	await _capture("02b_available_pulse.png")
+	settings["reduced_motion"] = true
+	Settings.save_settings(settings)
+	panel.call("center_on_current")
+	await _capture("02c_reduced_motion.png")
+	for button: Control in (panel.get("node_buttons") as Dictionary).values():
+		_check(button.get_child_count() == 0, "Room icons have no attached text labels")
+		if str(button.get("route_state")) == "reachable":
+			_check(not button.is_processing() and float(button.call("pulse_scale")) == 1.0, "Reduced motion freezes availability without losing its static seal")
+		if str((button.get("room_data") as Dictionary).get("type", "")) == "boss":
+			_check(float(button.call("visual_radius")) >= 2.7 * 29.0, "Boss icon is substantially larger than future rooms")
+	_check(panel.find_child("EnterRoomButton", true, false) == null, "Map has no select-then-confirm travel button")
 	var choice: Vector2i = (panel.call("available_destinations") as Array)[0]
 	panel.call("select_room", choice)
 	panel.call("focus_controller_on_current")
@@ -64,9 +86,7 @@ func _initialize() -> void:
 		if button != null and str(button.get("route_state")) == "bypassed":
 			panel.call("select_room", coord)
 			await _capture("04c_bypassed_inspection.png")
-			if not (panel.get("_enter") as Button).disabled:
-				failed = true
-				push_error("Inspecting a route not taken must never enable travel")
+			_check(not bool(panel.call("can_activate_room", coord)), "Inspecting a route not taken must never enable travel")
 			break
 	for index: int in range(6):
 		var info: Dictionary = Graph.section(state, index)
@@ -90,3 +110,8 @@ func _capture(filename: String) -> void:
 	if image.get_size() != Vector2i(1920, 1080) or image.save_png(OUTPUT.path_join(filename)) != OK:
 		failed = true
 		push_error("Capture failed: " + filename)
+
+func _check(value: bool, message: String) -> void:
+	if not value:
+		failed = true
+		push_error(message)

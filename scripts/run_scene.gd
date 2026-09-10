@@ -3471,9 +3471,9 @@ func _refresh_controller_prompts() -> void:
 	if _large_map_scrim != null and _large_map_scrim.visible:
 		if SectionMapGraph.enabled(_run_state):
 			prompts = [
-				{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+				{"action": InputRouterScript.ACTION_ACCEPT, "label": str(_large_map_view.call("controller_action_label"))},
 				{"action": &"controller_dpad", "label": "Navigate"},
-				{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
+				{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Scout" if bool(_large_map_view.get("scout_targeting")) else "Close"},
 			]
 		else:
 			prompts = [
@@ -4802,6 +4802,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.connect("door_requested", _on_section_map_door)
 	_large_map_view.connect("event_requested", _on_section_map_event)
 	_large_map_view.connect("close_requested", _close_large_map)
+	_large_map_view.connect("interaction_changed", _refresh_controller_prompts)
 	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
 	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
@@ -20805,7 +20806,8 @@ func _on_cancel_requested() -> void:
 	if _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		return
 	if _large_map_scrim != null and _large_map_scrim.visible:
-		_close_large_map()
+		if not bool(_large_map_view.call("cancel_action")):
+			_close_large_map()
 		return
 	if _pile_scrim != null and _pile_scrim.visible:
 		_close_pile_view()
@@ -20966,6 +20968,8 @@ func _open_large_map() -> void:
 func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
+	if _large_map_view != null:
+		_large_map_view.call("reset_interaction")
 	_large_map_scrim.visible = false
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
