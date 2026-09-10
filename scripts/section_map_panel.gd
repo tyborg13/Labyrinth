@@ -45,6 +45,7 @@ var _legacy: Control
 var _layout: VBoxContainer
 var _field: Control
 var _selection_status: Label
+var _boss_legend_icon: TextureRect
 
 func _ready() -> void:
 	_build()
@@ -113,7 +114,7 @@ func _build() -> void:
 	var footer: PanelContainer = _panel()
 	_layout.add_child(footer)
 	var footer_stack := VBoxContainer.new()
-	footer_stack.add_theme_constant_override("separation", 0)
+	footer_stack.add_theme_constant_override("separation", 12)
 	footer.add_child(footer_stack)
 	var actions := HBoxContainer.new()
 	actions.add_theme_constant_override("separation", 16)
@@ -129,7 +130,7 @@ func _build() -> void:
 	detail_stack.add_child(_detail)
 	_consequence = _label("", Typography.ROLE_BODY_LARGE)
 	_consequence.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_consequence.custom_minimum_size.y = 60
+	_consequence.custom_minimum_size.y = 48
 	detail_stack.add_child(_consequence)
 	_scout = _button("Scout", _request_scout)
 	_scout.name = "ScoutButton"
@@ -144,6 +145,7 @@ func _build() -> void:
 	_skin.apply_button_native_size(_enter, 60, 264, false, UiSkin.VARIANT_SELECTED)
 	_enter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	actions.add_child(_enter)
+	footer_stack.add_child(_build_legend())
 	_legacy = LegacyMap.new()
 	_legacy.name = "LegacyMap"
 	_legacy.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -155,6 +157,35 @@ func _build() -> void:
 	legacy_close.position = Vector2(-110, 12)
 	legacy_close.custom_minimum_size = Vector2(96, 48)
 	_legacy.add_child(legacy_close)
+
+func _build_legend() -> HBoxContainer:
+	var legend := HBoxContainer.new()
+	legend.name = "MapLegend"
+	legend.add_theme_constant_override("separation", 22)
+	for type: String in ["combat", "event", "scavenger", "treasure", "campfire", "boss", "unknown"]:
+		var item := HBoxContainer.new()
+		item.add_theme_constant_override("separation", 6)
+		legend.add_child(item)
+		if type == "unknown":
+			var mark := Control.new()
+			mark.custom_minimum_size = Vector2(24, 24)
+			mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			mark.draw.connect(func() -> void:
+				for segment: int in range(8):
+					var angle: float = TAU * float(segment) / 8.0
+					mark.draw_arc(Vector2(12, 12), 9, angle, angle + 0.47, 6, Color("aaa2af"), 1.3, true)
+			)
+			item.add_child(mark)
+		else:
+			var icon := TextureRect.new()
+			icon.texture = MapSkin.icon_texture(type) if type != "boss" else null
+			if type == "boss": _boss_legend_icon = icon
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.custom_minimum_size = Vector2(24, 24)
+			item.add_child(icon)
+		item.add_child(_label(_type_label(type), Typography.ROLE_CAPTION))
+	return legend
 
 func _panel() -> PanelContainer:
 	var panel := PanelContainer.new()
@@ -207,6 +238,7 @@ func _refresh() -> void:
 	viewed_section = clampi(viewed_section, 0, Graph.active_section(run_state))
 	var info: Dictionary = Graph.section(run_state, viewed_section)
 	_title.text = str(info.get("title", "Map"))
+	_boss_legend_icon.texture = MapSkin.icon_texture("boss_" + str(info.get("boss_id", "tharokh")))
 	var visited: int = 0
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
 		if int(node.get("section_index", -1)) == viewed_section and bool(node.get("visited", false)) and str(node.get("type", "")) != "start":

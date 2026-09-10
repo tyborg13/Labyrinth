@@ -76,7 +76,7 @@ Future tabs are disabled and do not disclose the future boss order. History
 cannot travel or spend the active section's Scout uses. All interactive pieces
 remain native focusable buttons with mouse, keyboard and controller input.
 
-`section_map_panel.gd` composes independent header, tabs, preview and
+`section_map_panel.gd` composes independent header, tabs, legend, preview and
 actions. `section_map_node.gd` renders each independent room button with painted
 emblems and medallions. `section_map_canvas.gd` owns route curves; the fog shader
 receives dynamic openings. No routes, labels, icons, fog or taglines are baked
@@ -85,8 +85,8 @@ purpose-built frame treatment. Action buttons extend the shared `UiSkin` forged
 metal family at native proportions; travel has the selected/primary treatment,
 Scout is secondary, and focus has its own brackets. Section navigation keeps
 the user-approved round painted bronze seals, with a separate focus outline.
-Switching sections restores focus to the corresponding rebuilt tab. Repeated room-type legend
-entries are omitted because each room and its selected preview already name it.
+Switching sections restores focus to the corresponding rebuilt tab. A compact,
+separately composed legend pairs the painted room symbols with their names and uses a broken-ring swatch for unknown rooms.
 
 The map answers “where am I, and which door should I take?” before showing
 secondary route details. The current room retains its encounter emblem under a
