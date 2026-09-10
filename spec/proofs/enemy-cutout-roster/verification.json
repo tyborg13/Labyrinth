@@ -2971,5 +2971,141 @@
     "Native visuals were checked on macOS at 1920x1080 and 100% UI scale.",
     "Existing static neutral shadows and the user-deferred art polish remain as accepted on the individual branches.",
     "The archive is local storage outside Git; no external archival service was requested."
-  ]
+  ],
+  "supplemental_aoe_native": {
+    "ok": true,
+    "archive_directory": "supplemental-aoe-proof",
+    "probe": "tests/enemy_cutout_roster_aoe_probe.gd",
+    "probe_sha256": "0b0527d6c8c9dd5e36046e0297b0a1087bb34ad16181e4021e9e1c3f223ec002",
+    "renderer": "macOS Metal, Forward Mobile",
+    "size": [
+      1920,
+      1080
+    ],
+    "ui_scale": 1.0,
+    "purpose": "Valid-target success paths for three fixed-pattern AoEs that miss in the broad roster sweep.",
+    "samples": 6964,
+    "clips": [
+      {
+        "label": "cinder_ooze_cinder_bloom_hit",
+        "phases": [
+          "idle:",
+          "bloom:"
+        ],
+        "player_hp": 193,
+        "reduced": false,
+        "required_clip": "bloom",
+        "seconds": 3.073878,
+        "target_tile": [
+          4,
+          5
+        ]
+      },
+      {
+        "label": "iskaldra_shatterstorm_hit",
+        "phases": [
+          "idle:",
+          "storm:"
+        ],
+        "player_hp": 193,
+        "reduced": false,
+        "required_clip": "storm",
+        "seconds": 3.437353,
+        "target_tile": [
+          4,
+          2
+        ]
+      },
+      {
+        "label": "noctyrax_night_coil_hit",
+        "phases": [
+          "idle:",
+          "coil:"
+        ],
+        "player_hp": 190,
+        "reduced": false,
+        "required_clip": "coil",
+        "seconds": 3.480168,
+        "target_tile": [
+          4,
+          3
+        ]
+      }
+    ],
+    "screenshots": [
+      {
+        "path": "cinder_ooze_cinder_bloom_hit_contact.png",
+        "sha256": "bd74af5a40ac9c5397de3a37ea687fcfb622bf95b2ebcbafbf0ec3aac4964be0",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_cinder_bloom_hit_motion.png",
+        "sha256": "312db25c9c8cb687c3f4f519271cdcfc84a93f35d1efd30985fcc03a119e41ab",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "cinder_ooze_cinder_bloom_hit_settled.png",
+        "sha256": "270bd658c34fa3878bd045222c98587a79d0a7a17e00d26b7f5df3e8bc8e6458",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_shatterstorm_hit_contact.png",
+        "sha256": "a33d16cd62a7d359080b2093795a58ac799245fb39b8a0edd5ec02e3d9d84349",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_shatterstorm_hit_motion.png",
+        "sha256": "ece6485620179d2386851491e76d0bbf78c9a63a54ad32bc525e9d2d2f1cace7",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "iskaldra_shatterstorm_hit_settled.png",
+        "sha256": "4b48ac36b291297628ed03be27d9fa498c6993e43312d3f32d757c89c03ab7db",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_night_coil_hit_contact.png",
+        "sha256": "1eb17f2470923c379a33caacc4f6415682541a309eec20ee47760418989390e1",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_night_coil_hit_motion.png",
+        "sha256": "6f6747013c97f16f96e3f9c9de0321c54e67c4c582dc9da27ab2ef608b45eebf",
+        "size": [
+          1920,
+          1080
+        ]
+      },
+      {
+        "path": "noctyrax_night_coil_hit_settled.png",
+        "sha256": "2b251b5a640e0dd4914e34eeb210f6439aeaae0e06b07a8d72a13ad310f0b745",
+        "size": [
+          1920,
+          1080
+        ]
+      }
+    ],
+    "errors": []
+  }
 }
