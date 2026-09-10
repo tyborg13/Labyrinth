@@ -34,6 +34,7 @@ var _manual_loading_depth: int = 0
 var _loading_until_msec: int = 0
 var _transition_generation: int = 0
 var _last_feedback_kind: String = ""
+var _last_valid_feedback_msec: int = -1000
 var _feedback_counts: Dictionary = {"valid": 0, "invalid": 0}
 var _transparent_native_cursor: ImageTexture
 var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
@@ -294,7 +295,14 @@ func _end_pointer_press() -> void:
 	_drag_started = false
 	_drag_sound_pending = false
 
+func play_action_confirmation() -> void:
+	# Native keyboard/controller actions share the forged click. A pointer
+	# press already plays it; do not double that sound on the release signal.
+	if Time.get_ticks_msec() - _last_valid_feedback_msec >= 120:
+		_play_click_feedback(true)
+
 func _play_click_feedback(valid: bool) -> void:
+	if valid: _last_valid_feedback_msec = Time.get_ticks_msec()
 	var kind: String = "valid" if valid else "invalid"
 	_last_feedback_kind = kind
 	_feedback_counts[kind] = int(_feedback_counts.get(kind, 0)) + 1

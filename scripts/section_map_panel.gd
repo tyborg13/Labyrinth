@@ -54,6 +54,12 @@ var _event_panel: PanelContainer
 var _event_embers: Button
 var _event_survey: Button
 var _reduced_motion: bool = false
+var activation_coord: Vector2i = Graph.INVALID
+var _activation_kind: String = ""
+var _activation_generation: int = 0
+var _activation_tween: Tween
+const ACTIVATION_SECONDS: float = 0.28
+const REDUCED_ACTIVATION_SECONDS: float = 0.14
 
 func _ready() -> void:
 	_build()
@@ -220,6 +226,7 @@ func set_run_state(source: Dictionary) -> void:
 	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), objective.get("type", "")])
 	if next_signature == _signature:
 		return
+	_cancel_activation()
 	var previous_current: Vector2i = run_state.get("current_room", Graph.INVALID)
 	_signature = next_signature
 	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
@@ -306,22 +313,60 @@ func can_activate_room(coord: Vector2i) -> bool:
 	return mode == "room" or (mode == "combat" and bool(run_state.get("reach_exit", false)))
 
 func activate_room(coord: Vector2i) -> void:
+	# One gesture owns the entire acknowledgement and commit. Rapid clicks or
+	# key repeats cannot schedule a second destination while it is in flight.
+	if activation_coord != Graph.INVALID: return
 	if not can_activate_room(coord):
 		_show_preview(coord)
 		return
-	if scout_targeting:
+	_hide_preview()
+	activation_coord = coord
+	_activation_kind = "scout" if scout_targeting else ("door" if str(run_state.get("mode", "")) == "combat" else "room")
+	_activation_generation += 1
+	var generation: int = _activation_generation
+	var source_signature: int = _signature
+	var button: Control = node_buttons.get(coord)
+	var seconds: float = REDUCED_ACTIVATION_SECONDS if _reduced_motion else ACTIVATION_SECONDS
+	if button != null:
+		button.call("set_activation_progress", 0.001)
+		_activation_tween = button.create_tween()
+		_activation_tween.tween_method(Callable(button, "set_activation_progress"), 0.001, 1.0, seconds)
+	_canvas.set("selected", coord)
+	_canvas.queue_redraw()
+	var feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if feedback != null: feedback.call("play_action_confirmation")
+	interaction_changed.emit()
+	# A timer completes even if a resize, close, section change or state refresh
+	# kills the tween. Generation and snapshot checks discard those stale calls.
+	await get_tree().create_timer(seconds).timeout
+	if generation != _activation_generation or source_signature != _signature or not is_visible_in_tree(): return
+	var action: String = _activation_kind
+	_cancel_activation()
+	if not can_activate_room(coord): return
+	if action == "scout":
 		scout_targeting = false
-		_hide_preview()
 		scout_requested.emit(coord)
 		_refresh_actions()
-	elif str(run_state.get("mode", "")) == "combat":
-		_hide_preview()
+	elif action == "door":
 		door_requested.emit(coord)
 	else:
-		_hide_preview()
 		room_selected.emit(coord)
 
+func _cancel_activation() -> void:
+	_activation_generation += 1
+	if _activation_tween != null:
+		_activation_tween.kill()
+		_activation_tween = null
+	var button: Control = node_buttons.get(activation_coord)
+	if is_instance_valid(button): button.call("set_activation_progress", 0.0)
+	activation_coord = Graph.INVALID
+	_activation_kind = ""
+
 func cancel_action() -> bool:
+	if activation_coord != Graph.INVALID:
+		_cancel_activation()
+		_hide_preview()
+		return true
 	if not scout_targeting: return false
 	scout_targeting = false
 	_hide_preview()
@@ -330,6 +375,7 @@ func cancel_action() -> bool:
 	return true
 
 func reset_interaction() -> void:
+	_cancel_activation()
 	scout_targeting = false
 	_hide_preview()
 
@@ -339,6 +385,7 @@ func _request_close() -> void:
 func _layout_nodes() -> void:
 	if not _built or not Graph.enabled(run_state) or _field.size.x < 100:
 		return
+	_cancel_activation()
 	var focused_coord: Vector2i = Graph.INVALID
 	for coord: Vector2i in node_buttons:
 		if (node_buttons[coord] as Control).has_focus():
@@ -455,7 +502,7 @@ func room_description(coord: Vector2i) -> String:
 	return heading + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:
-	if not node_buttons.has(coord) or _event_panel.visible: return
+	if activation_coord != Graph.INVALID or not node_buttons.has(coord) or _event_panel.visible: return
 	_hide_preview()
 	selected_coord = coord
 	_preview_text = room_description(coord)
@@ -554,7 +601,13 @@ func _wire_choice_focus() -> void:
 		var tab: Control = _tabs.get_child(viewed_section)
 		tab.focus_neighbor_bottom = tab.get_path_to(node_buttons[choices.front()])
 
+func controller_cancel_label() -> String:
+	if activation_coord != Graph.INVALID: return "Cancel"
+	return "Cancel Scout" if scout_targeting else "Close"
+
 func controller_action_label() -> String:
+	if activation_coord != Graph.INVALID:
+		return {"room": "Entering", "door": "Showing exit", "scout": "Scouting"}.get(_activation_kind, "Confirm")
 	var focused: Control = get_viewport().gui_get_focus_owner()
 	if focused == _scout: return "Cancel Scout" if scout_targeting else "Scout"
 	if focused == _continue: return "Continue"
@@ -570,7 +623,7 @@ func controller_action_label() -> String:
 	return "Confirm"
 
 func _toggle_scout() -> void:
-	if _scout.disabled: return
+	if _scout.disabled or activation_coord != Graph.INVALID: return
 	if cancel_action(): return
 	scout_targeting = true
 	_hide_preview()
@@ -603,6 +656,7 @@ func _build_event() -> void:
 	_event_panel.hide()
 
 func _request_onward() -> void:
+	if activation_coord != Graph.INVALID: return
 	var onward: Vector2i = _next_section_destination()
 	if onward != Graph.INVALID: room_selected.emit(onward)
 

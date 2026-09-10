@@ -2,7 +2,7 @@ extends "res://tests/section_map_flow_probe.gd"
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 func _initialize() -> void:
-	output_dir = "user://section_map_review_v2"
+	output_dir = "user://section_map_review_v3"
 	await _setup()
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())

@@ -7,6 +7,7 @@ var route_state: String = "ahead"
 var reduced_motion: bool = false
 var pulse_phase: float = 0.0
 var actionable: bool = false
+var activation_progress: float = 0.0
 
 func configure(data: Dictionary, _caption: String, state: String, reduce_motion: bool = false) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -24,7 +25,7 @@ func configure(data: Dictionary, _caption: String, state: String, reduce_motion:
 
 func refresh_state() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if actionable else Control.CURSOR_HELP
-	set_process(route_state == "reachable" and actionable and not reduced_motion)
+	set_process(route_state == "reachable" and actionable and not reduced_motion and activation_progress <= 0.0)
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -35,12 +36,22 @@ func _process(delta: float) -> void:
 func visual_radius() -> float:
 	if str(room_data.get("type", "")) == "boss": return 88.0
 	if route_state == "reachable" and actionable: return 46.0
-	if route_state == "current": return 38.0
+	if route_state == "current": return 43.0
 	if route_state == "visited": return 33.0
 	return 29.0
 
 func pulse_scale() -> float:
-	return 1.0 if reduced_motion or route_state != "reachable" or not actionable else 1.0 + 0.055 * (0.5 + 0.5 * sin(pulse_phase))
+	return 1.0 if reduced_motion or activation_progress > 0.0 or route_state != "reachable" or not actionable else 1.0 + 0.055 * (0.5 + 0.5 * sin(pulse_phase))
+
+func set_activation_progress(progress: float) -> void:
+	activation_progress = progress
+	refresh_state()
+
+func activation_scale() -> float:
+	return 1.0 if reduced_motion else 1.0 + 0.09 * sin(PI * activation_progress)
+
+func _draw_outline(center: Vector2, radius: float, gap: float, color: Color, width: float) -> void:
+	draw_polyline(MapSkin.medallion_contour(center, radius, gap), color, width, true)
 
 func has_recovery() -> bool:
 	return bool(room_data.get("recovery_marker", false)) and int(room_data.get("recovery_amount", 0)) > 0
@@ -53,17 +64,17 @@ func _draw() -> void:
 	var visited: bool = route_state == "visited"
 	var bypassed: bool = route_state == "bypassed"
 	var boss: bool = str(room_data.get("type", "")) == "boss"
-	var radius: float = visual_radius() * pulse_scale()
+	var radius: float = visual_radius() * pulse_scale() * activation_scale()
 	if available:
 		# The solid outer seal carries availability even with motion disabled.
 		for ring: int in range(4):
-			draw_arc(center, radius + 5 + ring * 2, 0, TAU, 96, Color(1.0, 0.73, 0.33, 0.19 - ring * 0.04), 3.0, true)
-		draw_circle(center, radius + 4, Color("21190f"))
-		draw_arc(center, radius + 4, 0, TAU, 96, Color("ffda8d"), 3.5, true)
+			_draw_outline(center, radius, 5 + ring * 2, Color(1.0, 0.73, 0.33, 0.19 - ring * 0.04), 3.0)
+		draw_colored_polygon(MapSkin.medallion_contour(center, radius, 4, false), Color("21190f"))
+		_draw_outline(center, radius, 4, Color("ffda8d"), 3.5)
 		for angle: float in [0.0, PI * 0.5, PI, PI * 1.5]:
 			var direction := Vector2.from_angle(angle)
 			var perpendicular := direction.orthogonal()
-			var point: Vector2 = center + direction * (radius + 9)
+			var point: Vector2 = center + MapSkin.medallion_edge(roundi(angle / TAU * MapSkin.MEDALLION_SEGMENTS)) * radius + direction * 9
 			draw_colored_polygon(PackedVector2Array([point - direction * 4, point + perpendicular * 4, point + direction * 4, point - perpendicular * 4]), Color("ffdfa0"))
 	if known:
 		draw_circle(center, radius - 2, Color("0c0b0e"))
@@ -86,6 +97,11 @@ func _draw() -> void:
 			if visited: icon_tint = Color("99948c")
 			if bypassed: icon_tint = Color("504e56")
 			draw_polygon(points, PackedColorArray([icon_tint]), uvs, icon)
+		if activation_progress > 0.0:
+			draw_circle(center, radius * 0.74, Color(1.0, 0.88, 0.63, 0.25 * sin(PI * activation_progress)))
+		# The opaque center of the full texture sits below the room art. Its rim
+		# is a separate mesh above it, so sword tips and packs cannot cover gold.
+		draw_mesh(MapSkin.medallion_rim_mesh(), MapSkin._texture("medallion"), Transform2D(Vector2(radius, 0), Vector2(0, radius), center), tint)
 	else:
 		draw_circle(center, radius - 3, Color(0.035, 0.032, 0.05, 0.75))
 		for index: int in range(10):
@@ -94,24 +110,29 @@ func _draw() -> void:
 		draw_string(get_theme_font("font"), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("9c94a4") if not bypassed else Color("625c6a"))
 	if visited:
 		# A broad stamped seal reads at map scale; the emblem stays recognizable.
-		draw_arc(center, radius + 7, 0, TAU, 96, Color("090c0c"), 8.0, true)
-		draw_arc(center, radius + 7, 0, TAU, 96, Color("b7c1ad"), 4.0, true)
+		_draw_outline(center, radius, 4, Color("090c0c"), 8.0)
+		_draw_outline(center, radius, 4, Color("b7c1ad"), 4.0)
 		var stamp: Vector2 = center + Vector2(radius * 0.52, radius * 0.58)
 		draw_circle(stamp, 16, Color("18211d"))
 		draw_arc(stamp, 16, 0, TAU, 48, Color("b7c1ad"), 2, true)
 		draw_polyline(PackedVector2Array([stamp + Vector2(-9, 0), stamp + Vector2(-2, 7), stamp + Vector2(11, -8)]), Color("e0e6cf"), 4, true)
 	if current:
 		# A filled pointer marks the player's position, distinct from completed seals.
-		var tip: Vector2 = center - Vector2(0, radius + 9)
-		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-13, -18), tip + Vector2(13, -18)]), Color("100f15"))
-		draw_colored_polygon(PackedVector2Array([tip - Vector2(0, 4), tip + Vector2(-9, -16), tip + Vector2(9, -16)]), Color("fff0c0"))
-		draw_arc(center, radius + 4, 0, TAU, 96, Color("fff0c0"), 2.5, true)
+		var tip: Vector2 = center + MapSkin.medallion_edge(72) * radius - Vector2(0, 10)
+		draw_colored_polygon(PackedVector2Array([tip, tip + Vector2(-20, -27), tip + Vector2(20, -27)]), Color("100f15"))
+		draw_colored_polygon(PackedVector2Array([tip - Vector2(0, 4), tip + Vector2(-15, -24), tip + Vector2(15, -24)]), Color("fff0c0"))
+		_draw_outline(center, radius, 4, Color("100f15"), 9.0)
+		_draw_outline(center, radius, 4, Color("fff0c0"), 5.5)
+	if activation_progress > 0.0:
+		var spread: float = 4.0 if reduced_motion else 4.0 + activation_progress * 13.0
+		_draw_outline(center, radius, spread, Color(1.0, 0.94, 0.76, 1.0 - activation_progress * 0.7), 4.0)
 	if has_focus():
 		for direction: Vector2 in [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]:
 			var corner: Vector2 = center + direction * (radius + 10)
 			draw_polyline(PackedVector2Array([corner - Vector2(direction.x * 12, 0), corner, corner - Vector2(0, direction.y * 12)]), Color("fff2cd"), 2, true)
 	elif is_hovered():
-		draw_arc(center, radius + 9, 0, TAU, 96, Color("f8dfaa"), 2.0, true)
+		if known: _draw_outline(center, radius, 9, Color("f8dfaa"), 2.0)
+		else: draw_arc(center, radius + 9, 0, TAU, 96, Color("f8dfaa"), 2.0, true)
 	if has_recovery():
 		var badge_center: Vector2 = center + Vector2(radius * 0.85, -radius * 0.65)
 		draw_circle(badge_center, 18, Color("160b05"))

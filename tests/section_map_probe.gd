@@ -5,7 +5,7 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Settings = preload("res://scripts/settings_store.gd")
-const OUTPUT: String = "user://section_map_probe_v2"
+const OUTPUT: String = "user://section_map_probe_v3"
 var proof_viewport: SubViewport
 var panel: Control
 var failed: bool = false

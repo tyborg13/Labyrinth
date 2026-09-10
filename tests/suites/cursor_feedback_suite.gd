@@ -200,6 +200,16 @@ static func _test_click_audio_contract(expect: Callable) -> void:
 	controller.call("_end_pointer_press")
 	counts = controller.call("feedback_counts")
 	expect.call(int(counts.get("valid", 0)) == 2 and int(counts.get("invalid", 0)) == 1, "A completed drag should produce one valid gesture sound without a second release sound")
+	controller.set("_last_valid_feedback_msec", -1000)
+	controller.call("play_action_confirmation")
+	controller.call("play_action_confirmation")
+	counts = controller.call("feedback_counts")
+	expect.call(int(counts.get("valid", 0)) == 3, "A native action gets one confirmation click, without duplicating an immediate repeat")
+	controller.call("_begin_pointer_press_with_context", Vector2(20, 20), {"actionable": true, "drag_source": false})
+	controller.call("_end_pointer_press")
+	controller.call("play_action_confirmation")
+	counts = controller.call("feedback_counts")
+	expect.call(int(counts.get("valid", 0)) == 4, "An action confirmed after a pointer press does not double its click sound")
 	controller.free()
 
 static func _stream_channel_rms(stream: AudioStreamWAV, start_seconds: float, end_seconds: float) -> float:

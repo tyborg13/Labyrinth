@@ -7,6 +7,10 @@ const Typography = preload("res://scripts/ui_typography.gd")
 const ART: String = "res://assets/art/ui/section_map/"
 
 static var _textures: Dictionary = {}
+static var _medallion_outline := PackedVector2Array()
+static var _medallion_normals := PackedVector2Array()
+static var _medallion_rim: ArrayMesh
+const MEDALLION_SEGMENTS: int = 96
 
 static func _texture(name: String) -> Texture2D:
 	if not _textures.has(name):
@@ -90,3 +94,78 @@ static func section_tab(button: Button) -> void:
 	button.add_theme_color_override("font_outline_color", Color("09090d"))
 	button.add_theme_constant_override("outline_size", 2)
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+# The painted frame is an offset oval. Its alpha edge owns every room-state
+# outline; the first brass pixels own the inner rim. Cache this geometry once
+# from the same resized texture used to draw the frame, including its padding.
+static func _ensure_medallion_geometry() -> void:
+	if not _medallion_outline.is_empty(): return
+	var image: Image = _texture("medallion").get_image()
+	var half: float = float(image.get_width()) * 0.5
+	var origin := Vector2.ONE * half
+	var outer_radii := PackedFloat32Array()
+	var inner_radii := PackedFloat32Array()
+	for index: int in range(MEDALLION_SEGMENTS):
+		var direction := Vector2.from_angle(TAU * float(index) / MEDALLION_SEGMENTS)
+		var outer_radius: float = half * 0.94
+		var inner_radius: float = half * 0.69
+		for distance: int in range(int(half) - 1, int(half * 0.5), -1):
+			var sample: Vector2i = Vector2i(origin + direction * distance)
+			if image.get_pixelv(sample).a > 0.5:
+				outer_radius = float(distance)
+				break
+		for distance: int in range(int(half * 0.55), int(half * 0.86)):
+			var sample: Vector2i = Vector2i(origin + direction * distance)
+			var color: Color = image.get_pixelv(sample)
+			if color.a > 0.5 and color.r > 0.39 and color.r > color.g * 1.04 and color.g > color.b * 1.2:
+				# Include the dark inset immediately inside the gold lip. Drawing
+				# the rim last then protects every pixel of the painted frame.
+				inner_radius = float(distance) - 1.0
+				break
+		outer_radii.append(outer_radius / half)
+		inner_radii.append(inner_radius / half)
+	var inner_points := PackedVector2Array()
+	for index: int in range(MEDALLION_SEGMENTS):
+		var direction := Vector2.from_angle(TAU * float(index) / MEDALLION_SEGMENTS)
+		var before: int = posmod(index - 1, MEDALLION_SEGMENTS)
+		var after: int = (index + 1) % MEDALLION_SEGMENTS
+		_medallion_outline.append(direction * (outer_radii[before] + outer_radii[index] * 2.0 + outer_radii[after]) * 0.25)
+		inner_points.append(direction * (inner_radii[before] + inner_radii[index] * 2.0 + inner_radii[after]) * 0.25)
+	for index: int in range(MEDALLION_SEGMENTS):
+		var tangent: Vector2 = _medallion_outline[(index + 1) % MEDALLION_SEGMENTS] - _medallion_outline[posmod(index - 1, MEDALLION_SEGMENTS)]
+		_medallion_normals.append(Vector2(tangent.y, -tangent.x).normalized())
+	var vertices := PackedVector3Array()
+	var uvs := PackedVector2Array()
+	var indices := PackedInt32Array()
+	for index: int in range(MEDALLION_SEGMENTS):
+		var direction := Vector2.from_angle(TAU * float(index) / MEDALLION_SEGMENTS)
+		var outside: Vector2 = direction / maxf(absf(direction.x), absf(direction.y))
+		for point: Vector2 in [inner_points[index], outside]:
+			vertices.append(Vector3(point.x, point.y, 0))
+			uvs.append((point + Vector2.ONE) * 0.5)
+		var current: int = index * 2
+		var next: int = ((index + 1) % MEDALLION_SEGMENTS) * 2
+		indices.append_array(PackedInt32Array([current, current + 1, next + 1, current, next + 1, next]))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_TEX_UV] = uvs
+	arrays[Mesh.ARRAY_INDEX] = indices
+	_medallion_rim = ArrayMesh.new()
+	_medallion_rim.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+static func medallion_contour(center: Vector2, radius: float, gap: float = 0.0, closed: bool = true) -> PackedVector2Array:
+	_ensure_medallion_geometry()
+	var points := PackedVector2Array()
+	for index: int in range(MEDALLION_SEGMENTS):
+		points.append(center + _medallion_outline[index] * radius + _medallion_normals[index] * gap)
+	if closed: points.append(points[0])
+	return points
+
+static func medallion_edge(index: int) -> Vector2:
+	_ensure_medallion_geometry()
+	return _medallion_outline[posmod(index, MEDALLION_SEGMENTS)]
+
+static func medallion_rim_mesh() -> ArrayMesh:
+	_ensure_medallion_geometry()
+	return _medallion_rim

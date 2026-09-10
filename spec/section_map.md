@@ -54,18 +54,30 @@ unimplemented icon placeholder.
 
 The map is a mostly full-screen modal over the board. After an encounter and its
 reward sequence finish, it opens once for the next room choice. Closing it keeps
-it closed until another relevant room state; the Map button, M shortcut and
-controller map action reopen it. A combat map can be inspected without bypassing
+it closed until another relevant room state. The map icon in the top-right
+utility row beside loadout, Grimoire and settings, the M shortcut and controller
+map action reopen it. The icon uses the existing ActionIconLibrary map_rooms
+identity, native header-button styling, and the Map [M] tooltip. The detached
+map text button is removed; the turn rail anchors below the utility row. Closing
+a toolbar-opened map restores toolbar focus and controller navigation. A combat map can be inspected without bypassing
 the encounter. Reward, dialogue and animation locks keep their input priority.
 Scavenger dialogue/shop remains its own interaction; leaving the shop opens
 the map once for onward travel. Closing that map is respected on later refreshes.
 
-A single click, Enter, or controller confirm on an available room commits its
-legal adjacent travel immediately. There is no persistent room selection or
+A single click, Enter, or controller confirm on an available room starts a
+0.28-second press-and-settle acknowledgement before committing legal adjacent
+travel. A brief highlight replaces scaling and the expanding outline at reduced
+motion, lasting 0.14 seconds. The existing dry forged-metal UI click sounds on
+all input paths; a pointer press is not sounded twice at release. There is no persistent room selection or
 second confirmation button. Hover or native focus exposes a shared tooltip
 with the room identity, physical north/east/south door, known next rooms, and
 landmarks kept or left behind. Already bypassed landmarks do not appear as a
 new consequence. Inspecting an unavailable room shows its reason without travel.
+The first activation owns the acknowledgement; rapid repeat activations cannot
+queue a second entry. Escape/Back cancels pending entry while keeping the map
+open. Closing, changing sections, changing run state or rebuilding geometry
+discards pending activation so stale timers cannot commit later. Scout reveals
+and physical-exit previews use the same brief acknowledgement and guards.
 
 Scout is a separate, fixed action beside the legend: activate Scout, then choose
 an available branch to reveal it. Entering targeting mode spends nothing; only
@@ -96,7 +108,9 @@ visits immediate choices in screen order, then reaches the section tabs or Scout
 left/right and normal native navigation remain available for route inspection.
 The active controller prompt names the focused action: Enter, Scout, Show exit,
 Inspect, an event choice, or section navigation. Back says Cancel Scout while
-targeting and Close otherwise. These labels use the existing device glyph system.
+targeting and Close otherwise. During acknowledgement, prompts say Entering,
+Scouting or Showing exit, and Back says Cancel. These labels use the existing
+device glyph system.
 
 `section_map_panel.gd` composes independent header, tabs, legend, optional
 focus/hover tooltip, Scout targeting and event choice surfaces.
@@ -110,11 +124,20 @@ The map answers “which room can I enter now?” in a static frame. Available r
 have larger bright seals with four small cardinal points. A slow, 5.5% maximum
 scale pulse draws attention to them; reduced motion freezes their geometry
 without changing the static availability mark. Current position retains its
-room emblem with a filled downward pointer. Visited rooms carry a broad stamped
+room emblem with a larger filled downward pointer and a 5.5-pixel outline,
+stronger than the completed-room 4-pixel outline. Its 43-pixel medallion radius
+also exceeds the completed-room 33-pixel radius. Visited rooms carry a stamped
 ring and a large check seal. Bypassed rooms recede with dark emblems and faint
 dashed paths. Future room icons are smaller and muted; unknown identities have
 broken rings. Boss medallions are approximately three times the diameter of
 ordinary future rooms and almost twice the diameter of immediate choices.
+
+The painted medallion is an offset oval. SectionMapSkin caches 96 samples of its
+actual alpha edge and outward normals, so current, visited, available and hover
+outlines follow its contour with consistent spacing. It also caches a textured
+mesh from the inside brass lip to the texture edges. The full medallion draws
+below the interior art and this rim draws above it: no sword, pack or other room
+image can obscure the painted frame.
 
 Room nodes have no attached room names, door labels, status captions, or recovery
 amount text. The compact independent legend names the room symbols. Exact
@@ -137,8 +160,9 @@ consequences are optional hover/focus details. Pointer, keyboard and controller
 share the same activation rules, with explicit Scout targeting/cancel and focus
 recovery. Native 1920×1080 at 100% scale proofs cover opening choices, history,
 boss hierarchy, normal/reduced motion, optional details, Scout cancel/commit,
-single-action travel by all three inputs, event resolution, physical door
-inspection, recovery and all six backgrounds. The mostly full-screen map and
+single-action travel by all three inputs, acknowledgement sound/motion and
+cancellation, utility-toolbar focus/activation/return and turn-rail clearance,
+event resolution, physical door inspection, recovery and all six backgrounds. The mostly full-screen map and
 its authored frames remain explicit user-requested exceptions to preferring
 shared small modal surfaces.
 

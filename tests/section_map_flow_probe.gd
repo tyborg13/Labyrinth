@@ -5,7 +5,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
-var output_dir: String = "user://section_map_flow_v2"
+var output_dir: String = "user://section_map_flow_v3"
 var viewport: SubViewport
 var instance: Node
 var failed: bool = false
@@ -59,6 +59,7 @@ func _initialize() -> void:
 	scout_button.grab_focus()
 	await _key(KEY_ENTER)
 	await _key(KEY_ENTER)
+	await _wait_acknowledgement()
 	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 1 and not bool(panel.get("scout_targeting")), "Confirming a branch spends one Scout use and exits targeting")
 	_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Scouting cannot move the player")
 	await _capture("03_scout_result.png")
@@ -68,6 +69,7 @@ func _initialize() -> void:
 	await process_frame
 	_check(not scrim.visible, "Closing a map keeps it closed during refresh")
 	await _capture("04_map_button.png")
+	await _exercise_toolbar("04d_room_toolbar")
 	await _key(KEY_M)
 	_check(scrim.visible, "M reopens the map through live shortcut input")
 	var router: Node = root.get_node("InputRouter")
@@ -88,23 +90,40 @@ func _initialize() -> void:
 	_check(scrim.visible and not bool(panel.get("scout_targeting")), "Controller Back cancels Scout before closing the map")
 	await _joy(JOY_BUTTON_B)
 	_check(not scrim.visible, "Controller cancel closes the map outside Scout targeting")
+	await _exercise_cancelled_entries(state, selected)
 	# Actual pointer, keyboard, and controller activation each commit travel once.
 	for input_kind: String in ["pointer", "keyboard", "controller"]:
+		_set_reduced_motion(input_kind == "keyboard")
 		router.call("set_forced_state_for_test", "controller" if input_kind == "controller" else "pointer", "xbox")
 		_load(state.duplicate(true))
 		await process_frame
 		await process_frame
+		panel.call("center_on_current")
 		target_button = (panel.get("node_buttons") as Dictionary).get(selected)
+		var feedback: Node = root.get_node("CursorFeedback")
+		var sound_before: int = int(feedback.call("feedback_counts").get("valid", 0))
 		if input_kind == "pointer":
 			await _pointer_click(target_button.get_global_rect().get_center())
 		else:
 			target_button.grab_focus()
 			if input_kind == "keyboard": await _key(KEY_ENTER)
 			else: await _joy(JOY_BUTTON_A)
+		_check(panel.get("activation_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Entry acknowledges " + input_kind + " activation before changing rooms")
+		_check(_route_choices(instance.get("_run_state")) == _route_choices(state), "The acknowledgement has no committed route event yet")
+		_check(int(feedback.call("feedback_counts").get("valid", 0)) == sound_before + 1, "Exactly one forged click confirms " + input_kind + " activation")
+		_check(_prompt_labels().has("Entering") and _prompt_labels().has("Cancel"), "Pending entry has truthful controller cues")
+		_check(float(target_button.get("activation_progress")) > 0.0, "Selected room has active visual feedback")
+		if input_kind == "keyboard":
+			_check(float(target_button.call("activation_scale")) == 1.0, "Reduced motion acknowledges entry without scaling the room")
+		await _capture("04c_ack_" + input_kind + ".png")
+		# Repeated activation while acknowledging must not queue another entry.
+		if panel.get("activation_coord") != Graph.INVALID:
+			panel.call("activate_room", selected)
 		await _wait_travel(selected)
 		_check(_route_choices(instance.get("_run_state")) == _route_choices(state) + 1, "Direct " + input_kind + " activation commits exactly one route analytics event")
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == selected, "One " + input_kind + " activation enters the exact chosen room")
 		await _capture("04c_direct_" + input_kind + ".png")
+	_set_reduced_motion(true)
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	# Match a generated reach-exit room to its real board doors.
 	state = engine.create_new_run(92, Progression.default_data())
@@ -128,6 +147,13 @@ func _initialize() -> void:
 		if found: break
 	_check(found, "Probe finds a generated reach-exit encounter")
 	_load(state)
+	await process_frame
+	await process_frame
+	await _exercise_toolbar("05a_combat_toolbar")
+	var map_button: Control = instance.get("_section_map_hud_button")
+	var rail: Control = instance.get("_turn_order_panel")
+	_check(not map_button.get_global_rect().intersects(rail.get_global_rect()), "Map stays clear of the combat turn-order rail")
+	await _capture("05b_combat_header_clear.png")
 	instance.call("_open_large_map")
 	await _capture("05_reach_exit_map.png")
 	choices = panel.call("available_destinations")
@@ -135,6 +161,7 @@ func _initialize() -> void:
 		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
 		var door_button: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
 		await _pointer_click(door_button.get_global_rect().get_center())
+		await _wait_acknowledgement()
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "One room click shows its physical exit without committing travel")
 	await _capture("06_reach_exit_board.png")
 	state = engine.create_new_run(93, Progression.default_data())
@@ -287,3 +314,81 @@ func _prompt_labels() -> Array[String]:
 	for prompt: Dictionary in instance.get("_controller_prompt_bar").call("prompts_snapshot"):
 		labels.append(str(prompt.get("label", "")))
 	return labels
+
+func _set_reduced_motion(enabled: bool) -> void:
+	var settings: Dictionary = Settings.load_settings()
+	settings["reduced_motion"] = enabled
+	Settings.save_settings(settings)
+	instance.call("_on_settings_changed", settings)
+
+func _wait_acknowledgement() -> void:
+	var panel: Control = instance.get("_large_map_view")
+	for tick: int in range(30):
+		if panel.get("activation_coord") == Graph.INVALID: break
+		await create_timer(0.025).timeout
+	await process_frame
+	await process_frame
+
+func _exercise_cancelled_entries(state: Dictionary, destination: Vector2i) -> void:
+	_set_reduced_motion(false)
+	var panel: Control = instance.get("_large_map_view")
+	var origin: Vector2i = state.get("current_room")
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	for interruption: String in ["escape", "close", "state", "section", "resize"]:
+		_load(state.duplicate(true))
+		await process_frame
+		await process_frame
+		panel.call("center_on_current")
+		var button: Control = (panel.get("node_buttons") as Dictionary)[destination]
+		await _pointer_click(button.get_global_rect().get_center())
+		_check(panel.get("activation_coord") == destination, "Room acknowledges before " + interruption + " interruption")
+		match interruption:
+			"escape": await _key(KEY_ESCAPE)
+			"close": instance.call("_close_large_map")
+			"state":
+				var refreshed: Dictionary = state.duplicate(true)
+				Graph.section(refreshed, 0)["scouts"] = 1
+				panel.call("set_run_state", refreshed)
+			"section": panel.call("select_section", 0)
+			"resize": (panel.get("_field") as Control).size += Vector2(1, 0)
+		await create_timer(0.35).timeout
+		_check(panel.get("activation_coord") == Graph.INVALID, interruption + " clears pending selection feedback")
+		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and _route_choices(instance.get("_run_state")) == _route_choices(state), interruption + " cannot commit stale delayed travel")
+		if interruption == "escape":
+			_check((instance.get("_large_map_scrim") as Control).visible, "Escape cancels pending entry while leaving the map open")
+			await _capture("04e_cancelled_entry.png")
+
+func _exercise_toolbar(prefix: String) -> void:
+	var button: Button = instance.get("_section_map_hud_button")
+	var scrim: Control = instance.get("_large_map_scrim")
+	var router: Node = root.get_node("InputRouter")
+	_check(button.get_parent() == instance.get("top_bar") and button.text.is_empty() and button.icon != null, "Map uses an icon in the shared header toolbar")
+	_check(not (instance.get("mini_map_overlay") as Control).visible, "The detached map panel is absent from modern runs")
+	_check(button.tooltip_text == "Map [M]", "The map icon retains its accessible name and shortcut")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	await _pointer_click(button.get_global_rect().get_center())
+	_check(scrim.visible, "Pointer opens Map from the toolbar")
+	await _key(KEY_ESCAPE)
+	_check(not scrim.visible and viewport.gui_get_focus_owner() == button, "Pointer-opened map restores toolbar focus after closing")
+	button.grab_focus()
+	await _key(KEY_ENTER)
+	_check(scrim.visible, "Keyboard opens Map from the toolbar")
+	await _key(KEY_ESCAPE)
+	_check(not scrim.visible and viewport.gui_get_focus_owner() == button, "Keyboard map close restores toolbar focus")
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	var loadout: Control = instance.get("loadout_button")
+	instance.set("_controller_region", "board")
+	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", loadout), true)
+	await _joy(JOY_BUTTON_DPAD_LEFT)
+	_check(viewport.gui_get_focus_owner() == button, "Controller reaches Map by moving left from the adjacent loadout button")
+	await _capture(prefix + "_focus.png")
+	await _joy(JOY_BUTTON_A)
+	_check(scrim.visible, "Controller A opens the focused toolbar map icon")
+	await _joy(JOY_BUTTON_B)
+	await process_frame
+	await process_frame
+	_check(not scrim.visible and viewport.gui_get_focus_owner() == button, "Controller B returns focus to the toolbar map icon")
+	await _joy(JOY_BUTTON_DPAD_RIGHT)
+	_check(viewport.gui_get_focus_owner() == loadout, "Controller can leave the restored map icon for adjacent toolbar actions")
+	router.call("set_forced_state_for_test", "pointer", "xbox")

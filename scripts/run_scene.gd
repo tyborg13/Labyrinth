@@ -1827,6 +1827,7 @@ var _relic_claim_in_progress: bool = false
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
 var _section_map_hud_button: Button
+var _map_opened_from_toolbar: bool = false
 var _section_map_presented_key: String = ""
 var _map_analytics_revision: int = 0
 var _map_analytics_run_id: String = ""
@@ -2977,7 +2978,7 @@ func _controller_header_focus_controls() -> Array[Control]:
 		if menu_button != null and menu_button.visible and not menu_button.disabled:
 			result.append(menu_button)
 		return result
-	for control: Control in [grimoire_button, loadout_button, menu_button]:
+	for control: Control in [_section_map_hud_button, loadout_button, grimoire_button, menu_button]:
 		if control != null and control.visible and not control.disabled:
 			result.append(control)
 	if _relic_utility_bar != null:
@@ -3473,7 +3474,7 @@ func _refresh_controller_prompts() -> void:
 			prompts = [
 				{"action": InputRouterScript.ACTION_ACCEPT, "label": str(_large_map_view.call("controller_action_label"))},
 				{"action": &"controller_dpad", "label": "Navigate"},
-				{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Scout" if bool(_large_map_view.get("scout_targeting")) else "Close"},
+				{"action": InputRouterScript.ACTION_CANCEL, "label": str(_large_map_view.call("controller_cancel_label"))},
 			]
 		else:
 			prompts = [
@@ -3870,6 +3871,7 @@ func _ensure_loadout_badge() -> void:
 	_refresh_loadout_badge()
 
 func _header_icon_texture(icon_kind: String) -> Texture2D:
+	if icon_kind == "map_rooms": return ActionIcons.icon_texture("map_rooms")
 	if _header_icon_textures.has(icon_kind):
 		return _header_icon_textures[icon_kind]
 	var image := Image.create(HEADER_ICON_TEXTURE_SIZE, HEADER_ICON_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)
@@ -4808,15 +4810,12 @@ func _build_large_map_overlay() -> void:
 	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
 	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
-	_section_map_hud_button.text = "Map"
-	_section_map_hud_button.tooltip_text = "Map [M]"
-	_ui_skin.apply_button_stylebox_overrides(_section_map_hud_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(_section_map_hud_button)
-	UiTypography.apply_button_role(_section_map_hud_button, UiTypography.ROLE_BODY_LARGE)
+	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
 	_section_map_hud_button.pressed.connect(func() -> void:
-		if _map_shortcut_can_open(): _open_large_map()
+		if _map_shortcut_can_open(): _open_large_map(true)
 	)
-	mini_map_overlay.add_child(_section_map_hud_button)
+	top_bar.add_child(_section_map_hud_button)
+	top_bar.move_child(_section_map_hud_button, loadout_button.get_index())
 
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
@@ -10356,7 +10355,7 @@ func _layout_turn_order_anchor() -> void:
 
 func _utility_stack_visible_bottom() -> float:
 	var bottom: float = -INF
-	for utility: Control in [stats_label, loadout_button, grimoire_button, menu_button]:
+	for utility: Control in [stats_label, _section_map_hud_button, loadout_button, grimoire_button, menu_button]:
 		if utility == null or not utility.visible or not utility.is_inside_tree():
 			continue
 		bottom = maxf(bottom, utility.get_global_rect().end.y)
@@ -14531,10 +14530,11 @@ func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
 	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
 	var section_map: bool = SectionMapGraph.enabled(_run_state)
-	mini_map_overlay.visible = (section_map or mode != "combat") and not terminal_recap_visible
+	mini_map_overlay.visible = not section_map and mode != "combat" and not terminal_recap_visible
 	mini_map.get_parent().visible = not section_map
 	if _section_map_hud_button != null:
-		_section_map_hud_button.visible = section_map
+		_section_map_hud_button.visible = section_map and not terminal_recap_visible
+		_section_map_hud_button.disabled = not _map_shortcut_can_open()
 	_layout_mini_map_overlay()
 	if section_map:
 		call_deferred("_maybe_present_section_map")
@@ -20944,9 +20944,10 @@ func _map_shortcut_can_open() -> bool:
 			return false
 	return true
 
-func _open_large_map() -> void:
+func _open_large_map(from_toolbar: bool = false) -> void:
 	if _large_map_scrim == null:
 		return
+	_map_opened_from_toolbar = from_toolbar
 	_controller_clear_hand_hover()
 	_controller_clear_board_focus()
 	if _card_focus_tooltip_stack != null:
@@ -20972,6 +20973,13 @@ func _close_large_map() -> void:
 		_large_map_view.call("reset_interaction")
 	_large_map_scrim.visible = false
 	_update_performance_telemetry_context()
+	if _map_opened_from_toolbar and _section_map_hud_button != null and _section_map_hud_button.is_visible_in_tree():
+		if _controller_is_active() and _controller_custom_navigation_available() and not _controller_card_targeting_needs_initial_candidate():
+			_controller_region = "board"
+			_controller_set_focus_candidate(_controller_candidate_for_control(_section_map_hud_button), true)
+		else:
+			_section_map_hud_button.grab_focus()
+	_map_opened_from_toolbar = false
 	_schedule_controller_modal_refresh()
 
 func _focus_large_map_for_controller() -> void:
@@ -31961,8 +31969,8 @@ func _layout_mini_map_overlay() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
-	var overlay_width: float = 156.0 if SectionMapGraph.enabled(_run_state) else clampf(viewport_size.x * 0.20, 236.0, 300.0)
-	var overlay_height: float = 54.0 if SectionMapGraph.enabled(_run_state) else clampf(viewport_size.y * 0.24, 210.0, 260.0)
+	var overlay_width: float = clampf(viewport_size.x * 0.20, 236.0, 300.0)
+	var overlay_height: float = clampf(viewport_size.y * 0.24, 210.0, 260.0)
 	mini_map_overlay.offset_left = -overlay_width - 8.0
 	mini_map_overlay.offset_top = 8.0
 	mini_map_overlay.offset_right = -8.0
