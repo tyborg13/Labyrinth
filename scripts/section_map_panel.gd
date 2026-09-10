@@ -303,7 +303,7 @@ func _layout_nodes() -> void:
 	var positions: Dictionary = {}
 	var openings := PackedVector4Array()
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
-		if int(node.get("section_index", -1)) != viewed_section or not (bool(node.get("revealed", false)) or bool(node.get("map_outline", false))):
+		if int(node.get("section_index", -1)) != viewed_section or not (bool(node.get("revealed", false)) or bool(node.get("map_outline", false)) or _has_recovery(node)):
 			continue
 		var coord: Vector2i = node.get("coord", Graph.INVALID)
 		var x: float = 68 + (_field.size.x - 136) * float(node.get("map_step", 0)) / float(count)
@@ -324,7 +324,7 @@ func _layout_nodes() -> void:
 		button.focus_entered.connect(select_room.bind(coord))
 		_nodes.add_child(button)
 		node_buttons[coord] = button
-		if bool(node.get("revealed", false)):
+		if bool(node.get("revealed", false)) or _has_recovery(node):
 			openings.append(Vector4(x / _field.size.x, y / _field.size.y, 0.081, 0.21))
 	if focused_coord != Graph.INVALID and node_buttons.has(focused_coord):
 		(node_buttons[focused_coord] as Control).grab_focus()
@@ -363,9 +363,12 @@ func _refresh_detail() -> void:
 		var leaves: Array[String] = []
 		var descendants: Dictionary = Graph.descendants(run_state, selected_coord)
 		for candidate: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
-			if int(candidate.get("section_index", -1)) == viewed_section and bool(candidate.get("map_landmark", false)) and not bool(candidate.get("visited", false)):
+			if int(candidate.get("section_index", -1)) != viewed_section:
+				continue
+			var landmark: bool = bool(candidate.get("map_landmark", false)) and not bool(candidate.get("visited", false))
+			if landmark or _has_recovery(candidate):
 				var names: Array[String] = keeps if descendants.has(candidate.get("coord", Graph.INVALID)) else leaves
-				var name: String = _room_label(candidate)
+				var name: String = "%d lost Embers" % int(candidate.get("recovery_amount", 0)) if _has_recovery(candidate) else _room_label(candidate)
 				if not names.has(name): names.append(name)
 		if not keeps.is_empty(): detail += "\nKeeps: %s" % ", ".join(keeps)
 		if not leaves.is_empty(): detail += "  ·  Leaves: %s" % ", ".join(leaves)
@@ -375,6 +378,8 @@ func _refresh_detail() -> void:
 		detail = "Current room" if selected_coord == run_state.get("current_room", Graph.INVALID) else "Already visited"
 	else:
 		detail = "Not adjacent" + ("  ·  " + detail if not detail.is_empty() else "")
+	if _has_recovery(node):
+		detail += "\nRecover %d lost Embers here." % int(node.get("recovery_amount", 0))
 	_consequence.text = detail
 	var targets: Array[Vector2i] = Graph.scout_targets(run_state, selected_coord)
 	_scout.text = "Scout · %d / 2" % int(Graph.section(run_state, viewed_section).get("scouts", 0))
@@ -394,12 +399,29 @@ func _refresh_detail() -> void:
 		_enter.disabled = false
 		_scout.text = "Reveal routes"
 		_scout.disabled = not event_has_discoveries()
-	if available and str(node.get("type", "")) == "start" and int(node.get("section_index", -1)) > viewed_section:
+	var onward: Vector2i = _next_section_destination()
+	if onward != Graph.INVALID:
 		_detail.text = "Section complete"
-		_consequence.text = "Next: " + str(Graph.section(run_state, int(node.get("section_index", 0))).get("title", ""))
+		_consequence.text = "Next: " + str(Graph.section(run_state, int(Graph.room(run_state, onward).get("section_index", 0))).get("title", ""))
 		_enter.text = "Next section"
+		_enter.disabled = false
+		_scout.disabled = true
 	if not active:
 		_enter.text = "Section complete"
+
+func _has_recovery(node: Dictionary) -> bool:
+	return bool(node.get("recovery_marker", false)) and int(node.get("recovery_amount", 0)) > 0
+
+func _next_section_destination() -> Vector2i:
+	if viewed_section != Graph.active_section(run_state) or str(run_state.get("mode", "")) != "room":
+		return Graph.INVALID
+	var current: Dictionary = Graph.room(run_state, run_state.get("current_room", Graph.INVALID))
+	if str(current.get("type", "")) != "boss" or not bool(current.get("cleared", false)):
+		return Graph.INVALID
+	for coord: Vector2i in available_destinations():
+		if int(Graph.room(run_state, coord).get("section_index", -1)) == viewed_section + 1:
+			return coord
+	return Graph.INVALID
 
 func event_has_discoveries() -> bool:
 	for coord: Vector2i in Graph.descendants(run_state, run_state.get("current_room", Vector2i.ZERO), 4):
@@ -423,7 +445,8 @@ func _request_entry() -> void:
 	elif str(run_state.get("mode", "")) == "combat":
 		door_requested.emit(selected_coord)
 	else:
-		room_selected.emit(selected_coord)
+		var onward: Vector2i = _next_section_destination()
+		room_selected.emit(onward if onward != Graph.INVALID else selected_coord)
 
 func _door_name(coord: Vector2i) -> String:
 	for link: Dictionary in Graph.room(run_state, run_state.get("current_room", Vector2i.ZERO)).get("connections", []):
@@ -457,6 +480,8 @@ func center_on_current(_reset_zoom: bool = true) -> void:
 func focus_controller_on_current() -> void:
 	if not Graph.enabled(run_state):
 		_legacy.call("focus_controller_on_current")
+	elif _next_section_destination() != Graph.INVALID:
+		_enter.grab_focus()
 	elif node_buttons.has(selected_coord):
 		(node_buttons[selected_coord] as Control).grab_focus()
 	else:

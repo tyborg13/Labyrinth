@@ -7,6 +7,7 @@ var room_data: Dictionary = {}
 var route_state: String = "unavailable"
 var selected: bool = false
 var label: Label
+var recovery_label: Label
 
 func configure(data: Dictionary, caption: String, state: String) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
@@ -29,6 +30,20 @@ func configure(data: Dictionary, caption: String, state: String) -> void:
 	label.position = Vector2(-22, 111 if str(data.get("type", "")) == "boss" else 92)
 	label.size = Vector2(144, 72)
 	label.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+	if recovery_label == null:
+		recovery_label = Label.new()
+		recovery_label.name = "RecoveryAmount"
+		recovery_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		recovery_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		Typography.apply_label_role(recovery_label, Typography.ROLE_BODY)
+		recovery_label.add_theme_color_override("font_color", Color("ffd28f"))
+		recovery_label.add_theme_color_override("font_outline_color", Color("160b05"))
+		recovery_label.add_theme_constant_override("outline_size", 5)
+		add_child(recovery_label)
+	recovery_label.visible = bool(data.get("recovery_marker", false)) and int(data.get("recovery_amount", 0)) > 0
+	recovery_label.text = str(data.get("recovery_amount", 0))
+	recovery_label.position = Vector2(62, 25)
+	recovery_label.size = Vector2(48, 24)
 	queue_redraw()
 
 func _draw() -> void:
@@ -64,3 +79,11 @@ func _draw() -> void:
 		draw_polyline(PackedVector2Array([Vector2(39, 1), Vector2(46, 8), Vector2(60, -7)]), Color("f2d594"), 3, true)
 	if bool(room_data.get("map_landmark", false)) and not visited:
 		draw_circle(Vector2(85, 13), 6, Color("f2d594"))
+
+	if bool(room_data.get("recovery_marker", false)) and int(room_data.get("recovery_amount", 0)) > 0:
+		var badge_center := Vector2(86, 13)
+		draw_circle(badge_center, 20, Color("160b05"))
+		draw_arc(badge_center, 20, 0, TAU, 48, Color("e1a457"), 2, true)
+		var recovery: Texture2D = Assets.load_texture("res://assets/art/tiles/dropped_embers.png")
+		if recovery != null:
+			draw_texture_rect(recovery, Rect2(badge_center - Vector2(16, 16), Vector2(32, 32)), false)

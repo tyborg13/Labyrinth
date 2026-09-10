@@ -5,35 +5,13 @@ const Settings = preload("res://scripts/settings_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
-const OUTPUT: String = "user://section_map_flow_v1"
+var output_dir: String = "user://section_map_flow_v1"
 var viewport: SubViewport
 var instance: Node
 var failed: bool = false
 
 func _initialize() -> void:
-	ParallelRuntime.apply_from_environment()
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
-	DisplayServer.window_set_size(Vector2i(1920,1080))
-	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
-	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
-	root.content_scale_size = Vector2i(1920,1080)
-	root.size = Vector2i(1920,1080)
-	Settings.set_storage_path("user://section_map_settings.json")
-	var settings: Dictionary = Settings.default_settings()
-	settings["ui_scale"] = 1.0
-	settings["reduced_motion"] = true
-	Settings.save_settings(settings)
-	Progression.set_storage_path("user://section_map_progression.json")
-	Progression.set_run_storage_path("user://section_map_run.save")
-	Progression.clear_saved_run()
-	viewport = SubViewport.new()
-	viewport.size = Vector2i(1920,1080)
-	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
-	root.add_child(viewport)
-	instance = load("res://scenes/run_scene.tscn").instantiate()
-	viewport.add_child(instance)
-	await process_frame
-	await process_frame
+	await _setup()
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(81, Progression.default_data())
 	# Use a real reward transaction with the current generated room and exits.
@@ -128,7 +106,7 @@ func _initialize() -> void:
 	await _capture("08_event_resolved.png")
 	instance.queue_free()
 	await process_frame
-	print(ProjectSettings.globalize_path(OUTPUT))
+	print(ProjectSettings.globalize_path(output_dir))
 	quit(1 if failed else 0)
 
 func _load(state: Dictionary) -> void:
@@ -146,9 +124,9 @@ func _capture(name: String) -> void:
 	await process_frame
 	RenderingServer.force_draw()
 	await process_frame
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(output_dir))
 	var image: Image = viewport.get_texture().get_image()
-	_check(image.get_size() == Vector2i(1920,1080) and image.save_png(OUTPUT.path_join(name)) == OK, "Fresh native-resolution capture: " + name)
+	_check(image.get_size() == Vector2i(1920,1080) and image.save_png(output_dir.path_join(name)) == OK, "Fresh native-resolution capture: " + name)
 
 func _check(value: bool, message: String) -> void:
 	if not value:
@@ -175,4 +153,29 @@ func _joy(button: JoyButton) -> void:
 	event = event.duplicate()
 	event.pressed = false
 	viewport.push_input(event, true)
+	await process_frame
+
+func _setup() -> void:
+	ParallelRuntime.apply_from_environment()
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_size(Vector2i(1920,1080))
+	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root.content_scale_size = Vector2i(1920,1080)
+	root.size = Vector2i(1920,1080)
+	Settings.set_storage_path("user://section_map_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	settings["reduced_motion"] = true
+	Settings.save_settings(settings)
+	Progression.set_storage_path("user://section_map_progression.json")
+	Progression.set_run_storage_path("user://section_map_run.save")
+	Progression.clear_saved_run()
+	viewport = SubViewport.new()
+	viewport.size = Vector2i(1920,1080)
+	viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(viewport)
+	instance = load("res://scenes/run_scene.tscn").instantiate()
+	viewport.add_child(instance)
+	await process_frame
 	await process_frame

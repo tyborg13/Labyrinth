@@ -32486,7 +32486,7 @@ func _maybe_present_section_map() -> void:
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode not in ["room", "event"] or not _map_shortcut_can_open():
 		return
-	if mode == "room" and not _current_room_merchant_kind().is_empty():
+	if mode == "room" and not _current_room_merchant_kind().is_empty() and _merchant_shop_open:
 		return
 	var moment: String = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), mode]
 	if moment == _section_map_presented_key:
