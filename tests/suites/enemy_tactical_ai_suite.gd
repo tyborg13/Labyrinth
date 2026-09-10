@@ -44,7 +44,7 @@ static func _test_out_of_range_stationary_shot_is_rejected(expect: Callable) -> 
 	var state: Dictionary = _state(Vector2i(1, 4), [_enemy("harrier", 1, Vector2i(6, 4))])
 	var ids: Array[String] = _option_ids(combat.enemy_tactical_intent_options(state, 0))
 	expect.call(not ids.has("pelt"), "A far skirmisher should reject a stationary ranged intent that cannot reach its target")
-	expect.call(ids.has("darting_pelt"), "A far skirmisher should retain a move-and-shoot intent that reaches a legal firing lane")
+	expect.call(ids == _string_array(["rush"]), "A far skirmisher should reliably approach even when its weak melee follow-up cannot connect")
 
 static func _test_close_skirmisher_prefers_retreat(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -213,7 +213,7 @@ static func _test_seeded_variation_remains_between_sensible_attacks(expect: Call
 		combat.call("_assign_enemy_intent", state, 0, rng)
 		var intent: Dictionary = ((state.get("enemies", []) as Array)[0] as Dictionary).get("intent", {}) as Dictionary
 		selected[str(intent.get("id", ""))] = true
-	expect.call(selected.has("skitter_strike") and selected.has("lunge"), "Seeded selection should retain replayable variation between sensible adjacent attacks")
+	expect.call(selected.has("skitter_strike") and not selected.has("lunge"), "A positioned Crawler should use its stronger signature rather than its weak approach")
 	expect.call(not selected.has("coil"), "Seeded variation should not reintroduce a low-value defensive choice beside an immediately available attack")
 
 static func _state(player_pos: Vector2i, enemies: Array) -> Dictionary:

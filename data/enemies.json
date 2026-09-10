@@ -22,7 +22,7 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 3
+            "range": 2
           },
           {
             "type": "melee",
@@ -57,16 +57,16 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 4
+            "range": 3
           },
           {
             "type": "melee",
-            "damage": 6,
+            "damage": 3,
             "range": 1,
-            "bleed": 1,
             "element": "none"
           }
-        ]
+        ],
+        "purpose": "approach"
       }
     ]
   },
@@ -74,7 +74,7 @@
     "name": "Dust Acolyte",
     "ai_profile": {
       "role": "artillery",
-      "preferred_range": 4,
+      "preferred_range": 3,
       "retreat_distance": 2
     },
     "max_hp": 12,
@@ -95,13 +95,9 @@
         "weight": 4,
         "actions": [
           {
-            "type": "move_toward",
-            "range": 2
-          },
-          {
             "type": "ranged",
             "damage": 5,
-            "range": 5,
+            "range": 3,
             "element": "none"
           }
         ]
@@ -130,17 +126,36 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 3
+            "range": 1
           },
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4,
+            "range": 2,
             "element": "none"
           },
           {
             "type": "heal_self",
             "amount": 2
+          }
+        ]
+      },
+      {
+        "id": "dust_advance",
+        "name": "Dust Advance",
+        "time": 4,
+        "weight": 2,
+        "purpose": "approach",
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1,
+            "element": "none"
           }
         ]
       }
@@ -150,7 +165,7 @@
     "name": "Bone Harrier",
     "ai_profile": {
       "role": "skirmisher",
-      "preferred_range": 4,
+      "preferred_range": 3,
       "retreat_distance": 2
     },
     "max_hp": 10,
@@ -169,7 +184,7 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4,
+            "range": 3,
             "pierce": true,
             "bleed": 1,
             "element": "none"
@@ -204,11 +219,12 @@
           },
           {
             "type": "melee",
-            "damage": 5,
+            "damage": 3,
             "range": 1,
             "element": "none"
           }
-        ]
+        ],
+        "purpose": "approach"
       },
       {
         "id": "darting_pelt",
@@ -218,12 +234,12 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 1
           },
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4,
+            "range": 2,
             "element": "none"
           }
         ]
@@ -416,6 +432,19 @@
             }
           }
         }
+      },
+      {
+        "id": "ooze_advance",
+        "name": "Ooze Advance",
+        "time": 5,
+        "weight": 2,
+        "purpose": "approach",
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          }
+        ]
       }
     ]
   },
@@ -479,7 +508,7 @@
     "name": "Shale Bloomer",
     "ai_profile": {
       "role": "artillery",
-      "preferred_range": 4,
+      "preferred_range": 3,
       "retreat_distance": 2
     },
     "element": "earth",
@@ -572,13 +601,9 @@
         "weight": 3,
         "actions": [
           {
-            "type": "move_toward",
-            "range": 1
-          },
-          {
             "type": "ranged",
             "damage": 3,
-            "range": 4,
+            "range": 3,
             "expose": 2,
             "surface": "rubble",
             "element": "earth"
@@ -606,6 +631,19 @@
             }
           }
         }
+      },
+      {
+        "id": "shale_advance",
+        "name": "Shale Advance",
+        "time": 5,
+        "weight": 2,
+        "purpose": "approach",
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          }
+        ]
       }
     ]
   },
@@ -634,8 +672,8 @@
           {
             "type": "pull",
             "damage": 4,
-            "range": 4,
-            "amount": 3,
+            "range": 3,
+            "amount": 2,
             "element": "air"
           }
         ]
@@ -681,13 +719,14 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 1
+            "range": 2
           },
           {
             "type": "block",
             "amount": 5
           }
-        ]
+        ],
+        "purpose": "approach"
       }
     ]
   },
@@ -695,7 +734,7 @@
     "name": "Grave Surgeon",
     "ai_profile": {
       "role": "support",
-      "preferred_range": 4,
+      "preferred_range": 3,
       "retreat_distance": 2
     },
     "max_hp": 10,
@@ -723,7 +762,7 @@
           {
             "type": "heal_ally",
             "amount": 2,
-            "range": 4
+            "range": 3
           }
         ]
       },
@@ -758,7 +797,7 @@
           {
             "type": "guard_ally",
             "amount": 3,
-            "range": 4,
+            "range": 3,
             "clear_surface": "elemental"
           }
         ]
@@ -769,7 +808,7 @@
     "name": "Frostglass Lancer",
     "ai_profile": {
       "role": "skirmisher",
-      "preferred_range": 4,
+      "preferred_range": 3,
       "retreat_distance": 2
     },
     "element": "ice",
@@ -793,7 +832,7 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 1
           },
           {
             "type": "aoe",
@@ -810,10 +849,6 @@
               ],
               [
                 3,
-                0
-              ],
-              [
-                4,
                 0
               ]
             ],
@@ -834,7 +869,7 @@
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4,
+            "range": 3,
             "element": "none"
           }
         ]
@@ -865,8 +900,27 @@
           {
             "type": "ranged",
             "damage": 5,
-            "range": 4,
+            "range": 3,
             "element": "ice"
+          }
+        ]
+      },
+      {
+        "id": "spear_advance",
+        "name": "Spear Advance",
+        "time": 4,
+        "weight": 2,
+        "purpose": "approach",
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1,
+            "element": "none"
           }
         ]
       }
@@ -1551,7 +1605,7 @@
     "name": "Veilbound Acolyte",
     "ai_profile": {
       "role": "skirmisher",
-      "preferred_range": 4,
+      "preferred_range": 2,
       "retreat_distance": 2
     },
     "element": "shadow",
@@ -1575,7 +1629,7 @@
           {
             "type": "ranged",
             "damage": 1,
-            "range": 4,
+            "range": 2,
             "element": "shadow"
           }
         ]
@@ -1616,7 +1670,7 @@
     "name": "Lightning Wisp",
     "ai_profile": {
       "role": "skirmisher",
-      "preferred_range": 4,
+      "preferred_range": 2,
       "retreat_distance": 2
     },
     "element": "lightning",
@@ -1640,15 +1694,16 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 4
+            "range": 3
           },
           {
             "type": "melee",
-            "damage": 3,
+            "damage": 2,
             "range": 1,
-            "element": "lightning"
+            "element": "none"
           }
-        ]
+        ],
+        "purpose": "approach"
       },
       {
         "id": "static_lash",
@@ -1658,12 +1713,12 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 3
+            "range": 1
           },
           {
             "type": "ranged",
             "damage": 3,
-            "range": 3,
+            "range": 2,
             "element": "lightning"
           },
           {
@@ -1681,12 +1736,12 @@
         "actions": [
           {
             "type": "move_away",
-            "range": 2
+            "range": 1
           },
           {
             "type": "ranged",
             "damage": 4,
-            "range": 4,
+            "range": 2,
             "element": "lightning",
             "surface_bonus": {
               "surface": "electrified",

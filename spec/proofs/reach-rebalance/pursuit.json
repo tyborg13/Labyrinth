@@ -1,0 +1,202 @@
+{
+	"balance_revision": "short_reach_v1",
+	"cases": [
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": false,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"lunge": 10,
+				"skitter_strike": 14
+			},
+			"types": [
+				"crawler"
+			]
+		},
+		{
+			"activations": 17,
+			"clock": 148,
+			"clutter": true,
+			"damage": 24,
+			"hp": 0,
+			"observed_intents": {
+				"lunge": 7,
+				"skitter_strike": 10
+			},
+			"types": [
+				"crawler"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": false,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"dust_advance": 16,
+				"dust_bolt": 8
+			},
+			"types": [
+				"acolyte"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": true,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"dust_advance": 16,
+				"dust_bolt": 6,
+				"siphon": 2
+			},
+			"types": [
+				"acolyte"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": false,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"darting_pelt": 4,
+				"pelt": 1,
+				"retreat_step": 1,
+				"rush": 18
+			},
+			"types": [
+				"harrier"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": true,
+			"damage": 3,
+			"hp": 21,
+			"observed_intents": {
+				"darting_pelt": 1,
+				"pelt": 1,
+				"retreat_step": 4,
+				"rush": 18
+			},
+			"types": [
+				"harrier"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": false,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"spark_dart": 13,
+				"static_lash": 11
+			},
+			"types": [
+				"lightning_wisp"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": true,
+			"damage": 15,
+			"hp": 9,
+			"observed_intents": {
+				"blinding_arc": 4,
+				"spark_dart": 10,
+				"static_lash": 10
+			},
+			"types": [
+				"lightning_wisp"
+			]
+		},
+		{
+			"activations": 14,
+			"clock": 117,
+			"clutter": false,
+			"damage": 24,
+			"hp": 0,
+			"observed_intents": {
+				"dust_advance": 7,
+				"dust_bolt": 6,
+				"lunge": 6,
+				"pelt": 2,
+				"retreat_step": 3,
+				"rush": 9,
+				"siphon": 1,
+				"skitter_strike": 8
+			},
+			"types": [
+				"crawler",
+				"acolyte",
+				"harrier"
+			]
+		},
+		{
+			"activations": 15,
+			"clock": 133,
+			"clutter": true,
+			"damage": 24,
+			"hp": 0,
+			"observed_intents": {
+				"darting_pelt": 3,
+				"dust_advance": 9,
+				"dust_bolt": 4,
+				"lunge": 4,
+				"retreat_step": 1,
+				"rush": 11,
+				"skitter_strike": 11,
+				"ward_chant": 2
+			},
+			"types": [
+				"crawler",
+				"acolyte",
+				"harrier"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": false,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"bulwark": 6,
+				"crushing_step": 7,
+				"field_brace": 24,
+				"marching_blow": 11
+			},
+			"types": [
+				"warden",
+				"grave_surgeon"
+			]
+		},
+		{
+			"activations": 24,
+			"clock": 216,
+			"clutter": true,
+			"damage": 0,
+			"hp": 24,
+			"observed_intents": {
+				"bulwark": 3,
+				"crushing_step": 11,
+				"field_brace": 24,
+				"marching_blow": 10
+			},
+			"types": [
+				"warden",
+				"grave_surgeon"
+			]
+		}
+	],
+	"policy": "24 activations; exact next-return HP then separation; move/pass only; observed intents sampled at player boundaries"
+}

@@ -1742,6 +1742,7 @@ func _analytics_context(combat_state: Dictionary = _combat_state, card_id: Strin
 	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var run_analytics: Dictionary = (_run_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = {
+		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),

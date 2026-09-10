@@ -1647,7 +1647,7 @@
     "description": "While you have @icon(truesight), @icon(ranged) actions gain @icon(range) +{amount}.",
     "icon_path": "res://assets/art/relics/true_north.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -1663,7 +1663,7 @@
           "ranged"
         ],
         "field": "range",
-        "amount": 2
+        "amount": 1
       }
     ]
   },

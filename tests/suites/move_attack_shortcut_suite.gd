@@ -160,7 +160,7 @@ static func _test_preferred_routes_collect_pickups_without_crossing_traps(expect
 
 static func _test_surface_painters_retain_baseline_attacks(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var target := Vector2i(5, PLAYER_START.y)
+	var target := Vector2i(4, PLAYER_START.y)
 	for card_id: String in ["rime_shard", "volt_surge"]:
 		var state: Dictionary = _combat_state(combat, card_id, target, 87002)
 		var attack: Dictionary = (GameData.card_def(card_id)["actions"] as Array)[0]

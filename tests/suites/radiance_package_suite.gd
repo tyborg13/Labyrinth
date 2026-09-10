@@ -124,6 +124,7 @@ static func _test_attack_light_riders(expect: Callable) -> void:
 	synthetic_aoe_rider["illuminate_radius"] = 1
 	synthetic_aoe_rider["illuminate_duration"] = 2
 	var squall_state: Dictionary = combat.create_combat(8295, _room(), {"hp": 24, "max_hp": 24, "deck_cards": ["squall_shot"], "relics": [], "hand_size": 1})
+	squall_state["player"]["pos"] = Vector2i(3, 4)
 	var squall_targets: Array[Vector2i] = combat.valid_targets_for_player_action(squall_state, synthetic_aoe_rider)
 	expect.call(squall_targets.has(Vector2i(4, 4)) and squall_targets.has(Vector2i(4, 3)), "A Light-rider AOE should allow an empty selected center when other pattern squares hit targets")
 

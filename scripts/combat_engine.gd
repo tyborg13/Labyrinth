@@ -87,6 +87,8 @@ const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
 const ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST: int = 1
 const ENEMY_PATH_TRAP_BASE_PENALTY: int = 1000
 const ENEMY_TACTICAL_SCORE_WINDOW: int = 32
+# Player movement 2 plus a specialist shot 3 still threatens five tiles.
+# This defensive heuristic is deliberately broader than enemy attack reach.
 const ENEMY_TACTICAL_THREAT_DISTANCE: int = 5
 const ENEMY_TACTICAL_CLOSE_DISTANCE: int = 2
 const DEFAULT_AOE_PATTERN: Array = [
@@ -732,6 +734,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		"surfaces": room_layout.get("surfaces", {}).duplicate(true),
 		"surface_revision": 0,
 		"surface_events": [],
+		"balance_revision": GameData.BALANCE_REVISION,
 		"rules_version": BoardSurfaceRules.RULES_VERSION,
 		"moss": room_layout.get("moss", {}).duplicate(true),
 		"player": player,
@@ -7357,6 +7360,7 @@ func _enemy_tactical_intent_options(
 		return []
 	var evaluated: Array[Dictionary] = []
 	var best_score: int = -1000000
+	var signature_available: bool = false
 	for intent_var: Variant in intents:
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
@@ -7368,6 +7372,18 @@ func _enemy_tactical_intent_options(
 			intent_var as Dictionary
 		)
 		evaluated.append(option)
+		if bool(option.get("eligible", false)) and bool(option.get("attack_available", false)) and str((option.get("intent", {}) as Dictionary).get("purpose", "")) != "approach":
+			signature_available = true
+	# Fast approaches are dependable when no signature attack connects. Once
+	# positioned, favor the signature. This only chooses the next intent; a
+	# revealed approach never turns into a stronger attack after moving.
+	for option: Dictionary in evaluated:
+		var option_intent: Dictionary = option.get("intent", {}) as Dictionary
+		if str(option_intent.get("purpose", "")) == "approach":
+			if signature_available:
+				option["eligible"] = false
+			elif bool(option.get("eligible", false)):
+				option["score"] = int(option.get("score", 0)) + 160
 		if bool(option.get("eligible", false)):
 			best_score = maxi(best_score, int(option.get("score", -1000000)))
 	if best_score <= -1000000:
@@ -7391,6 +7407,15 @@ func _enemy_tactical_intent_option(
 	intent: Dictionary
 ) -> Dictionary:
 	var role: String = str(profile.get("role", "frontliner"))
+	# A healthy support with nobody left to protect must finish the fight.
+	# Wounded support keeps its healing priorities, and squads keep their roles.
+	if role == "support" and int(enemy.get("hp", 0)) >= int(enemy.get("max_hp", 1)):
+		var has_ally: bool = false
+		for other: Dictionary in state.get("enemies", []):
+			if int(other.get("id", -1)) != int(enemy.get("id", -1)) and int(other.get("hp", 0)) > 0:
+				has_ally = true
+		if not has_ally:
+			role = "frontliner"
 	var preferred_range: int = maxi(1, int(profile.get("preferred_range", 1)))
 	var retreat_distance: int = maxi(0, int(profile.get("retreat_distance", 0)))
 	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent)
@@ -7431,6 +7456,12 @@ func _enemy_tactical_intent_option(
 					group_guard_lowest_distance = int(group_guard.get("lowest_distance", 9999))
 				else:
 					guard_target_index = _enemy_support_target_index(state, enemy_index, action)
+	if str(plan.get("support_approach", "")) == "heal_ally":
+		var support_preview: Dictionary = _state_with_enemy_anchor(state, enemy, plan.get("destination", enemy.get("pos", Vector2i.ZERO)))
+		for action_var: Variant in actions:
+			var action: Dictionary = action_var as Dictionary
+			if str(action.get("type", "")) == "heal_ally":
+				heal_target_index = _enemy_support_target_index(support_preview, enemy_index, action)
 	var target_tile: Vector2i = plan.get("target_tile", INVALID_TILE)
 	if target_tile == INVALID_TILE:
 		target_tile = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
@@ -7451,8 +7482,11 @@ func _enemy_tactical_intent_option(
 	var missing_hp: int = maxi(0, max_hp - hp)
 	var low_health: bool = hp * 2 <= max_hp
 	var threatened: bool = mini(player_distance_before, player_distance_after) <= ENEMY_TACTICAL_THREAT_DISTANCE
-	var useful: bool = false
+	var useful: bool = str(intent.get("purpose", "")) == "approach" and moved
 	var score: int = 0
+	if str(plan.get("support_approach", "")) == "heal_ally" and moved:
+		useful = true
+		score += 230
 	var attack_available: bool = not attack_action.is_empty() and bool(plan.get("attack_available", false))
 	if not attack_action.is_empty():
 		if attack_available:
@@ -7791,7 +7825,9 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var attack_resolvable: bool = attack_action.is_empty() or enemy_action_can_resolve(state, attack_action)
 	var planning_attack: Dictionary = attack_action
 	if planning_attack.is_empty():
-		planning_attack = {"type": "melee", "range": 1, "damage": 0}
+		var profile: Dictionary = GameData.enemy_def(str(enemy.get("type", ""))).get("ai_profile", {}) as Dictionary
+		var preferred_range: int = maxi(1, int(profile.get("preferred_range", 1)))
+		planning_attack = {"type": "ranged" if preferred_range > 1 else "melee", "range": preferred_range, "damage": 0}
 	var move_range: int = 0 if movement_disabled else int(movement_action.get("range", 0))
 	var movement_type: String = str(movement_action.get("type", "move_toward"))
 	# Support-only intents already have a legal ally target at the current anchor.
@@ -7814,6 +7850,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		if movement_type == "move_toward" and move_range > 0
 		else {}
 	)
+	var support_approach: Dictionary = _enemy_heal_approach_candidate(state, enemy_index, enemy, actions, move_range) if attack_index < 0 and not support_holds_position else {}
 	var direct_candidate: Dictionary = _best_enemy_retreat_candidate(state, enemy, actual_records) if pure_retreat else _best_enemy_direct_attack_candidate(
 		state,
 		enemy,
@@ -7835,7 +7872,11 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	var future_route: Array[Vector2i] = actual_path.duplicate()
 	var route_cost: int = 0
 	var attack_available: bool = false
-	if not direct_candidate.is_empty():
+	if not support_approach.is_empty():
+		actual_path = _vector2i_values(support_approach.get("path", []))
+		future_route = _vector2i_values(support_approach.get("route", []))
+		support_target_tile = support_approach.get("target_tile", INVALID_TILE)
+	elif not direct_candidate.is_empty():
 		target = (direct_candidate.get("target", {}) as Dictionary).duplicate(true)
 		actual_path = _vector2i_values(direct_candidate.get("path", []))
 		future_route = actual_path.duplicate()
@@ -7923,6 +7964,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"target_key": str(target.get("key", "")),
 		"target_tile": target.get("pos", INVALID_TILE),
 		"support_target_tile": support_target_tile,
+		"support_approach": "heal_ally" if not support_approach.is_empty() else "",
 		"path": actual_path,
 		"route": future_route,
 		"destination": destination,
@@ -7937,6 +7979,42 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		"projected_attack_target": projected_attack_target,
 		"projected_attack": projected_attack_tiles
 	}
+
+# When a wounded ally is beyond the shorter support radius, route to a
+# reachable support anchor. Legal current targets still hold position. Using
+# actual navigation preserves rubble costs, occupancy and hazard avoidance.
+func _enemy_heal_approach_candidate(state: Dictionary, enemy_index: int, enemy: Dictionary, actions: Array, move_range: int) -> Dictionary:
+	if move_range <= 0:
+		return {}
+	for action_var: Variant in actions:
+		var action: Dictionary = action_var as Dictionary
+		if str(action.get("type", "")) != "heal_ally":
+			continue
+		var unlimited: Dictionary = action.duplicate(true)
+		unlimited["range"] = 99
+		var target_index: int = _enemy_support_target_index(state, enemy_index, unlimited)
+		if target_index < 0:
+			return {}
+		var target: Dictionary = (state.get("enemies", []) as Array)[target_index] as Dictionary
+		var best: Dictionary = {}
+		for record: Dictionary in _enemy_actual_path_records(state, enemy, 99):
+			var preview: Dictionary = enemy.duplicate(true)
+			preview["pos"] = record["tile"]
+			if _enemy_distance_between(preview, target) > int(action.get("range", 0)):
+				continue
+			if best.is_empty() or _enemy_support_route_precedes(record, best):
+				best = record
+		if best.is_empty():
+			return {}
+		var route: Array[Vector2i] = _vector2i_values(best.get("path", []))
+		return {"path": _enemy_actual_prefix_for_route(state, enemy, route, move_range), "route": route, "target_tile": target.get("pos", INVALID_TILE)}
+	return {}
+
+func _enemy_support_route_precedes(candidate: Dictionary, incumbent: Dictionary) -> bool:
+	for field: String in ["trap_cost", "steps"]:
+		if int(candidate[field]) != int(incumbent[field]):
+			return int(candidate[field]) < int(incumbent[field])
+	return _enemy_actual_record_precedes(candidate, incumbent)
 
 func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int) -> Array[Dictionary]:
 	var navigation: Dictionary = _unit_movement_navigation(state, enemy, move_range, _enemy_path_blockers(state, enemy, true, false))

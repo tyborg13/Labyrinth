@@ -142,6 +142,8 @@ func _reload_known_idempotency_keys() -> void:
 
 func _event_record(event_type: String, context: Dictionary, payload: Dictionary, idempotency_key: String) -> Dictionary:
 	return {
+		"balance_revision": preload("res://scripts/game_data.gd").BALANCE_REVISION,
+		"balance_transition": _sanitize_variant(context.get("balance_transition", {})),
 		"schema_version": SCHEMA_VERSION,
 		"event_id": _random_id("evt"),
 		"event_type": event_type,

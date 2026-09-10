@@ -10,6 +10,12 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Default path: `user://analytics/events-YYYY-MM-DD.jsonl`
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
+- `balance_revision`: loaded content revision (`short_reach_v1` for the reach rebalance).
+- `balance_transition`: empty for fresh encounters; resumed older combats record
+  `{from, to, saved_intents_preserved: true}`. Already committed intents and paid
+  checkpoints retain their saved payload until the next ordinary selection.
+  Filter these transitional encounters separately when comparing content balance.
+  Existing JSONL history is never rewritten.
 
 Each event includes a stable `install_id`, per-launch `session_id`, monotonic
 `sequence`, `run_id`, and `combat_id` when available. Emitters that can be

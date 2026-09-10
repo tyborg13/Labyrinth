@@ -59,15 +59,16 @@ static func _test_bloomer_gaoler_angle(combat: Combat, expect: Callable) -> void
 	var state: Dictionary = _state(combat, "bile_bloomer")
 	state["player"]["pos"] = Vector2i(5, 3)
 	Ground.place(state, Vector2i(5, 3), "fire")
-	state = combat._resolve_enemy_action(state, 0, _intent(combat, "bile_bloomer", "spore_mark")["actions"][1])
+	state = combat._resolve_enemy_action(state, 0, _intent(combat, "bile_bloomer", "spore_mark")["actions"][0])
 	expect.call(Ground.has_rubble(state, Vector2i(5, 3)) and Ground.element_at(state, Vector2i(5, 3)) == "fire", "Shale Mark adds movement control while preserving shared Fire")
 	state["enemies"][0]["type"] = "chainbound_gaoler"
 	state["enemies"][0]["pos"] = Vector2i(2, 3)
-	state["player"]["pos"] = Vector2i(6, 3)
+	state["player"]["pos"] = Vector2i(5, 3)
 	state["player"]["hp"] = 1000
+	Ground.place(state, Vector2i(4, 3), "fire")
 	state["player"]["expose"] = 0
 	var angled: Dictionary = state.duplicate(true)
-	angled["player"]["pos"] = Vector2i(4, 5)
+	angled["player"]["pos"] = Vector2i(3, 5)
 	var pull: Dictionary = _intent(combat, "chainbound_gaoler", "chain_reel")["actions"][0]
 	var straight: Dictionary = combat._resolve_enemy_action(state, 0, pull)
 	angled = combat._resolve_enemy_action(angled, 0, pull)
@@ -167,7 +168,7 @@ static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> voi
 		var attack: Dictionary = _intent(combat, id, str(record[1]))["actions"][-1]
 		var connected: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
 		expect.call(int(connected["player"].get("shock", 0)) == 1 and Ground.tiles(connected, "electrified").size() == 2, "%s's actual specialist shot gains Shock through shared conductive ground without consuming it" % id)
-		initial["player"]["pos"] = Vector2i(2,4)
+		initial["player"]["pos"] = Vector2i(3,4)
 		var avoided: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
 		expect.call(int(avoided["player"].get("shock", 0)) == 0 and int(avoided["player"]["hp"]) < 1000, "Leaving %s's conducting ground avoids Shock while its baseline attack remains threatening" % id)
 

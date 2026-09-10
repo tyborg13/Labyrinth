@@ -169,3 +169,15 @@ its kill milestone already recorded continues the later lessons. This fallback
 never changes remaining enemy HP, heals a character, grants a card play, replays
 an action or restores a spent item. Players can replay the tutorial from the
 normal tutorial controls.
+
+## Reach balance compatibility
+
+`short_reach_v1` loads current card definitions immediately, but preserves every
+already revealed enemy intent and paid continuation checkpoint verbatim. That
+includes authored tutorial overrides and paid surface bonuses. New enemy intent
+selections read the current data normally. Loading never rerolls the visible
+intent, replays a paid action, or resets HP, piles, clocks, surfaces or ownership.
+`RunEngine._mark_balance_transition` records the old/new content revision on the
+active combat and stored continuation states, once and idempotently. Gameplay
+analytics exposes that marker so a transitional combat is not mistaken for a
+fresh, homogeneous balance sample. New combats are stamped at creation.

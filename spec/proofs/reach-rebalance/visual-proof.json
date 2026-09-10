@@ -1,0 +1,45 @@
+{
+  "renderer": "Metal, macOS native display driver, Apple M5 Pro",
+  "ui_scale": 1.0,
+  "inspected": true,
+  "result": "All six images inspected at 1920x1080: card copy, legal range-3 preview, click resolution, weak approach, Heart identities and drag cancellation. No clipping or identity leak found.",
+  "images": [
+    {
+      "path": "01_poke_range_two.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0d5da8c4b5556ee156e01d10d05b48beee6490b3182c0c9040eff0b1ee669ec9"
+    },
+    {
+      "path": "02_shot_range_three.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "0dd737a4a83c459dba409964ed27fb53b0afd8c05863765881de37563d7e31d0"
+    },
+    {
+      "path": "03_clicked_shot_resolved.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "a3fb144586e6b6c65e6a35aef9ef5498a9e549e6ae321534a1131a2b028ddf06"
+    },
+    {
+      "path": "04_distant_weak_approach.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "01d26c216eddd51495a934e12c7d063846096e9bdd9e8ef8415becbd207a2873"
+    },
+    {
+      "path": "05_heart_fog_preserved.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "3a1578d1935dfb30c6b19b4d6684e6c64871987569bcfc6cfcf89d36affb58c8"
+    },
+    {
+      "path": "06_drag_target.png",
+      "width": 1920,
+      "height": 1080,
+      "sha256": "c814d16dba1f225973f5f75c9e8921a892acb6fd52f56624d6fda14f125928eb"
+    }
+  ],
+  "raw_manifest": "/private/tmp/labyrinth-reach-proof/visual-proof-final.json"
+}

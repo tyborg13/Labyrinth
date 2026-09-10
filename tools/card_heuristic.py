@@ -32,7 +32,7 @@ reports that positioning resource but does not add it to every card's intrinsic
 reach or movement value.
 Cinder Oozes join fire rooms and split into summoned, rewardless Cinder
 Droplets rather than extra ember or death-card-play payouts. Frostglass Lancers
-join ice rooms as precision four-tile line-thrust enemies that can move sideways
+join ice rooms as precision three-tile line-thrust enemies with a one-tile approach that can move sideways
 to set up a lane. Chainbound Gaolers join air rooms as mid-slow
 pull/immobilize control anchors without stacking with wardens in their seeded
 compositions. Grave surgeons join frontline pools as low-damage support enemies
@@ -228,6 +228,7 @@ def encounter_assumptions() -> dict[str, Any]:
         },
         "board_surfaces": {
             "rules_version": 5,
+            "balance_revision": "short_reach_v1",
             "shared_hazards": True,
             "fire_entry_damage": 2,
             "fire_start_damage": 3,
@@ -357,13 +358,12 @@ def melee_playability(total_reach: int) -> float:
 
 
 def ranged_playability(base_range: int) -> float:
-    if base_range <= 4:
-        return 0.80
-    if base_range == 5:
-        return 0.88
-    if base_range == 6:
-        return 0.95
-    return 0.98
+    # Structural legality anchors from reach_playability_probe.gd (48 rooms,
+    # 1,570 unoccupied anchors in Clear): .334/.656/.827/.920/.966/.981/.989.
+    # Rounded design factors, not empirical hit rates. Shared movement is not
+    # granted to each card; fog and setup are evaluated separately in playtests.
+    factors = (0.35, 0.65, 0.83, 0.92, 0.96, 0.98, 0.99)
+    return factors[min(7, max(1, base_range)) - 1]
 
 
 def playability_for_attack(action_type: str, total_reach: int, base_range: int) -> float:
@@ -867,6 +867,7 @@ def scored_rows(
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
                 "rules_version": 5,
+                "balance_revision": "short_reach_v1",
                 "retired": bool(card.get("retired", False)),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),

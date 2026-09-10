@@ -12,7 +12,15 @@ Use this guide before making combat decisions in the headless playtest harness.
 6. Healing is deliberately scarce and healing cards exhaust. Use it when it
    preserves a route or prevents a Defiance spend, but prefer avoiding damage
    through movement, shields, terrain, or kills.
-7. It is okay to pass if moving into range is going to just make you eat damage. Let the enemies get closer so you are set up to get a one-turn kill next turn.
+7. With `short_reach_v1`, distinguish a weak approach from a signature attack.
+   Mobile enemies usually approach up to three tiles with a weak adjacent hit;
+   their stronger attacks usually threaten two or three tiles in total. Named
+   approaches and the Lancer ray can reach four. Most player pokes are range 2,
+   dedicated shots range 3, and two named long shots range 4. The independent
+   movement pool remains 2. Read current intent/card values, count AOE footprints,
+   and preserve setup-earned conduction/Chain/Detonate extensions. An isolated
+   healthy Surgeon now pursues; it cannot be left self-guarding indefinitely.
+   It is okay to pass if moving into range is going to just make you eat damage. Let the enemies get closer so you are set up to get a one-turn kill next turn.
 8. Use illusions as a way blocker when needed to eat up a full enemy attack. Enemies prefer the closest player-side actor; if the player and one or more illusions are tied at the same distance, they use deterministic target ordering among those tied targets. Spawn the illusion closer than the player when you need reliable protection.
 9. Build useful ground deliberately. Fire deals two damage on each entry and three at an actor's start; Detonate consumes selected Fire for one shared union blast. Rubble costs two movement to leave, with one minimum-progress step from a fresh allowance. Ice entry or start activates Chilled (+2 direct damage); a direct Ice hit freezes and consumes all supporting Ice. Frozen triples direct attack damage. Electrified connects ordinary Lightning through cardinal components; Chain may use individual tiles to bridge gaps. Ordinary Electrified remains after use; Stormcoal Fire is consumed when conducting. Prefer mixed setup/payoff that improves this board rather than painting distant empty corners. Ground never grants Light on its own.
 10. For first-boss playtests, treat every campfire as a continue point, not a run endpoint. Use `linger` to heal and continue when available; use `level` to spend Embers and bank one skill point. Spend banked points independently with `learn SKILL_ID` whenever the run is outside combat; `skills` prints the unspent total and every legal ID with its effect. Do not use `rest` or stop the run at a campfire unless the harness is blocked and no legal progress is possible.
