@@ -39,8 +39,8 @@ static func panel_style() -> StyleBoxTexture:
 	style.texture = _texture("panel_frame")
 	style.axis_stretch_horizontal = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
 	style.axis_stretch_vertical = StyleBoxTexture.AXIS_STRETCH_MODE_TILE_FIT
-	style.content_margin_left = 28
-	style.content_margin_right = 28
+	style.content_margin_left = 44
+	style.content_margin_right = 44
 	style.content_margin_top = 20
 	style.content_margin_bottom = 20
 	# Preserve the painted corner details without inflating the native layout.
@@ -50,35 +50,12 @@ static func panel_style() -> StyleBoxTexture:
 	style.texture_margin_bottom = 26
 	return style
 
-static func button(button: Button, round: bool = false) -> void:
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
-		var style := StyleBoxTexture.new()
-		style.texture = _texture("medallion" if round else "action_frame")
-		if not round:
-			style.texture_margin_left = 42
-			style.texture_margin_right = 42
-			style.texture_margin_top = 14
-			style.texture_margin_bottom = 14
-			style.expand_margin_left = 0
-			style.content_margin_left = 26
-			style.content_margin_right = 26
-			style.content_margin_top = 12
-			style.content_margin_bottom = 12
-		else:
-			style.content_margin_left = 8
-			style.content_margin_right = 8
-			style.content_margin_top = 8
-			style.content_margin_bottom = 8
-		style.modulate_color = Color(0.75, 0.71, 0.63)
-		if state in ["hover", "hover_pressed", "focus"]: style.modulate_color = Color(1.35, 1.22, 0.96)
-		if state == "pressed": style.modulate_color = Color(1.1, 0.95, 0.68)
-		if state == "disabled": style.modulate_color = Color(0.32, 0.34, 0.37)
-		button.add_theme_stylebox_override(state, style)
+static func button(button: Button, variant: String = "standard") -> void:
+	# Action controls share the game's native forged-metal proportions and states;
+	# painted art remains on the map's frames, medallions, and room identities.
+	var skin := preload("res://scripts/ui_skin.gd").new()
+	skin.apply_button_stylebox_overrides(button, variant)
+	skin.apply_button_text_overrides(button)
 	Typography.apply_button_role(button, Typography.ROLE_BODY_LARGE)
-	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
-		button.add_theme_color_override(state, Color("eddbb4"))
-	button.add_theme_color_override("font_disabled_color", Color("827b6f"))
-	button.add_theme_color_override("font_outline_color", Color("09090d"))
-	button.add_theme_constant_override("outline_size", 2)
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

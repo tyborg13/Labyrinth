@@ -35,7 +35,7 @@ unchanged.
 ## Discovery and decisions
 
 From the current room, identify the next two transitions. The third transition
-shows an unknown medallion. Farther topology is hidden by a separate procedural
+shows a broken outline with a question mark. Farther topology is hidden by a separate procedural
 fog shader, except for two service landmarks and the boss. Discovery persists;
 committing to another branch does not erase already learned information.
 
@@ -62,7 +62,8 @@ the map once for onward travel. Closing that map is respected on later refreshes
 
 A node selects a route preview. The action button commits legal adjacent travel.
 The preview identifies its physical north/east/south door, known next rooms and
-landmarks kept or left behind. In a Reach the Exit encounter the action is
+landmarks kept or left behind by this decision; already bypassed landmarks do
+not appear as a new consequence. In a Reach the Exit encounter the action is
 **Show door**: close the map and highlight the matching board exit. The player
 must reach that actual exit. Crossing it commits its exact destination through
 rewards, saving, reloading and automatic travel; it cannot reopen free route
@@ -75,12 +76,31 @@ Future tabs are disabled and do not disclose the future boss order. History
 cannot travel or spend the active section's Scout uses. All interactive pieces
 remain native focusable buttons with mouse, keyboard and controller input.
 
-`section_map_panel.gd` composes independent header, tabs, legend, preview and
+`section_map_panel.gd` composes independent header, tabs, preview and
 actions. `section_map_node.gd` renders each independent room button with painted
 emblems and medallions. `section_map_canvas.gd` owns route curves; the fog shader
 receives dynamic openings. No routes, labels, icons, fog or taglines are baked
 into the six background paintings. `section_map_skin.gd` owns this menu's
-purpose-built frame treatment. Generation prompts are retained beside this
+purpose-built frame treatment. Action buttons extend the shared `UiSkin` forged
+metal family at native proportions; travel has the selected/primary treatment,
+Scout is secondary, and focus has its own brackets. Repeated room-type legend
+entries are omitted because each room and its selected preview already name it.
+
+The map answers “where am I, and which door should I take?” before showing
+secondary route details. The current room retains its encounter emblem under a
+filled **You are here** marker. Available doors use larger bright medallions and
+physical door labels; the selected door gets a filled **Selected** marker.
+Visited rooms have a check seal and **Visited** label. Bypassed rooms have a
+minus seal, **Not taken** label and faint dashed connections. Known rooms ahead
+retain smaller medallions; unknown identities have broken rings. These states
+combine labels, shape, size and contrast, without relying on color or motion.
+Focus brackets remain distinct from persistent selection. The footer carries
+exact route consequences and reasons that inspected rooms cannot be entered.
+
+Connections leave and enter medallions horizontally, then curve between lanes.
+Only immediate exits carry small direction cues, aligned to the curve tangent.
+The selected exit is strongest, its possible continuation is subdued, and
+completed travel remains visible without competing with the next decision. Generation prompts are retained beside this
 specification.
 
 UI rubric: native 1920×1080 at 100% scale is the acceptance configuration.

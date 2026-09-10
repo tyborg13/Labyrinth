@@ -29,7 +29,13 @@ func _initialize() -> void:
 	var panel: Control = instance.get("_large_map_view")
 	var choices: Array = panel.call("available_destinations")
 	var selected: Vector2i = choices[0]
-	panel.call("select_room", selected)
+	var target_button: Control = (panel.get("node_buttons") as Dictionary).get(selected)
+	await _pointer_click(target_button.global_position + Vector2(50, 48))
+	_check(panel.get("selected_coord") == selected, "Pointer selection updates the actual route preview")
+	_check((target_button.get("status_label") as Label).text == "SELECTED", "Selected available route is explicitly labeled")
+	var current_button: Control = (panel.get("node_buttons") as Dictionary).get(state.get("current_room"))
+	_check((current_button.get("status_label") as Label).text == "YOU ARE HERE", "The player's position remains distinct from the selected destination")
+	await _capture("01b_pointer_selection.png")
 	panel.call("focus_controller_on_current")
 	await _capture("02_keyboard_focus.png")
 	_check(viewport.gui_get_focus_owner() != null, "Map selection owns visible native keyboard/controller focus")
@@ -86,7 +92,8 @@ func _initialize() -> void:
 	if not choices.is_empty():
 		panel.call("select_room", choices[0])
 		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
-		instance.call("_on_section_map_door", choices[0])
+		var door_button: Button = panel.get("_enter")
+		await _pointer_click(door_button.get_global_rect().get_center())
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == origin and not scrim.visible, "Show door returns to combat without committing travel")
 	await _capture("06_reach_exit_board.png")
 	state = engine.create_new_run(93, Progression.default_data())
@@ -101,7 +108,8 @@ func _initialize() -> void:
 	await process_frame
 	await _capture("07_event.png")
 	_check(scrim.visible, "Event choices appear in the live map flow")
-	instance.call("_on_section_map_event", "embers")
+	var event_button: Button = panel.get("_enter")
+	await _pointer_click(event_button.get_global_rect().get_center())
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "The event releases normal route selection")
 	await _capture("08_event_resolved.png")
 	instance.queue_free()
@@ -147,6 +155,22 @@ func _key(key: Key) -> void:
 func _joy(button: JoyButton) -> void:
 	var event := InputEventJoypadButton.new()
 	event.button_index = button
+	event.pressed = true
+	viewport.push_input(event, true)
+	await process_frame
+	event = event.duplicate()
+	event.pressed = false
+	viewport.push_input(event, true)
+	await process_frame
+
+func _pointer_click(position: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	viewport.push_input(motion, true)
+	await process_frame
+	var event := InputEventMouseButton.new()
+	event.position = position
+	event.button_index = MOUSE_BUTTON_LEFT
 	event.pressed = true
 	viewport.push_input(event, true)
 	await process_frame

@@ -96,6 +96,7 @@ func _initialize() -> void:
 		var choice: Vector2i = link.get("coord")
 		panel.call("select_room", choice)
 		var description: String = (panel.get("_consequence") as Label).text
+		_check(not description.contains("Event"), "Branch consequences omit the Event landmark already bypassed before this fork")
 		if Graph.descendants(state, choice).has(target):
 			found_keeps = description.contains("Keeps:") and description.contains("23 lost Embers")
 		else:

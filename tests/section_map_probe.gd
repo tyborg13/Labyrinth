@@ -52,6 +52,22 @@ func _initialize() -> void:
 	state = Graph.scout(state, choice)
 	panel.call("set_run_state", state)
 	await _capture("04_scouted.png")
+	Graph.section(state, 0)["scouts"] = 0
+	panel.call("set_run_state", state)
+	await _capture("04b_scout_exhausted.png")
+	if not (panel.get("_scout") as Button).disabled:
+		failed = true
+		push_error("Exhausted Scouts must remain disabled")
+	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+		var coord: Vector2i = node.get("coord", Graph.INVALID)
+		var button: Control = (panel.get("node_buttons") as Dictionary).get(coord)
+		if button != null and str(button.get("route_state")) == "bypassed":
+			panel.call("select_room", coord)
+			await _capture("04c_bypassed_inspection.png")
+			if not (panel.get("_enter") as Button).disabled:
+				failed = true
+				push_error("Inspecting a route not taken must never enable travel")
+			break
 	for index: int in range(6):
 		var info: Dictionary = Graph.section(state, index)
 		state["current_room"] = info.get("entry", Vector2i.ZERO)
