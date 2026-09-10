@@ -216,12 +216,14 @@ func _refresh() -> void:
 		_tabs.remove_child(child)
 		child.queue_free()
 	for index: int in range(6):
-		var tab: Button = _button(_roman(index), select_section.bind(index), UiSkin.VARIANT_ICON)
+		var tab := TooltipButton.new()
+		tab.text = _roman(index)
+		tab.pressed.connect(select_section.bind(index))
 		tab.name = "Section%d" % (index + 1)
-		tab.custom_minimum_size = Vector2(52, 48)
+		tab.custom_minimum_size = Vector2(62, 62)
 		tab.toggle_mode = true
 		tab.button_pressed = index == viewed_section
-		MapSkin.button(tab, UiSkin.VARIANT_SELECTED if index == viewed_section else UiSkin.VARIANT_ICON)
+		MapSkin.section_tab(tab)
 		tab.disabled = index > Graph.active_section(run_state)
 		tab.tooltip_text = str(Graph.section(run_state, index).get("title", "")) if not tab.disabled else "Unreached section"
 		_tabs.add_child(tab)
@@ -245,9 +247,16 @@ func available_destinations() -> Array[Vector2i]:
 func select_section(index: int) -> void:
 	if index > Graph.active_section(run_state):
 		return
+	var restore_tab_focus: bool = false
+	for tab: Control in _tabs.get_children():
+		restore_tab_focus = restore_tab_focus or tab.has_focus()
 	viewed_section = index
 	selected_coord = Graph.INVALID
 	_refresh()
+	# Refresh rebuilds the reached-section tabs. Restore the native focus owner
+	# so keyboard/controller users can keep navigating after switching history.
+	if restore_tab_focus:
+		(_tabs.get_child(index) as Control).grab_focus()
 
 func select_room(coord: Vector2i) -> void:
 	if not node_buttons.has(coord):

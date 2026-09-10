@@ -83,7 +83,9 @@ receives dynamic openings. No routes, labels, icons, fog or taglines are baked
 into the six background paintings. `section_map_skin.gd` owns this menu's
 purpose-built frame treatment. Action buttons extend the shared `UiSkin` forged
 metal family at native proportions; travel has the selected/primary treatment,
-Scout is secondary, and focus has its own brackets. Repeated room-type legend
+Scout is secondary, and focus has its own brackets. Section navigation keeps
+the user-approved round painted bronze seals, with a separate focus outline.
+Switching sections restores focus to the corresponding rebuilt tab. Repeated room-type legend
 entries are omitted because each room and its selected preview already name it.
 
 The map answers “where am I, and which door should I take?” before showing

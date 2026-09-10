@@ -59,3 +59,34 @@ static func button(button: Button, variant: String = "standard") -> void:
 	Typography.apply_button_role(button, Typography.ROLE_BODY_LARGE)
 	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+
+static func section_tab(button: Button) -> void:
+	# Section navigation keeps its painted bronze seals; action-button cleanup
+	# must not replace the user-approved identity of these tabs.
+	button.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	for state: String in ["normal", "hover", "pressed", "hover_pressed", "disabled"]:
+		var style := StyleBoxTexture.new()
+		style.texture = _texture("medallion")
+		style.content_margin_left = 8
+		style.content_margin_right = 8
+		style.content_margin_top = 8
+		style.content_margin_bottom = 8
+		style.modulate_color = Color(0.75, 0.71, 0.63)
+		if state in ["hover", "hover_pressed"]: style.modulate_color = Color(1.35, 1.22, 0.96)
+		if state == "pressed": style.modulate_color = Color(1.1, 0.95, 0.68)
+		if state == "disabled": style.modulate_color = Color(0.32, 0.34, 0.37)
+		button.add_theme_stylebox_override(state, style)
+	var focus := StyleBoxFlat.new()
+	focus.bg_color = Color.TRANSPARENT
+	focus.border_color = Color("ffe3a0")
+	focus.set_border_width_all(2)
+	focus.set_corner_radius_all(36)
+	focus.set_expand_margin_all(2)
+	button.add_theme_stylebox_override("focus", focus)
+	Typography.apply_button_role(button, Typography.ROLE_BODY_LARGE)
+	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		button.add_theme_color_override(state, Color("eddbb4"))
+	button.add_theme_color_override("font_disabled_color", Color("827b6f"))
+	button.add_theme_color_override("font_outline_color", Color("09090d"))
+	button.add_theme_constant_override("outline_size", 2)
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
