@@ -143,9 +143,14 @@ Encounter calibration is also important:
   sequence average about `3`, `4`, and `5` enemies, and the fourth depth is a
   boss gate. The first five gates draw Zekarion and the earth, fire, air, and
   ice dragons in a seeded random order without repeats. Noctyrax, the Shadow
-  Dragon, is always the sixth and final gate at depth `24`. Lateral rooms remain
-  a deck-building route choice. Once the player has visited three rooms at the
-  current depth, a room with no available outward move gains a deterministic
+  Dragon, is always the sixth and final gate at depth `24`. New section-map runs
+  budget 66 room visits and 40 fights including bosses across six sections;
+  see [section_map.md](section_map.md). Branches preserve each section's fight
+  budget and vary service order. This changes run pacing without changing
+  combat/action coefficients in the scorer. Legacy saved circular-map runs
+  retain lateral deck-building choices. Once the player has visited three
+  rooms at the current depth in a legacy run, a room with no available outward
+  move gains a deterministic
   outward offer; fully exhausted loops retain the same escape guarantee.
 - First-sequence standard rooms now use a wider local band. Depth `1` enemies
   have `85%` HP and support actions are shifted down by `1` point, depth `2`

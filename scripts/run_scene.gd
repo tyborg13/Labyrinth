@@ -54,6 +54,8 @@ const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const PerformancePhasePartitionerScript = preload("res://scripts/performance_phase_partitioner.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const SectionMapPanelScript = preload("res://scripts/section_map_panel.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const LabyrinthMapViewScript = preload("res://scripts/labyrinth_map_view.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const RoomGeneratorScript = preload("res://scripts/room_generator.gd")
@@ -1824,6 +1826,10 @@ var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
+var _section_map_hud_button: Button
+var _section_map_presented_key: String = ""
+var _map_analytics_revision: int = 0
+var _map_analytics_run_id: String = ""
 var _large_map_scrim: ColorRect
 var _large_map_dialog: PanelContainer
 var _large_map_view: Control
@@ -3463,12 +3469,19 @@ func _refresh_controller_prompts() -> void:
 		_controller_prompt_bar.set_prompts(prompts)
 		return
 	if _large_map_scrim != null and _large_map_scrim.visible:
-		prompts = [
-			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
-			{"action": &"controller_move", "label": "Explore"},
-			{"action": InputRouterScript.ACTION_MAP_ZOOM, "label": "Zoom"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
-		]
+		if SectionMapGraph.enabled(_run_state):
+			prompts = [
+				{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+				{"action": &"controller_dpad", "label": "Navigate"},
+				{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
+			]
+		else:
+			prompts = [
+				{"action": InputRouterScript.ACTION_ACCEPT, "label": "Travel"},
+				{"action": &"controller_move", "label": "Explore"},
+				{"action": InputRouterScript.ACTION_MAP_ZOOM, "label": "Zoom"},
+				{"action": InputRouterScript.ACTION_CANCEL, "label": "Close"},
+			]
 	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
@@ -4770,109 +4783,39 @@ func _build_large_map_overlay() -> void:
 	_large_map_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_large_map_scrim.z_index = 940
 	_large_map_scrim.z_as_relative = false
-	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 1.0)
-	_large_map_scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_large_map_scrim.anchor_right = 1.0
-	_large_map_scrim.anchor_bottom = 1.0
+	_large_map_scrim.color = Color(0.015, 0.012, 0.010, 0.98)
+	_large_map_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	ui_root.add_child(_large_map_scrim)
-
-	var frame_margin := MarginContainer.new()
-	frame_margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	frame_margin.anchor_right = 1.0
-	frame_margin.anchor_bottom = 1.0
-	frame_margin.add_theme_constant_override("margin_left", int(UiTypography.SAFE_MARGIN))
-	frame_margin.add_theme_constant_override("margin_top", int(UiTypography.SAFE_MARGIN))
-	frame_margin.add_theme_constant_override("margin_right", int(UiTypography.SAFE_MARGIN))
-	frame_margin.add_theme_constant_override("margin_bottom", int(UiTypography.SAFE_MARGIN))
-	frame_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_large_map_scrim.add_child(frame_margin)
-
+	var margin := MarginContainer.new()
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	for edge: String in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + edge, 28)
+	_large_map_scrim.add_child(margin)
 	_large_map_dialog = PanelContainer.new()
 	_large_map_dialog.name = "LargeMapDialog"
-	_large_map_dialog.mouse_filter = Control.MOUSE_FILTER_STOP
-	_large_map_dialog.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_large_map_dialog.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var dialog_style := _ui_skin.make_plain_card_style(Color(0.014, 0.010, 0.009, 0.985), Color(0.92, 0.80, 0.60, 0.86), 18.0)
-	dialog_style.corner_radius_top_left = 6
-	dialog_style.corner_radius_top_right = 6
-	dialog_style.corner_radius_bottom_right = 6
-	dialog_style.corner_radius_bottom_left = 6
-	dialog_style.shadow_size = 24
-	dialog_style.shadow_color = Color(0.0, 0.0, 0.0, 0.74)
-	_large_map_dialog.add_theme_stylebox_override("panel", dialog_style)
-	_large_map_dialog.set_meta("panel_surface_accent", Color("c18a46"))
-	frame_margin.add_child(_large_map_dialog)
-
-	var content_margin := MarginContainer.new()
-	content_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING))
-	content_margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING_COMPACT))
-	content_margin.add_theme_constant_override("margin_right", int(UiTypography.PANEL_PADDING))
-	content_margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
-	_large_map_dialog.add_child(content_margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	content_margin.add_child(vbox)
-
-	var top_row := HBoxContainer.new()
-	top_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	vbox.add_child(top_row)
-
-	var title := Label.new()
-	title.name = "MapTitle"
-	title.text = "MAP"
-	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
-	title.add_theme_font_size_override("font_size", 38)
-	UiTypography.apply_stone_text(title, 0.11, 3.5)
-	title.add_theme_color_override("font_color", Color("f0e6d2"))
-	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	title.add_theme_constant_override("outline_size", 2)
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_child(title)
-
-	var navigation_hint := Label.new()
-	navigation_hint.name = "MapNavigationHint"
-	navigation_hint.text = "DRAG / TWO-FINGER PAN  •  SCROLL / PINCH TO ZOOM  •  M TO CLOSE"
-	navigation_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	navigation_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	navigation_hint.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	navigation_hint.size_flags_horizontal = Control.SIZE_SHRINK_END
-	navigation_hint.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	UiTypography.apply_label_role(navigation_hint, UiTypography.ROLE_CAPTION)
-	navigation_hint.add_theme_font_size_override("font_size", 11)
-	navigation_hint.add_theme_color_override("font_color", Color(0.66, 0.57, 0.46, 0.74))
-	navigation_hint.add_theme_color_override("font_outline_color", Color(0.01, 0.008, 0.006, 0.94))
-	navigation_hint.add_theme_constant_override("outline_size", 2)
-	top_row.add_child(navigation_hint)
-	_large_map_navigation_hint = navigation_hint
-
-	var close_button := UiTooltipButton.new()
-	close_button.name = "CloseButton"
-	close_button.text = "X"
-	close_button.tooltip_text = "Close [M / Esc]"
-	_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
-	_ui_skin.apply_button_text_overrides(close_button)
-	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
-	close_button.custom_minimum_size = Vector2(40.0, 40.0)
-	close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	close_button.pressed.connect(_close_large_map)
-	top_row.add_child(close_button)
-
-	_large_map_view = LabyrinthMapViewScript.new()
+	_large_map_dialog.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	margin.add_child(_large_map_dialog)
+	_large_map_view = SectionMapPanelScript.new()
 	_large_map_view.name = "LargeMap"
-	_large_map_view.set("interactive", true)
-	_large_map_view.set("show_legend", true)
-	_large_map_view.set("draw_background", true)
-	_large_map_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_large_map_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_large_map_view.custom_minimum_size = Vector2(640.0, 400.0)
 	_large_map_view.connect("room_selected", _on_large_map_room_selected)
-	vbox.add_child(_large_map_view)
+	_large_map_view.connect("scout_requested", _on_section_map_scout)
+	_large_map_view.connect("door_requested", _on_section_map_door)
+	_large_map_view.connect("event_requested", _on_section_map_event)
+	_large_map_view.connect("close_requested", _close_large_map)
+	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
 	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
+	_section_map_hud_button = UiTooltipButton.new()
+	_section_map_hud_button.name = "SectionMapButton"
+	_section_map_hud_button.text = "Map"
+	_section_map_hud_button.tooltip_text = "Map [M]"
+	_ui_skin.apply_button_stylebox_overrides(_section_map_hud_button, UiSkin.VARIANT_STANDARD)
+	_ui_skin.apply_button_text_overrides(_section_map_hud_button)
+	UiTypography.apply_button_role(_section_map_hud_button, UiTypography.ROLE_BODY_LARGE)
+	_section_map_hud_button.pressed.connect(func() -> void:
+		if _map_shortcut_can_open(): _open_large_map()
+	)
+	mini_map_overlay.add_child(_section_map_hud_button)
 
 func _build_pre_battle_overlay() -> void:
 	_pre_battle_scrim = ColorRect.new()
@@ -10810,6 +10753,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_section_map_presented_key = ""
+	_close_large_map()
 	_reset_run_end_board_reframe()
 	_close_dialogue()
 	_last_auto_dialogue_key = ""
@@ -10952,7 +10897,8 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_header_layout", performance_phase_started)
 	call_deferred("_layout_header_hud")
 	call_deferred("_layout_combat_objective_hud")
-	mini_map.set_run_state(_run_state)
+	if not SectionMapGraph.enabled(_run_state):
+		mini_map.set_run_state(_run_state)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_minimap", performance_phase_started)
 	if _large_map_view != null:
 		_large_map_view.call("set_run_state", _run_state)
@@ -14583,7 +14529,14 @@ func _deck_piles() -> Dictionary:
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
 	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
-	mini_map_overlay.visible = mode != "combat" and not terminal_recap_visible
+	var section_map: bool = SectionMapGraph.enabled(_run_state)
+	mini_map_overlay.visible = (section_map or mode != "combat") and not terminal_recap_visible
+	mini_map.get_parent().visible = not section_map
+	if _section_map_hud_button != null:
+		_section_map_hud_button.visible = section_map
+	_layout_mini_map_overlay()
+	if section_map:
+		call_deferred("_maybe_present_section_map")
 	room_title.visible = not terminal_recap_visible
 	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
@@ -26925,7 +26878,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	if not saved:
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
 	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
-	if saved: _analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
+	if saved:
+		_analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
+		_analytics_flush_map_events(state)
 	return {"state": state, "saved": saved}
 
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
@@ -32002,8 +31957,8 @@ func _layout_mini_map_overlay() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
-	var overlay_width: float = clampf(viewport_size.x * 0.20, 236.0, 300.0)
-	var overlay_height: float = clampf(viewport_size.y * 0.24, 210.0, 260.0)
+	var overlay_width: float = 156.0 if SectionMapGraph.enabled(_run_state) else clampf(viewport_size.x * 0.20, 236.0, 300.0)
+	var overlay_height: float = 54.0 if SectionMapGraph.enabled(_run_state) else clampf(viewport_size.y * 0.24, 210.0, 260.0)
 	mini_map_overlay.offset_left = -overlay_width - 8.0
 	mini_map_overlay.offset_top = 8.0
 	mini_map_overlay.offset_right = -8.0
@@ -32524,3 +32479,64 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 	if not pending.is_empty() and _analytics_store.write_events(pending):
 		_surface_analytics_revisions[combat_id] = last_sequence
 	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)
+
+func _maybe_present_section_map() -> void:
+	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _loadout_acquisition_in_progress or _dialogue_active:
+		return
+	var mode: String = str(_run_state.get("mode", ""))
+	if mode not in ["room", "event"] or not _map_shortcut_can_open():
+		return
+	if mode == "room" and not _current_room_merchant_kind().is_empty():
+		return
+	var moment: String = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), mode]
+	if moment == _section_map_presented_key:
+		return
+	_section_map_presented_key = moment
+	_open_large_map()
+
+func _on_section_map_scout(coord: Vector2i) -> void:
+	if _animation_lock:
+		return
+	_run_state = _run_engine.scout_map(_run_state, coord)
+	_persist_committed_boundary("map_scout")
+	_large_map_view.call("set_run_state", _run_state)
+	_schedule_controller_modal_refresh()
+
+func _on_section_map_event(choice: String) -> void:
+	if _animation_lock:
+		return
+	_run_state = _run_engine.resolve_map_event(_run_state, choice)
+	_persist_committed_boundary("map_event")
+	_refresh_ui()
+
+func _on_section_map_door(coord: Vector2i) -> void:
+	if not SectionMapGraph.enabled(_run_state) or str(_run_state.get("mode", "")) != "combat":
+		return
+	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
+	if str(objective.get("type", "")) != CombatObjectiveRules.REACH_EXIT:
+		return
+	var tile: Vector2i = _door_tile_for_destination(coord)
+	if tile.x < 0:
+		return
+	_close_large_map()
+	_hovered_board_tile = tile
+	_refresh_stage_view()
+
+func _analytics_flush_map_events(state: Dictionary) -> void:
+	if not SectionMapGraph.enabled(state):
+		return
+	var run_id: String = RunEngineScript.run_result_id(state)
+	if run_id != _map_analytics_run_id:
+		_map_analytics_run_id = run_id
+		_map_analytics_revision = 0
+	var events: Array[Dictionary] = []
+	var last: int = _map_analytics_revision
+	var context: Dictionary = _analytics_context_from_states(state, state.get("combat_state", {}) as Dictionary)
+	for event: Dictionary in state.get("map_events", []):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= _map_analytics_revision:
+			continue
+		events.append({"event_type": event.get("type", "route_revealed"), "context": context, "payload": event.get("payload", {}), "idempotency_key": "section_map|%s|%d" % [run_id, revision]})
+		last = maxi(last, revision)
+	if not events.is_empty() and _analytics_store.write_events(events):
+		_map_analytics_revision = last

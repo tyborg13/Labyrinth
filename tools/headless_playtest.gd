@@ -1,6 +1,7 @@
 extends SceneTree
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -19,6 +20,8 @@ const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngine.CAMPFIRE_LINGER_HEAL
 
 var _run_engine: RunEngine = RunEngine.new()
 var _combat_engine: CombatEngine = CombatEngine.new()
+var _map_analytics_run_id: String = ""
+var _map_analytics_revision: int = 0
 var _analytics_store: AnalyticsStore
 var _options: Dictionary = {}
 var _run_state: Dictionary = {}
@@ -101,7 +104,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, moves, move N, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, map, moves, move N, scout N, event embers|survey, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -188,6 +191,8 @@ func _handle_command(command: String) -> void:
 			_print_help()
 		"state", "s":
 			_print_state()
+		"map":
+			_print_section_map()
 		"moves", "m":
 			_print_moves()
 		"move":
@@ -195,6 +200,18 @@ func _handle_command(command: String) -> void:
 				_print_moves()
 			else:
 				_command_move(int(parts[1]))
+		"scout":
+			var moves: Array[Vector2i] = _run_engine.available_moves(_run_state)
+			var index: int = int(parts[1]) - 1 if parts.size() > 1 else -1
+			if index >= 0 and index < moves.size():
+				_run_state = _run_engine.scout_map(_run_state, moves[index])
+			else:
+				print("Use scout N with an adjacent route index from moves.")
+			_print_state()
+		"event":
+			_run_state = _run_engine.resolve_map_event(_run_state, str(parts[1]) if parts.size() > 1 else "")
+			_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
+			_print_state()
 		"cards", "hand", "h":
 			_print_cards()
 		"card", "click", "play":
@@ -307,10 +324,24 @@ func _print_state() -> void:
 			_print_relic_state()
 		"campfire":
 			_print_campfire_state()
+		"event":
+			print("The Lost Cartographer: event embers (25 Embers) or event survey (reveal all routes up to four rooms ahead).")
 		"victory", "defeat", "rested":
 			print("Run ended: %s. Use `new [seed]` for another run." % mode)
 		_:
 			print("Unhandled mode: %s" % mode)
+
+func _print_section_map() -> void:
+	if not SectionMapGraph.enabled(_run_state):
+		_print_moves()
+		return
+	var index: int = SectionMapGraph.active_section(_run_state)
+	var info: Dictionary = SectionMapGraph.section(_run_state, index)
+	print("%s | Section %d/6 | Scout %d/2" % [info.get("title", "Map"), index + 1, info.get("scouts", 0)])
+	for room: Dictionary in (_run_state.get("rooms", {}) as Dictionary).values():
+		if int(room.get("section_index", -1)) != index or not bool(room.get("map_outline", false)): continue
+		var label: String = _room_label(room) if bool(room.get("revealed", false)) else "unknown"
+		print("  step %d | %s | %s%s%s" % [room.get("map_step", 0), _coord_text(room.get("coord", Vector2i.ZERO)), label, " | visited" if bool(room.get("visited", false)) else "", " | landmark" if bool(room.get("map_landmark", false)) else ""])
 
 func _print_room_state() -> void:
 	var current: Vector2i = _run_state.get("current_room", Vector2i.ZERO)
@@ -2416,6 +2447,24 @@ func _save_session() -> void:
 		"analytics_tracker": _analytics_tracker,
 		"run_number": _run_number
 	}, false)
+	file.close()
+	_flush_map_analytics()
+
+func _flush_map_analytics() -> void:
+	if not SectionMapGraph.enabled(_run_state): return
+	var run_id: String = RunEngine.run_result_id(_run_state)
+	if run_id != _map_analytics_run_id:
+		_map_analytics_run_id = run_id
+		_map_analytics_revision = 0
+	var events: Array[Dictionary] = []
+	var last: int = _map_analytics_revision
+	for event: Dictionary in _run_state.get("map_events", []):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= _map_analytics_revision: continue
+		events.append({"event_type": event.get("type", "route_revealed"), "context": _analytics_context(), "payload": event.get("payload", {}), "idempotency_key": "section_map|%s|%d" % [run_id, revision]})
+		last = maxi(last, revision)
+	if not events.is_empty() and _analytics_store.write_events(events):
+		_map_analytics_revision = last
 
 func _load_session() -> bool:
 	if not FileAccess.file_exists(_session_path):

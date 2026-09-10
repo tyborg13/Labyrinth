@@ -62,7 +62,7 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 		later_depth_one_seen[later_type] = true
 	expect.call(later_depth_one_seen.size() == 4, "A subsequent traversable depth-one combat should use the equal-weight objective mix")
 	var path_engine := RunEngine.new()
-	var path_state: Dictionary = path_engine.create_new_run(99, ProgressionStore.default_data())
+	var path_state: Dictionary = path_engine.create_new_run(99, ProgressionStore.default_data(), false)
 	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(1, 0))
 	var first_preview: Dictionary = path_engine.pre_battle_preview_state(path_state)
 	var first_preview_objective: Dictionary = (first_preview.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
@@ -206,7 +206,7 @@ static func _test_reach_exit_reward_commits_route_and_preserves_board(expect: Ca
 	var escaped_player: Dictionary = (combat_state.get("player", {}) as Dictionary).duplicate(true)
 	escaped_player["pos"] = target_tile
 	combat_state["player"] = escaped_player
-	var run_state: Dictionary = run_engine.create_new_run(707, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(707, ProgressionStore.default_data(), false)
 	var current_room: Dictionary = _room_metadata(2)
 	current_room["coord"] = current_coord
 	current_room["revealed"] = true

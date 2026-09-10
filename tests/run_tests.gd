@@ -337,6 +337,7 @@ func _initialize() -> void:
 	_test_large_map_decision_layer()
 	_test_minimap_travel_animation_state()
 	_test_combat_board_loads_door_icons_for_room_types()
+	preload("res://tests/suites/section_map_suite.gd").run(_assert)
 	_test_run_map_room_types()
 	_test_run_map_two_room_choices_are_like_category_different_type()
 	_test_run_map_recovery_marker_keeps_two_room_choices_like_category()
@@ -6880,7 +6881,8 @@ func _test_room_icon_library_covers_door_room_types() -> void:
 		{"room": {"type": "blacksmith", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "arcanist", "element": "none"}, "icon": "scavenger"},
 		{"room": {"type": "scavenger", "element": "none"}, "icon": "scavenger"},
-		{"room": {"type": "boss", "element": "none"}, "icon": "boss"}
+		{"room": {"type": "boss", "element": "none"}, "icon": "boss_tharokh"},
+		{"room": {"type": "boss", "boss_id": "noctyrax", "element": "none"}, "icon": "boss_noctyrax"}
 	]
 	for room_case: Dictionary in room_cases:
 		var icon_id: String = RoomIcons.icon_id_for_room(room_case.get("room", {}))
@@ -7240,7 +7242,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "boss"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "event", "boss_tharokh", "boss_vyraketh", "boss_vaeloryx", "boss_iskaldra", "boss_zekarion", "boss_noctyrax"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
@@ -7285,7 +7287,7 @@ func _room_coords_near_to_far() -> Array[Vector2i]:
 func _test_run_map_room_types() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
-	var run_state: Dictionary = run_engine.create_new_run(13, progression)
+	var run_state: Dictionary = run_engine.create_new_run(13, progression, false)
 	_assert(str(run_engine.room_metadata(run_state, Vector2i.ZERO).get("type", "")) == "start", "Origin should be the start room")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(2, 0)).get("type", "")) == "campfire", "Axis depth-2 rooms should be campfire rooms")
 	_assert(str(run_engine.room_metadata(run_state, Vector2i(4, 0)).get("type", "")) == "boss", "Depth-four rooms should punctuate the first sequence with boss territory")
@@ -7295,7 +7297,7 @@ func _test_run_map_room_types() -> void:
 func _test_run_map_two_room_choices_are_like_category_different_type() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	for seed: int in range(1, 21):
-		var base_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		var base_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data(), false)
 		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 				var current := Vector2i(x, y)
@@ -7363,7 +7365,7 @@ func _test_run_map_recovery_marker_keeps_two_room_choices_like_category() -> voi
 	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
 	progression = ProgressionStore.record_lost_embers(progression, 23, recovery_coord, int(progression.get("run_counter", 0)))
 	progression = ProgressionStore.prepare_for_new_run(progression)
-	var run_state: Dictionary = run_engine.create_new_run(51, progression)
+	var run_state: Dictionary = run_engine.create_new_run(51, progression, false)
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
 	var current_room: Dictionary = run_engine.room_metadata(run_state, current).duplicate(true)
 	current_room["revealed"] = true
@@ -7408,7 +7410,7 @@ func _test_run_map_relic_room_spacing_and_density() -> void:
 	var first_signature: String = ""
 	var found_different_signature: bool = false
 	for seed: int in range(1, 41):
-		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data(), false)
 		var signature_parts: Array[String] = []
 		for exit_coord: Vector2i in [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]:
 			_assert(str(run_engine.room_metadata(run_state, exit_coord).get("type", "")) != "treasure", "Relic rooms should never be direct exits from the start")
@@ -7448,7 +7450,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 	var first_signature: String = ""
 	var found_different_signature: bool = false
 	for seed: int in range(1, 51):
-		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data())
+		var run_state: Dictionary = run_engine.create_new_run(seed, ProgressionStore.default_data(), false)
 		var signature_parts: Array[String] = []
 		for x: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
 			for y: int in range(-MAP_RULE_SCAN_DEPTH, MAP_RULE_SCAN_DEPTH + 1):
@@ -7486,7 +7488,7 @@ func _test_run_map_merchant_room_spacing_and_density() -> void:
 
 func _test_run_map_repeats_depth_sequences() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	var depth_four_room: Dictionary = run_engine.room_metadata(run_state, Vector2i(4, 0))
 	var has_depth_five_exit: bool = false
 	for connection_var: Variant in depth_four_room.get("connections", []):
@@ -7500,7 +7502,7 @@ func _test_run_map_repeats_depth_sequences() -> void:
 
 func _test_run_map_ring_links_and_outward_quarter() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	for depth: int in [1, 2, 3, 5, 6, 7]:
 		var outward_rooms: int = 0
 		var total_rooms: int = 0
@@ -7531,7 +7533,7 @@ func _test_run_map_ring_links_and_outward_quarter() -> void:
 
 func _test_run_map_seals_departed_rooms() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
 	if str(run_state.get("mode", "")) == "combat":
 		var combat_state: Dictionary = run_state.get("combat_state", {}).duplicate(true)
@@ -7555,7 +7557,7 @@ func _test_run_map_seals_departed_rooms() -> void:
 
 func _test_run_map_never_moves_back_toward_center() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	run_state = run_engine.move_to_room(run_state, Vector2i(1, 0))
 	run_state = run_engine.move_to_room(run_state, Vector2i(2, 0))
 	var current_depth: int = int(run_engine.room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO)).get("depth", 0))
@@ -7564,7 +7566,7 @@ func _test_run_map_never_moves_back_toward_center() -> void:
 
 func _test_run_map_last_loop_room_opens_outward() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	var current := Vector2i(2, -1)
 	var outward := Vector2i(3, -1)
 	var rooms: Dictionary = {}
@@ -7608,7 +7610,7 @@ func _test_run_map_last_loop_room_opens_outward() -> void:
 
 func _test_empty_treasure_room_falls_back_to_room_mode() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var base_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data())
+	var base_state: Dictionary = run_engine.create_new_run(13, ProgressionStore.default_data(), false)
 	base_state["relics"] = GameData.relic_ids().duplicate()
 	var treasure_coord := Vector2i(999, 999)
 	var source_coord := Vector2i(999, 999)
@@ -7716,7 +7718,7 @@ func _test_loaded_run_repairs_stranded_room_visibility() -> void:
 
 func _test_combat_finish_generates_reward_state() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data(), false)
 	var combat_destination: Vector2i = Vector2i.ZERO
 	for candidate: Vector2i in run_engine.available_moves(run_state):
 		if str(run_engine.room_metadata(run_state, candidate).get("type", "")) == "combat":
@@ -7744,7 +7746,7 @@ func _test_combat_finish_generates_reward_state() -> void:
 
 func _test_intermediate_boss_opens_next_sequence() -> void:
 	var run_engine: RunEngine = RunEngine.new()
-	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(29, ProgressionStore.default_data(), false)
 	var boss_coord := Vector2i(4, 0)
 	run_state["current_room"] = boss_coord
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
@@ -7899,7 +7901,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 func _test_recovery_marker_flow() -> void:
 	var run_engine: RunEngine = RunEngine.new()
 	var progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
-	var planning_state: Dictionary = run_engine.create_new_run(51, ProgressionStore.default_data())
+	var planning_state: Dictionary = run_engine.create_new_run(51, ProgressionStore.default_data(), false)
 	var recovery_coord := Vector2i.ZERO
 	for x: int in range(-2, 3):
 		for y: int in range(-2, 3):
@@ -7917,7 +7919,7 @@ func _test_recovery_marker_flow() -> void:
 	_assert(recovery_coord != Vector2i.ZERO, "The map should expose at least one reachable depth-2 room for recovery coverage")
 	progression = ProgressionStore.record_lost_embers(progression, 23, recovery_coord, int(progression.get("run_counter", 0)))
 	progression = ProgressionStore.prepare_for_new_run(progression)
-	var run_state: Dictionary = run_engine.create_new_run(51, progression)
+	var run_state: Dictionary = run_engine.create_new_run(51, progression, false)
 	_assert(int(run_state.get("run_index", 0)) == 2, "Run index should advance when a new run begins")
 	var recovery_key: String = "%d,%d" % [recovery_coord.x, recovery_coord.y]
 	var staged_room: Dictionary = (run_state.get("rooms", {}) as Dictionary).get(recovery_key, {})
@@ -8064,9 +8066,9 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 	var large_map_scrim: ColorRect = instance.get("_large_map_scrim") as ColorRect
 	_assert(large_map_scrim != null and large_map_scrim.visible, "Clicking the minimap should open the large map overlay")
 	if large_map_scrim != null:
-		_assert(large_map_scrim.color.a >= 0.99, "Large map backdrop should hide underlying room header text")
+		_assert(large_map_scrim.color.a >= 0.8, "Large map scrim should subdue the board around the opaque section panel")
 	var large_map_view: Control = instance.get("_large_map_view") as Control
-	_assert(large_map_view != null and bool(large_map_view.get("draw_background")), "Large map view should render its subdued authored labyrinth backdrop")
+	_assert(large_map_view != null and (large_map_view.get("_background") as TextureRect).texture != null, "Section map should load its boss-specific painted background")
 	var large_map_dialog: PanelContainer = instance.get("_large_map_dialog") as PanelContainer
 	var close_button: Button = null
 	if large_map_dialog != null:
@@ -8074,20 +8076,10 @@ func _test_run_scene_minimap_click_opens_large_map() -> void:
 			large_map_dialog.get_node_or_null(UiSkin.PANEL_ORNAMENT_NAME) != null,
 			"Large map should use the authored outer raster frame"
 		)
-		var large_map_style: StyleBoxFlat = large_map_dialog.get_theme_stylebox("panel") as StyleBoxFlat
-		_assert(
-			large_map_style != null
-			and large_map_style.border_width_left == 0
-			and large_map_style.border_width_top == 0
-			and large_map_style.border_width_right == 0
-			and large_map_style.border_width_bottom == 0,
-			"Large map should not retain a legacy outline outside its raster frame"
-		)
-		var navigation_hint: Label = large_map_dialog.find_child("MapNavigationHint", true, false) as Label
+		_assert(large_map_dialog.get_theme_stylebox("panel") is StyleBoxEmpty, "The map layout should leave its outer border to the authored frame")
 		_assert(large_map_dialog.find_child("DepthStrip", true, false) == null, "Large map should not cover the map with a redundant current-depth strip")
-		_assert(navigation_hint != null and navigation_hint.text.contains("TWO-FINGER") and navigation_hint.text.contains("PINCH"), "Large map should make its mouse and trackpad navigation discoverable")
-		var title: Label = large_map_dialog.find_child("MapTitle", true, false) as Label
-		_assert(title != null and title.text == "MAP", "Large map should use the direct player-facing title")
+		var title: Label = large_map_view.get("_title") as Label
+		_assert(title != null and not title.text.is_empty(), "Section map should display the current boss section title")
 		_assert(large_map_dialog.find_child("MapSubtitle", true, false) == null, "Large map should not add an ornamental fantasy tagline")
 		close_button = large_map_dialog.find_child("CloseButton", true, false) as Button
 	_assert(close_button != null, "Large map should expose a close button")
@@ -9705,7 +9697,7 @@ func _test_run_scene_campfire_bonfire_persists_after_leave() -> void:
 	root.add_child(instance)
 	await process_frame
 	var run_engine: RunEngine = instance.get("_run_engine")
-	var run_state: Dictionary = run_engine.create_new_run(123, ProgressionStore.default_data())
+	var run_state: Dictionary = run_engine.create_new_run(123, ProgressionStore.default_data(), false)
 	var campfire_coord := Vector2i(0, 2)
 	var campfire_room: Dictionary = run_engine.room_metadata(run_state, campfire_coord)
 	_assert(str(campfire_room.get("type", "")) == "campfire", "Depth-2 axis fixture should be a campfire room")

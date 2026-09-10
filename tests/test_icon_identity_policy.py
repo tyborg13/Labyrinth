@@ -146,6 +146,11 @@ class IconIdentityPolicyTests(unittest.TestCase):
             if not key.startswith("skill_")
         }
 
+        room_source = (REPO_ROOT / "scripts/room_icon_library.gd").read_text(encoding="utf-8")
+        room_icons = dict(re.findall(r'^\s*"([^\"]+)":\s*"(res://assets/art/icons/map/[^\"]+)"', room_source, re.MULTILINE))
+        self.assertEqual(set(room_icons), {"boss_vyraketh", "boss_tharokh", "boss_noctyrax", "scavenger", "boss_zekarion", "scout", "combat", "boss_vaeloryx", "treasure", "campfire", "boss_iskaldra", "event", "start"})
+        concepts.update({f"map:{key}": path for key, path in room_icons.items()})
+
         skills = json.loads((REPO_ROOT / "data/skills.json").read_text(encoding="utf-8"))
         for skill_id, skill in skills.items():
             icon_key = skill.get("icon", "")

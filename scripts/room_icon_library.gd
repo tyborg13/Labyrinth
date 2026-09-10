@@ -12,18 +12,27 @@ const ICON_BOSS: String = "boss"
 const ICON_SCAVENGER: String = "scavenger"
 
 const ROOM_TYPE_ICON_PATHS := {
-	ICON_START: "res://assets/art/icons/move.png",
-	ICON_COMBAT: "res://assets/art/icons/melee.png",
-	ICON_CAMPFIRE: "res://assets/art/icons/burn.png",
-	ICON_TREASURE: "res://assets/art/tiles/ember_cache.png",
-	ICON_BOSS: "res://assets/art/icons/melee.png",
-	ICON_SCAVENGER: "res://assets/art/icons/consume.png"
+	"start": "res://assets/art/icons/map/lantern.png",
+	"combat": "res://assets/art/icons/map/fight.png",
+	"campfire": "res://assets/art/icons/map/campfire.png",
+	"treasure": "res://assets/art/icons/map/relic.png",
+	"scavenger": "res://assets/art/icons/map/scavenger.png",
+	"event": "res://assets/art/icons/map/event.png",
+	"scout": "res://assets/art/icons/map/scout.png",
+	"boss_tharokh": "res://assets/art/icons/map/boss_tharokh.png",
+	"boss_vyraketh": "res://assets/art/icons/map/boss_vyraketh.png",
+	"boss_vaeloryx": "res://assets/art/icons/map/boss_vaeloryx.png",
+	"boss_iskaldra": "res://assets/art/icons/map/boss_iskaldra.png",
+	"boss_zekarion": "res://assets/art/icons/map/boss_zekarion.png",
+	"boss_noctyrax": "res://assets/art/icons/map/boss_noctyrax.png",
 }
 
 static func icon_id_for_room(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", ICON_COMBAT))
 	if room_type in ["blacksmith", "arcanist"]:
 		room_type = ICON_SCAVENGER
+	if room_type == ICON_BOSS:
+		return "boss_" + str(room.get("boss_id", "tharokh"))
 	if room_type == ICON_COMBAT:
 		var element_id: String = str(room.get("element", ElementData.NONE))
 		if ElementData.is_elemental(element_id):

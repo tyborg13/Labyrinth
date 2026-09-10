@@ -321,7 +321,7 @@ static func _test_sustain_is_bounded(expect: Callable) -> void:
 
 static func _test_outward_route_appears_after_three_rooms(expect: Callable) -> void:
 	var engine := RunEngine.new()
-	var state: Dictionary = engine.create_new_run(290735, ProgressionStore.default_data())
+	var state: Dictionary = engine.create_new_run(290735, ProgressionStore.default_data(), false)
 	var ring: Array = engine.call("_ring_coords", 1)
 	var current: Vector2i = Vector2i.ZERO
 	for coord_var: Variant in ring:

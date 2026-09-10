@@ -289,7 +289,7 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 	var safety: int = 0
 	ProgressionStore.set_run_storage_path("user://dragon_boss_end_to_end_test.save")
 	ProgressionStore.clear_saved_run()
-	while not bool(state.get("victory", false)) and safety < 160:
+	while not bool(state.get("victory", false)) and safety < 240:
 		safety += 1
 		var mode: String = str(state.get("mode", ""))
 		match mode:
@@ -300,6 +300,8 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 					break
 				var destination: Vector2i = _farthest_available_move(engine, state, moves)
 				state = engine.move_to_room(state, destination)
+			"event":
+				state = engine.resolve_map_event(state, "embers")
 			"campfire":
 				state = engine.leave_campfire(state)
 			"treasure":
@@ -336,7 +338,7 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 				break
 	ProgressionStore.clear_saved_run()
 	ProgressionStore.set_run_storage_path(ProgressionStore.DEFAULT_RUN_STORAGE_PATH)
-	expect.call(safety < 160, "The available-move traversal should reach the final boss without looping")
+	expect.call(safety < 240, "The available-move traversal should reach the final boss without looping")
 	expect.call(save_round_trip_proved, "The available-move traversal should prove a mid-run, mid-boss save and resume")
 	expect.call(str(state.get("mode", "")) == "victory" and bool(state.get("victory", false)), "The sixth boss should complete the same map-traversed run")
 	var expected_order: Array[String] = DragonBossLibrary.elemental_boss_order(TEST_SEED)

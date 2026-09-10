@@ -13,6 +13,7 @@ const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const SurfaceSaveMigration = preload("res://scripts/surface_save_migration.gd")
 
 const PLANNED_DEPTH_SEQUENCES: int = 6
@@ -100,7 +101,7 @@ static func normalized_run_stats(value: Variant) -> Dictionary:
 static func run_result_id(run_state: Dictionary) -> String:
 	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
 
-func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
+func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true) -> Dictionary:
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
 	var max_hp: int = BASE_MAX_HP
 	var hand_size: int = BASE_HAND_SIZE
@@ -166,6 +167,10 @@ func create_new_run(seed: int, progression: Dictionary) -> Dictionary:
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": normalized_progression
 	}
+	if section_maps:
+		SectionMapGraph.initialize(run_state)
+		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
+		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_stage_recovery_marker(run_state)
@@ -809,6 +814,8 @@ func room_metadata(run_state: Dictionary, coord: Vector2i) -> Dictionary:
 	return _build_room_metadata(int(run_state.get("seed", 0)), coord)
 
 func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
+	if SectionMapGraph.enabled(run_state) and str(run_state.get("mode", "")) != "room":
+		return run_state.duplicate(true)
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	if destination == current:
 		return run_state.duplicate(true)
@@ -819,6 +826,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	SectionMapGraph.record_choice(next_state, destination)
 	next_state["pending_escape"] = {}
 	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	move_skill_state["previous_room"] = current
@@ -839,6 +847,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	next_state["turns_spent"] = int(next_state.get("turns_spent", 0)) + 1
 	next_state["notice"] = ""
 	next_state["rooms"] = rooms
+	SectionMapGraph.refresh_knowledge(next_state)
 	var reveal_exits_on_entry: bool = not _room_blocks_exit_reveal(room)
 	if reveal_exits_on_entry:
 		_reveal_neighbors(next_state, destination)
@@ -865,6 +874,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			rooms[destination_key] = room
 			next_state["rooms"] = rooms
 			next_state["mode"] = "campfire"
+			next_state["combat_state"] = {}
+		"event":
+			next_state["mode"] = "room" if bool(room.get("cleared", false)) else "event"
 			next_state["combat_state"] = {}
 		"treasure":
 			if bool(room.get("cleared", false)):
@@ -911,6 +923,8 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	return next_state
 
 func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Dictionary:
+	if SectionMapGraph.enabled(run_state) and str(run_state.get("mode", "")) != "room":
+		return run_state.duplicate(true)
 	var current: Vector2i = run_state.get("current_room", Vector2i.ZERO)
 	if destination == current:
 		return run_state.duplicate(true)
@@ -921,6 +935,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	if connection.is_empty():
 		return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
+	SectionMapGraph.record_choice(next_state, destination)
 	next_state["pending_escape"] = {}
 	var move_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	move_skill_state["previous_room"] = current
@@ -941,6 +956,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	next_state["turns_spent"] = int(next_state.get("turns_spent", 0)) + 1
 	next_state["notice"] = ""
 	next_state["rooms"] = rooms
+	SectionMapGraph.refresh_knowledge(next_state)
 	var reveal_exits_on_entry: bool = not _room_blocks_exit_reveal(room)
 	if reveal_exits_on_entry:
 		_reveal_neighbors(next_state, destination)
@@ -1296,6 +1312,8 @@ func pending_escape(run_state: Dictionary) -> Dictionary:
 	return (run_state.get("pending_escape", {}) as Dictionary).duplicate(true)
 
 func continue_pending_escape(run_state: Dictionary) -> Dictionary:
+	if str(run_state.get("mode", "")) != MODE_ESCAPE:
+		return run_state.duplicate(true)
 	var escape: Dictionary = pending_escape(run_state)
 	if escape.is_empty():
 		return run_state.duplicate(true)
@@ -1307,10 +1325,14 @@ func continue_pending_escape(run_state: Dictionary) -> Dictionary:
 		return invalid_state
 	var destination: Vector2i = destination_var as Vector2i
 	var previous_coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
-	var continued_state: Dictionary = move_to_pre_battle(run_state, destination)
-	continued_state["pending_escape"] = {}
+	# Crossing the physical exit has already committed this route. Release only
+	# the transition's mode lock; the normal adjacency and sealed-room checks apply.
+	var travel_state: Dictionary = run_state.duplicate(true)
+	travel_state["mode"] = "room"
+	var continued_state: Dictionary = move_to_pre_battle(travel_state, destination)
 	if continued_state.get("current_room", previous_coord) != destination:
-		continued_state["mode"] = "room"
+		return run_state.duplicate(true)
+	continued_state["pending_escape"] = {}
 	return continued_state
 
 func can_change_equipment(run_state: Dictionary) -> bool:
@@ -2820,6 +2842,9 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 	return choices
 
 func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
+	if SectionMapGraph.enabled(run_state):
+		SectionMapGraph.refresh_knowledge(run_state)
+		return
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
 	var center_room: Dictionary = room_metadata(run_state, center)
 	for connection_var: Variant in center_room.get("connections", []):
@@ -2836,6 +2861,8 @@ func _reveal_neighbors(run_state: Dictionary, center: Vector2i) -> void:
 		_normalize_current_choice_pair(run_state)
 
 func _normalize_current_choice_pair(run_state: Dictionary) -> void:
+	if SectionMapGraph.enabled(run_state):
+		return
 	var choices: Array[Vector2i] = available_moves(run_state)
 	if choices.size() != 2:
 		return
@@ -3017,6 +3044,8 @@ func _room_blocks_exit_reveal(room: Dictionary) -> bool:
 	return true
 
 func _merge_room_metadata(seed: int, coord: Vector2i, stored_room: Dictionary) -> Dictionary:
+	if stored_room.has("section_index"):
+		return stored_room.duplicate(true)
 	var room: Dictionary = _build_room_metadata(seed, coord)
 	for key_var: Variant in stored_room.keys():
 		var key: String = str(key_var)
@@ -3068,6 +3097,8 @@ func _connection_to_room(room: Dictionary, destination: Vector2i) -> Dictionary:
 	return {}
 
 func _ensure_loop_escape_connection(run_state: Dictionary, coord: Vector2i) -> void:
+	if SectionMapGraph.enabled(run_state):
+		return
 	var room: Dictionary = room_metadata(run_state, coord)
 	if not _room_can_gain_loop_escape(room):
 		return
@@ -3263,14 +3294,14 @@ func _stage_recovery_marker(run_state: Dictionary) -> void:
 		return
 	if int(run_state.get("run_index", 0)) != int(marker.get("available_run", -1)):
 		return
-	var coord: Vector2i = ProgressionStore.recovery_coord(progression)
+	var coord: Vector2i = _recovery_coord_for_run(run_state)
 	var amount: int = int(marker.get("amount", 0))
 	if amount <= 0:
 		return
 	var rooms: Dictionary = run_state.get("rooms", {}).duplicate(true)
 	var key: String = _room_key(coord)
 	var room: Dictionary = _merge_room_metadata(int(run_state.get("seed", 0)), coord, rooms.get(key, {}) as Dictionary)
-	if coord != Vector2i.ZERO and str(room.get("type", "")) != "boss":
+	if not SectionMapGraph.enabled(run_state) and coord != Vector2i.ZERO and str(room.get("type", "")) != "boss":
 		room["type"] = "combat"
 		room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), coord, "combat")
 		room["npcs"] = []
@@ -3291,7 +3322,7 @@ func _layout_with_recovery_loot(layout: Dictionary, room: Dictionary, run_state:
 	var marker: Dictionary = ProgressionStore.recovery_marker(progression)
 	if marker.is_empty() or int(marker.get("available_run", -1)) != int(run_state.get("run_index", 0)):
 		return layout
-	if ProgressionStore.recovery_coord(progression) != layout.get("coord", Vector2i.ZERO):
+	if _recovery_coord_for_run(run_state) != layout.get("coord", Vector2i.ZERO):
 		return layout
 	var loot: Array = layout.get("loot", []).duplicate(true)
 	for loot_var: Variant in loot:
@@ -3476,3 +3507,51 @@ func _clear_recovery_marker_on_current_room(run_state: Dictionary) -> void:
 	room.erase("recovery_available_run")
 	rooms[key] = room
 	run_state["rooms"] = rooms
+
+func scout_map(run_state: Dictionary, branch: Vector2i) -> Dictionary:
+	return SectionMapGraph.scout(run_state, branch)
+
+func resolve_map_event(run_state: Dictionary, choice: String) -> Dictionary:
+	if str(run_state.get("mode", "")) != "event" or choice not in ["embers", "survey"]:
+		return run_state.duplicate(true)
+	var next: Dictionary = run_state.duplicate(true)
+	var current: Vector2i = next.get("current_room", Vector2i.ZERO)
+	var event_room: Dictionary = SectionMapGraph.room(next, current)
+	if event_room.is_empty() or bool(event_room.get("cleared", false)):
+		return next
+	var discoveries: Array[Vector2i] = []
+	if choice == "survey":
+		for coord: Vector2i in SectionMapGraph.descendants(next, current, 4):
+			var node: Dictionary = SectionMapGraph.room(next, coord)
+			if not bool(node.get("revealed", false)):
+				discoveries.append(coord)
+				node["revealed"] = true
+				node["map_outline"] = true
+		if discoveries.is_empty():
+			return run_state.duplicate(true)
+	else:
+		next["held_embers"] = int(next.get("held_embers", 0)) + 25
+		next["unbanked_embers"] = next["held_embers"]
+	event_room["cleared"] = true
+	next["mode"] = "room"
+	SectionMapGraph.record_event(next, "map_event_resolved", {"choice": choice, "room": current, "embers": 25 if choice == "embers" else 0, "revealed_rooms": discoveries})
+	return next
+
+func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
+	var original: Vector2i = ProgressionStore.recovery_coord(run_state.get("progression", {}) as Dictionary)
+	if not SectionMapGraph.enabled(run_state):
+		return original
+	if run_state.has("map_recovery_coord"):
+		return run_state["map_recovery_coord"]
+	var best: Vector2i = original
+	var score: int = 2147483647
+	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
+		if str(node.get("type", "")) not in ["combat", "boss"]:
+			continue
+		var coord: Vector2i = node.get("coord", Vector2i.ZERO)
+		var candidate_score: int = absi(int(node.get("depth", 0)) - _room_depth(original)) * 1000 + absi(coord.x - original.x) + absi(coord.y - original.y)
+		if candidate_score < score:
+			score = candidate_score
+			best = coord
+	run_state["map_recovery_coord"] = best
+	return best

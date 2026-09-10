@@ -493,3 +493,26 @@ the player first or an unseen actor interrupts travel. Commit that state; do
 not infer non-resolution from zero distance. These zero-spend requests emit
 `player_movement_interrupted`; successful movement still emits `player_moved`.
 Both include the requested target, actual endpoint and movement expenditure.
+
+### Boss section map v1
+
+New section-map runs persist an ordered `map_events` outbox and
+`map_event_revision`. Both the live game and headless console append these events
+after the corresponding save succeeds. The stable key
+`section_map|<run_result_id>|<revision>` prevents replay after reopening a save
+from duplicating events. Existing JSONL storage and vector normalization apply.
+
+| Event | Payload |
+| --- | --- |
+| `section_entered` | Section index, boss id, remaining Scout uses |
+| `route_revealed` | Source (`proximity`), section index, newly identified rooms |
+| `map_scout_used` | Section, selected adjacent branch, revealed rooms, uses remaining |
+| `route_choice_committed` | Section, origin, destination, known room ids, known room metadata (type, element, step, landmark), remaining Scout uses |
+| `map_event_resolved` | Room, choice (`embers` or `survey`), Embers granted, newly revealed rooms |
+
+Room selection records what the player could know at commitment, before moving
+and revealing the next horizon. Invalid/empty Scout and repeated event requests
+emit nothing. Physical Reach the Exit destinations are committed by the existing
+combat outcome and reward flow; the route event is emitted when that saved
+transition enters its destination. Opening/closing the map and browsing history
+are presentation actions, not room visits or reward choices.

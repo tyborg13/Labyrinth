@@ -15,7 +15,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -348,6 +348,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			return _build_pre_battle_run(progression)
 		"combat":
 			return _build_combat_run(progression)
+		"reach_exit":
+			return _build_reach_exit_run(progression)
 		"guided_tutorial":
 			return _build_guided_tutorial_run(progression)
 		"boss":
@@ -447,6 +449,8 @@ func _resolve_route_room(run_state: Dictionary) -> Dictionary:
 			"treasure":
 				var relics: Array = state.get("pending_relics", []) as Array
 				state = _run_engine.claim_relic(state, str(relics[0])) if not relics.is_empty() else state
+			"event":
+				state = _run_engine.resolve_map_event(state, "embers")
 			"campfire":
 				state = _run_engine.leave_campfire(state)
 			_:
@@ -472,6 +476,27 @@ func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
 				player["pos"] = target_tiles[0]
 				victory["player"] = player
 	return victory
+
+func _build_reach_exit_run(progression: Dictionary) -> Dictionary:
+	# Traverse generated connections so the door preview has authentic route
+	# history, visible neighbors, and the completed opening-combat prerequisite.
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
+	for step: int in range(MAX_ROUTE_STEPS):
+		var moves: Array[Vector2i] = _vector2i_array(_run_engine.available_moves(state))
+		if moves.is_empty():
+			break
+		state = _run_engine.move_to_room(state, moves[0])
+		if str(state.get("mode", "")) == RunEngine.MODE_PRE_BATTLE:
+			state = _run_engine.begin_pre_battle_combat(state)
+		var combat: Dictionary = state.get("combat_state", {}) as Dictionary
+		var objective: Dictionary = combat.get("objective", {}) as Dictionary
+		if str(state.get("mode", "")) == "combat" and str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT:
+			return _apply_combat_overrides(state)
+		state = _resolve_route_room(state)
+		if str(state.get("mode", "")) != "room":
+			break
+	_fail("The generated route contains no reachable Reach the Exit encounter for this seed.")
+	return state
 
 func _build_combat_run(progression: Dictionary) -> Dictionary:
 	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
