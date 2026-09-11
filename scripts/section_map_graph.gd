@@ -6,6 +6,7 @@ class_name SectionMapGraph
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
+const LAYOUT_REVISION: int = 2
 const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
 const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
 const INVALID: Vector2i = Vector2i(-999, -999)
@@ -56,8 +57,10 @@ static func initialize(state: Dictionary) -> void:
 				group_fights = 1
 			fights_left -= group_fights
 			var lanes: Array = [0, 2] if width == 2 else [0, 1, 2]
-			if width == 2 and rng.randi_range(0, 1) == 0:
-				lanes = [1, 2] if group % 2 == 0 else [0, 1]
+			# Outer branches remain distinct. Short alternating middle branches
+			# let the last section vary its route without jumping across lanes.
+			if width == 2 and group % 2 == 1:
+				lanes = [0, 1] if rng.randi_range(0, 1) == 0 else [1, 2]
 			var paths: Array = []
 			for branch: int in range(width):
 				var types: Array[String] = []
@@ -104,8 +107,10 @@ static func initialize(state: Dictionary) -> void:
 			for path_value: Array in paths:
 				firsts.append(path_value[0])
 				lasts.append(path_value[-1])
-			for coord: Vector2i in previous:
-				_link(rooms, coord, firsts)
+			if group == 0:
+				_link(rooms, entry, firsts)
+			else:
+				_connect_groups(rooms, previous, firsts, group % 2 == 0)
 			previous = lasts
 			step += length
 			group += 1
@@ -117,6 +122,7 @@ static func initialize(state: Dictionary) -> void:
 		if index > 0:
 			_link(rooms, Vector2i(index * 4, 0), _coords([entry]))
 	state["section_map_version"] = VERSION
+	state["section_map_layout_revision"] = LAYOUT_REVISION
 	state["map_sections"] = sections
 	state["rooms"] = rooms
 	var start: Dictionary = rooms[key(Vector2i.ZERO)]
@@ -153,6 +159,32 @@ static func _link(rooms: Dictionary, source: Vector2i, destinations: Array[Vecto
 	for index: int in range(destinations.size()):
 		links.append({"coord": destinations[index], "door_dir": directions[index], "kind": "outward"})
 	(rooms[key(source)] as Dictionary)["connections"] = links
+
+# Keep group boundaries planar: each edge spans at most one lane, every room
+# has a continuation, and every generated destination can be reached. Nearby
+# splits/merges preserve options without resetting every route at each fork.
+static func _connect_groups(rooms: Dictionary, sources: Array[Vector2i], targets: Array[Vector2i], reverse: bool) -> void:
+	var candidates: Array[Vector2i]
+	for i: int in range(sources.size()):
+		for j: int in range(targets.size()):
+			var distance: int = absi(int(rooms[key(sources[i])]["map_lane"]) - int(rooms[key(targets[j])]["map_lane"]))
+			if distance <= 1: candidates.append(Vector2i(i, j))
+	candidates.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var da: int = absi(int(rooms[key(sources[a.x])]["map_lane"]) - int(rooms[key(targets[a.y])]["map_lane"]))
+		var db: int = absi(int(rooms[key(sources[b.x])]["map_lane"]) - int(rooms[key(targets[b.y])]["map_lane"]))
+		if da != db: return da < db
+		return a.x > b.x if reverse else a.x < b.x)
+	var chosen: Array[Vector2i]
+	for candidate: Vector2i in candidates:
+		var crosses: bool = false
+		for edge: Vector2i in chosen:
+			crosses = crosses or (candidate.x - edge.x) * (candidate.y - edge.y) < 0
+		if not crosses: chosen.append(candidate)
+	for i: int in range(sources.size()):
+		var destinations: Array[Vector2i]
+		for j: int in range(targets.size()):
+			if chosen.has(Vector2i(i, j)): destinations.append(targets[j])
+		_link(rooms, sources[i], destinations)
 
 static func descendants(state: Dictionary, start: Vector2i, max_hops: int = 99) -> Dictionary:
 	var result: Dictionary = {}
@@ -204,33 +236,42 @@ static func refresh_knowledge(state: Dictionary) -> void:
 	if not discoveries.is_empty():
 		record_event(state, "route_revealed", {"source": "proximity", "section": index, "rooms": discoveries})
 
-static func scout_targets(state: Dictionary, branch: Vector2i) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
+static func scout_options(state: Dictionary) -> Array[Vector2i]:
+	var result: Array[Vector2i]
 	if not enabled(state) or int(section(state, active_section(state)).get("scouts", 0)) <= 0:
 		return result
-	var current: Dictionary = room(state, state.get("current_room", Vector2i.ZERO))
-	var adjacent: bool = false
-	for link: Dictionary in current.get("connections", []):
-		adjacent = adjacent or link.get("coord", INVALID) == branch
-	if not adjacent or int(room(state, branch).get("section_index", -1)) != active_section(state):
+	if str(state.get("mode", "")) not in ["room", "combat", "pre_battle"]:
 		return result
-	for coord: Vector2i in descendants(state, branch, 3):
-		if not bool(room(state, coord).get("revealed", false)):
+	for coord: Vector2i in descendants(state, state.get("current_room", Vector2i.ZERO)):
+		var node: Dictionary = room(state, coord)
+		var visible: bool = bool(node.get("map_outline", false)) or (bool(node.get("recovery_marker", false)) and int(node.get("recovery_amount", 0)) > 0)
+		if visible and not bool(node.get("revealed", false)) and not bool(node.get("sealed", false)):
 			result.append(coord)
 	return result
 
-static func scout(state: Dictionary, branch: Vector2i) -> Dictionary:
-	var targets: Array[Vector2i] = scout_targets(state, branch)
-	if targets.is_empty() or str(state.get("mode", "")) not in ["room", "combat", "pre_battle"]:
+static func scout_targets(state: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	return _coords([target]) if scout_options(state).has(target) else _coords([])
+
+static func scout(state: Dictionary, target: Vector2i) -> Dictionary:
+	var targets: Array[Vector2i] = scout_targets(state, target)
+	if targets.is_empty():
 		return state.duplicate(true)
 	var next: Dictionary = state.duplicate(true)
 	var info: Dictionary = section(next, active_section(next))
 	info["scouts"] = int(info.get("scouts", 2)) - 1
-	for coord: Vector2i in targets:
-		var node: Dictionary = room(next, coord)
-		node["revealed"] = true
-		node["map_outline"] = true
-	record_event(next, "map_scout_used", {"section": active_section(next), "branch": branch, "rooms": targets, "remaining": info["scouts"]})
+	var node: Dictionary = room(next, target)
+	node["revealed"] = true
+	node["map_outline"] = true
+	var outlined: Array[Vector2i]
+	for link: Dictionary in node.get("connections", []):
+		var neighbor: Vector2i = link.get("coord", INVALID)
+		var destination: Dictionary = room(next, neighbor)
+		if int(destination.get("section_index", -1)) != active_section(next): continue
+		if not bool(destination.get("map_outline", false)): outlined.append(neighbor)
+		destination["map_outline"] = true
+	# Keep branch as a legacy payload alias; scope/target distinguish direct
+	# room scouting from the older multi-room branch reveal in saved logs.
+	record_event(next, "map_scout_used", {"section": active_section(next), "scope": "room", "target": target, "branch": target, "rooms": targets, "outlined_rooms": outlined, "remaining": info["scouts"]})
 	return next
 
 static func record_choice(state: Dictionary, destination: Vector2i) -> void:

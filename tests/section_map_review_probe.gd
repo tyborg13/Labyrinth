@@ -2,7 +2,7 @@ extends "res://tests/section_map_flow_probe.gd"
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 
 func _initialize() -> void:
-	output_dir = "user://section_map_review_v3"
+	output_dir = "user://section_map_review_v4"
 	await _setup()
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())
@@ -64,7 +64,7 @@ func _initialize() -> void:
 	_check(int(panel.get("viewed_section")) == 0 and viewport.gui_get_focus_owner() == (panel.get("_tabs") as HBoxContainer).get_child(0), "Keyboard activation also preserves history-tab focus")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 
-	# Three-way choice navigation follows the immediate options in screen order.
+	# Neighboring choice navigation follows the immediate options in screen order.
 	state = engine.create_new_run(90429, Progression.default_data())
 	for step: int in range(3):
 		state = _resolve_room(engine, state)
@@ -76,19 +76,18 @@ func _initialize() -> void:
 	var choices: Array = panel.call("available_destinations")
 	choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return ((panel.get("node_buttons") as Dictionary)[a] as Control).position.y < ((panel.get("node_buttons") as Dictionary)[b] as Control).position.y)
-	_check(choices.size() == 3, "Choice navigation fixture reaches the three-way fork")
+	_check(choices.size() == 2, "Choice navigation fixture reaches a neighboring-lane fork")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var first: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
 	first.grab_focus()
 	await _joy(JOY_BUTTON_DPAD_DOWN)
 	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[1]], "Controller Down moves directly between immediate choices")
 	await _capture("05c_available_navigation.png")
-	await _key(KEY_DOWN)
-	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[2]], "Keyboard Down follows the next immediate choice")
+
 	await _key(KEY_DOWN)
 	_check(viewport.gui_get_focus_owner() == panel.get("_scout"), "The choice list leads to Scout without trapping focus")
 	await _key(KEY_UP)
-	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[2]], "Scout returns focus to the nearest available choice")
+	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices.back()], "Scout returns focus to the nearest available choice")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 
 	# A distant recoverable pile is visible without revealing its room identity.
@@ -109,6 +108,8 @@ func _initialize() -> void:
 	_check((panel.get("node_buttons") as Dictionary).has(target), "The distant recovery landmark is rendered through fog")
 	var recovery_button: Control = (panel.get("node_buttons") as Dictionary).get(target)
 	_check(bool(recovery_button.call("has_recovery")) and str(panel.call("room_description", target)).contains("23 lost Embers"), "Recovery badge retains the exact lost-Ember amount in focus/hover details")
+	await process_frame
+	await process_frame
 	panel.call("select_room", target)
 	_check(str(panel.get("_preview_text")).contains("23 lost Embers"), "Inspecting the pile explains the recovery amount")
 	await _capture("06_recovery_distant.png")
@@ -117,33 +118,40 @@ func _initialize() -> void:
 	_load(state)
 	instance.call("_open_large_map")
 	_check((panel.get("node_buttons") as Dictionary).has(target), "Recovery landmark survives a saved-run reload")
+	await process_frame
+	await process_frame
 	panel.call("select_room", target)
 	await _capture("07_recovery_resumed.png")
 	var fork: Dictionary = {}
 	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
-		if int(room.get("section_index", -1)) == 0 and int(room.get("map_step", 0)) == 6:
+		if int(room.get("section_index", -1)) != 0: continue
+		var keeps: bool = false
+		var leaves: bool = false
+		for link: Dictionary in room.get("connections", []):
+			if Graph.descendants(state, link.get("coord")).has(target): keeps = true
+			else: leaves = true
+		if keeps and leaves:
 			fork = room
 			break
-	state["current_room"] = fork.get("coord")
-	fork["visited"] = true
-	fork["cleared"] = true
-	Graph.refresh_knowledge(state)
-	_load(state)
-	instance.call("_open_large_map")
-	var found_keeps: bool = false
-	var found_leaves: bool = false
-	for link: Dictionary in fork.get("connections", []):
-		var choice: Vector2i = link.get("coord")
-		panel.call("select_room", choice)
-		var description: String = str(panel.get("_preview_text"))
-		_check(not description.contains("Event"), "Branch consequences omit the Event landmark already bypassed before this fork")
-		if Graph.descendants(state, choice).has(target):
-			found_keeps = description.contains("Keeps:") and description.contains("23 lost Embers")
-		else:
-			found_leaves = description.contains("Leaves:") and description.contains("23 lost Embers")
-			await _capture("08_recovery_branch_warning.png")
-	_check(found_keeps and found_leaves, "Branch previews distinguish keeping and abandoning the recoverable pile")
+	_check(not fork.is_empty(), "Neighboring branches still make the recovery route consequential")
+	if not fork.is_empty():
+		state["current_room"] = fork.get("coord")
+		fork["visited"] = true
+		fork["cleared"] = true
+		Graph.refresh_knowledge(state)
+		_load(state)
+		instance.call("_open_large_map")
+		for link: Dictionary in fork.get("connections", []):
+			var choice: Vector2i = link.get("coord")
+			var description: String = panel.call("room_description", choice)
+			_check(description.split("\n").size() == 2 and not description.contains("Keeps:") and not description.contains("Leaves:") and not description.contains("Next:"), "Recovery route previews remain a compact room name and state")
+		await process_frame
+		await process_frame
+		panel.call("select_room", target)
+		await _capture("08_recovery_routes.png")
 	state["current_room"] = target
+	Graph.room(state, target)["visited"] = true
+	Graph.refresh_knowledge(state)
 	state["mode"] = "pre_battle"
 	state["pre_battle_travel_dir"] = Vector2i.RIGHT
 	state = engine.begin_pre_battle_combat(state)

@@ -506,7 +506,7 @@ from duplicating events. Existing JSONL storage and vector normalization apply.
 | --- | --- |
 | `section_entered` | Section index, boss id, remaining Scout uses |
 | `route_revealed` | Source (`proximity`), section index, newly identified rooms |
-| `map_scout_used` | Section, selected adjacent branch, revealed rooms, uses remaining |
+| `map_scout_used` | Section, `scope: room`, selected `target`, exactly one revealed room, newly `outlined_rooms`, uses remaining; `branch` retained as a legacy alias for the selected coordinate |
 | `route_choice_committed` | Section, origin, destination, known room ids, known room metadata (type, element, step, landmark), remaining Scout uses |
 | `map_event_resolved` | Room, choice (`embers` or `survey`), Embers granted, newly revealed rooms |
 
@@ -520,5 +520,8 @@ activation uses the same saved route-commit boundary as the former confirmation
 button, after its brief visual acknowledgement. Starting or cancelling that
 acknowledgement emits nothing, and repeated input cannot schedule duplicate
 commits. Hover/focus previews and entering or cancelling Scout targeting emit
-nothing; `map_scout_used` is emitted only after a valid branch reveal is saved.
+nothing; `map_scout_used` is emitted only after a valid unknown-room reveal is
+saved. The additive scope/target/outlined-room fields distinguish this behavior
+from older saved branch reveals; no historical events are rewritten. Revealing
+neighbor outlines does not grant their identities or record a route choice.
 Showing a physical exit on the board remains an inspection action.

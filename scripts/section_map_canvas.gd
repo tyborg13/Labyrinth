@@ -3,6 +3,7 @@ extends Control
 const Graph = preload("res://scripts/section_map_graph.gd")
 var state: Dictionary = {}
 var positions: Dictionary = {}
+var radii: Dictionary = {}
 var section_index: int = 0
 var selected: Vector2i = Graph.INVALID
 
@@ -28,8 +29,8 @@ func _draw() -> void:
 				var bypassed: bool = not traversed and (not future.has(source) or not future.has(target))
 				var chosen: bool = immediate and target == selected
 				var ahead: bool = planned.has(source) and planned.has(target)
-				var a: Vector2 = positions[source] + Vector2(_radius(node, source == current or immediate), 0)
-				var b: Vector2 = positions[target] - Vector2(_radius(destination, immediate), 0)
+				var a: Vector2 = positions[source] + Vector2(float(radii.get(source, _radius(node, source == current or immediate))), 0)
+				var b: Vector2 = positions[target] - Vector2(float(radii.get(target, _radius(destination, immediate))), 0)
 				var curve := Curve2D.new()
 				var reach: float = maxf(20, (b.x - a.x) * 0.52)
 				curve.add_point(a, Vector2.ZERO, Vector2(reach, 0))

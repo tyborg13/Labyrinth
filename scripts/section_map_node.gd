@@ -7,6 +7,7 @@ var route_state: String = "ahead"
 var reduced_motion: bool = false
 var pulse_phase: float = 0.0
 var actionable: bool = false
+var scout_target: bool = false
 var activation_progress: float = 0.0
 
 func configure(data: Dictionary, _caption: String, state: String, reduce_motion: bool = false) -> void:
@@ -25,7 +26,7 @@ func configure(data: Dictionary, _caption: String, state: String, reduce_motion:
 
 func refresh_state() -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if actionable else Control.CURSOR_HELP
-	set_process(route_state == "reachable" and actionable and not reduced_motion and activation_progress <= 0.0)
+	set_process((route_state == "reachable" or scout_target) and actionable and not reduced_motion and activation_progress <= 0.0)
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -35,13 +36,13 @@ func _process(delta: float) -> void:
 
 func visual_radius() -> float:
 	if str(room_data.get("type", "")) == "boss": return 88.0
-	if route_state == "reachable" and actionable: return 46.0
+	if (route_state == "reachable" or scout_target) and actionable: return 46.0
 	if route_state == "current": return 43.0
 	if route_state == "visited": return 33.0
 	return 29.0
 
 func pulse_scale() -> float:
-	return 1.0 if reduced_motion or activation_progress > 0.0 or route_state != "reachable" or not actionable else 1.0 + 0.055 * (0.5 + 0.5 * sin(pulse_phase))
+	return 1.0 if reduced_motion or activation_progress > 0.0 or (route_state != "reachable" and not scout_target) or not actionable else 1.0 + 0.055 * (0.5 + 0.5 * sin(pulse_phase))
 
 func set_activation_progress(progress: float) -> void:
 	activation_progress = progress
@@ -60,7 +61,7 @@ func _draw() -> void:
 	var center: Vector2 = size * 0.5
 	var known: bool = bool(room_data.get("revealed", false))
 	var current: bool = route_state == "current"
-	var available: bool = route_state == "reachable" and actionable
+	var available: bool = (route_state == "reachable" or scout_target) and actionable
 	var visited: bool = route_state == "visited"
 	var bypassed: bool = route_state == "bypassed"
 	var boss: bool = str(room_data.get("type", "")) == "boss"
@@ -81,33 +82,18 @@ func _draw() -> void:
 		var tint := Color(1.2, 1.08, 0.86) if available else (Color("d5b877") if current else Color("9b8c70"))
 		if bypassed: tint = Color("5b5961")
 		elif not current and not visited and not boss and not available: tint = Color("7a7880")
-		draw_texture_rect(MapSkin._texture("medallion"), Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2), false, tint)
 		var icon_id: String = "boss_" + str(room_data.get("boss_id", "tharokh")) if boss else str(room_data.get("type", "combat"))
-		var icon: Texture2D = MapSkin.icon_texture(icon_id)
-		if icon != null:
-			var inset_radius: float = radius * 0.735
-			var points := PackedVector2Array()
-			var uvs := PackedVector2Array()
-			for index: int in range(64):
-				var direction := Vector2.from_angle(TAU * float(index) / 64.0)
-				points.append(center + direction * inset_radius)
-				uvs.append(Vector2(0.5, 0.5) + direction * 0.5)
-			var icon_tint := Color.WHITE if available or current else Color("89868c")
-			if boss: icon_tint = Color("bbb1a8") if not available else Color.WHITE
-			if visited: icon_tint = Color("99948c")
-			if bypassed: icon_tint = Color("504e56")
-			draw_polygon(points, PackedColorArray([icon_tint]), uvs, icon)
-		if activation_progress > 0.0:
-			draw_circle(center, radius * 0.74, Color(1.0, 0.88, 0.63, 0.25 * sin(PI * activation_progress)))
-		# The opaque center of the full texture sits below the room art. Its rim
-		# is a separate mesh above it, so sword tips and packs cannot cover gold.
-		draw_mesh(MapSkin.medallion_rim_mesh(), MapSkin._texture("medallion"), Transform2D(Vector2(radius, 0), Vector2(0, radius), center), tint)
+		var icon_tint := Color.WHITE if available or current else Color("89868c")
+		if boss: icon_tint = Color("bbb1a8") if not available else Color.WHITE
+		if visited: icon_tint = Color("99948c")
+		if bypassed: icon_tint = Color("504e56")
+		MapSkin.draw_medallion(self, center, radius, MapSkin.icon_texture(icon_id), icon_tint, tint, 0.25 * sin(PI * activation_progress))
 	else:
 		draw_circle(center, radius - 3, Color(0.035, 0.032, 0.05, 0.75))
 		for index: int in range(10):
 			var angle: float = TAU * float(index) / 10.0
-			draw_arc(center, radius, angle, angle + 0.38, 8, Color("686471") if not bypassed else Color("45424d"), 1.5, true)
-		draw_string(get_theme_font("font"), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("9c94a4") if not bypassed else Color("625c6a"))
+			draw_arc(center, radius, angle, angle + 0.38, 8, Color("ffe4a2") if available else (Color("686471") if not bypassed else Color("45424d")), 1.5, true)
+		draw_string(get_theme_font("font"), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("fff0c0") if available else (Color("9c94a4") if not bypassed else Color("625c6a")))
 	if visited:
 		# A broad stamped seal reads at map scale; the emblem stays recognizable.
 		_draw_outline(center, radius, 4, Color("090c0c"), 8.0)

@@ -3508,8 +3508,8 @@ func _clear_recovery_marker_on_current_room(run_state: Dictionary) -> void:
 	rooms[key] = room
 	run_state["rooms"] = rooms
 
-func scout_map(run_state: Dictionary, branch: Vector2i) -> Dictionary:
-	return SectionMapGraph.scout(run_state, branch)
+func scout_map(run_state: Dictionary, target: Vector2i) -> Dictionary:
+	return SectionMapGraph.scout(run_state, target)
 
 func resolve_map_event(run_state: Dictionary, choice: String) -> Dictionary:
 	if str(run_state.get("mode", "")) != "event" or choice not in ["embers", "survey"]:

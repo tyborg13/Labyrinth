@@ -33,7 +33,7 @@ static func icon_id_for_room(room: Dictionary) -> String:
 		room_type = ICON_SCAVENGER
 	if room_type == ICON_BOSS:
 		return "boss_" + str(room.get("boss_id", "tharokh"))
-	if room_type == ICON_COMBAT:
+	if room_type == ICON_COMBAT and not room.has("section_index"):
 		var element_id: String = str(room.get("element", ElementData.NONE))
 		if ElementData.is_elemental(element_id):
 			return element_id

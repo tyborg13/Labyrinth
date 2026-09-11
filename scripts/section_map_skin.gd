@@ -169,3 +169,19 @@ static func medallion_edge(index: int) -> Vector2:
 static func medallion_rim_mesh() -> ArrayMesh:
 	_ensure_medallion_geometry()
 	return _medallion_rim
+
+# Shared room seals keep opaque art inside the same painted rim on the map,
+# in its legend, and above physical doors. All geometry stays native and editable.
+static func draw_medallion(canvas: CanvasItem, center: Vector2, radius: float, icon: Texture2D, icon_tint: Color = Color.WHITE, frame_tint: Color = Color.WHITE, glint_alpha: float = 0.0) -> void:
+	canvas.draw_texture_rect(_texture("medallion"), Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2), false, frame_tint)
+	if icon != null:
+		var points := PackedVector2Array()
+		var uvs := PackedVector2Array()
+		for index: int in range(64):
+			var direction := Vector2.from_angle(TAU * float(index) / 64.0)
+			points.append(center + direction * radius * 0.735)
+			uvs.append(Vector2.ONE * 0.5 + direction * 0.5)
+		canvas.draw_polygon(points, PackedColorArray([icon_tint]), uvs, icon)
+	if glint_alpha > 0.0:
+		canvas.draw_circle(center, radius * 0.74, Color(1.0, 0.88, 0.63, glint_alpha))
+	canvas.draw_mesh(medallion_rim_mesh(), _texture("medallion"), Transform2D(Vector2(radius, 0), Vector2(0, radius), center), frame_tint)

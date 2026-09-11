@@ -5,6 +5,7 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
 
 static func run(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
@@ -38,8 +39,9 @@ static func run(expect: Callable) -> void:
 						expect.call(int(target_node.get("map_step", -1)) == int(node.get("map_step", 0)) + 1, "Every route advances exactly one room, without shortcuts or loops")
 			expect.call(node_count >= 20 and node_count <= 26, "A full section including its entry fits 20–26 independent nodes")
 			expect.call(landmarks == 2, "Each section starts with exactly two landmarks")
+			_test_local_routes(state, index, node_count, expect)
 			var outcomes: Array[Vector2i] = _path_outcomes(state, info.get("entry", Vector2i.ZERO), index, 0, 0)
-			expect.call(outcomes.size() >= 8, "Each section has several consequential route combinations")
+			expect.call(outcomes.size() >= 6, "Each section has several consequential route combinations")
 			for outcome: Vector2i in outcomes:
 				expect.call(outcome.x == Graph.ROOM_COUNTS[index] and outcome.y == Graph.FIGHT_COUNTS[index], "Every route obeys the section visit and fight budget")
 			expect.call(str(Graph.room(state, info.get("boss", Vector2i.ZERO)).get("boss_id", "")) == Bosses.boss_id_for_depth(seed, (index + 1) * 4), "Boss-specific map identity follows the seeded order")
@@ -51,6 +53,43 @@ static func run(expect: Callable) -> void:
 	_test_reach_exit(engine, expect)
 	_test_generated_escape_transaction(engine, expect)
 	_test_recovery_mapping(engine, expect)
+
+static func _test_local_routes(state: Dictionary, index: int, node_count: int, expect: Callable) -> void:
+	var entry: Vector2i = Graph.section(state, index).get("entry")
+	var boss: Vector2i = Graph.section(state, index).get("boss")
+	var reachable: Dictionary = Graph.descendants(state, entry)
+	expect.call(reachable.size() == node_count, "Every generated room can be reached from its section entry")
+	var edges_by_step: Dictionary = {}
+	var diagonal_count: int = 0
+	for coord: Vector2i in reachable:
+		var node: Dictionary = Graph.room(state, coord)
+		if coord != boss:
+			expect.call(not (node.get("connections", []) as Array).is_empty(), "Every non-boss room has a continuation")
+		if coord != entry and coord != boss:
+			expect.call(_can_finish_without(state, entry, coord), "Only the final boss is an unavoidable convergence")
+		if str(node.get("type")) == "combat":
+			expect.call(RoomIcons.icon_id_for_room(node) == "combat", "Modern door icons use the same standard-combat identity as the map")
+		for link: Dictionary in node.get("connections", []):
+			var target: Vector2i = link.get("coord")
+			var destination: Dictionary = Graph.room(state, target)
+			if coord == entry or target == boss or int(destination.get("section_index", -1)) != index: continue
+			var edge := Vector2i(int(node.get("map_lane")), int(destination.get("map_lane")))
+			expect.call(absi(edge.x - edge.y) <= 1, "Routes never jump between the top and bottom lanes")
+			diagonal_count += 1 if edge.x != edge.y else 0
+			var step: int = int(node.get("map_step"))
+			for other: Vector2i in edges_by_step.get(step, []):
+				expect.call((edge.x - other.x) * (edge.y - other.y) >= 0, "Branches do not cross each other between room columns")
+			if not edges_by_step.has(step): edges_by_step[step] = []
+			edges_by_step[step].append(edge)
+	expect.call(diagonal_count >= 4, "Neighboring branches still split and rejoin instead of becoming straight tracks")
+
+static func _can_finish_without(state: Dictionary, coord: Vector2i, excluded: Vector2i) -> bool:
+	if coord == excluded: return false
+	var node: Dictionary = Graph.room(state, coord)
+	if str(node.get("type")) == "boss": return true
+	for link: Dictionary in node.get("connections", []):
+		if _can_finish_without(state, link.get("coord"), excluded): return true
+	return false
 
 static func _path_outcomes(state: Dictionary, coord: Vector2i, index: int, visits: int, fights: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -75,16 +114,54 @@ static func _test_knowledge(engine: RunEngineScript, expect: Callable) -> void:
 		var hops: int = distances[coord]
 		expect.call(bool(node.get("revealed", false)) == (hops <= 2 or landmark), "Identity knowledge stops at two transitions except landmarks")
 		expect.call(bool(node.get("map_outline", false)) == (hops <= 3 or landmark), "Third transition gives only an outline; farther topology stays hidden")
+	var options: Array[Vector2i] = Graph.scout_options(state)
+	expect.call(not options.is_empty(), "The visible unknown horizon offers Scout targets")
+	if options.is_empty(): return
+	var target: Vector2i = options[0]
 	var branch: Vector2i = engine.available_moves(state)[0]
-	var targets: Array[Vector2i] = Graph.scout_targets(state, branch)
-	expect.call(not targets.is_empty(), "A fresh branch offers useful Scout coverage")
 	var before_topology: Dictionary = _topology(state)
-	var after: Dictionary = engine.scout_map(state, branch)
+	var before_revision: int = int(state.get("map_event_revision", 0))
+	var after: Dictionary = engine.scout_map(state, target)
 	expect.call(int(Graph.section(after, 0).get("scouts", 0)) == 1, "Scout spends exactly one use")
-	for coord: Vector2i in targets: expect.call(bool(Graph.room(after, coord).get("revealed", false)), "Scout commits all previewed discoveries")
+	expect.call(after.get("current_room") == state.get("current_room"), "Scouting an unknown room cannot travel")
+	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+		var coord: Vector2i = node.get("coord")
+		expect.call(bool(Graph.room(after, coord).get("revealed", false)) == (coord == target or bool(node.get("revealed", false))), "Scout reveals exactly the chosen identity")
+	for link: Dictionary in Graph.room(state, target).get("connections", []):
+		expect.call(bool(Graph.room(after, link.get("coord")).get("map_outline", false)), "Scout exposes its outgoing rooms as outlines")
+	var event: Dictionary = (after.get("map_events", []) as Array).back()
+	var payload: Dictionary = event.get("payload", {})
+	expect.call(str(event.get("type")) == "map_scout_used" and str(payload.get("scope")) == "room" and payload.get("target") == target and payload.get("rooms", []) == [target], "Scout analytics name exactly the revealed room and distinguish room scope")
+	expect.call(int(after.get("map_event_revision", 0)) == before_revision + 1, "A Scout appends one event without recording travel")
 	expect.call(_topology(after) == before_topology, "Scouting never changes routes or room identities")
-	expect.call(engine.scout_map(after, branch) == after, "An empty repeated Scout is a no-op")
-	expect.call(engine.scout_map(after, Graph.section(after, 0).get("boss", Graph.INVALID)) == after, "A distant room cannot be used as a Scout origin")
+	expect.call(engine.scout_map(after, target) == after, "An already revealed Scout target is a no-op")
+	expect.call(engine.scout_map(after, branch) == after, "An existing travel choice is not an unknown-room Scout target")
+	expect.call(engine.scout_map(after, Graph.INVALID) == after, "Invalid Scout coordinates do not spend or emit")
+	var hidden: Vector2i = Graph.INVALID
+	for coord: Vector2i in distances:
+		if not bool(Graph.room(state, coord).get("map_outline", false)):
+			hidden = coord
+			break
+	expect.call(hidden != Graph.INVALID and engine.scout_map(state, hidden) == state, "Scouting cannot target undiscovered topology")
+	var bypassed: Dictionary = state.duplicate(true)
+	var opposite: Vector2i = engine.available_moves(state).back()
+	bypassed["current_room"] = opposite
+	Graph.refresh_knowledge(bypassed)
+	expect.call(engine.scout_map(bypassed, target) == bypassed, "Unknown rooms on an abandoned branch cannot spend Scout")
+	for mode: String in ["reward", "event", "campfire", "victory", "defeat"]:
+		var blocked: Dictionary = state.duplicate(true)
+		blocked["mode"] = mode
+		expect.call(engine.scout_map(blocked, target) == blocked, "Scout respects the current " + mode + " transaction")
+	for mode: String in ["room", "combat", "pre_battle"]:
+		var permitted: Dictionary = state.duplicate(true)
+		permitted["mode"] = mode
+		expect.call(int(Graph.section(engine.scout_map(permitted, target), 0).get("scouts")) == 1, "Scout remains available during " + mode)
+	var remaining: Array[Vector2i] = Graph.scout_options(after)
+	expect.call(not remaining.is_empty(), "A second Scout can choose another visible unknown room")
+	if not remaining.is_empty():
+		var exhausted: Dictionary = engine.scout_map(after, remaining[0])
+		expect.call(int(Graph.section(exhausted, 0).get("scouts")) == 0 and Graph.scout_options(exhausted).is_empty(), "Two room reveals exhaust the section budget")
+		expect.call(engine.scout_map(exhausted, target) == exhausted, "Exhausted Scout is a no-op")
 	var combat_mode: Dictionary = after.duplicate(true)
 	combat_mode["mode"] = "combat"
 	expect.call(engine.move_to_room(combat_mode, branch) == combat_mode, "The map cannot bypass a live combat")
@@ -119,13 +196,16 @@ static func _test_events(engine: RunEngineScript, expect: Callable) -> void:
 
 static func _test_persistence(engine: RunEngineScript, expect: Callable) -> void:
 	var state: Dictionary = engine.create_new_run(83, Progression.default_data())
-	state = engine.scout_map(state, engine.available_moves(state)[0])
+	state = engine.scout_map(state, Graph.scout_options(state)[0])
 	Progression.set_run_storage_path("user://section_map_suite.save")
 	expect.call(Progression.save_run_state(state), "Section graph and knowledge save in the production format")
 	var loaded: Dictionary = Progression.load_saved_run()
 	expect.call(loaded == state, "All section state survives serialization")
 	loaded = engine.repair_loaded_run_state(loaded)
 	expect.call(_topology(loaded) == _topology(state) and loaded.get("map_sections") == state.get("map_sections"), "Load repair preserves graph, boss order and Scout budget")
+	var older_layout: Dictionary = loaded.duplicate(true)
+	older_layout.erase("section_map_layout_revision")
+	expect.call(_topology(engine.repair_loaded_run_state(older_layout)) == _topology(older_layout), "Previously saved section routes keep their topology without a layout revision")
 	var legacy: Dictionary = engine.create_new_run(83, Progression.default_data(), false)
 	expect.call(not Graph.enabled(engine.repair_loaded_run_state(legacy)), "Existing ring-map saves remain on their original topology")
 	Progression.clear_saved_run()

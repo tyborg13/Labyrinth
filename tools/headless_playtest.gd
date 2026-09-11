@@ -201,13 +201,13 @@ func _handle_command(command: String) -> void:
 			else:
 				_command_move(int(parts[1]))
 		"scout":
-			var moves: Array[Vector2i] = _run_engine.available_moves(_run_state)
-			var index: int = int(parts[1]) - 1 if parts.size() > 1 else -1
-			if index >= 0 and index < moves.size():
-				_run_state = _run_engine.scout_map(_run_state, moves[index])
+			var options: Array[Vector2i] = SectionMapGraph.scout_options(_run_state)
+			var index: int = int(parts[1]) if parts.size() > 1 else -1
+			if index >= 0 and index < options.size():
+				_run_state = _run_engine.scout_map(_run_state, options[index])
+				_print_state()
 			else:
-				print("Use scout N with an adjacent route index from moves.")
-			_print_state()
+				_print_scout_options()
 		"event":
 			_run_state = _run_engine.resolve_map_event(_run_state, str(parts[1]) if parts.size() > 1 else "")
 			_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
@@ -342,6 +342,19 @@ func _print_section_map() -> void:
 		if int(room.get("section_index", -1)) != index or not bool(room.get("map_outline", false)): continue
 		var label: String = _room_label(room) if bool(room.get("revealed", false)) else "unknown"
 		print("  step %d | %s | %s%s%s" % [room.get("map_step", 0), _coord_text(room.get("coord", Vector2i.ZERO)), label, " | visited" if bool(room.get("visited", false)) else "", " | landmark" if bool(room.get("map_landmark", false)) else ""])
+
+	_print_scout_options()
+
+func _print_scout_options() -> void:
+	var options: Array[Vector2i] = SectionMapGraph.scout_options(_run_state)
+	if options.is_empty():
+		print("No unknown rooms available to Scout.")
+		return
+	print("Unknown rooms to Scout:")
+	for index: int in range(options.size()):
+		var node: Dictionary = SectionMapGraph.room(_run_state, options[index])
+		print("  %d: %s | step %d | unknown" % [index, _coord_text(options[index]), node.get("map_step", 0)])
+	print("Command: scout N")
 
 func _print_room_state() -> void:
 	var current: Vector2i = _run_state.get("current_room", Vector2i.ZERO)

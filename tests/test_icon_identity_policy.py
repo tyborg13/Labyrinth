@@ -62,11 +62,11 @@ EXPECTED_CARD_ROLE_EMBLEMS = {
 }
 
 
-def _action_icon_paths() -> dict[str, str]:
+def _action_icon_paths(field: str = "path") -> dict[str, str]:
     result: dict[str, str] = {}
     current_key = ""
     entry_pattern = re.compile(r'^\s*"([^"]+)"\s*:\s*\{')
-    path_pattern = re.compile(r'"path"\s*:\s*"%s/([^"]+)"\s*%\s*([A-Z_]+)')
+    path_pattern = re.compile(rf'"{field}"\s*:\s*"%s/([^"]+)"\s*%\s*([A-Z_]+)')
     for line in ACTION_ICON_LIBRARY.read_text(encoding="utf-8").splitlines():
         entry_match = entry_pattern.search(line)
         if entry_match:
@@ -145,6 +145,12 @@ class IconIdentityPolicyTests(unittest.TestCase):
             for key, path in registry.items()
             if not key.startswith("skill_")
         }
+
+        toolbar_variants = _action_icon_paths("toolbar_path")
+        self.assertEqual(set(toolbar_variants), {"map_rooms"})
+        for key, path in toolbar_variants.items():
+            self.assertIn(key, registry, "Toolbar art must belong to a registered identity")
+            concepts[f"toolbar:{key}"] = path
 
         room_source = (REPO_ROOT / "scripts/room_icon_library.gd").read_text(encoding="utf-8")
         room_icons = dict(re.findall(r'^\s*"([^\"]+)":\s*"(res://assets/art/icons/map/[^\"]+)"', room_source, re.MULTILINE))

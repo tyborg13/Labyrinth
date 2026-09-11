@@ -3875,7 +3875,7 @@ func _ensure_loadout_badge() -> void:
 	_refresh_loadout_badge()
 
 func _header_icon_texture(icon_kind: String) -> Texture2D:
-	if icon_kind == "map_rooms": return ActionIcons.icon_texture("map_rooms")
+	if icon_kind == "map_rooms": return ActionIcons.icon_texture("map_rooms", "toolbar")
 	if _header_icon_textures.has(icon_kind):
 		return _header_icon_textures[icon_kind]
 	var image := Image.create(HEADER_ICON_TEXTURE_SIZE, HEADER_ICON_TEXTURE_SIZE, false, Image.FORMAT_RGBA8)

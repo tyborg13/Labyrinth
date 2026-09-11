@@ -260,7 +260,8 @@ const KEYWORDS: Dictionary = {
 	"map_rooms": {
 		"label": "Map and Rooms",
 		"description": "Routes and room types across the labyrinth.",
-		"path": "%s/map_rooms.png" % ICON_ROOT
+		"path": "%s/map_rooms.png" % ICON_ROOT,
+		"toolbar_path": "%s/ui/map_toolbar.svg" % ICON_ROOT
 	},
 	"loadout": {
 		"label": "Character and Loadout",
@@ -490,8 +491,12 @@ static func card_role_emblem_path(card: Dictionary) -> String:
 static func icon_path(icon_key: String) -> String:
 	return str(_icon_definition(icon_key).get("path", ""))
 
-static func icon_texture(icon_key: String) -> Texture2D:
-	return AssetLoader.load_texture(icon_path(icon_key))
+static func icon_texture(icon_key: String, presentation: String = "default") -> Texture2D:
+	# Toolbar variants belong to the same audited identity as their detailed art.
+	var path: String = icon_path(icon_key)
+	if presentation == "toolbar":
+		path = str(_icon_definition(icon_key).get("toolbar_path", path))
+	return AssetLoader.load_texture(path)
 
 static func label(icon_key: String) -> String:
 	return str(_icon_definition(icon_key).get("label", icon_key.capitalize()))

@@ -18,9 +18,14 @@ not depend on section art, boss order or discovery state.
 | Full run | 66 | 40 |
 
 Every complete path obeys these budgets. Each section has 20–26 possible nodes
-including its entry threshold, three or four branch decisions, and no backward
-travel or room-skipping shortcuts. Branches preserve the fight budget while
-varying services, elemental fights and their order. A threshold is an interlude,
+including its entry threshold, three or four groups of routes, and no backward
+travel or room-skipping shortcuts. Between groups, routes split or merge only
+between neighboring lanes; no edge jumps from top to bottom and no two edges
+cross between columns. Every room remains reachable, each section has at least
+six complete route combinations, and the boss is the only unavoidable
+convergence. Outer branches persist while short middle branches allow gradual
+changes of route. Branches preserve the fight budget while varying services,
+encounter elements and their order. A threshold is an interlude,
 not an additional encounter counted in the 66 visits. Room coordinates remain
 stable depth-compatible identifiers for encounter generation and persistence;
 separate step and lane fields control the left-to-right presentation.
@@ -39,10 +44,16 @@ shows a broken outline with a question mark. Farther topology is hidden by a sep
 fog shader, except for two service landmarks and the boss. Discovery persists;
 committing to another branch does not erase already learned information.
 
-Each section owns two Scout uses. Scout starts at an adjacent branch, reveals
-new identities up to four transitions from the current room, and never changes
-topology or moves the player. Empty, invalid and exhausted requests do not spend
-a use. Reopening the map, loading a save or viewing history does not refill it.
+Each section owns two Scout uses. Activate Scout, then choose a visible unknown
+room that is still reachable on the current section's routes. That room's
+identity is revealed and its outgoing connections become visible, with unknown
+neighbors shown as outlines. Scout never identifies those neighbors, changes
+topology, or moves the player. Known rooms, undiscovered topology, abandoned
+branches, other sections, blocked encounter modes and exhausted requests do not
+spend a use or emit an event. Reopening the map, loading a save or viewing
+history does not refill it. A distant recovery marker can be scouted when its
+room is still reachable, without revealing its identity merely by showing the
+marker.
 
 The first event prototype is **The Lost Cartographer**: take 25 Embers, or reveal
 all reachable routes up to four transitions ahead. The event blocks travel until
@@ -57,7 +68,9 @@ reward sequence finish, it opens once for the next room choice. Closing it keeps
 it closed until another relevant room state. The map icon in the top-right
 utility row beside loadout, Grimoire and settings, the M shortcut and controller
 map action reopen it. The icon uses the existing ActionIconLibrary map_rooms
-identity, native header-button styling, and the Map [M] tooltip. The detached
+identity with a registered line-art toolbar presentation, native header-button
+styling, and the Map [M] tooltip. Its folded-map silhouette shares the neighboring
+Loadout, Grimoire and Menu controls' line weight, ink and transparent background. The detached
 map text button is removed; the turn rail anchors below the utility row. Closing
 a toolbar-opened map restores toolbar focus and controller navigation. A combat map can be inspected without bypassing
 the encounter. Reward, dialogue and animation locks keep their input priority.
@@ -70,9 +83,13 @@ travel. A brief highlight replaces scaling and the expanding outline at reduced
 motion, lasting 0.14 seconds. The existing dry forged-metal UI click sounds on
 all input paths; a pointer press is not sounded twice at release. There is no persistent room selection or
 second confirmation button. Hover or native focus exposes a shared tooltip
-with the room identity, physical north/east/south door, known next rooms, and
-landmarks kept or left behind. Already bypassed landmarks do not appear as a
-new consequence. Inspecting an unavailable room shows its reason without travel.
+with a room name and one short state line: Current room, Already visited, Not
+yet visited, No longer reachable or Undiscovered. Scout targets use Scout to
+reveal. Route connections communicate where branches go; previews do not list
+next rooms, door directions, or landmarks kept/left. Ordinary encounters are
+called Standard combat regardless of element; tougher or elite tiers are not
+advertised. The exact lost-Ember amount, when present, fits on the same state
+line. Inspecting an unavailable room never travels.
 The first activation owns the acknowledgement; rapid repeat activations cannot
 queue a second entry. Escape/Back cancels pending entry while keeping the map
 open. Closing, changing sections, changing run state or rebuilding geometry
@@ -80,15 +97,18 @@ discards pending activation so stale timers cannot commit later. Scout reveals
 and physical-exit previews use the same brief acknowledgement and guards.
 
 Scout is a separate, fixed action beside the legend: activate Scout, then choose
-an available branch to reveal it. Entering targeting mode spends nothing; only
-a valid branch activation spends a use, returns to normal travel, and keeps the
-player in the current room. Escape/controller Back first cancels targeting and
+an unknown room to reveal it. Only eligible unknown rooms gain the large bright
+availability treatment; known travel destinations cannot be entered in this
+mode. Native focus starts on an unknown target, and directional navigation
+visits the targets. Entering targeting mode spends nothing; only a valid room
+activation spends a use, returns to normal travel, and keeps the player in the
+current room. Keyboard/controller focus stays on the newly identified room. Escape/controller Back first cancels targeting and
 restores Scout-button focus. A second Back closes the map. Clicking Cancel Scout
 also cancels, and closing or changing sections discards targeting.
 
 In a Reach the Exit encounter, a room activation closes the map and highlights
-the matching board exit. The tooltip explains that the player must reach that
-actual door. Crossing it commits its exact destination through rewards, saving,
+the matching board exit. The live Show exit action prompt and board highlight
+identify the action. Crossing that physical door commits its exact destination through rewards, saving,
 reloading and automatic travel; it cannot reopen free route selection. Each
 outgoing branch has its own door, separate from the arrival. Ordinary combat
 allows inspection and scouting but does not allow map travel.
@@ -137,10 +157,14 @@ actual alpha edge and outward normals, so current, visited, available and hover
 outlines follow its contour with consistent spacing. It also caches a textured
 mesh from the inside brass lip to the texture edges. The full medallion draws
 below the interior art and this rim draws above it: no sword, pack or other room
-image can obscure the painted frame.
+image can obscure the painted frame. The shared drawing helper also renders
+48-pixel legend seals and the destination emblems above physical doors; opaque
+square artwork is clipped inside the rim before the frame is drawn on top.
+Modern combat doors use the same crossed-swords Standard combat identity as
+the map and legend. Legacy elemental door identities remain supported.
 
 Room nodes have no attached room names, door labels, status captions, or recovery
-amount text. The compact independent legend names the room symbols. Exact
+amount text. The larger, framed independent legend names the room symbols. Exact
 identities, room state and lost-Ember amounts appear on hover or keyboard/controller
 focus. Focus brackets remain distinct from availability and completion marks.
 The four depth captions are removed from the field; depth-compatible encounter
@@ -150,39 +174,49 @@ inspect mechanics: native focus exposes the same tooltip.
 Connections leave and enter medallions horizontally, then curve between lanes.
 Only immediate exits carry small direction cues aligned to the curve tangent.
 The inspected branch's possible continuation is subdued; completed travel stays
-visible without competing with immediate choices. Generation prompts are
+visible without competing with immediate choices. Only edges whose endpoints
+are already revealed or outlined are drawn, above the fog so learned
+connections remain legible. Fog recedes around a scouted room and its neighboring
+outlines while farther unknown topology stays absent. Generation prompts are
 retained beside this specification.
 
 Design statement: this is the map/room-choice surface. The player's question is
 which available room to enter; a single room activation advances that choice.
-Availability, current position and completion are persistent, while exact route
-consequences are optional hover/focus details. Pointer, keyboard and controller
+Availability, current position, completion and known connections are persistent;
+room names and short state lines are optional hover/focus details. Scout answers
+which unknown room to identify, with eligible targets shown directly on the map. Pointer, keyboard and controller
 share the same activation rules, with explicit Scout targeting/cancel and focus
 recovery. Native 1920×1080 at 100% scale proofs cover opening choices, history,
 boss hierarchy, normal/reduced motion, optional details, Scout cancel/commit,
 single-action travel by all three inputs, acknowledgement sound/motion and
 cancellation, utility-toolbar focus/activation/return and turn-rail clearance,
-event resolution, physical door inspection, recovery and all six backgrounds. The mostly full-screen map and
+event resolution, all six physical destination emblems, recovery and complete
+route geometry on all six backgrounds. The mostly full-screen map and
 its authored frames remain explicit user-requested exceptions to preferring
 shared small modal surfaces.
 
 ## Saves, recovery and analytics
 
 `section_map_version: 1`, `map_sections` and the stored `rooms` graph distinguish
-new runs. Legacy runs lacking the marker retain their original circular map and
-legacy generation/repair rules. No in-progress run is converted to a different
+new runs. New generation also records `section_map_layout_revision: 2` for the
+neighboring-lane layout. That marker does not trigger regeneration: previously
+saved section maps keep their exact stored connections. Legacy runs lacking the
+section-map marker retain their original circular map and generation/repair rules. No in-progress run is converted to a different
 route. New-run recovery maps lost Embers to an existing combat/boss near the old
 depth, keeping every generated service and connection intact. The selected
 recovery coordinate is saved and the matching encounter owns the Ember pile.
 The map exposes its recovery badge through fog without granting the unknown
-room identity; focus/hover details retain the exact amount. Route previews explicitly keep or leave those lost Embers;
-the badge survives resume and disappears after collection.
+room identity; focus/hover details retain the exact amount. The connections and
+recovery badge show the route to the pile; tooltips do not repeat those paths.
+The badge survives resume and disappears after collection.
 
 Map decisions and reveals enter a saved ordered outbox. The live game and
 headless console flush them to existing local append-only analytics after a
 successful save, using the same run-id/revision idempotency keys. See
 [analytics.md](analytics.md) for the additive events. The console supports
-`scout N` and `event embers|survey` in addition to ordinary room movement.
+`scout` lists visible unknown targets; `scout N` selects their zero-based index,
+independent of the travel list. `event embers|survey` remains available alongside
+ordinary room movement.
 
 ## Owning checks
 

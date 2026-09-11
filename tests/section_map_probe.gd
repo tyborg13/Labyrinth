@@ -5,7 +5,7 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const MapPanelScript = preload("res://scripts/section_map_panel.gd")
 const Settings = preload("res://scripts/settings_store.gd")
-const OUTPUT: String = "user://section_map_probe_v3"
+const OUTPUT: String = "user://section_map_probe_v4"
 var proof_viewport: SubViewport
 var panel: Control
 var failed: bool = false
@@ -37,6 +37,16 @@ func _initialize() -> void:
 	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())
 	panel.call("set_run_state", state)
 	await _capture("01_entry.png")
+	var legend: Control = panel.find_child("MapLegend", true, false)
+	_check(legend.get_child_count() == 7, "All seven room concepts retain their legend entries")
+	for item: Control in legend.get_children():
+		_check((item.get_child(0) as Control).size.x >= 48, "Legend emblems are enlarged and framed")
+	_check((legend.get_child(0).get_child(1) as Label).text == "Standard combat", "The combat legend uses the current encounter tier")
+	for coord: Vector2i in panel.get("node_buttons"):
+		var description: String = panel.call("room_description", coord)
+		_check(description.split("\n").size() == 2 and not description.contains("Keeps:") and not description.contains("Leaves:") and not description.contains("Next:") and not description.contains("door"), "Room previews contain only a name and short state")
+		if bool(Graph.room(state, coord).get("revealed", false)) and str(Graph.room(state, coord).get("type")) == "combat":
+			_check(description.begins_with("Standard combat\n"), "Ordinary combat names do not advertise elemental tiers")
 	# Fixture setup preserves the generated graph and advances only the visited
 	# route. Gameplay transitions and persistence are covered by the logic suite.
 	for step: int in range(3):
@@ -71,8 +81,14 @@ func _initialize() -> void:
 	panel.call("select_room", choice)
 	panel.call("focus_controller_on_current")
 	await _capture("03_focus.png")
-	state = Graph.scout(state, choice)
+	panel.call("_toggle_scout")
+	var unknown: Vector2i = Graph.scout_options(state)[0]
+	_check(bool(panel.call("can_activate_room", unknown)) and not bool(panel.call("can_activate_room", choice)), "Scout highlights unknown rooms rather than travel choices")
+	await _capture("03b_unknown_targeting.png")
+	panel.call("cancel_action")
+	state = Graph.scout(state, unknown)
 	panel.call("set_run_state", state)
+	panel.call("select_room", unknown)
 	await _capture("04_scouted.png")
 	Graph.section(state, 0)["scouts"] = 0
 	panel.call("set_run_state", state)
@@ -93,6 +109,12 @@ func _initialize() -> void:
 		state["current_room"] = info.get("entry", Vector2i.ZERO)
 		Graph.room(state, state["current_room"])["visited"] = true
 		Graph.refresh_knowledge(state)
+		# A fully surveyed layout makes every split/merge inspectable on each
+		# background. Normal fog and direct scouting are proved above/live.
+		for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+			if int(node.get("section_index", -1)) == index:
+				node["revealed"] = true
+				node["map_outline"] = true
 		panel.call("set_run_state", state)
 		await _capture("domain_%d.png" % index)
 	panel.call("select_section", 0)

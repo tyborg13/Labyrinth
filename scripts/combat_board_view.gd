@@ -62,6 +62,7 @@ const BoardSurfacePresentation = preload("res://scripts/board_surface_presentati
 const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const MapSkin = preload("res://scripts/section_map_skin.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
@@ -6823,12 +6824,8 @@ func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Tex
 	var visual_rect: Rect2 = _door_icon_visual_rect(door_texture, door_draw_rect)
 	var center: Vector2 = visual_rect.get_center()
 	var radius: float = visual_rect.size.x * 0.5
-	var icon_size: float = _door_icon_size()
 	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
-	draw_circle(center, radius, Color(0.07, 0.05, 0.04, 0.86 * tint.a))
-	draw_arc(center, radius, 0.0, TAU, 28, Color(accent.r, accent.g, accent.b, 0.88 * tint.a), 2.0, true)
-	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
-	draw_texture_rect(icon_texture, icon_rect, false, tint)
+	MapSkin.draw_medallion(self, center, radius, icon_texture, tint, Color(accent.r, accent.g, accent.b, tint.a))
 
 func _door_icon_size() -> float:
 	return clampf(_tile_width() * DOOR_ICON_SIZE_SCALE, DOOR_ICON_MIN_SIZE, DOOR_ICON_MAX_SIZE)

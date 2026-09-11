@@ -5,7 +5,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
-var output_dir: String = "user://section_map_flow_v3"
+var output_dir: String = "user://section_map_flow_v4"
 var viewport: SubViewport
 var instance: Node
 var failed: bool = false
@@ -42,7 +42,7 @@ func _initialize() -> void:
 		_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord and _route_choices(instance.get("_run_state")) == _route_choices(state), "Activating " + route_state + " only inspects; no travel or route event")
 	await _pointer_hover(target_button.get_global_rect().get_center())
 	_check(panel.get("selected_coord") == selected and (instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Hover previews the branch without requiring a selection or moving the player")
-	_check(str(panel.get("_preview_text")).contains("door"), "Optional tooltip retains the physical door identity")
+	_check(str(panel.get("_preview_text")).split("\n").size() == 2 and not str(panel.get("_preview_text")).contains("door"), "Optional tooltip contains only the room identity and state")
 	await _capture("01b_pointer_preview.png")
 	panel.call("focus_controller_on_current")
 	await _capture("02_keyboard_focus.png")
@@ -50,7 +50,7 @@ func _initialize() -> void:
 	var scout_button: Button = panel.get("_scout")
 	scout_button.grab_focus()
 	await _key(KEY_ENTER)
-	_check(bool(panel.get("scout_targeting")) and int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2, "Scout activation starts branch targeting without spending a use")
+	_check(bool(panel.get("scout_targeting")) and int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2, "Scout activation targets an unknown room without spending a use")
 	_check(_prompt_labels().has("Scout") and _prompt_labels().has("Cancel Scout"), "Controller cues distinguish Scout targeting from travel and closing")
 	await _capture("02b_scout_targeting.png")
 	await _key(KEY_ESCAPE)
@@ -60,7 +60,7 @@ func _initialize() -> void:
 	await _key(KEY_ENTER)
 	await _key(KEY_ENTER)
 	await _wait_acknowledgement()
-	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 1 and not bool(panel.get("scout_targeting")), "Confirming a branch spends one Scout use and exits targeting")
+	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 1 and not bool(panel.get("scout_targeting")), "Confirming an unknown room spends one Scout use and exits targeting")
 	_check((instance.get("_run_state") as Dictionary).get("current_room") == before_coord, "Scouting cannot move the player")
 	await _capture("03_scout_result.png")
 	await _key(KEY_ESCAPE)
@@ -79,7 +79,7 @@ func _initialize() -> void:
 	await _joy(JOY_BUTTON_DPAD_RIGHT)
 	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner() != old_focus, "Controller direction moves native focus between map controls")
 	await _capture("04b_controller_navigation.png")
-	# Use a fresh horizon: the first Scout may have revealed every nearby branch.
+	# Use a fresh horizon: each Scout has its own unknown-room selection.
 	_load(state.duplicate(true))
 	await process_frame
 	await process_frame
@@ -90,6 +90,7 @@ func _initialize() -> void:
 	_check(scrim.visible and not bool(panel.get("scout_targeting")), "Controller Back cancels Scout before closing the map")
 	await _joy(JOY_BUTTON_B)
 	_check(not scrim.visible, "Controller cancel closes the map outside Scout targeting")
+	await _exercise_scout_inputs(state)
 	await _exercise_cancelled_entries(state, selected)
 	# Actual pointer, keyboard, and controller activation each commit travel once.
 	for input_kind: String in ["pointer", "keyboard", "controller"]:
@@ -196,10 +197,120 @@ func _initialize() -> void:
 	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner().get_parent() == panel.get("_nodes"), "Controller event resolution restores room focus")
 	_check(_prompt_labels().has("Enter"), "The room confirm cue explicitly means direct entry")
 	await _capture("08c_event_focus_restored.png")
+	await _exercise_door_emblems()
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(output_dir))
 	quit(1 if failed else 0)
+
+func _known_room_count(state: Dictionary) -> int:
+	var count: int = 0
+	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+		count += 1 if bool(node.get("revealed", false)) else 0
+	return count
+
+func _exercise_scout_inputs(state: Dictionary) -> void:
+	var panel: Control = instance.get("_large_map_view")
+	var router: Node = root.get_node("InputRouter")
+	for input_kind: String in ["pointer", "keyboard", "controller"]:
+		_set_reduced_motion(input_kind == "keyboard")
+		router.call("set_forced_state_for_test", "controller" if input_kind == "controller" else "pointer", "xbox")
+		_load(state.duplicate(true))
+		await process_frame
+		await process_frame
+		instance.call("_open_large_map")
+		await process_frame
+		await process_frame
+		var scout: Button = panel.get("_scout")
+		if input_kind == "pointer": await _pointer_click(scout.get_global_rect().get_center())
+		else:
+			scout.grab_focus()
+			if input_kind == "keyboard": await _key(KEY_ENTER)
+			else: await _joy(JOY_BUTTON_A)
+		var options: Array[Vector2i] = Graph.scout_options(instance.get("_run_state"))
+		_check(not options.is_empty() and bool(panel.get("scout_targeting")), input_kind + " enters unknown-room Scout targeting")
+		if options.is_empty(): continue
+		var target: Vector2i = options.back()
+		var target_button: Control = (panel.get("node_buttons") as Dictionary)[target]
+		var known_before: int = _known_room_count(instance.get("_run_state"))
+		var revision_before: int = int((instance.get("_run_state") as Dictionary).get("map_event_revision", 0))
+		var origin: Vector2i = (instance.get("_run_state") as Dictionary).get("current_room")
+		for known: Vector2i in panel.call("available_destinations"):
+			_check(not bool(panel.call("can_activate_room", known)), "Known travel choices cannot be activated while scouting")
+		if input_kind == "pointer": await _pointer_click(target_button.get_global_rect().get_center())
+		else:
+			target_button.grab_focus()
+			if input_kind == "keyboard": await _key(KEY_ENTER)
+			else: await _joy(JOY_BUTTON_A)
+		_check(panel.get("activation_coord") == target and int((instance.get("_run_state") as Dictionary).get("map_event_revision", 0)) == revision_before, "Scout acknowledgement precedes its saved reveal")
+		_check(_prompt_labels().has("Scouting") and _prompt_labels().has("Cancel"), "Scout acknowledgement has accurate input cues")
+		await _capture("02c_scout_" + input_kind + "_target.png")
+		await _wait_acknowledgement()
+		var after: Dictionary = instance.get("_run_state")
+		_check(after.get("current_room") == origin and _known_room_count(after) == known_before + 1 and bool(Graph.room(after, target).get("revealed", false)), input_kind + " reveals exactly the chosen unknown room without travel")
+		_check(int(Graph.section(after, 0).get("scouts", 0)) == 1 and int(after.get("map_event_revision", 0)) == revision_before + 1, input_kind + " spends and records exactly one Scout")
+		for link: Dictionary in Graph.room(after, target).get("connections", []):
+			_check((panel.get("node_buttons") as Dictionary).has(link.get("coord")), "Scouted room exposes its connecting room outlines")
+		_check(not bool(panel.get("scout_targeting")), "Scout returns to normal room input after revealing")
+		if input_kind != "pointer":
+			_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[target], "Scout reveal preserves focus on the revealed room")
+		await _capture("03b_scout_" + input_kind + "_result.png")
+	# Cancelling an acknowledged Scout also discards the delayed reveal.
+	_load(state.duplicate(true))
+	await process_frame
+	await process_frame
+	instance.call("_open_large_map")
+	await process_frame
+	await process_frame
+	(panel.get("_scout") as Button).grab_focus()
+	await _key(KEY_ENTER)
+	await _key(KEY_ENTER)
+	await _key(KEY_ESCAPE)
+	await _wait_acknowledgement()
+	_check(int(Graph.section(instance.get("_run_state"), 0).get("scouts", 0)) == 2 and _known_room_count(instance.get("_run_state")) == _known_room_count(state), "Cancelling pending Scout prevents a delayed reveal or spend")
+	await _key(KEY_ESCAPE)
+	_check(not bool(panel.get("scout_targeting")) and viewport.gui_get_focus_owner() == panel.get("_scout"), "Leaving Scout restores its button focus")
+
+func _exercise_door_emblems() -> void:
+	var engine := RunEngineScript.new()
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
+	for type: String in ["combat", "campfire", "scavenger", "treasure", "event", "boss"]:
+		var state: Dictionary = {}
+		var source: Vector2i = Graph.INVALID
+		var target: Vector2i = Graph.INVALID
+		# A single exit stays fully visible, giving each emblem readable proof
+		# without disabling the board's normal actor-occlusion behavior.
+		for seed: int in range(81, 97):
+			state = engine.create_new_run(seed, Progression.default_data())
+			for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+				if int(node.get("section_index", -1)) != 0: continue
+				var links: Array = node.get("connections", [])
+				if links.size() != 1: continue
+				var coord: Vector2i = links[0].get("coord")
+				if str(Graph.room(state, coord).get("type")) == type:
+					source = node.get("coord")
+					target = coord
+					break
+			if source != Graph.INVALID: break
+		_check(source != Graph.INVALID, "Door fixture locates " + type + " in the generated graph")
+		if source == Graph.INVALID: continue
+		state["current_room"] = source
+		state["mode"] = "room"
+		Graph.room(state, source)["visited"] = true
+		Graph.room(state, source)["cleared"] = true
+		Graph.refresh_knowledge(state)
+		state["current_room_layout"] = engine.call("_display_layout_for_room", int(state.get("seed")), Graph.room(state, source), Vector2i.ZERO)
+		_load(state)
+		await process_frame
+		await process_frame
+		instance.call("_close_large_map")
+		instance.call("_refresh_ui")
+		await process_frame
+		await process_frame
+		_check(not (instance.get("_large_map_scrim") as Control).visible, "Door proof displays the board after its automatic map is closed")
+		var expected: String = "boss_" + str(Graph.room(state, target).get("boss_id")) if type == "boss" else type
+		_check((instance.call("_exit_icon_ids_for_board") as Dictionary).values().has(expected), "Physical doors use the registered " + type + " emblem")
+		await _capture("09_door_" + type + ".png")
 
 func _load(state: Dictionary) -> void:
 	instance.call("_close_large_map")
