@@ -3,7 +3,7 @@ extends RefCounted
 ## Shale Bloomer: a mineral trunk pulls itself over three spreading root contacts.
 ## Crown petals articulate only during attacks; idle never rotates painted plates.
 const STANCE: float = 0.70
-const STRIDE: float = 40.0
+const STRIDE: float = 84.0
 const MARK_PREPARE_SECONDS: float = 0.28
 const MARK_EFFECT_SECONDS: float = 0.704
 const MARK_DURATION: float = MARK_PREPARE_SECONDS + MARK_EFFECT_SECONDS

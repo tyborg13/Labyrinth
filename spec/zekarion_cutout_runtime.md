@@ -1,5 +1,7 @@
 # Zekarion cutout in gameplay
 
+Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
+
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
 ## Design and scope

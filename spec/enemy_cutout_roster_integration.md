@@ -1,5 +1,7 @@
 # Enemy cutout roster integration
 
+Current travel and centering behavior is specified in [Actor presentation](actor_presentation.md).
+
 All 17 user-inspected enemy cutouts are integrated together. Their production art, rigs, motion code, attack routing and editable authoring cases match the tested combined implementation. Shared renderer lookup, motion registration, attack timing, projectile origins and padded death textures retain every actor. Legacy idle-sheet assertions now check the new cutout registration and the existing 2×2 dragon footprint.
 
 ## Evidence archive and compact history

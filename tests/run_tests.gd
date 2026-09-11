@@ -133,6 +133,7 @@ func _initialize() -> void:
 	TerrainConnectivityEquivalenceSuite.run(Callable(self, "_assert"))
 	MapUiSuite.run(Callable(self, "_assert"))
 	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/actor_presentation_suite.gd").run(Callable(self, "_assert"))
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
 	UmbraActionAnimationSuite.run(Callable(self, "_assert"))
@@ -5192,8 +5193,8 @@ func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var tile_width: float = board.call("_tile_width")
 	var top_inner_tile: Vector2 = board.call("_tile_center", Vector2i(1, 1))
 	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
-	_assert(tile_width > 176.0, "Combat board should use the enlarged default combat zoom on large stage space")
-	_assert(top_inner_tile.y < 220.0, "Combat board layout should use hidden-wall-free bounds and sit higher in the stage")
+	_assert(tile_width > 120.0 and tile_width < 176.0, "Combat board should maximize the fitted actor-and-HUD envelope without enlarging past its clearance")
+	_assert(top_inner_tile.y > 150.0 and top_inner_tile.y < 330.0, "Combat board should reserve headroom before an actor reaches the top row")
 	_assert(bottom_inner_tile.y < board.size.y - 24.0, "Combat board's playable lower-row centers should remain inside the stage while the hand intentionally overlays its lower edge")
 	board.free()
 
@@ -5477,7 +5478,7 @@ func _test_combat_board_default_framing_contains_tallest_top_corner_occupant() -
 	var door_frame: Rect2 = board.call("_door_rect_for_tile", Vector2i(1, 1), state.get("grid", []))
 	_assert(not boss_unit.is_empty(), "Tallest-occupant framing proof should build the top-corner Zekarion unit")
 	_assert(boss_rect.size.y > door_frame.size.y, "Zekarion should remain the taller framing case than the tallest structural prop frame")
-	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > 0.0, "Tall top-corner art should activate content-aware default framing")
+	_assert(is_zero_approx(float(board.get("_board_layout_cache_visual_top_offset"))), "Tall top-corner art must fit without a reactive framing correction")
 	_assert(boss_rect.position.y >= safe_top - 0.01, "The tallest shipped top-corner character should remain fully inside the screen-safe top edge")
 	board.free()
 
@@ -5519,7 +5520,7 @@ func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cach
 			break
 	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
 	var refreshed_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	_assert(refreshed_offset > initial_offset, "A tallest occupant introduced after the room cache exists should refresh adaptive top framing")
+	_assert(is_equal_approx(refreshed_offset, initial_offset), "A tallest occupant must not reframe a room after its initial fit")
 	_assert(boss_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room tall-occupant transition should keep the new full sprite onscreen")
 	var settled_state: Dictionary = next_state.duplicate(true)
 	settled_state["enemies"] = [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}]
@@ -5547,12 +5548,12 @@ func _test_combat_board_refreshes_top_framing_when_scene_prop_appears_in_cached_
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, initial_presentation)
 	board.call("_board_origin")
 	var initial_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	var prop := {"kind": "campfire_bonfire", "tile": Vector2i(1, 1), "width_scale": 2.4}
+	var prop := {"kind": "campfire_bonfire", "tile": Vector2i(1, 1)}
 	var next_presentation := {"board_framing_mode": "combat", "scene_props": [prop]}
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, next_presentation)
 	var prop_texture: Texture2D = board.call("_texture_for_scene_prop", prop)
 	var prop_rect: Rect2 = board.call("_scene_prop_rect", prop_texture, prop)
-	_assert(float(board.get("_board_layout_cache_visual_top_offset")) > initial_offset, "A tall scene prop introduced after the room cache exists should refresh adaptive top framing")
+	_assert(is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), initial_offset), "A same-room prop reveal must not shift the fixed framing")
 	_assert(prop_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room scene-prop transition should keep the new full prop onscreen")
 	board.free()
 
@@ -5609,8 +5610,8 @@ func _test_enemy_art_scale_preserves_center() -> void:
 	var crawler_scale: float = float(GameData.enemy_def("crawler").get("art_scale", 1.0))
 	_assert(is_equal_approx(scaled_rect.size.x, fitted_rect.size.x * crawler_scale), "Crawler art scale should shrink the fitted sprite width")
 	_assert(is_equal_approx(scaled_rect.size.y, fitted_rect.size.y * crawler_scale), "Crawler art scale should shrink the fitted sprite height")
-	_assert(is_equal_approx(scaled_rect.get_center().x, fitted_rect.get_center().x), "Crawler art scaling should keep the sprite centered horizontally")
-	_assert(is_equal_approx(scaled_rect.end.y, fitted_rect.end.y), "Crawler art scaling should keep the sprite feet anchored to the same bottom edge")
+	_assert(is_equal_approx(scaled_rect.position.x + scaled_rect.size.x * 120.0 / 255.0, center.x), "Crawler art scaling should keep its authored ground contacts centered horizontally")
+	_assert(is_equal_approx(scaled_rect.position.y + scaled_rect.size.y * 187.5 / 255.0, center.y), "Crawler art scaling should anchor the support plane to its tile")
 	board.free()
 
 func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
@@ -5625,9 +5626,9 @@ func _test_enemy_art_offset_shifts_sprite_vertically() -> void:
 	var scaled_rect: Rect2 = board.call("_scaled_unit_rect", fitted_rect, board.call("_unit_art_scale", acolyte_unit))
 	var draw_rect: Rect2 = board.call("_unit_draw_rect_for_center", acolyte_unit, center)
 	var art_offset: Vector2 = board.call("_unit_art_offset", acolyte_unit)
-	_assert(is_equal_approx(draw_rect.position.x, scaled_rect.position.x + art_offset.x), "Enemy art offset should shift the sprite horizontally after fitting")
-	_assert(is_equal_approx(draw_rect.position.y, scaled_rect.position.y + art_offset.y), "Enemy art offset should shift the sprite vertically after fitting")
-	_assert(is_equal_approx(draw_rect.end.y, scaled_rect.end.y + art_offset.y), "Enemy art offset should move the sprite feet by the configured amount")
+	_assert(is_equal_approx(draw_rect.position.x + draw_rect.size.x * 142.5 / 255.0, center.x), "Cutout registration replaces the old whole-sprite horizontal offset")
+	_assert(is_equal_approx(draw_rect.position.y + draw_rect.size.y * 233.0 / 255.0, center.y), "Cutout ground contacts replace the old vertical art offset")
+	_assert(draw_rect.size.is_equal_approx(scaled_rect.size), "Replacing the art offset must preserve the established body scale")
 	board.free()
 
 func _test_turn_order_portraits_cover_enemy_roster() -> void:

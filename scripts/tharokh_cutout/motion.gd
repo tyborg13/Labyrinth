@@ -3,7 +3,7 @@ extends RefCounted
 ## Tharokh: four planted claw contacts, a rock-heavy crawl, a foreclaw rake,
 ## a four-foot brace and an earth-release stamp. All coordinates are source pixels.
 const STANCE: float = 0.76
-const STRIDE: float = 36.0
+const STRIDE: float = 60.0
 const LEGS = ["fore_near", "fore_far", "hind_near", "hind_far"]
 const FOOT_PHASES: Dictionary = {"fore_near": 0.0, "hind_far": 0.25, "fore_far": 0.5, "hind_near": 0.75}
 

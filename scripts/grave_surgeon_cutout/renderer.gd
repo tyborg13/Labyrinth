@@ -9,7 +9,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # Measured steps for a lean robed body at its existing 0.98 art scale.
-const WALK_CYCLE_SECONDS: float = 0.68
+const WALK_CYCLE_SECONDS: float = 0.45
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.8
 const ATTACK_FRAMES: int = 42

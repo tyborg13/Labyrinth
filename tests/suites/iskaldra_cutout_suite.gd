@@ -132,7 +132,7 @@ static func _verify_walk_boundaries(board: Control, renderer: Node, expect: Call
 	for segment_distance: float in [source_step,source_step*2.0,source_step*1.37]:
 		var cycles: int = Cutout.walk_segment_cycles(segment_distance)
 		var travel: float = segment_distance / float(cycles)
-		expect.call(Cutout.walk_segment_frames(segment_distance) == cycles*48,"Finite movement uses whole grounded cycles, including nonstandard path lengths")
+		expect.call(absi(Cutout.walk_segment_frames(segment_distance) - roundi(segment_distance / Cutout.walk_cycle_distance() * Cutout.WALK_CYCLE_SECONDS / Cutout.WALK_FRAME_SECONDS)) <= 1,"Travel time stays proportional to distance while stride fits complete support cycles")
 		for facing: String in ["front","rear"]:
 			var rig: Node2D = renderer.get("rigs")[facing]
 			var layout: Dictionary = rig.layout

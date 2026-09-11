@@ -1,5 +1,7 @@
 # Vyraketh production cutout
 
+Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
+
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
 Vyraketh uses an editable dragon cutout for its board body. The accepted front design, portrait, 2×2 footprint, boss health bar, body scale 1.76, vertical art offset 14, 60 HP, 13 initiative and 80-ember reward remain unchanged. Resolver data, targeting, pathing, cinder marks/detonation, terrain interactions, minions, damage and analytics are unchanged. The presentation alone supplies the new anatomy and action cues.

@@ -4,7 +4,7 @@ extends RefCounted
 ## facial crust belong to one rigid core; the flexible flesh bears the motion.
 const TENDRILS: PackedStringArray = ["left_outer", "left_inner", "center", "right_inner", "right_outer"]
 const STANCE: float = 0.68
-const STRIDE: float = 48.0
+const STRIDE: float = 96.0
 const IDLE_BOB: float = 1.2
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

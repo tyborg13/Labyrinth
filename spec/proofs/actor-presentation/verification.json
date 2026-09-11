@@ -1,0 +1,1157 @@
+{
+  "base_commit": "d0f8ba228568b72bb0ae7c4131ba99a5fea36fbc",
+  "archive": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11",
+  "viewport": [
+    1920,
+    1080
+  ],
+  "ui_scale": 1.0,
+  "renderer": "macOS Metal",
+  "cases": [
+    {
+      "actor": "acolyte",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/acolyte/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/acolyte/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/acolyte",
+      "render_manifest_sha256": "fadd1c6c2566a95669f3961f6a55a394c7478bf96b9775666a8348b47c218f9b",
+      "capture_input_sha256": "5530226afd5aa989f8e773a23ebf229b2deeec9f81481e98dbab7494d48fc8ee",
+      "output_index_sha256": "df77a02ee32dac089a42fc5c7d61a8d587149c3e60e273aa72a38f6f4b3a0839",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0133333333333333
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0133333333333333
+        }
+      ],
+      "max_support_drift_px": 4.82525283587165e-05,
+      "max_rigid_basis_error": 0.0,
+      "max_target_error_px": 2.15791860682657e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "bile_bloomer",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/bile_bloomer/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/bile_bloomer/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/bile_bloomer",
+      "render_manifest_sha256": "2644faf9de84a7ceac711e4e3dad2bde32985046a3811c9de619fdd438a54f45",
+      "capture_input_sha256": "e394401ceb7998e657d679d86def509ac573e8893ecc97ca04bf21eb3d6cc03e",
+      "output_index_sha256": "1920ddbc964e8e88075eaae3e2906169f37ec68e75b59f32b64a94d5ec0ae0e9",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0130555555555556
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0130555555555556
+        }
+      ],
+      "max_support_drift_px": 4.59350376331713e-05,
+      "max_rigid_basis_error": 0.0,
+      "max_target_error_px": 3.41196900990326e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "cinder_droplet",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/cinder_droplet/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/cinder_droplet/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/cinder_droplet",
+      "render_manifest_sha256": "cf62e1755f7559b4e09caaf4518445fb1557f386050224b5cac6fc340b1d8659",
+      "capture_input_sha256": "d1f8e6dc8788906e52919e94af6d27abe4ae22bb323231c29c4be60bc9d13ae6",
+      "output_index_sha256": "16ecc9cf4e8e2d63aaee8596d253a16ac01f23e40d4ae9819c3926b8f0a21f8b",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0075
+        },
+        {
+          "name": "retreat",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0075
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0075
+        },
+        {
+          "name": "retreat",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0075
+        }
+      ],
+      "max_support_drift_px": 7.78048633947037e-05,
+      "max_rigid_basis_error": 9.01520252227783e-07,
+      "max_target_error_px": 6.47375563858077e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "cinder_ooze",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/cinder_ooze/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/cinder_ooze/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/cinder_ooze",
+      "render_manifest_sha256": "261ab591e8a65199c9da686d6248e50934c32601c53a629c3a806ece4054935e",
+      "capture_input_sha256": "4a244836675eb327cf3e2979039f0a3f53c96fb89df8053fa0e8db802bb9f48a",
+      "output_index_sha256": "e76717894b7ddb747334428f66962949eceaecc60e32a898dc991cd9970a413c",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0102777777777778
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0102777777777778
+        }
+      ],
+      "max_support_drift_px": 6.29135975032113e-05,
+      "max_rigid_basis_error": 0.0,
+      "max_target_error_px": 2.15791860682657e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "crawler",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/crawler/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/crawler/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/crawler",
+      "render_manifest_sha256": "91d9f5d958cc31d9ea6970aa1338bfc212f291c58c91036979191d33e80d24a3",
+      "capture_input_sha256": "78b515caba5681473499e4e85de1e2e7afa5d1bd53539bdf7209a7f5fc18f892",
+      "output_index_sha256": "b240dadc74bfc7d76260149a7173c6e01d1119c568d6659174e2341be03c7eee",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0075
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0075
+        }
+      ],
+      "max_support_drift_px": 9.18700752663426e-05,
+      "max_rigid_basis_error": 4.4703483581543e-07,
+      "max_target_error_px": 6.29135975032113e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "frostglass_lancer",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/frostglass_lancer/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/frostglass_lancer/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/frostglass_lancer",
+      "render_manifest_sha256": "cf44d2d9a543b1c9f429296aecf98cc666eb72993ceeada8e0dd5626e3fffc18",
+      "capture_input_sha256": "651abe886eab830a52955ca6c873e4cc173cbe78ba661124351a6c03f7dc0150",
+      "output_index_sha256": "439901b8ca742ad2f938b5fc5c4e1efe1256f171ef3b0695ee5822aeb076e7a4",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0111111111111111
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0111111111111111
+        }
+      ],
+      "max_support_drift_px": 7.62939453125e-05,
+      "max_rigid_basis_error": 4.17232513427734e-07,
+      "max_target_error_px": 6.82393801980652e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "grave_surgeon",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/grave_surgeon/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/grave_surgeon/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/grave_surgeon",
+      "render_manifest_sha256": "ddd2d59a45922f8987e982803942135dcbf62acf17f2c7b3f8d37565fbc4dfa0",
+      "capture_input_sha256": "255db6801d50920e9011da55ba85e435a69706187ed837172ff506f7b6a89e2d",
+      "output_index_sha256": "4fac560835456c58265516b56f5bdc3f6835c61fd78e48c0ec25d0e7e7017fe5",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0125
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0125
+        }
+      ],
+      "max_support_drift_px": 9.77039235294797e-05,
+      "max_rigid_basis_error": 3.57627868652344e-07,
+      "max_target_error_px": 8.63167442730628e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "harrier",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/harrier/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/harrier/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/harrier",
+      "render_manifest_sha256": "65259e6f12511402ee3df7a24bdb17d1505c8978c6212f20f3ede981daa64592",
+      "capture_input_sha256": "d26ab72024385ba6022b4d63cbe97ebb49e118e11b6cacbec50e74b3febfdfcc",
+      "output_index_sha256": "39000ba94bfc30571c7c3a3e11fe81f80a76d82642c31820cfc937293ed668f9",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0105555555555556
+        },
+        {
+          "name": "retreat",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0105555555555556
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0105555555555556
+        },
+        {
+          "name": "retreat",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0105555555555556
+        }
+      ],
+      "max_support_drift_px": 7.19755626050755e-05,
+      "max_rigid_basis_error": 4.17232513427734e-07,
+      "max_target_error_px": 4.88519617647398e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "iskaldra",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/iskaldra/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/iskaldra/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/iskaldra",
+      "render_manifest_sha256": "d7f6bb8d6e313b7b23a3cd56bf2d67ebef4c54b5749204616e0c227175cd60de",
+      "capture_input_sha256": "49384f4b371db451e61a503556b4c831f5e9493febdc71a61d047b0485c3552a",
+      "output_index_sha256": "14c5e139efdaa05c182049cfb1604623b755d55cc57a3f597746e7d8af52b64d",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0166666666666667
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0166666666666667
+        }
+      ],
+      "max_support_drift_px": 7.71474806242622e-05,
+      "max_rigid_basis_error": 3.57627925495763e-07,
+      "max_target_error_px": 7.66744633438066e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "noctyrax",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/noctyrax/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/noctyrax/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/noctyrax",
+      "render_manifest_sha256": "71e5f5922485b239e70761c729b17eafeecbcb03a46f2b45998210207f7d407c",
+      "capture_input_sha256": "a5a1a2398699ca849aeb8746fea209bf251311190483508aece5f416a296a51d",
+      "output_index_sha256": "308924fe92b80f77c02e5421625a54da21c00060198f56cf576be936f4236a80",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0188888888888889
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0188888888888889
+        }
+      ],
+      "max_support_drift_px": 9.5367431640625e-05,
+      "max_rigid_basis_error": 4.99188899993896e-07,
+      "max_target_error_px": 6.29135975032113e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "tharokh",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/tharokh/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/tharokh/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/tharokh",
+      "render_manifest_sha256": "f4ab015eca2c9a30f923ac9fa86f2dfd812fe5f9e753c3a1a9ffc290b3026d37",
+      "capture_input_sha256": "4190e440fc3c2a36287d24a082dd386cc2a8c71890f7c9d87251736d44368bf4",
+      "output_index_sha256": "952fabb09cb4e98e5f92d39bd9e1700373bda060a4f350789d89241c5b84ba76",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0183333333333333
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0183333333333333
+        }
+      ],
+      "max_support_drift_px": 8.2171092799399e-05,
+      "max_rigid_basis_error": 5.0663948059082e-07,
+      "max_target_error_px": 5.50163458683528e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "veilbound_acolyte",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/veilbound_acolyte/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/veilbound_acolyte/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/veilbound_acolyte",
+      "render_manifest_sha256": "edcc209902942a5b2025e7488714a43c8e747e36ef482b04546b8a01c2e79643",
+      "capture_input_sha256": "aa21db8d85f6dac0ac04d69a053108be8d9c44523c199022de00bcd5cfacda56",
+      "output_index_sha256": "a75189de2bc60459d919d0ed06cad26db5dd401790745df51192e82024420734",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0133333333333333
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0133333333333333
+        }
+      ],
+      "max_support_drift_px": 4.82525283587165e-05,
+      "max_rigid_basis_error": 0.0,
+      "max_target_error_px": 2.15791860682657e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "vyraketh",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/vyraketh/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/vyraketh/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/vyraketh",
+      "render_manifest_sha256": "5cd4b35fe00170ae24f9f7badd04ef329795b95b550b74e79c2670c39f64b304",
+      "capture_input_sha256": "f5dff5f12a37489ce0b09b717e2cad35a148d6472f42e886a8e3b0ea939d8dde",
+      "output_index_sha256": "418b1fbd0aff66bb9ed5c7043f000e3a32e649574d50282787af55ad7c0506bf",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.02
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.02
+        }
+      ],
+      "max_support_drift_px": 8.3662846009247e-05,
+      "max_rigid_basis_error": 2.32458114624023e-06,
+      "max_target_error_px": 8.2171092799399e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "zekarion",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/zekarion/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/zekarion/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/zekarion",
+      "render_manifest_sha256": "11b12334fd22d2c73bfc429e1520a313ba8ccf39a236a78d8bb7455c6b9bdc9b",
+      "capture_input_sha256": "7ab263ed4dc9c06650e4b5f53c84f062fd615018b2eb9fb4a8a5b859ac82f674",
+      "output_index_sha256": "bc8ac6c98b3d3e50737cd28acfc84d73325bf72defaf6225c64035048cc45495",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0211111111111111
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0211111111111111
+        }
+      ],
+      "max_support_drift_px": 9.35184507397935e-05,
+      "max_rigid_basis_error": 3.27825000567827e-06,
+      "max_target_error_px": 7.62939453125e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "chainbound_gaoler",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/chainbound_gaoler/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/chainbound_gaoler/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/chainbound_gaoler",
+      "render_manifest_sha256": "e7352b2d3daacd700a2fee891f336ed4b6e862618ce8eea84d8b56a5df831add",
+      "capture_input_sha256": "c77f6cbd75878d03ef5bf1bc541f4bde0ef9c8f65fd4b1a1ac909d31d978eb80",
+      "output_index_sha256": "296ae85ae5e5e9d4642b60547856c9fece270e5f0bf8f1636f6438f3dac88ce5",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0177777777777778
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 108,
+          "frame_seconds": 0.0177777777777778
+        }
+      ],
+      "max_support_drift_px": 6.82393801980652e-05,
+      "max_rigid_basis_error": 4.47034778972011e-07,
+      "max_target_error_px": 6.82393801980652e-05,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "lightning_wisp",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/lightning_wisp/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/lightning_wisp/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/lightning_wisp",
+      "render_manifest_sha256": "f7d7ff71dca8d7bca3f891042afb243b6b28f3c8b9457cd1875a6467fba92de0",
+      "capture_input_sha256": "7cdbc97541f3363bdb7154f72b04ce6bce75dfb865689dd0215e90826170e07d",
+      "output_index_sha256": "0ca2097d21665e0fd478f1ce1a1de716aefd8ed204a21beb41fb15b44c311b41",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0108333333333333
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0108333333333333
+        }
+      ],
+      "max_support_drift_px": 0.0,
+      "max_rigid_basis_error": 0.0,
+      "max_target_error_px": 0.0,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    },
+    {
+      "actor": "vaeloryx",
+      "original_case": "/private/tmp/labyrinth-presentation-motion-v1/vaeloryx/cutout.json",
+      "retained_case": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/cases/vaeloryx/cutout.json",
+      "proof": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/gaits/vaeloryx",
+      "render_manifest_sha256": "a8ff2e71f0c5749b5b3ac3f16556123929597945821a2ae6e2e97bae6d4c79ff",
+      "capture_input_sha256": "fba0dafa99c45cb7d30ea14aeb0fd39800c012ac72bddeefda279322a9d4d13e",
+      "output_index_sha256": "f33a76555a9ba72d6ae5a53f9434b860c5c832726cdeec66e9f45024db04e5d4",
+      "clips": [
+        {
+          "name": "walk",
+          "facing": "front",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0194444444444444
+        },
+        {
+          "name": "walk",
+          "facing": "rear",
+          "cycle_frames": 36,
+          "frames": 72,
+          "frame_seconds": 0.0194444444444444
+        }
+      ],
+      "max_support_drift_px": 0.0,
+      "max_rigid_basis_error": 5.96046447753906e-08,
+      "max_target_error_px": 0.0,
+      "scene_roundtrip_pixel_identical": true,
+      "render_and_verify_exit": 0,
+      "review": "Complete front/rear cycle contact sheets inspected; silhouettes, support transfer, exposed limbs and rigid weapon handling reviewed."
+    }
+  ],
+  "native": [
+    {
+      "label": "roster-1",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-1",
+      "runner_sha256": "e1a3500e3048d4d563fbe7d057b1bbeef987d7742bac22b55a7476d5e8d00882",
+      "manifest_sha256": "acc65cb265f753102039f01f44cb11e13860d54b2b35fc5da3007a1c62fd56be",
+      "images": 49,
+      "actors": [
+        "crawler",
+        "acolyte",
+        "harrier",
+        "warden",
+        "cinder_ooze",
+        "cinder_droplet"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.054478,
+          "captured_frames": 66
+        },
+        {
+          "actor": "crawler",
+          "label": "crawler_front_walk",
+          "seconds": 0.958059,
+          "captured_frames": 62
+        },
+        {
+          "actor": "crawler",
+          "label": "crawler_rear_walk",
+          "seconds": 0.948602,
+          "captured_frames": 61
+        },
+        {
+          "actor": "acolyte",
+          "label": "acolyte_front_walk",
+          "seconds": 1.114659,
+          "captured_frames": 73
+        },
+        {
+          "actor": "acolyte",
+          "label": "acolyte_rear_walk",
+          "seconds": 1.126665,
+          "captured_frames": 74
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_front_walk",
+          "seconds": 0.95674,
+          "captured_frames": 62
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_rear_walk",
+          "seconds": 0.954808,
+          "captured_frames": 61
+        },
+        {
+          "actor": "warden",
+          "label": "warden_front_walk",
+          "seconds": 1.225021,
+          "captured_frames": 80
+        },
+        {
+          "actor": "warden",
+          "label": "warden_rear_walk",
+          "seconds": 1.220695,
+          "captured_frames": 80
+        },
+        {
+          "actor": "cinder_ooze",
+          "label": "cinder_ooze_front_walk",
+          "seconds": 1.252085,
+          "captured_frames": 80
+        },
+        {
+          "actor": "cinder_ooze",
+          "label": "cinder_ooze_rear_walk",
+          "seconds": 1.256338,
+          "captured_frames": 83
+        },
+        {
+          "actor": "cinder_droplet",
+          "label": "cinder_droplet_front_walk",
+          "seconds": 0.961841,
+          "captured_frames": 62
+        },
+        {
+          "actor": "cinder_droplet",
+          "label": "cinder_droplet_rear_walk",
+          "seconds": 0.956729,
+          "captured_frames": 62
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "roster-2",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-2",
+      "runner_sha256": "1b9422476d9c543059aa322792180251e7e991c5376f643d18db7124f3c7614e",
+      "manifest_sha256": "00b7d63458da9839ebcc755dba8f53ba3b517410742a8d8dbe2332e18da1576f",
+      "images": 49,
+      "actors": [
+        "bile_bloomer",
+        "chainbound_gaoler",
+        "grave_surgeon",
+        "frostglass_lancer",
+        "tharokh",
+        "vyraketh"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.056526,
+          "captured_frames": 66
+        },
+        {
+          "actor": "bile_bloomer",
+          "label": "bile_bloomer_front_walk",
+          "seconds": 1.281612,
+          "captured_frames": 81
+        },
+        {
+          "actor": "bile_bloomer",
+          "label": "bile_bloomer_rear_walk",
+          "seconds": 1.28745,
+          "captured_frames": 83
+        },
+        {
+          "actor": "chainbound_gaoler",
+          "label": "chainbound_gaoler_front_walk",
+          "seconds": 1.280728,
+          "captured_frames": 84
+        },
+        {
+          "actor": "chainbound_gaoler",
+          "label": "chainbound_gaoler_rear_walk",
+          "seconds": 1.281729,
+          "captured_frames": 84
+        },
+        {
+          "actor": "grave_surgeon",
+          "label": "grave_surgeon_front_walk",
+          "seconds": 1.115775,
+          "captured_frames": 65
+        },
+        {
+          "actor": "grave_surgeon",
+          "label": "grave_surgeon_rear_walk",
+          "seconds": 1.129592,
+          "captured_frames": 66
+        },
+        {
+          "actor": "frostglass_lancer",
+          "label": "frostglass_lancer_front_walk",
+          "seconds": 0.991204,
+          "captured_frames": 64
+        },
+        {
+          "actor": "frostglass_lancer",
+          "label": "frostglass_lancer_rear_walk",
+          "seconds": 0.985021,
+          "captured_frames": 63
+        },
+        {
+          "actor": "tharokh",
+          "label": "tharokh_front_walk",
+          "seconds": 1.318189,
+          "captured_frames": 76
+        },
+        {
+          "actor": "tharokh",
+          "label": "tharokh_rear_walk",
+          "seconds": 1.314633,
+          "captured_frames": 77
+        },
+        {
+          "actor": "vyraketh",
+          "label": "vyraketh_front_walk",
+          "seconds": 1.291619,
+          "captured_frames": 74
+        },
+        {
+          "actor": "vyraketh",
+          "label": "vyraketh_rear_walk",
+          "seconds": 1.293011,
+          "captured_frames": 75
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "roster-3",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-3",
+      "runner_sha256": "887c8183afb18021ace00e17589604b184a57de2a627170849198c3f4c76d4eb",
+      "manifest_sha256": "deac03090fc34593835312d42dabaf2d9bc20dd74715f61fc52a980d2547c057",
+      "images": 49,
+      "actors": [
+        "vaeloryx",
+        "iskaldra",
+        "noctyrax",
+        "zekarion",
+        "veilbound_acolyte",
+        "lightning_wisp"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.059425,
+          "captured_frames": 66
+        },
+        {
+          "actor": "vaeloryx",
+          "label": "vaeloryx_front_walk",
+          "seconds": 1.022245,
+          "captured_frames": 65
+        },
+        {
+          "actor": "vaeloryx",
+          "label": "vaeloryx_rear_walk",
+          "seconds": 1.014325,
+          "captured_frames": 64
+        },
+        {
+          "actor": "iskaldra",
+          "label": "iskaldra_front_walk",
+          "seconds": 1.283151,
+          "captured_frames": 81
+        },
+        {
+          "actor": "iskaldra",
+          "label": "iskaldra_rear_walk",
+          "seconds": 1.294234,
+          "captured_frames": 83
+        },
+        {
+          "actor": "noctyrax",
+          "label": "noctyrax_front_walk",
+          "seconds": 1.192093,
+          "captured_frames": 75
+        },
+        {
+          "actor": "noctyrax",
+          "label": "noctyrax_rear_walk",
+          "seconds": 1.184855,
+          "captured_frames": 75
+        },
+        {
+          "actor": "zekarion",
+          "label": "zekarion_front_walk",
+          "seconds": 1.124611,
+          "captured_frames": 65
+        },
+        {
+          "actor": "zekarion",
+          "label": "zekarion_rear_walk",
+          "seconds": 1.124713,
+          "captured_frames": 66
+        },
+        {
+          "actor": "veilbound_acolyte",
+          "label": "veilbound_acolyte_front_walk",
+          "seconds": 1.12283,
+          "captured_frames": 73
+        },
+        {
+          "actor": "veilbound_acolyte",
+          "label": "veilbound_acolyte_rear_walk",
+          "seconds": 1.127574,
+          "captured_frames": 73
+        },
+        {
+          "actor": "lightning_wisp",
+          "label": "lightning_wisp_front_walk",
+          "seconds": 0.924365,
+          "captured_frames": 54
+        },
+        {
+          "actor": "lightning_wisp",
+          "label": "lightning_wisp_rear_walk",
+          "seconds": 0.926197,
+          "captured_frames": 54
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "lethal-rewards",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/lethal-rewards",
+      "runner_sha256": "df011eb035372dcbab0fe4e6fc6a4878368cba5f7e5ee2e5acf1ffecb7652c05",
+      "manifest_sha256": "a2fbd0ad889c7ebb4a48eb9341279d80fa16106e6e42b80c88b90f5813407501",
+      "images": 14,
+      "actors": [],
+      "walks": [],
+      "transitions": [
+        {
+          "mode": "normal_actual_lethal",
+          "samples": 296,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced_actual_lethal",
+          "samples": 182,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "raised-weapons",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/raised-weapons",
+      "runner_sha256": "a42181203c2cc8a41b857245740c513d717004f136d245a6840f59250e59a556",
+      "manifest_sha256": "9beff53d5a27805569ce57e52df93c9410fbc06995818c2b6c86cf471fb96797",
+      "images": 4,
+      "actors": [
+        "warden",
+        "warden",
+        "harrier",
+        "harrier"
+      ],
+      "walks": [],
+      "transitions": [],
+      "errors": []
+    },
+    {
+      "label": "final-hud",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/final-hud",
+      "runner_sha256": "f0c93971231d53292a4a32e1e0816599567dab8cbabbbc8e8491f842b8a54f38",
+      "manifest_sha256": "a05b21b6f90cfe0598b71522c033cac498b580f78192d8c21ba2447f2729e2a0",
+      "images": 21,
+      "actors": [
+        "warden",
+        "harrier"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.051469,
+          "captured_frames": 67
+        },
+        {
+          "actor": "warden",
+          "label": "warden_front_walk",
+          "seconds": 1.215972,
+          "captured_frames": 79
+        },
+        {
+          "actor": "warden",
+          "label": "warden_rear_walk",
+          "seconds": 1.221549,
+          "captured_frames": 80
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_front_walk",
+          "seconds": 0.954621,
+          "captured_frames": 62
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_rear_walk",
+          "seconds": 0.964865,
+          "captured_frames": 60
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 130.607315063477,
+          "tile_width_max": 130.607315063477
+        }
+      ],
+      "errors": []
+    }
+  ],
+  "checks": [
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-input-freshness.json",
+      "sha256": "bdb35098686b01a5c860e69accbeb689c6d066a53dd63769a17b5ea78974397b",
+      "result": "All 17 case captures match final source inputs."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-final-suite-v2.log",
+      "sha256": "5f691875aece7f09d159efdf37557f37abd9be59c947da55d81e4ef50a3c98a0",
+      "result": "Full Godot test suite: PASS after final runtime edits."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-final-focused.log",
+      "sha256": "dc6d47ca14c9d5bb7159b5d3d9b32d0cf0c83e54241e3cadf8b2ad59b08884c5",
+      "result": "Focused presentation regressions: PASS."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-nontravel.json",
+      "sha256": "7cf9f0a83d1cb7315794d0c0ead3f27c0f50c9ff28132afcec2b743ee6529136",
+      "result": "2730 sampled nontravel poses exactly match the base."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-nontravel.log",
+      "sha256": "0b1508348fdc6649ccd40c1a18548171b363915ddd9404a214b573fb4ed7ce5e",
+      "result": "Nontravel pose comparison: PASS."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-pack-build.log",
+      "sha256": "2a2254eae0321135912b3bbe29fc8af9ebb5db54d346ce8ada4385409752a9ac",
+      "result": "Production-only PCK build: PASS."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-pack-runtime-v2.log",
+      "sha256": "211959d44e1387d816411dd4c3304b9fb545e893ed02ff6d544dec13f90fd453",
+      "result": "Unmodified release template loads both rigs for all 17 changed renderers: PASS."
+    }
+  ],
+  "limits": [
+    "Physical controller hardware, Windows execution and additional resolutions/UI scales were not exercised.",
+    "Native roster groups and lethal rewards precede only Warden/Harrier fixed HP-height exceptions; the final HUD supplement and weapon-clearance probe cover both affected actors.",
+    "An unsplit all-roster run stalled in capture; bounded six-actor groups completed with unchanged per-actor coverage."
+  ],
+  "source_sha256": {
+    "scripts/acolyte_cutout/motion.gd": "bd11fd05046d43e58c296f28f1a85d7d911133858a2bc1b7b380931abdfd3551",
+    "scripts/acolyte_cutout/renderer.gd": "dcfe44599fb4254acc8adab38aa2a1673bc28f702e06acdba7bac54a5c3ab225",
+    "scripts/bile_bloomer_cutout/motion.gd": "e675843712fc6f28cca0baf19f45c29491e4c15137a92d791abf81347ffbb5cc",
+    "scripts/bile_bloomer_cutout/renderer.gd": "64791194ea57da4591b16761d1c027291fc3e509a6dedc83ac33c05cc3f10a77",
+    "scripts/chainbound_gaoler_cutout/renderer.gd": "38fdba5cfff93dd98be68800d245a99890d180b2f2dd487ee7c3b0f1ed3da630",
+    "scripts/cinder_droplet_cutout/motion.gd": "88d8b5ab834e59cd0ca1c2b4020e4f6b9c3e32173dd62989e2be83cf606bc7f3",
+    "scripts/cinder_droplet_cutout/renderer.gd": "f53e7c87bb28bf583bd46786038cdd1faae7420c1cd400ee76013f93b3dea7d3",
+    "scripts/cinder_ooze_cutout/motion.gd": "e882cd75d6abdb65c14c468703a22407e5fd3ebbe2e622123fcd81f589770b6b",
+    "scripts/cinder_ooze_cutout/renderer.gd": "648a5ad25d49a96ae88c161669617c529318c613223235ffcfa111491185b1a8",
+    "scripts/combat_board_view.gd": "550368a052635ffe97732d10e5325bd7dd68dcda30a18b06abeede46cc34d0ce",
+    "scripts/crawler_cutout/motion.gd": "ad5d7cff777a6629e8ef2c5208d949872a99e0f21ee4d17ef2b3e59c13b40fad",
+    "scripts/crawler_cutout/renderer.gd": "12177d3d87caee9c2272bf70ca16f43944e777c6f5ef3ff442eb327f7e7110bd",
+    "scripts/frostglass_lancer_cutout/motion.gd": "44515b7e47523f1fd09e02c76978e7332e68a4752627b16e9845e8479ee7656f",
+    "scripts/frostglass_lancer_cutout/renderer.gd": "2e57bfb267ed4dd6cc79872e49655046a2c32dacb4b2d674af47861e1704067f",
+    "scripts/grave_surgeon_cutout/motion.gd": "c8517e20d1a22a108878aa209f435f3a7f70bc8ec53b3ff8d7b9087d16157253",
+    "scripts/grave_surgeon_cutout/renderer.gd": "970febebdf3604b4a8cd859abb11982be16806aab8df4dd88fdad064b93b8424",
+    "scripts/harrier_cutout/motion.gd": "be151e6eaff49ea6c359552fa51b846abf41071f4a363f5b3485bc911d442bc2",
+    "scripts/harrier_cutout/renderer.gd": "11346c2eff95f751e5bf56370327e2961da28f5e1bab65332fe0db9c3aede241",
+    "scripts/iskaldra_cutout/motion.gd": "e41f349acd743f9742cd317dbc6d98a5c287a5bf9e01cbee56bb745ea972a630",
+    "scripts/iskaldra_cutout/renderer.gd": "7a5f687aa6227b485e52de38292caf07149363e27232d698722956edee015a63",
+    "scripts/lightning_wisp_cutout/renderer.gd": "3469494d83f25c8786ac0873259d80770be70b8fc85fe84013a79eeafaf52765",
+    "scripts/noctyrax_cutout/motion.gd": "569d47f993a52ea579c9d407f4922fa166b4a5b702149f243c60f2f5ca68773e",
+    "scripts/noctyrax_cutout/renderer.gd": "658c3cfd860020db2fa545767c5925e560a3f5c19f400cb3ed72a37685ec72e4",
+    "scripts/run_scene.gd": "861146f20dcd6cfc1755b5ffd81d8a9dc0b94c9ecaaaa4d0428fb422e0d6ec1f",
+    "scripts/tharokh_cutout/motion.gd": "b340e273b96f26b28e1f02b6a978932ed1be6dc17700d8139ff5f7fcfdb65775",
+    "scripts/tharokh_cutout/renderer.gd": "a7c3072085085dcfff9259d30070b7b48560b43a14c20ba385cb762e34efe5b2",
+    "scripts/vaeloryx_cutout/motion.gd": "b261dfe972eecc5648bb84c99aa920e7ec47c9214ddb6bc19130c0e6e30828a6",
+    "scripts/vaeloryx_cutout/renderer.gd": "74639c435ef9faaf809da68d8c5488200ed87051d656af1b127b79ff4fb442e9",
+    "scripts/veilbound_acolyte_cutout/motion.gd": "2451679bb427c528185371acd48560c5f5816bfa7914f3451242cda6289e7b58",
+    "scripts/veilbound_acolyte_cutout/renderer.gd": "5281997d45f39979d39d8da60bcf373ef2cd6cf897b55b39a64d83bc9be28dd5",
+    "scripts/vyraketh_cutout/motion.gd": "d7951f67efb9073fb336d062ee76f39f5b97b281f84d1810a38e4a2bd65ef340",
+    "scripts/vyraketh_cutout/renderer.gd": "26dec0a5caf43d5e80295775eacc1305c2d77cecad8b0fd7c9285731eb687537",
+    "scripts/zekarion_cutout/motion.gd": "8a3b72566e447ad42483a1490ca9f46fc79881488e6677022ddef85782d5b766",
+    "scripts/zekarion_cutout/renderer.gd": "d1fe37c7bc5d28382b2502fe0e66151e0967d6a19480737747fd66d22ac6df8c",
+    "tests/run_tests.gd": "f69c79e115ceaf98dfd53ea7c503e32d36737a3c2b9155dad1faeae7f762a1d5",
+    "tests/suites/cinder_ooze_cutout_suite.gd": "4b08c67164bdfb0dea8d52e671ba1be9521c312abce3483040e41cab2dc338dd",
+    "tests/suites/combat_board_layout_suite.gd": "7d4fdcdea43c0d29d7e79dc0cf5d19878b6fe61efc61f9d0997433490deb1f9f",
+    "tests/suites/crawler_cutout_suite.gd": "b4b34ce00174f947098fa9fcf71db21d55074081332c4e01425332563c136850",
+    "tests/suites/grave_surgeon_cutout_suite.gd": "85d7a4b373b23fa8ab1eb6c91dd510872d34049a38a8252d2494dbac6ea6074f",
+    "tests/suites/iskaldra_cutout_suite.gd": "6fb67bd87b00740ce31790c6a02bc86ad08825832a51417f1d83665e54aa60b2",
+    "tests/suites/lightning_wisp_cutout_suite.gd": "3e60cde8770bf55fde02b584c44ff32305982440cdf8a3e242bbac64dd4cdd86",
+    "tests/suites/tharokh_cutout_suite.gd": "d7f89ac9d97e0a37a9b9615a9c0aec20356b0306c16e875101c59f6793db6568",
+    "scripts/actor_presentation.gd": "68c8e7cd8c0b6aa3828ae6d00e3b91fdf0774d2a6484bb153cbab7e81fd0a98d",
+    "scripts/board_framing.gd": "e4f6e52251fc266241dda61e732dee86ca001937d690cf5f7437b947467471a0",
+    "tests/actor_presentation_probe.gd": "b55bb81cff71be32000bebad0d1ef40f892e63294e84d377ab8eda7c67471cf9",
+    "tests/actor_presentation_test.gd": "f90597ea40fc9def399af2f98db23b9544a96992b5b33d9f7a13bc60223847c8",
+    "tests/actor_weapon_clearance_probe.gd": "baa9bd576d395c7102c977c554a2f88a9fc6bd5a32c8e0cd1162a3b18df52325",
+    "tests/board_transition_probe.gd": "b15889a795246d71da4b52ab039749a20e7bcfc54b6d66b16a49c0e10c675f8c",
+    "tests/suites/actor_presentation_suite.gd": "4c46236fea4aa51f046017ce4ac186ac84aceff8587984f29a9eba953e53fd9e"
+  },
+  "visual_review": {
+    "all_roster_facings": "72 front/rear/reflected live views inspected in the three final contact sheets; Surgeon rear additionally inspected at full resolution after retained-draw registration correction.",
+    "gaits": "All 17 changed actor cases, complete front/rear cycles, 36 phases each; contact sheets at fixed crop and authored support/rigid metrics.",
+    "hp": "Maximum raised Warden/Harrier weapons have zero opaque pixels under HP frames; native PNGs inspected.",
+    "reward_and_input": "Actual lethal card targeting, victory, selectable rewards, reduced motion, controller cancel and pointer handoff pass; full-size screenshots inspected.",
+    "rubric_record": "spec/actor_presentation.md"
+  }
+}

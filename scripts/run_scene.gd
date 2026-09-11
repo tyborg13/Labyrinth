@@ -11,6 +11,7 @@ const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
+const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
 const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
 const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
@@ -1983,6 +1984,9 @@ var _controller_analog_cursor
 var _controller_loadout_tooltip: Control
 var _controller_loadout_tooltip_anchor: Control
 var _controller_layout_revision: int = 0
+var _board_centering_tween: Tween
+var _board_centering_target := Vector2.INF
+var _board_canvas_size := Vector2.ZERO
 
 func _ready() -> void:
 	var prefix_started: int = Time.get_ticks_usec()
@@ -3580,32 +3584,34 @@ func _sync_board_view_rect() -> void:
 		return
 	if _run_end_board_reframe_active and str(_run_state.get("mode", "")) == "defeat":
 		return
-	# The board deliberately borrows a thin band beneath the header. It is rendered
-	# below the HUD, so this gains useful combat space without stealing input from it.
-	var board_size: Vector2 = stage_root.size + Vector2(0.0, 56.0)
-	if (
-		_controller_combat_layout_active()
-		and hand_row != null
-	):
-		# The board owns the full gameplay field and the hand is a foreground dock.
-		# Reconstruct the stage height from the fixed focused-hand envelope instead of
-		# the live VBox allocation. StageRoot grows when the hand is tucked, but the
-		# sum of StageRoot + HandRow is constant, so this keeps one board rect in both
-		# states. Pointer play retains the original PC rect above.
-		var focused_stage_height: float = (
-			stage_root.size.y
-			+ hand_row.size.y
-			- CONTROLLER_FOCUSED_HAND_ROW_HEIGHT
-		)
-		board_size.y = maxf(1.0, focused_stage_height + 56.0 + CONTROLLER_BOARD_BOTTOM_EXTENSION)
-	var board_offset := Vector2(0.0, -56.0)
-	if _controller_combat_layout_active():
-		# Reserve breathing room for the right-side turn-order rail without tying the
-		# board to hand focus or any transient actor/animation bounds.
-		board_size.x = maxf(1.0, board_size.x - CONTROLLER_BOARD_WIDTH_TRIM)
-		board_offset.x = CONTROLLER_BOARD_HORIZONTAL_SHIFT
-	board_view.position = stage_root.global_position + board_offset
-	board_view.size = board_size
+	# A stable canvas prevents VBox hand/reward allocation from changing zoom or
+	# adding a second positional jump during mode transitions.
+	var viewport_size: Vector2 = get_viewport_rect().size
+	var resized: bool = not _board_canvas_size.is_equal_approx(viewport_size)
+	_board_canvas_size = viewport_size
+	board_view.size = viewport_size
+	var target := Vector2.ZERO
+	if str(_run_state.get("mode", "room")) not in ["combat", "defeat"] and not (board_view.combat_state as Dictionary).is_empty():
+		target = board_view.room_centering_offset()
+	if target.is_equal_approx(_board_centering_target) and not resized:
+		return
+	var initial: bool = not _board_centering_target.is_finite()
+	_board_centering_target = target
+	if _board_centering_tween != null and _board_centering_tween.is_valid():
+		_board_centering_tween.kill()
+	if initial or resized or _reduced_motion_enabled():
+		board_view.position = target
+		return
+	_board_centering_tween = create_tween()
+	_board_centering_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+	_board_centering_tween.tween_property(board_view, "position", target, 0.42)
+
+func _board_fit_rect() -> Rect2:
+	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(1920, 1080)
+	# The top-center lane is clear during combat. Reserve the hand's focused
+	# envelope up front even when it is hidden or controller focus tucks it away.
+	return Rect2(Vector2(36, 12), Vector2(maxf(1.0, viewport_size.x - 72.0),
+		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 30.0)))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
@@ -15649,6 +15655,8 @@ func _begin_run_end_board_reframe() -> void:
 	var tile_global: Vector2 = board_view.get_global_transform() * board_point
 	var target_local: Vector2 = recap_size * RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	var target_global: Vector2 = _run_end_recap.get_global_transform() * target_local
+	if _board_centering_tween != null and _board_centering_tween.is_valid():
+		_board_centering_tween.kill()
 	_run_end_board_reframe_active = true
 	_run_end_board_reframe_progress = 0.0
 	_run_end_board_reframe_start = board_view.position
@@ -17435,6 +17443,7 @@ func _refresh_stage_view() -> void:
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
+	presentation["board_fit_rect"] = _board_fit_rect()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	performance_phase_started = _record_runtime_performance_phase("stage_base", performance_phase_started)
 	if (str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible) and not display_state.is_empty():
@@ -17582,6 +17591,7 @@ func _refresh_stage_view() -> void:
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
+	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
@@ -23830,24 +23840,22 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 	var veilbound_walk: bool = str(actor_unit.get("type", "")) == "veilbound_acolyte"
 	var vyraketh_walk: bool = str(actor_unit.get("type", "")) == "vyraketh"
 	var zekarion_walk: bool = str(actor_unit.get("type", "")) == "zekarion"
-	var frame_seconds: float = ProtagonistCutout.WALK_FRAME_SECONDS if player_walk else WardenCutout.WALK_FRAME_SECONDS if warden_walk else CrawlerCutout.WALK_FRAME_SECONDS if crawler_walk else AcolyteCutout.WALK_FRAME_SECONDS if acolyte_walk else BileBloomerCutout.WALK_FRAME_SECONDS if bloomer_walk else CinderDropletCutout.WALK_FRAME_SECONDS if cinder_droplet_walk else FrostglassCutout.WALK_FRAME_SECONDS if frostglass_walk else GraveSurgeonCutout.WALK_FRAME_SECONDS if surgeon_walk else HarrierCutout.WALK_FRAME_SECONDS if harrier_walk else IskaldraCutout.WALK_FRAME_SECONDS if iskaldra_walk else LightningWispCutout.WALK_FRAME_SECONDS if wisp_walk else NoctyraxCutout.WALK_FRAME_SECONDS if noctyrax_walk else TharokhCutout.WALK_FRAME_SECONDS if tharokh_walk else VaeloryxCutout.WALK_FRAME_SECONDS if vaeloryx_walk else VeilboundAcolyteCutout.WALK_FRAME_SECONDS if veilbound_walk else VyrakethCutout.WALK_FRAME_SECONDS if vyraketh_walk else ZekarionCutout.WALK_FRAME_SECONDS if zekarion_walk else MOVE_FRAME_SECONDS
-	if cinder_ooze_walk:
-		frame_seconds = CinderOozeCutout.WALK_FRAME_SECONDS
+	var actor_type: String = "player" if player_walk else str(actor_unit.get("type", ""))
+	var travel_renderer: Script = ActorPresentation.travel_renderer(actor_type)
+	var frame_seconds: float = float(travel_renderer.get_script_constant_map()["WALK_FRAME_SECONDS"]) if travel_renderer != null else MOVE_FRAME_SECONDS
 	var segment_frame_counts: Array[int] = []
 	var segment_start_frames: Array[int] = []
 	var distance_before: Array[float] = []
 	var distance: float = 0.0
 	var total_frame_count: int = 0
-	var source_scale: float = maxf(0.001, board_view.vaeloryx_source_pixel_scale() if vaeloryx_walk else board_view.tharokh_source_pixel_scale() if tharokh_walk else board_view.gaoler_source_pixel_scale() if gaoler_walk else board_view.warden_source_pixel_scale() if warden_walk else board_view.crawler_source_pixel_scale() if crawler_walk else board_view.acolyte_source_pixel_scale() if acolyte_walk else board_view.bile_bloomer_source_pixel_scale() if bloomer_walk else board_view.cinder_droplet_source_pixel_scale() if cinder_droplet_walk else board_view.frostglass_source_pixel_scale() if frostglass_walk else board_view.grave_surgeon_source_pixel_scale() if surgeon_walk else board_view.harrier_source_pixel_scale() if harrier_walk else board_view.iskaldra_source_pixel_scale() if iskaldra_walk else board_view.lightning_wisp_source_pixel_scale() if wisp_walk else board_view.noctyrax_source_pixel_scale() if noctyrax_walk else board_view.veilbound_acolyte_source_pixel_scale() if veilbound_walk else board_view.vyraketh_source_pixel_scale() if vyraketh_walk else board_view.zekarion_source_pixel_scale() if zekarion_walk else board_view.protagonist_source_pixel_scale())
-	if cinder_ooze_walk:
-		source_scale = maxf(0.001, board_view.cinder_ooze_source_pixel_scale())
+	var source_scale: float = maxf(0.001, board_view.source_pixel_scale_for_type(actor_type))
 	for index: int in range(segment_count):
 		var from: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index])
 		var to: Vector2 = board_view.world_position_for_unit_origin(actor_unit, path[index + 1])
 		var length: float = from.distance_to(to)
-		var frames: int = ProtagonistCutout.walk_segment_frames(length / source_scale) if player_walk else WardenCutout.walk_segment_frames(length / source_scale) if warden_walk else CrawlerCutout.walk_segment_frames(length / source_scale) if crawler_walk else AcolyteCutout.walk_segment_frames(length / source_scale) if acolyte_walk else BileBloomerCutout.walk_segment_frames(length / source_scale) if bloomer_walk else CinderDropletCutout.walk_segment_frames(length / source_scale) if cinder_droplet_walk else FrostglassCutout.walk_segment_frames(length / source_scale) if frostglass_walk else GraveSurgeonCutout.walk_segment_frames(length / source_scale) if surgeon_walk else HarrierCutout.walk_segment_frames(length / source_scale) if harrier_walk else IskaldraCutout.walk_segment_frames(length / source_scale) if iskaldra_walk else LightningWispCutout.walk_segment_frames(length / source_scale) if wisp_walk else NoctyraxCutout.walk_segment_frames(length / source_scale) if noctyrax_walk else TharokhCutout.walk_segment_frames(length / source_scale) if tharokh_walk else VaeloryxCutout.walk_segment_frames(length / source_scale) if vaeloryx_walk else VeilboundAcolyteCutout.walk_segment_frames(length / source_scale) if veilbound_walk else VyrakethCutout.walk_segment_frames(length / source_scale) if vyraketh_walk else ZekarionCutout.walk_segment_frames(length / source_scale) if zekarion_walk else MOVE_STEP_FRAMES
-		if cinder_ooze_walk:
-			frames = CinderOozeCutout.walk_segment_frames(length / source_scale)
+		# One registry supplies both cadence and distance for every cutout. A
+		# missing branch here previously left the Gaoler on legacy tile timing.
+		var frames: int = int(travel_renderer.call("walk_segment_frames", length / source_scale)) if travel_renderer != null else MOVE_STEP_FRAMES
 		segment_frame_counts.append(frames)
 		segment_start_frames.append(total_frame_count)
 		distance_before.append(distance)
@@ -24444,6 +24452,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
+	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	rendered_presentation["controller_hand_focused"] = _controller_hand_focused
@@ -24480,6 +24489,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
 			rendered_presentation["floating_texts"] = merged_floating_texts
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
+	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(
 		display_state,
 		[],

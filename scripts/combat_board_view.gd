@@ -63,6 +63,8 @@ const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_rend
 const GameData = preload("res://scripts/game_data.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
+const BoardFraming = preload("res://scripts/board_framing.gd")
+const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
@@ -611,6 +613,7 @@ var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
+var _room_framing = BoardFraming.new()
 var _board_layout_cache_valid: bool = false
 var _board_layout_content_cache_valid: bool = false
 var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
@@ -777,6 +780,33 @@ func _uses_protagonist_cutout() -> bool:
 
 func protagonist_animation_snapshot() -> Dictionary:
 	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
+
+func unit_cutout_renderer(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) == "player":
+		return _protagonist_renderer
+	var renderer: Node = _directional_enemy_renderer_for_unit(unit)
+	if renderer == null:
+		renderer = _veilbound_acolyte_renderer_for_unit(unit)
+	if renderer == null:
+		renderer = _zekarion_renderer_for_unit(unit)
+	return renderer
+
+func _cutout_floor_registrations() -> Dictionary:
+	var registrations: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		var unit_type: String = str(unit.get("type", ""))
+		if not ActorPresentation.has_profile(unit_type):
+			continue
+		var renderer: Node = unit_cutout_renderer(unit)
+		if is_instance_valid(renderer):
+			registrations[str(unit.get("key", ""))] = ActorPresentation.floor_anchor(unit_type,
+				str(renderer.get("facing")), bool(renderer.get("mirrored")))
+	return registrations
+
+func source_pixel_scale_for_type(unit_type: String) -> float:
+	_ensure_unit_assets_for_type(unit_type)
+	var unit: Dictionary = {"type": unit_type, "role": "player" if unit_type == "player" else "enemy"}
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
 
 func protagonist_source_pixel_scale() -> float:
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player"}
@@ -1935,10 +1965,8 @@ func _sync_dynamic_render_assets() -> void:
 func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = []) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
-	# Adaptive top clearance is retained across visual snapshots to prevent
-	# whole-board chatter. Materialize that history on the parent before layers
-	# are invalidated so a same-frame Blink/spawn transition cannot make each
-	# retained layer recompute from a different intermediate snapshot.
+	# Resolve the fixed room envelope once on the parent before invalidating
+	# retained layers so every layer uses the same origin and scale.
 	if (layout_changed or visual_framing_changed) and not combat_state.is_empty():
 		_ensure_board_layout_cache()
 	var fields: Array = changed_fields
@@ -2522,6 +2550,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		"board_backdrop_visible",
 		"board_framing_mode",
 		"board_safe_global_rect",
+		"board_fit_rect",
 		"controller_combat_navigation",
 	]:
 		if presentation_changes.has(layout_key):
@@ -2552,11 +2581,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var next_floor_signature: String = next_room_grid_signature if state_changed or _floor_variant_signature.is_empty() else _floor_variant_signature
 	var next_moss_signature: String = _moss_signature_for_state(next_state) if state_changed or _moss_signature.is_empty() else _moss_signature
 	var layout_changed: bool = next_layout_signature != _board_layout_signature
-	var visual_framing_signature_changed: bool = next_visual_framing_signature != _board_visual_framing_signature
 	var visual_framing_changed: bool = false
-	var previous_layout_origin: Vector2 = _board_layout_cache_origin
-	var previous_layout_tile_width: float = _board_layout_cache_tile_width
-	var previous_visual_top_offset: float = _board_layout_cache_visual_top_offset
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
 	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible")
@@ -2583,6 +2608,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	var previous_registrations: Dictionary = _cutout_floor_registrations()
 	_sync_warden_renderers()
 	_sync_crawler_renderers()
 	_sync_acolyte_renderers()
@@ -2604,6 +2630,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if is_instance_valid(_protagonist_renderer):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
+	var registration_changes: Dictionary = {}
+	var current_registrations: Dictionary = _cutout_floor_registrations()
+	for actor_key: String in current_registrations:
+		if previous_registrations.get(actor_key) != current_registrations[actor_key]:
+			registration_changes[actor_key] = true
+			moving_actor_keys[actor_key] = true
 	var next_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if move_tiles_changed:
 		_move_tiles_lookup_cache = _vector2i_lookup(move_tiles)
@@ -2643,17 +2675,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed:
 		_board_layout_signature = next_layout_signature
 		_invalidate_board_layout_cache()
-	elif visual_framing_signature_changed:
-		# Geometry-bearing combat content can change without changing the room
-		# grid. Preserve any top clearance already earned in this room so deaths,
-		# spawns, and adjacent moves cannot make the whole board chatter vertically.
-		_invalidate_board_layout_cache(false, true)
-		_ensure_board_layout_cache()
-		visual_framing_changed = (
-			not _board_layout_cache_origin.is_equal_approx(previous_layout_origin)
-			or not is_equal_approx(_board_layout_cache_tile_width, previous_layout_tile_width)
-			or not is_equal_approx(_board_layout_cache_visual_top_offset, previous_visual_top_offset)
-		)
+
 	_board_visual_framing_signature = next_visual_framing_signature
 	if floor_changed:
 		_floor_variant_signature = next_floor_signature
@@ -2816,6 +2838,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		)
 		for surface_tile: Vector2i in surface_redraw_tiles:
 			_queue_scene_render_layer_for_tile(surface_tile)
+	if not registration_changes.is_empty():
+		# A persistent viewport can turn without changing its actor dictionary.
+		# The retained draw command must select that view's floor registration too.
+		_refresh_moving_foreground_obstruction_entries(registration_changes)
+		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache"])
+		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
 	_sync_enemy_shadow_dissolve_effects()
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
 
@@ -3562,23 +3590,9 @@ func reset_navigation() -> void:
 		_navigation_transform_changed(true)
 
 func _default_navigation_zoom_for_viewport() -> float:
-	# Layout helpers are also exercised on detached board instances by tests and
-	# tooling. Avoid asking CanvasItem for a viewport rect until the node is in a
-	# tree; preserve the historical neutral zoom when no authored size exists.
-	if not is_inside_tree() and size.y <= 0.0:
-		return BOARD_DEFAULT_NAVIGATION_ZOOM
-	var viewport_height: float = get_viewport_rect().size.y if is_inside_tree() else size.y
-	var expansion: float = clampf(
-		(viewport_height - BOARD_COMPACT_VIEWPORT_HEIGHT) / (BOARD_EXPANDED_VIEWPORT_HEIGHT - BOARD_COMPACT_VIEWPORT_HEIGHT),
-		0.0,
-		1.0
-	)
-	var default_zoom: float
-	if str(presentation.get("board_framing_mode", "room")) == "combat":
-		default_zoom = lerpf(BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
-	else:
-		default_zoom = lerpf(BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM, BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM, expansion)
-	return clampf(default_zoom * _navigation_zoom_scale_for_presentation(presentation), BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
+	# Fit includes the complete room/actor/HUD envelope. Enlarging that result
+	# again would defeat the up-front clearance and force reactive corrections.
+	return 1.0
 
 func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
 	if bool(source.get("controller_combat_navigation", false)):
@@ -8171,7 +8185,12 @@ func _unit_frame_rect(center: Vector2) -> Rect2:
 	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
 
 func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
-	return _unit_draw_rect_for_center(unit, center).position.y
+	var unit_type: String = str(unit.get("type", ""))
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	if ActorPresentation.has_profile(unit_type):
+		# Use the taller rest view so facing and breathing cannot move the HUD.
+		return center.y - ActorPresentation.height_above_floor(unit_type) * rect.size.x / 255.0
+	return _texture_used_draw_rect(_unit_hud_anchor_texture(unit), rect).position.y
 
 func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	var role: String = str(unit.get("role", ""))
@@ -12633,7 +12652,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
 	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
-	parts.append("safe:%s" % str(next_presentation.get("board_safe_global_rect", Rect2())))
+	parts.append("fit:%s" % str(next_presentation.get("board_fit_rect", Rect2())))
 	return "|".join(parts)
 
 func _visual_framing_signature_for_state(next_state: Dictionary, next_presentation: Dictionary) -> String:
@@ -13859,7 +13878,15 @@ func _unit_draw_rect(unit: Dictionary) -> Rect2:
 
 func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
-	return _unit_draw_rect_for_texture(unit, center, texture)
+	var rect: Rect2 = _unit_draw_rect_for_texture(unit, center, texture)
+	var unit_type: String = str(unit.get("type", ""))
+	var renderer: Node = unit_cutout_renderer(unit)
+	if ActorPresentation.has_profile(unit_type) and is_instance_valid(renderer):
+		var facing: String = str(renderer.get("facing"))
+		var mirrored: bool = bool(renderer.get("mirrored"))
+		var source_anchor: Vector2 = ActorPresentation.floor_anchor(unit_type, facing, mirrored)
+		rect.position = center - source_anchor * rect.size / 255.0
+	return rect
 
 func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
 	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
@@ -13869,7 +13896,7 @@ func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: floa
 		rect = _death_animation_render_rect(unit, rect)
 	if not is_equal_approx(body_scale, 1.0):
 		rect = _scaled_unit_rect(rect, body_scale)
-	if (str(unit.get("type", "")) == "player" and is_instance_valid(_protagonist_renderer)) or is_instance_valid(_directional_enemy_renderer_for_unit(unit)) or is_instance_valid(_veilbound_acolyte_renderer_for_unit(unit)) or is_instance_valid(_zekarion_renderer_for_unit(unit)):
+	if is_instance_valid(unit_cutout_renderer(unit)):
 		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
 			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
 	return rect
@@ -13879,7 +13906,13 @@ func _unit_draw_rect_for_texture(unit: Dictionary, center: Vector2, texture: Tex
 	if texture == null:
 		return frame_rect
 	var draw_rect: Rect2 = _scaled_unit_rect(_fitted_unit_rect(texture, frame_rect), _unit_art_scale(unit))
-	draw_rect.position += _unit_art_offset(unit)
+	var unit_type: String = str(unit.get("type", ""))
+	if ActorPresentation.has_profile(unit_type):
+		# Baked rest art, shadows and obstruction geometry share one neutral
+		# registration. The live padded texture selects its own facing above.
+		draw_rect.position = center - ActorPresentation.floor_anchor(unit_type) * draw_rect.size / 255.0
+	else:
+		draw_rect.position += _unit_art_offset(unit)
 	return draw_rect
 
 func _unit_center(unit: Dictionary) -> Vector2:
@@ -14000,7 +14033,7 @@ func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tiles
 
-func rendered_visual_rects() -> Array[Rect2]:
+func rendered_visual_rects(include_unit_hud: bool = true) -> Array[Rect2]:
 	# This is deliberately based on the exact draw rectangles used by the static
 	# board and DynamicRenderLayer, rather than only tile diamonds. Keeping the
 	# rectangles separate lets HUD collision checks distinguish a genuinely
@@ -14044,6 +14077,8 @@ func rendered_visual_rects() -> Array[Rect2]:
 					rects.append(_door_icon_visual_rect(door, door_rect))
 	for unit: Dictionary in _visible_units():
 		rects.append(_unit_draw_rect(unit))
+		if include_unit_hud:
+			rects.append(_unit_health_bar_rect(unit, _unit_center(unit)))
 	for prop_var: Variant in presentation.get("scene_props", []):
 		if typeof(prop_var) != TYPE_DICTIONARY:
 			continue
@@ -14226,82 +14261,25 @@ func _board_origin() -> Vector2:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_origin
 
-func _board_origin_for_extents(extents: Dictionary, tile_width: float, tiles: Array[Vector2i]) -> Vector2:
-	var half_height: float = tile_width * 0.25
-	var half_width: float = tile_width * 0.5
-	var min_diag: float = float(extents.get("min_diag", -4.0))
-	var max_diag: float = float(extents.get("max_diag", 4.0))
-	var min_sum: float = float(extents.get("min_sum", 0.0))
-	var content_width: float = _board_layout_width_units(extents) * tile_width
-	var content_height: float = _board_layout_height_units(extents) * tile_width
-	var available_rect: Rect2 = _board_layout_available_rect()
-	var content_left: float = available_rect.position.x + (available_rect.size.x - content_width) * 0.5
-	var content_top: float = available_rect.position.y + (available_rect.size.y - content_height) * _board_vertical_bias()
-	var target_center_x: float = content_left + content_width * 0.5
-	var origin_x: float = target_center_x - ((min_diag + max_diag) * 0.5 * half_width)
-	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
-	# Bias the default composition upward for the lower hand clearance, but never
-	# let that presentation offset crop the topmost rendered tile. This is a base
-	# framing correction, not a clamp on _navigation_pan, so player pan and zoom
-	# preferences retain their existing behavior.
-	origin_y += _default_vertical_framing_offset(extents, tile_width, content_top, tiles)
-	return Vector2(origin_x, origin_y) + _navigation_pan
+func _board_origin_for_extents(_extents: Dictionary, tile_width: float, _tiles: Array[Vector2i]) -> Vector2:
+	return _room_framing.origin(_board_layout_available_rect(), tile_width) + _navigation_pan
 
-func _default_vertical_framing_offset(extents: Dictionary, tile_width: float, content_top: float, tiles: Array[Vector2i]) -> float:
-	var half_height: float = tile_width * 0.25
-	var min_sum: float = float(extents.get("min_sum", 0.0))
-	var origin_y: float = content_top + tile_width * BOARD_TOP_CLEARANCE_SCALE - min_sum * half_height
-	var visual_top: float = INF
-	for tile: Vector2i in tiles:
-		var tile_center_y: float = origin_y + float(tile.x + tile.y) * half_height
-		visual_top = minf(visual_top, tile_center_y - half_height)
-	if not is_finite(visual_top):
-		visual_top = origin_y - half_height
-	return maxf(0.0, _board_local_safe_top() - visual_top)
+func room_centering_offset() -> Vector2:
+	_ensure_board_layout_cache()
+	# Center the actual floor, retaining the combat scale and the player's pan.
+	var floor_center: Vector2 = _room_framing.floor_bounds.get_center() * _board_layout_cache_tile_width / BoardFraming.REFERENCE_WIDTH
+	var default_origin: Vector2 = _board_layout_cache_origin - _navigation_pan
+	return Vector2(0.0, size.y * 0.5 - default_origin.y - floor_center.y)
 
 func _board_local_safe_top() -> float:
-	# The board is nested below the stage chrome, so the screenshot-safe top edge
-	# lives in global canvas space rather than at local y=BOARD_VERTICAL_MARGIN.
-	if str(presentation.get("board_framing_mode", "room")) != "combat" and (presentation.get("board_safe_global_rect", Rect2()) as Rect2).size.y > 0.0:
-		return _board_layout_available_rect().position.y
-	return BOARD_VERTICAL_MARGIN - get_global_transform().origin.y
-
-func _default_visual_top_framing_offset() -> float:
-	var visual_bounds: Rect2 = rendered_visual_bounds()
-	if visual_bounds.size.x <= 0.0 or visual_bounds.size.y <= 0.0:
-		return 0.0
-	# rendered_visual_bounds includes the current player pan. Remove it before
-	# deriving the default composition so this safety correction does not cancel
-	# an intentional upward pan.
-	var default_visual_top: float = visual_bounds.position.y - _navigation_pan.y
-	return maxf(0.0, _board_local_safe_top() - default_visual_top)
+	return _board_layout_available_rect().position.y
 
 func _navigation_zoom_anchor() -> Vector2:
-	var available_rect: Rect2 = _board_layout_available_rect()
-	var extents: Dictionary = _board_layout_cache_extents
-	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
-	var content_height: float = _board_layout_height_units(extents) * tile_width
-	var content_top: float = available_rect.position.y + (available_rect.size.y - content_height) * _board_vertical_bias()
-	var framing_offset: float = _default_vertical_framing_offset(extents, tile_width, content_top, _board_layout_cache_tiles)
-	return Vector2(
-		available_rect.get_center().x,
-		available_rect.position.y + available_rect.size.y * _board_vertical_bias() + framing_offset + _board_layout_cache_visual_top_offset
-	)
+	return _board_layout_available_rect().get_center()
 
-func _navigation_content_rect(extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
-	var content_size := Vector2(
-		_board_layout_width_units(extents) * tile_width,
-		_board_layout_height_units(extents) * tile_width
-	)
-	var available_rect: Rect2 = _board_layout_available_rect()
-	var content_position := Vector2(
-		available_rect.position.x + (available_rect.size.x - content_size.x) * 0.5,
-		available_rect.position.y + (available_rect.size.y - content_size.y) * _board_vertical_bias()
-	)
-	content_position.y += _default_vertical_framing_offset(extents, tile_width, content_position.y, _board_layout_cache_tiles)
-	if _board_layout_cache_valid and is_equal_approx(tile_width, _board_layout_cache_tile_width) and extents == _board_layout_cache_extents:
-		content_position.y += _board_layout_cache_visual_top_offset
-	return Rect2(content_position + pan, content_size)
+func _navigation_content_rect(_extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
+	var bounds: Rect2 = _room_framing.bounds(tile_width)
+	return Rect2(_room_framing.origin(_board_layout_available_rect(), tile_width) + bounds.position + pan, bounds.size)
 
 func _board_vertical_bias() -> float:
 	if str(presentation.get("board_framing_mode", "room")) != "combat":
@@ -14380,7 +14358,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 		if detailed_sections:
 			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
-	var draw_rect: Rect2 = _unit_draw_rect(unit)
+	var draw_rect: Rect2 = _unit_draw_rect_for_texture(unit, _unit_center(unit), texture)
 	var unit_type: String = str(unit.get("type", ""))
 	var shadow_geometry: Array = _unit_shadow_draw_geometry(texture, draw_rect, unit_type)
 	if detailed_sections:
@@ -14642,6 +14620,8 @@ func _unit_shadow_foot_point(texture: Texture2D, draw_rect: Rect2, bounds: Rect2
 	if texture == null or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
 		return Vector2(draw_rect.get_center().x, draw_rect.end.y)
 	var texture_size := Vector2(maxf(1.0, float(texture.get_width())), maxf(1.0, float(texture.get_height())))
+	if ActorPresentation.has_profile(unit_type):
+		return draw_rect.position + ActorPresentation.floor_anchor(unit_type) / texture_size * draw_rect.size
 	var bottom_ratio: float = _unit_shadow_stable_bottom_ratio(unit_type, texture, bounds)
 	return Vector2(
 		draw_rect.position.x + (bounds.position.x + bounds.size.x * 0.5) / texture_size.x * draw_rect.size.x,
@@ -14793,37 +14773,15 @@ func _tile_width() -> float:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tile_width
 
-func _tile_width_for_extents(extents: Dictionary) -> float:
-	var width_units: float = _board_layout_width_units(extents)
-	var height_units: float = _board_layout_height_units(extents)
-	var available_rect: Rect2 = _board_layout_available_rect()
-	var available_width: float = available_rect.size.x
-	var available_height: float = available_rect.size.y
-	var width_based: float = available_width / maxf(1.0, width_units)
-	var height_based: float = available_height / maxf(1.0, height_units)
-	return clampf(minf(width_based, height_based), 90.0, BOARD_MAX_TILE_WIDTH)
+func _tile_width_for_extents(_extents: Dictionary) -> float:
+	return _room_framing.tile_width(_board_layout_available_rect(), BOARD_MAX_TILE_WIDTH)
 
 func _board_layout_available_rect() -> Rect2:
-	var base_rect := Rect2(
-		Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
-		Vector2(
-			maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0),
-			maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)
-		)
-	)
-	if str(presentation.get("board_framing_mode", "room")) == "combat":
-		return base_rect
-	var safe_global_rect: Rect2 = presentation.get("board_safe_global_rect", Rect2()) as Rect2
-	if safe_global_rect.size.x <= 0.0 or safe_global_rect.size.y <= 0.0:
-		return base_rect
-	var inverse_transform: Transform2D = get_global_transform().affine_inverse()
-	var local_top_left: Vector2 = inverse_transform * safe_global_rect.position
-	var local_bottom_right: Vector2 = inverse_transform * safe_global_rect.end
-	var safe_local_rect := Rect2(local_top_left, local_bottom_right - local_top_left)
-	var clipped: Rect2 = base_rect.intersection(safe_local_rect)
-	if clipped.size.x <= 1.0 or clipped.size.y <= 1.0:
-		return base_rect
-	return clipped
+	var authored: Rect2 = presentation.get("board_fit_rect", Rect2()) as Rect2
+	if authored.has_area():
+		return authored
+	return Rect2(Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
+		Vector2(maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0), maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)))
 
 func _board_layout_width_units(extents: Dictionary) -> float:
 	var diag_span: float = maxf(0.0, float(extents.get("max_diag", 4.0)) - float(extents.get("min_diag", -4.0)))
@@ -14886,7 +14844,7 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 func _copy_resolved_board_layout_to(layer: Control) -> void:
 	_ensure_board_layout_cache()
 	for field: String in [
-		"_board_layout_cache_valid", "_board_layout_content_cache_valid",
+		"_room_framing", "_board_layout_cache_valid", "_board_layout_content_cache_valid",
 		"_board_layout_cache_tiles", "_board_layout_cache_extents",
 		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
 		"_board_layout_cache_visual_top_offset", "_board_layout_cache_tile_centers",
@@ -14922,43 +14880,34 @@ func _ensure_board_layout_cache() -> void:
 		_board_layout_cache_tiles = tiles
 		_board_layout_cache_extents = extents
 		_board_layout_content_cache_valid = true
+	var room_signature: String = _navigation_content_signature
+	if room_signature.is_empty():
+		room_signature = _room_grid_signature(combat_state)
+	if _room_framing.signature != room_signature or not _room_framing.body_bounds.has_area():
+		_populate_board_layout_cache(tiles, BoardFraming.REFERENCE_WIDTH, Vector2.ZERO)
+		_room_framing.capture(self, room_signature, tiles)
 	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
 	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
-	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset
+	_populate_board_layout_cache(tiles, tile_width, _board_origin_for_extents(extents, tile_width, tiles))
+
+func _populate_board_layout_cache(tiles: Array[Vector2i], tile_width: float, origin: Vector2) -> void:
 	_board_layout_cache_size = size
 	_board_layout_cache_tile_width = tile_width
-	_board_layout_cache_origin = _board_origin_for_extents(extents, tile_width, tiles)
+	_board_layout_cache_origin = origin
 	_board_layout_cache_visual_top_offset = 0.0
 	_board_layout_cache_tile_centers = {}
 	_board_layout_cache_tile_polygons = {}
-	var tile_height: float = tile_width * 0.5
-	var half_w: float = tile_width * 0.5
-	var half_h: float = tile_width * 0.25
 	for tile: Vector2i in tiles:
-		var center := Vector2(
-			_board_layout_cache_origin.x + float(tile.x - tile.y) * half_w,
-			_board_layout_cache_origin.y + float(tile.x + tile.y) * half_h
-		)
+		var center := origin + Vector2(float(tile.x - tile.y) * tile_width * 0.5, float(tile.x + tile.y) * tile_width * 0.25)
 		_board_layout_cache_tile_centers[tile] = center
 		_board_layout_cache_tile_polygons[tile] = PackedVector2Array([
-			center + Vector2(0.0, -tile_height * 0.5),
+			center + Vector2(0.0, -tile_width * 0.25),
 			center + Vector2(tile_width * 0.5, 0.0),
-			center + Vector2(0.0, tile_height * 0.5),
+			center + Vector2(0.0, tile_width * 0.25),
 			center + Vector2(-tile_width * 0.5, 0.0),
-			center + Vector2(0.0, -tile_height * 0.5)
+			center + Vector2(0.0, -tile_width * 0.25)
 		])
 	_board_layout_cache_valid = true
-	var visual_top_offset: float = maxf(retained_visual_top_offset, _default_visual_top_framing_offset())
-	if visual_top_offset > 0.01:
-		_board_layout_cache_visual_top_offset = visual_top_offset
-		_board_layout_cache_origin.y += visual_top_offset
-		for tile: Vector2i in tiles:
-			_board_layout_cache_tile_centers[tile] = (_board_layout_cache_tile_centers.get(tile, Vector2.ZERO) as Vector2) + Vector2(0.0, visual_top_offset)
-			var shifted_polygon := PackedVector2Array()
-			var polygon: PackedVector2Array = _board_layout_cache_tile_polygons.get(tile, PackedVector2Array()) as PackedVector2Array
-			for point: Vector2 in polygon:
-				shifted_polygon.append(point + Vector2(0.0, visual_top_offset))
-			_board_layout_cache_tile_polygons[tile] = shifted_polygon
 
 func _tile_height() -> float:
 	return _tile_width() * 0.5

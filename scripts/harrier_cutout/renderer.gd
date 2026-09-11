@@ -9,7 +9,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # Harrier stride follows actual traveled source distance in the 2:1 board plane.
-const WALK_CYCLE_SECONDS: float = 0.48
+const WALK_CYCLE_SECONDS: float = 0.38
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.45
 const ATTACK_FRAMES: int = 39

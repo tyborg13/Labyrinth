@@ -2,7 +2,7 @@ extends RefCounted
 
 ## Grounded, robe-concealed caster. Hands and orb remain rigid; no mace poses.
 const STANCE: float = 0.60
-const STRIDE: float = 48.0
+const STRIDE: float = 72.0
 const CAST_RELEASE: float = 0.18
 const MELEE_CONTACT: float = 0.42
 

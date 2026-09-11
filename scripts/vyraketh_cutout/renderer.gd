@@ -10,7 +10,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # Four overlapping support beats carry the crouched 2x2 dragon at its existing
 # art scale. Distance, not frame count, drives the source-space stride.
-const WALK_CYCLE_SECONDS: float = 0.9
+const WALK_CYCLE_SECONDS: float = 0.72
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 2.0
 const ATTACK_FRAME_SECONDS: float = 1.0 / 60.0

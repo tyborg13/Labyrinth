@@ -9,7 +9,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # One existing eight-frame tile move is one full projected Gaoler stride.
-const WALK_CYCLE_SECONDS: float = 0.36
+const WALK_CYCLE_SECONDS: float = 0.64
 const WALK_FRAME_SECONDS: float = 0.045
 const IDLE_CYCLE_SECONDS: float = 1.6
 const ATTACK_FRAMES: int = 6

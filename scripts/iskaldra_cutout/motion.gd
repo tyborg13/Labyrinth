@@ -2,7 +2,7 @@ extends RefCounted
 
 ## Crouched crystal dragon: rigid wings/claws, supporting hind legs, curled tail.
 const STANCE: float = 0.66
-const STRIDE: float = 30.0
+const STRIDE: float = 48.0
 const FOOT_LIFT: float = 6.0
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String, travel_per_cycle: float = 0.0) -> Dictionary:

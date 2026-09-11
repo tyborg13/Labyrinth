@@ -3,7 +3,7 @@ extends RefCounted
 ## Crouched dragon: four supports, aimed neck/maw and broad wing gestures.
 ## No combat resolution lives here. All positions use registered source pixels.
 const STANCE: float = 0.64
-const STRIDE: float = 44.0
+const STRIDE: float = 64.0
 const FEET: Array = ["claw_near", "claw_far", "foot_near", "foot_far"]
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

@@ -2,7 +2,7 @@ extends RefCounted
 
 ## Frostglass Lancer: narrow armored stride, grounded bob and aimed lance work.
 ## All points are this creature's registered landmarks, never Warden pose keys.
-const STRIDE: float = 60.0
+const STRIDE: float = 70.0
 const STANCE: float = 0.62
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

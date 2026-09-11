@@ -158,7 +158,7 @@ static func _verify_support(renderer: Node, expect: Callable) -> void:
 		var anchors: Dictionary = {}
 		var drift: float = 0.0
 		var travel: Vector2 = Cutout.Motion.walk_cycle_info(layout, facing)["travel_per_cycle"]
-		expect.call(is_equal_approx(travel.length(), 50.0) and is_equal_approx(absf(travel.x/travel.y), 2.0), "Crawl has meaningful 50px displacement on the 2:1 board plane")
+		expect.call(is_equal_approx(travel.length(), 100.0) and is_equal_approx(absf(travel.x/travel.y), 2.0), "Crawl has a longer 100px displacement on the 2:1 board plane")
 		for i: int in range(121):
 			var t: float = float(i)/120.0
 			rig.call("apply_pose", "walk", t)

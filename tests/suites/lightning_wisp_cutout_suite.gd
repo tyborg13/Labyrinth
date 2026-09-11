@@ -66,7 +66,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), .36), "Distinct preparation reaches the fully gathered pose before effects")
 	renderer.call("present", {"clip": "attack", "action": "cast", "phase": 1.0}, false)
 	expect.call(renderer.call("snapshot")["clip"] == "idle", "Ranged recovery restores idle with the persistent texture")
-	expect.call(Cutout.walk_segment_frames(Cutout.walk_cycle_distance()) == 29, "Flight duration follows actual distance at its declared cadence")
+	expect.call(Cutout.walk_segment_frames(Cutout.walk_cycle_distance()) == roundi(Cutout.WALK_CYCLE_SECONDS / Cutout.WALK_FRAME_SECONDS), "Flight duration follows actual distance at its declared cadence")
 	_submit(board, state, {"lightning_wisp_motion": {"enemy_1": {"clip": "walk", "direction": Vector2i(0, -1), "phase": 0.5}}, "reduced_motion": true})
 	renderer.call("_process", 0.6)
 	var still: Dictionary = renderer.call("snapshot")

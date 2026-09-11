@@ -1,5 +1,7 @@
 # Cinder Droplet cutout runtime
 
+Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
+
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
 Cinder Droplet (`cinder_droplet`) uses the editable [v01 case](../experiments/cutouts/cinder_droplet/v01/cutout.json) and production-owned [rig](../scripts/cinder_droplet_cutout/rig.gd), [motion](../scripts/cinder_droplet_cutout/motion.gd), [renderer](../scripts/cinder_droplet_cutout/renderer.gd), and [paint/layout closure](../assets/units/cinder_droplet_cutout/). The source is the approved local-master front painting. Its scale remains 0.56 beside Cinder Ooze's 0.82.

@@ -3,7 +3,7 @@ extends RefCounted
 ## Cinder Ooze: one rigid crusted mass over six soft contact lobes.
 ## No humanoid joints or independent plate rotations.
 const STANCE: float = 0.72
-const STRIDE: float = 36.0
+const STRIDE: float = 72.0
 const CONTACT_NAMES := ["left_outer", "front_left", "front_mid", "near_right", "right_outer", "far_right"]
 const CONTACT_PHASES := [0.0, 0.5, 0.1666666667, 0.6666666667, 0.3333333333, 0.8333333333]
 

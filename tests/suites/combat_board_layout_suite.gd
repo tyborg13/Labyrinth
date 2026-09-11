@@ -5,10 +5,10 @@ const GameData = preload("res://scripts/game_data.gd")
 
 
 static func run(expect: Callable) -> void:
-	_test_retained_layers_share_adaptive_framing_offset(expect)
+	_test_retained_layers_share_fixed_room_framing(expect)
 
 
-static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable) -> void:
+static func _test_retained_layers_share_fixed_room_framing(expect: Callable) -> void:
 	var board: CombatBoardView = CombatBoardView.new()
 	board.size = Vector2(1900.0, 790.0)
 	board.call("_create_dynamic_render_layer")
@@ -48,7 +48,7 @@ static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable
 	# retained actor layer between Blink and illusion creation.
 	board.call("_board_origin")
 	var tall_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
-	expect.call(tall_offset > ordinary_offset, "Tall same-room content should earn adaptive top clearance before the retained-layer transition")
+	expect.call(is_equal_approx(tall_offset, ordinary_offset), "A tall same-room occupant must use the clearance reserved before it appeared")
 
 	var blink_state: Dictionary = ordinary_state.duplicate(true)
 	(blink_state.get("player", {}) as Dictionary)["pos"] = Vector2i(5, 2)
@@ -60,7 +60,7 @@ static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable
 	var parent_origin: Vector2 = board.call("_board_origin") as Vector2
 	expect.call(
 		is_equal_approx(float(board.get("_board_layout_cache_visual_top_offset")), tall_offset),
-		"Blink/illusion presentation should retain the room's earned top clearance"
+		"Blink/illusion presentation should retain the room's fixed top clearance"
 	)
 	var actor_tiles: Array[Vector2i]
 	actor_tiles.append(Vector2i(5, 2))
@@ -77,7 +77,7 @@ static func _test_retained_layers_share_adaptive_framing_offset(expect: Callable
 		)
 		expect.call(
 			is_equal_approx(float(layer.get("_board_layout_cache_visual_top_offset")), tall_offset),
-			"Retained layer %s should inherit the parent floor's adaptive top clearance" % layer_label
+			"Retained layer %s should inherit the parent floor's up-front top clearance" % layer_label
 		)
 		for tile: Vector2i in actor_tiles:
 			var parent_center: Vector2 = board.call("_tile_center", tile) as Vector2

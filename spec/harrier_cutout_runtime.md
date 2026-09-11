@@ -1,5 +1,7 @@
 # Bone Harrier cutout runtime
 
+Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
+
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
 Bone Harrier uses its own 18-joint front/rear skeleton and segmented paint. Rush is a forward spear thrust. Pelt and Darting Pelt raise the gripped spear and cast from its tip. Retreat Step uses a guarded travel pose. The accepted thin skeleton, skull crest, wraps, worn waistcloth, spear, and dedicated turn portrait remain its identity.

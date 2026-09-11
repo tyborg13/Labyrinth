@@ -4,7 +4,7 @@ extends RefCounted
 ## two broad wing membranes and a resting tail. No humanoid weapon poses.
 const LIMBS = ["fore_far", "fore_near", "hind_far", "hind_near"]
 const STANCE: float = 0.72
-const STRIDE: float = 48.0
+const STRIDE: float = 64.0
 const CONTACT_PHASE: float = 0.55
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

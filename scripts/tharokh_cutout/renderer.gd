@@ -10,7 +10,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # The 2x2 dragon advances through one deliberate four-foot crawl cycle.
 # Source distance drives phase and board traversal together.
-const WALK_CYCLE_SECONDS: float = 1.12
+const WALK_CYCLE_SECONDS: float = 0.66
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 2.4
 const ATTACK_FRAMES: int = 63

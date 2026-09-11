@@ -3,7 +3,7 @@ extends RefCounted
 ## A lean wrapped surgeon: quiet breathing, measured steps, a short bone-saw
 ## thrust/rake, and vial-hand support feedback. All coordinates are source pixels.
 const STANCE: float = 0.62
-const STRIDE: float = 56.0
+const STRIDE: float = 72.0
 const IDLE_BOB: float = 1.2
 const SAW_CONTACT: float = 0.42
 

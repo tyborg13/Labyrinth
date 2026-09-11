@@ -4,7 +4,7 @@ extends RefCounted
 ## Hands and toes keep a rigid basis; the narrow limb shafts project along their
 ## length only. Idle is a single upper-body bob with all four limbs counter-shifted.
 const STANCE: float = 0.70
-const STRIDE: float = 56.0
+const STRIDE: float = 88.0
 const CONTACT_PHASE: float = 0.52
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

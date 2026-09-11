@@ -3,7 +3,7 @@ extends RefCounted
 ## Vaeloryx's serpentine hover and wing-driven wind gestures. Positions retain
 ## the 255px source registration; world travel belongs to the resolved path.
 const IDLE_SECONDS: float = 2.0
-const WALK_SECONDS: float = 0.8
+const WALK_SECONDS: float = 0.70
 const IDLE_BOB: float = 2.4
 const CONTACT: float = 0.42
 

@@ -10,7 +10,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # A deliberate quadruped crawl; phase follows projected distance at the
 # unchanged 1.86 boss art scale.
-const WALK_CYCLE_SECONDS: float = 0.85
+const WALK_CYCLE_SECONDS: float = 0.68
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 2.4
 const ATTACK_FRAME_SECONDS: float = 1.0 / 60.0

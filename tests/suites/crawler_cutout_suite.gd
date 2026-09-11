@@ -64,7 +64,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		renderer.call("present", {"clip": "attack", "phase": 1.0}, false)
 		expect.call(renderer.call("snapshot")["clip"] == "idle", "Completed attacks restore idle during the result hold")
 	expect.call(Cutout.attack_trail_phase(0.30) < 0.0 and is_equal_approx(Cutout.attack_trail_phase(0.42), 0.45) and Cutout.attack_trail_phase(0.90) < 0.0, "Melee trail stays absent during claw wind-up and follows the contact beat")
-	expect.call(is_equal_approx(Cutout.walk_cycle_distance(), 80.0), "Skitter covers 80 registered source pixels per cycle")
+	expect.call(Cutout.walk_cycle_distance() >= 120.0, "Longer skitter strides cover ground without a frantic cadence")
 	expect.call(Cutout.attack_clip({"intent_id":"lunge"}) == "lunge" and Cutout.attack_frames({"intent_id":"lunge"}) > Cutout.attack_frames({"intent_id":"skitter_strike"}), "Lunge has its own stronger, longer claw clip")
 	expect.call(Cutout.uses_coil({"kind":"block", "intent_id":"coil"}, {"type":"crawler"}) and not Cutout.uses_coil({"kind":"block", "intent_id":"bulwark"}, {"type":"warden"}), "Defensive curl is limited to the crawler's Coil")
 	for variant: String in ["attack", "lunge"]:

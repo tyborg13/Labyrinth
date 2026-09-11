@@ -9,7 +9,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # At the existing 0.56 body scale, travel distance drives the tendril gait.
-const WALK_CYCLE_SECONDS: float = 0.34
+const WALK_CYCLE_SECONDS: float = 0.27
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.5
 const ATTACK_FRAMES: int = 36

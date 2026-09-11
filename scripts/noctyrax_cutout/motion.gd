@@ -3,7 +3,7 @@ extends RefCounted
 ## Noctyrax: crouched quadruped. Source-space contact targets follow the 2:1
 ## projected lane; terminal claws stay rigid and the torso owns all chest paint.
 const STANCE: float = 0.65
-const STRIDE: float = 40.0
+const STRIDE: float = 56.0
 const LIMBS = ["fore_near", "hind_far", "fore_far", "hind_near"]
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:

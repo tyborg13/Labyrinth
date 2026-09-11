@@ -3,7 +3,7 @@ extends RefCounted
 ## Dust Acolyte: a planted robed caster, with a single open-hand ember.
 ## No weapon graph, weapon rotation or independent idle cloth oscillation.
 const STANCE: float = 0.60
-const STRIDE: float = 48.0
+const STRIDE: float = 72.0
 const RELEASE: float = 0.18
 const CONTACT: float = 0.66
 

@@ -76,7 +76,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call(renderer.call("snapshot")["clip"] == "idle", "Completed attacks restore idle during the result hold")
 	expect.call(Cutout.attack_trail_phase(0.30) < 0.0 and is_equal_approx(Cutout.attack_trail_phase(0.42), 0.45) and Cutout.attack_trail_phase(0.90) < 0.0, "Saw streak stays absent during preparation and follows the contact beat")
 	var ratio: float = (Cutout.walk_cycle_distance() / Cutout.WALK_CYCLE_SECONDS * board.grave_surgeon_source_pixel_scale()) / (PlayerCutout.walk_cycle_distance() / PlayerCutout.WALK_CYCLE_SECONDS * board.protagonist_source_pixel_scale())
-	expect.call(ratio > 0.40 and ratio < 0.65, "At production scale the surgeon has a measured, slower walk than the protagonist")
+	expect.call(ratio > 0.90 and ratio < 1.0, "At production scale the surgeon has a measured walk close to the protagonist")
 	_submit(board, state, {"grave_surgeon_motion": {"enemy_1": {"clip": "walk", "direction": Vector2i(0, -1), "phase": 0.5}}, "reduced_motion": true})
 	renderer.call("_process", 0.6)
 	var still: Dictionary = renderer.call("snapshot")

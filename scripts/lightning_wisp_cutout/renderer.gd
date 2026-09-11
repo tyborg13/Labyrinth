@@ -9,7 +9,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # Flight follows actual projected distance at the existing 0.68 body scale.
-const WALK_CYCLE_SECONDS: float = 0.48
+const WALK_CYCLE_SECONDS: float = 0.39
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.6
 const ATTACK_FRAMES: int = 36

@@ -1,5 +1,7 @@
 # Stone Warden cutout in gameplay
 
+Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
+
 ## Design and scope
 
 The combat board must show which way the Stone Warden travels and when its mace lands, while the player keeps choosing movement, cards and end turn through the existing pointer, keyboard and controller paths. The v04 revision repairs front chest/arm ownership and removes idle ripple while preserving the accepted body design, walking and attack poses. Keep the logical body, target tiles, HP/intent panels and turn-clock portrait stable; only the padded art canvas follows the skeleton. Prove both views and reflections, real move/melee outcomes, support, reduced-motion still art, multiple Wardens, preview echoes and death in fresh 1920×1080/100% native captures. No rules, intent weights, initiative, damage, rewards or analytics event boundaries change.

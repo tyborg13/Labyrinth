@@ -10,7 +10,7 @@ const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
 # Concealed steps carry a long robe at a measured pace. Travel distance,
 # source scale and pose phase stay coupled along the actual resolved path.
-const WALK_CYCLE_SECONDS: float = 0.72
+const WALK_CYCLE_SECONDS: float = 0.48
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.8
 const ATTACK_FRAMES: int = 72

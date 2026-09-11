@@ -8,7 +8,7 @@ const REST_PATH: String = "res://assets/units/iskaldra_cutout/front/rest.png"
 const SOURCE_SIZE := Vector2(255,255)
 const SOURCE_OFFSET := Vector2(128,128)
 const CANVAS_SIZE := Vector2i(512,512)
-const WALK_CYCLE_SECONDS: float = 0.8
+const WALK_CYCLE_SECONDS: float = 0.60
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 2.0
 
@@ -47,7 +47,9 @@ static func walk_cycle_distance() -> float:
 	return (Motion.walk_cycle_info({},"front")["travel_per_cycle"] as Vector2).length()
 
 static func walk_segment_frames(source_distance: float) -> int:
-	return roundi(float(walk_segment_cycles(source_distance)) * WALK_CYCLE_SECONDS / WALK_FRAME_SECONDS)
+	# Duration follows distance; the fitted support cycle may vary its stride,
+	# but rounding a cycle must never add a whole extra cycle of travel time.
+	return maxi(1, roundi(source_distance / walk_cycle_distance() * WALK_CYCLE_SECONDS / WALK_FRAME_SECONDS))
 
 static func walk_segment_cycles(source_distance: float) -> int:
 	# Every resolved segment finishes at the accepted resting stance. Adjust

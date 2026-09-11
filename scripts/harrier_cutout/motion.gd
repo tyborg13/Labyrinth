@@ -3,7 +3,7 @@ extends RefCounted
 ## Bone Harrier: thin projected bone chains, rigid spear and distinct thrust/cast.
 ## Source-space joints belong to this creature; only the affine segment math is shared practice.
 const STANCE: float = 0.62
-const STRIDE: float = 54.0
+const STRIDE: float = 70.0
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var pose: Dictionary = {}
