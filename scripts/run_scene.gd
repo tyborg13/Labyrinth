@@ -3608,10 +3608,11 @@ func _sync_board_view_rect() -> void:
 
 func _board_fit_rect() -> Rect2:
 	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(1920, 1080)
-	# The top-center lane is clear during combat. Reserve the hand's focused
-	# envelope up front even when it is hidden or controller focus tucks it away.
-	return Rect2(Vector2(36, 12), Vector2(maxf(1.0, viewport_size.x - 72.0),
-		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 30.0)))
+	# Reserve the complete header and focused hand before fitting any actor.
+	# Boss HP and controller prompts may appear later without changing the fit.
+	var header_bottom: float = BOSS_HEALTH_OVERLAY_TOP + BOSS_HEALTH_OVERLAY_HEIGHT + 8.0
+	return Rect2(Vector2(36, header_bottom), Vector2(maxf(1.0, viewport_size.x - 72.0),
+		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:

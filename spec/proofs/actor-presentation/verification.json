@@ -566,96 +566,44 @@
   ],
   "native": [
     {
-      "label": "roster-1",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-1",
-      "runner_sha256": "e1a3500e3048d4d563fbe7d057b1bbeef987d7742bac22b55a7476d5e8d00882",
-      "manifest_sha256": "acc65cb265f753102039f01f44cb11e13860d54b2b35fc5da3007a1c62fd56be",
-      "images": 49,
+      "label": "roster-check",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/roster-check",
+      "runner_sha256": "9f2e964e7f64d26d1b7eec31760d43a0c2a699fb9e4603a196b4fac43ff5305c",
+      "manifest_sha256": "1692c85871635a88a42e9a3ac66c7e6635177c5ea7a98ccc4a3a6b80ec52bed9",
+      "images": 23,
       "actors": [
-        "crawler",
-        "acolyte",
-        "harrier",
         "warden",
-        "cinder_ooze",
-        "cinder_droplet"
+        "zekarion"
       ],
       "walks": [
         {
           "actor": "player",
           "label": "player_front_walk",
-          "seconds": 1.054478,
-          "captured_frames": 66
-        },
-        {
-          "actor": "crawler",
-          "label": "crawler_front_walk",
-          "seconds": 0.958059,
-          "captured_frames": 62
-        },
-        {
-          "actor": "crawler",
-          "label": "crawler_rear_walk",
-          "seconds": 0.948602,
-          "captured_frames": 61
-        },
-        {
-          "actor": "acolyte",
-          "label": "acolyte_front_walk",
-          "seconds": 1.114659,
-          "captured_frames": 73
-        },
-        {
-          "actor": "acolyte",
-          "label": "acolyte_rear_walk",
-          "seconds": 1.126665,
-          "captured_frames": 74
-        },
-        {
-          "actor": "harrier",
-          "label": "harrier_front_walk",
-          "seconds": 0.95674,
-          "captured_frames": 62
-        },
-        {
-          "actor": "harrier",
-          "label": "harrier_rear_walk",
-          "seconds": 0.954808,
-          "captured_frames": 61
+          "seconds": 1.062816,
+          "captured_frames": 63
         },
         {
           "actor": "warden",
           "label": "warden_front_walk",
-          "seconds": 1.225021,
-          "captured_frames": 80
+          "seconds": 1.230769,
+          "captured_frames": 75
         },
         {
           "actor": "warden",
           "label": "warden_rear_walk",
-          "seconds": 1.220695,
-          "captured_frames": 80
+          "seconds": 1.227695,
+          "captured_frames": 75
         },
         {
-          "actor": "cinder_ooze",
-          "label": "cinder_ooze_front_walk",
-          "seconds": 1.252085,
-          "captured_frames": 80
-        },
-        {
-          "actor": "cinder_ooze",
-          "label": "cinder_ooze_rear_walk",
-          "seconds": 1.256338,
-          "captured_frames": 83
-        },
-        {
-          "actor": "cinder_droplet",
-          "label": "cinder_droplet_front_walk",
-          "seconds": 0.961841,
+          "actor": "zekarion",
+          "label": "zekarion_front_walk",
+          "seconds": 1.128517,
           "captured_frames": 62
         },
         {
-          "actor": "cinder_droplet",
-          "label": "cinder_droplet_rear_walk",
-          "seconds": 0.956729,
+          "actor": "zekarion",
+          "label": "zekarion_rear_walk",
+          "seconds": 1.125236,
           "captured_frames": 62
         }
       ],
@@ -667,8 +615,8 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "reduced",
@@ -677,103 +625,51 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         }
       ],
       "errors": []
     },
     {
-      "label": "roster-2",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-2",
-      "runner_sha256": "1b9422476d9c543059aa322792180251e7e991c5376f643d18db7124f3c7614e",
-      "manifest_sha256": "00b7d63458da9839ebcc755dba8f53ba3b517410742a8d8dbe2332e18da1576f",
-      "images": 49,
+      "label": "pair-1",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-1",
+      "runner_sha256": "1ae6fb5c97780cc0956881981d7c463220481473c0a94204e80993e472c59377",
+      "manifest_sha256": "e7cdfd572305ca66223491216b5bf83cff368609a26c50fe6ce2c9cfacc45ad2",
+      "images": 21,
       "actors": [
-        "bile_bloomer",
-        "chainbound_gaoler",
-        "grave_surgeon",
-        "frostglass_lancer",
-        "tharokh",
-        "vyraketh"
+        "crawler",
+        "acolyte"
       ],
       "walks": [
         {
           "actor": "player",
           "label": "player_front_walk",
-          "seconds": 1.056526,
-          "captured_frames": 66
+          "seconds": 1.04703,
+          "captured_frames": 68
         },
         {
-          "actor": "bile_bloomer",
-          "label": "bile_bloomer_front_walk",
-          "seconds": 1.281612,
-          "captured_frames": 81
+          "actor": "crawler",
+          "label": "crawler_front_walk",
+          "seconds": 0.947374,
+          "captured_frames": 62
         },
         {
-          "actor": "bile_bloomer",
-          "label": "bile_bloomer_rear_walk",
-          "seconds": 1.28745,
-          "captured_frames": 83
-        },
-        {
-          "actor": "chainbound_gaoler",
-          "label": "chainbound_gaoler_front_walk",
-          "seconds": 1.280728,
-          "captured_frames": 84
-        },
-        {
-          "actor": "chainbound_gaoler",
-          "label": "chainbound_gaoler_rear_walk",
-          "seconds": 1.281729,
-          "captured_frames": 84
-        },
-        {
-          "actor": "grave_surgeon",
-          "label": "grave_surgeon_front_walk",
-          "seconds": 1.115775,
-          "captured_frames": 65
-        },
-        {
-          "actor": "grave_surgeon",
-          "label": "grave_surgeon_rear_walk",
-          "seconds": 1.129592,
-          "captured_frames": 66
-        },
-        {
-          "actor": "frostglass_lancer",
-          "label": "frostglass_lancer_front_walk",
-          "seconds": 0.991204,
-          "captured_frames": 64
-        },
-        {
-          "actor": "frostglass_lancer",
-          "label": "frostglass_lancer_rear_walk",
-          "seconds": 0.985021,
+          "actor": "crawler",
+          "label": "crawler_rear_walk",
+          "seconds": 0.956894,
           "captured_frames": 63
         },
         {
-          "actor": "tharokh",
-          "label": "tharokh_front_walk",
-          "seconds": 1.318189,
+          "actor": "acolyte",
+          "label": "acolyte_front_walk",
+          "seconds": 1.126735,
           "captured_frames": 76
         },
         {
-          "actor": "tharokh",
-          "label": "tharokh_rear_walk",
-          "seconds": 1.314633,
-          "captured_frames": 77
-        },
-        {
-          "actor": "vyraketh",
-          "label": "vyraketh_front_walk",
-          "seconds": 1.291619,
-          "captured_frames": 74
-        },
-        {
-          "actor": "vyraketh",
-          "label": "vyraketh_rear_walk",
-          "seconds": 1.293011,
+          "actor": "acolyte",
+          "label": "acolyte_rear_walk",
+          "seconds": 1.122005,
           "captured_frames": 75
         }
       ],
@@ -785,8 +681,8 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "reduced",
@@ -795,23 +691,415 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         }
       ],
       "errors": []
     },
     {
-      "label": "roster-3",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/roster-3",
-      "runner_sha256": "887c8183afb18021ace00e17589604b184a57de2a627170849198c3f4c76d4eb",
-      "manifest_sha256": "deac03090fc34593835312d42dabaf2d9bc20dd74715f61fc52a980d2547c057",
-      "images": 49,
+      "label": "pair-2",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-2",
+      "runner_sha256": "01d2808a3e0d8a44177e17fd1e82b590fbceee9c00be1784dfc011b52f2b4c40",
+      "manifest_sha256": "f36fd6a4c46c7d35c3a56aae408961ed988f5e4562020eac1695df0d731132d9",
+      "images": 21,
       "actors": [
-        "vaeloryx",
+        "harrier",
+        "cinder_ooze"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.06057,
+          "captured_frames": 68
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_front_walk",
+          "seconds": 0.950729,
+          "captured_frames": 61
+        },
+        {
+          "actor": "harrier",
+          "label": "harrier_rear_walk",
+          "seconds": 0.953788,
+          "captured_frames": 62
+        },
+        {
+          "actor": "cinder_ooze",
+          "label": "cinder_ooze_front_walk",
+          "seconds": 1.256988,
+          "captured_frames": 83
+        },
+        {
+          "actor": "cinder_ooze",
+          "label": "cinder_ooze_rear_walk",
+          "seconds": 1.257058,
+          "captured_frames": 83
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-3",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-3",
+      "runner_sha256": "22615377c7e21b67329b1fd2d7f32e00eeff2fcc0efa4476ea4b7065ae6f0ed4",
+      "manifest_sha256": "9fc3c15aa45c4819f686a7f8cce3904dfd7d66e8dc8ee0230216af043c1ad829",
+      "images": 21,
+      "actors": [
+        "cinder_droplet",
+        "bile_bloomer"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.053313,
+          "captured_frames": 67
+        },
+        {
+          "actor": "cinder_droplet",
+          "label": "cinder_droplet_front_walk",
+          "seconds": 0.950995,
+          "captured_frames": 61
+        },
+        {
+          "actor": "cinder_droplet",
+          "label": "cinder_droplet_rear_walk",
+          "seconds": 0.948517,
+          "captured_frames": 61
+        },
+        {
+          "actor": "bile_bloomer",
+          "label": "bile_bloomer_front_walk",
+          "seconds": 1.289376,
+          "captured_frames": 84
+        },
+        {
+          "actor": "bile_bloomer",
+          "label": "bile_bloomer_rear_walk",
+          "seconds": 1.284769,
+          "captured_frames": 84
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-4",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-4",
+      "runner_sha256": "5e285a3dc4cd640f9764eb6f247a269190ff3402c4150fd4d2ff8ee33cda9013",
+      "manifest_sha256": "4f1cd1e5bdf7fb28d0c7056d0c9f4017e1243a1b812679c9c3a2b40ee4b24ae1",
+      "images": 21,
+      "actors": [
+        "chainbound_gaoler",
+        "grave_surgeon"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.055606,
+          "captured_frames": 67
+        },
+        {
+          "actor": "chainbound_gaoler",
+          "label": "chainbound_gaoler_front_walk",
+          "seconds": 1.278206,
+          "captured_frames": 84
+        },
+        {
+          "actor": "chainbound_gaoler",
+          "label": "chainbound_gaoler_rear_walk",
+          "seconds": 1.274684,
+          "captured_frames": 84
+        },
+        {
+          "actor": "grave_surgeon",
+          "label": "grave_surgeon_front_walk",
+          "seconds": 1.118401,
+          "captured_frames": 66
+        },
+        {
+          "actor": "grave_surgeon",
+          "label": "grave_surgeon_rear_walk",
+          "seconds": 1.12864,
+          "captured_frames": 67
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-5",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-5",
+      "runner_sha256": "da0f45c4219e68eb7cdc6b0aca7ee0648aee91414a8928862eb612e0cbe7ea89",
+      "manifest_sha256": "7942e5ea778edee56e8667ec6199496f37c4b093ffc47d01fdf1964b55537902",
+      "images": 21,
+      "actors": [
+        "frostglass_lancer",
+        "tharokh"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.060952,
+          "captured_frames": 67
+        },
+        {
+          "actor": "frostglass_lancer",
+          "label": "frostglass_lancer_front_walk",
+          "seconds": 0.986416,
+          "captured_frames": 64
+        },
+        {
+          "actor": "frostglass_lancer",
+          "label": "frostglass_lancer_rear_walk",
+          "seconds": 0.983576,
+          "captured_frames": 63
+        },
+        {
+          "actor": "tharokh",
+          "label": "tharokh_front_walk",
+          "seconds": 1.329806,
+          "captured_frames": 78
+        },
+        {
+          "actor": "tharokh",
+          "label": "tharokh_rear_walk",
+          "seconds": 1.315717,
+          "captured_frames": 76
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-6",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-6",
+      "runner_sha256": "76a3a6c212697fb117ff481e0e1b0d5616b9173d425275adcc31d0dfea8ef562",
+      "manifest_sha256": "2c6281299ab175543eeccf504ef1c72f40bf4e716434b59a4620b94c2626268f",
+      "images": 21,
+      "actors": [
+        "vyraketh",
+        "vaeloryx"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.056265,
+          "captured_frames": 67
+        },
+        {
+          "actor": "vyraketh",
+          "label": "vyraketh_front_walk",
+          "seconds": 1.28232,
+          "captured_frames": 75
+        },
+        {
+          "actor": "vyraketh",
+          "label": "vyraketh_rear_walk",
+          "seconds": 1.295293,
+          "captured_frames": 75
+        },
+        {
+          "actor": "vaeloryx",
+          "label": "vaeloryx_front_walk",
+          "seconds": 1.016458,
+          "captured_frames": 65
+        },
+        {
+          "actor": "vaeloryx",
+          "label": "vaeloryx_rear_walk",
+          "seconds": 1.020518,
+          "captured_frames": 65
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-7",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-7",
+      "runner_sha256": "dced9a04b5a2e0a731d8c5b0437c18204f7b4e54c703d5cb96360b490db6487f",
+      "manifest_sha256": "2e96248749a06f3dc0786dd25bf023582a59db12a5bdf9086549ae112c972b6f",
+      "images": 21,
+      "actors": [
         "iskaldra",
-        "noctyrax",
-        "zekarion",
+        "noctyrax"
+      ],
+      "walks": [
+        {
+          "actor": "player",
+          "label": "player_front_walk",
+          "seconds": 1.050484,
+          "captured_frames": 66
+        },
+        {
+          "actor": "iskaldra",
+          "label": "iskaldra_front_walk",
+          "seconds": 1.292477,
+          "captured_frames": 83
+        },
+        {
+          "actor": "iskaldra",
+          "label": "iskaldra_rear_walk",
+          "seconds": 1.286603,
+          "captured_frames": 83
+        },
+        {
+          "actor": "noctyrax",
+          "label": "noctyrax_front_walk",
+          "seconds": 1.185351,
+          "captured_frames": 76
+        },
+        {
+          "actor": "noctyrax",
+          "label": "noctyrax_rear_walk",
+          "seconds": 1.191776,
+          "captured_frames": 77
+        }
+      ],
+      "transitions": [
+        {
+          "mode": "normal",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        },
+        {
+          "mode": "reduced",
+          "samples": 36,
+          "floor_center": [
+            960.0,
+            540.0
+          ],
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
+        }
+      ],
+      "errors": []
+    },
+    {
+      "label": "pair-8",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/pair-8",
+      "runner_sha256": "11119ede2ae152e36c2a8161f342988774a502837b14dfeaa3f1b2e1697a68c2",
+      "manifest_sha256": "229e58e2c047497cd4ffa27c6685e531ec9e2761fbeb7317f4b6ccaaa4b6b80d",
+      "images": 21,
+      "actors": [
         "veilbound_acolyte",
         "lightning_wisp"
       ],
@@ -819,79 +1107,31 @@
         {
           "actor": "player",
           "label": "player_front_walk",
-          "seconds": 1.059425,
-          "captured_frames": 66
-        },
-        {
-          "actor": "vaeloryx",
-          "label": "vaeloryx_front_walk",
-          "seconds": 1.022245,
-          "captured_frames": 65
-        },
-        {
-          "actor": "vaeloryx",
-          "label": "vaeloryx_rear_walk",
-          "seconds": 1.014325,
-          "captured_frames": 64
-        },
-        {
-          "actor": "iskaldra",
-          "label": "iskaldra_front_walk",
-          "seconds": 1.283151,
-          "captured_frames": 81
-        },
-        {
-          "actor": "iskaldra",
-          "label": "iskaldra_rear_walk",
-          "seconds": 1.294234,
-          "captured_frames": 83
-        },
-        {
-          "actor": "noctyrax",
-          "label": "noctyrax_front_walk",
-          "seconds": 1.192093,
-          "captured_frames": 75
-        },
-        {
-          "actor": "noctyrax",
-          "label": "noctyrax_rear_walk",
-          "seconds": 1.184855,
-          "captured_frames": 75
-        },
-        {
-          "actor": "zekarion",
-          "label": "zekarion_front_walk",
-          "seconds": 1.124611,
-          "captured_frames": 65
-        },
-        {
-          "actor": "zekarion",
-          "label": "zekarion_rear_walk",
-          "seconds": 1.124713,
-          "captured_frames": 66
+          "seconds": 1.055987,
+          "captured_frames": 67
         },
         {
           "actor": "veilbound_acolyte",
           "label": "veilbound_acolyte_front_walk",
-          "seconds": 1.12283,
-          "captured_frames": 73
+          "seconds": 1.123959,
+          "captured_frames": 74
         },
         {
           "actor": "veilbound_acolyte",
           "label": "veilbound_acolyte_rear_walk",
-          "seconds": 1.127574,
-          "captured_frames": 73
+          "seconds": 1.127049,
+          "captured_frames": 72
         },
         {
           "actor": "lightning_wisp",
           "label": "lightning_wisp_front_walk",
-          "seconds": 0.924365,
+          "seconds": 0.917915,
           "captured_frames": 54
         },
         {
           "actor": "lightning_wisp",
           "label": "lightning_wisp_rear_walk",
-          "seconds": 0.926197,
+          "seconds": 0.928352,
           "captured_frames": 54
         }
       ],
@@ -903,8 +1143,8 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "reduced",
@@ -913,40 +1153,40 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         }
       ],
       "errors": []
     },
     {
       "label": "lethal-rewards",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/lethal-rewards",
-      "runner_sha256": "df011eb035372dcbab0fe4e6fc6a4878368cba5f7e5ee2e5acf1ffecb7652c05",
-      "manifest_sha256": "a2fbd0ad889c7ebb4a48eb9341279d80fa16106e6e42b80c88b90f5813407501",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/lethal-rewards",
+      "runner_sha256": "776906ab1ea34c16f592371e147b321c730417bcd04f2bc6f36216ccd3d3d237",
+      "manifest_sha256": "0788c4e8deeff054ae52f6ade8e4d6457c3ac68631075a0d9de91376fe1c4fd8",
       "images": 14,
       "actors": [],
       "walks": [],
       "transitions": [
         {
           "mode": "normal_actual_lethal",
-          "samples": 296,
+          "samples": 291,
           "floor_center": [
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "reduced_actual_lethal",
-          "samples": 182,
+          "samples": 167,
           "floor_center": [
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "normal",
@@ -955,8 +1195,8 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         },
         {
           "mode": "reduced",
@@ -965,16 +1205,16 @@
             960.0,
             540.0
           ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
+          "tile_width_min": 108.775959014893,
+          "tile_width_max": 108.775959014893
         }
       ],
       "errors": []
     },
     {
       "label": "raised-weapons",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/raised-weapons",
-      "runner_sha256": "a42181203c2cc8a41b857245740c513d717004f136d245a6840f59250e59a556",
+      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/header-native/raised-weapons",
+      "runner_sha256": "6bda7a82ef26daca25cea7cc47d15eac52bee135395559f2bb63568b2329fa85",
       "manifest_sha256": "9beff53d5a27805569ce57e52df93c9410fbc06995818c2b6c86cf471fb96797",
       "images": 4,
       "actors": [
@@ -986,90 +1226,9 @@
       "walks": [],
       "transitions": [],
       "errors": []
-    },
-    {
-      "label": "final-hud",
-      "root": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/native/final-hud",
-      "runner_sha256": "f0c93971231d53292a4a32e1e0816599567dab8cbabbbc8e8491f842b8a54f38",
-      "manifest_sha256": "a05b21b6f90cfe0598b71522c033cac498b580f78192d8c21ba2447f2729e2a0",
-      "images": 21,
-      "actors": [
-        "warden",
-        "harrier"
-      ],
-      "walks": [
-        {
-          "actor": "player",
-          "label": "player_front_walk",
-          "seconds": 1.051469,
-          "captured_frames": 67
-        },
-        {
-          "actor": "warden",
-          "label": "warden_front_walk",
-          "seconds": 1.215972,
-          "captured_frames": 79
-        },
-        {
-          "actor": "warden",
-          "label": "warden_rear_walk",
-          "seconds": 1.221549,
-          "captured_frames": 80
-        },
-        {
-          "actor": "harrier",
-          "label": "harrier_front_walk",
-          "seconds": 0.954621,
-          "captured_frames": 62
-        },
-        {
-          "actor": "harrier",
-          "label": "harrier_rear_walk",
-          "seconds": 0.964865,
-          "captured_frames": 60
-        }
-      ],
-      "transitions": [
-        {
-          "mode": "normal",
-          "samples": 36,
-          "floor_center": [
-            960.0,
-            540.0
-          ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
-        },
-        {
-          "mode": "reduced",
-          "samples": 36,
-          "floor_center": [
-            960.0,
-            540.0
-          ],
-          "tile_width_min": 130.607315063477,
-          "tile_width_max": 130.607315063477
-        }
-      ],
-      "errors": []
     }
   ],
   "checks": [
-    {
-      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-input-freshness.json",
-      "sha256": "bdb35098686b01a5c860e69accbeb689c6d066a53dd63769a17b5ea78974397b",
-      "result": "All 17 case captures match final source inputs."
-    },
-    {
-      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-final-suite-v2.log",
-      "sha256": "5f691875aece7f09d159efdf37557f37abd9be59c947da55d81e4ef50a3c98a0",
-      "result": "Full Godot test suite: PASS after final runtime edits."
-    },
-    {
-      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-final-focused.log",
-      "sha256": "dc6d47ca14c9d5bb7159b5d3d9b32d0cf0c83e54241e3cadf8b2ad59b08884c5",
-      "result": "Focused presentation regressions: PASS."
-    },
     {
       "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-nontravel.json",
       "sha256": "7cf9f0a83d1cb7315794d0c0ead3f27c0f50c9ff28132afcec2b743ee6529136",
@@ -1089,18 +1248,29 @@
       "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-presentation-pack-runtime-v2.log",
       "sha256": "211959d44e1387d816411dd4c3304b9fb545e893ed02ff6d544dec13f90fd453",
       "result": "Unmodified release template loads both rigs for all 17 changed renderers: PASS."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-header-full-suite.log",
+      "sha256": "958e37de77c745df6f80f8ce2512216bb1847e799ec3b73c3d32e7ca10b85272",
+      "result": "Full Godot regression suite after header correction: PASS."
+    },
+    {
+      "file": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/checks/labyrinth-header-focused.log",
+      "sha256": "26e6b549b445d4d92f6a9c4627ff4a3178bf47e7a35fa5fa7d281366918200a1",
+      "result": "Focused presentation suite with header reserve: PASS."
     }
   ],
   "limits": [
     "Physical controller hardware, Windows execution and additional resolutions/UI scales were not exercised.",
-    "Native roster groups and lethal rewards precede only Warden/Harrier fixed HP-height exceptions; the final HUD supplement and weapon-clearance probe cover both affected actors.",
-    "An unsplit all-roster run stalled in capture; bounded six-actor groups completed with unchanged per-actor coverage."
+    "The 17 editable gait case captures remain bound to 696631c0; final header framing uses fresh gameplay captures for all actors."
   ],
   "source_sha256": {
     "scripts/acolyte_cutout/motion.gd": "bd11fd05046d43e58c296f28f1a85d7d911133858a2bc1b7b380931abdfd3551",
     "scripts/acolyte_cutout/renderer.gd": "dcfe44599fb4254acc8adab38aa2a1673bc28f702e06acdba7bac54a5c3ab225",
+    "scripts/actor_presentation.gd": "68c8e7cd8c0b6aa3828ae6d00e3b91fdf0774d2a6484bb153cbab7e81fd0a98d",
     "scripts/bile_bloomer_cutout/motion.gd": "e675843712fc6f28cca0baf19f45c29491e4c15137a92d791abf81347ffbb5cc",
     "scripts/bile_bloomer_cutout/renderer.gd": "64791194ea57da4591b16761d1c027291fc3e509a6dedc83ac33c05cc3f10a77",
+    "scripts/board_framing.gd": "e4f6e52251fc266241dda61e732dee86ca001937d690cf5f7437b947467471a0",
     "scripts/chainbound_gaoler_cutout/renderer.gd": "38fdba5cfff93dd98be68800d245a99890d180b2f2dd487ee7c3b0f1ed3da630",
     "scripts/cinder_droplet_cutout/motion.gd": "88d8b5ab834e59cd0ca1c2b4020e4f6b9c3e32173dd62989e2be83cf606bc7f3",
     "scripts/cinder_droplet_cutout/renderer.gd": "f53e7c87bb28bf583bd46786038cdd1faae7420c1cd400ee76013f93b3dea7d3",
@@ -1120,7 +1290,7 @@
     "scripts/lightning_wisp_cutout/renderer.gd": "3469494d83f25c8786ac0873259d80770be70b8fc85fe84013a79eeafaf52765",
     "scripts/noctyrax_cutout/motion.gd": "569d47f993a52ea579c9d407f4922fa166b4a5b702149f243c60f2f5ca68773e",
     "scripts/noctyrax_cutout/renderer.gd": "658c3cfd860020db2fa545767c5925e560a3f5c19f400cb3ed72a37685ec72e4",
-    "scripts/run_scene.gd": "861146f20dcd6cfc1755b5ffd81d8a9dc0b94c9ecaaaa4d0428fb422e0d6ec1f",
+    "scripts/run_scene.gd": "76cebe1638b75e1692e1cfc25df067e29fb72becffe70f0fd3221d5781c6ebea",
     "scripts/tharokh_cutout/motion.gd": "b340e273b96f26b28e1f02b6a978932ed1be6dc17700d8139ff5f7fcfdb65775",
     "scripts/tharokh_cutout/renderer.gd": "a7c3072085085dcfff9259d30070b7b48560b43a14c20ba385cb762e34efe5b2",
     "scripts/vaeloryx_cutout/motion.gd": "b261dfe972eecc5648bb84c99aa920e7ec47c9214ddb6bc19130c0e6e30828a6",
@@ -1131,27 +1301,29 @@
     "scripts/vyraketh_cutout/renderer.gd": "26dec0a5caf43d5e80295775eacc1305c2d77cecad8b0fd7c9285731eb687537",
     "scripts/zekarion_cutout/motion.gd": "8a3b72566e447ad42483a1490ca9f46fc79881488e6677022ddef85782d5b766",
     "scripts/zekarion_cutout/renderer.gd": "d1fe37c7bc5d28382b2502fe0e66151e0967d6a19480737747fd66d22ac6df8c",
+    "tests/actor_presentation_probe.gd": "2e527044cb346dd98f031fd9bc073f7d55c3a2a4d302cbf54280f3e68e662935",
+    "tests/actor_presentation_test.gd": "f90597ea40fc9def399af2f98db23b9544a96992b5b33d9f7a13bc60223847c8",
+    "tests/actor_weapon_clearance_probe.gd": "baa9bd576d395c7102c977c554a2f88a9fc6bd5a32c8e0cd1162a3b18df52325",
+    "tests/board_transition_probe.gd": "b15889a795246d71da4b52ab039749a20e7bcfc54b6d66b16a49c0e10c675f8c",
     "tests/run_tests.gd": "f69c79e115ceaf98dfd53ea7c503e32d36737a3c2b9155dad1faeae7f762a1d5",
+    "tests/suites/actor_presentation_suite.gd": "74e470b83d0192cc5243ec0a9ddafee47554ffd86040121f8a511af09db06e43",
     "tests/suites/cinder_ooze_cutout_suite.gd": "4b08c67164bdfb0dea8d52e671ba1be9521c312abce3483040e41cab2dc338dd",
     "tests/suites/combat_board_layout_suite.gd": "7d4fdcdea43c0d29d7e79dc0cf5d19878b6fe61efc61f9d0997433490deb1f9f",
     "tests/suites/crawler_cutout_suite.gd": "b4b34ce00174f947098fa9fcf71db21d55074081332c4e01425332563c136850",
     "tests/suites/grave_surgeon_cutout_suite.gd": "85d7a4b373b23fa8ab1eb6c91dd510872d34049a38a8252d2494dbac6ea6074f",
     "tests/suites/iskaldra_cutout_suite.gd": "6fb67bd87b00740ce31790c6a02bc86ad08825832a51417f1d83665e54aa60b2",
     "tests/suites/lightning_wisp_cutout_suite.gd": "3e60cde8770bf55fde02b584c44ff32305982440cdf8a3e242bbac64dd4cdd86",
-    "tests/suites/tharokh_cutout_suite.gd": "d7f89ac9d97e0a37a9b9615a9c0aec20356b0306c16e875101c59f6793db6568",
-    "scripts/actor_presentation.gd": "68c8e7cd8c0b6aa3828ae6d00e3b91fdf0774d2a6484bb153cbab7e81fd0a98d",
-    "scripts/board_framing.gd": "e4f6e52251fc266241dda61e732dee86ca001937d690cf5f7437b947467471a0",
-    "tests/actor_presentation_probe.gd": "b55bb81cff71be32000bebad0d1ef40f892e63294e84d377ab8eda7c67471cf9",
-    "tests/actor_presentation_test.gd": "f90597ea40fc9def399af2f98db23b9544a96992b5b33d9f7a13bc60223847c8",
-    "tests/actor_weapon_clearance_probe.gd": "baa9bd576d395c7102c977c554a2f88a9fc6bd5a32c8e0cd1162a3b18df52325",
-    "tests/board_transition_probe.gd": "b15889a795246d71da4b52ab039749a20e7bcfc54b6d66b16a49c0e10c675f8c",
-    "tests/suites/actor_presentation_suite.gd": "4c46236fea4aa51f046017ce4ac186ac84aceff8587984f29a9eba953e53fd9e"
+    "tests/suites/tharokh_cutout_suite.gd": "d7f89ac9d97e0a37a9b9615a9c0aec20356b0306c16e875101c59f6793db6568"
   },
   "visual_review": {
-    "all_roster_facings": "72 front/rear/reflected live views inspected in the three final contact sheets; Surgeon rear additionally inspected at full resolution after retained-draw registration correction.",
-    "gaits": "All 17 changed actor cases, complete front/rear cycles, 36 phases each; contact sheets at fixed crop and authored support/rigid metrics.",
+    "all_roster_facings": "All 72 fresh header-reserved front/rear/reflected native views and top-row actors reviewed; Warden/Zekarion controller top-row captures explicitly avoid actual prompt/boss HUD controls.",
+    "gaits": "All 17 unchanged gait cases at 696631c0 retain full front/rear cycles, fixed-crop contact sheets, support/rigid metrics and timed reels. Final gameplay framing captures cover all 18 actors after the header correction.",
     "hp": "Maximum raised Warden/Harrier weapons have zero opaque pixels under HP frames; native PNGs inspected.",
     "reward_and_input": "Actual lethal card targeting, victory, selectable rewards, reduced motion, controller cancel and pointer handoff pass; full-size screenshots inspected.",
-    "rubric_record": "spec/actor_presentation.md"
-  }
+    "rubric_record": "spec/actor_presentation.md",
+    "peer_review_fix": "The first review correctly identified Zekarion wing occlusion by the separate boss HP overlay. The fixed fit now reserves y=126 before any actor arrives; native assertions check both actual header controls and the complete fixed available rectangle. Header appearance cannot change zoom."
+  },
+  "gait_capture_commit": "696631c092fd028c50cbc9c87916e0e02a6a54b8",
+  "gait_freshness": "Editable gait captures and their broad project hashes are bound to the preceding commit. The follow-up changes only RunScene framing, native assertions, focused test geometry and documentation; every actor renderer/motion/art source is unchanged. Final full-roster gameplay evidence below covers the revised framing.",
+  "previous_proof_index": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/verification-before-header-fix.json"
 }

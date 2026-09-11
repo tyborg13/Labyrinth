@@ -111,6 +111,18 @@ func _verify_views_and_top_row(actor: String) -> void:
 	_check(initial_origin.is_equal_approx(_board.call("_board_origin")) and is_equal_approx(initial_width, _board.call("_tile_width")), actor + " top-row move never corrects the camera after arrival")
 	_assert_actor_inside(actor, "top_row")
 	await _still(actor + "_top_row")
+	if actor in ["warden", "zekarion"]:
+		var router: Node = root.get_node_or_null("InputRouter")
+		var input: Script = load("res://scripts/input_router.gd")
+		router.call("set_forced_state_for_test", input.MODALITY_CONTROLLER, input.FAMILY_STEAM_DECK)
+		_instance.call("_refresh_controller_interface")
+		await _settle()
+		_assert_actor_inside(actor, "top_row_controller")
+		_check(initial_origin.is_equal_approx(_board.call("_board_origin")) and is_equal_approx(initial_width, _board.call("_tile_width")), actor + " header input modality cannot change the up-front fit")
+		await _still(actor + "_top_row_controller")
+		router.call("clear_forced_state_for_test")
+		_instance.call("_refresh_controller_interface")
+		await _settle()
 
 func _record_walk(actor: String, direction: Vector2i) -> void:
 	var state: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -214,6 +226,13 @@ func _assert_actor_inside(actor: String, label: String) -> void:
 	var viewport_rect := Rect2(Vector2(4, 4), Vector2(1912, 1072))
 	_check(viewport_rect.encloses(visible_rect), actor + " full native silhouette stays on screen in " + label)
 	_check(viewport_rect.encloses(hp), actor + " health bar stays on screen in " + label)
+	var available: Rect2 = _instance.call("_board_fit_rect")
+	_check(available.grow(0.1).encloses(visible_rect) and available.grow(0.1).encloses(hp), actor + " native silhouette and HP avoid the fixed header/hand reserve in " + label)
+	for property: String in ["_boss_health_overlay", "_controller_prompt_bar"]:
+		var header: Control = _instance.get(property) as Control
+		if header != null and header.is_visible_in_tree():
+			var header_rect: Rect2 = header.get_global_rect()
+			_check(not visible_rect.intersects(header_rect) and not hp.intersects(header_rect), actor + " native silhouette and HP avoid actual " + property + " in " + label)
 
 func _verify_transitions(reduced: bool) -> void:
 	_active_type = "grave_surgeon"

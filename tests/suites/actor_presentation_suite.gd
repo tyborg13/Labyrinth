@@ -9,7 +9,7 @@ static func run(expect: Callable) -> void:
 	var board := CombatBoardView.new()
 	board.size = Vector2(1920, 1080)
 	var state: Dictionary = LayoutSuite._state_with_enemy({"id": 1, "type": "grave_surgeon", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20})
-	var presentation := {"board_framing_mode": "combat", "board_fit_rect": Rect2(36, 12, 1848, 726)}
+	var presentation := {"board_framing_mode": "combat", "board_fit_rect": Rect2(36, 126, 1848, 612)}
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	_test_travel_pace(board, expect)
 	_test_initial_fit_and_invariance(board, state, presentation, expect)
