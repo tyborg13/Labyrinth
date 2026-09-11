@@ -29,7 +29,8 @@ func _run() -> void:
 	_observer_type = "warden"
 	await _fixture(GameData.enemy_def(_active_type)["intents"][0])
 	await create_timer(0.45).timeout
-	await _record_walk("player", Vector2i(1, 0))
+	if OS.get_environment("LABYRINTH_PRESENTATION_FRAMING_ONLY").is_empty():
+		await _record_walk("player", Vector2i(1, 0))
 	var actor_types: Array = ActorPresentation.PROFILES.keys()
 	var selected: String = OS.get_environment("LABYRINTH_PRESENTATION_ACTORS")
 	if not selected.is_empty():
@@ -40,13 +41,14 @@ func _run() -> void:
 				actor_types.append(actor)
 	for actor: String in actor_types:
 		_active_type = actor
-		_observer_type = "warden" if actor != "warden" else "grave_surgeon"
+		_observer_type = actor if OS.get_environment("LABYRINTH_PRESENTATION_OBSERVER") == "same" else "warden" if actor != "warden" else "grave_surgeon"
 		await _fixture(GameData.enemy_def(actor)["intents"][0])
 		await create_timer(0.45).timeout
 		await _verify_views_and_top_row(actor)
-		await _record_walk(actor, Vector2i(1, 0))
-		await _record_walk(actor, Vector2i(0, -1))
-		await _audit_action_envelope(actor)
+		if OS.get_environment("LABYRINTH_PRESENTATION_FRAMING_ONLY").is_empty():
+			await _record_walk(actor, Vector2i(1, 0))
+			await _record_walk(actor, Vector2i(0, -1))
+			await _audit_action_envelope(actor)
 		print("PRESENTATION PROOF: " + actor)
 		_write_proof()
 	await _verify_transitions(false)
@@ -59,6 +61,13 @@ func _run() -> void:
 	_instance.queue_free()
 	await process_frame
 	quit(0 if _errors.is_empty() else 1)
+
+func _fixture(intent: Dictionary, reduced: bool = false) -> void:
+	# Each synthetic fixture represents a fresh combat at the reused test coord.
+	await super._fixture(intent, reduced)
+	_instance.set("_board_encounter_key", "")
+	_instance.call("_refresh_ui")
+	await _settle()
 
 func _install(state: Dictionary) -> void:
 	_instance.set("_combat_state", state.duplicate(true))
@@ -103,6 +112,7 @@ func _verify_views_and_top_row(actor: String) -> void:
 		var anchor: Vector2 = ActorPresentation.floor_anchor(actor, snapshot["facing"], snapshot["mirrored"])
 		_check((rect.position + anchor * rect.size / 255.0).distance_to(center) < 0.01, actor + " authored support centroid sits over its tile/ring in view " + str(index))
 		_check(initial_origin.is_equal_approx(_board.call("_board_origin")) and is_equal_approx(initial_width, _board.call("_tile_width")), actor + " facing/player movement preserves the camera")
+		_measure_hp(actor, index)
 		await _still(actor + "_view_" + str(index))
 	state["enemies"][0]["pos"] = Vector2i(1, 1)
 	state["player"]["pos"] = Vector2i(6, 6)
@@ -225,14 +235,15 @@ func _assert_actor_inside(actor: String, label: String) -> void:
 	hp.position += _board.position
 	var viewport_rect := Rect2(Vector2(4, 4), Vector2(1912, 1072))
 	_check(viewport_rect.encloses(visible_rect), actor + " full native silhouette stays on screen in " + label)
-	_check(viewport_rect.encloses(hp), actor + " health bar stays on screen in " + label)
+	var local_hp: bool = not bool(unit.get("boss_bar", false))
+	_check(not local_hp or viewport_rect.encloses(hp), actor + " visible health bar stays on screen in " + label)
 	var available: Rect2 = _instance.call("_board_fit_rect")
-	_check(available.grow(0.1).encloses(visible_rect) and available.grow(0.1).encloses(hp), actor + " native silhouette and HP avoid the fixed header/hand reserve in " + label)
+	_check(available.grow(0.1).encloses(visible_rect) and (not local_hp or available.grow(0.1).encloses(hp)), actor + " native silhouette and HP avoid the fixed header/hand reserve in " + label)
 	for property: String in ["_boss_health_overlay", "_controller_prompt_bar"]:
 		var header: Control = _instance.get(property) as Control
 		if header != null and header.is_visible_in_tree():
 			var header_rect: Rect2 = header.get_global_rect()
-			_check(not visible_rect.intersects(header_rect) and not hp.intersects(header_rect), actor + " native silhouette and HP avoid actual " + property + " in " + label)
+			_check(not visible_rect.intersects(header_rect) and (not local_hp or not hp.intersects(header_rect)), actor + " native silhouette and HP avoid actual " + property + " in " + label)
 
 func _verify_transitions(reduced: bool) -> void:
 	_active_type = "grave_surgeon"
@@ -284,3 +295,18 @@ func _write_proof() -> void:
 	_proof["errors"] = _errors
 	var file := FileAccess.open(PROOF.path_join("manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(_proof, "\t"))
+
+func _measure_hp(actor: String, index: int) -> void:
+	var unit: Dictionary = _unit(actor)
+	if bool(unit.get("boss_bar", false)): return
+	var center: Vector2 = _board.call("_unit_center", unit)
+	var texture: Texture2D = _board.call("_texture_for_unit", unit)
+	var rect: Rect2 = _board.call("_unit_texture_draw_rect", unit, center)
+	var used: Rect2i = texture.get_image().get_used_rect()
+	var visible_top: float = rect.position.y + float(used.position.y) * rect.size.y / texture.get_height()
+	var hp: Rect2 = _board.call("_unit_health_bar_rect", unit, center)
+	var cached: Rect2 = (_board.get("_hud_health_rects_cache") as Dictionary).get("enemy_1", Rect2())
+	_check(cached.is_equal_approx(hp), actor + " cached rendered HP matches its current painted facing " + str(index))
+	_check(is_equal_approx(float(_board.call("_unit_art_top_y", unit, center)) - hp.end.y, 4.0), actor + " uses four pixels of body clearance")
+	if not _proof.has("health_bars"): _proof["health_bars"] = []
+	_proof["health_bars"].append({"actor": actor, "view": index, "visible_top": visible_top, "art_anchor_top": _board.call("_unit_art_top_y", unit, center), "hp_bottom": hp.end.y, "gap": visible_top - hp.end.y, "width": _board.call("_tile_width"), "source_top": used.position.y})

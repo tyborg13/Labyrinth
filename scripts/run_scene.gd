@@ -48,6 +48,7 @@ const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
+const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
@@ -1531,6 +1532,9 @@ var _committed_run_state_override: Dictionary = {}
 var _save_in_progress: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
+var _board_encounter_key: String = ""
+var _board_encounter_roster: Array[String]
+var _board_encounter_started: bool = false
 var _boss_health_candidate_revision: int = -1
 var _boss_health_candidate_id: int = -1
 var _boss_health_overlay_signature: String = ""
@@ -3606,11 +3610,28 @@ func _sync_board_view_rect() -> void:
 	_board_centering_tween.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
 	_board_centering_tween.tween_property(board_view, "position", target, 0.42)
 
+func _board_encounter_types() -> Array[String]:
+	var key: String = "%s|%s|%s" % [str(_run_state.get("seed", 0)),
+		str(_run_state.get("run_index", 0)), str(_run_state.get("current_room", _combat_state.get("room_coord", Vector2i(-1, -1))))]
+	var in_combat: bool = str(_run_state.get("mode", "")) == "combat"
+	if key != _board_encounter_key or (in_combat and not _board_encounter_started):
+		var layout: Dictionary = _run_state.get("current_room_layout", {})
+		_board_encounter_roster = BoardFraming.possible_enemy_types(layout if not layout.is_empty() else _combat_state)
+		_board_encounter_key = key
+		_board_encounter_started = in_combat
+	# Victory replaces current_room_layout with an enemy-free display layout.
+	# Keep the initial budget through that replacement and every reward view.
+	return _board_encounter_roster
+
 func _board_fit_rect() -> Rect2:
 	var viewport_size: Vector2 = get_viewport_rect().size if is_inside_tree() else Vector2(1920, 1080)
-	# Reserve the complete header and focused hand before fitting any actor.
-	# Boss HP and controller prompts may appear later without changing the fit.
-	var header_bottom: float = BOSS_HEALTH_OVERLAY_TOP + BOSS_HEALTH_OVERLAY_HEIGHT + 8.0
+	# The cached encounter budget survives deaths and the reward display layout.
+	# Only an encounter that can contain a boss reserves the central boss header.
+	var header_bottom: float = 62.0
+	for unit_type: String in _board_encounter_types():
+		if bool(GameData.enemy_def(unit_type).get("boss_bar", false)):
+			header_bottom = BOSS_HEALTH_OVERLAY_TOP + BOSS_HEALTH_OVERLAY_HEIGHT + 4.0
+			break
 	return Rect2(Vector2(36, header_bottom), Vector2(maxf(1.0, viewport_size.x - 72.0),
 		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
@@ -17445,6 +17466,7 @@ func _refresh_stage_view() -> void:
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
+	presentation["board_encounter_types"] = _board_encounter_types()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	performance_phase_started = _record_runtime_performance_phase("stage_base", performance_phase_started)
 	if (str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible) and not display_state.is_empty():
@@ -24454,6 +24476,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
+	rendered_presentation["board_encounter_types"] = _board_encounter_types()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
 	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	rendered_presentation["controller_hand_focused"] = _controller_hand_focused

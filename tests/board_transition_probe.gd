@@ -48,6 +48,10 @@ func _lethal_transition(reduced: bool) -> void:
 	state["player"]["hp"] = 20
 	state["player"]["max_hp"] = 24
 	state["turn_queue"] = (state["turn_queue"] as Array).filter(func(entry: Dictionary) -> bool: return str(entry.get("key", "")) != "enemy_2")
+	var setup_run: Dictionary = (_instance.get("_run_state") as Dictionary).duplicate(true)
+	setup_run["current_room_layout"]["enemies"] = state["enemies"].duplicate(true)
+	_instance.set("_run_state", setup_run)
+	_instance.set("_board_encounter_key", "")
 	_install(state)
 	_instance.call("_refresh_ui")
 	await create_timer(0.5).timeout

@@ -2,27 +2,27 @@ extends RefCounted
 
 ## Fixed source-space support registration. See spec/actor_presentation.md.
 ## These are ground contacts, not the center of a weapon-inclusive silhouette.
-## Harrier/Warden height also reserves their raised weapons above the head.
+## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
 const PROFILES: Dictionary = {
-	"crawler": {"front": Vector2(120.0, 187.5), "rear": Vector2(134.75, 179.25), "height": 155.5000},
-	"acolyte": {"front": Vector2(142.5, 233.0), "rear": Vector2(141.5, 234.0), "height": 214.0000},
-	"harrier": {"front": Vector2(143.5, 209.5), "rear": Vector2(108.5, 217.0), "height": 246.0000},
-	"warden": {"front": Vector2(131.5, 222.0), "rear": Vector2(119.0, 224.5), "height": 256.0000},
-	"cinder_ooze": {"front": Vector2(130.3333, 204.8333), "rear": Vector2(132.6667, 202.6667), "height": 192.8333},
-	"cinder_droplet": {"front": Vector2(125.4, 203.2), "rear": Vector2(120.4, 201.8), "height": 123.2000},
-	"bile_bloomer": {"front": Vector2(138.6667, 241.6667), "rear": Vector2(121.0, 241.6667), "height": 239.6667},
-	"chainbound_gaoler": {"front": Vector2(142.0, 248.0), "rear": Vector2(140.0, 248.5), "height": 240.5000},
-	"grave_surgeon": {"front": Vector2(163.5, 207.0), "rear": Vector2(166.5, 200.0), "height": 180.0000},
-	"frostglass_lancer": {"front": Vector2(122.5, 242.0), "rear": Vector2(134.0, 244.5), "height": 233.0000},
-	"tharokh": {"front": Vector2(111.25, 200.0), "rear": Vector2(138.75, 188.75), "height": 193.0000},
-	"vyraketh": {"front": Vector2(124.75, 177.75), "rear": Vector2(102.0, 168.0), "height": 166.7500},
-	"vaeloryx": {"front": Vector2(127.5, 227.0), "rear": Vector2(127.5, 227.0), "height": 207.0000},
-	"iskaldra": {"front": Vector2(137.5, 191.0), "rear": Vector2(149.5, 189.5), "height": 183.0000},
-	"noctyrax": {"front": Vector2(111.25, 188.5), "rear": Vector2(160.0, 190.0), "height": 187.0000},
-	"zekarion": {"front": Vector2(116.0, 185.5), "rear": Vector2(152.75, 178.0), "height": 176.5000},
-	"veilbound_acolyte": {"front": Vector2(140.0, 229.0), "rear": Vector2(134.5, 230.0), "height": 211.0000},
-	"lightning_wisp": {"front": Vector2(127.0, 227.0), "rear": Vector2(127.0, 227.0), "height": 210.0000},
+	"crawler": {"front": Vector2(120.0, 187.5), "rear": Vector2(134.75, 179.25), "height": Vector2(155.5000, 147.2500)},
+	"acolyte": {"front": Vector2(142.5, 233.0), "rear": Vector2(141.5, 234.0), "height": Vector2(214.0000, 214.0000)},
+	"harrier": {"front": Vector2(143.5, 209.5), "rear": Vector2(108.5, 217.0), "height": Vector2(179.5000, 187.0000)},
+	"warden": {"front": Vector2(131.5, 222.0), "rear": Vector2(119.0, 224.5), "height": Vector2(211.0000, 212.5000)},
+	"cinder_ooze": {"front": Vector2(130.3333, 204.8333), "rear": Vector2(132.6667, 202.6667), "height": Vector2(192.8333, 183.6667)},
+	"cinder_droplet": {"front": Vector2(125.4, 203.2), "rear": Vector2(120.4, 201.8), "height": Vector2(123.2000, 121.8000)},
+	"bile_bloomer": {"front": Vector2(138.6667, 241.6667), "rear": Vector2(121.0, 241.6667), "height": Vector2(239.6667, 239.6667)},
+	"chainbound_gaoler": {"front": Vector2(142.0, 248.0), "rear": Vector2(140.0, 248.5), "height": Vector2(238.0000, 240.5000)},
+	"grave_surgeon": {"front": Vector2(163.5, 207.0), "rear": Vector2(166.5, 200.0), "height": Vector2(180.0000, 173.0000)},
+	"frostglass_lancer": {"front": Vector2(122.5, 242.0), "rear": Vector2(134.0, 244.5), "height": Vector2(224.0000, 218.5000)},
+	"tharokh": {"front": Vector2(111.25, 200.0), "rear": Vector2(138.75, 188.75), "height": Vector2(193.0000, 178.7500)},
+	"vyraketh": {"front": Vector2(124.75, 177.75), "rear": Vector2(102.0, 168.0), "height": Vector2(166.7500, 137.0000)},
+	"vaeloryx": {"front": Vector2(127.5, 227.0), "rear": Vector2(127.5, 227.0), "height": Vector2(207.0000, 206.0000)},
+	"iskaldra": {"front": Vector2(137.5, 191.0), "rear": Vector2(149.5, 189.5), "height": Vector2(183.0000, 180.5000)},
+	"noctyrax": {"front": Vector2(111.25, 188.5), "rear": Vector2(160.0, 190.0), "height": Vector2(182.5000, 187.0000)},
+	"zekarion": {"front": Vector2(116.0, 185.5), "rear": Vector2(152.75, 178.0), "height": Vector2(176.5000, 170.0000)},
+	"veilbound_acolyte": {"front": Vector2(140.0, 229.0), "rear": Vector2(134.5, 230.0), "height": Vector2(210.0000, 211.0000)},
+	"lightning_wisp": {"front": Vector2(127.0, 227.0), "rear": Vector2(127.0, 227.0), "height": Vector2(210.0000, 210.0000)},
 }
 
 static func has_profile(unit_type: String) -> bool:
@@ -34,8 +34,9 @@ static func floor_anchor(unit_type: String, facing: String = "front", mirrored: 
 		anchor.x = SOURCE_SIZE - anchor.x
 	return anchor
 
-static func height_above_floor(unit_type: String) -> float:
-	return float(PROFILES.get(unit_type, {}).get("height", 0.0))
+static func height_above_floor(unit_type: String, facing: String = "") -> float:
+	var heights: Vector2 = PROFILES.get(unit_type, {}).get("height", Vector2.ZERO)
+	return heights.y if facing == "rear" else heights.x if facing == "front" else maxf(heights.x, heights.y)
 
 const ACTION_BOUNDS: Dictionary = {
 	"crawler": Rect2(-158.2500, -159.5000, 316.5000, 209.2500),

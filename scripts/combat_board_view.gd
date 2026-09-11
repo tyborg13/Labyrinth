@@ -198,7 +198,7 @@ const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.25
 const INTENT_CONTOUR_ACTION_OUTLINE_SIZE: float = 2.0
 const INTENT_CONTOUR_ICON_HALO_SIZE: float = 2.5
 const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.5, 4.5)
-const UNIT_ART_HUD_CLEARANCE: float = 10.0
+const UNIT_ART_HUD_CLEARANCE: float = 4.0
 const HUD_STACK_GAP: float = 0.0
 const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
 const ENEMY_HUD_ACTOR_CLEARANCE: float = 4.0
@@ -2550,7 +2550,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		"board_backdrop_visible",
 		"board_framing_mode",
 		"board_safe_global_rect",
-		"board_fit_rect",
+		"board_fit_rect", "board_encounter_types",
 		"controller_combat_navigation",
 	]:
 		if presentation_changes.has(layout_key):
@@ -2563,10 +2563,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			break
 	var next_room_grid_signature: String = _room_grid_signature(next_state) if state_changed or layout_inputs_changed or _navigation_content_signature.is_empty() else _floor_variant_signature
 	var next_navigation_content_signature: String = _navigation_content_signature
-	if state_changed or _navigation_content_signature.is_empty():
-		next_navigation_content_signature = "%s|%s" % [
+	if state_changed or layout_inputs_changed or _navigation_content_signature.is_empty():
+		next_navigation_content_signature = "%s|%s|%s" % [
 			next_room_grid_signature,
-			str(next_state.get("room_coord", Vector2i(-1, -1)))
+			str(next_state.get("room_coord", Vector2i(-1, -1))),
+			str(next_presentation.get("board_encounter_types", []))
 		]
 	var next_layout_signature: String = (
 		_layout_signature_for_state(next_state, next_exit_tiles, next_presentation, next_room_grid_signature)
@@ -2842,7 +2843,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		# A persistent viewport can turn without changing its actor dictionary.
 		# The retained draw command must select that view's floor registration too.
 		_refresh_moving_foreground_obstruction_entries(registration_changes)
-		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache"])
+		_rebuild_hud_health_rects_cache()
+		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
+		_queue_render_layer_redraw(_hud_render_layer)
 		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
 	_sync_enemy_shadow_dissolve_effects()
 	_record_submission_performance_phase("redraw_routing", submission_phase_started)
@@ -7747,6 +7750,7 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 	_ensure_board_layout_cache()
 	return {
 		"visible_units": hud_units,
+		"cutout_registrations": _cutout_floor_registrations(),
 		# HUD geometry changes only when pointer hover expands a different enemy's
 		# intent. Every empty tile is layout-equivalent, and every tile in a large
 		# enemy footprint is equivalent too. Keying by the raw tile forced the dense
@@ -8188,8 +8192,11 @@ func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
 	var unit_type: String = str(unit.get("type", ""))
 	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
 	if ActorPresentation.has_profile(unit_type):
-		# Use the taller rest view so facing and breathing cannot move the HUD.
-		return center.y - ActorPresentation.height_above_floor(unit_type) * rect.size.x / 255.0
+		# The current painted body anchors its bar; a raised weapon is not a head.
+		# Rest-view heights keep breathing from making the HUD wander.
+		var renderer: Node = unit_cutout_renderer(unit)
+		var facing: String = str(renderer.get("facing")) if is_instance_valid(renderer) else "front"
+		return center.y - ActorPresentation.height_above_floor(unit_type, facing) * rect.size.x / 255.0
 	return _texture_used_draw_rect(_unit_hud_anchor_texture(unit), rect).position.y
 
 func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
@@ -12652,7 +12659,7 @@ func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictio
 	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
 	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
 	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
-	parts.append("fit:%s" % str(next_presentation.get("board_fit_rect", Rect2())))
+	parts.append("fit:%s|roster:%s" % [str(next_presentation.get("board_fit_rect", Rect2())), str(next_presentation.get("board_encounter_types", []))])
 	return "|".join(parts)
 
 func _visual_framing_signature_for_state(next_state: Dictionary, next_presentation: Dictionary) -> String:
@@ -14033,7 +14040,7 @@ func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
 	_ensure_board_layout_cache()
 	return _board_layout_cache_tiles
 
-func rendered_visual_rects(include_unit_hud: bool = true) -> Array[Rect2]:
+func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = true) -> Array[Rect2]:
 	# This is deliberately based on the exact draw rectangles used by the static
 	# board and DynamicRenderLayer, rather than only tile diamonds. Keeping the
 	# rectangles separate lets HUD collision checks distinguish a genuinely
@@ -14076,6 +14083,8 @@ func rendered_visual_rects(include_unit_hud: bool = true) -> Array[Rect2]:
 				if opening == null and not str(exit_icon_ids.get(tile, "")).is_empty():
 					rects.append(_door_icon_visual_rect(door, door_rect))
 	for unit: Dictionary in _visible_units():
+		if not include_units and str(unit.get("role", "")) != "npc":
+			continue
 		rects.append(_unit_draw_rect(unit))
 		if include_unit_hud:
 			rects.append(_unit_health_bar_rect(unit, _unit_center(unit)))

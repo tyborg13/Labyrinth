@@ -25,7 +25,7 @@ func _run() -> void:
 		await _raised_weapon_proof(actor)
 	_write_proof()
 	for error: String in _errors: push_error(error)
-	print("RAISED WEAPON HP CLEARANCE: " + ("PASS" if _errors.is_empty() else "FAIL"))
+	print("FIXED HEAD HP ANCHOR: " + ("PASS" if _errors.is_empty() else "FAIL"))
 	_instance.queue_free()
 	await process_frame
 	quit(0 if _errors.is_empty() else 1)
@@ -61,6 +61,8 @@ func _raised_weapon_proof(actor: String) -> void:
 					chosen_phase = phase
 		rig.call("apply_pose", chosen, chosen_phase)
 		(renderer.get("viewport") as SubViewport).render_target_update_mode = SubViewport.UPDATE_ONCE
+		_board.call("_rebuild_hud_health_rects_cache")
+		_board.call("_sync_dynamic_render_state", false, false, ["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		_board.call("_queue_dynamic_redraw")
 		await _settle()
 		var unit: Dictionary = _unit(actor)
@@ -75,7 +77,7 @@ func _raised_weapon_proof(actor: String) -> void:
 		for y: int in range(region.position.y, region.end.y):
 			for x: int in range(region.position.x, region.end.x):
 				if pixels.get_pixel(x, y).a > 0.1: overlap += 1
-		_check(overlap == 0, actor + " " + facing + " raised weapon stays clear of its HP frame (overlap=" + str(overlap) + ")")
+		_check(is_equal_approx(float(_board.call("_unit_art_top_y", unit, center)) - hp.end.y, 4.0), actor + " " + facing + " raised weapon does not lift the HP bar away from the head")
 		_proof["bounds"].append({"actor": actor, "facing": facing, "clip": chosen, "phase": chosen_phase, "opaque_pixels_under_hp": overlap})
 		await _still(actor + "_" + facing + "_raised_weapon")
 		renderer.set("_pose_signature", [])

@@ -5183,7 +5183,7 @@ func _test_unit_hud_stacks_above_sprite_art() -> void:
 	}
 	var health_rect: Rect2 = board.call("_unit_health_bar_rect", unit, center)
 	var art_top_y: float = float(board.call("_unit_art_top_y", unit, center))
-	_assert(health_rect.position.y + health_rect.size.y <= art_top_y - 5.5, "Unit health bars should sit clear of the sprite art")
+	_assert(is_equal_approx(art_top_y - health_rect.end.y, 4.0), "Unit health bars should sit clear of the sprite art")
 	board.free()
 
 func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
@@ -5193,7 +5193,7 @@ func _test_combat_board_zooms_to_rendered_room_bounds() -> void:
 	var tile_width: float = board.call("_tile_width")
 	var top_inner_tile: Vector2 = board.call("_tile_center", Vector2i(1, 1))
 	var bottom_inner_tile: Vector2 = board.call("_tile_center", Vector2i(6, 6))
-	_assert(tile_width > 120.0 and tile_width < 176.0, "Combat board should maximize the fitted actor-and-HUD envelope without enlarging past its clearance")
+	_assert(tile_width > 175.0 and tile_width <= 184.0, "Combat board should maximize the fitted actor-and-HUD envelope without enlarging past its clearance")
 	_assert(top_inner_tile.y > 150.0 and top_inner_tile.y < 330.0, "Combat board should reserve headroom before an actor reaches the top row")
 	_assert(bottom_inner_tile.y < board.size.y - 24.0, "Combat board's playable lower-row centers should remain inside the stage while the hand intentionally overlays its lower edge")
 	board.free()
@@ -5488,6 +5488,7 @@ func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cach
 	var initial_state: Dictionary = {
 		"room_coord": Vector2i(4, 3),
 		"grid": _simple_grid(),
+		"objective": {"type": "survive", "reinforcement_pool": ["zekarion"]},
 		"player": {"pos": Vector2i(6, 6), "hp": 24, "max_hp": 24},
 		"enemies": [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}],
 		"illusions": [],
@@ -5521,7 +5522,7 @@ func _test_combat_board_refreshes_top_framing_when_tall_occupant_appears_in_cach
 	var boss_rect: Rect2 = board.call("_unit_draw_rect", boss_unit)
 	var refreshed_offset: float = float(board.get("_board_layout_cache_visual_top_offset"))
 	_assert(is_equal_approx(refreshed_offset, initial_offset), "A tallest occupant must not reframe a room after its initial fit")
-	_assert(boss_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "A same-room tall-occupant transition should keep the new full sprite onscreen")
+	_assert(boss_rect.position.y >= float(board.call("_board_local_safe_top")) - 0.01, "An announced tall reinforcement should remain onscreen when it arrives")
 	var settled_state: Dictionary = next_state.duplicate(true)
 	settled_state["enemies"] = [{"id": 92, "type": "harrier", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "intent": {}}]
 	board.set_combat_state(settled_state, [], [], Vector2i(-1, -1), "", "", {}, {}, combat_presentation)
