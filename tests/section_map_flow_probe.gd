@@ -103,7 +103,7 @@ func _initialize() -> void:
 		var feedback: Node = root.get_node("CursorFeedback")
 		var sound_before: int = int(feedback.call("feedback_counts").get("valid", 0))
 		if input_kind == "pointer":
-			await _pointer_click(target_button.get_global_rect().get_center())
+			await _pointer_click(target_button.get_global_rect().get_center(), 0.2)
 		else:
 			target_button.grab_focus()
 			if input_kind == "keyboard": await _key(KEY_ENTER)
@@ -247,7 +247,7 @@ func _joy(button: JoyButton) -> void:
 	viewport.push_input(event, true)
 	await process_frame
 
-func _pointer_click(position: Vector2) -> void:
+func _pointer_click(position: Vector2, held_seconds: float = 0.0) -> void:
 	var motion := InputEventMouseMotion.new()
 	motion.position = position
 	viewport.push_input(motion, true)
@@ -258,6 +258,7 @@ func _pointer_click(position: Vector2) -> void:
 	event.pressed = true
 	viewport.push_input(event, true)
 	await process_frame
+	if held_seconds > 0.0: await create_timer(held_seconds).timeout
 	event = event.duplicate()
 	event.pressed = false
 	viewport.push_input(event, true)
@@ -382,6 +383,9 @@ func _exercise_toolbar(prefix: String) -> void:
 	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", loadout), true)
 	await _joy(JOY_BUTTON_DPAD_LEFT)
 	_check(viewport.gui_get_focus_owner() == button, "Controller reaches Map by moving left from the adjacent loadout button")
+	_check(_prompt_labels().has("Open") and not _prompt_labels().has("Travel"), "Focused Map prompts opening the toolbar action instead of traveling")
+	if str((instance.get("_run_state") as Dictionary).get("mode")) == "room":
+		_check(_prompt_labels().has("Navigate") and not _prompt_labels().has("Choose Door"), "Room toolbar prompts navigation instead of choosing a door")
 	await _capture(prefix + "_focus.png")
 	await _joy(JOY_BUTTON_A)
 	_check(scrim.visible, "Controller A opens the focused toolbar map icon")
@@ -392,3 +396,17 @@ func _exercise_toolbar(prefix: String) -> void:
 	await _joy(JOY_BUTTON_DPAD_RIGHT)
 	_check(viewport.gui_get_focus_owner() == loadout, "Controller can leave the restored map icon for adjacent toolbar actions")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
+	# Modality changes rebuild the header before pointer coordinates are sampled.
+	await process_frame
+	await process_frame
+	# Equipment refreshes belong to room mode; combat refreshes close this overlay.
+	if str((instance.get("_run_state") as Dictionary).get("mode")) != "room": return
+	await _pointer_click(loadout.get_global_rect().get_center())
+	_check((instance.get("_upgrade_scrim") as Control).visible, "Character opens before its loadout refresh: " + prefix)
+	instance.call("_refresh_ui")
+	await process_frame
+	await _key(KEY_ESCAPE)
+	_check(not (instance.get("_upgrade_scrim") as Control).visible and not button.disabled, "Closing Character after a UI refresh leaves Map available")
+	await _pointer_click(button.get_global_rect().get_center())
+	_check(scrim.visible, "Map opens after returning from a refreshed Character overlay: " + prefix)
+	await _key(KEY_ESCAPE)

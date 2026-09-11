@@ -3532,6 +3532,10 @@ func _refresh_controller_prompts() -> void:
 		]
 		if not _current_room_merchant_kind().is_empty() and not _merchant_shop_open:
 			prompts.insert(2, {"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Shop"})
+		var focused_control: Control = _controller_focus_candidate.get("control", null) as Control
+		if focused_control != null and _controller_header_focus_controls().has(focused_control):
+			prompts[0]["label"] = "Inspect" if str(_controller_focus_candidate.get("kind", "")) == "relic" else "Open"
+			prompts[1]["label"] = "Navigate"
 	elif _controller_region == "board":
 		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
@@ -4811,6 +4815,8 @@ func _build_large_map_overlay() -> void:
 	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
 	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
+	# Modal and animation blockers are transient. Check them at activation;
+	# caching them in disabled would strand this control after an overlay closes.
 	_section_map_hud_button.pressed.connect(func() -> void:
 		if _map_shortcut_can_open(): _open_large_map(true)
 	)
@@ -14534,7 +14540,6 @@ func _refresh_visibility() -> void:
 	mini_map.get_parent().visible = not section_map
 	if _section_map_hud_button != null:
 		_section_map_hud_button.visible = section_map and not terminal_recap_visible
-		_section_map_hud_button.disabled = not _map_shortcut_can_open()
 	_layout_mini_map_overlay()
 	if section_map:
 		call_deferred("_maybe_present_section_map")
