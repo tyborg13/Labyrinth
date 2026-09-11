@@ -208,6 +208,10 @@ const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
 const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
 const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
 const FOREGROUND_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.26)
+const PILLAR_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.32)
+const PILLAR_OBSTRUCTION_CAP_ALPHA: float = 0.54
+const PILLAR_OBSTRUCTION_BASE_ALPHA: float = 0.82
+const PILLAR_OBSTRUCTION_TORCH_ALPHA: float = 0.54
 const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
 const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
 const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
@@ -6422,7 +6426,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
 			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
-			draw_texture_rect(texture, draw_rect, false, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
+			_draw_pillar_body(texture, draw_rect, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
 	elif tile_id == "wall":
 		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
 		for segment: Dictionary in segments:
@@ -6493,8 +6497,41 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
 		_register_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot))
 
+# Keep the authored stone cap and foot readable as a blocking column. The
+# translucent shaft remains a window onto actors; a soft ramp avoids a cutaway
+# seam. These textured bands stay in the existing tile depth layer.
+func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
+	if tint.a >= 1.0:
+		draw_texture_rect(texture, rect, false, tint)
+		return
+	var rows := PackedFloat32Array([0.0, 0.16, 0.72, 0.88, 1.0])
+	var alphas := PackedFloat32Array([maxf(tint.a, PILLAR_OBSTRUCTION_CAP_ALPHA), tint.a, tint.a, maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA), maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA)])
+	for index: int in range(rows.size() - 1):
+		var top: float = rows[index]
+		var bottom: float = rows[index + 1]
+		var uvs := PackedVector2Array([Vector2(0.0, top), Vector2(1.0, top), Vector2(1.0, bottom), Vector2(0.0, bottom)])
+		var points := PackedVector2Array()
+		for uv: Vector2 in uvs:
+			points.append(rect.position + uv * rect.size)
+		# draw_polygon consumes the underlying texture RID, so unlike
+		# draw_texture_rect it needs explicit UVs for the trimmed atlas region.
+		var draw_texture: Texture2D = texture
+		if texture is AtlasTexture:
+			var atlas: AtlasTexture = texture as AtlasTexture
+			draw_texture = atlas.atlas
+			for uv_index: int in range(uvs.size()):
+				uvs[uv_index] = (atlas.region.position + uvs[uv_index] * atlas.region.size) / draw_texture.get_size()
+		var top_color := Color(tint, alphas[index])
+		var bottom_color := Color(tint, alphas[index + 1])
+		draw_polygon(points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture)
+
+func _pillar_torch_tint(tint: Color) -> Color:
+	# Flame, fixture, halo and embers share one floor; floor lighting already
+	# persists independently. Do not wash out the small warm light with the shaft.
+	return Color(tint, maxf(tint.a, PILLAR_OBSTRUCTION_TORCH_ALPHA))
+
 func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
-	var tint: Color = _foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries)
+	var tint: Color = _pillar_torch_tint(_foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries))
 	var left_texture: Texture2D = _pillar_torch_texture("left")
 	var right_texture: Texture2D = _pillar_torch_texture("right")
 	if left_texture != null:
@@ -6563,7 +6600,7 @@ func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array
 		if not _tile_renders_as_pillar(grid, tile):
 			continue
 		var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
-		var tint: Color = _foreground_blocker_tint("pillar", tile, pillar_rect, obstruction_entries)
+		var tint: Color = _pillar_torch_tint(_foreground_blocker_tint("pillar", tile, pillar_rect, obstruction_entries))
 		var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
 		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
@@ -6667,7 +6704,7 @@ func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2,
 			# Preserve more of the actor silhouette while keeping ordinary object
 			# obstruction at its established opacity and retaining board depth.
 			if not str(entry.get("actor_key", entry.get("key", ""))).is_empty():
-				return FOREGROUND_ACTOR_OBSTRUCTION_TINT
+				return PILLAR_ACTOR_OBSTRUCTION_TINT if tile_id == "pillar" else FOREGROUND_ACTOR_OBSTRUCTION_TINT
 			tint = FOREGROUND_OBSTRUCTION_TINT
 	return tint
 
