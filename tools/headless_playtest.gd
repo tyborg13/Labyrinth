@@ -202,7 +202,7 @@ func _handle_command(command: String) -> void:
 				_command_move(int(parts[1]))
 		"scout":
 			var options: Array[Vector2i] = SectionMapGraph.scout_options(_run_state)
-			var index: int = int(parts[1]) if parts.size() > 1 else -1
+			var index: int = int(parts[1]) if parts.size() == 2 and parts[1].is_valid_int() else -1
 			if index >= 0 and index < options.size():
 				_run_state = _run_engine.scout_map(_run_state, options[index])
 				_print_state()
