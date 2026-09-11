@@ -41,6 +41,19 @@ func _initialize() -> void:
 	var instance: Node = load("res://scenes/run_scene.tscn").instantiate()
 	viewport.add_child(instance)
 	await _settle()
+	# Optional certified save: inspect the exact handoff state in the real HUD,
+	# copying it into this probe's isolated storage before RunScene may save.
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.size() == 2 and args[0] == "--inspection-save":
+		await _capture_inspection_fixture(instance, viewport, settings, args[1])
+		viewport.queue_free()
+		await process_frame
+		for error: String in _errors:
+			push_error(error)
+		print("PILLAR INSPECTION PROBE: %s" % ("PASS" if _errors.is_empty() else "FAIL"))
+		print(ProjectSettings.globalize_path(OUTPUT_DIR))
+		quit(0 if _errors.is_empty() else 1)
+		return
 	instance.call("_load_run_state", RunEngine.new().create_new_run(62001, ProgressionStore.default_data()))
 	instance.call("_close_dialogue")
 	await _load_combat_fixture(instance, 62001)
@@ -81,6 +94,49 @@ func _initialize() -> void:
 	print("PILLAR TORCH LIGHTING PROBE: %s" % ("PASS" if _errors.is_empty() else "FAIL"))
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
 	quit(0 if _errors.is_empty() else 1)
+
+func _capture_inspection_fixture(instance: Node, viewport: SubViewport, settings: Dictionary, source: String) -> void:
+	var destination: String = ProjectSettings.globalize_path("user://pillar_lighting_run.save")
+	_expect(DirAccess.copy_absolute(source, destination) == OK, "Copy the certified fixture into isolated probe storage")
+	var saved: Dictionary = ProgressionStore.load_saved_run()
+	_expect(not saved.is_empty(), "The certified fixture must load")
+	instance.call("_load_run_state", saved)
+	instance.call("_close_dialogue")
+	await _settle()
+	var board: Control = instance.get_node("BoardUnderlay/CombatBoard")
+	board.set_process(false)
+	var grid: Array = (board.get("combat_state") as Dictionary).get("grid", [])
+	var entries: Array = board.get("_foreground_obstruction_entries_cache")
+	var texture: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar")
+	var faded: int = 0
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			if str(grid[y][x]) != "pillar":
+				continue
+			var tile := Vector2i(x, y)
+			var rect: Rect2 = board.call("_prop_draw_rect", texture, board.call("_prop_rect_for_tile", tile))
+			var tint: Color = board.call("_foreground_blocker_tint", "pillar", tile, rect, entries)
+			if tint.a < 0.54:
+				faded += 1
+	_expect(faded >= 2, "The live fixture must show at least two columns fading around actors")
+	await _capture(viewport, "06_inspection_normal.png")
+	settings["reduced_motion"] = true
+	instance.set("_settings", settings)
+	instance.call("_refresh_ui")
+	await _capture(viewport, "07_inspection_reduced_motion.png")
+	instance.call("_on_card_pressed", 0)
+	await _settle()
+	var targets: Array = (instance.call("_active_card_preview") as Dictionary).get("target_tiles", [])
+	_expect(not targets.is_empty(), "Movement remains available around the visible column bases")
+	for tile: Vector2i in targets:
+		_expect(str(grid[tile.y][tile.x]) != "pillar", "A faded column never becomes a legal movement target")
+	if not targets.is_empty():
+		instance.call("_on_board_tile_hovered", targets[0])
+		board.call("set_controller_focus_tile", targets[0])
+		var target_point: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", targets[0]) as Vector2)
+		instance.call("_sync_click_targeting_arrow", target_point)
+	await _capture(viewport, "08_inspection_movement_targets.png")
+	instance.call("_on_cancel_requested")
 
 func _set_lighting(board: Control, texture: Texture2D) -> void:
 	board.set("_pillar_torch_light_texture", texture)
