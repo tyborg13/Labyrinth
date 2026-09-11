@@ -35,7 +35,7 @@
     "scripts/lightning_wisp_cutout/renderer.gd": "3469494d83f25c8786ac0873259d80770be70b8fc85fe84013a79eeafaf52765",
     "scripts/noctyrax_cutout/motion.gd": "569d47f993a52ea579c9d407f4922fa166b4a5b702149f243c60f2f5ca68773e",
     "scripts/noctyrax_cutout/renderer.gd": "658c3cfd860020db2fa545767c5925e560a3f5c19f400cb3ed72a37685ec72e4",
-    "scripts/run_scene.gd": "63ed82706afce42b580027bcb8ebe841a1682fc462822fd3796f75887635c5de",
+    "scripts/run_scene.gd": "cbeb38df1af993c0eb423369b4173e8cc7f53527a1a14c2b3a1f96e17d37613f",
     "scripts/tharokh_cutout/motion.gd": "b340e273b96f26b28e1f02b6a978932ed1be6dc17700d8139ff5f7fcfdb65775",
     "scripts/tharokh_cutout/renderer.gd": "a7c3072085085dcfff9259d30070b7b48560b43a14c20ba385cb762e34efe5b2",
     "scripts/vaeloryx_cutout/motion.gd": "b261dfe972eecc5648bb84c99aa920e7ec47c9214ddb6bc19130c0e6e30828a6",
@@ -50,9 +50,10 @@
     "tests/actor_presentation_test.gd": "f90597ea40fc9def399af2f98db23b9544a96992b5b33d9f7a13bc60223847c8",
     "tests/actor_weapon_clearance_probe.gd": "704b5e93d77df2cf04a52060944e8e0e4a62262342417677e6416935a348ffde",
     "tests/board_transition_probe.gd": "476c2f8818cb0245b073d133d2382e2b5dac259ec9030b10df3ef902cd5d73e2",
+    "tests/encounter_entry_probe.gd": "7ef29b001354656f815623d3ce3b67535fb9d25fd38310f568535bfe56801c38",
     "tests/encounter_framing_probe.gd": "a914992c12c497347f58ab393d4f8dccb521e4b5bba3fd9a329244f44a465af3",
     "tests/run_tests.gd": "d61e122543a134a1cf8b5fa6fa4c624d807b1c864b618e712e7e54c72cc33a91",
-    "tests/suites/actor_presentation_suite.gd": "fa36603177c6db862fb0ed75671303124b3564657b70c0252addb652f66c45ef",
+    "tests/suites/actor_presentation_suite.gd": "e99bb058881b5d2c44058fe47c22a55e9066f7d06f11fbf6e869c6ab3200f4b9",
     "tests/suites/cinder_ooze_cutout_suite.gd": "4b08c67164bdfb0dea8d52e671ba1be9521c312abce3483040e41cab2dc338dd",
     "tests/suites/combat_board_layout_suite.gd": "7d4fdcdea43c0d29d7e79dc0cf5d19878b6fe61efc61f9d0997433490deb1f9f",
     "tests/suites/crawler_cutout_suite.gd": "b4b34ce00174f947098fa9fcf71db21d55074081332c4e01425332563c136850",
@@ -71,7 +72,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/heads",
       "validated_png_count": 32,
       "errors": [],
-      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions"
+      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "soft",
@@ -82,7 +84,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/soft",
       "validated_png_count": 31,
       "errors": [],
-      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions"
+      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "dragons",
@@ -93,7 +96,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/dragons",
       "validated_png_count": 26,
       "errors": [],
-      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions"
+      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "arcane",
@@ -104,7 +108,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/arcane",
       "validated_png_count": 27,
       "errors": [],
-      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions"
+      "probe_mode": "four facings, top row, native headers, cached HP and mode transitions",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "spawns",
@@ -115,7 +120,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/spawns",
       "validated_png_count": 6,
       "errors": [],
-      "probe_mode": "resolver spawns"
+      "probe_mode": "resolver spawns",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "weapons",
@@ -126,7 +132,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/weapons",
       "validated_png_count": 4,
       "errors": [],
-      "probe_mode": "fixed HP during raised weapons"
+      "probe_mode": "fixed HP during raised weapons",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "mixed",
@@ -137,7 +144,8 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/mixed",
       "validated_png_count": 14,
       "errors": [],
-      "probe_mode": "full travel/action audit"
+      "probe_mode": "full travel/action audit",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     },
     {
       "label": "rewards",
@@ -148,20 +156,21 @@
       "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/native/rewards",
       "validated_png_count": 14,
       "errors": [],
-      "probe_mode": "real lethal input"
+      "probe_mode": "real lethal input",
+      "capture_source_commit": "2752fb605db9254b653b34d208b7db0beeb2d10f"
     }
   ],
   "checks": [
     {
       "name": "focused",
-      "path": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/focused.log",
-      "sha256": "1a4835a3b0c88d2cd7334ede4ad4d2f3762a7ab9fc09621743a7bf79083e5acf",
+      "path": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-focused.log",
+      "sha256": "d64bb02d016115cd805d5db982c8f4545d220582a58b020d8947080e84cbd4e1",
       "result": "PASS"
     },
     {
       "name": "full",
-      "path": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/full.log",
-      "sha256": "9062aa36e1d995af0b1c808587bdf43ece8604a8bf6dcd7ea519791992e5d33c",
+      "path": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-full.log",
+      "sha256": "f7857d8696716ed97990bda5a372825fbbab15c4443bf3a2d8a3fa1dedfea94a",
       "result": "PASS"
     }
   ],
@@ -729,11 +738,58 @@
     "views": "All 18 enemies, both painted facings and reflections; head/body association, support registration, top-row fit, ordinary versus boss scope.",
     "transitions": "Real Quick Stab final-enemy kill, normal/reduced rewards, controller cancel and pointer handoff.",
     "spawns": "Actual split, summon and survival reinforcement branches keep exact initial scale and include only planned roster types.",
-    "hud_priority": "Four pixels above the painted rest head/body; a raised weapon does not lift the bar."
+    "hud_priority": "Four pixels above the painted rest head/body; a raised weapon does not lift the bar.",
+    "generated_entry": "Four generated ordinary room entries plus generated Zekarion entry, all using normal RunEngine paths with an enemy-free display layout. Exact prepared roster closure, top legal origin, controller header and cached scale validated and rendered.",
+    "review_correction": "P1: normal display layouts omit enemies. RunScene now seeds from authoritative prepared combat state at combat entry and retains the roster through victory. Regression tests cover normal entry and boss header, alongside cache retention."
   },
   "limits": [
     "macOS native proof at 1920x1080 and 100% UI scale; Windows and physical-controller hardware were not exercised.",
     "A raised weapon can cross a stationary HP frame; it does not create persistent empty space above the head.",
     "Fixed source envelopes must be refreshed with future actor art/motion changes."
+  ],
+  "entry_correction_of": "2752fb605db9254b653b34d208b7db0beeb2d10f",
+  "before_entry_fix_proof_index": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/before-entry-fix-verification.json",
+  "native_capture_reuse": "The 154 capture images at 2752fb6 remain evidence for unchanged body/HP geometry and complete roster views. Fresh generated-entry, spawn, mixed-movement and actual-lethal captures below verify the authoritative combat-state cache seeding correction.",
+  "entry_correction_native": [
+    {
+      "case": "native",
+      "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/native",
+      "runner": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/native/runner.json",
+      "runner_sha256": "9cb934d1c777f255cc37ad0673f1665fff2dec0c868f7623e8dce6899f3bef6b",
+      "manifest": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/native/actor_presentation_v1/manifest.json",
+      "manifest_sha256": "51509e15f02ece00548e0a02a0234e8545e53c0ef18af4aeb09998e9581c01ae",
+      "validated_png_count": 10,
+      "errors": []
+    },
+    {
+      "case": "spawns",
+      "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/spawns",
+      "runner": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/spawns/runner.json",
+      "runner_sha256": "c2da07fb57de82f5649eaad90bfadc07281c3e85ed5def445b0889308d6816cf",
+      "manifest": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/spawns/actor_presentation_v1/manifest.json",
+      "manifest_sha256": "c19f95fcad6e1b34e10d63747e3c01611fd650c48c6b965fa4d1b4abec43cfb0",
+      "validated_png_count": 6,
+      "errors": []
+    },
+    {
+      "case": "rewards",
+      "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/rewards",
+      "runner": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/rewards/runner.json",
+      "runner_sha256": "f629ebb0ba2a1a4f89e1d1d43fdad3d76a41458bdec552435cbcabb849e9f6bf",
+      "manifest": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/rewards/actor_presentation_v1/manifest.json",
+      "manifest_sha256": "743d498794fee50691adf66f88664950eb5c89184019401019be00a3961f9d02",
+      "validated_png_count": 14,
+      "errors": []
+    },
+    {
+      "case": "mixed",
+      "directory": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/mixed",
+      "runner": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/mixed/runner.json",
+      "runner_sha256": "2a629935da5d1fa3b6c329b8a74e36c3f1502045293fc3cbe504f83f466a3f19",
+      "manifest": "/Users/borgerding/workspace/Labyrinth-archives/actor-presentation-2026-09-11/combat-specific-fit/entry-correction/mixed/actor_presentation_v1/manifest.json",
+      "manifest_sha256": "8e52ff6a57f90c3ef3958af5e816898a4a04fc95911a638ac5e42577b0a01d84",
+      "validated_png_count": 14,
+      "errors": []
+    }
   ]
 }

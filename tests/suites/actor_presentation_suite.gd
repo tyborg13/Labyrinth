@@ -5,6 +5,8 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const LayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 static func run(expect: Callable) -> void:
 	var board := CombatBoardView.new()
@@ -18,6 +20,7 @@ static func run(expect: Callable) -> void:
 	_test_encounter_scope(expect)
 	_test_static_room_npc(expect)
 	_test_reward_roster_retention(expect)
+	_test_normal_room_entry(expect)
 	board.free()
 
 static func _test_travel_pace(board: Control, expect: Callable) -> void:
@@ -129,7 +132,8 @@ static func _test_static_room_npc(expect: Callable) -> void:
 
 static func _test_reward_roster_retention(expect: Callable) -> void:
 	var scene: Control = (load("res://scripts/run_scene.gd") as Script).new()
-	var run := {"seed": 73, "current_room": Vector2i(4, 3), "mode": "combat", "current_room_layout": {"enemies": [{"type": "zekarion"}]}}
+	var run := {"seed": 73, "current_room": Vector2i(4, 3), "mode": "combat", "current_room_layout": {"enemies": []}}
+	scene.set("_combat_state", {"enemies": [{"type": "zekarion"}]})
 	scene.set("_run_state", run.duplicate(true))
 	var types: Array = (scene.call("_board_encounter_types") as Array).duplicate()
 	var fit: Rect2 = scene.call("_board_fit_rect")
@@ -139,7 +143,43 @@ static func _test_reward_roster_retention(expect: Callable) -> void:
 	expect.call(types == scene.call("_board_encounter_types") and fit.is_equal_approx(scene.call("_board_fit_rect")), "Victory's enemy-free room layout keeps the original boss and summon reservation")
 	run["current_room"] = Vector2i(4, 4)
 	run["mode"] = "combat"
-	run["current_room_layout"]["enemies"] = [{"type": "crawler"}]
+	scene.set("_combat_state", {"enemies": [{"type": "crawler"}]})
 	scene.set("_run_state", run.duplicate(true))
 	expect.call((scene.call("_board_encounter_types") as Array).size() == 1 and float((scene.call("_board_fit_rect") as Rect2).position.y) < fit.position.y, "The next ordinary encounter releases the previous boss budget")
 	scene.free()
+
+# Enter generated rooms through RunEngine, leaving its enemy-free display layout
+# intact. The additional bookmark exercises boss entry through the same path.
+static func entry_run_states() -> Array[Dictionary]:
+	var engine := RunEngine.new()
+	var start: Dictionary = engine.create_new_run(74123, ProgressionStore.default_data(), false)
+	var states: Array[Dictionary]
+	for destination: Vector2i in engine.available_moves(start):
+		var entered: Dictionary = engine.move_to_room(start, destination)
+		if str(entered.get("mode", "")) == "combat":
+			states.append(entered)
+	var boss_start: Dictionary = start.duplicate(true)
+	var boss_destination: Vector2i = engine.available_moves(boss_start)[0]
+	var room: Dictionary = engine.room_metadata(boss_start, boss_destination)
+	room.merge({"type": "boss", "depth": 4, "boss_id": "zekarion", "element": "lightning"}, true)
+	boss_start["rooms"]["%d,%d" % [boss_destination.x, boss_destination.y]] = room
+	states.append(engine.move_to_room(boss_start, boss_destination))
+	return states
+
+static func _test_normal_room_entry(expect: Callable) -> void:
+	var rooms: Array[Dictionary] = entry_run_states()
+	expect.call(rooms.size() >= 4, "Generated room entry covers multiple ordinary encounters and a boss")
+	var saw_boss: bool = false
+	for run: Dictionary in rooms:
+		var combat: Dictionary = run.get("combat_state", {})
+		var expected: Array[String] = BoardFraming.possible_enemy_types(combat)
+		expect.call(not expected.is_empty() and (run["current_room_layout"]["enemies"] as Array).is_empty(), "Normal entry provides combat enemies separately from the nonempty display layout")
+		var scene: Control = (load("res://scripts/run_scene.gd") as Script).new()
+		scene.set("_run_state", run)
+		scene.set("_combat_state", combat)
+		expect.call(scene.call("_board_encounter_types") == expected, "Initial framing captures the actual prepared room roster and spawn closure")
+		var has_boss: bool = expected.has("zekarion")
+		saw_boss = saw_boss or has_boss
+		expect.call(is_equal_approx((scene.call("_board_fit_rect") as Rect2).position.y, 122.0 if has_boss else 62.0), "Normal boss entry reserves its header while ordinary room entry keeps the compact header")
+		scene.free()
+	expect.call(saw_boss, "The generated boss entry includes Zekarion and its wisps")

@@ -3615,8 +3615,10 @@ func _board_encounter_types() -> Array[String]:
 		str(_run_state.get("run_index", 0)), str(_run_state.get("current_room", _combat_state.get("room_coord", Vector2i(-1, -1))))]
 	var in_combat: bool = str(_run_state.get("mode", "")) == "combat"
 	if key != _board_encounter_key or (in_combat and not _board_encounter_started):
-		var layout: Dictionary = _run_state.get("current_room_layout", {})
-		_board_encounter_roster = BoardFraming.possible_enemy_types(layout if not layout.is_empty() else _combat_state)
+		# Normal room entry has an enemy-free display layout. Only the prepared
+		# combat state owns the initial roster and survival reinforcement pool.
+		var source: Dictionary = _combat_state if in_combat else _run_state.get("current_room_layout", {})
+		_board_encounter_roster = BoardFraming.possible_enemy_types(source)
 		_board_encounter_key = key
 		_board_encounter_started = in_combat
 	# Victory replaces current_room_layout with an enemy-free display layout.
