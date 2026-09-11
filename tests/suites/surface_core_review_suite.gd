@@ -153,7 +153,7 @@ static func _pursuit_fixture(combat: Combat, hp: int = 1) -> Dictionary:
 	var state: Dictionary = Base.fixture(combat)
 	state["enemies"][0]["hp"] = hp
 	for intent: Dictionary in GameData.enemy_def("crawler")["intents"]:
-		if str(intent.get("id", "")) == "skitter_strike":
+		if str(intent.get("id", "")) == "lunge":
 			state["enemies"][0]["intent"] = intent
 	Ground.place(state, Vector2i(3, 3), "fire")
 	return state
@@ -208,6 +208,8 @@ static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Call
 	for intent: Dictionary in GameData.enemy_def("crawler")["intents"]:
 		if str(intent["id"]) == "lunge":
 			state["enemies"][0]["intent"] = intent.duplicate(true)
+	# Synthetic four-point budget keeps the dynamic-cost regression independent of roster tuning.
+	state["enemies"][0]["intent"]["actions"][0]["range"] = 4
 	state["grid"][3][3] = "wall"
 	state["grid"][4][4] = "wall"
 	state["traps"] = [{"id": "earth_path", "pos": Vector2i(4, 2), "element": "earth", "damage": 2}]
@@ -229,7 +231,7 @@ static func _test_enemy_attack_route_dynamic_budget(combat: Combat, expect: Call
 		expect.call(prediction["destination"] == expected and after["enemies"][0]["pos"] == expected, "Forecast and execution honor the full Move %d budget after trap-created Rubble" % allowance)
 		expect.call(int(prediction["health_lost"]) == 2 and int(after["enemies"][0]["hp"]) == 8, "Dynamic route forecast matches actual trap damage at Move %d" % allowance)
 	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
-	expect.call(plan["path"] == path and bool(plan["attack_available"]), "Lunge uses its spare fourth movement point to retain the legal same-turn melee route")
+	expect.call(plan["path"] == path and bool(plan["attack_available"]), "The synthetic pursuit uses its spare fourth movement point to retain the legal same-turn melee route")
 	expect.call(state == before, "Dynamic route forecasts preserve the input state")
 	var resolved: Dictionary = combat.resolve_enemy_turn_with_steps(state, 0)["state"]
 	expect.call(resolved["enemies"][0]["pos"] == Vector2i(2, 2) and int(resolved["enemies"][0]["hp"]) == 8 and int(resolved["player"]["hp"]) < int(state["player"]["hp"]), "The selected full-budget dynamic route arrives alive and resolves melee")

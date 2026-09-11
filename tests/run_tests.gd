@@ -11,6 +11,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
+const ReachRebalanceSuite = preload("res://tests/suites/reach_rebalance_suite.gd")
 const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
@@ -100,6 +101,7 @@ func _initialize() -> void:
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
+	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
@@ -2915,7 +2917,7 @@ func _test_enemy_bleed_intents_apply_and_surface_icons() -> void:
 	var crawler_lunge: Dictionary = _enemy_intent_by_id("crawler", "lunge")
 	var harrier_pelt: Dictionary = _enemy_intent_by_id("harrier", "pelt")
 	_assert(_intent_has_action_status(crawler_skitter, "melee", "bleed"), "Tunnel Crawler Skitter Strike claws should apply bleed")
-	_assert(_intent_has_action_status(crawler_lunge, "melee", "bleed"), "Tunnel Crawler Lunge claws should apply bleed")
+	_assert(not _intent_has_action_status(crawler_lunge, "melee", "bleed"), "Crawler long approach should not carry Bleed")
 	_assert(_intent_has_action_status(harrier_pelt, "ranged", "bleed"), "Bone Harrier Pelt spear should apply bleed")
 	_assert(_intent_rows_have_icon(board.call("_intent_rows", crawler_skitter), "bleed"), "Crawler bleed intent rows should show the bleed icon")
 	_assert(_intent_rows_have_icon(board.call("_intent_rows", harrier_pelt), "bleed"), "Harrier bleed intent rows should show the bleed icon")
@@ -3154,8 +3156,8 @@ func _test_low_movement_enemies_advance_without_outpacing_crawlers() -> void:
 	_assert(_enemy_distinct_toward_move_count("crawler") > 1, "Crawlers should vary their movement budget across intents instead of repeating the same step")
 	_assert(_enemy_distinct_toward_move_count("acolyte") > 1, "Acolytes should vary their step sizes instead of always taking the same drift action")
 	_assert(_enemy_distinct_toward_move_count("warden") > 1, "Wardens should mix planted turns with heavier steps")
-	_assert(is_equal_approx(crawler_average, 3.0), "Crawlers should average three tiles of forward movement across their intents")
-	_assert(is_equal_approx(acolyte_average, 2.0), "Acolytes should average two tiles of forward movement across their intents")
+	_assert(is_equal_approx(crawler_average, 7.0 / 3.0), "Crawler signature, guard and approach should have distinct movement budgets")
+	_assert(is_equal_approx(acolyte_average, 1.25), "Acolytes should separate stationary shooting from their fast approach")
 	_assert(is_equal_approx(warden_average, 1.0), "Wardens should average one tile of forward movement across their intents")
 	_assert(crawler_weighted_average > acolyte_weighted_average, "Crawlers should move more aggressively than acolytes in actual intent frequency")
 	_assert(warden_weighted_average < crawler_weighted_average, "Wardens should stay slower than crawlers in actual intent frequency")
@@ -3607,6 +3609,7 @@ func _test_aoe_hits_multiple_targets() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
+	state["player"]["pos"] = Vector2i(2, 4)
 	var action: Dictionary = GameData.card_def("cyclone_seal").get("actions", [])[0]
 	state = combat.apply_player_action(state, action, Vector2i(4, 3))
 	var enemies: Array = state.get("enemies", [])
@@ -4510,11 +4513,11 @@ func _test_enemy_aoe_blocker_damages_incidental_terrain() -> void:
 func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var layout: Dictionary = _simple_room_layout()
-	layout["player_start"] = Vector2i(6, 4)
+	layout["player_start"] = Vector2i(5, 4)
 	layout["enemies"] = [{
 		"id": 1,
 		"type": "frostglass_lancer",
-		"pos": Vector2i(2, 2),
+		"pos": Vector2i(2, 3),
 		"hp": 12,
 		"max_hp": 12,
 		"block": 0
@@ -4532,7 +4535,7 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	var move_tiles: Array = threat.get("move", [])
 	var attack_tiles: Array = threat.get("attack", [])
 	_assert(move_tiles.has(Vector2i(2, 4)), "Frostglass Lancer preview should show the sideways setup tile that lines up the thrust")
-	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(4, 4)) and attack_tiles.has(Vector2i(5, 4)) and attack_tiles.has(Vector2i(6, 4)), "Frostglass Lancer preview should show the four-tile glass-lance line after setup movement")
+	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(4, 4)) and attack_tiles.has(Vector2i(5, 4)) and not attack_tiles.has(Vector2i(6, 4)), "Frostglass Lancer preview should show the three-tile glass-lance line after setup movement")
 	_assert(not attack_tiles.has(Vector2i(6, 3)) and not attack_tiles.has(Vector2i(6, 5)) and not attack_tiles.has(Vector2i(3, 3)), "Frostglass Lancer preview should remain a narrow line without the removed spearhead burst")
 	var phase: Dictionary = combat.resolve_enemy_phase_with_steps(state)
 	var after_state: Dictionary = phase.get("state", {})
@@ -4541,17 +4544,17 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 0, "Frostglass Lancer line thrust should damage the player on the oriented line")
 	var last_step: Dictionary = ((phase.get("steps", []) as Array).back() as Dictionary)
 	var step_tiles: Array = last_step.get("tiles", [])
-	_assert(step_tiles.has(Vector2i(3, 4)) and step_tiles.has(Vector2i(4, 4)) and step_tiles.has(Vector2i(5, 4)) and step_tiles.has(Vector2i(6, 4)) and not step_tiles.has(Vector2i(6, 3)), "Frostglass Lancer impact step should report the narrow four-tile line only")
+	_assert(step_tiles.has(Vector2i(3, 4)) and step_tiles.has(Vector2i(4, 4)) and step_tiles.has(Vector2i(5, 4)) and not step_tiles.has(Vector2i(6, 4)) and not step_tiles.has(Vector2i(6, 3)), "Frostglass Lancer impact step should report the narrow three-tile line only")
 
 	var blocked_layout: Dictionary = _simple_room_layout()
-	blocked_layout["player_start"] = Vector2i(6, 4)
+	blocked_layout["player_start"] = Vector2i(5, 4)
 	var blocked_grid: Array = blocked_layout.get("grid", []).duplicate(true)
 	blocked_grid[4][4] = "pillar"
 	blocked_layout["grid"] = blocked_grid
 	blocked_layout["enemies"] = [{
 		"id": 1,
 		"type": "frostglass_lancer",
-		"pos": Vector2i(2, 2),
+		"pos": Vector2i(2, 3),
 		"hp": 12,
 		"max_hp": 12,
 		"block": 0
@@ -4567,7 +4570,7 @@ func _test_frostglass_lancer_line_thrust_preview_and_resolution() -> void:
 	_set_enemy_intent(blocked_state, 0, _enemy_intent_by_id("frostglass_lancer", "glass_lunge"))
 	var blocked_threat: Dictionary = combat.enemy_threat_tiles(blocked_state, 0)
 	var blocked_attack_tiles: Array = blocked_threat.get("attack", [])
-	_assert(not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)) and not blocked_attack_tiles.has(Vector2i(6, 4)), "Frostglass Lancer blocked-line preview should not include impassable, behind-blocker, or player tiles")
+	_assert(not blocked_attack_tiles.has(Vector2i(4, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)) and not blocked_attack_tiles.has(Vector2i(5, 4)), "Frostglass Lancer blocked-line preview should not include impassable, behind-blocker, or player tiles")
 	var blocked_after: Dictionary = combat.resolve_enemy_phase(blocked_state)
 	_assert(int((blocked_after.get("player", {}) as Dictionary).get("hp", 0)) == 5, "Frostglass Lancer line thrust should not hit through blocking tiles")
 
@@ -10033,7 +10036,7 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
+	combat_state["player"] = {"pos": Vector2i(3, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0},
 		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
@@ -10950,7 +10953,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 		"heal_bonus": 0
 	})
 	combat_state["player"] = {
-		"pos": Vector2i(6, 4),
+		"pos": Vector2i(5, 4),
 		"hp": 30,
 		"max_hp": 30,
 		"block": 0,
@@ -10960,7 +10963,7 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 		{
 			"id": 1,
 			"type": "frostglass_lancer",
-			"pos": Vector2i(2, 2),
+			"pos": Vector2i(2, 3),
 			"hp": 130,
 			"max_hp": 130,
 			"block": 0
@@ -10972,13 +10975,13 @@ func _test_run_scene_frostglass_lancer_line_threat_overlay() -> void:
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	_set_run_scene_combat_state_for_test(instance, combat_state)
-	instance.set("_hovered_board_tile", Vector2i(2, 2))
+	instance.set("_hovered_board_tile", Vector2i(2, 3))
 	instance.call("_refresh_stage_view")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var move_tiles: Array = board_view.get("move_tiles")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(move_tiles.has(Vector2i(2, 4)), "RunScene should surface the Frostglass Lancer's sideways setup movement on board hover")
-	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(6, 4)), "RunScene should surface the Frostglass Lancer's four-tile straight-line threat on board hover")
+	_assert(attack_tiles.has(Vector2i(3, 4)) and attack_tiles.has(Vector2i(5, 4)), "RunScene should surface the Frostglass Lancer's three-tile straight-line threat on board hover")
 	_assert(not attack_tiles.has(Vector2i(6, 3)) and not attack_tiles.has(Vector2i(6, 5)), "RunScene Frostglass Lancer hover should avoid the removed spearhead burst")
 	var portrait_path: String = str(instance.call("_turn_order_portrait_path", {"kind": "enemy", "type": "frostglass_lancer"}))
 	_assert(portrait_path == "res://assets/art/portraits/frostglass_lancer.png", "Frostglass Lancer should use its face-focused portrait in the turn-order widget")
@@ -12550,6 +12553,7 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	_assert(radiance_actions.size() == 1 and not guiding_targets.has(enemy_tile), "Guiding Flare should inherit ordinary attack visibility and reject a hidden enemy")
 	_assert(not guiding_targets.has(Vector2i(3, 4)), "Guiding Flare should not use standalone Light's empty-floor targeting")
 	var visible_radiance_state: Dictionary = combat.apply_player_action(radiance_state, {"type": "truesight", "duration": 2})
+	visible_radiance_state["player"]["pos"] = enemy_tile + Vector2i(-2, 0)
 	_assert(combat.valid_targets_for_player_action(visible_radiance_state, guiding_attack).has(enemy_tile), "Guiding Flare should expose one combined attack-and-Light target step once the enemy is attackable")
 	var initial_enemy_hp: int = int(((visible_radiance_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
 	var direct_attack_state: Dictionary = combat.apply_player_action(visible_radiance_state, guiding_attack, enemy_tile)

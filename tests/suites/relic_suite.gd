@@ -115,7 +115,7 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 			radiance_count += 1
 			radiance_by_rarity[rarity] = int(radiance_by_rarity.get(rarity, 0)) + 1
 		var tier: int = int(RARITY_TIERS.get(rarity, 0))
-		expect.call(int(raw_relic.get("design_version", 0)) == 3, "%s should be migrated to the complete-set relic design version" % relic_id)
+		expect.call(int(raw_relic.get("design_version", 0)) >= 3, "%s should be migrated to the complete-set relic design version" % relic_id)
 		expect.call(int(raw_relic.get("condition_tier", 0)) == tier, "%s conditionality should match its rarity tier" % relic_id)
 		expect.call(int(raw_relic.get("upside_tier", 0)) == tier, "%s upside should match its rarity tier" % relic_id)
 		expect.call((raw_relic.get("build_tags", []) as Array).size() >= 2, "%s should identify at least two build hooks" % relic_id)
@@ -432,7 +432,7 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var north_state: Dictionary = _state(combat, ["true_north"])
 	north_state = combat.apply_player_action(north_state, {"type": "truesight", "duration": 2})
 	var north_action: Dictionary = combat.call("_resolved_surface_action", north_state, {"type": "ranged", "damage": 1, "range": 3, "_card_action_types": ["ranged"]})
-	expect.call(int(north_action.get("range", 0)) == 5, "True North should transform ranged targeting while Truesight is active")
+	expect.call(int(north_action.get("range", 0)) == 4, "True North should transform ranged targeting while Truesight is active")
 
 	var dawnstitch_state: Dictionary = _state(combat, ["dawnstitch_cord"])
 	dawnstitch_state = _trigger_card(combat, dawnstitch_state, GameData.card_def("prism_sight"), "prism_sight")

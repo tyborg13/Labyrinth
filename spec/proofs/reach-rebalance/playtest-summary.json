@@ -1,0 +1,3121 @@
+{
+  "revision": "short_reach_v1",
+  "method": "Same board_surface_playtest.gd policy and seeded builds. Pair by room coordinate within each seed/build; later route/deck divergence prevents causal attribution. Summarize combat_ended joined to combat_started, not reward-screen count.",
+  "final_source_differences": "Three final equipment cards (Lodestone Reversal, Anchor Slam, Rimeplate Lock) were absent from every candidate deck and play log. Later engine edit extracted the identical lexicographic support comparison into a helper; later save and analytics edits only expose transition context. Focused and full suite passed on final code.",
+  "headless_telemetry_limit": "Existing manual policy logs omit enemy_action_resolved and leave objective/fog context empty; these runs do not prove intent utilization or Umbra-specific win rates. Focused tests, pursuit probe, structural snapshots and inspected Heart renderer supply scoped evidence instead.",
+  "pairs": [
+    {
+      "cohort": "mixed-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 8,
+        "policy_reward_count": 2,
+        "combat_outcomes": {
+          "victory": 2,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 5,
+            "player_turn": 3,
+            "initiative_clock": 41
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 8,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 65
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 28,
+        "policy_reward_count": 6,
+        "combat_outcomes": {
+          "victory": 7,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 29
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 19,
+            "player_turn": 9,
+            "initiative_clock": 101
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 22,
+            "hp_after": 13,
+            "player_turn": 2,
+            "initiative_clock": 23
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 16,
+            "hp_after": 13,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 16,
+            "hp_after": 8,
+            "player_turn": 4,
+            "initiative_clock": 55
+          },
+          {
+            "coord": [
+              -4,
+              -1
+            ],
+            "depth": 4,
+            "element": "ice",
+            "type": "boss",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 6,
+            "player_turn": 10,
+            "initiative_clock": 126
+          },
+          {
+            "coord": [
+              -5,
+              -1
+            ],
+            "depth": 5,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 12,
+            "hp_after": 1,
+            "player_turn": 2,
+            "initiative_clock": 31
+          },
+          {
+            "coord": [
+              -6,
+              -1
+            ],
+            "depth": 6,
+            "element": "air",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 8,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 40
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "nail_bomb",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "55c464e9e462b358b6f82f6d41925d6ed515c57cca9fffe6a25ae2c43ad5fd57",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 29
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 5,
+            "player_turn": 3,
+            "initiative_clock": 41
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 19,
+            "player_turn": 9,
+            "initiative_clock": 101
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 8,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 65
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 22,
+            "hp_after": 13,
+            "player_turn": 2,
+            "initiative_clock": 23
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "fire-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 23,
+        "policy_reward_count": 5,
+        "combat_outcomes": {
+          "victory": 6,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 19,
+            "player_turn": 2,
+            "initiative_clock": 33
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 22,
+            "hp_after": 15,
+            "player_turn": 4,
+            "initiative_clock": 64
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 15,
+            "player_turn": 2,
+            "initiative_clock": 22
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 18,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 21,
+            "hp_after": 8,
+            "player_turn": 3,
+            "initiative_clock": 34
+          },
+          {
+            "coord": [
+              -4,
+              -1
+            ],
+            "depth": 4,
+            "element": "ice",
+            "type": "boss",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 1,
+            "player_turn": 9,
+            "initiative_clock": 103
+          },
+          {
+            "coord": [
+              -5,
+              -1
+            ],
+            "depth": 5,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 7,
+            "hp_after": 0,
+            "player_turn": 7,
+            "initiative_clock": 77
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "ember_tithe",
+          "firebrand_volley",
+          "guarded_step",
+          "guiding_flare",
+          "hamstring_shot",
+          "hearth_rush",
+          "lantern_shot",
+          "mossglass_elixir",
+          "nail_bomb",
+          "patch_up",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 19,
+        "policy_reward_count": 6,
+        "combat_outcomes": {
+          "victory": 6,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 16,
+            "player_turn": 4,
+            "initiative_clock": 65
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 19,
+            "hp_after": 12,
+            "player_turn": 3,
+            "initiative_clock": 48
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 12,
+            "player_turn": 2,
+            "initiative_clock": 22
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 6,
+            "player_turn": 2,
+            "initiative_clock": 17
+          },
+          {
+            "coord": [
+              0,
+              1
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 9,
+            "hp_after": 5,
+            "player_turn": 4,
+            "initiative_clock": 39
+          },
+          {
+            "coord": [
+              2,
+              2
+            ],
+            "depth": 2,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 12,
+            "hp_after": 6,
+            "player_turn": 3,
+            "initiative_clock": 48
+          },
+          {
+            "coord": [
+              3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 9,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 45
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "ember_tithe",
+          "firebrand_volley",
+          "guarded_step",
+          "guiding_flare",
+          "hamstring_shot",
+          "hearth_rush",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "55c464e9e462b358b6f82f6d41925d6ed515c57cca9fffe6a25ae2c43ad5fd57",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 19,
+            "player_turn": 2,
+            "initiative_clock": 33
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 16,
+            "player_turn": 4,
+            "initiative_clock": 65
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 22,
+            "hp_after": 15,
+            "player_turn": 4,
+            "initiative_clock": 64
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 19,
+            "hp_after": 12,
+            "player_turn": 3,
+            "initiative_clock": 48
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 15,
+            "player_turn": 2,
+            "initiative_clock": 22
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 12,
+            "player_turn": 2,
+            "initiative_clock": 22
+          }
+        },
+        {
+          "coord": [
+            -1,
+            1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 18,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 6,
+            "player_turn": 2,
+            "initiative_clock": 17
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "earth-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 15,
+        "policy_reward_count": 3,
+        "combat_outcomes": {
+          "victory": 3,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 14,
+            "player_turn": 5,
+            "initiative_clock": 62
+          },
+          {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 17,
+            "hp_after": 17,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 20,
+            "hp_after": 13,
+            "player_turn": 6,
+            "initiative_clock": 80
+          },
+          {
+            "coord": [
+              2,
+              -2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 20,
+            "hp_after": 0,
+            "player_turn": 6,
+            "initiative_clock": 70
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "crimson_draught",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "root_snare",
+          "shadow_step",
+          "sidestep_slash",
+          "stone_plate",
+          "thorn_skewer",
+          "venom_claw",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 23,
+        "policy_reward_count": 5,
+        "combat_outcomes": {
+          "victory": 5,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 22,
+            "player_turn": 5,
+            "initiative_clock": 82
+          },
+          {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          {
+            "coord": [
+              2,
+              -2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 9,
+            "player_turn": 8,
+            "initiative_clock": 100
+          },
+          {
+            "coord": [
+              3,
+              -2
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 12,
+            "hp_after": 13,
+            "player_turn": 5,
+            "initiative_clock": 52
+          },
+          {
+            "coord": [
+              3,
+              -3
+            ],
+            "depth": 3,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 16,
+            "hp_after": 0,
+            "player_turn": 5,
+            "initiative_clock": 47
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "patch_up",
+          "pitch_firebomb",
+          "quarry_step",
+          "quick_stab",
+          "root_snare",
+          "shadow_step",
+          "sidestep_slash",
+          "stone_plate",
+          "thorn_skewer",
+          "venom_claw",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "55c464e9e462b358b6f82f6d41925d6ed515c57cca9fffe6a25ae2c43ad5fd57",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 14,
+            "player_turn": 5,
+            "initiative_clock": 62
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 22,
+            "player_turn": 5,
+            "initiative_clock": 82
+          }
+        },
+        {
+          "coord": [
+            1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 17,
+            "hp_after": 17,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 1,
+            "initiative_clock": 0
+          }
+        },
+        {
+          "coord": [
+            1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 20,
+            "hp_after": 13,
+            "player_turn": 6,
+            "initiative_clock": 80
+          },
+          "candidate": {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 38
+          }
+        },
+        {
+          "coord": [
+            2,
+            -2
+          ],
+          "baseline": {
+            "coord": [
+              2,
+              -2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 20,
+            "hp_after": 0,
+            "player_turn": 6,
+            "initiative_clock": 70
+          },
+          "candidate": {
+            "coord": [
+              2,
+              -2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 9,
+            "player_turn": 8,
+            "initiative_clock": 100
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "ice-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 22,
+        "policy_reward_count": 6,
+        "combat_outcomes": {
+          "victory": 6,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 4,
+            "initiative_clock": 47
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 14,
+            "player_turn": 3,
+            "initiative_clock": 43
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 17,
+            "hp_after": 4,
+            "player_turn": 5,
+            "initiative_clock": 74
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 7,
+            "hp_after": 7,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 10,
+            "hp_after": 10,
+            "player_turn": 2,
+            "initiative_clock": 20
+          },
+          {
+            "coord": [
+              -3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 9,
+            "player_turn": 3,
+            "initiative_clock": 52
+          },
+          {
+            "coord": [
+              -4,
+              3
+            ],
+            "depth": 4,
+            "element": "ice",
+            "type": "boss",
+            "outcome": "defeat",
+            "hp_before": 12,
+            "hp_after": 0,
+            "player_turn": 9,
+            "initiative_clock": 90
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "cold_grasp",
+          "frostbolt",
+          "guarded_step",
+          "hamstring_shot",
+          "icicle_lance",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quick_stab",
+          "rime_shard",
+          "shadow_step",
+          "sidestep_slash",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 21,
+        "policy_reward_count": 5,
+        "combat_outcomes": {
+          "victory": 5,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 20,
+            "player_turn": 3,
+            "initiative_clock": 49
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 23,
+            "hp_after": 15,
+            "player_turn": 3,
+            "initiative_clock": 39
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 9,
+            "player_turn": 2,
+            "initiative_clock": 21
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 12,
+            "hp_after": 6,
+            "player_turn": 3,
+            "initiative_clock": 36
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 9,
+            "hp_after": 10,
+            "player_turn": 4,
+            "initiative_clock": 61
+          },
+          {
+            "coord": [
+              -4,
+              -1
+            ],
+            "depth": 4,
+            "element": "ice",
+            "type": "boss",
+            "outcome": "defeat",
+            "hp_before": 17,
+            "hp_after": 0,
+            "player_turn": 11,
+            "initiative_clock": 119
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "cold_grasp",
+          "frostbolt",
+          "guarded_step",
+          "hamstring_shot",
+          "icicle_lance",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "pitch_firebomb",
+          "quick_stab",
+          "rime_shard",
+          "shadow_step",
+          "sidestep_slash",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "55c464e9e462b358b6f82f6d41925d6ed515c57cca9fffe6a25ae2c43ad5fd57",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 4,
+            "initiative_clock": 47
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 20,
+            "player_turn": 3,
+            "initiative_clock": 49
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 14,
+            "player_turn": 3,
+            "initiative_clock": 43
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 23,
+            "hp_after": 15,
+            "player_turn": 3,
+            "initiative_clock": 39
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 17,
+            "hp_after": 4,
+            "player_turn": 5,
+            "initiative_clock": 74
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 18,
+            "hp_after": 9,
+            "player_turn": 2,
+            "initiative_clock": 21
+          }
+        },
+        {
+          "coord": [
+            -1,
+            1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 7,
+            "hp_after": 7,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 12,
+            "hp_after": 6,
+            "player_turn": 3,
+            "initiative_clock": 36
+          }
+        },
+        {
+          "coord": [
+            -2,
+            1
+          ],
+          "baseline": {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 10,
+            "hp_after": 10,
+            "player_turn": 2,
+            "initiative_clock": 20
+          },
+          "candidate": {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 9,
+            "hp_after": 10,
+            "player_turn": 4,
+            "initiative_clock": 61
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "air-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 20,
+        "policy_reward_count": 4,
+        "combat_outcomes": {
+          "victory": 4,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 2,
+            "player_turn": 15,
+            "initiative_clock": 151
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 5,
+            "hp_after": 7,
+            "player_turn": 2,
+            "initiative_clock": 18
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 10,
+            "hp_after": 10,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 13,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 45
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "dawnstep",
+          "guarded_step",
+          "gust_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "threaded_path",
+          "updraft",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 16,
+        "policy_reward_count": 5,
+        "combat_outcomes": {
+          "victory": 5,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 29
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 35
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 18,
+            "player_turn": 2,
+            "initiative_clock": 16
+          },
+          {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 21,
+            "hp_after": 18,
+            "player_turn": 2,
+            "initiative_clock": 19
+          },
+          {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 21,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 16
+          },
+          {
+            "coord": [
+              -3,
+              1
+            ],
+            "depth": 3,
+            "element": "air",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 24,
+            "hp_after": 0,
+            "player_turn": 10,
+            "initiative_clock": 110
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "dawnstep",
+          "guarded_step",
+          "gust_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "threaded_path",
+          "updraft",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "55c464e9e462b358b6f82f6d41925d6ed515c57cca9fffe6a25ae2c43ad5fd57",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 10,
+            "player_turn": 3,
+            "initiative_clock": 38
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 29
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 13,
+            "hp_after": 2,
+            "player_turn": 15,
+            "initiative_clock": 151
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 35
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 5,
+            "hp_after": 7,
+            "player_turn": 2,
+            "initiative_clock": 18
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 18,
+            "player_turn": 2,
+            "initiative_clock": 16
+          }
+        },
+        {
+          "coord": [
+            -1,
+            1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 10,
+            "hp_after": 10,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 21,
+            "hp_after": 18,
+            "player_turn": 2,
+            "initiative_clock": 19
+          }
+        },
+        {
+          "coord": [
+            -2,
+            1
+          ],
+          "baseline": {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 13,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 45
+          },
+          "candidate": {
+            "coord": [
+              -2,
+              1
+            ],
+            "depth": 2,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 21,
+            "hp_after": 21,
+            "player_turn": 2,
+            "initiative_clock": 16
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "lightning-9102601",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 6,
+        "policy_reward_count": 2,
+        "combat_outcomes": {
+          "victory": 2,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 2,
+            "player_turn": 5,
+            "initiative_clock": 67
+          },
+          {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 5,
+            "hp_after": 5,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              2,
+              -1
+            ],
+            "depth": 2,
+            "element": "fire",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 8,
+            "hp_after": 0,
+            "player_turn": 2,
+            "initiative_clock": 16
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "patch_up",
+          "pitch_firebomb",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "spark_dart",
+          "spark_focus",
+          "static_lash",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 8,
+        "policy_reward_count": 2,
+        "combat_outcomes": {
+          "victory": 2,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 12,
+            "player_turn": 5,
+            "initiative_clock": 69
+          },
+          {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 15,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              2,
+              -1
+            ],
+            "depth": 2,
+            "element": "fire",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 18,
+            "hp_after": 0,
+            "player_turn": 5,
+            "initiative_clock": 56
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "bone_ward_charm",
+          "brace",
+          "chain_bolt",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "patch_up",
+          "pitch_firebomb",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "spark_dart",
+          "spark_focus",
+          "static_lash",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 2,
+            "player_turn": 5,
+            "initiative_clock": 67
+          },
+          "candidate": {
+            "coord": [
+              1,
+              0
+            ],
+            "depth": 1,
+            "element": "lightning",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 12,
+            "player_turn": 5,
+            "initiative_clock": 69
+          }
+        },
+        {
+          "coord": [
+            1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 5,
+            "hp_after": 5,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              1,
+              -1
+            ],
+            "depth": 1,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 15,
+            "hp_after": 15,
+            "player_turn": 1,
+            "initiative_clock": 0
+          }
+        },
+        {
+          "coord": [
+            2,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              2,
+              -1
+            ],
+            "depth": 2,
+            "element": "fire",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 8,
+            "hp_after": 0,
+            "player_turn": 2,
+            "initiative_clock": 16
+          },
+          "candidate": {
+            "coord": [
+              2,
+              -1
+            ],
+            "depth": 2,
+            "element": "fire",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 18,
+            "hp_after": 0,
+            "player_turn": 5,
+            "initiative_clock": 56
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "mixed-9102602",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 11,
+        "policy_reward_count": 3,
+        "combat_outcomes": {
+          "victory": 3,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 36
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 22,
+            "player_turn": 3,
+            "initiative_clock": 30
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 3,
+            "initiative_clock": 43
+          },
+          {
+            "coord": [
+              -2,
+              2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 24,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 53
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 21,
+        "policy_reward_count": 4,
+        "combat_outcomes": {
+          "victory": 4,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 4,
+            "initiative_clock": 41
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 2,
+            "initiative_clock": 15
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 3,
+            "initiative_clock": 44
+          },
+          {
+            "coord": [
+              -2,
+              2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 1,
+            "player_turn": 7,
+            "initiative_clock": 103
+          },
+          {
+            "coord": [
+              -3,
+              2
+            ],
+            "depth": 3,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 4,
+            "hp_after": 0,
+            "player_turn": 8,
+            "initiative_clock": 99
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "nail_bomb",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 3,
+            "initiative_clock": 36
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 4,
+            "initiative_clock": 41
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 22,
+            "player_turn": 3,
+            "initiative_clock": 30
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 2,
+            "initiative_clock": 15
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 3,
+            "initiative_clock": 43
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 3,
+            "initiative_clock": 44
+          }
+        },
+        {
+          "coord": [
+            -2,
+            2
+          ],
+          "baseline": {
+            "coord": [
+              -2,
+              2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 24,
+            "hp_after": 0,
+            "player_turn": 4,
+            "initiative_clock": 53
+          },
+          "candidate": {
+            "coord": [
+              -2,
+              2
+            ],
+            "depth": 2,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 1,
+            "player_turn": 7,
+            "initiative_clock": 103
+          }
+        }
+      ]
+    },
+    {
+      "cohort": "mixed-9102603",
+      "baseline": {
+        "end_reason": "defeat",
+        "player_activations": 10,
+        "policy_reward_count": 3,
+        "combat_outcomes": {
+          "victory": 3,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 4,
+            "initiative_clock": 51
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 11,
+            "player_turn": 2,
+            "initiative_clock": 44
+          },
+          {
+            "coord": [
+              -3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 18,
+            "hp_after": 0,
+            "player_turn": 5,
+            "initiative_clock": 59
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "git_base": "e7ea04093f6596be111cc352a5d047156ca96ec9"
+        }
+      },
+      "candidate": {
+        "end_reason": "defeat",
+        "player_activations": 50,
+        "policy_reward_count": 5,
+        "combat_outcomes": {
+          "victory": 6,
+          "defeat": 1
+        },
+        "combats": [
+          {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 5,
+            "initiative_clock": 64
+          },
+          {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 20,
+            "player_turn": 2,
+            "initiative_clock": 20
+          },
+          {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 23,
+            "hp_after": 19,
+            "player_turn": 3,
+            "initiative_clock": 48
+          },
+          {
+            "coord": [
+              -3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 13,
+            "player_turn": 35,
+            "initiative_clock": 392
+          },
+          {
+            "coord": [
+              -4,
+              3
+            ],
+            "depth": 4,
+            "element": "earth",
+            "type": "boss",
+            "outcome": "victory",
+            "hp_before": 16,
+            "hp_after": 5,
+            "player_turn": 5,
+            "initiative_clock": 74
+          },
+          {
+            "coord": [
+              -5,
+              3
+            ],
+            "depth": 5,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 11,
+            "hp_after": 10,
+            "player_turn": 2,
+            "initiative_clock": 19
+          },
+          {
+            "coord": [
+              -7,
+              -1
+            ],
+            "depth": 7,
+            "element": "fire",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 17,
+            "hp_after": 0,
+            "player_turn": 3,
+            "initiative_clock": 39
+          }
+        ],
+        "cards_available_or_played": [
+          "bloody_lunge",
+          "brace",
+          "chain_bolt",
+          "cinder_bloom",
+          "cinderline_tempo",
+          "cold_grasp",
+          "guarded_step",
+          "hamstring_shot",
+          "lantern_shot",
+          "mossglass_elixir",
+          "patch_up",
+          "quarry_step",
+          "quick_stab",
+          "shadow_step",
+          "sidestep_slash",
+          "slipstream_cut",
+          "smoke_bomb",
+          "whirlwind_slash"
+        ],
+        "source_hashes": {
+          "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+          "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+          "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+          "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+        }
+      },
+      "matched_rooms": [
+        {
+          "coord": [
+            0,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 23,
+            "player_turn": 4,
+            "initiative_clock": 51
+          },
+          "candidate": {
+            "coord": [
+              0,
+              -1
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 21,
+            "player_turn": 5,
+            "initiative_clock": 64
+          }
+        },
+        {
+          "coord": [
+            -1,
+            -1
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 24,
+            "player_turn": 1,
+            "initiative_clock": 0
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              -1
+            ],
+            "depth": 1,
+            "element": "air",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 20,
+            "player_turn": 2,
+            "initiative_clock": 20
+          }
+        },
+        {
+          "coord": [
+            -1,
+            0
+          ],
+          "baseline": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 11,
+            "player_turn": 2,
+            "initiative_clock": 44
+          },
+          "candidate": {
+            "coord": [
+              -1,
+              0
+            ],
+            "depth": 1,
+            "element": "ice",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 23,
+            "hp_after": 19,
+            "player_turn": 3,
+            "initiative_clock": 48
+          }
+        },
+        {
+          "coord": [
+            -3,
+            3
+          ],
+          "baseline": {
+            "coord": [
+              -3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "defeat",
+            "hp_before": 18,
+            "hp_after": 0,
+            "player_turn": 5,
+            "initiative_clock": 59
+          },
+          "candidate": {
+            "coord": [
+              -3,
+              3
+            ],
+            "depth": 3,
+            "element": "earth",
+            "type": "combat",
+            "outcome": "victory",
+            "hp_before": 24,
+            "hp_after": 13,
+            "player_turn": 35,
+            "initiative_clock": 392
+          }
+        }
+      ]
+    }
+  ],
+  "boss_screen": [
+    {
+      "boss": "iskaldra",
+      "first_combat": {
+        "coord": [
+          4,
+          0
+        ],
+        "depth": 4,
+        "element": "ice",
+        "type": "boss",
+        "outcome": "victory",
+        "hp_before": 24,
+        "hp_after": 1,
+        "player_turn": 16,
+        "initiative_clock": 195
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "cinder_bloom",
+        "cinderline_tempo",
+        "ember_tithe",
+        "firebrand_volley",
+        "frost_snare",
+        "guarded_step",
+        "guiding_flare",
+        "hamstring_shot",
+        "hearth_rush",
+        "jaw_trap",
+        "lantern_shot",
+        "patch_up",
+        "quick_stab",
+        "shadow_step",
+        "sidestep_slash",
+        "whirlwind_slash"
+      ]
+    },
+    {
+      "boss": "noctyrax",
+      "first_combat": {
+        "coord": [
+          24,
+          0
+        ],
+        "depth": 24,
+        "element": "shadow",
+        "type": "boss",
+        "outcome": "defeat",
+        "hp_before": 24,
+        "hp_after": 0,
+        "player_turn": 5,
+        "initiative_clock": 63
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "dawnstep",
+        "daybreak",
+        "glowstone_ward",
+        "guarded_step",
+        "guiding_flare",
+        "hamstring_shot",
+        "lantern_shot",
+        "patch_up",
+        "prism_sight",
+        "quick_stab",
+        "shadow_step",
+        "sidestep_slash",
+        "whirlwind_slash"
+      ]
+    },
+    {
+      "boss": "tharokh",
+      "first_combat": {
+        "coord": [
+          8,
+          0
+        ],
+        "depth": 8,
+        "element": "earth",
+        "type": "boss",
+        "outcome": "victory",
+        "hp_before": 24,
+        "hp_after": 18,
+        "player_turn": 18,
+        "initiative_clock": 186
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "cinder_bloom",
+        "cinderline_tempo",
+        "ember_tithe",
+        "firebrand_volley",
+        "guarded_step",
+        "guiding_flare",
+        "hamstring_shot",
+        "hearth_rush",
+        "lantern_shot",
+        "patch_up",
+        "quick_stab",
+        "shadow_step",
+        "sidestep_slash",
+        "whirlwind_slash"
+      ]
+    },
+    {
+      "boss": "vaeloryx",
+      "first_combat": {
+        "coord": [
+          16,
+          0
+        ],
+        "depth": 16,
+        "element": "air",
+        "type": "boss",
+        "outcome": "defeat",
+        "hp_before": 24,
+        "hp_after": 0,
+        "player_turn": 5,
+        "initiative_clock": 54
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "guarded_step",
+        "hamstring_shot",
+        "lantern_shot",
+        "patch_up",
+        "quarry_step",
+        "quick_stab",
+        "root_snare",
+        "shadow_step",
+        "sidestep_slash",
+        "stone_plate",
+        "thorn_skewer",
+        "venom_claw",
+        "whirlwind_slash"
+      ]
+    },
+    {
+      "boss": "vyraketh",
+      "first_combat": {
+        "coord": [
+          20,
+          0
+        ],
+        "depth": 20,
+        "element": "fire",
+        "type": "boss",
+        "outcome": "defeat",
+        "hp_before": 24,
+        "hp_after": 0,
+        "player_turn": 32,
+        "initiative_clock": 313
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "cold_grasp",
+        "frostbolt",
+        "guarded_step",
+        "hamstring_shot",
+        "icicle_lance",
+        "lantern_shot",
+        "patch_up",
+        "quick_stab",
+        "rime_shard",
+        "shadow_step",
+        "sidestep_slash",
+        "whirlwind_slash"
+      ]
+    },
+    {
+      "boss": "zekarion",
+      "first_combat": {
+        "coord": [
+          12,
+          0
+        ],
+        "depth": 12,
+        "element": "lightning",
+        "type": "boss",
+        "outcome": "defeat",
+        "hp_before": 24,
+        "hp_after": 0,
+        "player_turn": 6,
+        "initiative_clock": 81
+      },
+      "source_hashes": {
+        "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+        "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+        "scripts/combat_engine.gd": "45ee846999deaea26691456c612e2978691074732b4b1262713ba82f4d057d2c",
+        "tools/board_surface_playtest.gd": "c2c69e396d6e7fc895a2269b61efe50b73114898bee674d6e4cd70ed52763208"
+      },
+      "cards_available_or_played": [
+        "bloody_lunge",
+        "brace",
+        "chain_bolt",
+        "guarded_step",
+        "hamstring_shot",
+        "lantern_shot",
+        "patch_up",
+        "quick_stab",
+        "shadow_step",
+        "sidestep_slash",
+        "spark_dart",
+        "spark_focus",
+        "static_lash",
+        "whirlwind_slash"
+      ]
+    }
+  ],
+  "boss_limit": "Boss screens use starter gear, 24 HP, no acquired progression; inspect the FIRST combat outcome. The inherited route policy can continue after a boss victory; subsequent deaths are not boss defeats. Noctyrax uses six Radiance spells."
+}

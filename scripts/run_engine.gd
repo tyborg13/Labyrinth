@@ -295,6 +295,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not repaired_combat_state.is_empty():
+		repaired_combat_state = _mark_balance_transition(repaired_combat_state)
 		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
 		repaired_combat_state.erase("stats")
 		repaired_combat_state.erase("card_upgrades")
@@ -1824,6 +1825,20 @@ func _repair_combat_defiance_state(combat_state: Dictionary, capacity: int, fall
 	next_state["defiance_event_revision"] = latest_revision
 	return next_state
 
+# A revealed intent is a commitment, including authored tutorial overrides and
+# already-paid surface bonuses. Preserve it (and queued paid checkpoints) on
+# load; newly selected intents and card definitions use the current revision.
+# Never reroll an intent or replay an action merely because content changed.
+func _mark_balance_transition(state: Dictionary) -> Dictionary:
+	if not state.is_empty() and str(state.get("balance_revision", "legacy")) != GameData.BALANCE_REVISION:
+		state["balance_transition"] = {
+			"from": str(state.get("balance_revision", "legacy")),
+			"to": GameData.BALANCE_REVISION,
+			"saved_intents_preserved": true,
+		}
+		state["balance_revision"] = GameData.BALANCE_REVISION
+	return state
+
 func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if typeof(next_state.get(COMBAT_CONTINUATION_KEY, null)) != TYPE_ARRAY:
@@ -1847,6 +1862,7 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 		if typeof(checkpoint.get("state", null)) != TYPE_DICTIONARY:
 			continue
 		var checkpoint_state: Dictionary = (checkpoint.get("state", {}) as Dictionary).duplicate(true)
+		checkpoint_state = _mark_balance_transition(checkpoint_state)
 		checkpoint_state["skill_ids"] = skill_ids
 		checkpoint_state.erase("stats")
 		checkpoint_state.erase("card_upgrades")

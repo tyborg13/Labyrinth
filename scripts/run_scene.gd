@@ -30672,6 +30672,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	var run_analytics: Dictionary = (run_state.get("analytics", {}) as Dictionary).duplicate(true)
 	var progression: Dictionary = (run_state.get("progression", _progression) as Dictionary).duplicate(true)
 	var context: Dictionary = {
+		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 		"run_id": str(run_analytics.get("run_id", "")),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),

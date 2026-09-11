@@ -1,0 +1,11 @@
+{
+  "data/cards.json": "2f49ec96a52a5c653538402b959d843eb40df9a9b5015891a088d19abd04886a",
+  "data/enemies.json": "a8b81c6ceced81e428a76071a14f2a8511ecb2a7c8ad66af7ab282294081441a",
+  "data/relics.json": "caaf72a51530191ab1c8f8698869dd8f51b145cca5089148e8b28fd10bce5222",
+  "scripts/combat_engine.gd": "b41cec4b66460eddb144ab7dfacdfdc0c25564ae5fb7fa343e00749ab117097b",
+  "scripts/run_engine.gd": "5cb91b3a68b95afd4b6bd3431138275613cb2f4a14e1fb90e10b600e842497bf",
+  "tools/card_heuristic.py": "ff9ad0da75c76a8dedb077c7feef6eecbc3d38e863405116e1ce807c81b65a9a",
+  "tests/reach_rebalance_probe.gd": "48dbab751208b88f7433e331c5df24b61b51cad803696023c94d56bc35ca7ffa",
+  "tools/reach_pursuit_probe.gd": "ec4cbd1d28922af807bde535acfb7f49225913d834c5094de5aeaadd71611be4",
+  "tools/reach_playability_probe.gd": "7e9947457b5657aae5bbbae0652fb63aa5b6be8585ea2a8f0f821c4e1248e9eb"
+}

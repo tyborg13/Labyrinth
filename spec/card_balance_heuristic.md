@@ -197,7 +197,7 @@ Encounter calibration is also important:
 - Shale Bloomers enter normal local depth `1-3` pools at low frequency as slow
   Rubble/Expose control anchors without changing boss rooms.
 - Frostglass Lancers enter normal local depth `1-3` pools as precision
-  four-tile line-thrust enemies that can move sideways to set up a lane, so
+  three-tile line-thrust enemies with a one-tile approach that can move sideways to set up a lane, so
   lateral movement and blocker-aware positioning can appear from the opener band.
 - Later sequences keep the same local density and elemental room-pressure curve,
   but raise enemy max HP by only `+8%` per completed sequence. Direct-damage
@@ -426,10 +426,28 @@ Push and pull get a small directed-force bonus because the player chooses among
 legal straight cardinal lines after choosing the target, constrained to directions
 that move the target farther from or closer to the caster:
 
-- Range `4` or less: `0.80`
-- Range `5`: `0.88`
-- Range `6`: `0.95`
-- Range `7+`: `0.98`
+- Range `1`: `0.35`
+- Range `2`: `0.65`
+- Range `3`: `0.83`
+- Range `4`: `0.92`
+- Range `5`: `0.96`
+- Range `6`: `0.98`
+- Range `7+`: `0.99`
+
+The `short_reach_v1` factors use rounded structural legality anchors from
+`tools/reach_playability_probe.gd`: 48 seeded rooms across six elements and depths
+1/3/9/19, with 1,570 unoccupied inner-floor anchors per visibility cohort.
+Immediate enemy-target availability in Clear was .334/.656/.827/.920/.966/.981/.989
+for ranges 1–7. Deep plateaued at .827 after range 3; Heart at .656 after range 2.
+These are unweighted board snapshots, **not realized hit rates or a universal
+fog discount**. Shared movement is not credited to each card. The melee curve
+remains a conservative routing/commitment discount relative to the new projectile
+curve; unchanged melee damage and Time should be revisited through human play,
+not automatically inflated to compensate for shorter projectiles.
+
+Ordinary enemy direct threat is now 2–3, with named approaches/rays up to 4.
+The player retains two independent movement tiles plus paid card movement.
+See [the reach balance contract](reach_balance.md) for exceptions and save policy.
 
 Close AOE patterns use melee playability based on the player's effective reach
 to adjacent tiles, then apply the AOE target multiplier.

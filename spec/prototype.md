@@ -62,6 +62,10 @@ It intentionally excludes, for now:
 
 ## Combat Rules
 
+Current attack and movement role bands are specified in [reach_balance.md](reach_balance.md).
+Short attacks preserve the existing Umbra rules: unannounced ambushes remain
+possible, with no new exposure, warning, or reaction-window requirement.
+
 - Orthogonal movement on a small procedural room grid.
 - Melee attacks use adjacency.
 - Ranged attacks target enemies within range, while ranged AOE attacks target a tile pattern within line-of-sight.
