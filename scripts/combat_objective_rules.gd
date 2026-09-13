@@ -163,7 +163,9 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	if roll < 50:
 		return KILL_LEADER
 	if roll < 75:
-		return SURVIVE
+		# Survive is parked for now. Keep its rules and saved encounters supported,
+		# but use Kill All for its former slot without changing other seeded rooms.
+		return KILL_ALL
 	return REACH_EXIT
 
 static func _eligible_exit_specs(room: Dictionary, travel_dir: Vector2i) -> Array[Dictionary]:

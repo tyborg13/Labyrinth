@@ -245,7 +245,9 @@ boundaries retain their existing semantics.
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and
-visible enemy count. Objective analysis uses the additive `objective_type`,
+visible enemy count. Survive is temporarily excluded from new room generation;
+existing saved Survive encounters retain their objective and analytics fields.
+Objective analysis uses the additive `objective_type`,
 `objective_target_clock`, `objective_leader_type`, `objective_exit_count`, and
 `objective_initial_enemy_count` start fields. `combat_ended` records the final
 initiative clock, reinforcement waves, leader-cleared follower count, leader
