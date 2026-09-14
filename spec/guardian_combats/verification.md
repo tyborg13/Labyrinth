@@ -10,11 +10,15 @@ This branch implements the approved six Guardian encounters, thirteen new cutout
 | Six encounters across section scaling, held telegraphs, helpers, terrain, save/reward idempotency, relic edge cases, named objectives and map entry | Focused `tests/guardian_contract_probe.gd` PASS; `verification/guardian-contracts.log` |
 | Distinct map, trophy and utility identities | `python3 tests/test_icon_identity_policy.py` PASS; `verification/icons.log` |
 | All thirteen rigs, both views, complete clip samples | `tests/guardian_cutout_motion_probe.gd` PASS; `verification/motion.log` |
-| Source ownership, bounds, persistent native animation and editable scene roundtrip | All thirteen `cutout_workflow.py render` / `verify-render` pairs PASS; `cutouts/batch-v01.json` and each case's `case_validation.json`, `render_manifest.json`, input/proof hashes and reel |
+| Source ownership, bounds, persistent native animation and editable scene roundtrip | All thirteen `cutout_workflow.py render` / `verify-render` pairs PASS; `cutouts/batch-v03.json` and each case's `case_validation.json`, `render_manifest.json`, input/proof hashes and reel |
 | Runtime assets independent of authoring files | Production-only PCK on an unmodified Godot 4.6.1 export template: all thirteen rigs PASS with `editor=false`; `verification/pack-build.log`, `verification/pack-runtime.log` |
 | Actual UI and actual turn playback, 1920×1080, 100% scale | Native Metal `tests/guardian_gameplay_probe.gd` PASS: 56 screenshots, eighteen complete turns, all thirteen actor types observed using non-idle clips, damage applied once and player input restored; `ui/visual_probe_result.json`, `ui/manifest.json`, `ui/gameplay.json`, `verification/native-gameplay.log` |
+| Expanded encounter counterplay and helper policies | Native `tests/guardian_inspection_probe.gd` PASS: fourteen panels, bounds and pointer dismissal; `inspection-v04/`, `verification/native-inspection.log` |
+| Post-review art preservation | All 4,680 isolated native pose PNGs match the previously inspected frames byte for byte; `verification/review-pose-comparison.json` |
 | Playable pre-action states | All 27 standard persisted-save contracts generated and independently reloaded; launcher `tools/guardian_inspection.py --all`. The final catalog is regenerated against the reviewed committed HEAD. |
 | Encounter assumptions | Scorer/spec agreement and 54 bounded policy trials retained in `balance_evidence.json`; see inspection notes for the limited interpretation |
+
+The current native cutout reports and reels are under `cutouts/<id>-v03/`. The earlier v01 proof remains as a historical reference. The review follow-up corrected Detonate seed expansion, lethal Chain displacement forecasts and enemy inspection text; encounter content, production rigs, motion and timing were unchanged. The full regression suite, expanded inspections and all thirteen strict cutout input closures were refreshed. The eighteen-turn gameplay capture and export smoke proof remain applicable to the unchanged character runtime.
 
 Evidence paths in this table are relative to `output/guardian-implementation/` unless fully specified. Required separate peer review and final committed-HEAD fixture manifests are attached to the task handoff.
 

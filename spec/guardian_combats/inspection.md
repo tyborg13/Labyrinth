@@ -52,6 +52,6 @@ python3 tools/build_guardian_cutouts.py gallows_roc --promote
 python3 tools/cutout_workflow.py inspect experiments/cutouts/gallows_roc/v01 --task-id implement-guardian-combats-and-animated-encounters
 ```
 
-Here `--promote` only copies the authored rig into this worktree's production assets. It does not publish anything. Native full-cycle reels, action frames, support/rigid metrics and pixel-identical editable-scene roundtrips are under `output/guardian-implementation/cutouts/<id>-v01/`; the saved `<facing>.tscn` files can be opened in Godot. Integral robes and feathers have no removable equipment variant, so cloak-off is not an alternate approved appearance for these enemies.
+Here `--promote` only copies the authored rig into this worktree's production assets. It does not publish anything. Native full-cycle reels, action frames, support/rigid metrics and pixel-identical editable-scene roundtrips are under `output/guardian-implementation/cutouts/<id>-v03/`; the saved `<facing>.tscn` files can be opened in Godot. Integral robes and feathers have no removable equipment variant, so cloak-off is not an alternate approved appearance for these enemies.
 
 The committed implementation remains on its isolated task branch for inspection. Publication and worktree cleanup require separate user approval.

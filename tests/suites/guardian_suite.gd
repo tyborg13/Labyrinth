@@ -399,7 +399,7 @@ func _test_inspection_rules() -> void:
 	var burst_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][1]["actions"]))
 	check(burst_text.contains("Outcrop burst") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
 	var rooms := Rooms.new()
-	for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT]:
+	for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT,Vector2i.DOWN]:
 		var layout: Dictionary = rooms.generate_room(92,{"coord":Vector2i(2,1),"depth":2,"type":"guardian","element":"air","boss_id":"vaeloryx"},entry)
 		check(layout["traps"].size()==2, "Roc retains both authored Air traps for every entrance")
 		for trap: Dictionary in layout["traps"]:

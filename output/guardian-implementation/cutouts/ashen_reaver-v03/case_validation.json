@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "ashen_reaver",
+  "layouts": {
+    "front": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 8959
+    },
+    "rear": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 8098
+    }
+  },
+  "errors": []
+}
