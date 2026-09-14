@@ -19,7 +19,7 @@ The launcher regenerates and reload-verifies the save before opening the game. C
 | `craghide` | Cragbound Gauntlet | Break outcrops to remove quake cells or push through the Mites |
 | `last_lamplighter` | Procession Lantern | Choose which light to defend during a temporary outage |
 
-Add `--case pre_battle` to inspect the foes and equipment before starting. Add `--case relic` to try the trophy on a small staged board using ordinary actions. These six studies cover connected Fire detonation, straight Ice movement, growing native Chain damage, group displacement, Raise/Reclaim cover, and independent Illusion movement through darkness. Raise/Reclaim are separate commands; relics add no card targeting steps.
+Add `--case pre_battle` to inspect the foes and equipment before starting. Click a foe to read its known moves, counterplay rules and whether its helpers return. Add `--case relic` to try the trophy on a small staged board using ordinary actions. These six studies cover connected Fire detonation, straight Ice movement, growing native Chain damage, group displacement, Raise/Reclaim cover, and independent Illusion movement through darkness. Raise/Reclaim are separate commands; relics add no card targeting steps.
 
 Additional starting moments:
 

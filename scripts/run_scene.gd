@@ -5873,7 +5873,7 @@ func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
 				"summon_minions":
 					tag = "Summon"
 				"raise_terrain", "terrain_burst":
-					tag = "Worldspines"
+					tag = "Outcrops" if str(action.get("guardian_kind", "")) == "crag_outcrop" else "Worldspines"
 				"cinder_marks", "detonate_cinders":
 					tag = "Cinder Marks"
 				"gale_force":
@@ -6001,6 +6001,20 @@ func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bo
 		close_button.pressed.connect(_close_pinned_tooltip)
 		header.add_child(close_button)
 
+	var guardian_summary: String = preload("res://scripts/guardian_library.gd").inspection_summary(enemy)
+	if not guardian_summary.is_empty():
+		var rules := Label.new()
+		rules.name = "GuardianEncounterRules"
+		# Seed wrapping at the panel's content width before measuring the popup.
+		rules.custom_minimum_size.x = 560.0
+		rules.size.x = 560.0
+		rules.text = guardian_summary
+		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rules.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiTypography.set_label_size(rules, UiTypography.SIZE_SMALL)
+		rules.add_theme_color_override("font_color", Color("e5d5ba"))
+		vbox.add_child(rules)
+
 	vbox.add_child(_pre_battle_section_label("Known Moves", ActionIcons.icon_texture("time"), accent))
 	var moves := VBoxContainer.new()
 	moves.name = "PreBattleKnownMoves"
@@ -6050,12 +6064,24 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	text_box.add_child(title)
 	var summary := Label.new()
 	var summary_text: String = ActionIcons.plain_text_for_rows(ActionIcons.rows_for_actions(actions)).replace("\n", "  /  ")
-	summary.text = summary_text if not summary_text.is_empty() else "Special action"
+	summary.text = summary_text if not summary_text.is_empty() else "Recovers." if actions.is_empty() else "Special action"
 	summary.clip_text = true
 	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.set_label_size(summary, UiTypography.SIZE_CAPTION)
 	summary.add_theme_color_override("font_color", Color("cdbda5"))
 	text_box.add_child(summary)
+	var guardian_notes: String = preload("res://scripts/guardian_library.gd").intent_notes(intent)
+	if not guardian_notes.is_empty():
+		var rules := Label.new()
+		rules.name = "GuardianMoveRules"
+		rules.custom_minimum_size.x = 410.0
+		rules.size.x = 410.0
+		rules.text = guardian_notes
+		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rules.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		UiTypography.set_label_size(rules, UiTypography.SIZE_CAPTION)
+		rules.add_theme_color_override("font_color", Color("e5d5ba"))
+		text_box.add_child(rules)
 	var time_chip := PanelContainer.new()
 	time_chip.custom_minimum_size = Vector2(76.0, 34.0)
 	time_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -6071,6 +6097,7 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	return row_panel
 
 func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
+	if (intent.get("actions", []) as Array).is_empty(): return "time"
 	var best_key: String = "melee"
 	var best_priority: int = 1000
 	for action_var: Variant in intent.get("actions", []):

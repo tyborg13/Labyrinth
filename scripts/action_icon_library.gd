@@ -897,13 +897,16 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
+			tokens.append(_token_for_action_field(action, "summon_minions", "count", int(action.get("count", 0)), "neutral", "Summons reinforcements."))
 		"raise_terrain":
-			tokens.append(_token_for_action_field(action, "stoneskin", "count", int(action.get("count", 0)), "neutral", "Raises attackable Worldspines around the arena."))
-			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each Worldspine."))
+			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
+			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))
 		"terrain_burst":
 			_append_damage_token(tokens, "melee", action, options)
-			tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
+			if str(action.get("guardian_kind", "")) == "crag_outcrop":
+				tokens.append(text_token("Outcrop burst", "warning", "Surviving outcrops rupture neighboring tiles."))
+			else:
+				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":
 			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates Fire on the marked tiles."))
 			_append_damage_token(tokens, "ranged", action, options)
@@ -1093,6 +1096,8 @@ static func surface_token(kind: String, detail: String = "") -> Dictionary:
 static func surface_condition_token(condition: Dictionary) -> Dictionary:
 	var kind: String = str(condition.get("surface", ""))
 	var subject: String = str(condition.get("subject", "target"))
+	if subject == "conducted" and kind.is_empty():
+		return text_token("Conducted hits:", "neutral", "Applies only to hits carried by a conductive connection.")
 	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", "on" if bool(condition.get("present", true)) else "off"]
 	var suffix: String = "consumed:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
 	var condition_text: String = ("%s %s %s" % [prefix, label(surface_icon_key(kind)), suffix]).replace(" :", ":")

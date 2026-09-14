@@ -18,6 +18,8 @@ func _run() -> void:
 	_test_relic_edges()
 	_test_reward_flow()
 	_test_cover_and_force_boundaries()
+	_test_relic_forecast_regressions()
+	_test_inspection_rules()
 	var names = preload("res://scripts/combat_objective_rules.gd")
 	check(names.display_name("kill_all")=="Defeat All Enemies","ordinary all-enemy objective says Defeat")
 	check(names.title_for_objective({"type":"kill_leader","leader_type":"warden"})=="Defeat the Leader","ordinary leader stays generic")
@@ -317,3 +319,91 @@ func _test_cover_and_force_boundaries() -> void:
 	state=engine._resolve_board_attack(state,{"type":"aoe","range":3,"damage":4,"chain":1},Vector2i(3,1),"player",-1,{},heads)
 	check(state["enemies"][0]["hp"]==96 and state["enemies"][1]["hp"]==96,"multiple native Chain heads each start at base damage")
 	check(state["enemies"][2]["hp"]==95 and state["enemies"][3]["hp"]==95,"each head owns a distinct first hop without a global counter")
+
+
+func _test_relic_forecast_regressions() -> void:
+	var engine := Combat.new()
+	var surfaces = preload("res://scripts/board_surface_rules.gd")
+	var data = preload("res://scripts/game_data.gd")
+	var state: Dictionary = fixture("ashen_brand",[Vector2i(4,3)])
+	state["player"]["pos"]=Vector2i(4,4)
+	state["enemies"][0]["block"]=0
+	surfaces.place(state,Vector2i(4,3),"fire")
+	var phoenix: Dictionary = data.card_def("phoenix_cleave")["actions"][-1]
+	var result: Dictionary = engine.apply_player_action(state,phoenix)
+	check(result["enemies"][0]["hp"]==90 and not surfaces.has_surface(result,Vector2i(4,3),"fire"),"Brand preserves Phoenix Cleave's automatic Detonate")
+	state=fixture("ashen_brand",[Vector2i(2,4),Vector2i(6,4)])
+	state["player"]["pos"]=Vector2i(4,4)
+	for enemy: Dictionary in state["enemies"]:enemy["block"]=0
+	for tile: Vector2i in [Vector2i(2,4),Vector2i(3,4),Vector2i(5,4),Vector2i(6,4)]:surfaces.place(state,tile,"fire")
+	var pattern: Dictionary = {"type":"detonate","target":"player","damage":4,"pattern":[[-1,0],[1,0]],"rotate":false}
+	result=engine.apply_player_action(state,pattern)
+	check(result["enemies"][0]["hp"]==95 and result["enemies"][1]["hp"]==95,"Brand expands both disconnected Fire seeds beyond a multi-tile pattern")
+	for tile: Vector2i in [Vector2i(2,4),Vector2i(3,4),Vector2i(5,4),Vector2i(6,4)]:check(not surfaces.has_surface(result,tile,"fire"),"Brand consumes every seeded component")
+	state=fixture("ashen_brand",[Vector2i(4,4)])
+	state["player"]["pos"]=Vector2i(4,5)
+	state["enemies"][0]["block"]=0
+	for tile: Vector2i in [Vector2i(3,4),Vector2i(4,4),Vector2i(5,4)]:surfaces.place(state,tile,"fire")
+	pattern["pattern"]=[[-1,-1],[1,-1]]
+	result=engine.apply_player_action(state,pattern)
+	check(result["enemies"][0]["hp"]==94,"Two pattern seeds in one Fire component cannot double-count its crosses")
+	var attack: Dictionary = {"type":"ranged","range":4,"damage":4,"chain":1,"push":1}
+	state=fixture("galehook_talon",[Vector2i(2,1),Vector2i(3,1),Vector2i(5,1)])
+	for enemy: Dictionary in state["enemies"]:enemy["block"]=0
+	state["enemies"][0]["hp"]=1
+	var preview: Dictionary = engine.surface_preview_for_player_action(state,attack,Vector2i(2,1))
+	result=engine.apply_player_action(state,attack,Vector2i(2,1))
+	check(result["enemies"][0]["hp"]==0 and result["enemies"][1]["hp"]==96 and result["enemies"][2]["hp"]==96,"Talon's defeated Chain head leaves both live hops available")
+	# B moves beside C; C's own Push then carries their newly contiguous group.
+	check(result["enemies"][1]["pos"]==Vector2i(5,1) and result["enemies"][2]["pos"]==Vector2i(6,1),"Talon resolves each new native target's live group after a defeated head")
+	check(preview["state"]["enemies"]==result["enemies"] and preview["chain_hits"].size()==3,"Talon lethal-head preview matches committed actors and full route")
+	for with_talon: bool in [false,true]:
+		state=fixture("resonant_clapper",[Vector2i(2,1),Vector2i(4,1),Vector2i(6,1)])
+		if with_talon:state["relics"].append("galehook_talon")
+		for enemy: Dictionary in state["enemies"]:enemy["block"]=0
+		state["enemies"][1]["hp"]=5
+		preview=engine.surface_preview_for_player_action(state,attack,Vector2i(2,1))
+		result=engine.apply_player_action(state,attack,Vector2i(2,1))
+		check(result["enemies"][1]["hp"]==0 and result["enemies"][1]["pos"]==Vector2i(4,1),"Clapper's amplified lethal hop cannot Push its defeated victim")
+		check(result["enemies"][2]["hp"]==100 and result["enemies"][2]["pos"]==Vector2i(6,1),"Clapper cannot continue Chain from an imaginary displaced position")
+		check(preview["chain_hits"].size()==2 and preview["state"]["enemies"]==result["enemies"],"Clapper lethal-hop forecast matches commitment, including Talon combination")
+
+func _test_inspection_rules() -> void:
+	var data = preload("res://scripts/game_data.gd")
+	for info: Dictionary in Guardians.DEFINITIONS.values():
+		var summary: String = Guardians.inspection_summary({"type":info["id"]})
+		check(summary.contains("Defeat "+str(info["name"])) and summary.contains("remaining helpers leave"), "Guardian inspection explains victory for "+str(info["id"]))
+		for helper: String in info["helpers"]:
+			var detail: String = Guardians.inspection_summary({"type":helper,"guardian_helper":true})
+			check(not detail.is_empty() and detail.contains("Embers"), "Guardian helper inspection explains return and reward for "+helper)
+	check(Guardians.inspection_summary({"type":"lightning_wisp"}).is_empty(), "ordinary Wisps do not inherit Guardian reinforcement rules")
+	check(Guardians.inspection_summary({"type":"wick_shade","guardian_helper":true}).contains("starting Shade stays"), "Shade inspection distinguishes temporary and starting helpers")
+	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
+	var procession: Dictionary = data.enemy_def("last_lamplighter")["intents"][2]
+	check(Guardians.intent_notes(snuff).contains("Extinguishes one arena brazier until Last Procession finishes"), "Snuff inspection explains outage duration")
+	check(Guardians.intent_notes(procession).contains("Freeze or Shock") and Guardians.intent_notes(procession).contains("dismisses Shades summoned by Snuff"), "Procession inspection explains unconditional light and Shade cleanup")
+	check(Guardians.intent_notes(data.enemy_def("ashen_reaver")["intents"][2]).contains("3 Expose"), "Executioner inspection explains Expose recovery")
+	check(Guardians.intent_notes(data.enemy_def("rimejaw")["intents"][0]).contains("Leaves Ice"), "Rime Trail inspection explains trailing Ice")
+	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("destroyed outcrops cannot burst"), "Groundsplit inspection explains destructible counterplay")
+
+	var icons = preload("res://scripts/action_icon_library.gd")
+	var summon_text: String = icons.plain_text_for_rows(icons.rows_for_actions(snuff["actions"]))
+	check(summon_text.contains("Summon") and not summon_text.contains("Shock"), "Snuff summary identifies summoning rather than Shock")
+
+	var peal_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("storm_cantor")["intents"][1]["actions"]))
+	check(peal_text.contains("Conducted hits:") and not peal_text.contains("Shape Ground"), "Peal describes its actual conducted-hit condition")
+	check(Guardians.intent_notes(data.enemy_def("rime_spitter")["intents"][0]).contains("Leaves Ice at the end"), "Rime Needle inspection explains terminal Ice")
+
+	var upheaval_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][0]["actions"]))
+	check(upheaval_text.contains("Raise Terrain") and not upheaval_text.contains("Stoneskin"), "Upheaval identifies terrain creation rather than armor")
+	var burst_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][1]["actions"]))
+	check(burst_text.contains("Outcrop burst") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
+	var rooms := Rooms.new()
+	for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT]:
+		var layout: Dictionary = rooms.generate_room(92,{"coord":Vector2i(2,1),"depth":2,"type":"guardian","element":"air","boss_id":"vaeloryx"},entry)
+		check(layout["traps"].size()==2, "Roc retains both authored Air traps for every entrance")
+		for trap: Dictionary in layout["traps"]:
+			check(trap["element"]=="air" and trap["damage"]>0,"Roc traps use the ordinary scaled Air trap")
+			check(str(layout["grid"][trap["pos"].y][trap["pos"].x])=="stone", "Roc traps rotate onto legal floor")
+			for enemy: Dictionary in layout["enemies"]:check(enemy["pos"]!=trap["pos"],"Roc traps do not overlap starting actors")
+			for loot: Dictionary in layout["loot"]:check(loot["pos"]!=trap["pos"],"Roc traps do not overlap staged loot")

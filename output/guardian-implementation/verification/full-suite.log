@@ -1,14 +1,14 @@
 Running task-local command:
   task: implement-guardian-combats-and-animated-encounters
-  run: implement-guardian-combats-and-animated-1789412121951667000-81118
-  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789412121951667000-81118
+  run: implement-guardian-combats-and-animated-1789416601121976000-86541
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789416601121976000-86541
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789412121951667000-81118/godot.log --headless --path . --script tests/run_tests.gd
+  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789416601121976000-86541/godot.log --headless --path . --script tests/run_tests.gd
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
-ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=10.03
+ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=10.58
 Guardian relic contracts exercised
 Guardian exercised: Ashen Reaver
 Guardian exercised: Rimejaw

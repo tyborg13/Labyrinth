@@ -10506,7 +10506,14 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 	var fuel: String = str(action.get("_detonate_surface", "fire"))
 	var cluster_bonus: int = GuardianRelicRules.amount(state,"connected_detonate") if not action.has("_enemy_id") and fuel == "fire" else 0
 	if cluster_bonus > 0:
-		selected = GuardianRelicRules.fire_component(state,target)
+		# Expand the card's resolved seeds, including automatic player-centered
+		# and multi-tile patterns. A component contributes each Fire tile once.
+		var connected: Array[Vector2i]
+		for seed: Vector2i in selected:
+			if connected.has(seed): continue
+			for tile: Vector2i in GuardianRelicRules.fire_component(state,seed):
+				if not connected.has(tile): connected.append(tile)
+		selected = connected
 	var blast: Dictionary = {}
 	var consumed: Array[Vector2i]
 	for tile: Vector2i in selected:
@@ -10831,6 +10838,10 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 	state["_surface_damage_batch"] = true
 	state["damage_context"] = {"player_card": false, "source_kind": "forecast"}
 	var hit_action: Dictionary = action.duplicate(true)
+	# Native Chain continues from the actual post-hit position. Amplification
+	# can defeat this hop before Push/Pull, so survival must match commitment.
+	if actor.has("enemy_hop"):
+		hit_action["damage"] = GuardianRelicRules.boosted(int(hit_action.get("damage",0)),int(actor["enemy_hop"]),GuardianRelicRules.amount(state,"chain_hop_damage"))
 	var bonus: Dictionary = hit_action.get("surface_bonus", {}) as Dictionary
 	if str(bonus.get("subject", "")) == "target" and _surface_condition_met(state, bonus, _surface_actor(state, "enemy", int(actor.get("id", -1))).get("pos", INVALID_TILE)):
 		for field: String in SURFACE_BONUS_FIELDS:

@@ -81,6 +81,8 @@ static func ice_navigation(state: Dictionary, unit: Dictionary, budget: int, blo
 
 static func force_group(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, source: Vector2i) -> Dictionary:
 	var target: Dictionary = state["enemies"][index]
+	# Defeated targets cannot move or reserve their surviving neighbors.
+	if int(target.get("hp",0))<=0: return state
 	var context: Dictionary = action.get("_group_force_context", {})
 	var moved_ids: Dictionary = context.get("moved_ids", {})
 	if moved_ids.has(int(target["id"])): return state
