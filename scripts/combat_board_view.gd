@@ -3,6 +3,7 @@ class_name CombatBoardView
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
+var _illusion_renderers: Dictionary = {}
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
 const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
 const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
@@ -787,6 +788,8 @@ func protagonist_animation_snapshot() -> Dictionary:
 
 func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if str(unit.get("type", "")) == "player":
+		if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
+			return _illusion_renderers.get(str(unit.get("key", "")), null) as Node
 		return _protagonist_renderer
 	var renderer: Node = _directional_enemy_renderer_for_unit(unit)
 	if renderer == null:
@@ -794,6 +797,38 @@ func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if renderer == null:
 		renderer = _zekarion_renderer_for_unit(unit)
 	return renderer
+
+func _sync_illusion_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actor_keys: Dictionary = {}
+	var motions: Dictionary = presentation.get("illusion_motion", {})
+	var units: Array[Dictionary] = []
+	for illusion_var: Variant in combat_state.get("illusions", []):
+		if typeof(illusion_var) == TYPE_DICTIONARY and int(illusion_var.get("hp", 0)) > 0:
+			units.append({"key": "illusion_%d" % int(illusion_var.get("id", -1)), "role": "illusion"})
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) == TYPE_DICTIONARY and str(preview_var.get("role", "illusion_preview")) == "illusion_preview":
+			units.append({"key": str(preview_var.get("key", "illusion_preview")), "role": "illusion_preview"})
+	for unit: Dictionary in units:
+		var role: String = str(unit.get("role", ""))
+		var actor_key: String = str(unit.get("key", ""))
+		actor_keys[actor_key] = true
+		var renderer: Node = _illusion_renderers.get(actor_key, null) as Node
+		if not is_instance_valid(renderer):
+			renderer = ProtagonistCutout.new()
+			renderer.name = "IllusionCutout_" + actor_key
+			add_child(renderer)
+			_illusion_renderers[actor_key] = renderer
+		# Sharing player paint must never share the player's live action pose.
+		# Only motion explicitly addressed to this illusion can interrupt its idle.
+		var motion: Dictionary = motions.get(actor_key, {}) if role == "illusion" else {}
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)))
+	for actor_key: String in _illusion_renderers.keys():
+		if not actor_keys.has(actor_key):
+			var renderer: Node = _illusion_renderers[actor_key]
+			_illusion_renderers.erase(actor_key)
+			renderer.queue_free()
 
 func _cutout_floor_registrations() -> Dictionary:
 	var registrations: Dictionary = {}
@@ -1955,7 +1990,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -2614,6 +2649,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
+	_sync_illusion_renderers()
 	_sync_warden_renderers()
 	_sync_crawler_renderers()
 	_sync_acolyte_renderers()
@@ -13584,8 +13620,10 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	if is_instance_valid(cutout):
 		return cutout.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
-	if unit_type == "player" and is_instance_valid(_protagonist_renderer):
-		return _protagonist_renderer.call("texture") as Texture2D
+	if unit_type == "player":
+		var renderer: Node = unit_cutout_renderer(unit)
+		if is_instance_valid(renderer):
+			return renderer.call("texture") as Texture2D
 	if _unit_uses_procedural_shadow_dissolve(unit):
 		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
