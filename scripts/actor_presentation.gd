@@ -5,6 +5,19 @@ extends RefCounted
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
 const SOURCE_SIZE: float = 255.0
 const PROFILES: Dictionary = {
+	"ash_hound": {"front": Vector2(120.2500, 217.0000), "rear": Vector2(130.2500, 217.7500), "height": Vector2(171.0000, 171.7500)},
+	"ashen_reaver": {"front": Vector2(135.0000, 229.5000), "rear": Vector2(120.5000, 243.5000), "height": Vector2(219.5000, 233.5000)},
+	"bell_tender": {"front": Vector2(144.0000, 241.0000), "rear": Vector2(106.0000, 240.5000), "height": Vector2(231.0000, 230.5000)},
+	"craghide": {"front": Vector2(135.0000, 215.7500), "rear": Vector2(127.2500, 209.2500), "height": Vector2(172.7500, 166.2500)},
+	"gallows_roc": {"front": Vector2(125.5000, 212.5000), "rear": Vector2(134.5000, 211.5000), "height": Vector2(203.5000, 201.5000)},
+	"last_lamplighter": {"front": Vector2(117.0000, 233.5000), "rear": Vector2(125.5000, 239.0000), "height": Vector2(224.5000, 230.0000)},
+	"rime_spitter": {"front": Vector2(128.0000, 221.3333), "rear": Vector2(136.6667, 219.0000), "height": Vector2(134.3333, 131.0000)},
+	"rime_whelp": {"front": Vector2(115.2500, 215.7500), "rear": Vector2(134.5000, 212.2500), "height": Vector2(166.7500, 163.2500)},
+	"rimejaw": {"front": Vector2(123.3333, 215.6667), "rear": Vector2(143.0000, 211.0000), "height": Vector2(167.6667, 162.0000)},
+	"roc_fledgling": {"front": Vector2(125.5000, 230.5000), "rear": Vector2(139.0000, 224.0000), "height": Vector2(165.5000, 159.0000)},
+	"stoneback_mite": {"front": Vector2(147.0000, 230.5000), "rear": Vector2(126.2000, 232.4000), "height": Vector2(143.5000, 145.4000)},
+	"storm_cantor": {"front": Vector2(124.0000, 234.5000), "rear": Vector2(124.5000, 239.0000), "height": Vector2(225.5000, 230.0000)},
+	"wick_shade": {"front": Vector2(140.5000, 242.0000), "rear": Vector2(114.5000, 241.5000), "height": Vector2(233.0000, 232.5000)},
 	"crawler": {"front": Vector2(120.0, 187.5), "rear": Vector2(134.75, 179.25), "height": Vector2(155.5000, 147.2500)},
 	"acolyte": {"front": Vector2(142.5, 233.0), "rear": Vector2(141.5, 234.0), "height": Vector2(214.0000, 214.0000)},
 	"harrier": {"front": Vector2(143.5, 209.5), "rear": Vector2(108.5, 217.0), "height": Vector2(179.5000, 187.0000)},
@@ -78,6 +91,8 @@ static func body_envelope(unit_type: String) -> Rect2:
 	return Rect2(Vector2(left, top), Vector2(right - left, bottom - top)).grow(16.0)
 
 static func travel_renderer(unit_type: String) -> Script:
+	if preload("res://scripts/guardian_cutout/renderer.gd").handles(unit_type):
+		return preload("res://scripts/guardian_cutout/renderer.gd")
 	if unit_type != "player" and not PROFILES.has(unit_type):
 		return null
 	var directory: String = "protagonist" if unit_type == "player" else "stone_warden" if unit_type == "warden" else unit_type

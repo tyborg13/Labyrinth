@@ -180,6 +180,26 @@ ENEMY_TACTICAL_ROLES = {
 }
 
 
+GUARDIAN_ASSUMPTIONS = {
+    "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
+    "roster": "one 36–44 HP bespoke leader plus one or two 4–6 HP helpers; all have 1x1 footprints",
+    "clock": "Guardian initiative 9–12 plus Time 4–7; helpers initiative 12 plus Time 4–6; existing wisp initiative 7 plus Time 4",
+    "telegraphs": "committed world-space lanes and approaches; skipped slots advance; new blockers shorten the held plan without retargeting",
+    "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
+    "rewards": "six exclusive run-long trophies; finite helpers grant one player-card kill play, renewable helpers grant none; helpers grant zero Embers",
+    "geometry": "recoverable player cover blocks movement and attack sight; Craghide outcrops cannot disconnect floor routes; normal obstacle-clearing AI applies",
+    "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
+    "trophy_curves": {
+        "ashen_brand": "D * (1 + .25 * (maximum overlapping crosses - 1)), round once halves up; one hit per actor",
+        "resonant_clapper": "D * (1 + .25 * enemy hop), round once halves up; native heads start at zero and empty relays/conduction do not advance it",
+        "winters_spur": "one base Move per straight Ice segment; corners and leaving Ice restart cost, Rubble surcharge remains",
+        "galehook_talon": "up to N * F enemy-steps for N contiguous collinear enemies and printed force F; blocked/contact-interrupted groups stop together",
+        "cragbound_gauntlet": "1 independent Move plus all Stoneskin -> equal cover HP; reclaim costs 1 Move and refunds surviving HP only",
+        "procession_lantern": "existing Illusion movement consumes the same independent Move as the hero; no added HP, vision, or card target",
+    },
+}
+
+
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
     return {
@@ -188,6 +208,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "guardian_encounters": GUARDIAN_ASSUMPTIONS,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,

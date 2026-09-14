@@ -24,6 +24,9 @@ const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 var _warden_renderers: Dictionary = {}
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 var _crawler_renderers: Dictionary = {}
+const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
+const GuardianPool = preload("res://scripts/guardian_cutout/pool.gd")
+var _guardian_renderers: Dictionary = {}
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
 const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
@@ -926,7 +929,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
-	return (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
+	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
 func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _bile_bloomer_renderers.get(actor_key, null) as Node
@@ -938,6 +941,8 @@ func bile_bloomer_source_pixel_scale() -> float:
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
 
 func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	if GuardianCutout.handles(str(unit.get("type", ""))):
+		return _guardian_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
 	match str(unit.get("type", "")):
 		"vyraketh":
 			return _vyraketh_renderer_for_unit(unit)
@@ -968,6 +973,14 @@ func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
 		"cinder_ooze":
 			return CinderOozePresentation.renderer_for_unit(self, unit)
 	return _warden_renderer_for_unit(unit)
+
+func guardian_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _guardian_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func _sync_guardian_renderers() -> void:
+	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
+		GuardianPool.sync(self, _guardian_renderers, combat_state, presentation)
 
 func _sync_bile_bloomer_renderers() -> void:
 	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
@@ -1955,7 +1968,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -2617,6 +2630,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	_sync_warden_renderers()
 	_sync_crawler_renderers()
 	_sync_acolyte_renderers()
+	_sync_guardian_renderers()
 	_sync_bile_bloomer_renderers()
 	_sync_gaoler_renderers()
 	_sync_cinder_droplet_renderers()
@@ -3019,7 +3033,7 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"player_aoe_preview_active":
 				overlay_changed = true
-			"path_color", "path_tiles":
+			"path_color", "path_tiles", "displacement_paths":
 				path_changed = true
 			"enemy_threat_previews":
 				overlay_changed = true
@@ -3061,7 +3075,7 @@ func _queue_presentation_change_redraws(
 			"protagonist_motion":
 				# The rig keeps a stable texture; its small hand charge lives on FX.
 				effects_changed = true
-			"warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
+			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Per-actor viewports retain their texture RID between poses.
 				pass
 			"tile_drag_aiming":
@@ -7261,7 +7275,7 @@ func _terrain_key(terrain: Dictionary) -> String:
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	var terrain_kind: String = str(terrain.get("kind", ""))
-	var label: String = "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
+	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
 	return "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
@@ -11598,6 +11612,8 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 func _draw_path_preview() -> void:
 	if _blink_preview_effect_active():
 		return
+	for path: Array in presentation.get("displacement_paths",[]):
+		_draw_path_tiles(_vector2i_array(path),ENEMY_PATH_PREVIEW_COLOR)
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
 	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
@@ -13059,6 +13075,8 @@ func _load_board_prop_assets() -> void:
 
 func _load_scene_prop_assets() -> void:
 	_scene_prop_textures = {
+		"watch_brazier_lit": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_lit.png"),
+		"watch_brazier_dark": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_dark.png"),
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
 		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
@@ -13130,6 +13148,8 @@ func _load_loot_and_terrain_assets() -> void:
 		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
 	_terrain_textures = {
+		"raised_cover": AssetLoader.load_texture_source_first("res://assets/props/guardians/raised_cover.png"),
+		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
@@ -13349,6 +13369,10 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	if unit_type == "warden":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(WardenCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if GuardianCutout.handles(unit_type):
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GuardianCutout.rest_path(unit_type))
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "bile_bloomer":

@@ -1,0 +1,136 @@
+{
+  "ok": true,
+  "source_sha256": "5a507995937f032eb51ff90df679b6e8a63912491085eb1dc6b0bd4e09429751",
+  "ownership_sha256": "f650edd3eaf1ee730736be1dd2c8fdda307985d95029e70f9468bd73a61b9d86",
+  "parts": [
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        61,
+        140
+      ],
+      "bbox": [
+        61,
+        140,
+        152,
+        232
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        127,
+        10
+      ],
+      "bbox": [
+        127,
+        10,
+        191,
+        105
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        92,
+        208
+      ],
+      "bbox": [
+        92,
+        208,
+        143,
+        232
+      ]
+    },
+    {
+      "name": "leg_near",
+      "file": "leg_near.png",
+      "offset": [
+        102,
+        193
+      ],
+      "bbox": [
+        102,
+        193,
+        128,
+        208
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        128,
+        186
+      ],
+      "bbox": [
+        128,
+        186,
+        182,
+        208
+      ]
+    },
+    {
+      "name": "leg_far",
+      "file": "leg_far.png",
+      "offset": [
+        132,
+        148
+      ],
+      "bbox": [
+        132,
+        148,
+        157,
+        186
+      ]
+    },
+    {
+      "name": "wing_near",
+      "file": "wing_near.png",
+      "offset": [
+        147,
+        75
+      ],
+      "bbox": [
+        147,
+        75,
+        208,
+        190
+      ]
+    },
+    {
+      "name": "wing_far",
+      "file": "wing_far.png",
+      "offset": [
+        24,
+        17
+      ],
+      "bbox": [
+        24,
+        17,
+        119,
+        214
+      ]
+    },
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        82,
+        49
+      ],
+      "bbox": [
+        82,
+        49,
+        154,
+        178
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

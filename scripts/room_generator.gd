@@ -159,7 +159,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		occupied[loot_entry.get("pos", Vector2i(-1, -1))] = true
 	var terrain: Array[Dictionary] = _generate_terrain(grid, room_type, player_start, rng, occupied, objective)
 
-	return {
+	var layout: Dictionary = {
 		"name": _room_name(coord, room_type, rng, boss_id),
 		"coord": coord,
 		"depth": depth,
@@ -177,6 +177,13 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"objective": objective,
 		"theme": TILE_STONE
 	}
+	if room_type == "guardian":
+		preload("res://scripts/guardian_library.gd").configure_layout(layout)
+		if room_element == "air":
+			for tile: Vector2i in [Vector2i(3,5), Vector2i(5,4)]:
+				layout["traps"].append(_trap_for_tile(preload("res://scripts/guardian_library.gd").oriented_tile(layout,tile),"air",encounter_depth,_depth_sequence_index(depth)))
+		preload("res://scripts/guardian_library.gd").stage_loot(layout)
+	return layout
 
 func _base_grid(rng: RandomNumberGenerator) -> Array:
 	# Preserve the old theme roll so later room RNG stays aligned.
@@ -470,6 +477,8 @@ func _local_enemy_hp_scale(depth: int) -> float:
 func _encounter_enemy_types(room_type: String, depth: int, rng: RandomNumberGenerator, room_element: String = ElementData.NONE, boss_id: String = "") -> Array:
 	if room_type == "start" or room_type == "campfire" or room_type == "treasure" or room_type == "scavenger":
 		return []
+	if room_type == "guardian":
+		return preload("res://scripts/guardian_library.gd").enemy_types(boss_id)
 	if room_type == "boss":
 		var resolved_boss_id: String = boss_id if DragonBossLibrary.is_dragon_boss_id(boss_id) else DragonBossLibrary.LIGHTNING_BOSS_ID
 		if resolved_boss_id == DragonBossLibrary.LIGHTNING_BOSS_ID:
@@ -526,6 +535,8 @@ func _apply_leader_objective(enemies: Array[Dictionary], objective: Dictionary) 
 	enemies[leader_index] = leader
 	objective["leader_id"] = int(leader.get("id", -1))
 	objective["leader_type"] = str(leader.get("type", ""))
+	objective["name"] = CombatObjectiveRules.title_for_objective(objective)
+	objective["description"] = CombatObjectiveRules.description_for_objective(objective)
 
 func _base_encounter_enemy_type_pool(depth: int) -> Array:
 	var pool: Array = []

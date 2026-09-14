@@ -36,7 +36,9 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		var constants: Dictionary = renderer.get_script_constant_map()
 		var cycle_seconds: float = constants["WALK_CYCLE_SECONDS"]
 		var frame_seconds: float = constants["WALK_FRAME_SECONDS"]
-		var cycle_distance: float = renderer.call("walk_cycle_distance")
+		var guardian: bool = preload("res://scripts/guardian_cutout/renderer.gd").handles(actor)
+		if guardian: cycle_seconds = renderer.call("walk_cycle_seconds", actor)
+		var cycle_distance: float = renderer.call("walk_cycle_distance", actor) if guardian else renderer.call("walk_cycle_distance")
 		var scale: float = board.call("source_pixel_scale_for_type", actor)
 		var ratio: float = cycle_distance / cycle_seconds * scale / baseline
 		expect.call(ratio >= 0.77 and ratio <= 1.20, actor + " travels within the player-baseline pace band")
@@ -47,7 +49,7 @@ static func _test_travel_pace(board: Control, expect: Callable) -> void:
 		expect.call(cycle_seconds >= 0.26, actor + " uses a readable gait cadence rather than frantic playback")
 		var source_step: float = float(board.call("_tile_width")) * sqrt(0.3125) / scale
 		for length: float in [source_step, source_step * 1.37, source_step * 2.0]:
-			var actual_seconds: float = float(renderer.call("walk_segment_frames", length)) * frame_seconds
+			var actual_seconds: float = float(renderer.call("walk_segment_frames", length, actor) if guardian else renderer.call("walk_segment_frames", length)) * frame_seconds
 			var expected_seconds: float = length / cycle_distance * cycle_seconds
 			expect.call(absf(actual_seconds - expected_seconds) <= frame_seconds, actor + " travel time stays proportional to resolved distance")
 

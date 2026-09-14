@@ -6,7 +6,8 @@ class_name SectionMapGraph
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
-const LAYOUT_REVISION: int = 2
+const LAYOUT_REVISION: int = 3
+const Guardians = preload("res://scripts/guardian_library.gd")
 const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
 const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
 const INVALID: Vector2i = Vector2i(-999, -999)
@@ -102,6 +103,20 @@ static func initialize(state: Dictionary) -> void:
 					if offset > 0:
 						_link(rooms, path[offset - 1], _coords([coord]))
 				paths.append(path)
+			if group == 1:
+				var chosen_path: Array = paths[posmod(seed_value + index, paths.size())]
+				for guardian_coord: Vector2i in chosen_path:
+					var guardian_room: Dictionary = rooms[key(guardian_coord)]
+					if str(guardian_room["type"]) != "combat": continue
+					var guardian: Dictionary = Guardians.for_boss(boss_id)
+					guardian_room["type"] = "guardian"
+					guardian_room["element"] = guardian["element"]
+					guardian_room["boss_id"] = boss_id
+					guardian_room["guardian_id"] = guardian["id"]
+					guardian_room["guardian_relic"] = guardian["relic"]
+					guardian_room["map_landmark"] = true
+					info["guardian"] = guardian_coord
+					break
 			var firsts: Array[Vector2i] = []
 			var lasts: Array[Vector2i] = []
 			for path_value: Array in paths:

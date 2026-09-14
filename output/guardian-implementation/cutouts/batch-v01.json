@@ -1,0 +1,80 @@
+[
+  {
+    "actor": "ash_hound",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/ash_hound-v01"
+  },
+  {
+    "actor": "ashen_reaver",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/ashen_reaver-v01"
+  },
+  {
+    "actor": "bell_tender",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/bell_tender-v01"
+  },
+  {
+    "actor": "craghide",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/craghide-v01"
+  },
+  {
+    "actor": "gallows_roc",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/gallows_roc-v01"
+  },
+  {
+    "actor": "last_lamplighter",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/last_lamplighter-v01"
+  },
+  {
+    "actor": "rime_spitter",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/rime_spitter-v01"
+  },
+  {
+    "actor": "rime_whelp",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/rime_whelp-v01"
+  },
+  {
+    "actor": "rimejaw",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/rimejaw-v01"
+  },
+  {
+    "actor": "roc_fledgling",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/roc_fledgling-v01"
+  },
+  {
+    "actor": "stoneback_mite",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/stoneback_mite-v01"
+  },
+  {
+    "actor": "storm_cantor",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/storm_cantor-v01"
+  },
+  {
+    "actor": "wick_shade",
+    "render_exit": 0,
+    "verify_exit": 0,
+    "output": "output/guardian-implementation/cutouts/wick_shade-v01"
+  }
+]

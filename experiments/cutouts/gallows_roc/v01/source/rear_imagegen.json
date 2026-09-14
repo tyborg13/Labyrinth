@@ -1,0 +1,9 @@
+{
+  "id": "gallows_roc_rear_iso_v2",
+  "refs": [
+    "/Users/borgerding/.codex/generated_images/01a09fb5-2429-7972-b142-dc39eb4d1e90/exec-e04b15be-bc2c-423b-b941-e44af9998fea.png",
+    "/Users/borgerding/workspace/Labyrinth/output/guardian-design-2026-09-14/v3/units/gallows_roc_front.png"
+  ],
+  "prompt": "Edit reference 1, preserving this exact bird identity, its rear three-quarter body and anatomically dorsal wing roots, colors and coarse pixel-painted style. Reference 2 is front identity and proportions. Correct the legs and camera registration: BOTH feet must rest on ONE flat 2:1 isometric floor plane, in a calm weight-bearing stance. Currently the far foot is lifted much too high, appearing midair. Lower the far/right foot, preserving its attached thigh/hock, so the vector from the near/left sole to the far/right sole is approximately (+240,-120) on this 1254px canvas. Same leg lengths, two legs only, no extra claws. Do not move only a detached foot. Pose the far leg naturally extended to its planted sole, while the near hock flexes. Whole body faces northeast (two right, one up), camera sees back plus side; no frontal eye or chest. Preserve overall height, mass and wing spans from reference 2; no new ornamentation. No ground painting, no shadow. Flat #FF00FF background, complete body with margins. Keep all other paint as close as possible.",
+  "path": "/Users/borgerding/.codex/generated_images/01a09fb5-2429-7972-b142-dc39eb4d1e90/exec-c18cad81-362d-4757-9429-1deeb53ef38c.png"
+}

@@ -38,7 +38,7 @@ static func run(expect: Callable) -> void:
 					if int(target_node.get("section_index", -1)) == index:
 						expect.call(int(target_node.get("map_step", -1)) == int(node.get("map_step", 0)) + 1, "Every route advances exactly one room, without shortcuts or loops")
 			expect.call(node_count >= 20 and node_count <= 26, "A full section including its entry fits 20–26 independent nodes")
-			expect.call(landmarks == 2, "Each section starts with exactly two landmarks")
+			expect.call(landmarks == 3, "Each section starts with two service landmarks and one optional Guardian")
 			_test_local_routes(state, index, node_count, expect)
 			var outcomes: Array[Vector2i] = _path_outcomes(state, info.get("entry", Vector2i.ZERO), index, 0, 0)
 			expect.call(outcomes.size() >= 6, "Each section has several consequential route combinations")
@@ -97,7 +97,7 @@ static func _path_outcomes(state: Dictionary, coord: Vector2i, index: int, visit
 	if node.is_empty() or visits > 12: return result
 	var type: String = str(node.get("type", ""))
 	visits += 0 if type == "start" else 1
-	fights += 1 if type in ["combat", "boss"] else 0
+	fights += 1 if type in ["combat", "boss", "guardian"] else 0
 	if type == "boss":
 		result.append(Vector2i(visits, fights))
 		return result

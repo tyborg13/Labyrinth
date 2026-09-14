@@ -54,6 +54,7 @@ func _draw() -> void:
 
 func _radius(node: Dictionary, prominent: bool) -> float:
 	if str(node.get("type", "")) == "boss": return 91.0
+	if str(node.get("type", "")) == "guardian": return 71.0 if prominent else 46.0
 	if prominent: return 52.0
 	return 42.0 if bool(node.get("visited", false)) else 31.0
 

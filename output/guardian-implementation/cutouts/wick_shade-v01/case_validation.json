@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "wick_shade",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 6,
+      "vertices": 10573
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 6,
+      "vertices": 9469
+    }
+  },
+  "errors": []
+}

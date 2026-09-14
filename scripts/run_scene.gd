@@ -10,6 +10,7 @@ const ZekarionAction = preload("res://scripts/zekarion_cutout/action.gd")
 const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
+const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
@@ -1459,6 +1460,20 @@ const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
 const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
 const PRE_BATTLE_HP_BADGE_BORDER: Color = Color("765332")
 const TURN_ORDER_PORTRAITS := {
+	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
+	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
+	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
+	"craghide": "res://assets/art/portraits/guardians/craghide_portrait.png",
+	"gallows_roc": "res://assets/art/portraits/guardians/gallows_roc_portrait.png",
+	"last_lamplighter": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png",
+	"rime_spitter": "res://assets/art/portraits/guardians/rime_spitter_portrait.png",
+	"rime_whelp": "res://assets/art/portraits/guardians/rime_whelp_portrait.png",
+	"rimejaw": "res://assets/art/portraits/guardians/rimejaw_portrait.png",
+	"roc_fledgling": "res://assets/art/portraits/guardians/roc_fledgling_portrait.png",
+	"stoneback_mite": "res://assets/art/portraits/guardians/stoneback_mite_portrait.png",
+	"storm_cantor": "res://assets/art/portraits/guardians/storm_cantor_portrait.png",
+	"wick_shade": "res://assets/art/portraits/guardians/wick_shade_portrait.png",
+
 	"player": "res://assets/art/portraits/player_reaver.png",
 	"crawler": "res://assets/art/portraits/tunnel_crawler.png",
 	"acolyte": "res://assets/art/portraits/dust_acolyte.png",
@@ -5258,7 +5273,7 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	var panel := PanelContainer.new()
 	panel.name = "PreBattleObjectiveChip"
 	panel.custom_minimum_size = Vector2(maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, requested_width), 54.0)
-	panel.tooltip_text = CombatObjectiveRules.description(objective_type)
+	panel.tooltip_text = CombatObjectiveRules.description_for_objective(objective)
 	panel.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.045, 0.031, 0.05, 0.96)
@@ -5291,7 +5306,7 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	stack.add_theme_constant_override("separation", 0)
 	row.add_child(stack)
 	var title := Label.new()
-	title.text = "OBJECTIVE · %s" % CombatObjectiveRules.display_name(objective_type).to_upper()
+	title.text = "OBJECTIVE · %s" % CombatObjectiveRules.title_for_objective(objective).to_upper()
 	title.clip_text = true
 	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
@@ -5301,7 +5316,7 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	title.add_theme_constant_override("outline_size", 1)
 	stack.add_child(title)
 	var description_label := Label.new()
-	description_label.text = CombatObjectiveRules.description(objective_type)
+	description_label.text = CombatObjectiveRules.description_for_objective(objective)
 	description_label.clip_text = true
 	description_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(description_label, UiTypography.ROLE_BODY)
@@ -11243,6 +11258,7 @@ func _refresh_relic_bar() -> void:
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
+	_refresh_guardian_command_buttons()
 	var signature: String = str(hash([
 		relic_ids,
 		skill_ids,
@@ -11282,6 +11298,7 @@ func _refresh_relic_bar() -> void:
 	if not skill_ids.is_empty():
 		_skill_sigil = _build_skill_sigil(skill_ids, skill_sigil_presentation)
 		_relic_utility_bar.add_child(_skill_sigil)
+	_add_guardian_command_buttons()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_sigil", performance_phase_started)
 	if icons_changed:
 		for relic_id_var: Variant in relic_ids:
@@ -12271,7 +12288,7 @@ func _layout_combat_objective_hud() -> void:
 	_apply_combat_objective_hud_rect(_combat_objective_hud_target_rect())
 
 func _combat_objective_hud_target_rect() -> Rect2:
-	var hud_width: float = 350.0
+	var hud_width: float = _combat_objective_hud.preferred_width()
 	var hud_height: float = 68.0
 	var left: float = UiTypography.SAFE_MARGIN
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -17615,6 +17632,7 @@ func _refresh_stage_view() -> void:
 			}
 	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
 	presentation["enemy_intent_compasses"] = _enemy_intent_compass_descriptors(display_state, visible_enemy_ids)
+	_apply_guardian_props(display_state, presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
 	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(
@@ -19244,7 +19262,7 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
 		return {}
-	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var player_tile: Vector2i = action.get("_origin_tile", (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))
 	return _preview_effect_for_target(preview_state, player_tile, _hovered_board_tile, action)
 
 func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
@@ -20760,6 +20778,10 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 			await _commit_player_movement(tile)
 		return
 	if mode == "combat" and _selected_card_index < 0:
+		for illusion: Dictionary in _combat_state.get("illusions",[]):
+			if illusion.get("pos",INVALID_TARGET_TILE) == tile and int(illusion.get("hp",0)) > 0:
+				_begin_guardian_utility_selection("move",int(illusion.get("id",-1)))
+				return
 		var player_tile: Vector2i = (_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 		if tile == player_tile:
 			_begin_player_movement_selection()
@@ -21277,7 +21299,10 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var action: Dictionary = _player_movement_action.duplicate(true)
-	var committed_combat_state: Dictionary = _combat_engine.apply_player_movement(previous_combat_state, target_tile)
+	var utility: bool = action.has("_illusion_id") or str(action.get("type","")) in ["raise_cover","reclaim_cover"]
+	var committed_combat_state: Dictionary = _combat_engine.apply_player_action(previous_combat_state,action,target_tile) if utility else _combat_engine.apply_player_movement(previous_combat_state, target_tile)
+	if utility:
+		committed_combat_state["last_player_movement"] = {"resolved":committed_combat_state!=previous_combat_state,"spent":int(previous_combat_state.get("player_movement_remaining",0))-int(committed_combat_state.get("player_movement_remaining",0)),"action_type":action.get("type",""),"utility":true}
 	var movement_result: Dictionary = committed_combat_state.get("last_player_movement", {}) as Dictionary
 	var previous_position: Vector2i = (previous_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	var committed_position: Vector2i = (committed_combat_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
@@ -21290,7 +21315,11 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_refresh_animation_lock_ui()
 	var committed_run_state: Dictionary = _run_state_for_combat_checkpoint(_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_movement")
-	await _animate_player_action_step(previous_combat_state, committed_combat_state, "", action, target_tile)
+	if action.has("_illusion_id"):
+		var movement_path: Array[Vector2i] = _vector2i_array((committed_combat_state.get("last_illusion_movement",{}) as Dictionary).get("path",[]))
+		await _animate_actor_along_path(previous_combat_state,"illusion_%d" % int(action["_illusion_id"]),movement_path,{"path_tiles":movement_path,"path_color":ENEMY_PATH_PREVIEW_COLOR})
+	elif not utility:
+		await _animate_player_action_step(previous_combat_state, committed_combat_state, "", action, target_tile)
 	await _animate_enemy_loss_feedback_between_states(
 		previous_combat_state,
 		committed_combat_state,
@@ -23305,14 +23334,23 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"move":
 				await _animate_move_step(animated_state, step)
 			"summon":
+				if step.has("guardian_state_after"):
+					await _animate_guardian_utility(animated_state,step,step_actor_key)
+					_apply_animation_step(animated_state,step)
+					_render_board_state(animated_state,{})
+					continue
 				if ZekarionCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)):
 					await ZekarionAction.play_summon(self, animated_state, step)
 			"surface":
+				if step.has("guardian_state_after"):
+					await _animate_guardian_utility(animated_state,step,step_actor_key)
 				var before_ground: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
+				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
+					await _animate_guardian_utility(animated_state,step,step_actor_key)
 				if TharokhCutout.action_clip(step, _animation_actor_unit(animated_state, step_actor_key)) == "brace":
 					await _animate_tharokh_ground_call(animated_state, step)
 					continue
@@ -23852,6 +23890,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 	var crawler_walk: bool = str(actor_unit.get("type", "")) == "crawler"
 	var acolyte_walk: bool = str(actor_unit.get("type", "")) == "acolyte"
 	var bloomer_walk: bool = str(actor_unit.get("type", "")) == "bile_bloomer"
+	var guardian_walk: bool = GuardianCutout.handles(str(actor_unit.get("type", "")))
 	var gaoler_walk: bool = str(actor_unit.get("type", "")) == "chainbound_gaoler"
 	var cinder_droplet_walk: bool = str(actor_unit.get("type", "")) == "cinder_droplet"
 	var cinder_droplet_retreat: bool = cinder_droplet_walk and str((actor_unit.get("intent", {}) as Dictionary).get("id", "")) == "hiss_back"
@@ -23880,7 +23919,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		var length: float = from.distance_to(to)
 		# One registry supplies both cadence and distance for every cutout. A
 		# missing branch here previously left the Gaoler on legacy tile timing.
-		var frames: int = int(travel_renderer.call("walk_segment_frames", length / source_scale)) if travel_renderer != null else MOVE_STEP_FRAMES
+		var frames: int = GuardianCutout.walk_segment_frames(length / source_scale, actor_type) if guardian_walk else int(travel_renderer.call("walk_segment_frames", length / source_scale)) if travel_renderer != null else MOVE_STEP_FRAMES
 		segment_frame_counts.append(frames)
 		segment_start_frames.append(total_frame_count)
 		distance_before.append(distance)
@@ -23932,6 +23971,9 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			# drives phase so planted feet counter the actual root translation.
 			presentation["protagonist_motion"] = {"clip": "walk", "direction": segment_to - segment_from,
 				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / ProtagonistCutout.walk_cycle_distance()}
+		elif guardian_walk:
+			presentation["guardian_motion"] = {actor_key: {"clip":"walk", "direction":segment_to-segment_from,
+				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/GuardianCutout.walk_cycle_distance(actor_type)}}
 		elif gaoler_walk:
 			presentation["gaoler_motion"] = {actor_key: {"clip": "walk", "direction": segment_to - segment_from,
 				"phase": (distance_before[path_index] + from_point.distance_to(to_point) * t) / source_scale / GaolerCutout.walk_cycle_distance()}}
@@ -24276,8 +24318,17 @@ func _protagonist_attack_motion(effect: Dictionary, progress: float) -> Dictiona
 	return {"clip": "attack", "phase": phase,
 		"direction": (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)}
 
+func _apply_guardian_props(display_state: Dictionary, target_presentation: Dictionary) -> void:
+	if not display_state.get("guardian_braziers", []).is_empty():
+		var props: Array = target_presentation.get("scene_props", []).duplicate(false)
+		for brazier: Dictionary in display_state["guardian_braziers"]:
+			if _combat_engine.is_tile_visible_to_player(display_state,brazier["pos"]):
+				props.append({"kind":"watch_brazier_lit" if bool(brazier.get("lit",true)) else "watch_brazier_dark", "tile":brazier["pos"],"width_scale":0.60,"baseline_scale":0.13})
+		target_presentation["scene_props"] = props
+
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
+	_apply_guardian_props(display_state, rendered_presentation)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
 	var effect_actor_key: String = str(cutout_effect.get("actor_key", ""))
 	if not effect_actor_key.is_empty() and BileBloomerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
@@ -24355,6 +24406,11 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		var acolyte_effect: Dictionary = cutout_effect.duplicate(false)
 		acolyte_effect["acolyte_cast"] = true
 		rendered_presentation["effect"] = acolyte_effect
+	if not effect_actor_key.is_empty() and GuardianCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
+		var guardian_motions: Dictionary = (presentation.get("guardian_motion", {}) as Dictionary).duplicate(false)
+		guardian_motions[effect_actor_key] = GuardianCutout.action_motion(cutout_effect, _animation_actor_unit(display_state, effect_actor_key),
+			float(presentation.get("effect_progress", 1.0)), _attack_feedback_start_progress(cutout_effect))
+		rendered_presentation["guardian_motion"] = guardian_motions
 	if not effect_actor_key.is_empty() and GaolerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var gaoler_motions: Dictionary = (presentation.get("gaoler_motion", {}) as Dictionary).duplicate(false)
 		gaoler_motions[effect_actor_key] = {"clip": "attack", "action": GaolerCutout.action_clip(cutout_effect),
@@ -24602,6 +24658,10 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _run_state.get("equipped_equipment", {}) as Dictionary
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	if step.has("guardian_state_after"):
+		animated_state.clear()
+		animated_state.merge((step["guardian_state_after"] as Dictionary).duplicate(true),true)
+		return
 	if step.has("surfaces_after"):
 		animated_state["surfaces"] = (step.get("surfaces_after", {}) as Dictionary).duplicate(true)
 	match str(step.get("kind", "")):
@@ -26034,6 +26094,8 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	if not pending_relics.has(relic_id):
 		return
 	_relic_claim_in_progress = true
+	var trophy: Dictionary = (_run_state.get("guardian_reward", {}) as Dictionary).duplicate(true)
+	var trophy_context: Dictionary = _analytics_context_from_states(_run_state)
 	var accent := Color(GameData.relic_accent(relic_id))
 	_run_state = _run_engine.claim_relic(_run_state, relic_id, deferred_relic_id)
 	_sync_progression_from_run()
@@ -26042,6 +26104,8 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_REWARD)
 		_guided_tutorial_set_phase("", false)
 	_persist_committed_boundary("relic_claimed")
+	if not trophy.is_empty() and (_run_state.get("relics", []) as Array).has(relic_id):
+		_analytics_store.write_event("reward_choice", trophy_context, {"reward_kind":"guardian_trophy", "relic_id":relic_id, "guardian_id":trophy.get("guardian_id", ""), "choice":"claim"})
 	_refresh_ui()
 	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
@@ -30717,6 +30781,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		"current_actor_key": str((combat_state.get("current_actor", {}) as Dictionary).get("actor_key", "")),
 		"room_depth": int(combat_state.get("room_depth", room_meta.get("depth", 0))),
 		"room_element": str(combat_state.get("room_element", room_meta.get("element", ""))),
+		"room_type": str(combat_state.get("room_type", room_meta.get("type", ""))),
+		"guardian_id": str(combat_state.get("guardian_id", room_meta.get("guardian_id", ""))),
+		"boss_id": str(combat_state.get("boss_id", room_meta.get("boss_id", ""))),
 		"player_hp": int(player.get("hp", run_state.get("player_hp", -1))),
 		"player_max_hp": int(player.get("max_hp", run_state.get("player_max_hp", -1))),
 		"defiance_capacity": int(combat_state.get(
@@ -30744,6 +30811,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 		context["umbra_radius"] = _combat_engine.effective_umbra_radius(combat_state)
 		context["visible_enemy_count"] = _combat_engine.visible_enemy_ids(combat_state).size()
 		context["objective_type"] = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
+		context["objective_name"] = CombatObjectiveRules.title_for_objective(objective)
 	return context
 
 func _moltshard_gain_idempotency_key(award_id: String) -> String:
@@ -31274,7 +31342,7 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 	if previous_mode == "combat" and next_mode != "combat" and not transition_combat_state.is_empty():
 		_card_draw_sfx_revision_seen = 0
 		_analytics_log_combat_ended(transition_combat_state, reason)
-		if next_mode == "reward":
+		if next_mode == "reward" or (next_mode == "treasure" and not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty()):
 			_analytics_log_reward_offered(transition_combat_state, reason)
 		elif next_mode in ["victory", "defeat"]:
 			_analytics_log_run_ended(next_mode)
@@ -31348,6 +31416,8 @@ func _analytics_log_reward_offered(combat_state: Dictionary, reason: String) -> 
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	_analytics_store.write_event("reward_offered", _analytics_context_from_states(_run_state, combat_state), {
 		"reason": reason,
+		"reward_kind": "guardian_trophy" if not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty() else "combat",
+		"offered_relics": (_run_state.get("pending_relics", []) as Array).duplicate(),
 		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
 		"heal_amount": int(reward_state.get("heal_amount", 0)),
 		"ember_amount": int(reward_state.get("ember_amount", 0))
@@ -31577,6 +31647,9 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
 	_analytics_flush_surface_events(resolved_state)
 	var movement: Dictionary = resolved_state.get("last_player_movement", {}) as Dictionary
+	# Cover and Illusion commands have their own idempotent surface events;
+	# spending shared Move must not count as physical player movement.
+	if bool(movement.get("utility", false)): return
 	var moved: bool = int(movement.get("spent", 0)) > 0
 	if not moved and not bool(movement.get("resolved", false)):
 		return
@@ -31884,6 +31957,9 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 				"action_type": str(step.get("action_type", kind)),
 				"presentation_kind": kind,
 				"boss_mechanic": bool(step.get("boss_mechanic", false)),
+				"guardian_mechanic": bool(step.get("guardian_mechanic", false)),
+				"declared_tiles": step.get("declared_tiles", []),
+				"resolved_tiles": step.get("tiles", []),
 				"enemy_type": str(step.get("enemy_type", "")),
 				"ai_role": str(step.get("ai_role", "")),
 				"intent_id": str(step.get("intent_id", "")),
@@ -32433,6 +32509,7 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	for hit: Dictionary in _surface_preview_cache.get("chain_hits", []):
 		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
 	result["surface_preview_arcs"] = arcs
+	_append_guardian_displacement_preview(result, state, after)
 	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
 	if not losses.is_empty():
 		result["damage_preview"] = losses
@@ -32458,6 +32535,22 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
 			status_previews[key] = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
 	result["surface_status_preview"] = status_previews
+
+func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
+	var paths: Dictionary = {}
+	for event: Dictionary in _surface_events_between(before,after):
+		if str(event.get("kind","")) != "guardian_line_step": continue
+		var key: String = "enemy_%d" % int(event["enemy_id"])
+		if not paths.has(key): paths[key] = [event["from"]]
+		(paths[key] as Array).append(event["to"])
+	if paths.is_empty(): return
+	var hints: Array[Dictionary] = []
+	for key: String in paths:
+		hints.append({"enemy_key":key,"projected_path":paths[key],"projected_destination":paths[key][-1]})
+	var previews: Array = result.get("preview_units",[]).duplicate()
+	previews.append_array(_enemy_destination_preview_units(before,hints))
+	result["preview_units"] = previews
+	result["displacement_paths"] = paths.values()
 
 func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
 	var chips: Array = []
@@ -32594,3 +32687,59 @@ func _analytics_flush_map_events(state: Dictionary) -> void:
 		last = maxi(last, revision)
 	if not events.is_empty() and _analytics_store.write_events(events):
 		_map_analytics_revision = last
+
+func _add_guardian_command_buttons() -> void:
+	if str(_run_state.get("mode","")) != "combat" or preload("res://scripts/guardian_relic_rules.gd").amount(_combat_state,"recoverable_cover") <= 0:
+		return
+	for command: String in ["raise_cover","reclaim_cover"]:
+		var button := Button.new()
+		button.name = command.to_pascal_case()
+		button.text = "Raise" if command == "raise_cover" else "Reclaim"
+		button.icon = ActionIcons.icon_texture(command)
+		button.expand_icon = true
+		button.add_theme_constant_override("icon_max_width",28)
+		button.set_meta("guardian_command",command)
+		button.custom_minimum_size = Vector2(110,44)
+		_ui_skin.apply_button_stylebox_overrides(button,UiSkin.VARIANT_COMPACT)
+		UiTypography.apply_button_role(button,UiTypography.ROLE_BODY)
+		button.pressed.connect(_begin_guardian_utility_selection.bind(command,-1))
+		_relic_utility_bar.add_child(button)
+	_refresh_guardian_command_buttons()
+
+func _refresh_guardian_command_buttons() -> void:
+	if _relic_utility_bar == null: return
+	for child: Node in _relic_utility_bar.get_children():
+		if not child.has_meta("guardian_command") or not child is Button: continue
+		var command: String = str(child.get_meta("guardian_command"))
+		var button: Button = child as Button
+		button.disabled = _animation_lock or _selected_card_index >= 0 or _combat_engine.guardian_command_targets(_combat_state,command).is_empty()
+		button.tooltip_text = "Raise Cover · 1 Move + all Stoneskin\nCover HP equals Stoneskin spent. Choose empty floor within 2." if command == "raise_cover" else "Reclaim Cover · 1 Move\nRecover adjacent owned cover’s surviving HP as Stoneskin."
+		if button.disabled: button.tooltip_text += "\nUnavailable: needs movement and " + ("Stoneskin with a legal tile." if command == "raise_cover" else "adjacent owned cover.")
+
+func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -> void:
+	if _animation_lock or _selected_card_index >= 0 or _drag_card_index >= 0 or _surface_aim.active() or str(_run_state.get("mode","")) != "combat": return
+	var action: Dictionary = {"type":command,"_movement_pool":true,"range":2}
+	if illusion_id >= 0:
+		action["_illusion_id"] = illusion_id
+		action["range"] = _combat_engine.player_movement_remaining(_combat_state)
+		action["_origin_tile"] = _combat_engine._surface_actor(_combat_state,"illusion",illusion_id).get("pos",INVALID_TARGET_TILE)
+	var targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(_combat_state,action)
+	if targets.is_empty(): return
+	_player_movement_selected = true
+	_player_movement_action = action
+	_player_movement_target_tiles = targets
+	_hovered_card_index = -1
+	_mark_preview_selection_changed()
+	_refresh_player_movement_meter()
+	_refresh_card_preview_ui()
+
+func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: String) -> void:
+	if _reduced_motion_enabled(): return
+	var actor: Dictionary = _animation_actor_unit(state,actor_key)
+	var action: String = GuardianCutout.action_clip(step,actor)
+	if action.is_empty(): return
+	_set_action_banner("%s: %s" % [str(step.get("actor_name","Enemy")),str(step.get("label",""))])
+	await _play_timed_animation_frames(18,0.03,func(frame: int)->void:
+		_render_board_state(state,{"guardian_motion":{actor_key:{"clip":"attack","action":action,"phase":float(frame)/18.0,
+			"direction":(state["player"]["pos"] as Vector2i)-(actor["pos"] as Vector2i)}},"focus_actor_keys":[actor_key]},true)
+	)

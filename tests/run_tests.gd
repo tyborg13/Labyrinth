@@ -103,6 +103,7 @@ func _initialize() -> void:
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	AudioRoutingSuite.run(Callable(self, "_assert"))

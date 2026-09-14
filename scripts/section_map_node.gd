@@ -36,6 +36,7 @@ func _process(delta: float) -> void:
 
 func visual_radius() -> float:
 	if str(room_data.get("type", "")) == "boss": return 88.0
+	if str(room_data.get("type", "")) == "guardian": return 66.0 if actionable else 43.0
 	if (route_state == "reachable" or scout_target) and actionable: return 46.0
 	if route_state == "current": return 43.0
 	if route_state == "visited": return 33.0
@@ -82,12 +83,15 @@ func _draw() -> void:
 		var tint := Color(1.2, 1.08, 0.86) if available else (Color("d5b877") if current else Color("9b8c70"))
 		if bypassed: tint = Color("5b5961")
 		elif not current and not visited and not boss and not available: tint = Color("7a7880")
-		var icon_id: String = "boss_" + str(room_data.get("boss_id", "tharokh")) if boss else str(room_data.get("type", "combat"))
+		var icon_id: String = preload("res://scripts/room_icon_library.gd").icon_id_for_room(room_data)
 		var icon_tint := Color.WHITE if available or current else Color("89868c")
 		if boss: icon_tint = Color("bbb1a8") if not available else Color.WHITE
 		if visited: icon_tint = Color("99948c")
 		if bypassed: icon_tint = Color("504e56")
-		MapSkin.draw_medallion(self, center, radius, MapSkin.icon_texture(icon_id), icon_tint, tint, 0.25 * sin(PI * activation_progress))
+		if str(room_data.get("type", "")) == "guardian":
+			draw_texture_rect(MapSkin.icon_texture(icon_id), Rect2(center-Vector2.ONE*radius,Vector2.ONE*radius*2.0), false, icon_tint)
+		else:
+			MapSkin.draw_medallion(self, center, radius, MapSkin.icon_texture(icon_id), icon_tint, tint, 0.25 * sin(PI * activation_progress))
 	else:
 		draw_circle(center, radius - 3, Color(0.035, 0.032, 0.05, 0.75))
 		for index: int in range(10):

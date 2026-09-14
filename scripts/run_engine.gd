@@ -972,7 +972,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	var travel_dir: Vector2i = connection.get("door_dir", Vector2i.ZERO)
 	next_state["current_room_layout"] = _display_layout_for_room(int(next_state.get("seed", 0)), room, travel_dir)
 	_stage_recovery_marker(next_state)
-	if str(room.get("type", "combat")) not in ["combat", "boss"] or bool(room.get("cleared", false)) or _room_has_npcs(room):
+	if str(room.get("type", "combat")) not in ["combat", "boss", "guardian"] or bool(room.get("cleared", false)) or _room_has_npcs(room):
 		return move_to_room(run_state, destination)
 	next_state["mode"] = MODE_PRE_BATTLE
 	next_state["combat_state"] = {}
@@ -1089,6 +1089,9 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
+	var finished_room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
+	if outcome == "victory" and str(finished_room.get("type", "")) == "guardian" and bool(finished_room.get("cleared", false)):
+		return run_state.duplicate(true)
 	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
 	if outcome == "victory":
@@ -1178,6 +1181,13 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 			var boss_notice: String = str(next_state.get("notice", ""))
 			next_state["notice"] = "%s\n%s" % [boss_notice, MISSED_EQUIPMENT_NOTICE] if not boss_notice.is_empty() else MISSED_EQUIPMENT_NOTICE
 		return next_state
+	if str(room.get("type", "")) == "guardian":
+		var trophy: String = str(preload("res://scripts/guardian_library.gd").for_boss(str(room.get("boss_id", ""))).get("relic", ""))
+		if not trophy.is_empty() and not (next_state.get("relics", []) as Array).has(trophy):
+			next_state["pending_relics"] = [trophy]
+			next_state["guardian_reward"] = {"guardian_id":room.get("guardian_id", ""),"relic_id":trophy,"room":current_room,"claimed":false}
+			next_state["mode"] = "treasure"
+			return next_state
 	var reward_cards: Array[String] = _generate_card_rewards(next_state, current_room)
 	var reward_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	var pending_card: String = str(reward_skill_state.get("pending_card", ""))
@@ -1701,6 +1711,8 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: String = "") -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var offered_relics: Array = next_state.get("pending_relics", []) as Array
+	if relic_id.is_empty() and not (next_state.get("guardian_reward", {}) as Dictionary).is_empty():
+		return next_state
 	if relic_id.is_empty():
 		next_state["pending_relics"] = []
 		next_state["mode"] = "room"
@@ -1711,6 +1723,13 @@ func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: Str
 	if not relics.has(relic_id):
 		relics.append(relic_id)
 	next_state["relics"] = relics
+	if str((next_state.get("guardian_reward", {}) as Dictionary).get("relic_id", "")) == relic_id:
+		var claim: Dictionary = next_state["guardian_reward"].duplicate(true)
+		claim["claimed"] = true
+		var claims: Dictionary = next_state.get("guardian_rewards_claimed", {}).duplicate(true)
+		claims[str(claim["guardian_id"])] = claim
+		next_state["guardian_rewards_claimed"] = claims
+		next_state["guardian_reward"] = {}
 	var bonus: int = GameData.stat_bonus_from_relics([relic_id], "max_hp")
 	if bonus != 0:
 		next_state["player_max_hp"] = int(next_state.get("player_max_hp", 1)) + bonus
@@ -2234,7 +2253,7 @@ func _run_has_completed_combat(run_state: Dictionary) -> bool:
 		if typeof(room_var) != TYPE_DICTIONARY:
 			continue
 		var room: Dictionary = room_var
-		if str(room.get("type", "combat")) in ["combat", "boss"] and bool(room.get("cleared", false)):
+		if str(room.get("type", "combat")) in ["combat", "boss", "guardian"] and bool(room.get("cleared", false)):
 			return true
 	return false
 
@@ -2255,6 +2274,9 @@ func _room_layout_from_combat_state(combat_state: Dictionary) -> Dictionary:
 		"element": combat_state.get("room_element", ElementData.NONE),
 		"depth": int(combat_state.get("room_depth", 1)),
 		"boss_id": str(combat_state.get("boss_id", "")),
+		"guardian_id": str(combat_state.get("guardian_id", "")),
+		"guardian_braziers": combat_state.get("guardian_braziers", []).duplicate(true),
+		"surfaces": combat_state.get("surfaces", {}).duplicate(true),
 		"grid": combat_state.get("grid", []).duplicate(true),
 		"moss": combat_state.get("moss", {}).duplicate(true),
 		"player_start": (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO),
@@ -2835,6 +2857,7 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 	var owned: Array = run_state.get("relics", []).duplicate()
 	var available: Array[String] = []
 	for relic_id: String in GameData.relic_ids():
+		if bool(GameData.relic_def(relic_id).get("exclusive_guardian", false)): continue
 		if not owned.has(relic_id):
 			available.append(relic_id)
 	available.sort()
@@ -3051,7 +3074,7 @@ func _clear_pre_battle_state(run_state: Dictionary) -> void:
 
 func _room_blocks_exit_reveal(room: Dictionary) -> bool:
 	var room_type: String = str(room.get("type", "combat"))
-	if room_type not in ["combat", "boss"]:
+	if room_type not in ["combat", "boss", "guardian"]:
 		return false
 	if bool(room.get("cleared", false)):
 		return false
@@ -3562,7 +3585,7 @@ func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
 	var best: Vector2i = original
 	var score: int = 2147483647
 	for node: Dictionary in (run_state.get("rooms", {}) as Dictionary).values():
-		if str(node.get("type", "")) not in ["combat", "boss"]:
+		if str(node.get("type", "")) not in ["combat", "boss", "guardian"]:
 			continue
 		var coord: Vector2i = node.get("coord", Vector2i.ZERO)
 		var candidate_score: int = absi(int(node.get("depth", 0)) - _room_depth(original)) * 1000 + absi(coord.x - original.x) + absi(coord.y - original.y)

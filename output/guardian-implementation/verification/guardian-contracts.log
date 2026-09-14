@@ -1,0 +1,18 @@
+Running task-local command:
+  task: implement-guardian-combats-and-animated-encounters
+  run: implement-guardian-combats-and-animated-1789413502105989000-82691
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789413502105989000-82691
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789413502105989000-82691/godot.log --headless --path . --script tests/guardian_contract_probe.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+Guardian relic contracts exercised
+Guardian exercised: Ashen Reaver
+Guardian exercised: Rimejaw
+Guardian exercised: Storm Cantor
+Guardian exercised: Gallows Roc
+Guardian exercised: Craghide
+Guardian exercised: Last Lamplighter
+GUARDIAN CONTRACT: PASS 0

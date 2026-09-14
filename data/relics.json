@@ -1863,5 +1863,137 @@
         ]
       }
     ]
+  },
+  "ashen_brand": {
+    "name": "Ashen Brand",
+    "rarity": "legendary",
+    "description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage; each actor is hit once. The blast can hit you.",
+    "icon_path": "res://assets/art/relics/ashen_brand.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "fire",
+      "detonate",
+      "overlap"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "connected_detonate",
+        "amount": 25
+      }
+    ]
+  },
+  "winters_spur": {
+    "name": "Winter\u2019s Spur",
+    "rarity": "legendary",
+    "description": "A straight stretch of @icon(surface_ice) costs 1 base @icon(move). Turning, leaving @icon(surface_ice), or starting another @icon(move) starts a new cost. Contact effects and @icon(surface_rubble) costs still apply.",
+    "icon_path": "res://assets/art/relics/winters_spur.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "ice",
+      "movement",
+      "route"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "ice_stride",
+        "amount": 1
+      }
+    ]
+  },
+  "resonant_clapper": {
+    "name": "Resonant Clapper",
+    "rarity": "legendary",
+    "description": "Existing @icon(chain) attacks gain 25% base damage per successive enemy hop. Empty relays and conduction-only hits do not advance or receive the bonus.",
+    "icon_path": "res://assets/art/relics/resonant_clapper.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "lightning",
+      "chain",
+      "positioning"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "chain_hop_damage",
+        "amount": 25
+      }
+    ]
+  },
+  "galehook_talon": {
+    "name": "Galehook Talon",
+    "rarity": "legendary",
+    "description": "@icon(push) and @icon(pull) displace a contiguous line of enemies together along the original force axis. The group stops at an obstruction. Damage and force distance stay the same.",
+    "icon_path": "res://assets/art/relics/galehook_talon.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "air",
+      "push",
+      "pull"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "force_enemy_line",
+        "amount": 1
+      }
+    ]
+  },
+  "cragbound_gauntlet": {
+    "name": "Cragbound Gauntlet",
+    "rarity": "legendary",
+    "description": "Raise Cover: spend 1 independent @icon(move) and all @icon(stoneskin) to place cover within 2, with that much @icon(health). Reclaim adjacent cover for 1 @icon(move); recover its surviving @icon(health) as @icon(stoneskin).",
+    "icon_path": "res://assets/art/relics/cragbound_gauntlet.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "earth",
+      "stoneskin",
+      "cover"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "recoverable_cover",
+        "amount": 1
+      }
+    ]
+  },
+  "procession_lantern": {
+    "name": "Procession Lantern",
+    "rarity": "legendary",
+    "description": "Select an @icon(illusion), then a destination. Spend your independent @icon(move) to send it through darkness. Its @icon(health) and existing illumination stay unchanged. Card @icon(move) still affects you.",
+    "icon_path": "res://assets/art/relics/procession_lantern.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "shadow",
+      "illusion",
+      "movement"
+    ],
+    "exclusive_guardian": true,
+    "effects": [
+      {
+        "type": "illusion_movement",
+        "amount": 1
+      }
+    ]
   }
 }

@@ -608,3 +608,32 @@ Rubble 0.44 credits leaving-cost control after a melee painter; Electrified
 Geometry/contact availability remains bounded. Reusable conduction no longer
 receives a repeated-consumption penalty; Fire/Ice consumption still does.
 Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
+
+
+## Optional Guardian cohort
+
+Fresh maps replace one middle-group fight per section with an optional named
+Guardian; the 66-room / 40-fight opportunity budget is unchanged. Each has a
+36–44 HP leader and one or two 4–6 HP helpers, all occupying one tile. Guardian
+repeat clocks are initiative 9–12 plus Time 4–7; helpers use initiative 12 plus
+Time 4–6, except the existing 7 + 4 Lightning Wisp. The ordinary local and
+completed-section HP, damage and support curves apply without a generic leader
+multiplier. Finite helpers grant one player-card kill play and zero Embers;
+renewable helpers grant neither. Read held world-space lanes as committed:
+skipped slots advance, new obstructions can shorten an approach, and the
+attack does not chase a dodging target. Craghide cannot seal connected floor;
+recoverable cover blocks movement and attack sight and can be cleared by AI.
+
+These optional fights and exclusive trophies are their own analytics cohort;
+they do not inflate every printed card's intrinsic score. The scorer exposes
+this contract in `guardian_encounters` under `--show-assumptions`. Its trophy
+curves distinguish planning payoff from guaranteed value: Brand adds 25% base
+Detonate damage per extra overlapping cross, once per actor at its best-covered
+footprint cell; Clapper adds 25% base damage per native enemy hop, ignoring
+empty relays and conduction-only victims. Both round the combined amount once,
+halves up. Spur discounts straight Ice segments but preserves corners and
+Rubble surcharges. Talon can yield N × F enemy-steps, bounded by formation and
+obstructions. Cover banks actual Stoneskin and refunds surviving HP at one Move
+per command. Lantern redirects existing independent Move to an Illusion without
+adding health, vision or another card target. These are conditional synergies,
+not flat intrinsic damage or tempo bonuses.

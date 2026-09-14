@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "gallows_roc",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 9,
+      "meshes": 7,
+      "vertices": 14420
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 9,
+      "meshes": 7,
+      "vertices": 13511
+    }
+  },
+  "errors": []
+}
