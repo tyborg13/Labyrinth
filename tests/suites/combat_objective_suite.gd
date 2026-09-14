@@ -44,12 +44,16 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 		var second: Dictionary = CombatObjectiveRules.build_for_room(seed, room, Vector2i.UP)
 		expect.call(first == second, "Objective selection should be deterministic for a room seed")
 		seen[str(first.get("type", ""))] = true
-	expect.call(seen.size() == 4, "Later combat rooms should deterministically expose all four objective families across seeds")
+	expect.call(seen.size() == 3 and not seen.has(CombatObjectiveRules.SURVIVE), "Later combat rooms should expose only the three active objective families across seeds")
 	for seed: int in range(1, 2001):
 		var objective_type: String = str(CombatObjectiveRules.build_for_room(seed, room, Vector2i.UP).get("type", ""))
 		counts[objective_type] = int(counts.get(objective_type, 0)) + 1
 	for objective_type: String in counts:
-		expect.call(absi(int(counts[objective_type]) - 500) <= 30, "Later standard rooms should weight %s at 25%% across a broad deterministic sample" % objective_type)
+		var expected_count: int = 1000 if objective_type == CombatObjectiveRules.KILL_ALL else 500
+		if objective_type == CombatObjectiveRules.SURVIVE:
+			expect.call(int(counts[objective_type]) == 0, "Survive must never be selected from the objective rotation")
+		else:
+			expect.call(absi(int(counts[objective_type]) - expected_count) <= 30, "Later standard rooms should use the active 50/25/25 objective mix for %s" % objective_type)
 	var first_room: Dictionary = _room_metadata(1)
 	first_room["coord"] = Vector2i(1, 0)
 	first_room[CombatObjectiveRules.ONBOARDING_ROOM_KEY] = true
@@ -60,7 +64,7 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 	for seed: int in range(1, 160):
 		var later_type: String = str(CombatObjectiveRules.build_for_room(seed, later_depth_one_room, Vector2i.UP).get("type", ""))
 		later_depth_one_seen[later_type] = true
-	expect.call(later_depth_one_seen.size() == 4, "A subsequent traversable depth-one combat should use the equal-weight objective mix")
+	expect.call(later_depth_one_seen.size() == 3 and not later_depth_one_seen.has(CombatObjectiveRules.SURVIVE), "A subsequent traversable depth-one combat should use only active objectives")
 	var path_engine := RunEngine.new()
 	var path_state: Dictionary = path_engine.create_new_run(99, ProgressionStore.default_data(), false)
 	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(1, 0))
@@ -75,7 +79,7 @@ static func _test_objective_registry_and_deterministic_mix(expect: Callable) -> 
 	path_state = path_engine.move_to_pre_battle(path_state, Vector2i(0, 1))
 	var later_preview: Dictionary = path_engine.pre_battle_preview_state(path_state)
 	var later_preview_objective: Dictionary = (later_preview.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
-	expect.call(str(later_preview_objective.get("type", "")) == CombatObjectiveRules.SURVIVE, "A later reachable cardinal room should use its seeded objective instead of onboarding Kill All")
+	expect.call(str(later_preview_objective.get("type", "")) == CombatObjectiveRules.KILL_ALL, "A later reachable cardinal room formerly seeded as Survive should now use Kill All")
 	var boss_room: Dictionary = _room_metadata(4)
 	boss_room["type"] = "boss"
 	boss_room["boss_id"] = "zekarion"

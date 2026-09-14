@@ -157,7 +157,8 @@ static func _test_complete_room_and_rng_equivalence(expect: Callable) -> void:
 				room[CombatObjectiveRulesScript.ONBOARDING_ROOM_KEY] = seed_index % 7 == 0
 				var result: Dictionary = _assert_room_equivalence(candidate, original, seed_value, room, directions[direction_index], expect)
 				objectives_seen[str((result.get("objective", {}) as Dictionary).get("type", ""))] = true
-	for objective_type: String in ["kill_all", "kill_leader", "survive", "reach_exit"]:
+	expect.call(not objectives_seen.has("survive"), "Generated terrain parity rooms must exclude the parked Survive objective")
+	for objective_type: String in ["kill_all", "kill_leader", "reach_exit"]:
 		expect.call(objectives_seen.has(objective_type), "Complete terrain parity matrix should exercise %s objectives" % objective_type)
 	var boss_ids: Array = DragonBossLibraryScript.ELEMENTAL_BOSS_IDS.duplicate()
 	boss_ids.append(DragonBossLibraryScript.SHADOW_BOSS_ID)
