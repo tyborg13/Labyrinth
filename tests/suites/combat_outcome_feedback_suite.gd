@@ -22,6 +22,22 @@ static func run(expect: Callable) -> void:
 	var result: Dictionary=engine.resolve_enemy_turn_with_steps(state,0)
 	var spawned: Array=result["state"]["enemies"].slice(state["enemies"].size())
 	expect.call(spawned.size()==1 and summons.has(spawned[0]["pos"]),"Actual replacement agrees with its summon marker")
+
+	state=fixtures.fixture("",[Vector2i(3,4)])
+	state["room_type"]="guardian"
+	state["enemies"][0]["type"]="ashen_reaver"
+	state["player"]["pos"]=Vector2i(6,4)
+	fixtures.set_cycle(engine,state,1)
+	var approach: Array=engine.enemy_intent_plan(state,0).get("path",[])
+	expect.call(approach.size()>1,"Lethal approach fixture commits movement before backup")
+	state["enemies"][0]["hp"]=1
+	state["enemies"][0]["block"]=0
+	state["enemies"][0]["stoneskin"]=0
+	preload("res://scripts/board_surface_rules.gd").place(state,approach[1],"fire")
+	threat=engine.enemy_threat_tiles(state,0)
+	result=engine.resolve_enemy_turn_with_steps(state,0)
+	expect.call(result["state"]["enemies"][0]["hp"]<=0 and result["state"]["enemies"].size()==1,"Fire defeats the approaching caller before backup")
+	expect.call((threat.get("summon",[]) as Array).is_empty(),"A forecast lethal approach has no summon marker")
 	state=fixtures.fixture("",[Vector2i(4,4)])
 	state["enemies"][0]["type"]="zekarion"
 	state["enemies"][0]["intent"]={"id":"backup","name":"Call backup","time":5,"actions":[{"type":"summon_minions","minion_type":"lightning_wisp","count":2}]}

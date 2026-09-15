@@ -192,6 +192,10 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	if path.has(arrived): path.resize(path.find(arrived)+1)
 	plan["path"] = path
 	plan["destination"] = path[-1]
+	# A helper call happens after the approach, just like its attack.
+	if not bool(arrival.get("survives", true)):
+		summons.clear()
+		plan["projected_summon"] = summons
 	var projected: Array[Vector2i] = []
 	if not attack_disabled and bool(arrival.get("survives",true)):
 		for action: Dictionary in intent.get("actions",[]):

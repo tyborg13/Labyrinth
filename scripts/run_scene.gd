@@ -22792,12 +22792,12 @@ func _impact_element_seed(element_id: String) -> int:
 		_:
 			return 7
 
-func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
-	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state,after_state))
+func _animate_player_ground_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary, primary_effect: Dictionary = {}, primary_sound_element: String = "") -> bool:
+	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state, after_state), primary_effect)
 	if trap_effects.is_empty() and ground_events.is_empty():
-		return
+		return false
 	_play_trap_sfx(trap_effects)
-	_play_outcome_sounds(ground_events,"",trap_effects)
+	_play_outcome_sounds(ground_events, primary_sound_element, trap_effects)
 	var presentation: Dictionary = base_presentation.duplicate(true)
 	presentation["surface_feedback_events"] = ground_events
 	presentation["trap_effects"] = trap_effects
@@ -22805,6 +22805,7 @@ func _animate_player_trap_result(after_state: Dictionary, before_state: Dictiona
 	presentation["impact_actor_keys"] = _player_action_impact_actor_keys(before_state, after_state)
 	presentation = _death_hold_presentation(before_state, after_state, presentation)
 	await _animate_floating_text_presentation(after_state, presentation)
+	return true
 
 func _has_electrical_trace(hits: Array) -> bool:
 	for hit: Dictionary in hits:
@@ -22824,6 +22825,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	var player_before_tile: Vector2i = player_before.get("pos", Vector2i.ZERO)
 	var player_after_tile: Vector2i = player_after.get("pos", player_before_tile)
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, after_state)
+	var movement_ground_feedback_presented: bool = false
 	var secondary_enemy_loss_presentation: Dictionary = _secondary_player_action_enemy_loss_presentation(
 		before_state,
 		after_state,
@@ -22857,7 +22859,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
-			await _animate_player_trap_result(after_state, before_state, triggered_traps, base_presentation)
+			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
@@ -22880,7 +22882,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"effect_progress": 1.0
 			}))
 			await get_tree().create_timer(0.14).timeout
-			await _animate_player_trap_result(after_state, before_state, triggered_traps, {
+			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": [player_after_tile],
@@ -22986,7 +22988,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await preload("res://scripts/protagonist_cutout/ranged_action.gd").prepare(self, before_state, effect, base_presentation)
-			_play_sfx(AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action))
+			var primary_sound: Dictionary = AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action)
+			_play_sfx(primary_sound)
 			if _has_electrical_trace(chain_hits):
 				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
 			else:
@@ -23033,7 +23036,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						effect_display_state = primary_display_state
 						presentation["surface_feedback_events"] = ground_events
 						if not ground_sound["played"]:
-							_play_outcome_sounds(ground_events,OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_player_action(_card_def(card_id,before_state),action)))
+							_play_outcome_sounds(ground_events, OutcomeFeedback.sound_element(primary_sound))
 							ground_sound["played"] = true
 						presentation["surface_feedback_progress"] = clampf(feedback_elapsed_seconds / 0.34, 0.0, 1.0)
 						presentation = _attack_feedback_death_hold_presentation(
@@ -23063,7 +23066,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_color": Color(0.95, 0.62, 0.37, 0.22),
 				}
 				if trap_detonation_follows:
-					await _animate_player_trap_result(after_state, before_state, triggered_traps, impact_presentation)
+					await _animate_player_ground_result(after_state, before_state, triggered_traps, impact_presentation, effect, OutcomeFeedback.sound_element(primary_sound))
 				else:
 					impact_presentation["effect"] = effect
 					impact_presentation["effect_progress"] = 1.0
@@ -23164,9 +23167,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -6.0
 				}]
 			}), 0.0, true, card_play_reward_completion)
-	if action_type in ["move", "blink"] and triggered_traps.is_empty() and _player_took_loss(before_state, after_state):
-		# Movement's player damage (Bleed or a surface) has no attack impact beat.
-		# Present it even when a lethal pre-step effect leaves the actor in place.
+	if action_type in ["move", "blink"] and not movement_ground_feedback_presented and _player_took_loss(before_state, after_state):
+		# Surface/trap contact already presents the whole action outcome. Pure
+		# Bleed still needs a loss beat, including lethal damage before a step.
 		var movement_loss_presentation: Dictionary = base_presentation.duplicate(true)
 		movement_loss_presentation["floating_texts"] = _player_loss_floating_texts(before_state, after_state)
 		movement_loss_presentation["impact_actor_keys"] = ["player"]
@@ -23174,7 +23177,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			after_state,
 			_death_hold_presentation(before_state, after_state, movement_loss_presentation)
 		)
-	if not secondary_enemy_loss_presentation.is_empty():
+	if not movement_ground_feedback_presented and not secondary_enemy_loss_presentation.is_empty():
 		await _animate_floating_text_presentation(
 			after_state,
 			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
@@ -23614,6 +23617,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				}
 				if trap_detonation_follows:
 					_play_trap_sfx(step.get("triggered_traps", []))
+					_play_outcome_sounds(ground_events, OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_enemy_step(step)), step.get("triggered_traps", []))
+					impact_presentation["surface_feedback_events"] = ground_events
 					impact_presentation["trap_effects"] = step.get("triggered_traps", [])
 					impact_presentation["floating_texts"] = _floating_texts_for_step(step)
 					await _animate_floating_text_presentation(
