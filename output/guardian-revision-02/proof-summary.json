@@ -5,11 +5,11 @@
     {
       "actor": "ash_hound",
       "case": "experiments/cutouts/ash_hound/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/ash_hound-v03",
-      "reel": "output/guardian-revision-02/cutouts/ash_hound-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/ash_hound-v04",
+      "reel": "output/guardian-revision-02/cutouts/ash_hound-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/ash_hound-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/ash_hound-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/ash_hound-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/ash_hound-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -21,16 +21,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/ash_hound-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "ashen_reaver",
       "case": "experiments/cutouts/ashen_reaver/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/ashen_reaver-v03",
-      "reel": "output/guardian-revision-02/cutouts/ashen_reaver-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/ashen_reaver-v04",
+      "reel": "output/guardian-revision-02/cutouts/ashen_reaver-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/ashen_reaver-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/ashen_reaver-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/ashen_reaver-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/ashen_reaver-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -42,16 +49,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/ashen_reaver-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "bell_tender",
       "case": "experiments/cutouts/bell_tender/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/bell_tender-v03",
-      "reel": "output/guardian-revision-02/cutouts/bell_tender-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/bell_tender-v04",
+      "reel": "output/guardian-revision-02/cutouts/bell_tender-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/bell_tender-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/bell_tender-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/bell_tender-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/bell_tender-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -63,16 +77,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/bell_tender-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "craghide",
       "case": "experiments/cutouts/craghide/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/craghide-v03",
-      "reel": "output/guardian-revision-02/cutouts/craghide-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/craghide-v04",
+      "reel": "output/guardian-revision-02/cutouts/craghide-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/craghide-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/craghide-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/craghide-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/craghide-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -84,16 +105,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/craghide-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "gallows_roc",
       "case": "experiments/cutouts/gallows_roc/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/gallows_roc-v03",
-      "reel": "output/guardian-revision-02/cutouts/gallows_roc-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/gallows_roc-v04",
+      "reel": "output/guardian-revision-02/cutouts/gallows_roc-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/gallows_roc-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/gallows_roc-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/gallows_roc-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/gallows_roc-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -105,16 +133,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/gallows_roc-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "last_lamplighter",
       "case": "experiments/cutouts/last_lamplighter/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/last_lamplighter-v03",
-      "reel": "output/guardian-revision-02/cutouts/last_lamplighter-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/last_lamplighter-v04",
+      "reel": "output/guardian-revision-02/cutouts/last_lamplighter-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/last_lamplighter-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/last_lamplighter-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/last_lamplighter-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/last_lamplighter-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -126,16 +161,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/last_lamplighter-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "rime_spitter",
       "case": "experiments/cutouts/rime_spitter/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/rime_spitter-v03",
-      "reel": "output/guardian-revision-02/cutouts/rime_spitter-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/rime_spitter-v04",
+      "reel": "output/guardian-revision-02/cutouts/rime_spitter-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/rime_spitter-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/rime_spitter-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/rime_spitter-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/rime_spitter-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -147,16 +189,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/rime_spitter-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "rime_whelp",
       "case": "experiments/cutouts/rime_whelp/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/rime_whelp-v03",
-      "reel": "output/guardian-revision-02/cutouts/rime_whelp-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/rime_whelp-v04",
+      "reel": "output/guardian-revision-02/cutouts/rime_whelp-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/rime_whelp-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/rime_whelp-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/rime_whelp-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/rime_whelp-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -168,16 +217,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/rime_whelp-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "rimejaw",
       "case": "experiments/cutouts/rimejaw/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/rimejaw-v03",
-      "reel": "output/guardian-revision-02/cutouts/rimejaw-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/rimejaw-v04",
+      "reel": "output/guardian-revision-02/cutouts/rimejaw-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/rimejaw-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/rimejaw-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/rimejaw-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/rimejaw-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -189,16 +245,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/rimejaw-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "roc_fledgling",
       "case": "experiments/cutouts/roc_fledgling/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/roc_fledgling-v02",
-      "reel": "output/guardian-revision-02/cutouts/roc_fledgling-v02/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/roc_fledgling-v04",
+      "reel": "output/guardian-revision-02/cutouts/roc_fledgling-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/roc_fledgling-v02/front.tscn",
-        "output/guardian-revision-02/cutouts/roc_fledgling-v02/rear.tscn"
+        "output/guardian-revision-02/cutouts/roc_fledgling-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/roc_fledgling-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -210,16 +273,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/roc_fledgling-v02",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "stoneback_mite",
       "case": "experiments/cutouts/stoneback_mite/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/stoneback_mite-v02",
-      "reel": "output/guardian-revision-02/cutouts/stoneback_mite-v02/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/stoneback_mite-v04",
+      "reel": "output/guardian-revision-02/cutouts/stoneback_mite-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/stoneback_mite-v02/front.tscn",
-        "output/guardian-revision-02/cutouts/stoneback_mite-v02/rear.tscn"
+        "output/guardian-revision-02/cutouts/stoneback_mite-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/stoneback_mite-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -231,16 +301,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/stoneback_mite-v02",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "storm_cantor",
       "case": "experiments/cutouts/storm_cantor/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/storm_cantor-v03",
-      "reel": "output/guardian-revision-02/cutouts/storm_cantor-v03/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/storm_cantor-v04",
+      "reel": "output/guardian-revision-02/cutouts/storm_cantor-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/storm_cantor-v03/front.tscn",
-        "output/guardian-revision-02/cutouts/storm_cantor-v03/rear.tscn"
+        "output/guardian-revision-02/cutouts/storm_cantor-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/storm_cantor-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -252,16 +329,23 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/storm_cantor-v03",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     },
     {
       "actor": "wick_shade",
       "case": "experiments/cutouts/wick_shade/v02/cutout.json",
-      "export": "output/guardian-revision-02/cutouts/wick_shade-v02",
-      "reel": "output/guardian-revision-02/cutouts/wick_shade-v02/videos/cutout_review.mp4",
+      "export": "output/guardian-revision-02/cutouts/wick_shade-v04",
+      "reel": "output/guardian-revision-02/cutouts/wick_shade-v04/videos/cutout_review.mp4",
       "editable_scenes": [
-        "output/guardian-revision-02/cutouts/wick_shade-v02/front.tscn",
-        "output/guardian-revision-02/cutouts/wick_shade-v02/rear.tscn"
+        "output/guardian-revision-02/cutouts/wick_shade-v04/front.tscn",
+        "output/guardian-revision-02/cutouts/wick_shade-v04/rear.tscn"
       ],
       "verification": {
         "ok": true,
@@ -273,7 +357,14 @@
       "timed_frames": 296,
       "pose_samples": 224,
       "pixel_identical_roundtrips": 14,
-      "roundtrips": 14
+      "roundtrips": 14,
+      "reviewed_pose_comparison": {
+        "compared_export": "output/guardian-revision-02/cutouts/wick_shade-v02",
+        "pose_images": 448,
+        "differing_pose_images": [],
+        "approved_pose_images": 224,
+        "harness_variant_images": 224
+      }
     }
   ],
   "visual_review": {
@@ -285,7 +376,7 @@
     "animation_contact_sheets": "output/guardian-revision-02/animation-review",
     "gameplay": "output/guardian-revision-02/gameplay-review/capture-summary.json",
     "gameplay_manifest": "output/guardian-revision-02/gameplay-v02.json",
-    "panels_manifest": "output/guardian-revision-02/inspection-panels-v03.json",
+    "panels_manifest": "output/guardian-revision-02/inspection-panels-v04.json",
     "maps_manifest": "output/guardian-revision-02/map-selection-v02.json",
     "review": "output/guardian-revision-02/review.md"
   },
@@ -294,5 +385,5 @@
     "One-seed policy trials are pacing observations, not human win rates.",
     "Publication and human inspection remain pending."
   ],
-  "provenance": "Every final export verifies against the present production dependency hashes. Earlier exports remain on disk; only these versions are final."
+  "provenance": "All final v04 exports verify against the present production dependency hashes. Their 2,912 approved pose images and corresponding harness variants match the earlier reviewed exports pixel for pixel. Earlier exports remain on disk; only v04 exports are final."
 }

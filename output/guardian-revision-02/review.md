@@ -10,7 +10,7 @@ This pass repairs attack planning and hand presentation, gives the six encounter
 - The original Storm Cantor log exposed a freed proxy being assigned before validation. A second native reproduction found stale staged-card identities leaving the hand hidden after unlock. The pool now rejects duplicate releases and freed entries; unlock restores authoritative hand controls. `logs/hand-lifecycle-before.log` is the expected failing reproduction and `logs/hand-lifecycle-after.log` is the passing fix.
 - A retained board now replaces an enemy-ID renderer when the next encounter uses a different character type. The continuous native probe checks rendered identity on every sampled frame.
 
-The full Godot suite, focused Guardian contracts, proxy lifecycle checks, motion contracts, icon identity policy and production-only package runtime pass. See `logs/`. The full suite predates only the final one-line restriction of fixed-surface explanatory text; affected Guardian contracts and all expanded panels were rerun after that correction.
+The full Godot suite, focused Guardian contracts, proxy lifecycle checks, motion contracts, icon identity policy and production-only package runtime pass. See `logs/`. The full suite predates only the final copy corrections: restricting fixed-surface explanatory text and removing outcrop advice. Affected Guardian contracts and expanded-panel proof pass with the final copy; native animation exports also verify against that final dependency tree.
 
 ## Real renderer review
 
@@ -18,7 +18,7 @@ The full Godot suite, focused Guardian contracts, proxy lifecycle checks, motion
 
 The retained captures include settled hands, Reaver Fire appearing during recovery, a claw contact, a connected Tender hit, and a Fledgling peck. `inspection-final/` contains all fourteen expanded enemy panels with concise rules and visible complete move amounts. `map-final/` contains selected, reachable, visited and current states for all six actual emblems. Every map-choice fixture is adjacent to its Guardian.
 
-Descriptions contain unique behavior, timing or limits. They do not give tactics or repeat standard victory, summon reward, status or surface rules. Named objectives use their title alone. The shared UI rubric records that policy. Fixed-pattern surface notes are restricted to those authored ground attacks, rather than ordinary Ice attacks.
+Descriptions contain unique behavior, timing or limits. The outcrop token describes its burst area without tactical advice. They do not give tactics or repeat standard victory, summon reward, status or surface rules. Named objectives use their title alone. The shared UI rubric records that policy. Fixed-pattern surface notes are restricted to those authored ground attacks, rather than ordinary Ice attacks.
 
 ## Cutout review
 

@@ -906,7 +906,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"terrain_burst":
 			_append_damage_token(tokens, "melee", action, options)
 			if str(action.get("guardian_kind", "")) == "crag_outcrop":
-				tokens.append(text_token("All outcrops · within %d" % int(action.get("range",1)), "warning", "Surviving outcrops rupture every floor tile within the shown distance. Destroy an outcrop to remove its danger."))
+				tokens.append(text_token("All outcrops · within %d" % int(action.get("range",1)), "warning", "Surviving outcrops rupture every floor tile within the shown distance."))
 			else:
 				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":

@@ -1,9 +1,9 @@
 Running task-local command:
   task: implement-guardian-combats-and-animated-encounters
-  run: implement-guardian-combats-and-animated-1789481947730889000-99197
-  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789481947730889000-99197
+  run: implement-guardian-combats-and-animated-1789483386344800000-1990
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789483386344800000-1990
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789481947730889000-99197/godot.log --headless --path . --script tests/guardian_contract_probe.gd
+  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789483386344800000-1990/godot.log --headless --path . --script tests/guardian_contract_probe.gd
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
