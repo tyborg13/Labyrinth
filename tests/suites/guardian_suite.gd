@@ -20,6 +20,10 @@ func _run() -> void:
 	_test_cover_and_force_boundaries()
 	_test_relic_forecast_regressions()
 	_test_inspection_rules()
+	_test_direct_attacks_follow_live_targets()
+	_test_pressure_and_replacements()
+	_test_pattern_outcomes_and_feedback()
+	_test_connected_cohort()
 	var names = preload("res://scripts/combat_objective_rules.gd")
 	check(names.display_name("kill_all")=="Defeat All Enemies","ordinary all-enemy objective says Defeat")
 	check(names.title_for_objective({"type":"kill_leader","leader_type":"warden"})=="Defeat the Leader","ordinary leader stays generic")
@@ -36,11 +40,15 @@ func _run() -> void:
 		var state: Dictionary = engine.create_combat(92,layout,{"hp":24,"max_hp":24,"deck_cards":["pale_spark"]})
 		check(str(state["objective"]["type"])=="kill_leader",boss+" leader objective")
 		check(state["enemies"].size()>=2,boss+" helpers")
-		check(state["enemies"][0]["intent"].has("committed_plan"),boss+" committed intent")
-		var before: Dictionary = state["enemies"][0]["intent"].duplicate(true)
-		state["player"]["pos"] = Vector2i(1,1)
-		var plan: Dictionary = engine.enemy_intent_plan(state,0)
-		check(plan["projected_attack"]==before["committed_plan"]["projected_attack"],boss+" telegraph holds")
+		var intent: Dictionary = state["enemies"][0]["intent"]
+		var rules = preload("res://scripts/guardian_combat_rules.gd")
+		if rules.has_authored_actions(intent):
+			check(intent.has("committed_plan"),boss+" authored ground plan is declared")
+			var before: Array = engine.enemy_intent_plan(state,0)["projected_attack"].duplicate()
+			state["player"]["pos"] = Vector2i(1,1)
+			check(engine.enemy_intent_plan(state,0)["projected_attack"]==before,boss+" telegraph holds")
+		else:
+			check(not intent.has("committed_plan"),boss+" direct attacks retain live target planning")
 		for turn: int in range(8):
 			state["player"]["hp"] = 24
 			state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
@@ -154,7 +162,7 @@ func _test_encounter_edges() -> void:
 	check(summoned_id>state["enemies"][2]["id"],"summon has a new stable id")
 	set_cycle(engine,state,3)
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
-	check(state["enemies"].size()==4,"Cantor wastes occupied summon slot")
+	check(state["enemies"].size()==4,"Cantor skips an occupied summon slot without exceeding helper cap")
 	for status: String in ["freeze","shock"]:
 		state = guardian_fixture("last_lamplighter")
 		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
@@ -182,19 +190,19 @@ func _test_encounter_edges() -> void:
 	var hp_before: int = state["player"]["hp"]
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
 	check(hp_before-state["player"]["hp"]==7,"Groundsplit deals one ordinary hit from the surviving outcrop")
-	state = guardian_fixture("rimejaw")
+	state = guardian_fixture("ashen_reaver")
 	state["player"]["pos"] = Vector2i(4,7)
 	set_cycle(engine,state,1)
 	var original: Dictionary = engine.enemy_intent_plan(state,0)
 	var path: Array = original["path"]
-	check(path.size()>1,"pounce fixture has an approach")
+	check(path.size()>1,"held sweep fixture has an approach")
 	if path.size()>1:
 		state["terrain"].append({"kind":"raised_cover","pos":path[1],"hp":3,"max_hp":3,"owner_kind":"player"})
 		var blocked: Dictionary = engine.enemy_intent_plan(state,0)
 		check(blocked["path"].size()==1 and blocked["projected_attack"].is_empty(),"held approach preview stops at newly raised cover")
 		var start: Vector2i = state["enemies"][0]["pos"]
 		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
-		check(state["enemies"][0]["pos"]==start and state["player"]["hp"]==24,"blocked pounce cannot overlap cover or attack from its old endpoint")
+		check(state["enemies"][0]["pos"]==start and state["player"]["hp"]==24,"blocked sweep cannot overlap cover or attack from its old endpoint")
 	state = guardian_fixture("ashen_reaver")
 	set_cycle(engine,state,2)
 	state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
@@ -372,19 +380,17 @@ func _test_inspection_rules() -> void:
 	var data = preload("res://scripts/game_data.gd")
 	for info: Dictionary in Guardians.DEFINITIONS.values():
 		var summary: String = Guardians.inspection_summary({"type":info["id"]})
-		check(summary.contains("Defeat "+str(info["name"])) and summary.contains("remaining helpers leave"), "Guardian inspection explains victory for "+str(info["id"]))
+		check(summary.contains("Replaces") and not summary.contains("Defeat") and not summary.contains("Embers"), "Guardian supplemental inspection explains only its replacement rule for "+str(info["id"]))
 		for helper: String in info["helpers"]:
 			var detail: String = Guardians.inspection_summary({"type":helper,"guardian_helper":true})
-			check(not detail.is_empty() and detail.contains("Embers"), "Guardian helper inspection explains return and reward for "+helper)
+			check(not detail.is_empty() and detail.length()<100, "Guardian helper inspection is a terse encounter-specific note for "+helper)
 	check(Guardians.inspection_summary({"type":"lightning_wisp"}).is_empty(), "ordinary Wisps do not inherit Guardian reinforcement rules")
-	check(Guardians.inspection_summary({"type":"wick_shade","guardian_helper":true}).contains("starting Shade stays"), "Shade inspection distinguishes temporary and starting helpers")
+	check(Guardians.inspection_summary({"type":"wick_shade","guardian_helper":true}).contains("Stays through Last Procession"), "Shade inspection distinguishes temporary and starting helpers")
 	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
 	var procession: Dictionary = data.enemy_def("last_lamplighter")["intents"][2]
-	check(Guardians.intent_notes(snuff).contains("Extinguishes one arena brazier until Last Procession finishes"), "Snuff inspection explains outage duration")
-	check(Guardians.intent_notes(procession).contains("Freeze or Shock") and Guardians.intent_notes(procession).contains("dismisses Shades summoned by Snuff"), "Procession inspection explains unconditional light and Shade cleanup")
-	check(Guardians.intent_notes(data.enemy_def("ashen_reaver")["intents"][2]).contains("3 Expose"), "Executioner inspection explains Expose recovery")
-	check(Guardians.intent_notes(data.enemy_def("rimejaw")["intents"][0]).contains("Leaves Ice"), "Rime Trail inspection explains trailing Ice")
-	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("destroyed outcrops cannot burst"), "Groundsplit inspection explains destructible counterplay")
+	check(Guardians.intent_notes(snuff).contains("until Last Procession"), "Snuff inspection explains outage duration")
+	check(Guardians.intent_notes(procession).contains("even when skipped") and Guardians.intent_notes(procession).contains("Snuff’s Shades"), "Procession inspection explains unconditional light and Shade cleanup")
+	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("Overlapping bursts hit once"), "Groundsplit inspection explains its overlap exception")
 
 	var icons = preload("res://scripts/action_icon_library.gd")
 	var summon_text: String = icons.plain_text_for_rows(icons.rows_for_actions(snuff["actions"]))
@@ -392,12 +398,14 @@ func _test_inspection_rules() -> void:
 
 	var peal_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("storm_cantor")["intents"][1]["actions"]))
 	check(peal_text.contains("Conducted hits:") and not peal_text.contains("Shape Ground"), "Peal describes its actual conducted-hit condition")
-	check(Guardians.intent_notes(data.enemy_def("rime_spitter")["intents"][0]).contains("Leaves Ice at the end"), "Rime Needle inspection explains terminal Ice")
+	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("rime_spitter")["intents"][0]["actions"])).contains("At lane end"), "Rime Needle row identifies terminal Ice")
+	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("ashen_reaver")["intents"][2]["actions"])).contains("Expose"), "Executioner row identifies self-Expose")
+	check(icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("rimejaw")["intents"][0]["actions"])).contains("Trail"), "Rime Trail row identifies trailing Ice")
 
 	var upheaval_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][0]["actions"]))
 	check(upheaval_text.contains("Raise Terrain") and not upheaval_text.contains("Stoneskin"), "Upheaval identifies terrain creation rather than armor")
 	var burst_text: String = icons.plain_text_for_rows(icons.rows_for_actions(data.enemy_def("craghide")["intents"][1]["actions"]))
-	check(burst_text.contains("Outcrop burst") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
+	check(burst_text.contains("All outcrops") and burst_text.contains("within 2") and not burst_text.contains("Spire"), "Groundsplit identifies surviving outcrops")
 	var rooms := Rooms.new()
 	for entry: Vector2i in [Vector2i.ZERO,Vector2i.LEFT,Vector2i.UP,Vector2i.RIGHT,Vector2i.DOWN]:
 		var layout: Dictionary = rooms.generate_room(92,{"coord":Vector2i(2,1),"depth":2,"type":"guardian","element":"air","boss_id":"vaeloryx"},entry)
@@ -407,3 +415,144 @@ func _test_inspection_rules() -> void:
 			check(str(layout["grid"][trap["pos"].y][trap["pos"].x])=="stone", "Roc traps rotate onto legal floor")
 			for enemy: Dictionary in layout["enemies"]:check(enemy["pos"]!=trap["pos"],"Roc traps do not overlap starting actors")
 			for loot: Dictionary in layout["loot"]:check(loot["pos"]!=trap["pos"],"Roc traps do not overlap staged loot")
+
+func _test_direct_attacks_follow_live_targets() -> void:
+	var engine := Combat.new()
+	var rules = preload("res://scripts/guardian_combat_rules.gd")
+	var data = preload("res://scripts/game_data.gd")
+	var state: Dictionary = fixture("",[Vector2i(4,4)])
+	state["enemies"][0]["type"] = "rimejaw"
+	state["enemies"][0]["block"] = 0
+	var bite: Dictionary = data.enemy_def("rimejaw")["intents"][2]
+	state["enemies"][0]["intent"] = rules.commit(engine,state,0,bite)
+	state["player"]["pos"] = Vector2i(4,5)
+	state["player"]["block"] = 0
+	state["player"]["stoneskin"] = 0
+	var resolved: Dictionary = engine._resolve_enemy_intent(state.duplicate(true),0,state["enemies"][0]["intent"])
+	check(resolved["player"]["hp"] < state["player"]["hp"],"A revealed ordinary Guardian bite hits a target that enters its current reach")
+	state = fixture("",[Vector2i(4,4)])
+	state["enemies"][0]["type"] = "rimejaw"
+	var pounce: Dictionary = data.enemy_def("rimejaw")["intents"][1]
+	state["enemies"][0]["intent"] = rules.commit(engine,state,0,pounce)
+	state["player"]["pos"] = Vector2i(6,4)
+	state["player"]["block"] = 0
+	state["player"]["stoneskin"] = 0
+	resolved = engine._resolve_enemy_intent(state.duplicate(true),0,state["enemies"][0]["intent"])
+	check(resolved["player"]["hp"] < state["player"]["hp"],"Direct Guardian approach and attack follow the current target together")
+
+func _test_pressure_and_replacements() -> void:
+	var engine := Combat.new()
+	var rules = preload("res://scripts/guardian_combat_rules.gd")
+	var data = preload("res://scripts/game_data.gd")
+	for id: String in ["ash_hound","rime_whelp","rime_spitter","bell_tender","roc_fledgling","stoneback_mite","wick_shade"]:
+		for intent: Dictionary in data.enemy_def(id)["intents"]:
+			var state: Dictionary = fixture("",[Vector2i(6,4)])
+			state["player"]["pos"]=Vector2i(3,4)
+			state["enemies"][0]["type"]=id
+			state["enemies"][0]["guardian_helper"]=true
+			state["guardian_id"]="ashen_reaver"
+			state["enemies"][0]["intent"]=rules.commit(engine,state,0,intent)
+			var before_distance: int = 3
+			var resolved: Dictionary = engine._resolve_enemy_intent(state,0,state["enemies"][0]["intent"])
+			var distance: int = preload("res://scripts/path_utils.gd").manhattan(resolved["enemies"][0]["pos"],resolved["player"]["pos"])
+			check(resolved["player"]["hp"]<24 or distance<before_distance or not resolved["surfaces"].is_empty(),id+" every intent advances, attacks or extends the cohort network")
+	for info: Dictionary in Guardians.DEFINITIONS.values():
+		var state: Dictionary = guardian_fixture(info["id"])
+		var starting_count: int = state["enemies"].size()-1
+		state["enemies"][1]["hp"]=0
+		# The previously declared move does not gain an unannounced summon.
+		check(not str(state["enemies"][0]["intent"]).contains("guardian_reinforcement"),info["id"]+" helper death cannot rewrite the revealed intent")
+		for round_index: int in range(5):
+			set_cycle(engine,state,2)
+			check(str(state["enemies"][0]["intent"]).contains("guardian_reinforcement"),info["id"]+" next declaration announces a missing helper")
+			state["player"]["hp"]=100
+			var before_count: int = state["enemies"].size()
+			state=engine._resolve_enemy_intent(state,0,state["enemies"][0]["intent"])
+			check(state["enemies"].size()==before_count+1,info["id"]+" returns one missing helper")
+			var living: int = 0
+			for count: int in rules.living_helpers(state).values(): living+=count
+			check(living==starting_count and living<=2,info["id"]+" retains pressure within a two-helper cap")
+			var play_bonus: int = int(state.get("death_bonus_card_plays_this_turn",0))
+			state=engine._damage_enemy(state,state["enemies"].size()-1,100)
+			check(int(state.get("death_bonus_card_plays_this_turn",0))==play_bonus and state["room_embers"]==0,info["id"]+" returned helpers cannot farm plays or Embers")
+	var flanks: Dictionary = fixture("",[Vector2i(6,4),Vector2i(4,3)])
+	flanks["guardian_id"]="ashen_reaver"
+	flanks["player"]["pos"]=Vector2i(4,4)
+	for actor: Dictionary in flanks["enemies"]:
+		actor["type"]="ash_hound"
+		actor["guardian_helper"]=true
+		actor["intent"]=data.enemy_def("ash_hound")["intents"][0]
+	check(engine.enemy_intent_plan(flanks,0)["destination"]==Vector2i(4,5),"second Hound closes the opposite flank instead of stacking on its sibling")
+
+func _test_pattern_outcomes_and_feedback() -> void:
+	var engine := Combat.new()
+	var rules = preload("res://scripts/guardian_combat_rules.gd")
+	var surfaces = preload("res://scripts/board_surface_rules.gd")
+	var data = preload("res://scripts/game_data.gd")
+	var state: Dictionary = fixture("",[Vector2i(3,4)])
+	state["enemies"][0]["type"]="ashen_reaver"
+	state["player"]["pos"]=Vector2i(6,4)
+	var rake: Dictionary = data.enemy_def("ashen_reaver")["intents"][0].duplicate(true)
+	rake["actions"].pop_front()
+	state["enemies"][0]["intent"]=rules.commit(engine,state,0,rake)
+	var threatened: Array = engine.enemy_intent_plan(state,0)["projected_attack"]
+	check(threatened.size()==9 and threatened.has(state["player"]["pos"]) and not threatened.has(Vector2i(5,4)),"Raking Flame aims nine tiles around the target with its declared second-row gap")
+	var outcome: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
+	for tile: Vector2i in threatened: check(surfaces.has_surface(outcome["state"],tile,"fire"),"every marked rake tile becomes Fire")
+	var setup_step: Dictionary = {}
+	for step: Dictionary in outcome["steps"]:
+		if bool(step.get("guardian_mechanic",false)): setup_step=step;break
+	check(not setup_step.is_empty() and setup_step["tiles"].size()==9 and setup_step["surface"]=="fire","raking setup feedback carries all nine actual Fire tiles")
+	check(not (setup_step.get("guardian_board_after",{}) as Dictionary).has("deck") and not (setup_step.get("guardian_board_after",{}) as Dictionary).has("player_turn_time_spent"),"Guardian playback cannot replace hand or activation ownership")
+	state=fixture("",[Vector2i(3,4)])
+	state["enemies"][0]["type"]="ashen_reaver"
+	state["player"]["pos"]=Vector2i(4,4)
+	var sweep: Dictionary = data.enemy_def("ashen_reaver")["intents"][1].duplicate(true)
+	sweep["actions"].pop_front()
+	state["enemies"][0]["intent"]=rules.commit(engine,state,0,sweep)
+	threatened=engine.enemy_intent_plan(state,0)["projected_attack"]
+	state["player"]["pos"]=Vector2i(1,1)
+	outcome=engine.resolve_enemy_turn_with_steps(state,0)
+	check(outcome["state"]["player"]["hp"]==24,"evading a declared sweep avoids its hit")
+	for tile: Vector2i in threatened: check(surfaces.has_surface(outcome["state"],tile,"fire"),"an evaded sword sweep still lays its marked Fire")
+	# Old persisted direct actions had the same erroneous commit flag. They must
+	# use native live targeting after loading without rewriting a save by hand.
+	state=fixture("",[Vector2i(4,4)])
+	state["enemies"][0]["type"]="ash_hound"
+	var old: Dictionary = data.enemy_def("ash_hound")["intents"][0].duplicate(true)
+	old["committed_plan"]={"projected_attack":[],"path":[Vector2i(4,4)]}
+	for action: Dictionary in old["actions"]:
+		if action["type"]=="melee": action["_guardian_committed"]=true;action["declared_tiles"]=[]
+	state["player"]["pos"]=Vector2i(4,5)
+	state["enemies"][0]["intent"]=bytes_to_var(var_to_bytes(old))
+	check(engine._resolve_enemy_intent(state,0,state["enemies"][0]["intent"])["player"]["hp"]<24,"old saved direct Guardian attacks recover live targeting")
+
+func _test_connected_cohort() -> void:
+	var engine := Combat.new()
+	var rules = preload("res://scripts/guardian_combat_rules.gd")
+	var data = preload("res://scripts/game_data.gd")
+	var surfaces = preload("res://scripts/board_surface_rules.gd")
+	var state: Dictionary = fixture("",[Vector2i(2,4),Vector2i(4,3)])
+	state["enemies"][0]["type"]="storm_cantor"
+	state["enemies"][1]["type"]="bell_tender"
+	state["player"]["pos"]=Vector2i(6,4)
+	for x: int in range(2,5): surfaces.place(state,Vector2i(x,4),"electrified")
+	var join: Dictionary = data.enemy_def("bell_tender")["intents"][0].duplicate(true)
+	join["actions"].pop_front()
+	state["enemies"][1]["intent"]=rules.commit(engine,state,1,join)
+	state=engine._resolve_enemy_intent(state,1,state["enemies"][1]["intent"])
+	check(surfaces.connected_component(state,Vector2i(2,4)).has(Vector2i(6,4)),"Tender extends Cantor's existing network to the player")
+	# A closer isolated conductor must not distract Peal from the useful network.
+	surfaces.place(state,Vector2i(1,4),"electrified")
+	var peal: Dictionary = data.enemy_def("storm_cantor")["intents"][1].duplicate(true)
+	peal["actions"].pop_front()
+	state["enemies"][0]["intent"]=rules.commit(engine,state,0,peal)
+	check(engine.enemy_intent_plan(state,0)["projected_attack"].has(Vector2i(6,4)),"Peal previews its full connected damage network")
+	var outcome: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
+	check(outcome["state"]["player"]["hp"]==18 and outcome["state"]["player"]["shock"]==1,"Peal conducts one six-damage Shock hit to the distant player")
+	var shown_network: bool = false
+	for step: Dictionary in outcome["steps"]:
+		if str(step.get("intent_id",""))=="peal":
+			shown_network=(step.get("tiles",[]) as Array).has(Vector2i(6,4)) and not str(step.get("status_text","")).is_empty()
+	check(shown_network,"Peal animates the affected network and explicitly reports Shock")
+	check(surfaces.connected_component(outcome["state"],Vector2i(2,4)).has(Vector2i(6,4)),"electrified network remains available to the Wisp's next attack")

@@ -12,6 +12,8 @@ A case contains explicit facing layouts, locally copied paint, a case-owned moti
 
 The rig adapter reuses production Skeleton2D/Polygon2D loading but supplies case paths and motion. Authoring images retain the game's native 255×255 registration inside a fixed padded 512×512 action canvas. The inspector displays the actual CombatBoardView with the candidate texture and a separate full native pose. It is a character study, not evidence that a new enemy has been routed into live combat. Each authored cycle also includes cloak-off pose PNGs. Save/reload comparisons cover editable AnimationPlayer scenes, and input/output digests bind proof to exact sources.
 
+**Durable idle direction (user, 2026-09-15):** idle uses only a small coordinated body bob with planted support. Never add rippling, traveling waves, staggered feather/cloth rotations, skin shimmer, or independent undulation. This applies to birds, monsters and humanoids. Readable motion belongs in deliberate walking, attacks and casts; a nonzero pose is not evidence of a recognizable attack.
+
 Art judgment remains visual: exact reconstruction, connected components, normalized weights and finite matrices cannot establish correct anatomy, perspective or style. New hidden surfaces and changed boot/hand viewpoints need appropriate paint. The skill's references preserve the decisions that made the protagonist successful and distinguish them from character-specific settings.
 
 ## Commands

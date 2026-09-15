@@ -183,10 +183,12 @@ ENEMY_TACTICAL_ROLES = {
 GUARDIAN_ASSUMPTIONS = {
     "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
     "roster": "one 36–44 HP bespoke leader plus one or two 4–6 HP helpers; all have 1x1 footprints",
-    "clock": "Guardian initiative 9–12 plus Time 4–7; helpers initiative 12 plus Time 4–6; existing wisp initiative 7 plus Time 4",
-    "telegraphs": "committed world-space lanes and approaches; skipped slots advance; new blockers shorten the held plan without retargeting",
+    "clock": "Guardian initiative 9–12 plus Time 4–7; helpers initiative 8–10 plus Time 4–6; existing wisp initiative 7 plus Time 4",
+    "telegraphs": "only authored ground patterns hold world-space tiles and approaches; ordinary attacks use live targets; skipped slots advance; new blockers and traps can interrupt the held plan",
+    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its declared attack tiles",
+    "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
     "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
-    "rewards": "six exclusive run-long trophies; finite helpers grant one player-card kill play, renewable helpers grant none; helpers grant zero Embers",
+    "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
     "geometry": "recoverable player cover blocks movement and attack sight; Craghide outcrops cannot disconnect floor routes; normal obstacle-clearing AI applies",
     "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
     "trophy_curves": {

@@ -18,6 +18,10 @@ func _run() -> void:
 	canvas.world_2d = World2D.new()
 	canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(canvas)
+	var display := TextureRect.new()
+	display.texture=canvas.get_texture()
+	display.size=Vector2(SIZE)
+	root.add_child(display)
 	var backdrop := ColorRect.new()
 	backdrop.color = Color("30343d")
 	backdrop.size = Vector2(SIZE)
@@ -41,10 +45,10 @@ func _run() -> void:
 		var rig := Rig.new()
 		puppet.add_child(rig)
 		rig.position = Vector2(128,128)
-		if not rig.configure("res://experiments/cutouts/%s/v01/cutout.json" % id):
+		if not rig.configure("res://experiments/cutouts/%s/v02/cutout.json" % id):
 			failures.append(id + ": " + str(rig.load_errors))
 			continue
-		var samples: Array = [["idle",0],["walk",0],["walk",5],["walk",10],["walk",15],["strike",8],["cast",8],["brace",8]]
+		var samples: Array = [["idle",0],["idle",8],["strike",6],["strike",11],["strike",20],["cast",7],["cast",13],["brace",11]]
 		for row: int in range(2):
 			var facing: String = "front" if row==0 else "rear"
 			rig.set_facing(facing)

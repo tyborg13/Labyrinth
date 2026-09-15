@@ -12,6 +12,8 @@ Saved `<facing>.tscn` scenes contain the Skeleton2D, parts, weighted meshes and 
 
 ## Timing lessons
 
+**User art direction: no idle ripple, ever.** Use only a small coordinated body bob with planted supports. Do not introduce traveling waves, independent feather/cloth oscillation, staggered joint rotations, skin shimmer or other undulation. Verify the whole silhouette across the cycle, including birds. Attacks must visibly prepare, swing/peck/swipe, make contact and recover at board scale; “non-idle” alone is insufficient proof.
+
 Separate authored pose phase from playback time. The protagonist's historical sampler clip metadata still describes earlier authoring speeds; actual game playback comes from `scripts/protagonist_cutout/renderer.gd`. The maintained case configuration is explicit about duration and phase mapping so a preview cannot silently present a different speed.
 
 For the approved protagonist:

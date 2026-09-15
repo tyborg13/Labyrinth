@@ -26,15 +26,10 @@ func _interactions(engine: RefCounted, combat: RefCounted) -> void:
 		state["combat_state"]["player"]["max_hp"]=999
 		state["player_hp"]=999
 		state["player_max_hp"]=999
-		# Each independent inspection save starts a fresh RunScene, as Continue does.
-		# Reusing the prior synthetic card-demo scene retains deleted UI proxies.
-		scene.queue_free()
-		await process_frame
-		scene=load("res://scenes/run_scene.tscn").instantiate()
-		canvas.add_child(scene)
-		await process_frame
+
 		await _load(state)
-		for activation: int in range(3):
+		for activation: int in range(4):
+			if activation<2: await _play_guard_card(str(info["id"]),activation)
 			var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
 			var expected: Dictionary = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(before))["state"]
 			scene.call("_on_pass_turn_pressed")
@@ -42,8 +37,9 @@ func _interactions(engine: RefCounted, combat: RefCounted) -> void:
 			var after: Dictionary = scene.get("_combat_state")
 			_check(after["player"]["hp"]==expected["player"]["hp"],"native playback applies damage once: "+str(info["id"]))
 			_check(combat.is_player_turn(after),"native playback returns player input: "+str(info["id"]))
+			_check_hand_visible(str(info["id"])+" after draw "+str(activation))
 	for id: String in preload("res://scripts/guardian_cutout/renderer.gd").ACTOR_IDS:
-		_check(observed.has(id),"native enemy actions animate "+id)
+		_check(observed.has(id) and (observed[id].has("strike") or observed[id].has("cast") or observed[id].has("brace")),"native enemy attacks use authored action motion "+id)
 	var file := FileAccess.open("user://probes/guardian_ui/gameplay.json",FileAccess.WRITE)
 	file.store_string(JSON.stringify({"clips":gameplay,"observed_actions":observed,"fixture_only":{"health":999,"vision_bonus":12},"size":[1920,1080],"ui_scale":1.0},"\t"))
 
@@ -54,10 +50,13 @@ func _record_runtime(label: String) -> void:
 	var samples: Array[Dictionary] = []
 	var images: Array[PackedByteArray] = []
 	var board: Node = scene.get("board_view")
-	while Time.get_ticks_usec()-started<14000000:
+	while Time.get_ticks_usec()-started<45000000:
 		await process_frame
 		var now: int = Time.get_ticks_usec()
-		if not bool(scene.get("_animation_lock")) and finish==0:finish=now
+		if bool(scene.get("_animation_lock")):
+			finish=0
+		elif finish==0:
+			finish=now
 		if now>=next_capture:
 			next_capture=now+33333
 			var poses: Dictionary = {}
@@ -65,6 +64,10 @@ func _record_runtime(label: String) -> void:
 				var key: String = "enemy_%s"%enemy["id"]
 				var snapshot: Dictionary = board.call("guardian_animation_snapshot",key)
 				if snapshot.is_empty():continue
+				var expected_art: String = str(enemy["type"])+"_cutout_v02"
+				if str(snapshot.get("art",""))!=expected_art:
+					var mismatch: String = "Retained renderer shows %s for %s"%[snapshot.get("art",""),expected_art]
+					if not failures.has(mismatch):failures.append(mismatch)
 				poses[key]=snapshot
 				if bool(snapshot.get("active",false)) and str(snapshot.get("clip","idle")) not in ["idle","rest"]:
 					var id: String = enemy["type"]
@@ -85,3 +88,31 @@ func _record_runtime(label: String) -> void:
 		midpoint.load_jpg_from_buffer(images[images.size()/2])
 		midpoint.save_png("user://probes/guardian_ui/runtime_"+label+".png")
 	gameplay.append({"label":label,"samples":samples,"duration_seconds":float(Time.get_ticks_usec()-started)/1000000.0})
+
+func _check_hand_visible(label: String) -> void:
+	var hand: Array = (scene.get("_combat_state") as Dictionary)["deck"]["hand"]
+	_check(not hand.is_empty(),label+" retains deck hand")
+	_check((scene.get("hand_box") as Control).is_visible_in_tree(),label+" restores the live hand container")
+	_check(not bool(scene.get("_locked_hand_cache_active")),label+" releases the frozen hand cache")
+	for index: int in range(hand.size()):
+		var widget: Control = scene.call("_hand_card_control",index)
+		_check(is_instance_valid(widget) and widget.is_visible_in_tree() and widget.modulate.a>=.5,label+" renders live card "+str(index))
+
+func _play_guard_card(id: String, activation: int) -> void:
+	var state: Dictionary = scene.get("_combat_state")
+	var hand: Array = state["deck"]["hand"]
+	var chosen: int = -1
+	for card: String in ["stone_plate","basalt_guard","patch_up","guarded_step"]:
+		if hand.has(card) and bool((scene.call("_card_play_options_for_index",hand.find(card)) as Dictionary).get("printed_playable",false)):
+			chosen=hand.find(card)
+			break
+	if chosen<0: return
+	await scene.call("_on_card_pressed",chosen)
+	if bool(scene.call("_pending_card_requires_confirmation")):
+		scene.call("_on_confirm_card_play_pressed")
+	else:
+		var targets: Array = (scene.call("_active_card_preview") as Dictionary).get("target_tiles",[])
+		if not targets.is_empty(): scene.call("_on_board_tile_clicked",targets[0])
+	await _record_runtime(id+"_card_"+str(activation))
+	_check(int(scene.get("_selected_card_index"))<0,"single card confirmation completed "+id)
+	_check_hand_visible(id+" after card play")

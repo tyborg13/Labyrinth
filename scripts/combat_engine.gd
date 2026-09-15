@@ -2213,7 +2213,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 			"terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
-	if intent.has("committed_plan"):
+	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		move_lookup.clear()
 		attack_lookup.clear()
 		for tile: Vector2i in plan.get("path",[]):
@@ -3674,6 +3674,11 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 				return next_state
 			next_state = _move_enemy_along_planned_path(next_state, enemy_index, toward_path, action_context, int(action.get("range", 0)))
+			if action.has("trail_surface"):
+				var endpoint: Vector2i = next_state["enemies"][enemy_index]["pos"]
+				for trail_tile: Vector2i in action_context.get("resolved_path", []):
+					if trail_tile == endpoint: break
+					BoardSurfaceRules.place(next_state, trail_tile, str(action["trail_surface"]), _surface_source(next_state, action))
 			_log(next_state, "%s closes in." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		"move_away":
 			var away_path: Array[Vector2i] = _planned_enemy_movement_path(next_state, enemy, enemy_index, action, followup_action, action_context, target_pos, false)
@@ -7319,7 +7324,8 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		var cycle: int = int(enemy.get("guardian_cycle", -1)) + 1
 		enemy["guardian_cycle"] = cycle
 		enemies[enemy_index] = enemy
-		var chosen: Dictionary = _surface_prepare_enemy_intent(state, enemy, intents[posmod(cycle, intents.size())])
+		var chosen: Dictionary = _surface_prepare_enemy_intent(state, enemy, GuardianCombatRules.choose_intent(state, enemy, intents, cycle))
+		chosen = GuardianCombatRules.with_reinforcements(state, enemy, chosen)
 		enemy["intent"] = GuardianCombatRules.commit(self, state, enemy_index, chosen)
 		enemies[enemy_index] = enemy
 		return
@@ -7846,7 +7852,7 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
-	if intent.has("committed_plan"):
+	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		return GuardianCombatRules.current_plan(self, state, enemy, intent, movement_disabled, attack_disabled)
 	var actions: Array = intent.get("actions", [])
 	var movement_index: int = -1
@@ -8294,6 +8300,7 @@ func _best_enemy_direct_attack_candidate(
 				),
 				"exit_block_score": _objective_exit_block_score(state, destination),
 				"protector_screen_score": int((protector_screening_context.get("score_by_tile", {}) as Dictionary).get(destination, 0)),
+				"guardian_coordination": GuardianCombatRules.coordination_score(self, state, enemy, destination, target.get("pos", INVALID_TILE)),
 				"cost": int(prediction.get("hazard_cost", 0)) + int(record.get("steps", 0))
 			}
 			if best.is_empty() or _enemy_direct_attack_candidate_precedes(candidate, best, movement_type):
@@ -8324,6 +8331,13 @@ func _enemy_direct_attack_candidate_precedes(candidate: Dictionary, incumbent: D
 	var incumbent_survives: bool = bool(incumbent.get("route_survives", true))
 	if candidate_survives != incumbent_survives:
 		return candidate_survives
+	# In a Guardian cohort, prefer complementary safe attack anchors. This is
+	# shared by the actual planner and threat previews; it never rewrites a
+	# revealed ground pattern or grants extra movement.
+	if int(candidate.get("trap_cost", 0)) == int(incumbent.get("trap_cost", 0)):
+		var team: int = int(candidate.get("guardian_coordination", 0))
+		var other_team: int = int(incumbent.get("guardian_coordination", 0))
+		if team != other_team: return team > other_team
 	if movement_type == "move_away":
 		var candidate_trap_cost: int = int(candidate.get("trap_cost", 0))
 		var incumbent_trap_cost: int = int(incumbent.get("trap_cost", 0))

@@ -16,6 +16,10 @@ static func sync(board: Node, renderers: Dictionary, state: Dictionary, presenta
 	for actor_key: String in actors:
 		var unit: Dictionary = actors[actor_key]
 		var renderer: Node = renderers.get(actor_key, null) as Node
+		# Enemy IDs restart each combat; retained boards can next show another roster.
+		if is_instance_valid(renderer) and str(renderer.get("character_id")) != str(unit["type"]):
+			renderer.queue_free()
+			renderer = null
 		if not is_instance_valid(renderer):
 			renderer = Renderer.new()
 			renderer.character_id = str(unit["type"])

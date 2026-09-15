@@ -26,15 +26,17 @@ STUDIES = {
     "map_choice": "Choose the Guardian route or its bypass",
     "reward": "Claim the trophy after defeating the Guardian",
     "outage": "Play after one brazier goes dark and its Shade appears",
-    "outcrops": "Break Craghide's outcrops before Groundsplit",
-    "summon": "Block Storm Cantor's declared replacement-Wisp tile",
-    "telegraph": "Play against the Guardian's held third intent",
+    "outcrops": "Begin before Groundsplit with Craghide’s outcrops present",
+    "summon": "Begin with Storm Cantor’s replacement-Wisp intent declared",
+    "reinforcements": "Begin with a missing helper’s replacement intent declared",
+    "network": "Play against the Cantor cohort after its opening electrical setup",
+    "telegraph": "Inspect the Guardian's third intent and its current threats",
 }
 
 
 def generate(actor: str, case: str, launch: bool = False) -> dict:
     key = actor + "-" + case
-    manifest = ROOT / "output/guardian-implementation/fixtures" / (key + ".json")
+    manifest = ROOT / "output/guardian-revision-02/fixtures" / (key + ".json")
     manifest.parent.mkdir(parents=True, exist_ok=True)
     command = [sys.executable, str(ROOT / "tools/inspection_fixture.py"),
                "--project", str(ROOT), "--task-id", TASK,
@@ -64,15 +66,15 @@ def main() -> None:
         parser.error("--all generates saves; use --launch with a single actor and case")
     cases = [(args.actor, args.case)]
     if args.all:
-        cases = [(actor, case) for actor in NAMES for case in ["pre_battle", "encounter", "relic"]]
-        cases += [("last_lamplighter", "map_entry"), ("ashen_reaver", "map_choice"),
+        cases = [(actor, case) for actor in NAMES for case in ["pre_battle", "encounter", "relic", "reinforcements", "map_choice"]]
+        cases += [("last_lamplighter", "map_entry"),
                   ("ashen_reaver", "reward"), ("last_lamplighter", "outage"),
-                  ("craghide", "outcrops"), ("storm_cantor", "summon")]
+                  ("craghide", "outcrops"), ("storm_cantor", "summon"), ("storm_cantor", "network")]
         cases += [(actor, "telegraph") for actor in ["ashen_reaver", "rimejaw", "gallows_roc"]]
     results = [generate(actor, case, args.launch) for actor, case in cases]
     if args.all:
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-        dest = ROOT / "output/guardian-implementation/fixtures/catalog.json"
+        dest = ROOT / "output/guardian-revision-02/fixtures/catalog.json"
         dest.write_text(json.dumps({"head": head, "fixtures": results}, indent=2) + "\n")
         print(f"Verified {len(results)} Guardian fixtures: {dest}")
 

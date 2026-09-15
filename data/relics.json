@@ -1867,7 +1867,7 @@
   "ashen_brand": {
     "name": "Ashen Brand",
     "rarity": "legendary",
-    "description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage; each actor is hit once. The blast can hit you.",
+    "description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage.",
     "icon_path": "res://assets/art/relics/ashen_brand.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1889,7 +1889,7 @@
   "winters_spur": {
     "name": "Winter\u2019s Spur",
     "rarity": "legendary",
-    "description": "A straight stretch of @icon(surface_ice) costs 1 base @icon(move). Turning, leaving @icon(surface_ice), or starting another @icon(move) starts a new cost. Contact effects and @icon(surface_rubble) costs still apply.",
+    "description": "Each straight stretch of @icon(surface_ice) costs 1 base @icon(move) per movement action. Turns start a new stretch.",
     "icon_path": "res://assets/art/relics/winters_spur.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1911,7 +1911,7 @@
   "resonant_clapper": {
     "name": "Resonant Clapper",
     "rarity": "legendary",
-    "description": "Existing @icon(chain) attacks gain 25% base damage per successive enemy hop. Empty relays and conduction-only hits do not advance or receive the bonus.",
+    "description": "@icon(chain) gains 25% base damage per successive enemy hop. Empty relays and conduction-only hits neither advance nor receive this bonus.",
     "icon_path": "res://assets/art/relics/resonant_clapper.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1933,7 +1933,7 @@
   "galehook_talon": {
     "name": "Galehook Talon",
     "rarity": "legendary",
-    "description": "@icon(push) and @icon(pull) displace a contiguous line of enemies together along the original force axis. The group stops at an obstruction. Damage and force distance stay the same.",
+    "description": "@icon(push) and @icon(pull) displace a contiguous line of enemies together along the force axis. The group stops at an obstruction.",
     "icon_path": "res://assets/art/relics/galehook_talon.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1955,7 +1955,7 @@
   "cragbound_gauntlet": {
     "name": "Cragbound Gauntlet",
     "rarity": "legendary",
-    "description": "Raise Cover: spend 1 independent @icon(move) and all @icon(stoneskin) to place cover within 2, with that much @icon(health). Reclaim adjacent cover for 1 @icon(move); recover its surviving @icon(health) as @icon(stoneskin).",
+    "description": "Raise Cover: 1 independent @icon(move) and all @icon(stoneskin) creates cover within 2, with that much @icon(health). Reclaim adjacent cover for 1 @icon(move), recovering its remaining @icon(health) as @icon(stoneskin).",
     "icon_path": "res://assets/art/relics/cragbound_gauntlet.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1977,7 +1977,7 @@
   "procession_lantern": {
     "name": "Procession Lantern",
     "rarity": "legendary",
-    "description": "Select an @icon(illusion), then a destination. Spend your independent @icon(move) to send it through darkness. Its @icon(health) and existing illumination stay unchanged. Card @icon(move) still affects you.",
+    "description": "@icon(illusion) can use your independent @icon(move).",
     "icon_path": "res://assets/art/relics/procession_lantern.png",
     "accent": "#d9862f",
     "design_version": 3,

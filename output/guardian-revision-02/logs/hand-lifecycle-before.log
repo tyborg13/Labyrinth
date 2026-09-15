@@ -1,0 +1,15 @@
+Running task-local command:
+  task: implement-guardian-combats-and-animated-encounters
+  run: implement-guardian-combats-and-animated-1789480888653571000-97887
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789480888653571000-97887
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789480888653571000-97887/godot.log --headless --path . --script tests/card_proxy_pool_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Unlock restores the authoritative hand even if staged card identities are stale
+TEST RESULT: FAIL — 1 card proxy pool failure(s)
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/card_proxy_pool_test.gd:157)

@@ -547,7 +547,10 @@ Room completion and ownership prevent duplicate awards on replay.
 
 Guardian `enemy_action_resolved` records add `guardian_mechanic`, `declared_tiles`
 and `resolved_tiles`; broken cover can shrink a previously declared quake or
-blocked lane. Reinforcement creation, brazier outages/restoration, cover commands
+blocked lane. They also add `interrupted`; interrupted Guardian status steps
+remain in this event stream instead of disappearing with their cancelled attack.
+Conduction resolution tiles include the entire affected network. Replacement
+summons use the same Guardian helper event on every successful return. Reinforcement creation, brazier outages/restoration, cover commands
 and Illusion relocation use the existing append-only `surface_event` stream and
 its combat/sequence idempotency keys. Utility commands consume shared Move but
 are not counted as `player_moved` events. Their payloads record the command,

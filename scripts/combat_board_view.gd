@@ -15003,6 +15003,8 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
+		var guardian_row: Array = ActionIcons.tokens_for_guardian_rule(action)
+		if not guardian_row.is_empty(): rows.append(guardian_row)
 		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)

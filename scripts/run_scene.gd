@@ -5317,6 +5317,7 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	stack.add_child(title)
 	var description_label := Label.new()
 	description_label.text = CombatObjectiveRules.description_for_objective(objective)
+	description_label.visible = not description_label.text.is_empty()
 	description_label.clip_text = true
 	description_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(description_label, UiTypography.ROLE_BODY)
@@ -6071,6 +6072,12 @@ func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Cont
 	summary.add_theme_color_override("font_color", Color("cdbda5"))
 	text_box.add_child(summary)
 	var guardian_notes: String = preload("res://scripts/guardian_library.gd").intent_notes(intent)
+	# Status amounts must remain visible even when a move needs no extra prose.
+	summary.clip_text = false
+	summary.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary.custom_minimum_size.x = 410.0
+	summary.size.x = 410.0
 	if not guardian_notes.is_empty():
 		var rules := Label.new()
 		rules.name = "GuardianMoveRules"
@@ -8830,9 +8837,10 @@ func _reset_card_proxy_widget_transients(widget: Control) -> void:
 		(time_badge as Node).call("set_hovered", false)
 func _take_pooled_card_proxy() -> Control:
 	while not _card_proxy_pool.is_empty():
-		var proxy: Control = _card_proxy_pool.pop_back()
-		if not _node_is_alive(proxy):
+		var entry: Variant = _card_proxy_pool.pop_back()
+		if not _node_is_alive(entry):
 			continue
+		var proxy: Control = entry as Control
 		var parent: Node = proxy.get_parent()
 		if parent != null:
 			parent.remove_child(proxy)
@@ -8844,6 +8852,10 @@ func _release_card_proxy(proxy) -> void:
 	# argument untyped so a previously freed proxy reaches the liveness guard instead
 	# of failing GDScript's typed-argument check before this function can run.
 	if not _node_is_alive(proxy):
+		return
+	# Draw handoff and incidental UI cleanup may retire the same proxy. Never
+	# enqueue it twice: a duplicate can be leased while another effect owns it.
+	if _card_proxy_pool.has(proxy):
 		return
 	var active_tween: Variant = proxy.get_meta("active_card_proxy_tween") if proxy.has_meta("active_card_proxy_tween") else null
 	if active_tween is Tween and (active_tween as Tween).is_valid() and (active_tween as Tween).is_running():
@@ -17469,7 +17481,8 @@ func _clear_idle_card_fx_layer() -> void:
 	_clear_children_now(_card_fx_layer)
 
 func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
-	if not force and not _draw_hand_transition_proxies.is_empty() and str(_run_state.get("mode", "room")) == "combat":
+	if not force and _animation_lock and not _draw_hand_transition_proxies.is_empty() and str(_run_state.get("mode", "room")) == "combat":
+		# Once input unlocks, authoritative cards always replace any stale staging.
 		# Deferred layout and hover refreshes can arrive while the staged hand owns
 		# the visible cards. Retiring a running proxy frees its Tween without emitting
 		# `finished`, stranding the combat coroutine in animation lock. A refresh may
@@ -23361,7 +23374,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"move":
 				await _animate_move_step(animated_state, step)
 			"summon":
-				if step.has("guardian_state_after"):
+				if step.has("guardian_board_after"):
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
 					_apply_animation_step(animated_state,step)
 					_render_board_state(animated_state,{})
@@ -23369,8 +23382,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if ZekarionCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)):
 					await ZekarionAction.play_summon(self, animated_state, step)
 			"surface":
-				if step.has("guardian_state_after"):
+				if step.has("guardian_board_after"):
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
+					_apply_animation_step(animated_state,step)
+					_render_board_state(animated_state,{})
+					continue
 				var before_ground: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
@@ -23453,6 +23469,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if zekarion_attack:
 					attack_frame_count = 1 if _reduced_motion_enabled() else ZekarionCutout.action_frames(step)
 					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else ZekarionCutout.ATTACK_FRAME_SECONDS
+				var guardian_attack: bool = GuardianCutout.uses_attack(step,_animation_actor_unit(animated_state,step_actor_key))
+				if guardian_attack:
+					attack_frame_count = 1 if _reduced_motion_enabled() else GuardianCutout.action_frames(step,_animation_actor_unit(animated_state,step_actor_key))
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else GuardianCutout.ATTACK_FRAME_SECONDS
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
 				if not trap_detonation_follows:
@@ -23485,7 +23505,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						"effect": step,
 						"effect_progress": t
 					}
-					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack:
+					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack and not guardian_attack:
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}
@@ -24685,9 +24705,8 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _run_state.get("equipped_equipment", {}) as Dictionary
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
-	if step.has("guardian_state_after"):
-		animated_state.clear()
-		animated_state.merge((step["guardian_state_after"] as Dictionary).duplicate(true),true)
+	if step.has("guardian_board_after"):
+		animated_state.merge((step["guardian_board_after"] as Dictionary).duplicate(true),true)
 		return
 	if step.has("surfaces_after"):
 		animated_state["surfaces"] = (step.get("surfaces_after", {}) as Dictionary).duplicate(true)
@@ -31974,7 +31993,7 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and bool(step.get("boss_mechanic", false))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and (bool(step.get("boss_mechanic", false)) or bool(step.get("guardian_mechanic",false)))):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		events.append({
@@ -31985,6 +32004,7 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 				"presentation_kind": kind,
 				"boss_mechanic": bool(step.get("boss_mechanic", false)),
 				"guardian_mechanic": bool(step.get("guardian_mechanic", false)),
+				"interrupted": bool(step.get("interrupted",false)),
 				"declared_tiles": step.get("declared_tiles", []),
 				"resolved_tiles": step.get("tiles", []),
 				"enemy_type": str(step.get("enemy_type", "")),
@@ -32740,7 +32760,7 @@ func _refresh_guardian_command_buttons() -> void:
 		var command: String = str(child.get_meta("guardian_command"))
 		var button: Button = child as Button
 		button.disabled = _animation_lock or _selected_card_index >= 0 or _combat_engine.guardian_command_targets(_combat_state,command).is_empty()
-		button.tooltip_text = "Raise Cover · 1 Move + all Stoneskin\nCover HP equals Stoneskin spent. Choose empty floor within 2." if command == "raise_cover" else "Reclaim Cover · 1 Move\nRecover adjacent owned cover’s surviving HP as Stoneskin."
+		button.tooltip_text = "Raise Cover · 1 Move + all Stoneskin\nRange 2 · HP equals Stoneskin spent." if command == "raise_cover" else "Reclaim Cover · 1 Move\nRecover adjacent owned cover’s surviving HP as Stoneskin."
 		if button.disabled: button.tooltip_text += "\nUnavailable: needs movement and " + ("Stoneskin with a legal tile." if command == "raise_cover" else "adjacent owned cover.")
 
 func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -> void:
@@ -32766,7 +32786,18 @@ func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: S
 	var action: String = GuardianCutout.action_clip(step,actor)
 	if action.is_empty(): return
 	_set_action_banner("%s: %s" % [str(step.get("actor_name","Enemy")),str(step.get("label",""))])
-	await _play_timed_animation_frames(18,0.03,func(frame: int)->void:
-		_render_board_state(state,{"guardian_motion":{actor_key:{"clip":"attack","action":action,"phase":float(frame)/18.0,
-			"direction":(state["player"]["pos"] as Vector2i)-(actor["pos"] as Vector2i)}},"focus_actor_keys":[actor_key]},true)
+	var after: Dictionary = state.duplicate(true)
+	_apply_animation_step(after,step)
+	var events: Array[Dictionary] = _surface_events_between(state,after)
+	if events.is_empty(): events=_dictionary_array(step.get("surface_events",[]))
+	var frames: int = GuardianCutout.action_frames(step,actor)
+	await _play_timed_animation_frames(frames,GuardianCutout.ATTACK_FRAME_SECONDS,func(frame: int)->void:
+		var progress: float = float(frame)/float(frames-1)
+		var released: bool = progress>=0.46
+		var shown: Dictionary = {"guardian_motion":{actor_key:GuardianCutout.action_motion(step,actor,progress,0.46)},
+			"focus_actor_keys":[actor_key],"focus_tiles":step.get("declared_tiles",[]),"focus_color":Color(0.95,0.62,0.37,0.18)}
+		if released:
+			shown["surface_feedback_events"]=events
+			shown["surface_feedback_progress"]=(progress-0.46)/0.54
+		_render_board_state(after if released else state,shown,true)
 	)

@@ -615,11 +615,18 @@ Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
 Fresh maps replace one middle-group fight per section with an optional named
 Guardian; the 66-room / 40-fight opportunity budget is unchanged. Each has a
 36–44 HP leader and one or two 4–6 HP helpers, all occupying one tile. Guardian
-repeat clocks are initiative 9–12 plus Time 4–7; helpers use initiative 12 plus
+repeat clocks are initiative 9–12 plus Time 4–7; helpers use initiative 8–10 plus
 Time 4–6, except the existing 7 + 4 Lightning Wisp. The ordinary local and
 completed-section HP, damage and support curves apply without a generic leader
-multiplier. Finite helpers grant one player-card kill play and zero Embers;
-renewable helpers grant neither. Read held world-space lanes as committed:
+multiplier. Original non-summoned helpers grant one player-card defeat play and zero Embers;
+all summoned replacements and original Wisps/Shades grant neither. Each Guardian
+announces at most one missing roster helper per activation, with at most two
+helpers alive. Helpers advance on each intent and prefer complementary safe
+flanks, keeping Guardian approach and strike tiles clear for replacements.
+Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
+Cantor/Tender extend one shared network toward the player; Peal uses its full
+connected area. Craghide outcrop bursts reach two tiles. Only explicitly authored
+ground patterns retain fixed tiles; ordinary attacks track live targets. For held lanes:
 skipped slots advance, new obstructions can shorten an approach, and the
 attack does not chase a dodging target. Craghide cannot seal connected floor;
 recoverable cover blocks movement and attack sight and can be cleared by AI.

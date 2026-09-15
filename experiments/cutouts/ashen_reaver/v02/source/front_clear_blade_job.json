@@ -1,0 +1,10 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Revise this exact dark fantasy pixel-art Ashen Reaver for a game skeletal cutout. Preserve the closed iron helmet, concealed face, asymmetrical blackened plate armor, small red waist cloth, dull orange blade edge, chunky low-resolution pixel clusters, muted colors, height and body proportions. The rear reference establishes the same character identity; do not change it. We need a FRONT three-quarter isometric view looking toward lower-left in a 2:1 isometric game. Crucial rigging change: his hooked sword is held DOWN AND OUT TO THE LEFT, CLEAR OF BOTH LEGS AND ALL CLOTH. The left-of-image hand is out by his left hip. From that fist the sword extends diagonally down-left, ending outside the left leg silhouette, with visible magenta negative space between blade and legs. No sword crossing the body at all. Two complete armored legs, two intact boots on the same 2:1 projected floor plane, both arms and hands continuous, all anatomy visible enough to articulate. Keep the pose grounded and threatening, not an action leap. Maintain the existing simple stylized helmet; no exposed face, no extra realism, no finer detail. Whole character and weapon fit comfortably inside a square image with margins. Flat pure magenta #ff00ff background, no scenery, no shadow, no text, no frames. ONE FRONT SPRITE ONLY, not a sprite sheet. Similar composition and scale to the reference.",
+  "referenced_image_paths": [
+    "/Users/borgerding/workspace/Labyrinth.worktrees/implement-guardian-combats-and-animated-encounters/experiments/cutouts/ashen_reaver/v01/source/front.png",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/implement-guardian-combats-and-animated-encounters/experiments/cutouts/ashen_reaver/v01/source/rear.png"
+  ],
+  "output": "source/front_clear_blade_imagegen.png",
+  "registration": "source/front_clear_blade_registration.json"
+}

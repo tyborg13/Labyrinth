@@ -83,53 +83,33 @@ static func stage_loot(layout: Dictionary) -> void:
 		staged.append(loot)
 	layout["loot"] = staged
 
-# Supplemental rules for the existing encounter inspection. Ordinary enemies
-# never inherit Guardian helper rules merely by sharing an enemy type.
+# Supplemental copy carries encounter-specific exceptions only. The objective,
+# action rows and core keyword tooltips already explain victory, numbers,
+# surfaces, statuses and ordinary summon rewards.
 static func inspection_summary(enemy: Dictionary) -> String:
-	var enemy_type: String = str(enemy.get("type", ""))
-	var definition: Dictionary = for_guardian(enemy_type)
-	if not definition.is_empty():
-		var helpers: String = ""
-		match enemy_type:
-			"ashen_reaver": helpers = "Both Ash Hounds stay defeated."
-			"rimejaw": helpers = "The Rime Whelp and Rime Spitter do not return."
-			"storm_cantor": helpers = "The Bell Tender stays defeated. Call the Spark can replace the Wisp."
-			"gallows_roc": helpers = "Both Fledglings stay defeated."
-			"craghide": helpers = "Both Stoneback Mites stay defeated."
-			"last_lamplighter": helpers = "Snuff adds temporary Wick Shades; the starting Shade stays until defeated."
-		return "Defeat %s to end the encounter; remaining helpers leave. %s" % [definition["name"], helpers]
-	if not bool(enemy.get("guardian_helper", false)): return ""
+	var enemy_type: String = str(enemy.get("type",""))
+	if not for_guardian(enemy_type).is_empty():
+		if enemy_type=="last_lamplighter": return "Replaces its fallen companion. Snuff adds a temporary Shade, up to two Shades total."
+		return "Replaces one missing helper on its next declared turn. Up to two helpers alive."
+	if not bool(enemy.get("guardian_helper",false)): return ""
 	match enemy_type:
-		"lightning_wisp":
-			return "Call the Spark can replace this Wisp, with at most one alive. No extra card play or Embers when defeated."
-		"wick_shade":
-			return "Snuff can summon Wick Shades, up to two alive. Last Procession dismisses Shades summoned by Snuff; the starting Shade stays. No extra card play or Embers when defeated."
-	return "Does not return when defeated. Grants no Embers."
+		"lightning_wisp": return "The Cantor replaces it after defeat. One Wisp at a time."
+		"wick_shade": return "Disappears after Last Procession." if enemy.has("outage_owner") else "Replaced after defeat. Stays through Last Procession."
+	return "The Guardian replaces it after defeat."
 
 static func intent_notes(intent: Dictionary) -> String:
 	var notes: Array[String] = []
-	for action: Dictionary in intent.get("actions", []):
-		match str(action.get("guardian_shape", "")):
-			"broken_line": notes.append("A straight line with a safe gap on its second tile.")
-			"line": notes.append("Hits the declared straight line; it will not track your new position.")
-			"sweep": notes.append("Sweeps the three tiles directly ahead.")
-			"connector": notes.append("Places %s. Break the connection or leave the network before Peal." % ("one Electrified tile" if int(action.get("guardian_count", 1)) == 1 else "%d Electrified tiles" % int(action["guardian_count"])))
-			"conductor": notes.append("Strikes a declared conductor and its connected network. Remove that conductor or leave the network to avoid the discharge.")
-		if action.has("trail_surface"):
-			notes.append("Leaves %s on each tile it moves off." % str(action["trail_surface"]).capitalize())
-		if action.has("terminal_surface"):
-			notes.append("Leaves %s at the end of the strike." % str(action["terminal_surface"]).capitalize())
-		if int(action.get("self_expose", 0)) > 0:
-			notes.append("Gains %d Expose afterward, even if the strike misses." % int(action["self_expose"]))
-		if bool(action.get("snuff_brazier", false)):
-			notes.append("Extinguishes one arena brazier until Last Procession finishes. Summons a Wick Shade beside it if fewer than %d are alive." % int(action.get("guardian_cap", 2)))
-		elif str(action.get("type", "")) == "summon_minions" and action.has("guardian_cap"):
-			notes.append("Replaces the defeated Wisp. Does nothing while a Wisp is alive.")
-		if str(action.get("guardian_kind", "")) == "crag_outcrop":
-			if str(action.get("type", "")) == "raise_terrain":
-				notes.append("Raises up to %d destructible outcrops with %d HP each, at most two alive. Destroy them to remove their Groundsplit danger." % [int(action.get("count", 2)), int(action.get("health", 3))])
-			elif str(action.get("type", "")) == "terrain_burst":
-				notes.append("Strikes the four neighbors of each surviving outcrop. Overlapping bursts hit each victim once; destroyed outcrops cannot burst.")
-	if bool(intent.get("restore_braziers", false)):
-		notes.append("Afterward, restores both arena braziers and dismisses Shades summoned by Snuff, even if Freeze or Shock stops this move.")
+	for action: Dictionary in intent.get("actions",[]):
+		match str(action.get("guardian_shape","")):
+			"broken_line": notes.append("The second row stays clear.")
+			"connector": notes.append("Extends the existing electrical network toward its target.")
+		if action.has("surface") and str(action.get("guardian_shape","")) in ["line","broken_line","sweep"] and str(action.get("type","")) in ["melee","ranged","aoe"]:
+			notes.append("%s remains even if the strike misses." % str(action["surface"]).capitalize())
+		if bool(action.get("snuff_brazier",false)):
+			notes.append("Darkness lasts until Last Procession.")
+		if str(action.get("guardian_kind",""))=="crag_outcrop":
+			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two outcrops; each fuels Groundsplit.")
+			elif str(action.get("type",""))=="terrain_burst": notes.append("Overlapping bursts hit once.")
+	if bool(intent.get("restore_braziers",false)):
+		notes.append("Relights braziers and dismisses Snuff’s Shades, even when skipped.")
 	return " ".join(notes)

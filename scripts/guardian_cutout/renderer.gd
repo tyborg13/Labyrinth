@@ -13,8 +13,8 @@ const CANVAS_SIZE := Vector2i(512, 512)
 const WALK_CYCLE_SECONDS: float = 0.32
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const IDLE_CYCLE_SECONDS: float = 1.6
-const ATTACK_FRAMES: int = 18
-const ATTACK_FRAME_SECONDS: float = 0.03
+const ATTACK_FRAMES: int = 36
+const ATTACK_FRAME_SECONDS: float = 1.0 / 60.0
 
 var viewport: SubViewport
 var rigs: Dictionary = {}
@@ -66,8 +66,11 @@ static func rest_path(actor_type: String) -> String:
 	return "res://assets/units/guardians/%s/front/rest.png" % actor_type
 
 static func action_clip(effect: Dictionary, actor: Dictionary = {}) -> String:
+	if bool(effect.get("interrupted",false)): return ""
 	if not actor.is_empty() and not handles(str(actor.get("type", ""))): return ""
-	match str(effect.get("action_type", effect.get("kind", ""))):
+	var type: String = str(effect.get("action_type", effect.get("kind", "")))
+	if str(actor.get("type",""))=="ashen_reaver" and type in ["melee","ranged","aoe","surface"]: return "strike"
+	match type:
 		"block", "stoneskin", "raise_terrain": return "brace"
 		"ranged", "surface", "summon", "summon_minions": return "cast"
 		"melee", "aoe", "terrain_burst", "push", "pull", "lightning_strikes": return "strike"
@@ -81,7 +84,7 @@ static func action_motion(effect: Dictionary, actor: Dictionary, progress: float
 	var boundary: float = clampf(contact, 0.01, 0.99)
 	var phase_value: float = progress / boundary * 0.46 if progress <= boundary else 0.46 + (progress-boundary)/(1.0-boundary)*0.54
 	return {"clip":"attack", "action":action_clip(effect, actor), "phase":phase_value,
-		"direction":(effect.get("to", actor.get("pos", Vector2i.ZERO)) as Vector2i)-(effect.get("from", actor.get("pos", Vector2i.ZERO)) as Vector2i)}
+		"direction":effect.get("action_direction",(effect.get("to", actor.get("pos", Vector2i.ZERO)) as Vector2i)-(effect.get("from", actor.get("pos", Vector2i.ZERO)) as Vector2i))}
 
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
@@ -145,8 +148,14 @@ func texture() -> Texture2D:
 	return viewport.get_texture() if viewport != null else null
 
 func snapshot() -> Dictionary:
-	return {"art": character_id + "_cutout_v01", "facing": facing, "mirrored": mirrored,
+	return {"art": character_id + "_cutout_v02", "facing": facing, "mirrored": mirrored,
 		"clip": "rest" if reduced_motion else clip,
 		"phase": 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"active": active, "rig_count": rigs.size(),
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
+
+static func action_frames(effect: Dictionary, actor: Dictionary) -> int:
+	match action_clip(effect,actor):
+		"cast": return 48
+		"brace": return 40
+	return ATTACK_FRAMES

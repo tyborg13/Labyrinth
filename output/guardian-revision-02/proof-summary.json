@@ -1,0 +1,298 @@
+{
+  "revision": "Guardian feedback pass 2",
+  "ok": true,
+  "actors": [
+    {
+      "actor": "ash_hound",
+      "case": "experiments/cutouts/ash_hound/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/ash_hound-v03",
+      "reel": "output/guardian-revision-02/cutouts/ash_hound-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/ash_hound-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/ash_hound-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2102,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "ashen_reaver",
+      "case": "experiments/cutouts/ashen_reaver/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/ashen_reaver-v03",
+      "reel": "output/guardian-revision-02/cutouts/ashen_reaver-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/ashen_reaver-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/ashen_reaver-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2107,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "bell_tender",
+      "case": "experiments/cutouts/bell_tender/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/bell_tender-v03",
+      "reel": "output/guardian-revision-02/cutouts/bell_tender-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/bell_tender-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/bell_tender-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2104,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "craghide",
+      "case": "experiments/cutouts/craghide/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/craghide-v03",
+      "reel": "output/guardian-revision-02/cutouts/craghide-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/craghide-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/craghide-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2102,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "gallows_roc",
+      "case": "experiments/cutouts/gallows_roc/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/gallows_roc-v03",
+      "reel": "output/guardian-revision-02/cutouts/gallows_roc-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/gallows_roc-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/gallows_roc-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2100,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "last_lamplighter",
+      "case": "experiments/cutouts/last_lamplighter/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/last_lamplighter-v03",
+      "reel": "output/guardian-revision-02/cutouts/last_lamplighter-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/last_lamplighter-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/last_lamplighter-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2104,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "rime_spitter",
+      "case": "experiments/cutouts/rime_spitter/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/rime_spitter-v03",
+      "reel": "output/guardian-revision-02/cutouts/rime_spitter-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/rime_spitter-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/rime_spitter-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2100,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "rime_whelp",
+      "case": "experiments/cutouts/rime_whelp/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/rime_whelp-v03",
+      "reel": "output/guardian-revision-02/cutouts/rime_whelp-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/rime_whelp-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/rime_whelp-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2102,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "rimejaw",
+      "case": "experiments/cutouts/rimejaw/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/rimejaw-v03",
+      "reel": "output/guardian-revision-02/cutouts/rimejaw-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/rimejaw-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/rimejaw-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2100,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "roc_fledgling",
+      "case": "experiments/cutouts/roc_fledgling/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/roc_fledgling-v02",
+      "reel": "output/guardian-revision-02/cutouts/roc_fledgling-v02/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/roc_fledgling-v02/front.tscn",
+        "output/guardian-revision-02/cutouts/roc_fledgling-v02/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2100,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "stoneback_mite",
+      "case": "experiments/cutouts/stoneback_mite/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/stoneback_mite-v02",
+      "reel": "output/guardian-revision-02/cutouts/stoneback_mite-v02/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/stoneback_mite-v02/front.tscn",
+        "output/guardian-revision-02/cutouts/stoneback_mite-v02/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2101,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "storm_cantor",
+      "case": "experiments/cutouts/storm_cantor/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/storm_cantor-v03",
+      "reel": "output/guardian-revision-02/cutouts/storm_cantor-v03/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/storm_cantor-v03/front.tscn",
+        "output/guardian-revision-02/cutouts/storm_cantor-v03/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2104,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    },
+    {
+      "actor": "wick_shade",
+      "case": "experiments/cutouts/wick_shade/v02/cutout.json",
+      "export": "output/guardian-revision-02/cutouts/wick_shade-v02",
+      "reel": "output/guardian-revision-02/cutouts/wick_shade-v02/videos/cutout_review.mp4",
+      "editable_scenes": [
+        "output/guardian-revision-02/cutouts/wick_shade-v02/front.tscn",
+        "output/guardian-revision-02/cutouts/wick_shade-v02/rear.tscn"
+      ],
+      "verification": {
+        "ok": true,
+        "inputs": 2102,
+        "outputs": 799,
+        "errors": []
+      },
+      "clips": 10,
+      "timed_frames": 296,
+      "pose_samples": 224,
+      "pixel_identical_roundtrips": 14,
+      "roundtrips": 14
+    }
+  ],
+  "visual_review": {
+    "resolution": [
+      1920,
+      1080
+    ],
+    "ui_scale_percent": 100,
+    "animation_contact_sheets": "output/guardian-revision-02/animation-review",
+    "gameplay": "output/guardian-revision-02/gameplay-review/capture-summary.json",
+    "gameplay_manifest": "output/guardian-revision-02/gameplay-v02.json",
+    "panels_manifest": "output/guardian-revision-02/inspection-panels-v03.json",
+    "maps_manifest": "output/guardian-revision-02/map-selection-v02.json",
+    "review": "output/guardian-revision-02/review.md"
+  },
+  "limits": [
+    "No native Windows execution available.",
+    "One-seed policy trials are pacing observations, not human win rates.",
+    "Publication and human inspection remain pending."
+  ],
+  "provenance": "Every final export verifies against the present production dependency hashes. Earlier exports remain on disk; only these versions are final."
+}

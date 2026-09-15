@@ -1776,11 +1776,15 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
             "type": "surface",
             "surface": "fire",
             "range": 4,
             "guardian_shape": "broken_line",
-            "guardian_count": 3
+            "guardian_width": 3
           }
         ]
       },
@@ -1792,28 +1796,35 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 1
+            "range": 2
           },
           {
             "type": "aoe",
-            "range": 1,
-            "damage": 7,
+            "range": 2,
+            "damage": 6,
             "guardian_shape": "sweep",
+            "guardian_length": 2,
+            "surface": "fire",
             "push": 1
           }
         ]
       },
       {
         "id": "executioners_fall",
-        "name": "Executioner\u2019s Fall",
+        "name": "Executioner’s Fall",
         "time": 7,
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
             "type": "ranged",
-            "range": 3,
-            "damage": 9,
+            "range": 4,
+            "damage": 8,
             "guardian_shape": "line",
+            "surface": "fire",
             "self_expose": 3
           }
         ]
@@ -1843,9 +1854,14 @@
         "weight": 1,
         "actions": [
           {
-            "type": "move_away",
+            "type": "move_toward",
             "range": 2,
             "trail_surface": "ice"
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
           }
         ]
       },
@@ -1874,6 +1890,10 @@
         "time": 5,
         "weight": 1,
         "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
           {
             "type": "melee",
             "range": 1,
@@ -1907,11 +1927,15 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "surface",
             "surface": "electrified",
-            "range": 3,
+            "range": 5,
             "guardian_shape": "connector",
-            "guardian_count": 3
+            "guardian_count": 4
           }
         ]
       },
@@ -1922,8 +1946,12 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
             "type": "ranged",
-            "range": 3,
+            "range": 4,
             "damage": 6,
             "element": "lightning",
             "guardian_shape": "conductor",
@@ -1942,12 +1970,12 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 1
+            "range": 2
           },
           {
             "type": "melee",
             "range": 2,
-            "damage": 7
+            "damage": 5
           }
         ]
       },
@@ -1990,10 +2018,15 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
             "type": "ranged",
             "range": 4,
             "damage": 3,
             "guardian_shape": "line",
+            "guardian_width": 3,
             "pull": 2
           }
         ]
@@ -2005,10 +2038,15 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "aoe",
-            "range": 1,
-            "damage": 7,
+            "range": 2,
+            "damage": 6,
             "guardian_shape": "sweep",
+            "guardian_length": 2,
             "push": 2
           }
         ]
@@ -2056,10 +2094,15 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "raise_terrain",
             "count": 2,
             "health": 3,
-            "guardian_kind": "crag_outcrop"
+            "guardian_kind": "crag_outcrop",
+            "range": 4
           }
         ]
       },
@@ -2072,7 +2115,7 @@
           {
             "type": "terrain_burst",
             "damage": 7,
-            "range": 1,
+            "range": 2,
             "guardian_kind": "crag_outcrop"
           }
         ]
@@ -2085,12 +2128,12 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 3
           },
           {
             "type": "melee",
             "range": 1,
-            "damage": 8,
+            "damage": 7,
             "sunder": 1
           }
         ]
@@ -2135,8 +2178,12 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "ranged",
-            "range": 3,
+            "range": 4,
             "damage": 4,
             "guardian_shape": "line",
             "pull": 1
@@ -2151,7 +2198,7 @@
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 3
           },
           {
             "type": "melee",
@@ -2166,12 +2213,12 @@
   "ash_hound": {
     "name": "Ash Hound",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "frontliner",
       "preferred_range": 1,
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 12,
+    "base_initiative": 8,
     "reward_embers": 0,
     "accent": "#c86d46",
     "art_path": "res://assets/units/ash_hound.png",
@@ -2181,13 +2228,13 @@
     "intents": [
       {
         "id": "bite",
-        "name": "Scorched Bite",
-        "time": 5,
+        "name": "Bite",
+        "time": 4,
         "weight": 1,
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 3
           },
           {
             "type": "melee",
@@ -2198,13 +2245,19 @@
       },
       {
         "id": "circle",
-        "name": "Circle",
-        "time": 5,
+        "name": "Flanking Bite",
+        "time": 4,
         "weight": 1,
         "actions": [
           {
-            "type": "move_away",
+            "type": "move_toward",
             "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "push": 1
           }
         ]
       }
@@ -2213,12 +2266,12 @@
   "rime_whelp": {
     "name": "Rime Whelp",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "frontliner",
       "preferred_range": 1,
       "retreat_distance": 2
     },
     "max_hp": 6,
-    "base_initiative": 12,
+    "base_initiative": 9,
     "reward_embers": 0,
     "accent": "#97c6d7",
     "art_path": "res://assets/units/rime_whelp.png",
@@ -2228,13 +2281,13 @@
     "intents": [
       {
         "id": "bite",
-        "name": "Tusk Bite",
-        "time": 5,
+        "name": "Bite",
+        "time": 4,
         "weight": 1,
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 3
           },
           {
             "type": "melee",
@@ -2245,13 +2298,19 @@
       },
       {
         "id": "circle",
-        "name": "Skitter",
-        "time": 5,
+        "name": "Rime Snap",
+        "time": 4,
         "weight": 1,
         "actions": [
           {
-            "type": "move_away",
+            "type": "move_toward",
             "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "element": "ice"
           }
         ]
       }
@@ -2260,12 +2319,12 @@
   "rime_spitter": {
     "name": "Rime Spitter",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "artillery",
       "preferred_range": 3,
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 12,
+    "base_initiative": 10,
     "reward_embers": 0,
     "accent": "#97c6d7",
     "art_path": "res://assets/units/rime_spitter.png",
@@ -2280,6 +2339,10 @@
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "ranged",
             "range": 3,
             "damage": 2,
@@ -2290,22 +2353,33 @@
       },
       {
         "id": "recover",
-        "name": "Deflate",
-        "time": 6,
+        "name": "Frost Spit",
+        "time": 4,
         "weight": 1,
-        "actions": []
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "range": 3,
+            "damage": 2,
+            "element": "ice"
+          }
+        ]
       }
     ]
   },
   "bell_tender": {
     "name": "Bell Tender",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "controller",
       "preferred_range": 3,
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 12,
+    "base_initiative": 9,
     "reward_embers": 0,
     "accent": "#9884cf",
     "art_path": "res://assets/units/bell_tender.png",
@@ -2316,29 +2390,37 @@
       {
         "id": "connector",
         "name": "Join the Choir",
-        "time": 6,
+        "time": 4,
         "weight": 1,
         "actions": [
           {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
             "type": "surface",
             "surface": "electrified",
-            "range": 2,
+            "range": 4,
             "guardian_shape": "connector",
-            "guardian_count": 1
+            "guardian_count": 2
           }
         ]
       },
       {
         "id": "staff_bolt",
         "name": "Staff Bolt",
-        "time": 6,
+        "time": 4,
         "weight": 1,
         "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
           {
             "type": "ranged",
             "range": 3,
             "damage": 3,
-            "guardian_shape": "line"
+            "element": "lightning"
           }
         ]
       }
@@ -2347,12 +2429,12 @@
   "roc_fledgling": {
     "name": "Roc Fledgling",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "frontliner",
       "preferred_range": 1,
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 12,
+    "base_initiative": 8,
     "reward_embers": 0,
     "accent": "#b1aa93",
     "art_path": "res://assets/units/roc_fledgling.png",
@@ -2362,25 +2444,30 @@
     "intents": [
       {
         "id": "circle",
-        "name": "Circle",
-        "time": 5,
+        "name": "Darting Peck",
+        "time": 4,
         "weight": 1,
         "actions": [
           {
-            "type": "move_away",
-            "range": 2
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2
           }
         ]
       },
       {
         "id": "peck",
         "name": "Hooked Peck",
-        "time": 5,
+        "time": 4,
         "weight": 1,
         "actions": [
           {
             "type": "move_toward",
-            "range": 1
+            "range": 2
           },
           {
             "type": "melee",
@@ -2394,12 +2481,12 @@
   "stoneback_mite": {
     "name": "Stoneback Mite",
     "ai_profile": {
-      "role": "skirmisher",
+      "role": "frontliner",
       "preferred_range": 1,
       "retreat_distance": 2
     },
     "max_hp": 6,
-    "base_initiative": 12,
+    "base_initiative": 9,
     "reward_embers": 0,
     "accent": "#9b987a",
     "art_path": "res://assets/units/stoneback_mite.png",
@@ -2409,55 +2496,7 @@
     "intents": [
       {
         "id": "bite",
-        "name": "Chisel Bite",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "move_toward",
-            "range": 1
-          },
-          {
-            "type": "melee",
-            "range": 1,
-            "damage": 3
-          }
-        ]
-      },
-      {
-        "id": "brace",
-        "name": "Brace",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "block",
-            "amount": 2
-          }
-        ]
-      }
-    ],
-    "death_surface": "rubble"
-  },
-  "wick_shade": {
-    "name": "Wick Shade",
-    "ai_profile": {
-      "role": "skirmisher",
-      "preferred_range": 1,
-      "retreat_distance": 2
-    },
-    "max_hp": 4,
-    "base_initiative": 12,
-    "reward_embers": 0,
-    "accent": "#b6ab88",
-    "art_path": "res://assets/units/wick_shade.png",
-    "art_scale": 0.75,
-    "intent_cycle": true,
-    "guardian": false,
-    "intents": [
-      {
-        "id": "grasp",
-        "name": "Wick Grasp",
+        "name": "Claw",
         "time": 4,
         "weight": 1,
         "actions": [
@@ -2468,19 +2507,83 @@
           {
             "type": "melee",
             "range": 1,
+            "damage": 3
+          }
+        ]
+      },
+      {
+        "id": "brace",
+        "name": "Driving Claw",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 1
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "push": 1
+          }
+        ]
+      }
+    ],
+    "death_surface": "rubble"
+  },
+  "wick_shade": {
+    "name": "Wick Shade",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 4,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#b6ab88",
+    "art_path": "res://assets/units/wick_shade.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "grasp",
+        "name": "Grasp",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
             "damage": 2
           }
         ]
       },
       {
         "id": "drift",
-        "name": "Drift",
+        "name": "Hooking Grasp",
         "time": 4,
         "weight": 1,
         "actions": [
           {
-            "type": "move_away",
-            "range": 1
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "pull": 1
           }
         ]
       }

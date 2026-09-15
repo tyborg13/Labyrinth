@@ -8,7 +8,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Rules = preload("res://scripts/guardian_combat_rules.gd")
-const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon"]
+const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network"]
 
 static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, options: Dictionary) -> Dictionary:
 	var state: Dictionary = source.duplicate(true)
@@ -33,10 +33,12 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	if study in ["map_entry", "map_choice"]:
 		coord = Graph.section(state, int(room["section_index"]))["entry"]
 		if study == "map_choice":
+			# Stop at an actual incoming edge. Guardians can occupy different
+			# middle-group steps, so a fixed step number is not a route choice.
 			for prior: Dictionary in state["rooms"].values():
-				if int(prior.get("section_index", -1)) == int(room["section_index"]) and int(prior.get("map_step", -1)) == 3 and Graph.descendants(state, prior["coord"]).has(room["coord"]):
-					coord = prior["coord"]
-					break
+				for connection: Dictionary in prior.get("connections",[]):
+					if connection["coord"]==room["coord"]: coord=prior["coord"];break
+				if coord!=Graph.section(state,int(room["section_index"]))["entry"]: break
 		_mark_route(state, Graph.section(state, int(room["section_index"]))["entry"], coord)
 		room = Graph.room(state, coord)
 		room["cleared"] = true
@@ -77,7 +79,7 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 		assert(combat.is_player_turn(battle))
 		assert(not bool(battle["guardian_braziers"][0]["lit"]))
 		battle["player"]["hp"] = state["player_hp"]
-	elif study in ["outcrops","summon"]:
+	elif study in ["outcrops","summon","network"]:
 		assert(id==("craghide" if study=="outcrops" else "storm_cantor"))
 		# Advance the real opening setup intent and stop at the next player turn.
 		battle["player_turn_time_spent"]=7
@@ -91,6 +93,12 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 			battle["enemies"][0]["guardian_cycle"]=2
 			combat._assign_enemy_intent(battle,0,rng)
 		battle["player"]["hp"]=state["player_hp"]
+	elif study == "reinforcements":
+		battle["enemies"][1]["hp"]=0
+		var rng := RandomNumberGenerator.new()
+		rng.seed=51
+		battle["enemies"][0]["guardian_cycle"]=int(battle["enemies"][0].get("guardian_cycle",0))-1
+		combat._assign_enemy_intent(battle,0,rng)
 	elif study == "telegraph":
 		var rng := RandomNumberGenerator.new()
 		rng.seed = 51

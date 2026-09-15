@@ -229,5 +229,5 @@ static func description_for_objective(objective: Dictionary) -> String:
 	var type: String = str(objective.get("type",KILL_ALL))
 	var title: String = title_for_objective(objective)
 	if type == KILL_LEADER and title != display_name(type):
-		return "%s. Remaining enemies withdraw." % title
+		return ""
 	return description(type)
