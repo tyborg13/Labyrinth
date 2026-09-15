@@ -1751,7 +1751,10 @@
           }
         ]
       }
-    ]
+    ],
+    "encounter_base_initiative": {
+      "guardian": 19
+    }
   },
   "ashen_reaver": {
     "name": "Ashen Reaver",
@@ -1912,7 +1915,7 @@
       "retreat_distance": 2
     },
     "max_hp": 38,
-    "base_initiative": 11,
+    "base_initiative": 20,
     "reward_embers": 8,
     "accent": "#9884cf",
     "art_path": "res://assets/units/storm_cantor.png",
@@ -2003,7 +2006,7 @@
       "retreat_distance": 2
     },
     "max_hp": 36,
-    "base_initiative": 9,
+    "base_initiative": 20,
     "reward_embers": 8,
     "accent": "#b1aa93",
     "art_path": "res://assets/units/gallows_roc.png",
@@ -2379,7 +2382,7 @@
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 9,
+    "base_initiative": 19,
     "reward_embers": 0,
     "accent": "#9884cf",
     "art_path": "res://assets/units/bell_tender.png",
@@ -2434,7 +2437,7 @@
       "retreat_distance": 2
     },
     "max_hp": 5,
-    "base_initiative": 8,
+    "base_initiative": 19,
     "reward_embers": 0,
     "accent": "#b1aa93",
     "art_path": "res://assets/units/roc_fledgling.png",

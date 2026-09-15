@@ -656,6 +656,7 @@ var _focus_tiles_lookup_cache: Dictionary = {}
 var _confirmation_target_tiles_lookup_cache: Dictionary = {}
 var _objective_exit_tiles_lookup_cache: Dictionary = {}
 var _projected_attack_tiles_lookup_cache: Dictionary = {}
+var _summon_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
@@ -1999,7 +2000,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
 			"_ability_tiles_lookup_cache",
 			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
@@ -2670,6 +2671,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_confirmation_target_tiles_lookup_cache = _vector2i_lookup(presentation.get("confirmation_target_tiles", []))
 		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
 		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
+		_summon_tiles_lookup_cache.clear()
 		_projected_destination_tiles_lookup_cache.clear()
 		var projected_destination: Vector2i = presentation.get("projected_destination", Vector2i(-999, -999))
 		if projected_destination.x > -999:
@@ -2678,6 +2680,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			if typeof(threat_var) != TYPE_DICTIONARY:
 				continue
 			var threat: Dictionary = threat_var
+			for summon_tile: Vector2i in _vector2i_array(threat.get("summon", [])):
+				_summon_tiles_lookup_cache[summon_tile] = true
 			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
 				_projected_attack_tiles_lookup_cache[attack_tile] = true
 			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
@@ -2785,7 +2789,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if overlay_presentation_cache_changed:
 			retained_sync_fields.append_array([
 				"_focus_tiles_lookup_cache", "_confirmation_target_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-				"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
+				"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
 			])
 		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
 			if not presentation_changes.has(unit_key):
@@ -3773,6 +3777,21 @@ func _loot_tooltip_at_position(at_position: Vector2) -> String:
 		if _loot_rect_for_tile(tile, texture, loot).grow(18.0).has_point(at_position):
 			return _loot_tooltip_text(loot)
 	return ""
+
+func enemy_intent_tooltip(actor_key: String) -> String:
+	var lines := PackedStringArray()
+	var seen: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		if _enemy_hud_actor_key(unit) != actor_key: continue
+		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
+			for token: Dictionary in row:
+				# The expanded row already states ordinary movement, damage and reach.
+				if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
+				var detail: String = ActionIcons.token_tooltip(token)
+				if detail.is_empty() or seen.has(detail): continue
+				seen[detail] = true
+				lines.append(detail)
+	return "\n".join(lines)
 
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
@@ -6043,11 +6062,18 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _ability_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, ABILITY_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
-	if _attack_tiles_lookup_cache.has(tile):
+	if _attack_tiles_lookup_cache.has(tile) and not _projected_attack_tiles_lookup_cache.has(tile):
 		_draw_attack_tile_highlight(tile)
 	if _projected_attack_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
+	if _summon_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, Color(0.24, 0.80, 0.30, 0.23))
+		_draw_tile_ring(tile, Color(0.52, 0.96, 0.48, 0.95), 3.6, 0.78)
+		var summon_icon: Texture2D = ActionIcons.icon_texture("summon_minions")
+		if summon_icon != null:
+			var icon_side: float = _tile_width() * 0.23
+			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if draw_aoe_footprint:
@@ -7188,7 +7214,11 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	draw_texture_rect(texture, terrain_rect, false, tint)
+	if terrain_kind == "crag_outcrop":
+		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
+		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+	else:
+		draw_texture_rect(texture, terrain_rect, false, tint)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7206,9 +7236,14 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
 	if progress < 0.84:
 		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	draw_texture_rect(texture, terrain_rect, false, tint)
+	if terrain_kind == "crag_outcrop":
+		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
+	else:
+		draw_texture_rect(texture, terrain_rect, false, tint)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "crag_outcrop":
+		return Rect2(_tile_center(tile)-Vector2(_tile_width()*0.42,_tile_width()*0.75),Vector2(_tile_width()*0.84,_tile_width()*0.90))
 	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
 	var draw_height: float = draw_width
 	if texture != null and texture.get_size().x > 0.0:
@@ -7276,11 +7311,14 @@ func _terrain_key(terrain: Dictionary) -> String:
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
-	return "%s\n%d/%d HP" % [
+	var text: String = "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
 		int(terrain.get("max_hp", 1))
 	]
+
+	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
+	return text
 
 func _visible_units() -> Array[Dictionary]:
 	if _submission_cache_valid:
@@ -8708,8 +8746,8 @@ func _enemy_intent_expanded(unit: Dictionary) -> bool:
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
 		actor_key = "enemy_%d" % int(unit.get("id", -1))
-	if not actor_key.is_empty() and expanded_keys.has(actor_key):
-		return true
+	if not expanded_keys.is_empty():
+		return expanded_keys.has(actor_key)
 	return (
 		_unit_footprint_tiles(unit).has(_hover_tile)
 		or _unit_footprint_tiles(unit).has(_controller_focus_tile)
@@ -15427,7 +15465,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 	_draw_surface_connection_preview(tile)
 	_draw_surface_conduction_floor(tile)
-	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)))
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)), bool(presentation.get("reduced_motion", false)))
 
 func _draw_surface_connection_preview(tile: Vector2i) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):

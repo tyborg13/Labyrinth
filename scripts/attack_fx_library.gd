@@ -34,7 +34,7 @@ static func style_for_effect(effect: Dictionary) -> String:
 	var element_id: String = str(effect.get("element", effect.get("_card_element", "none")))
 	var kind: String = str(effect.get("kind", ""))
 	var is_ranged_attack: bool = kind == "ranged" and action_type == "ranged"
-	var is_ranged_aoe: bool = kind == "aoe" and action_type == "aoe" and int(effect.get("range", 0)) > 0
+	var is_ranged_aoe: bool = kind == "aoe" and action_type in ["aoe", "ranged", "terrain_burst", "lightning_strikes"] and int(effect.get("range", 0)) > 0
 	if is_ranged_attack or is_ranged_aoe:
 		match element_id:
 			"fire":

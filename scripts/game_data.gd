@@ -1264,6 +1264,8 @@ static func _relic_card_action_types(card: Dictionary) -> Array[String]:
 	return result
 
 static func _relic_effect_matches_action(action: Dictionary, effect: Dictionary) -> bool:
+	if effect.has("min_range") and int(action.get("range", 0)) < int(effect["min_range"]):
+		return false
 	var action_types: Array = effect.get("action_types", [])
 	if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
 		return false
@@ -1310,6 +1312,19 @@ static func _tag_card_actions_for_combat(card: Dictionary) -> Dictionary:
 		var action: Dictionary = (actions[index] as Dictionary).duplicate(true)
 		action["_card_element"] = element_id
 		action["_card_action_types"] = card_action_types.duplicate()
+		# A follow-up which reuses this target must not require a second click.
+		# Preserve ordinary unit targets while admitting ground useful to that effect.
+		if str(action.get("type", "")) in ["melee", "ranged", "aoe", "push", "pull"]:
+			for later_index: int in range(index + 1, actions.size()):
+				var later: Dictionary = actions[later_index]
+				var target_mode: String = str(later.get("target", ""))
+				if target_mode == "previous_target":
+					if str(later.get("type", "")) == "detonate":
+						action["_ground_target_surface"] = str(later.get("_detonate_surface", "fire"))
+					if str(later.get("type", "")) == "surface" or later.has("surface"):
+						action["_ground_target_any"] = true
+				elif target_mode != "player" and (int(later.get("range", 0)) > 0 or str(later.get("type", "")) in ["melee", "ranged", "move", "blink", "push", "pull", "illusion"]):
+					break
 		actions[index] = action
 	next_card["actions"] = actions
 	return next_card

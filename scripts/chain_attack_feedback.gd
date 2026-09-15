@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Outcomes = preload("res://scripts/combat_outcome_feedback.gd")
 const AttackFx = preload("res://scripts/attack_fx_library.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const HOP_SECONDS: float = 0.22
@@ -52,6 +53,8 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 		var stage_before: Dictionary = previous_state
 		var stage_after: Dictionary = hit_state
 		var stage_elapsed: float = elapsed
+		var ground_events: Array[Dictionary] = Outcomes.prepare(_ground_visual_changes(stage_before,stage_after),effect)
+		var ground_sound: Dictionary = {"played":false}
 		await host.call("_play_timed_animation_frames", frame_count, frame_seconds, func(frame_number: int) -> void:
 			var t: float = float(frame_number) / float(frame_count)
 			var contacted: bool = reduced_motion or t >= contact
@@ -63,7 +66,10 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 				"floating_texts": FloatingText.animate_timeline(groups, stage_elapsed + t * duration, reduced_motion),
 			}
 			if contacted:
-				presentation["surface_feedback_events"] = _ground_visual_changes(stage_before, stage_after)
+				presentation["surface_feedback_events"] = ground_events
+				if not ground_sound["played"]:
+					host.call("_play_outcome_sounds",ground_events,str(initial_effect.get("element","")),traps)
+					ground_sound["played"] = true
 				presentation["surface_feedback_progress"] = clampf((t - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
 				presentation["impact_actor_keys"] = hit_keys
 				presentation["impact_progress"] = 0.18 if reduced_motion else clampf((t - contact) / maxf(0.001, 1.0 - contact), 0.0, 1.0)
@@ -161,6 +167,12 @@ static func _stage_reserved_ground(before: Dictionary, after: Dictionary, beats:
 
 static func _ground_visual_changes(before: Dictionary, after: Dictionary) -> Array:
 	var events: Array = []
+	# Branches already render electrical discharge. Other authored aftermath,
+	# including a Gauntlet outcrop, appears at its actual resolved beat.
+	var start_sequence: int = int(before.get("surface_event_sequence",0))
+	for event: Dictionary in after.get("surface_events",[]):
+		if int(event.get("sequence",0))>start_sequence and str(event.get("kind","")) in ["terrain_created","surface_created","surface_replaced","status_applied"]:
+			events.append(event)
 	var old: Dictionary = before.get("surfaces", {}) as Dictionary
 	var current: Dictionary = after.get("surfaces", {}) as Dictionary
 	for key: Variant in old:

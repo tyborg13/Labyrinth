@@ -1,0 +1,258 @@
+{
+  "card_scores": [
+    {
+      "card_id": "rimeplate_lock",
+      "name": "Rimeplate Lock",
+      "score": 5.0472,
+      "time": 6
+    },
+    {
+      "card_id": "wildfire_halo",
+      "name": "Wildfire Halo",
+      "score": 4.8163,
+      "time": 7
+    },
+    {
+      "card_id": "tectonic_maul",
+      "name": "Tectonic Maul",
+      "score": 4.0619,
+      "time": 8
+    },
+    {
+      "card_id": "frostbolt",
+      "name": "Frostbolt",
+      "score": 4.0466,
+      "time": 4
+    },
+    {
+      "card_id": "firebrand_volley",
+      "name": "Firebrand Volley",
+      "score": 4.0381,
+      "time": 3
+    },
+    {
+      "card_id": "cinder_fusillade",
+      "name": "Cinder Fusillade",
+      "score": 3.8149,
+      "time": 5
+    },
+    {
+      "card_id": "phoenix_cleave",
+      "name": "Phoenix Cleave",
+      "score": 3.6918,
+      "time": 5
+    },
+    {
+      "card_id": "spark_dart",
+      "name": "Spark Dart",
+      "score": 3.5826,
+      "time": 4
+    },
+    {
+      "card_id": "lodestone_reversal",
+      "name": "Lodestone Reversal",
+      "score": 3.4556,
+      "time": 5
+    },
+    {
+      "card_id": "frost_snare",
+      "name": "Frost Snare",
+      "score": 3.2972,
+      "time": 5
+    },
+    {
+      "card_id": "inferno_ritual",
+      "name": "Inferno Ritual",
+      "score": 3.1633,
+      "time": 6
+    },
+    {
+      "card_id": "guiding_flare",
+      "name": "Guiding Flare",
+      "score": 3.1437,
+      "time": 4
+    },
+    {
+      "card_id": "hearth_rush",
+      "name": "Hearth Rush",
+      "score": 3.1322,
+      "time": 5
+    },
+    {
+      "card_id": "storm_beacon",
+      "name": "Storm Beacon",
+      "score": 2.9947,
+      "time": 6
+    },
+    {
+      "card_id": "quarry_step",
+      "name": "Quarry Step",
+      "score": 2.9922,
+      "time": 5
+    },
+    {
+      "card_id": "locket_chill",
+      "name": "Locket Chill",
+      "score": 2.9737,
+      "time": 4
+    },
+    {
+      "card_id": "cinder_second",
+      "name": "Cinder Second",
+      "score": 2.774,
+      "time": 4
+    },
+    {
+      "card_id": "rekindle_edge",
+      "name": "Rekindle Edge",
+      "score": 2.6673,
+      "time": 4
+    },
+    {
+      "card_id": "rooted_kick",
+      "name": "Rooted Kick",
+      "score": 2.659,
+      "time": 4
+    },
+    {
+      "card_id": "grave_dust_satchel",
+      "name": "Quarry Dust",
+      "score": 2.5667,
+      "time": 5
+    },
+    {
+      "card_id": "ember_tithe",
+      "name": "Ember Tithe",
+      "score": 2.5437,
+      "time": 4
+    },
+    {
+      "card_id": "stormstring_shot",
+      "name": "Stormstring Shot",
+      "score": 2.4881,
+      "time": 5
+    },
+    {
+      "card_id": "venom_claw",
+      "name": "Quarry Claw",
+      "score": 2.1665,
+      "time": 4
+    },
+    {
+      "card_id": "root_snare",
+      "name": "Root Snare",
+      "score": 2.1397,
+      "time": 4
+    },
+    {
+      "card_id": "cinderline_tempo",
+      "name": "Cinderline Tempo",
+      "score": 2.0545,
+      "time": 4
+    }
+  ],
+  "interpretation": "Intrinsic scores stay unchanged: surface placement is valued separately from victims; linked Detonate uses the initiating attack reach. Gauntlet is conditional run context, excluded from every card intrinsic score. One 3-HP outcrop replaces surface at the chosen empty center and blocks movement/sight until destroyed.",
+  "cadence": {
+    "player_two_time_5_cards": 19,
+    "roc_cantor_minimum_repeat": 20,
+    "cohort_helper_minimum_repeat": 19,
+    "depths_checked": [
+      2,
+      22
+    ],
+    "ordinary_wisp_base": 7
+  },
+  "playtests": [
+    {
+      "policy_summary": {
+        "activations": 7,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cold_grasp": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 22,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 21,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 9152601,
+        "surface_events": {
+          "actor_death": 4,
+          "detonate": 1,
+          "guardian_helper_summoned": 1,
+          "surface_conducted": 7,
+          "surface_created:electrified": 5,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 6,
+          "surface_removed:detonate": 1
+        }
+      },
+      "analytics_outcome": {
+        "outcome": "victory",
+        "reason": "card_play",
+        "remaining_player_hp": 21,
+        "room_embers": 8,
+        "turn": 8
+      },
+      "analytics_events": 52,
+      "notes": "output/guardian-revision-03/playtest-cantor/manual_playtest_notes.md",
+      "analytics": "output/guardian-revision-03/playtest-cantor/analytics/events-2026-09-15.jsonl"
+    },
+    {
+      "policy_summary": {
+        "activations": 9,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 22,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 18,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 9152602,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 6,
+          "surface_damage:player": 1,
+          "trap_triggered": 2
+        }
+      },
+      "analytics_outcome": {
+        "outcome": "victory",
+        "reason": "card_play",
+        "remaining_player_hp": 18,
+        "room_embers": 8,
+        "turn": 10
+      },
+      "analytics_events": 52,
+      "notes": "output/guardian-revision-03/playtest-roc/manual_playtest_notes.md",
+      "analytics": "output/guardian-revision-03/playtest-roc/analytics/events-2026-09-15.jsonl"
+    }
+  ],
+  "limits": "One legal-action-policy seed per revised encounter at section 0; no optimality, human win-rate or deep-run balance claim. Deterministic timing tests separately cover late-depth acceleration. No Windows runtime was available."
+}

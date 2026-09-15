@@ -5,6 +5,7 @@ class_name GuardianCombatRules
 # ordinary combat engine for damage, contact, statuses, terrain and scheduling.
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
+const Terrain = preload("res://scripts/combat_terrain_rules.gd")
 const INVALID := Vector2i(-1,-1)
 const Library = preload("res://scripts/guardian_library.gd")
 
@@ -37,10 +38,7 @@ static func cleanup(state: Dictionary, enemy: Dictionary) -> void:
 	Surfaces.record_event(state,{"kind":"guardian_light_restored","source":{"actor_kind":"enemy","actor_id":enemy["id"]}})
 
 static func is_empty_floor(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
-	if tile == (state.get("player",{}) as Dictionary).get("pos",INVALID) or not Paths.is_passable(state.get("grid",[]),tile) or engine._occupied_actor_tiles(state).has(tile) or engine._terrain_index_at_tile(state,tile) >= 0 or engine._trap_index_at_tile(state,tile) >= 0: return false
-	for object: Dictionary in state.get("guardian_braziers",[]):
-		if object.get("pos",INVALID) == tile: return false
-	return true
+	return Terrain.is_empty_floor(engine, state, tile)
 
 # Occupants are temporary; walls and living terrain define arena connectivity.
 # Removing the proposed tile may shorten routes, but must not split any part of
@@ -87,6 +85,7 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 	var direction: Vector2i = plan.get("declared_direction",engine._cardinal_direction(target-origin))
 	if direction == Vector2i.ZERO: direction = Vector2i.DOWN
 	var all_tiles: Array[Vector2i] = []
+	var summon_tiles: Array[Vector2i]
 	for action: Dictionary in result.get("actions",[]):
 		var type: String = str(action.get("type",""))
 		if not authored_action(action): continue
@@ -129,11 +128,14 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 				var spawn: Array[Vector2i] = candidates(engine,state,brazier["pos"],brazier["pos"],1)
 				action["declared_tiles"] = tiles([spawn[0]]) if not spawn.is_empty() else tiles([])
 		for tile: Vector2i in action["declared_tiles"]:
-			if not all_tiles.has(tile): all_tiles.append(tile)
+			if type == "summon_minions":
+				if not summon_tiles.has(tile): summon_tiles.append(tile)
+			elif not all_tiles.has(tile): all_tiles.append(tile)
 	plan["projected_attack"] = all_tiles
+	plan["projected_summon"] = summon_tiles
 	plan["attack_action"] = {}
 	for action: Dictionary in result.get("actions",[]):
-		if bool(action.get("_guardian_committed",false)):
+		if bool(action.get("_guardian_committed",false)) and str(action.get("type","")) != "summon_minions":
 			plan["attack_action"] = action.duplicate(true)
 			break
 	plan["projected_attack_target"] = all_tiles[0] if not all_tiles.is_empty() else INVALID
@@ -143,14 +145,22 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 
 static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionary, intent: Dictionary, movement_disabled: bool, attack_disabled: bool) -> Dictionary:
 	var plan: Dictionary = (intent["committed_plan"] as Dictionary).duplicate(true)
+	var summons: Array[Vector2i]
+	if not attack_disabled:
+		for action: Dictionary in intent.get("actions",[]):
+			if str(action.get("type", "")) == "summon_minions":
+				for tile: Vector2i in available_summon_tiles(engine,state,enemy,action):
+					if not summons.has(tile): summons.append(tile)
+	plan["projected_summon"] = summons
 	if not holds_path(intent):
 		var direct: Dictionary = intent.duplicate(true)
 		direct.erase("committed_plan")
 		plan = engine.enemy_intent_plan(state,int(plan.get("enemy_index",-1)),direct,movement_disabled,attack_disabled)
+		plan["projected_summon"] = summons
 		var projected: Array[Vector2i] = tiles(plan.get("projected_attack",[]))
 		if not attack_disabled:
 			for action: Dictionary in intent.get("actions",[]):
-				if handles(action):
+				if handles(action) and str(action.get("type","")) != "summon_minions":
 					for tile: Vector2i in live_tiles(engine,state,enemy,action):
 						if not projected.has(tile): projected.append(tile)
 		plan["projected_attack"] = projected
@@ -185,7 +195,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	var projected: Array[Vector2i] = []
 	if not attack_disabled and bool(arrival.get("survives",true)):
 		for action: Dictionary in intent.get("actions",[]):
-			if not handles(action): continue
+			if not handles(action) or str(action.get("type","")) == "summon_minions": continue
 			if str(action.get("type","")) not in ["summon_minions","terrain_burst"] and path[-1] != action.get("declared_origin",INVALID): continue
 			var impact: Array[Vector2i] = live_tiles(engine,state,enemy,action)
 			for tile: Vector2i in impact:
@@ -201,6 +211,20 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 static func handles(action: Dictionary) -> bool:
 	return bool(action.get("_guardian_committed",false)) and authored_action(action)
 
+static func available_summon_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
+	var living: int = 0
+	var same_type: int = 0
+	for helper: Dictionary in state.get("enemies", []):
+		if int(helper.get("hp", 0)) <= 0 or not bool(helper.get("guardian_helper", false)): continue
+		living += 1
+		if str(helper["type"]) == str(action.get("minion_type", "")): same_type += 1
+	var available: int = mini(int(action.get("count", 1)), mini(2-living, int(action.get("guardian_cap", 1))-same_type))
+	var result: Array[Vector2i]
+	for tile: Vector2i in live_tiles(engine,state,enemy,action):
+		if result.size() >= available: break
+		if is_empty_floor(engine,state,tile): result.append(tile)
+	return result
+
 static func resolve(engine: RefCounted, state: Dictionary, index: int, action: Dictionary, rng: RandomNumberGenerator, bleed_steps: Array[Dictionary]) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
 	var type: String = str(action.get("type",""))
@@ -214,23 +238,14 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 			if existing>=2: break
 			if not is_empty_floor(engine,state,tile): continue
 			if not preserves_routes(engine,state,tile): continue
-			Surfaces.remove(state,tile,"all","terrain_created")
-			state["terrain"].append({"id":"crag_%s_%s_%s"%[enemy["id"],enemy.get("guardian_cycle",0),existing],"owner_id":enemy["id"],"kind":"crag_outcrop","hp":int(action.get("health",3)),"max_hp":int(action.get("health",3)),"pos":tile,"surface_on_destroy":"rubble"})
-			existing+=1
+			if Terrain.raise_outcrop(engine, state, tile, int(action.get("health",3)), engine._surface_source(state,action)):
+				existing += 1
 	elif type == "summon_minions":
 		if action.has("brazier_id"):
 			for brazier: Dictionary in state.get("guardian_braziers",[]):
 				if int(brazier["id"]) == int(action["brazier_id"]): brazier["lit"] = false
 			Surfaces.record_event(state,{"kind":"guardian_light_snuffed","brazier_id":action["brazier_id"],"source":engine._surface_source(state,action)})
-		var living: int = 0
-		var same_type: int = 0
-		for helper: Dictionary in state.get("enemies",[]):
-			if int(helper.get("hp",0))<=0 or not bool(helper.get("guardian_helper",false)): continue
-			living+=1
-			if str(helper["type"])==str(action["minion_type"]): same_type+=1
-		if living>=2 or same_type>=int(action.get("guardian_cap",1)): return state
-		for tile: Vector2i in declared:
-			if not is_empty_floor(engine,state,tile): continue
+		for tile: Vector2i in available_summon_tiles(engine,state,enemy,action):
 			var helper: Dictionary = engine._spawned_enemy_entry(state,str(action["minion_type"]),engine._next_enemy_id(state),tile,true)
 			helper["guardian_helper"] = true
 			helper["reward_embers"] = 0

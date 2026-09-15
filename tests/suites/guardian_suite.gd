@@ -101,11 +101,11 @@ func _test_relics() -> void:
 	check(forced["enemies"][1]["hp"]==100,"Talon does not grant collateral damage")
 	state=fixture("cragbound_gauntlet",[Vector2i(7,7)])
 	state["player"]["stoneskin"]=7
-	var cover: Dictionary = engine.use_guardian_command(state,"raise_cover",Vector2i(2,1))
-	check(cover["terrain"].size()==1 and cover["terrain"][0]["hp"]==7 and cover["player"]["stoneskin"]==0,"Cover banks all current armor")
-	cover=engine._damage_terrain(cover,0,2)
-	cover=engine.use_guardian_command(cover,"reclaim_cover",Vector2i(2,1))
-	check(cover["terrain"].is_empty() and cover["player"]["stoneskin"]==5 and cover["player_movement_remaining"]==0,"Reclaim refunds surviving HP and spends remaining Move")
+	var cover: Dictionary = engine.apply_player_action(state,engine.card_play_actions("root_snare",state)[0],Vector2i(2,1))
+	check(cover["terrain"].size()==1 and cover["terrain"][0]["hp"]==3 and cover["player"]["stoneskin"]==7,"Earth ground target raises a three-HP outcrop without spending Stoneskin")
+	check(cover["player_movement_remaining"]==state["player_movement_remaining"],"Outcrop creation spends no independent Move")
+	cover=engine._damage_terrain(cover,0,3)
+	check(surfaces.has_surface(cover,Vector2i(2,1),"rubble"),"Destroyed outcrop leaves Rubble")
 	state=fixture("procession_lantern",[Vector2i(7,7)])
 	state["illusions"]=[{"id":1,"pos":Vector2i(4,4),"hp":2,"max_hp":2}]
 	state["umbra"]["stage"]="heart"
@@ -222,16 +222,14 @@ func _test_relic_edges() -> void:
 	check(int(engine.illusion_movement_plan(state,1)["costs"].get(Vector2i(3,3),999))>2,"Illusion never inherits player's Ice discount")
 	state = fixture("cragbound_gauntlet",[Vector2i(7,7)])
 	state["player"]["stoneskin"] = 7
+	var earth: Dictionary = engine.card_play_actions("root_snare",state)[0]
 	var before: Dictionary = state.duplicate(true)
-	check(engine.use_guardian_command(state,"raise_cover",Vector2i(1,1))==before,"invalid occupied cover target costs nothing")
-	state["player_turn_restrictions"]["frozen"] = true
-	check(engine.guardian_command_targets(state,"raise_cover").is_empty(),"Freeze prevents cover utility")
-	state["player_turn_restrictions"]["frozen"] = false
-	state = engine.use_guardian_command(state,"raise_cover",Vector2i(2,1))
+	check(engine.apply_player_action(state,earth,Vector2i(7,6))==before,"Out-of-range Earth target costs nothing")
+	state = engine.apply_player_action(state,earth,Vector2i(2,1))
 	state = bytes_to_var(var_to_bytes(state))
-	check(state["terrain"][0]["owner_kind"]=="player" and state["terrain"][0]["hp"]==7,"cover retains ownership and HP across serialization")
-	state = engine._damage_terrain(state,0,7)
-	check(surfaces.has_surface(state,Vector2i(2,1),"rubble") and engine.guardian_command_targets(state,"reclaim_cover").is_empty(),"destroyed cover leaves Rubble and cannot refund armor")
+	check(state["terrain"][0]["owner_kind"]=="player" and state["terrain"][0]["hp"]==3,"Outcrop retains ownership and HP across serialization")
+	state = engine._damage_terrain(state,0,3)
+	check(surfaces.has_surface(state,Vector2i(2,1),"rubble"),"Destroyed outcrop leaves Rubble")
 	state = fixture("galehook_talon",[Vector2i(2,1),Vector2i(3,1),Vector2i(4,1)])
 	for actor: Dictionary in state["enemies"]: actor["block"]=0
 	state["grid"][1][6] = "wall"
@@ -303,7 +301,7 @@ func _test_cover_and_force_boundaries() -> void:
 	var engine := Combat.new()
 	var state: Dictionary = fixture("cragbound_gauntlet",[Vector2i(4,1)])
 	state["player"]["stoneskin"]=3
-	state=engine.use_guardian_command(state,"raise_cover",Vector2i(2,1))
+	state=engine.apply_player_action(state,engine.card_play_actions("root_snare",state)[0],Vector2i(2,1))
 	var shot: Dictionary = {"type":"ranged","range":4,"damage":4}
 	check(not engine.valid_targets_for_player_action(state,shot).has(Vector2i(4,1)),"raised cover blocks the player's ranged attack sight")
 	check(engine.valid_targets_for_player_action(state,shot).has(Vector2i(2,1)),"the blocking cover itself remains attackable")
@@ -312,7 +310,7 @@ func _test_cover_and_force_boundaries() -> void:
 	for y: int in range(1,8):
 		for x: int in range(1,8): state["grid"][y][x]="stone" if y==4 else "wall"
 	state["player"]["pos"]=Vector2i(6,4)
-	state["terrain"]=[{"id":"weak_cover","kind":"raised_cover","pos":Vector2i(4,4),"hp":2,"max_hp":2,"owner_kind":"player"}]
+	state["terrain"]=[{"id":"weak_cover","kind":"crag_outcrop","pos":Vector2i(4,4),"hp":2,"max_hp":2,"owner_kind":"player"}]
 	state["enemies"][0]["intent"]={"id":"approach","name":"Approach","time":5,"actions":[{"type":"move_toward","range":2},{"type":"melee","range":1,"damage":3}]}
 	state=engine.resolve_enemy_turn_with_steps(state,0)["state"]
 	check(int(state["terrain"][0]["hp"])==0 and not engine._occupied_actor_tiles(state).has(Vector2i(4,4)),"normal enemy AI clears weak cover on its route")

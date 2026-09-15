@@ -615,8 +615,12 @@ Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
 Fresh maps replace one middle-group fight per section with an optional named
 Guardian; the 66-room / 40-fight opportunity budget is unchanged. Each has a
 36–44 HP leader and one or two 4–6 HP helpers, all occupying one tile. Guardian
-repeat clocks are initiative 9–12 plus Time 4–7; helpers use initiative 8–10 plus
-Time 4–6, except the existing 7 + 4 Lightning Wisp. The ordinary local and
+repeat clocks retain initiative 9–12 plus Time 4–7 except Roc and Cantor, now
+initiative 20 plus Time 4–7. Their helpers use initiative 19 plus Time 4;
+Cantor Wisps receive this encounter-specific base while ordinary Wisps remain
+7 + 4. Other helpers retain initiative 8–10 plus Time 4–6. At maximum depth
+acceleration the two revised leaders still take at least 20 clock units and
+their helpers at least 19, versus an ordinary two-Time-5 player turn at 19. The ordinary local and
 completed-section HP, damage and support curves apply without a generic leader
 multiplier. Original non-summoned helpers grant one player-card defeat play and zero Embers;
 all summoned replacements and original Wisps/Shades grant neither. Each Guardian
@@ -629,7 +633,7 @@ connected area. Craghide outcrop bursts reach two tiles. Only explicitly authore
 ground patterns retain fixed tiles; ordinary attacks track live targets. For held lanes:
 skipped slots advance, new obstructions can shorten an approach, and the
 attack does not chase a dodging target. Craghide cannot seal connected floor;
-recoverable cover blocks movement and attack sight and can be cleared by AI.
+all outcrops block movement and attack sight and can be cleared by AI.
 
 These optional fights and exclusive trophies are their own analytics cohort;
 they do not inflate every printed card's intrinsic score. The scorer exposes
@@ -640,7 +644,17 @@ footprint cell; Clapper adds 25% base damage per native enemy hop, ignoring
 empty relays and conduction-only victims. Both round the combined amount once,
 halves up. Spur discounts straight Ice segments but preserves corners and
 Rubble surcharges. Talon can yield N × F enemy-steps, bounded by formation and
-obstructions. Cover banks actual Stoneskin and refunds surviving HP at one Move
-per command. Lantern redirects existing independent Move to an Illusion without
+obstructions. Gauntlet adds one 3-HP outcrop at the empty center of a ranged Earth spell,
+with no added target, Move or Stoneskin cost. The useful delay varies with
+routes and enemy damage; three terrain HP is not three guaranteed player HP. Lantern redirects existing independent Move to an Illusion without
 adding health, vision or another card target. These are conditional synergies,
 not flat intrinsic damage or tempo bonuses.
+
+
+Surface-producing attacks may aim at legal empty ground. A preceding attack
+may also share a Fire-ground target with a previous-target Detonate. Range,
+visibility and sight still apply, and the attack's own damage requires a victim.
+The scorer already values painted ground by ranged placement access separately
+from occupant damage and inherits the initiating attack's reach for Detonate;
+these coefficients remain unchanged. No additional Fire, forced contact or
+owned Gauntlet is assumed in intrinsic card scores.

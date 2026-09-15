@@ -142,7 +142,7 @@ static func category_for_kind(kind: String, attack_range: int = 0) -> String:
 			return ""
 
 static func _default_sfx_id(category: String, action_type: String, element_id: String) -> String:
-	if category == "ranged" and action_type == "ranged" and ELEMENTAL_RANGED_SFX_IDS.has(element_id):
+	if category == "ranged" and action_type in ["ranged", "aoe", "lightning_strikes"] and ELEMENTAL_RANGED_SFX_IDS.has(element_id):
 		return str(ELEMENTAL_RANGED_SFX_IDS.get(element_id, RANGED_SFX_ID))
 	return str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
 

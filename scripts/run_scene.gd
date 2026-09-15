@@ -10,6 +10,7 @@ const ZekarionAction = preload("res://scripts/zekarion_cutout/action.gd")
 const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
+const OutcomeFeedback = preload("res://scripts/combat_outcome_feedback.gd")
 const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
@@ -1607,6 +1608,7 @@ var _card_action_choice_index: int = -1
 var _card_action_choice_options: Dictionary = {}
 var _card_action_choice_mode: String = "play"
 var _hovered_card_index: int = -1
+var _focused_intent_enemy_id: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
 var _board_hover_threat_active: bool = false
 var _board_hover_room_focus_active: bool = false
@@ -2160,6 +2162,10 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _focused_intent_enemy_id >= 0 and event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		var intent_rect: Rect2 = board_view.call("enemy_intent_visual_global_rect", "enemy_%d" % _focused_intent_enemy_id)
+		if not intent_rect.has_point(_current_mouse_position()):
+			_clear_focused_enemy_intent()
 	if InputRouterScript.is_controller_event(event):
 		var controller_handled: bool = await _handle_controller_input(event)
 		if controller_handled:
@@ -2935,6 +2941,8 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 		detail = "Travel through this door"
 	elif _state_has_visible_enemy_at_tile(_combat_state, tile):
 		kind = "enemy"
+		if _focused_intent_enemy_id >= 0 and _focused_enemy_intent_tile(_combat_state)==tile:
+			detail = str(board_view.call("enemy_intent_tooltip", "enemy_%d" % _focused_intent_enemy_id))
 	else:
 		var board_tooltip: String = str(board_view.call("controller_tooltip_for_tile", tile)) if board_view.has_method("controller_tooltip_for_tile") else ""
 		if board_tooltip.begins_with("equipment:"):
@@ -3178,6 +3186,7 @@ func _controller_activate_current() -> void:
 	if candidate_kind in ["control", "relic"]:
 		var focused_control: Control = _controller_focus_candidate.get("control", null) as Control
 		if focused_control is BaseButton and not (focused_control as BaseButton).disabled:
+			_clear_focused_enemy_intent()
 			(focused_control as BaseButton).pressed.emit()
 		return
 	if str(_run_state.get("mode", "room")) == "room":
@@ -3204,7 +3213,9 @@ func _controller_activate_current() -> void:
 		return
 	if _controller_region == "board" and _controller_board_tile != INVALID_TARGET_TILE:
 		await _on_board_tile_clicked(_controller_board_tile)
-		if _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active() and not _surface_relic_origin_pending:
+		if _focused_intent_enemy_id >= 0:
+			_controller_set_board_tile(_controller_board_tile)
+		elif _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active() and not _surface_relic_origin_pending:
 			_controller_region = "hand"
 			_controller_set_hand_focused(true)
 			_controller_set_hand_index(maxi(0, _controller_hand_index))
@@ -10843,6 +10854,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
 	_close_large_map()
 	_reset_run_end_board_reframe()
@@ -11297,7 +11309,6 @@ func _refresh_relic_bar() -> void:
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
-	_refresh_guardian_command_buttons()
 	var signature: String = str(hash([
 		relic_ids,
 		skill_ids,
@@ -11337,7 +11348,6 @@ func _refresh_relic_bar() -> void:
 	if not skill_ids.is_empty():
 		_skill_sigil = _build_skill_sigil(skill_ids, skill_sigil_presentation)
 		_relic_utility_bar.add_child(_skill_sigil)
-	_add_guardian_command_buttons()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_sigil", performance_phase_started)
 	if icons_changed:
 		for relic_id_var: Variant in relic_ids:
@@ -17589,10 +17599,11 @@ func _refresh_stage_view() -> void:
 			var guided_enemy_id: int = _guided_tutorial_enemy_id_at_tile(_guided_tutorial_intent_enemy_tile)
 			if guided_enemy_id >= 0:
 				presentation["expanded_enemy_actor_keys"] = ["enemy_%d" % guided_enemy_id]
+		var pinned_intent_tile: Vector2i = _focused_enemy_intent_tile(display_state)
 		var intent_focus_tile: Vector2i = (
 			_guided_tutorial_intent_enemy_tile
 			if guided_intent_focus_active
-			else _hovered_board_tile
+			else pinned_intent_tile if pinned_intent_tile != INVALID_TARGET_TILE else _hovered_board_tile
 		)
 		# The lesson temporarily owns one exact foe's evidence. Respect the saved
 		# show-all preference again as soon as the confirmation step ends.
@@ -17642,6 +17653,8 @@ func _refresh_stage_view() -> void:
 					if focused_threat.has("enemy_key"):
 						presentation["focus_actor_keys"] = [str(focused_threat.get("enemy_key", ""))]
 						presentation["focus_actor_color"] = Color("f2ddb2")
+		if pinned_intent_tile != INVALID_TARGET_TILE:
+			presentation["expanded_enemy_actor_keys"] = ["enemy_%d" % _focused_intent_enemy_id]
 		if not _turn_order_hovered_enemy_key.is_empty() and not guided_intent_focus_active:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
@@ -20490,6 +20503,7 @@ func _dictionary_array(values: Array) -> Array[Dictionary]:
 	return result
 
 func _on_card_pressed(index: int) -> void:
+	_clear_focused_enemy_intent(false)
 	if _surface_aim.active():
 		return
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -20533,6 +20547,7 @@ func _on_card_pressed(index: int) -> void:
 			_guided_tutorial_set_phase(finish_phase if _pending_card_requires_confirmation() else target_phase)
 
 func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	_clear_focused_enemy_intent(false)
 	if _surface_aim.active():
 		return
 	if _animation_lock or str(_run_state.get("mode", "room")) != "combat":
@@ -20797,7 +20812,25 @@ func _on_board_tile_drag_released(start_tile: Vector2i, current_tile: Vector2i) 
 	_hovered_board_tile = current_tile
 	await _on_board_tile_clicked(current_tile)
 
+func _clear_focused_enemy_intent(refresh: bool = true) -> void:
+	if _focused_intent_enemy_id < 0: return
+	_focused_intent_enemy_id = -1
+	_mark_preview_selection_changed()
+	if refresh: _refresh_stage_view()
+
+func _focused_enemy_intent_tile(state: Dictionary) -> Vector2i:
+	if _selected_card_index >= 0 or _player_movement_selected or str(_run_state.get("mode", "")) != "combat":
+		_focused_intent_enemy_id = -1
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("id",-2)) == _focused_intent_enemy_id and int(enemy.get("hp",0)) > 0 and _combat_engine.is_enemy_visible_to_player(state,enemy):
+			return enemy["pos"]
+	_focused_intent_enemy_id = -1
+	return INVALID_TARGET_TILE
+
 func _on_board_tile_clicked(tile: Vector2i) -> void:
+	if _focused_intent_enemy_id >= 0 and not _controller_is_active():
+		var intent_rect: Rect2 = board_view.call("enemy_intent_visual_global_rect", "enemy_%d" % _focused_intent_enemy_id)
+		if intent_rect.has_point(_current_mouse_position()): return
 	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
 		return
 	if _surface_aim.active():
@@ -20818,6 +20851,13 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 			await _commit_player_movement(tile)
 		return
 	if mode == "combat" and _selected_card_index < 0:
+		_clear_focused_enemy_intent(false)
+		for enemy: Dictionary in _combat_state.get("enemies", []):
+			if int(enemy.get("hp",0)) > 0 and _combat_engine.is_enemy_visible_to_player(_combat_state,enemy) and _combat_engine._enemy_footprint_tiles(enemy).has(tile):
+				_focused_intent_enemy_id = int(enemy["id"])
+				_mark_preview_selection_changed()
+				_refresh_stage_view()
+				return
 		for illusion: Dictionary in _combat_state.get("illusions",[]):
 			if illusion.get("pos",INVALID_TARGET_TILE) == tile and int(illusion.get("hp",0)) > 0:
 				_begin_guardian_utility_selection("move",int(illusion.get("id",-1)))
@@ -20877,6 +20917,9 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	await _apply_pending_preview_result(next_preview)
 
 func _on_board_cancel_requested() -> void:
+	if _focused_intent_enemy_id >= 0:
+		_clear_focused_enemy_intent()
+		return
 	# Right-click/B on the board is contextual cancellation, never a pause-menu
 	# shortcut. Escape and the dedicated menu action remain the explicit ways to
 	# open/close pause UI.
@@ -20884,6 +20927,9 @@ func _on_board_cancel_requested() -> void:
 		await _on_cancel_requested()
 
 func _on_cancel_requested() -> void:
+	if _focused_intent_enemy_id >= 0:
+		_clear_focused_enemy_intent()
+		return
 	if _surface_aim.active():
 		_cancel_surface_skill_selection()
 		return
@@ -21123,6 +21169,7 @@ func _cancel_card_selection() -> void:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD)
 
 func _begin_player_movement_selection() -> void:
+	_clear_focused_enemy_intent(false)
 	if _surface_aim.active():
 		return
 	if (
@@ -21339,7 +21386,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	var action: Dictionary = _player_movement_action.duplicate(true)
-	var utility: bool = action.has("_illusion_id") or str(action.get("type","")) in ["raise_cover","reclaim_cover"]
+	var utility: bool = action.has("_illusion_id")
 	var committed_combat_state: Dictionary = _combat_engine.apply_player_action(previous_combat_state,action,target_tile) if utility else _combat_engine.apply_player_movement(previous_combat_state, target_tile)
 	if utility:
 		committed_combat_state["last_player_movement"] = {"resolved":committed_combat_state!=previous_combat_state,"spent":int(previous_combat_state.get("player_movement_remaining",0))-int(committed_combat_state.get("player_movement_remaining",0)),"action_type":action.get("type",""),"utility":true}
@@ -22154,7 +22201,7 @@ func _animate_floating_text_presentation(
 		if use_player_timeline
 		else FloatingCombatText.total_duration(base_texts)
 	)
-	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty():
+	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty() and not base_presentation.has("surface_feedback_events"):
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(duration_seconds).timeout
 		return
@@ -22165,6 +22212,8 @@ func _animate_floating_text_presentation(
 		var elapsed_seconds: float = maxf(0.0, initial_elapsed_seconds) + float(Time.get_ticks_usec() - started_usec) / 1000000.0
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
+		if presentation.has("surface_feedback_events"):
+			presentation["surface_feedback_progress"] = 0.38 if reduced_motion else clampf(elapsed_seconds/0.36,0.0,1.0)
 		presentation["impact_progress"] = 0.18 if reduced_motion else t
 		if not trap_effects.is_empty():
 			var animated_traps: Array[Dictionary] = _trap_effects_for_elapsed(trap_effects, elapsed_seconds, reduced_motion)
@@ -22744,10 +22793,13 @@ func _impact_element_seed(element_id: String) -> int:
 			return 7
 
 func _animate_player_trap_result(after_state: Dictionary, before_state: Dictionary, trap_effects: Array[Dictionary], base_presentation: Dictionary) -> void:
-	if trap_effects.is_empty():
+	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state,after_state))
+	if trap_effects.is_empty() and ground_events.is_empty():
 		return
 	_play_trap_sfx(trap_effects)
+	_play_outcome_sounds(ground_events,"",trap_effects)
 	var presentation: Dictionary = base_presentation.duplicate(true)
+	presentation["surface_feedback_events"] = ground_events
 	presentation["trap_effects"] = trap_effects
 	presentation["floating_texts"] = _player_action_floating_texts(before_state, after_state)
 	presentation["impact_actor_keys"] = _player_action_impact_actor_keys(before_state, after_state)
@@ -22947,6 +22999,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					attack_floating_texts = _player_action_floating_texts(before_state, after_state)
 				var attack_impact_actor_keys: Array[String] = _player_action_impact_actor_keys(before_state, after_state)
 				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(before_state, after_state)
+				var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(_surface_events_between(before_state,after_state),effect)
+				var ground_sound: Dictionary = {"played":false}
 				await _play_timed_animation_frames(attack_frame_count, attack_frame_seconds, func(frame_number: int) -> void:
 					var t: float = float(frame_number) / float(attack_frame_count)
 					var feedback_elapsed_seconds: float = _attack_feedback_elapsed_seconds(
@@ -22977,7 +23031,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 							_reduced_motion_enabled()
 						)
 						effect_display_state = primary_display_state
-						presentation["surface_feedback_events"] = _surface_events_between(before_state, after_state)
+						presentation["surface_feedback_events"] = ground_events
+						if not ground_sound["played"]:
+							_play_outcome_sounds(ground_events,OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_player_action(_card_def(card_id,before_state),action)))
+							ground_sound["played"] = true
 						presentation["surface_feedback_progress"] = clampf(feedback_elapsed_seconds / 0.34, 0.0, 1.0)
 						presentation = _attack_feedback_death_hold_presentation(
 							before_state,
@@ -23400,6 +23457,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+				if str(step.get("kind", "")) == "status_damage" and not (step.get("surface_events",[]) as Array).is_empty():
+					await _animate_surface_change(before_status_step_state,animated_state,{"surface_feedback_events":step["surface_events"]})
+					await _animate_turn_order_alongside_defeats(before_status_step_state,animated_state)
+					continue
 				if str(step.get("kind", "")) == "block":
 					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				await _animate_floating_text_presentation(
@@ -23482,6 +23543,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					impact_actor_keys.append("player")
 				var attack_feedback_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(attack_feedback_state, step)
+				var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(step.get("surface_events",[]),step)
+				var ground_sound: Dictionary = {"played":false}
 				var attack_destroyed_terrain: Array[Dictionary] = _destroyed_terrain_units_between_states(
 					animated_state,
 					attack_feedback_state
@@ -23521,6 +23584,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 							_reduced_motion_enabled()
 						)
 						effect_display_state = attack_feedback_state
+						presentation["surface_feedback_events"] = ground_events
+						presentation["surface_feedback_progress"] = clampf(feedback_elapsed_seconds / 0.34,0.0,1.0)
+						if not ground_sound["played"]:
+							_play_outcome_sounds(ground_events,OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_enemy_step(step)))
+							ground_sound["played"] = true
 						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 								attack_destroyed_terrain,
@@ -23890,9 +23958,12 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 	})
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
-	if not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
+	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(step.get("surface_events",[]))
+	if not ground_events.is_empty() or not (step.get("triggered_traps", []) as Array).is_empty() or not (step.get("target_losses", []) as Array).is_empty() or not (step.get("enemy_losses", []) as Array).is_empty() or not (step.get("terrain_losses", []) as Array).is_empty():
 		_play_trap_sfx(step.get("triggered_traps", []))
+		_play_outcome_sounds(ground_events,"",step.get("triggered_traps",[]))
 		await _animate_floating_text_presentation(animated_state, _death_hold_presentation(before_move_state, animated_state, {
+			"surface_feedback_events":ground_events,
 			"focus_actor_keys": step.get("impact_actor_keys", [actor_key]),
 			"focus_actor_color": PLAYER_ATTACK_FOCUS,
 			"focus_tiles": [to_tile],
@@ -32622,6 +32693,8 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}) -> void:
 	var events: Array[Dictionary] = _surface_events_between(before, after)
 	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))
+	events = OutcomeFeedback.prepare(events)
+	_play_outcome_sounds(events)
 	var texts: Array[Dictionary] = _player_action_floating_texts(before, after)
 	var frames: int = 1 if _reduced_motion_enabled() else 18
 	await _play_timed_animation_frames(frames, 0.1 if _reduced_motion_enabled() else 0.02, func(frame: int) -> void:
@@ -32735,34 +32808,6 @@ func _analytics_flush_map_events(state: Dictionary) -> void:
 	if not events.is_empty() and _analytics_store.write_events(events):
 		_map_analytics_revision = last
 
-func _add_guardian_command_buttons() -> void:
-	if str(_run_state.get("mode","")) != "combat" or preload("res://scripts/guardian_relic_rules.gd").amount(_combat_state,"recoverable_cover") <= 0:
-		return
-	for command: String in ["raise_cover","reclaim_cover"]:
-		var button := Button.new()
-		button.name = command.to_pascal_case()
-		button.text = "Raise" if command == "raise_cover" else "Reclaim"
-		button.icon = ActionIcons.icon_texture(command)
-		button.expand_icon = true
-		button.add_theme_constant_override("icon_max_width",28)
-		button.set_meta("guardian_command",command)
-		button.custom_minimum_size = Vector2(110,44)
-		_ui_skin.apply_button_stylebox_overrides(button,UiSkin.VARIANT_COMPACT)
-		UiTypography.apply_button_role(button,UiTypography.ROLE_BODY)
-		button.pressed.connect(_begin_guardian_utility_selection.bind(command,-1))
-		_relic_utility_bar.add_child(button)
-	_refresh_guardian_command_buttons()
-
-func _refresh_guardian_command_buttons() -> void:
-	if _relic_utility_bar == null: return
-	for child: Node in _relic_utility_bar.get_children():
-		if not child.has_meta("guardian_command") or not child is Button: continue
-		var command: String = str(child.get_meta("guardian_command"))
-		var button: Button = child as Button
-		button.disabled = _animation_lock or _selected_card_index >= 0 or _combat_engine.guardian_command_targets(_combat_state,command).is_empty()
-		button.tooltip_text = "Raise Cover · 1 Move + all Stoneskin\nRange 2 · HP equals Stoneskin spent." if command == "raise_cover" else "Reclaim Cover · 1 Move\nRecover adjacent owned cover’s surviving HP as Stoneskin."
-		if button.disabled: button.tooltip_text += "\nUnavailable: needs movement and " + ("Stoneskin with a legal tile." if command == "raise_cover" else "adjacent owned cover.")
-
 func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -> void:
 	if _animation_lock or _selected_card_index >= 0 or _drag_card_index >= 0 or _surface_aim.active() or str(_run_state.get("mode","")) != "combat": return
 	var action: Dictionary = {"type":command,"_movement_pool":true,"range":2}
@@ -32781,7 +32826,6 @@ func _begin_guardian_utility_selection(command: String, illusion_id: int = -1) -
 	_refresh_card_preview_ui()
 
 func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: String) -> void:
-	if _reduced_motion_enabled(): return
 	var actor: Dictionary = _animation_actor_unit(state,actor_key)
 	var action: String = GuardianCutout.action_clip(step,actor)
 	if action.is_empty(): return
@@ -32790,6 +32834,11 @@ func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: S
 	_apply_animation_step(after,step)
 	var events: Array[Dictionary] = _surface_events_between(state,after)
 	if events.is_empty(): events=_dictionary_array(step.get("surface_events",[]))
+	events = OutcomeFeedback.prepare(events)
+	if _reduced_motion_enabled():
+		await _animate_surface_change(state,after,{"surface_feedback_events":events})
+		return
+	var ground_sound: Dictionary = {"played":false}
 	var frames: int = GuardianCutout.action_frames(step,actor)
 	await _play_timed_animation_frames(frames,GuardianCutout.ATTACK_FRAME_SECONDS,func(frame: int)->void:
 		var progress: float = float(frame)/float(frames-1)
@@ -32797,7 +32846,14 @@ func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: S
 		var shown: Dictionary = {"guardian_motion":{actor_key:GuardianCutout.action_motion(step,actor,progress,0.46)},
 			"focus_actor_keys":[actor_key],"focus_tiles":step.get("declared_tiles",[]),"focus_color":Color(0.95,0.62,0.37,0.18)}
 		if released:
+			if not ground_sound["played"]:
+				_play_outcome_sounds(events)
+				ground_sound["played"] = true
 			shown["surface_feedback_events"]=events
 			shown["surface_feedback_progress"]=(progress-0.46)/0.54
 		_render_board_state(after if released else state,shown,true)
 	)
+
+func _play_outcome_sounds(events: Array, primary_element: String = "", traps: Array = []) -> void:
+	for entry: Dictionary in OutcomeFeedback.sounds(events,primary_element,traps):
+		_play_sfx(entry)

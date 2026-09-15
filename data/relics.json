@@ -1955,22 +1955,29 @@
   "cragbound_gauntlet": {
     "name": "Cragbound Gauntlet",
     "rarity": "legendary",
-    "description": "Raise Cover: 1 independent @icon(move) and all @icon(stoneskin) creates cover within 2, with that much @icon(health). Reclaim adjacent cover for 1 @icon(move), recovering its remaining @icon(health) as @icon(stoneskin).",
+    "description": "@icon(ranged) Earth spells raise a 3 @icon(health) outcrop at an empty ground target.",
     "icon_path": "res://assets/art/relics/cragbound_gauntlet.png",
     "accent": "#d9862f",
-    "design_version": 3,
-    "condition_tier": 4,
+    "design_version": 4,
+    "condition_tier": 2,
     "upside_tier": 4,
     "build_tags": [
       "earth",
-      "stoneskin",
+      "ranged",
       "cover"
     ],
     "exclusive_guardian": true,
     "effects": [
       {
-        "type": "recoverable_cover",
-        "amount": 1
+        "type": "card_action_mod",
+        "element": "earth",
+        "action_types": [
+          "ranged",
+          "aoe"
+        ],
+        "min_range": 1,
+        "field": "outcrop_health",
+        "amount": 3
       }
     ]
   },

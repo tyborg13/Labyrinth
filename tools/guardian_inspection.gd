@@ -8,7 +8,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Rules = preload("res://scripts/guardian_combat_rules.gd")
-const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network"]
+const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network", "ground_targeting"]
 
 static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, options: Dictionary) -> Dictionary:
 	var state: Dictionary = source.duplicate(true)
@@ -64,8 +64,8 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	if study == "pre_battle": return state
 	state = engine.begin_pre_battle_combat(state)
 	var battle: Dictionary = state["combat_state"]
-	if study == "relic":
-		state = _relic_study(engine, combat, state, info)
+	if study in ["relic","ground_targeting"]:
+		state = _relic_study(engine, combat, state, info, study=="relic")
 		battle = state["combat_state"]
 	elif study == "reward":
 		battle["enemies"][0]["hp"] = 0
@@ -82,7 +82,7 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 	elif study in ["outcrops","summon","network"]:
 		assert(id==("craghide" if study=="outcrops" else "storm_cantor"))
 		# Advance the real opening setup intent and stop at the next player turn.
-		battle["player_turn_time_spent"]=7
+		battle["player_turn_time_spent"]=18 if study in ["summon","network"] else 7
 		battle=combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(battle))["state"]
 		assert(combat.is_player_turn(battle))
 		if study=="summon":
@@ -104,7 +104,7 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 		rng.seed = 51
 		battle["enemies"][0]["guardian_cycle"] = 1
 		combat._assign_enemy_intent(battle,0,rng)
-	if study != "relic": _seed_hand(battle, ["chain_bolt","stone_plate","shadow_step","cleaver_hook","patch_up"])
+	if study not in ["relic","ground_targeting"]: _seed_hand(battle, ["chain_bolt","stone_plate","shadow_step","cleaver_hook","patch_up"])
 	state["combat_state"] = battle
 	return state
 
@@ -129,6 +129,10 @@ static func _loadout(state: Dictionary, options: Dictionary, section: int, id: S
 		state["collected_equipment"] = state["equipped_equipment"].values()
 	if str(options.get("attuned_magic", "")).is_empty():
 		state["attuned_magic_cards"] = ["chain_bolt","stone_plate","cinderline_tempo","rimeplate_lock","basalt_guard","gust_step"]
+		if id == "craghide": state["attuned_magic_cards"] = ["root_snare","basalt_guard","chain_bolt","stone_plate","cinderline_tempo","gust_step"]
+	if id=="craghide" and str(options.get("guardian_case",""))=="relic" and str(options.get("equipped_items","")).is_empty():
+		state["equipped_items"] = ["grave_dust_satchel"]
+		state["item_inventory"] = ["grave_dust_satchel"]
 	if str(options.get("relics", "")).is_empty():
 		state["relics"] = ["iron_buckler"] if section == 0 else ["iron_buckler","reinforced_shield"]
 	state["deck_cards"] = Data.compile_deck_cards(state["equipped_equipment"], state["attuned_magic_cards"], state.get("equipped_items", []))
@@ -151,8 +155,8 @@ static func _seed_hand(battle: Dictionary, desired: Array) -> void:
 	deck["draw"] = remaining
 	deck["discard"] = []
 
-static func _relic_study(engine: RefCounted, combat: RefCounted, state: Dictionary, info: Dictionary) -> Dictionary:
-	state["relics"].append(info["relic"])
+static func _relic_study(engine: RefCounted, combat: RefCounted, state: Dictionary, info: Dictionary, include_relic: bool = true) -> Dictionary:
+	if include_relic: state["relics"].append(info["relic"])
 	var grid: Array = []
 	for y: int in range(9):
 		var row: Array = []
@@ -171,7 +175,7 @@ static func _relic_study(engine: RefCounted, combat: RefCounted, state: Dictiona
 	room.erase("boss_id")
 	match str(info["relic"]):
 		"ashen_brand":
-			for tile: Vector2i in [Vector2i(3,4),Vector2i(4,4),Vector2i(4,5)]: Surfaces.place(battle,tile,"fire")
+			for tile: Vector2i in [Vector2i(3,4),Vector2i(4,4),Vector2i(3,5)]: Surfaces.place(battle,tile,"fire")
 			_seed_hand(battle,["cinderline_tempo","shadow_step","stone_plate","patch_up","chain_bolt"])
 		"winters_spur":
 			battle["player"]["pos"] = Vector2i(1,2)
@@ -184,10 +188,7 @@ static func _relic_study(engine: RefCounted, combat: RefCounted, state: Dictiona
 		"cragbound_gauntlet":
 			battle["player"]["pos"] = Vector2i(2,6)
 			battle["player"]["stoneskin"] = 7
-			battle = combat.use_guardian_command(battle,"raise_cover",Vector2i(3,6))
-			battle["terrain"][0]["hp"] = 4
-			battle["player_movement_remaining"] = 2
-			battle["player"]["stoneskin"] = 5
+			_seed_hand(battle,["root_snare","grave_dust_satchel","shadow_step","patch_up","stone_plate"])
 		"procession_lantern":
 			battle["player"]["pos"] = Vector2i(2,6)
 			battle["illusions"] = [{"id":1,"pos":Vector2i(3,3),"hp":3,"max_hp":3}]

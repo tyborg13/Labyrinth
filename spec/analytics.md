@@ -550,11 +550,16 @@ and `resolved_tiles`; broken cover can shrink a previously declared quake or
 blocked lane. They also add `interrupted`; interrupted Guardian status steps
 remain in this event stream instead of disappearing with their cancelled attack.
 Conduction resolution tiles include the entire affected network. Replacement
-summons use the same Guardian helper event on every successful return. Reinforcement creation, brazier outages/restoration, cover commands
+summons use the same Guardian helper event on every successful return. Reinforcement creation, brazier outages/restoration, outcrop creation
 and Illusion relocation use the existing append-only `surface_event` stream and
-its combat/sequence idempotency keys. Utility commands consume shared Move but
-are not counted as `player_moved` events. Their payloads record the command,
-armor transferred or Illusion id/path, movement spent, and source relic.
+its combat/sequence idempotency keys. Illusion movement consumes shared Move but is not counted as `player_moved`.
+Its payload records Illusion id/path, movement spent, and source relic.
+The gauntlet no longer emits cover commands. Shared `terrain_created` outcomes
+record `terrain_id`, `terrain_kind`, `tile`, `health`, `element` and normal
+card/enemy `source` metadata. Historical command records remain readable.
+Ground-targeted cards retain the ordinary card-play event and selected tile;
+empty attacks produce no synthetic victim or defeat records.
+Intent focus and elemental feedback are presentation only and emit no combat actions.
 Native Chain trace hits add `enemy_hop`, unmodified `base_damage`, and
 `chain_bonus_damage`; connected conduction side hits never receive hop credit.
 Preview copies do not append analytics. No changes to historical JSONL are required.

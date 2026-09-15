@@ -150,38 +150,6 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 			if int(member.get("hp",0))<=0 or member["pos"]!=origins[member_index]+direction: return state
 	return state
 
-static func command_targets(engine: RefCounted, state: Dictionary, command: String) -> Array[Vector2i]:
-	var result: Array[Vector2i] = []
-	if amount(state,"recoverable_cover")<=0 or not engine.is_player_turn(state) or engine.player_movement_remaining(state)<1 or engine.combat_outcome(state)!="": return result
-	if bool((state.get("player_turn_restrictions",{}) as Dictionary).get("frozen",false)): return result
-	var player: Dictionary = state["player"]
-	if command=="raise_cover" and int(player.get("stoneskin",0))>0:
-		for tile: Vector2i in Paths.diamond_tiles(player["pos"],2,state["grid"]):
-			if engine.is_tile_visible_to_player(state,tile) and GuardianRules.is_empty_floor(engine,state,tile): result.append(tile)
-	elif command=="reclaim_cover":
-		for cover: Dictionary in state.get("terrain",[]):
-			if str(cover.get("kind",""))=="raised_cover" and str(cover.get("owner_kind",""))=="player" and int(cover.get("hp",0))>0 and Paths.manhattan(player["pos"],cover["pos"])==1: result.append(cover["pos"])
-	return result
-
-static func use_command(engine: RefCounted, state: Dictionary, command: String, target: Vector2i) -> Dictionary:
-	var next: Dictionary = state.duplicate(true)
-	if not command_targets(engine,state,command).has(target): return next
-	var player: Dictionary = next["player"]
-	var armor: int = 0
-	if command=="raise_cover":
-		armor=int(player["stoneskin"])
-		player["stoneskin"]=0
-		Surfaces.remove(next,target,"all","terrain_created")
-		next["terrain"].append({"id":"cover_%s"%next.get("surface_event_sequence",0),"kind":"raised_cover","owner_kind":"player","pos":target,"hp":armor,"max_hp":armor,"surface_on_destroy":"rubble"})
-	else:
-		var cover_index: int = engine._terrain_index_at_tile(next,target)
-		armor=int(next["terrain"][cover_index]["hp"])
-		player["stoneskin"]=int(player.get("stoneskin",0))+armor
-		next["terrain"].remove_at(cover_index)
-	next["player_movement_remaining"] = engine.player_movement_remaining(state)-1
-	Surfaces.record_event(next,{"kind":"guardian_relic_command","command":command,"tile":target,"armor":armor,"movement_spent":1,"source":{"actor_kind":"player","relic_id":"cragbound_gauntlet"}})
-	return next
-
 static func illusion_navigation(engine: RefCounted, state: Dictionary, illusion_id: int) -> Dictionary:
 	if amount(state,"illusion_movement")<=0 or not engine.is_player_turn(state) or engine.player_movement_remaining(state)<=0 or engine.combat_outcome(state)!="": return {}
 	if bool((state.get("player_turn_restrictions",{}) as Dictionary).get("frozen",false)): return {}

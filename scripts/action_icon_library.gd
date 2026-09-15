@@ -899,7 +899,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
-			tokens.append(_token_for_action_field(action, "summon_minions", "count", int(action.get("count", 0)), "neutral", "Summons reinforcements."))
+			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
+			var count: int = int(action.get("count", 1))
+			var summon_text: String = "Calls %s." % minion_name
+			if action.has("guardian_cap"): summon_text += " Up to %d living." % int(action["guardian_cap"])
+			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
+			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
 		"raise_terrain":
 			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
 			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))
@@ -923,6 +928,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
+	if int(action.get("outcrop_health", 0)) > 0:
+		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
 		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
@@ -1146,9 +1153,6 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		if action.has(field):
 			row.append(surface_token(str(action[field])))
 			row.append(text_token("Trail" if field=="trail_surface" else "At lane end"))
-	if action.has("guardian_cap"):
-		row.append(text_token(str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type",""))).get("name","Helper"))))
-		row.append(text_token("%d max" % int(action["guardian_cap"]),"neutral","Maximum living helpers of this type."))
 	if bool(action.get("snuff_brazier",false)):
 		row.append(text_token("One brazier dark", "warning", "Lasts until Last Procession, including a skipped turn."))
 	return row
