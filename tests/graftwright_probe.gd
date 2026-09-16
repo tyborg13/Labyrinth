@@ -52,6 +52,8 @@ func _initialize() -> void:
 	check(source != null, "Source card is a native focusable button")
 	# Real pointer events hit the shared button/card surface.
 	await click(source)
+	check(not bool(view.call("semantic_snapshot")["can_commit"]), "Source-only selection still requires a replacement")
+	await capture("15_source_only.png")
 	var target: Button = view.find_child("TargetCard_1", true, false) as Button
 	await click(target)
 	var snapshot: Dictionary = view.call("semantic_snapshot")
@@ -67,7 +69,7 @@ func _initialize() -> void:
 	var persisted: Dictionary = Store.load_saved_run()
 	check(not view.call("semantic_snapshot")["used"], "Save is checked before the ritual has finished")
 	check(Data.equipment_cards("undertaker_plate", persisted) == ["undertaker_stand", "shadow_step"], "Saved result matches preview before animation completes")
-	await create_timer(1.5).timeout
+	await create_timer(2.0).timeout
 	check(bool(view.call("semantic_snapshot")["used"]), "Ritual reaches committed result")
 	await capture("04_result.png")
 	scene.call("_load_run_state", persisted)
@@ -124,7 +126,7 @@ func _initialize() -> void:
 	await create_timer(0.4).timeout
 	check(not view.visible, "Continue closes workbench and returns to map")
 	await capture("09_map.png")
-	# Maximum authored card footprint and both inventory carousels.
+	# Maximum authored card footprint and the categorized equipment browser.
 	scene.call("_load_run_state", state)
 	await create_timer(0.35).timeout
 	view.call("select_recipient", "iron_cleaver")
@@ -146,15 +148,33 @@ func _initialize() -> void:
 		if not (many["equipped_equipment"] as Dictionary).values().has(id): many["equipment_inventory"].append(id)
 	scene.call("_load_run_state", many)
 	view.call("select_recipient", "undertaker_plate")
-	var pager: Button = view.find_child("DonorNext", true, false) as Button
-	await click(pager)
-	check(proof_viewport.gui_get_focus_owner() != null and view.is_ancestor_of(proof_viewport.gui_get_focus_owner()), "Donor paging restores focus inside the modal")
-	pager = view.find_child("KeepNext", true, false) as Button
-	await click(pager)
+	await click(view.find_child("ChooseRecipient", true, false) as Button)
+	check(view.call("semantic_snapshot")["picker_role"] == "recipient", "Equipment mount opens the organized grid")
+	await click(view.find_child("Category_weapon", true, false) as Button)
+	check(view.call("semantic_snapshot")["picker_slot"] == "weapon", "Category navigation changes equipment type")
+	for id: String in view.call("semantic_snapshot")["picker_items"]:
+		check(Data.equipment_slot(id) == "weapon", "Equipment grid contains only the selected type")
+	await capture("12_inventory_categories.png")
+	# The open modal must own pointer input even where the old card sits below it.
+	var before_picker: Dictionary = view.call("semantic_snapshot")
+	await click(view.find_child("SourceCard_0", true, false) as Button)
+	check(view.call("semantic_snapshot")["source_index"] == before_picker["source_index"], "Equipment browser blocks underlying card input")
+	# This point is a category in the frontmost modal; return to weapons.
+	await click(view.find_child("Category_weapon", true, false) as Button)
+	await click(view.find_child("Pick_iron_cleaver", true, false) as Button)
+	check(view.call("semantic_snapshot")["recipient"] == "iron_cleaver" and view.call("semantic_snapshot")["picker_role"] == "", "Grid selection returns directly to the new recipient")
+	await click(view.find_child("ChooseSacrifice", true, false) as Button)
+	check((view.find_child("Category_armor", true, false) as Button).disabled, "Donor browser is locked to the recipient type")
 	for step: int in range(26):
 		await action(&"ui_focus_next")
-		check(proof_viewport.gui_get_focus_owner() != null and view.is_ancestor_of(proof_viewport.gui_get_focus_owner()), "Tab navigation stays inside the workbench")
-	await capture("12_inventory_paging.png")
+		var focus: Control = proof_viewport.gui_get_focus_owner()
+		check(focus != null and view.find_child("EquipmentPicker", true, false).is_ancestor_of(focus), "Tab navigation stays inside the equipment picker")
+	await capture("14_donor_grid.png")
+	var before_back: Dictionary = view.call("semantic_snapshot")
+	view.call("request_leave")
+	check(view.call("semantic_snapshot")["recipient"] == before_back["recipient"] and view.call("semantic_snapshot")["donor"] == before_back["donor"], "Closing equipment browser preserves both pieces")
+	check(view.visible and view.call("semantic_snapshot")["picker_role"] == "", "Back closes the equipment picker without leaving the encounter")
+	check(bool(view.call("semantic_snapshot")["bench_occludes_portrait"]), "Bench foreground is actually above the portrait")
 	var inherited: Dictionary = persisted.duplicate(true)
 	Graph.room(inherited, inherited["current_room"])["graft_used"] = false
 	scene.call("_load_run_state", inherited)

@@ -3517,10 +3517,11 @@ func _refresh_controller_prompts() -> void:
 	elif _graftwright_view != null and _graftwright_view.visible:
 		var focused: Control = get_viewport().gui_get_focus_owner()
 		var action: String = "Select"
-		if focused is Button and not (focused as Button).text.is_empty(): action = (focused as Button).text
+		if focused != null: action = str(focused.get_meta("graft_action_label", "Select"))
+		var browsing: bool = not str(_graftwright_view.semantic_snapshot().get("picker_role", "")).is_empty()
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": action},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back" if browsing else "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
 	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:

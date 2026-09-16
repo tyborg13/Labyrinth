@@ -17,12 +17,14 @@ The removed bitmap families were the three `button_wood_gold_*` planks and the e
 | Camp/menu, dialogue, map, pile, and upgrade overlays | `UiSkin` through `scripts/run_scene.gd` | standard commands, large room choices, destructive abandon, square close icons |
 | Merchant and dense progression controls | `UiSkin` through `scripts/run_scene.gd` | compact Buy/Sell and stepper controls; standard and selected progression commands |
 | Reward/treasure selection | Card/relic choice controls remain authored selection objects; supporting context actions use shared large buttons | selected cards/relics are not stretched action-button bitmaps |
+| Graftwright workbench | Native Buttons with purpose-built equipment cradles, real CardWidgets, and a needle-and-thread ritual clasp | role-colored selection, hover lift, focus brackets, disabled state; category grid and quiet Back/Leave |
 | Run-end recap | `UiSkin` through `scripts/run_end_recap_overlay.gd` | large New Run and Main Menu |
 | Death engulf continuation | `UiSkin` through `scripts/death_engulf_overlay.gd` | selected primary Begin Again |
 
 ## Intentional exclusions
 
 - `CardWidget` remains a card-shaped `Button` with its own card-frame texture; it is not an action-button skin.
+- Graftwright is an intentional material-specific exception requested during visual review. Its mounts and cards are selection objects; its ritual clasp is unique encounter art. It preserves native input/focus while using empty button StyleBoxes so no shared action plate appears behind these objects.
 - Grimoire page navigation remains a parchment list treatment, not a command button.
 - Panel textures such as `panel_wood_parchment.png` remain panel-only and are never used as button states.
 - Styling never assigns focus neighbors, focus modes, controller bindings, remapping, device glyphs, or input actions.

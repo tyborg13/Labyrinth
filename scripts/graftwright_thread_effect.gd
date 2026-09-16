@@ -1,43 +1,61 @@
 extends Control
+## Continuous silk ribbons with soft shader falloff; no bead/dot particles.
 
-var origin := Vector2(580, 640)
-var destination := Vector2(1300, 640)
+const SILK = preload("res://scripts/graftwright_silk.gdshader")
+const DURATION: float = 2.15
+const SEGMENTS: int = 180
+var origin := Vector2(800, 630)
+var destination := Vector2(1500, 630)
 var reduced_motion: bool = false
 var elapsed: float = 0.0
+var _ribbons: Array[MeshInstance2D]
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if reduced_motion: return
+	for strand: int in range(4):
+		var ribbon := MeshInstance2D.new()
+		var shader_material := ShaderMaterial.new()
+		shader_material.shader = SILK
+		shader_material.set_shader_parameter("variation", float(strand) * 1.7)
+		shader_material.set_shader_parameter("duration", DURATION)
+		ribbon.material = shader_material
+		add_child(ribbon)
+		_ribbons.append(ribbon)
 
 func _process(delta: float) -> void:
 	elapsed += delta
-	if not reduced_motion: queue_redraw()
+	for strand: int in range(_ribbons.size()):
+		var ribbon: MeshInstance2D = _ribbons[strand]
+		(ribbon.material as ShaderMaterial).set_shader_parameter("age", elapsed)
+		ribbon.mesh = _mesh(strand)
 
-func _point(t: float, strand: int) -> Vector2:
-	return origin.lerp(destination, t) + Vector2(sin(t * PI * 3.0 + float(strand)) * 8.0, -sin(t * PI) * (140.0 + strand * 13.0) + sin(t * TAU * 2.0 + elapsed * 6.0 + strand) * 12.0)
+func point(t: float, strand: int = 0) -> Vector2:
+	var arch: float = sin(t * PI)
+	return origin.lerp(destination, t) + Vector2(sin(t * TAU + float(strand)) * arch * 15.0, -arch * (100.0 + strand * 13.0) + sin(t * TAU * 1.5 + elapsed * 2.7 + strand * 1.5) * arch * 24.0)
 
-func _draw() -> void:
-	if reduced_motion: return
-	var gather: float = smoothstep(0.0, 0.35, elapsed)
-	var travel: float = smoothstep(0.32, 1.35, elapsed)
-	var fade: float = 1.0 - smoothstep(1.45, 1.9, elapsed)
-	for strand: int in range(6):
-		var points := PackedVector2Array()
-		for step: int in range(65):
-			var t: float = float(step) / 64.0
-			if t > travel: break
-			points.append(_point(t, strand))
-		if points.size() > 1:
-			draw_polyline(points, Color(0.52, 0.15, 0.85, 0.15 * gather * fade), 11.0, true)
-			draw_polyline(points, Color(0.77, 0.44, 1.0, 0.6 * gather * fade), 2.1, true)
-			draw_polyline(points, Color(0.96, 0.82, 1.0, 0.75 * gather * fade), 0.8, true)
-		for bead: int in range(5):
-			var t: float = fposmod(travel - float(bead) * 0.047 - strand * 0.019, 1.0)
-			if t > travel: continue
-			draw_circle(_point(t, strand), 2.0 + sin(t * PI), Color(0.95, 0.78, 1.0, fade * 0.8))
-	var stitch: float = smoothstep(1.0, 1.65, elapsed)
-	for i: int in range(10):
-		if float(i) / 10.0 > stitch: continue
-		var y: float = destination.y - 95.0 + i * 19.0
-		draw_line(Vector2(destination.x - 16, y - 6), Vector2(destination.x + 16, y + 6), Color(0.87, 0.62, 1.0, fade), 2.5, true)
-	if stitch > 0:
-		draw_arc(destination, 36.0 + stitch * 108.0, 0, TAU, 64, Color(0.72, 0.36, 1.0, sin(stitch * PI) * fade * 0.55), 2.0, true)
+func _mesh(strand: int) -> ArrayMesh:
+	var vertices := PackedVector3Array()
+	var uv := PackedVector2Array()
+	var indices := PackedInt32Array()
+	for i: int in range(SEGMENTS + 1):
+		var t: float = float(i) / SEGMENTS
+		var center: Vector2 = point(t, strand)
+		var tangent: Vector2 = (point(minf(t + 0.005, 1.0), strand) - point(maxf(t - 0.005, 0.0), strand)).normalized()
+		var normal := Vector2(-tangent.y, tangent.x)
+		var width: float = 10.0 + sin(t * PI) * 8.0
+		for edge: int in range(2):
+			var p: Vector2 = center + normal * width * (-1.0 if edge == 0 else 1.0)
+			vertices.append(Vector3(p.x, p.y, 0))
+			uv.append(Vector2(t, float(edge)))
+		if i < SEGMENTS:
+			var n: int = i * 2
+			indices.append_array(PackedInt32Array([n, n + 1, n + 2, n + 1, n + 3, n + 2]))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_TEX_UV] = uv
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var result := ArrayMesh.new()
+	result.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	return result

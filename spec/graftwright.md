@@ -43,37 +43,65 @@ recipient and a compatible donor are initially displayed, but no destructive
 card selection is assumed. Single-card recipients and existing inherited slots
 select their sole valid replacement automatically after a source is chosen.
 
-The top equipment rail chooses what to keep; the compact donor rail filters to
-the same type. Shared CardWidgets show real effective cards. The selected target
-becomes an exact preview, with the replaced card named below it. Focus exposes
-the card's exact rules in one detail line. The footer explicitly names the piece
-that will be destroyed and any automatic equip or empty-slot consequence.
-No confirmation wizard, currency transaction, or extra Next button is introduced.
+Two dark suede work trays separate equipment and cards from the atelier. Red
+**Sacrifice / Will be destroyed** and green **Keep / Stays equipped** (or the
+actual inventory/equip consequence) anchor the role of each piece. Recessed,
+thread-bound mounts are the equipment controls. Clicking either opens a native
+scrolling five-column grid grouped by Weapon, Offhand, Armor, Boots, and Trinket.
+The donor browser locks to the recipient's native type. Counts, equipped/kept
+markers, selection, and focus remain visible; choosing an item immediately
+returns to the workbench. Back preserves the current selection. There are no
+horizontal pagers or mixed equipment rails.
 
-Native buttons use UiSkin, UiTypography, and UiTooltipPanel. Pointer, keyboard,
-controller activation, directional focus, Tab traversal, Back, and paged-inventory
-focus recovery share the same workbench. Focus remains within the modal and never
-defaults to Graft. The existing device prompt bar sits clear of the title and
-names the focused action. The result's cards can be focused for rules inspection.
+Shared CardWidgets show the actual effective cards on both sides. A violet
+**Carry forward** treatment identifies the source, dimmed **Lost** cards explain
+the rest of the sacrifice, and red **Replaced** identifies the recipient's old
+card. That old card stays visible until commitment. An attached old-name →
+new-name strip makes the final replacement explicit. The finished card is green
+and marked **Inherited**. These cues use text and shape as well as color.
+The Graft action is a purpose-built needle-and-thread clasp. No generic action
+skin is stretched behind an item or card, no card selection commits implicitly,
+and no confirmation wizard or extra Next button is introduced.
 
-The ritual fades the sacrificed piece and unpicks its cards, carries luminous
-violet strands into the chosen card, stitches the new pattern, then reveals the
-surviving equipment and its final cards. Existing UI audio cues mark selection,
-unpick, binding, and completion. Inputs are locked during this roughly two-second
-sequence. Reduced motion omits strand travel and idle motion and resolves after
-a short 0.18-second beat; the static result communicates the same outcome.
+Native Buttons preserve pointer, keyboard, controller activation, directional
+focus, Tab traversal, and Back. The grid traps focus while open and scrolls with
+focus. Its whole canvas, including its dimmer, renders above CardWidget's raised
+cost badges. Padding inside the scroll viewport protects focus brackets. Focus
+never defaults to Graft. The device prompt bar names the focused action and
+changes Leave to Back while browsing equipment. The completed result is passive;
+Continue is its sole focus target.
 
-The artwork consists of independent ImageGen assets: a masked tailor portrait,
-an empty gothic atelier, and a distinct needle/thread map emblem. Text, equipment,
-cards, selection, and animation are all live UI. See the provenance manifest in
-[graftwright_art.json](graftwright_art.json).
+The [durable copy preference](game_ui_rubric.md#durable-player-preference-relevant-anchored-copy)
+forbids decorative floating taglines and automatic repetition of visible card
+rules. This screen uses only anchored identity, action, state, or consequence
+copy. Save failure and the Open Arsenal empty-slot consequence have dedicated
+backing; ordinary selection does not produce a bottom-of-screen explanation.
 
-Design reference: [Monster Train's official unit-synthesis description](https://www.themonstertrain.com/dlc/the-last-divinity)
+The ritual fades the sacrificed piece and lost cards, lifts the chosen real card,
+and carries it along interwoven violet silk into the replacement slot. Continuous
+mesh ribbons use soft shader falloff, a luminous core, and fine moving fibers;
+there are no bead/dot particles. Selection, unpick, binding, and completion retain
+the existing audio cues. Input stays locked for the roughly 2.2-second sequence.
+The result fades in with its equipment floating subtly above a soft shadow.
+Reduced motion omits travel and idle motion and resolves after a 0.18-second beat;
+the static result communicates the same outcome.
+
+The existing masked tailor remains behind a foreground layer taken from the
+exact original atelier: the bench occludes the lower portrait during its subtle
+vertical motion. Portrait and bench share the same fit-to-view coordinate space,
+so their perspective does not drift with viewport size. Additional ImageGen art
+provides a quiet workmat, recessed equipment cradle, and ritual clasp. Text,
+cards, selection, and animation are all live UI. Exact new prompts, source paths,
+and hashes are in [graftwright_art.json](graftwright_art.json).
+
+Design references: [Monster Train's official unit-synthesis description](https://www.themonstertrain.com/dlc/the-last-divinity)
 uses a whole-unit sacrifice to strengthen another unit. The inference applied here
 is to keep both objects and the irreversible cost visible together. Deterministic
-selection also follows the clarity goal reflected in
-[Blizzard's 2.5 tempering notes](https://news.blizzard.com/en-us/article/24244466/diablo-iv-patch-notes-2-5).
-These are mechanical references, not a claim that this UI reproduces either game.
+selection follows the clarity goal in [Blizzard's 2.5 tempering notes](https://news.blizzard.com/en-us/article/24244466/diablo-iv-patch-notes-2-5).
+[Last Epoch's crafting developer post](https://forum.lastepoch.com/t/crafting-changes-coming-to-eternal-legends-update-0-8-4/45597/1)
+places the concrete gains and costs in a crafting outcome panel. Our application
+is an anchored replacement strip and result, rather than a detached instruction.
+These references inform the design; this UI does not reproduce their layouts.
 
 ## State and integration
 
@@ -112,8 +140,12 @@ checks that same menu predicate as well as the persisted state contract.
 - `tests/graftwright_probe.gd`: native Metal-rendered 1920x1080 SubViewport at
   100% UI scale. Source images are not resized. Covers initial, selected, ritual,
   result/reload, no donor, controller, reduced motion, map, three-card equipment,
-  save rejection, large inventory paging, and replacement of an inherited slot.
+  save rejection, categorized large inventories, source-only selection, modal
+  pointer/focus isolation, and replacement of an inherited slot.
   Dispatches GUI pointer/key/controller events and asserts navigation and outcome.
+- `tests/graftwright_motion_probe.gd`: native 1920x1080 animation frames with
+  timestamps; pixel comparisons prove that the portrait moves while the bench
+  remains in front, and the result equipment has idle motion.
 - `tests/main_menu_resume_test.gd`: production-menu eligibility before and after
   a graft, saved encounter label, unchanged save contents, and rejection of a
   mismatched room type.

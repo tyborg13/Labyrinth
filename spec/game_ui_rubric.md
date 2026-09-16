@@ -45,6 +45,10 @@ Rate each affected row **Pass**, **Exception**, or **Fail**; evaluate every row 
 | Layout resilience | The changed surface remains operable without clipping, overlap, or unreachable controls at every required proof configuration. | The required `1920x1080`/`100%` presentation, or another explicitly requested configuration, clips, overlaps, or makes controls unreachable. |
 | Visual proof | Fresh `1920x1080` screenshots show the real changed surface and relevant interaction states; the implementer inspects the pixels, not only file existence. | Code-only proof, stale images, a synthetic mockup, or only one state when the change materially alters several states. |
 
+## Durable player preference: relevant, anchored copy
+
+The user explicitly rejects decorative taglines and free-floating explanatory copy in gameplay UI. Do not add mottos, catchy flavor sentences, or duplicated card descriptions to fill empty space. Every visible line must answer the current player decision, identify an object or state, or communicate a concrete consequence. Anchor it to the relevant panel, object, or action. A complete card face does not need its description repeated elsewhere on selection. Flavor belongs in deliberate dialogue or lore surfaces, not as stray interface decoration. This preference was explicitly reinforced during the Graftwright visual review.
+
 ## Copy and disclosure budgets
 
 These are defaults and review tripwires, not reasons to prefer ambiguity.

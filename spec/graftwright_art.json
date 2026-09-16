@@ -1,8 +1,8 @@
 {
   "generator": "built-in ImageGen",
-  "date": "2026-09-15",
+  "date": "2026-09-16",
   "reference": "User-approved Graftwright concept from equipment-inheritance-concepts/graftwright-encounter-v1.png",
-  "note": "The briefs below summarize the production art direction, rather than reconstructing verbatim generation prompts. Generated outputs were copied intact; all UI and animation are rendered in Godot.",
+  "note": "Original NPC, atelier, and map-emblem entries retain their direction briefs. The visual-polish entries preserve exact built-in ImageGen prompts. Every generated output was copied intact; all text, cards, state treatments, occlusion, and animation are rendered in Godot.",
   "assets": [
     {
       "path": "assets/art/npcs/graftwright.png",
@@ -21,6 +21,24 @@
       "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-b887a8d7-1e1b-43f2-abaf-0ff5d817c734.png",
       "sha256": "0232a198df55ba2fd99310d4a05705d0794dc7e101cbce172937e8184973f8fe",
       "brief": "Distinct transparent needle, violet thread loop and leather fragment map emblem; readable silhouette inside the existing map medallion."
+    },
+    {
+      "path": "assets/art/ui/graftwright/workmat.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-02b4caa7-fa2a-4be8-93bc-17a259bf92c1.png",
+      "sha256": "e567f398877b55e16b563dcce1f7dc597188262b22640733956650dd2e8314b6",
+      "prompt": "Use case: stylized-concept. Asset type: production 2D fantasy game UI work surface, not a mockup. Create one exquisite gothic tailor's rectangular crafting tray, straight-on orthographic, portrait aspect ratio about 4:5. Genuine transparent pixels outside the object. The tray fills 96 percent of the canvas. Its enormous empty center is almost-black plum suede, extremely subtle woven fibers, designed to provide a quiet opaque backing behind interactive cards and labels. Very slim aged brass and blackened-silver rim, hand-stitched dark leather inner edge, restrained needle-shaped metal corner fittings, slight bevels and natural tactile wear. Small quiet horizontal leather header strip inside the top border and a quiet footer strip at the bottom; no internal dividers. Premium dark fantasy RPG illustration with crisp textured material painting and controlled edge highlights, compatible with hand-painted dark gothic equipment icons. Symmetrical composition. No text, no letters, no symbols, no cards, no equipment, no gems, no buttons, no extra objects, no perspective tilt, no dramatic light in the blank center. The value of the center must be very dark and uniformly readable. Sharp alpha silhouette and subtle drop shadow."
+    },
+    {
+      "path": "assets/art/ui/graftwright/item_cradle.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-f2204b53-7cb8-495c-8801-e605a73cc991.png",
+      "sha256": "89663787f967c6fddfc091d4960fed665781c9a299e9d17468b2be15a324fbd3",
+      "prompt": "Use case: stylized-concept. Asset type: production transparent 2D fantasy item pedestal for a gothic tailor crafting interface. Square canvas. One empty circular recessed item cradle, orthographic front view with just a hint of thickness at the lower lip. Genuine transparency outside the round object; the whole object fits with a generous 8 percent transparent margin. Quiet nearly black velvet depression in the center, 72 percent of the diameter left EMPTY for a live equipment icon. A narrow beautifully worked blackened brass rim, four small old silver needle clasps, subtly stitched plum leather binding, extremely restrained amethyst thread inlay along the lower edge. Physical bevel, warm tiny edge glints, soft grounding shadow. Premium hand-painted dark fantasy game material art, crisp detailed edges, understated decoration; not a shiny generic app icon, not a medallion with a symbol. No text, no runes, no letters, no item inside, no central decoration, no brightly glowing empty center."
+    },
+    {
+      "path": "assets/art/ui/graftwright/ritual_clasp.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-1a9f7154-ff96-4a01-995a-b45c80a0c0f0.png",
+      "sha256": "9432fb0201c8442d769d4b8c1d2c1b2458468bcb40886b8851602e620f0d33ac",
+      "prompt": "Use case: stylized-concept. Asset type: bespoke primary crafting control artwork for a premium gothic fantasy game. A single horizontal ritual clasp, wide 3:1 composition, front-on, genuine transparent background outside its silhouette. Fills canvas width with 4 percent transparent margin, centered. Physical dark plum leather tab clasped in an elegant blackened brass frame; asymmetric fine silver tailor's needles at both short ends, a few taut violet silk threads woven through the ends. The large central 70 percent is completely blank, very dark satin/plum enamel with subtle texture and a tiny top-edge reflected light, reserved for live game text. Thin delicately engraved metal bevels, restrained luminous amethyst thread seams, strong readable silhouette, tactile shadows and beautiful polished highlights. Premium hand-painted dark fantasy production UI art, sophisticated rather than ornate clutter. No words, no letters, no runes, no text, no buttons inside the object, no UI mockup, no background scene, no border around the canvas. This is one complete object, not a sheet of variants."
     }
   ]
 }
