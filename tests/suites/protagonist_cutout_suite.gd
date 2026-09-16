@@ -18,6 +18,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	if renderer == null:
 		board.queue_free()
 		return
+	await _check_illusion_independence(board, expect)
 	var initial: Dictionary = renderer.call("snapshot")
 	var texture: Texture2D = renderer.call("texture")
 	var expected_facings: Array[String] = ["front", "front", "rear", "rear"]
@@ -189,3 +190,50 @@ static func _check_ranged(renderer: Node, scene: Node, expect: Callable) -> void
 			expect.call(sample["clip"] == clip and is_equal_approx(float(sample["phase"]),0.4) and bool(sample["crossbow_visible"]) == (clip == "shoot"), "Reduced motion uses a still raised hand or aimed crossbow")
 			renderer.call("present", {}, true)
 			expect.call(not bool(renderer.call("snapshot")["crossbow_visible"]), "Returning to idle removes temporary equipment")
+
+static func _check_illusion_independence(board: Control, expect: Callable) -> void:
+	var state: Dictionary = {"player": {"pos": Vector2i(2, 2), "hp": 24},
+		"illusions": [{"id": 7, "pos": Vector2i(3, 2), "hp": 2}, {"id": 8, "pos": Vector2i(4, 2), "hp": 2}]}
+	var illusion: Dictionary = {"type": "player", "role": "illusion", "key": "illusion_7"}
+	var other: Dictionary = {"type": "player", "role": "illusion", "key": "illusion_8"}
+	board.call("set_combat_state", state)
+	var renderer: Node = board.call("unit_cutout_renderer", illusion)
+	expect.call(is_instance_valid(renderer), "An illusion gets a renderer on its first state submission")
+	if not is_instance_valid(renderer):
+		return
+	var texture: Texture2D = board.call("_texture_for_unit", illusion)
+	expect.call(texture != board.call("_texture_for_unit", {"type": "player"}), "Illusion texture is independent of the player")
+	for clip: String in ["walk", "attack", "cast", "shoot"]:
+		board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {},
+			{"protagonist_motion": {"clip": clip, "direction": Vector2i(-1, 0), "phase": 0.42}})
+		var snapshot: Dictionary = renderer.call("snapshot")
+		expect.call(snapshot["clip"] == "idle" and snapshot["facing"] == "front" and not snapshot["mirrored"], "Illusion stays idle while player performs " + clip)
+		expect.call(board.call("_texture_for_unit", illusion) == texture, "Illusion retains its texture during " + clip)
+	for clip: String in ["walk", "attack"]:
+		board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {},
+			{"illusion_motion": {"illusion_7": {"clip": clip, "direction": Vector2i(-1, 0), "phase": 0.42}}})
+		expect.call(renderer.call("snapshot")["clip"] == clip, "Explicit illusion motion plays its own " + clip)
+		expect.call(board.call("unit_cutout_renderer", other).call("snapshot")["clip"] == "idle", "Other illusion remains idle during independent " + clip)
+		expect.call(board.call("protagonist_animation_snapshot")["clip"] == "idle", "Independent illusion motion leaves player idle")
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": true})
+	expect.call(renderer.call("snapshot")["clip"] == "rest", "Illusion respects reduced motion")
+	board.call("set_combat_state", state)
+	expect.call(renderer.call("snapshot")["clip"] == "idle", "Illusion returns to idle when its own action ends")
+	var phase: float = renderer.call("snapshot")["phase"]
+	renderer.call("_process", 0.1)
+	expect.call(not is_equal_approx(phase, renderer.call("snapshot")["phase"]), "Illusion idle advances independently")
+	board.call("set_combat_state", {"player": state["player"], "illusions": []})
+	expect.call((board.get("_illusion_renderers") as Dictionary).is_empty(), "Removed illusions release their renderers")
+
+	var preview: Dictionary = {"type": "player", "role": "illusion_preview", "key": "illusion_preview", "pos": Vector2i(3, 2)}
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {},
+		{"preview_units": [preview], "protagonist_motion": {"clip": "attack", "phase": 0.42},
+		"illusion_motion": {"illusion_preview": {"clip": "attack", "phase": 0.42}}})
+	var preview_renderer: Node = board.call("unit_cutout_renderer", preview)
+	expect.call(is_instance_valid(preview_renderer), "Placement preview gets its own renderer")
+	if is_instance_valid(preview_renderer):
+		expect.call(preview_renderer.call("snapshot")["clip"] == "idle", "Placement preview stays idle even with an addressed action")
+	var layer: Node = board.get("_dynamic_render_layer")
+	expect.call(layer.call("unit_cutout_renderer", illusion) == board.call("unit_cutout_renderer", illusion), "Retained layers share the illusion renderer pool")
+	board.call("set_combat_state", {"player": state["player"], "illusions": []})
+	expect.call((board.get("_illusion_renderers") as Dictionary).is_empty(), "Leaving preview releases its renderer")

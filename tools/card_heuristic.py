@@ -17,7 +17,8 @@ available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
 uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
 eligibility; depth controls density and scaling instead of gating enemy types.
 The first combat remains a kill-all tutorial. Later standard rooms use a seeded
-25/25/25/25 mix of kill-all, kill-leader, survive, and reach-exit objectives;
+50/25/25 mix of kill-all, kill-leader, and reach-exit objectives;
+survive is temporarily out of rotation but retains saved-encounter support;
 boss rooms always use kill-leader without generic leader stat scaling.
 Survival targets initiative 42/46/50 by local depth with one reinforcement every
 16 time; reach-exit rooms add 1/2/2 enemies and three crates while favoring
@@ -133,9 +134,9 @@ BASE_DRAW_PER_TURN = 2
 BASE_PLAYER_MOVEMENT = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
-    "kill_all": 25,
+    "kill_all": 50,
     "kill_leader": 25,
-    "survive": 25,
+    "survive": 0,
     "reach_exit": 25,
 }
 SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH = [42, 46, 50]

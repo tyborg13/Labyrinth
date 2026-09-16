@@ -127,8 +127,10 @@ grouped by active relic ids.
 Encounter calibration is also important:
 
 - The first combat remains a `Kill All` onboarding encounter. Later standard
-  rooms deterministically use an equal `25/25/25/25` mix of `Kill All`, `Kill
-  the Leader`, `Survive`, and `Reach the Exit`; boss rooms always use `Kill the
+  rooms deterministically use a `50/25/25` mix of `Kill All`, `Kill
+  the Leader`, and `Reach the Exit`. `Survive` is temporarily out of rotation;
+  its former seeded slots use `Kill All`, while its implementation and saved
+  encounters remain supported. Boss rooms always use `Kill the
   Leader` without applying the generic leader health/defense bonus on top of
   authored boss stats. Survival targets initiative clock
   `42/46/50` at local depths `1/2/3` and schedules one reinforcement every `16`
