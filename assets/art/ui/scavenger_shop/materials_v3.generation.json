@@ -1,0 +1,16 @@
+{
+  "generator": "built-in image_gen",
+  "disposition": "selected",
+  "source_output": "exec-9710e870-d23c-4988-9709-db94e9800713.png",
+  "sha256": "e8caf650d6e077567183ef3dc8bab498d0e7e3717d01c8a87df30c534d08ab10",
+  "source_size": [
+    1536,
+    1024
+  ],
+  "alpha": "RGBA; empty outside paint, retained unchanged",
+  "runtime_registration": "scripts/scavenger_materials.gd REGIONS; independently scaled border geometry preserves motifs",
+  "prompt": "Create a production game UI material atlas for Escape the Umbra's SCAVENGER shop. Stylized hand-painted dark fantasy, tactile worn tobacco-brown leather, soot-dark carved timber, restrained aged brass inlays, amber reflections, fine painterly/pixel-detail consistent with the attached game's merchant stall. NOT a screenshot. No text, no letters, no symbols that could be read as gameplay icons, no characters. This is an atlas containing exactly FOUR clearly separated UI assets on a fully transparent RGBA background. 1536 x 1024 landscape layout. Top left quadrant (x32..736,y32..400): one wide horizontal trade-button plaque, dark suede face with shallow brass rim, chamfered corners, small subtle leather straps and rivets near its left and right ends, empty central 70% for live text. Top right quadrant (x800..1504,y32..400): one wide dark oak shelf nameplate, narrow layered brass edging and tiny chains along the outermost ends, blank central 80% for live text. Bottom left quadrant (x32..736,y480..992): one rectangular inventory tray viewed straight-on, fine stitched leather interior, thin hammered brass frame with four restrained corner fittings, empty dark low-contrast center, NO dividers. Bottom right quadrant (x800..1504,y480..992): one horizontal dialogue folio panel, dark warm leather with subtle grain, finely engraved aged brass corner fittings and a narrow double border; empty dark center. All four assets complete, facing directly forward, orthographic, no ground plane, no perspective tilt, no drop shadow outside alpha edges. Keep motifs restrained and functional. The look should be premium authored game art, physically believable materials, crisp readability, no glossy modern application UI.",
+  "references": [
+    "assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
+  ]
+}

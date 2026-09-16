@@ -1,41 +1,25 @@
 extends Control
-## A presentation-only purchase receipt. It owns its proxy and lifetime so stock
-## rebuilds, subsequent trades and leaving the shop never await an animation.
-
-const UiTypography = preload("res://scripts/ui_typography.gd")
+## Committed trades own their short visual lifetime; no resolver waits on this.
 const DURATION: float = 0.94
 const REDUCED_DURATION: float = 0.64
 const ACCENT := Color("f6ce7e")
-
 var item_id: String = ""
 var origin: Rect2
 var destination: Vector2
+var currency_destination: Vector2
 var reduced_motion: bool = false
+var selling: bool = false
 var proxy: Control
-var _caption: Label
 var _elapsed: float = 0.0
-var _proxy_center: Vector2
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	proxy = Control.new()
-	proxy.name = "PurchasedWare"
+	proxy.name = "TradedWare"
 	proxy.size = origin.size
 	proxy.pivot_offset = origin.size * 0.5
 	proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(proxy)
-	_caption = Label.new()
-	_caption.name = "PurchaseConfirmation"
-	_caption.text = "ADDED TO PACK"
-	_caption.size = Vector2(400.0, 54.0)
-	_caption.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_caption.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(_caption, 32)
-	_caption.add_theme_color_override("font_color", Color("fff0c4"))
-	_caption.add_theme_color_override("font_outline_color", Color("24140c"))
-	_caption.add_theme_constant_override("outline_size", 7)
-	add_child(_caption)
 	_update_pose()
 
 func _process(delta: float) -> void:
@@ -46,40 +30,65 @@ func _process(delta: float) -> void:
 	_update_pose()
 	queue_redraw()
 
+func _path(progress: float) -> Vector2:
+	return (origin.get_center() + Vector2(0, -22)).lerp(destination, progress) + Vector2(0, -sin(progress * PI) * 105)
+
 func _update_pose() -> void:
-	var fade: float = 1.0 - smoothstep(0.44, REDUCED_DURATION, _elapsed) if reduced_motion else 1.0 - smoothstep(0.80, DURATION, _elapsed)
-	_caption.modulate.a = minf(_elapsed / 0.07, 1.0) * fade
 	if reduced_motion:
 		proxy.visible = false
-		_caption.position = destination + Vector2(-200.0, -89.0)
 		return
-	var lift: float = 1.0 - pow(1.0 - clampf(_elapsed / 0.16, 0.0, 1.0), 3.0)
-	var flight: float = smoothstep(0.29, 0.76, _elapsed)
-	var start: Vector2 = origin.get_center() + Vector2(0.0, -24.0 * lift)
-	_proxy_center = start.lerp(destination, flight) + Vector2(0.0, -sin(flight * PI) * 82.0)
-	proxy.position = _proxy_center - origin.size * 0.5
-	proxy.scale = Vector2.ONE * lerpf(1.0 + 0.18 * lift, 0.12, flight)
-	proxy.modulate.a = 1.0 - smoothstep(0.67, 0.78, _elapsed)
-	_caption.position = destination + Vector2(-200.0, -89.0)
+	var lift: float = 1.0 - pow(1.0 - clampf(_elapsed / 0.17, 0.0, 1.0), 3.0)
+	var flight: float = smoothstep(0.23, 0.73, _elapsed)
+	proxy.position = _path(flight) + Vector2(0, 22 * (1.0 - lift)) - origin.size * 0.5
+	proxy.scale = Vector2.ONE * lerpf(1.0 + 0.16 * lift, 0.10, flight)
+	proxy.rotation = sin(flight * PI) * (-0.12 if selling else 0.09)
+	proxy.modulate = Color(1.0 + (1.0 - flight) * 0.22, 1.0 + (1.0 - flight) * 0.15, 1.0, 1.0 - smoothstep(0.67, 0.76, _elapsed))
 
 func _draw() -> void:
-	if reduced_motion:
-		return
-	var burst_progress: float = clampf(_elapsed / 0.32, 0.0, 1.0)
-	var burst_alpha: float = sin(burst_progress * PI) * 0.68
-	var center: Vector2 = origin.get_center() + Vector2(0.0, -18.0)
-	var radius: float = maxf(origin.size.x * 0.48, 64.0) + burst_progress * 35.0
-	for index: int in range(10):
-		var angle: float = TAU * float(index) / 10.0 - 0.2
+	if reduced_motion: return
+	var burst: float = clampf(_elapsed / 0.35, 0, 1)
+	var strength: float = sin(burst * PI)
+	var center: Vector2 = origin.get_center()
+	for layer: int in range(5):
+		var glow := StyleBoxFlat.new()
+		glow.bg_color = Color(ACCENT, strength * 0.018)
+		glow.set_corner_radius_all(14 + layer * 5)
+		glow.shadow_color = Color(ACCENT, strength * 0.09)
+		glow.shadow_size = 12 + layer * 6
+		draw_style_box(glow, origin.grow(5 + layer * 4))
+	for index: int in range(12):
+		var angle: float = float(index) * TAU / 12.0 + 0.3
 		var direction := Vector2(cos(angle), sin(angle))
-		draw_line(center + direction * radius, center + direction * (radius + 13.0), Color(ACCENT, burst_alpha), 3.0, true)
-	if _elapsed >= 0.29 and _elapsed < 0.76:
-		# A short wake follows the object, leaving the rest of the shop legible.
-		var flight: float = smoothstep(0.29, 0.76, _elapsed)
-		for index: int in range(1, 6):
-			var trail: float = maxf(0.0, flight - float(index) * 0.018)
-			var point: Vector2 = (origin.get_center() + Vector2(0.0, -24.0)).lerp(destination, trail) + Vector2(0.0, -sin(trail * PI) * 82.0)
-			draw_circle(point, 3.4 - float(index) * 0.35, Color(ACCENT, 0.4 - float(index) * 0.05))
-	var arrival: float = clampf((_elapsed - 0.70) / 0.24, 0.0, 1.0)
-	if arrival > 0.0:
-		draw_arc(destination, 15.0 + arrival * 45.0, 0.0, TAU, 40, Color(ACCENT, sin(arrival * PI) * 0.7), 2.0, true)
+		_star(center + direction * (45 + burst * 58), (2 + index % 3) * strength, Color(ACCENT, strength * 0.8))
+	var flight: float = smoothstep(0.23, 0.73, _elapsed)
+	if flight > 0 and flight < 1:
+		var points := PackedVector2Array()
+		for index: int in range(40):
+			points.append(_path(maxf(0, flight - 0.19 + 0.19 * float(index) / 39.0)))
+		_ribbon(points, sin(flight * PI))
+	var arrival: float = clampf((_elapsed - 0.68) / 0.26, 0, 1)
+	for index: int in range(9):
+		var direction := Vector2.from_angle(float(index) * TAU / 9.0)
+		_star(destination + direction * (12 + arrival * 60), sin(arrival * PI) * 5, Color(ACCENT, 1.0 - arrival))
+	if selling:
+		# Embers return to the actual balance as the ware reaches the merchant.
+		for index: int in range(7):
+			var progress: float = clampf((_elapsed - 0.38 - index * 0.022) / 0.40, 0, 1)
+			var point: Vector2 = destination.lerp(currency_destination, progress) + Vector2(0, -sin(progress * PI) * 120)
+			_star(point, sin(progress * PI) * (4 + index % 3), Color(ACCENT, sin(progress * PI)))
+
+	else:
+		for index: int in range(5):
+			var progress: float = clampf((_elapsed - 0.02 - index * 0.018) / 0.32, 0, 1)
+			var point: Vector2 = currency_destination.lerp(Vector2(300, 430), progress) + Vector2(0, -sin(progress * PI) * 70)
+			_star(point, sin(progress * PI) * 4, Color(ACCENT, sin(progress * PI) * 0.65))
+
+func _ribbon(points: PackedVector2Array, alpha: float) -> void:
+	draw_polyline(points, Color(ACCENT, alpha * 0.07), 14, true)
+	draw_polyline(points, Color(ACCENT, alpha * 0.18), 6, true)
+	draw_polyline(points, Color("fff2cb", alpha * 0.65), 1.5, true)
+
+func _star(center: Vector2, radius: float, tint: Color) -> void:
+	if radius < 0.25 or tint.a < 0.015: return
+	draw_colored_polygon(PackedVector2Array([center + Vector2(-radius, 0), center + Vector2(0, -radius * 1.6), center + Vector2(radius, 0), center + Vector2(0, radius * 1.6)]), tint)
+	draw_line(center + Vector2(-radius * 2, 0), center + Vector2(radius * 2, 0), Color(tint, tint.a * 0.4), 1, true)

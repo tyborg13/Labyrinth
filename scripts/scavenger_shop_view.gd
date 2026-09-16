@@ -4,6 +4,7 @@ class_name ScavengerShopView
 signal buy_requested(item_id: String, source: Control)
 signal sell_requested(item_id: String, source: Control)
 signal leave_requested
+signal controller_context_changed
 signal item_hovered(merchant_kind: String, item_id: String, source: Control)
 signal item_unhovered(merchant_kind: String, item_id: String, source: Control)
 
@@ -12,12 +13,15 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const PortraitRig = preload("res://scripts/scavenger_cutout/rig.gd")
+const Ware = preload("res://scripts/scavenger_ware.gd")
+const Materials = preload("res://scripts/scavenger_materials.gd")
+const ShopPanel = preload("res://scripts/scavenger_panel.gd")
+const ShopAction = preload("res://scripts/scavenger_action.gd")
 const MerchantAcquisitionEffect = preload("res://scripts/merchant_acquisition_effect.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
 const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
-const SCAVENGER_PATH := "res://assets/art/npcs/scavenger.png"
-const DARK_FRAME_PATH := "res://assets/art/ui/panel_silver_inset.png"
 const INSPECTION_FRAME_PATH := "res://assets/art/ui/scavenger_shop/inspection_frame_v1.png"
 const MAGIC := "magic"
 const GEAR := "gear"
@@ -26,8 +30,8 @@ const MERCHANT_KIND := "scavenger"
 const NATIVE_CARD_SIZE := Vector2(250.0, 352.0)
 const OFFER_CARD_SIZE := Vector2(154.0, 216.0)
 const OFFER_TILE_SIZE := Vector2(196.0, 170.0)
-const SELL_TILE_SIZE := Vector2(218.0, 192.0)
-const SELL_PAGE_SIZE: int = 2
+const SELL_TILE_SIZE := Vector2(244.0, 194.0)
+const SELL_PAGE_SIZE: int = 9
 const SHELF_LEFT: float = 655.0
 const SHELF_WIDTH: float = 840.0
 # The stall raster is drawn in shallow perspective: its post-to-post cubbies
@@ -48,7 +52,7 @@ var _ambient_time: float = 0.0
 var _canvas: Control
 var _backdrop: TextureRect
 var _portrait_clip: Control
-var _portrait: TextureRect
+var _portrait: Node2D
 var _counter_occluder: Control
 var _title_panel: PanelContainer
 var _currency_panel: PanelContainer
@@ -68,7 +72,7 @@ var _detail_price: Label
 var _detail_action: Button
 var _sell_panel: PanelContainer
 var _sell_heading: Label
-var _sell_row: HBoxContainer
+var _sell_row: GridContainer
 var _sell_previous: Button
 var _sell_next: Button
 var _leave_button: Button
@@ -84,6 +88,19 @@ var _detail_card_ids: Array[String] = []
 var _detail_card_index: int = 0
 var _slot_tweens: Dictionary = {}
 var _purchase_effects: Control
+var _pack_mode: bool = false
+var _pack_filter: String = "all"
+var _all_sellable_ids: Array = []
+var _mode_buy: Button
+var _mode_sell: Button
+var _filter_buttons: Array[Button] = []
+var _dialogue_panel: PanelContainer
+var _dialogue_words: Label
+var _receipt_heading: Label
+var _receipt_detail: Label
+var _receipt_amount: Label
+var _receipt_tween: Tween
+var _intro_open: bool = true
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -91,6 +108,7 @@ func _ready() -> void:
 	clip_contents = true
 	_build_static_scene()
 	resized.connect(_layout_canvas)
+	get_viewport().gui_focus_changed.connect(_on_gui_focus_changed)
 	_layout_canvas()
 	set_process(true)
 
@@ -113,10 +131,19 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 		_selected_is_sell = false
 		_selected_source = null
 		_sell_page = 0
+		_pack_mode = false
+		_pack_filter = "all"
+		_intro_open = true
+		_clear_receipt()
+		_sync_dialogue()
 	_rebuild_inventory()
 	_restore_selection_after_rebuild()
 	_sync_currency()
 	_sync_detail()
+	_sync_mode()
+	for button: Node in _canvas.find_children("*", "Button", true, false):
+		if button is ShopAction or button is Ware: button.set("reduced_motion", _reduced_motion)
+	if _portrait != null and _reduced_motion: _portrait.call("apply_pose", "rest", 0.0)
 	if visible and not _entry_played_for_room:
 		call_deferred("_play_entry")
 
@@ -140,46 +167,85 @@ func purchase_origin(item_id: String, source: Control) -> Rect2:
 		return Rect2()
 	var global_rect: Rect2 = source.get_global_rect()
 	if str(_run_engine.call("merchant_item_kind", item_id)) == MAGIC:
-		var cards: Array[Node] = source.find_children("*", "CardWidget", true, false)
-		if not cards.is_empty():
-			global_rect = (cards[0] as Control).get_global_rect()
+		for child: Node in source.find_children("*", "Button", true, false):
+			if child is CardWidget:
+				global_rect = (child as Control).get_global_rect()
+				break
+	else:
+		for child: Node in source.find_children("*", "TextureRect", true, false):
+			if (child as TextureRect).texture != null:
+				global_rect = (child as TextureRect).get_global_rect()
+				break
 	var inverse: Transform2D = _canvas.get_global_transform().affine_inverse()
 	return inverse * global_rect
 
 func present_purchase(item_id: String, origin: Rect2) -> void:
-	if not visible or _purchase_effects == null or origin.size.x <= 0.0:
-		return
-	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+	_present_trade(item_id, origin, false)
+
+func present_sale(item_id: String, origin: Rect2) -> void:
+	_present_trade(item_id, origin, true)
+
+func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
+	if not visible or _purchase_effects == null or origin.size.x <= 0.0 or origin.size.y <= 0.0: return
+	var amount: int = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	_show_receipt(item_id, amount, selling)
 	var effect := MerchantAcquisitionEffect.new()
-	effect.name = "MerchantAcquisition_%s" % item_id
+	effect.name = ("MerchantSale_" if selling else "MerchantAcquisition_") + item_id
 	effect.size = REFERENCE_SIZE
 	effect.item_id = item_id
 	effect.reduced_motion = _reduced_motion
+	effect.selling = selling
 	effect.origin = origin
-	# The pack is the shop's actual owned inventory surface, not the hidden HUD.
-	effect.destination = _sell_panel.position + Vector2(_sell_panel.size.x * 0.5, 42.0)
+	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(284, 150)
+	effect.currency_destination = _currency_panel.position + _currency_panel.size * 0.5
 	_purchase_effects.add_child(effect)
+	_build_purchase_proxy(effect.proxy, item_id, origin.size)
+
+func _clear_receipt() -> void:
+	if _receipt_tween != null and _receipt_tween.is_valid(): _receipt_tween.kill()
+	if _dialogue_words != null: _dialogue_words.show()
+	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]:
+		if label != null: label.hide()
+	if _currency_panel != null: _currency_panel.modulate = Color.WHITE
+
+func _show_receipt(item_id: String, amount: int, selling: bool) -> void:
+	if _receipt_tween != null and _receipt_tween.is_valid(): _receipt_tween.kill()
+	_dialogue_words.hide()
+	_receipt_heading.text = "SOLD" if selling else "ADDED TO PACK"
+	_receipt_detail.text = _item_name(item_id)
+	_receipt_amount.text = ("+%d EMBERS" if selling else "−%d EMBERS") % amount
+	_receipt_amount.add_theme_color_override("font_color", Color("bfe1ae") if selling else Color("f0ce88"))
+	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]:
+		label.show()
+		label.modulate = Color.WHITE
+	if not _reduced_motion:
+		_currency_panel.modulate = Color(1.4, 1.23, 1.05)
+		_receipt_tween = create_tween()
+		_receipt_tween.tween_property(_currency_panel, "modulate", Color.WHITE, 0.45)
+
+func _build_purchase_proxy(host: Control, item_id: String, visual_size: Vector2) -> void:
+	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
 	if kind == MAGIC:
 		# Card art/frame textures have transparent cut-outs. A lifted card needs
 		# its own solid body, otherwise the replacement stock bleeds through it.
 		var backing := Panel.new()
 		backing.position = Vector2(7.0, 9.0)
-		backing.size = origin.size - Vector2(14.0, 15.0)
+		backing.size = visual_size - Vector2(14.0, 15.0)
 		var backing_style := StyleBoxFlat.new()
 		backing_style.bg_color = Color("251c10")
 		backing_style.set_corner_radius_all(10)
 		backing.add_theme_stylebox_override("panel", backing_style)
-		effect.proxy.add_child(backing)
-		_build_native_scaled_card(effect.proxy, item_id, origin.size, "PurchasedCard", false)
+		host.add_child(backing)
+		_build_native_scaled_card(host, item_id, visual_size, "PurchasedCard", false)
 	else:
 		var icon := TextureRect.new()
 		icon.texture = AssetLoader.load_texture(_icon_path(item_id))
-		icon.size = origin.size
+		icon.size = visual_size
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		effect.proxy.add_child(icon)
-	_make_mouse_passive(effect)
+		host.add_child(icon)
+	_make_mouse_passive(host)
 
 
 func semantic_snapshot() -> Dictionary:
@@ -199,6 +265,10 @@ func semantic_snapshot() -> Dictionary:
 		"detail_card_ids": _detail_card_ids.duplicate(),
 		"detail_card_index": _detail_card_index,
 		"reduced_motion": _reduced_motion,
+		"pack_mode": _pack_mode,
+		"pack_filter": _pack_filter,
+		"intro_open": _intro_open,
+		"portrait_rig": _portrait is PortraitRig,
 	}
 
 func _build_static_scene() -> void:
@@ -238,20 +308,13 @@ func _build_static_scene() -> void:
 	_portrait_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_portrait_clip)
 
-	_portrait = TextureRect.new()
+	_portrait = PortraitRig.new()
 	_portrait.name = "ScavengerPortrait"
-	_place(_portrait, Rect2(PORTRAIT_BASE_POSITION, Vector2(800.0, 800.0)))
-	_portrait.texture = AssetLoader.load_texture(SCAVENGER_PATH)
-	_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_portrait.pivot_offset = _portrait.size * 0.55
+	_portrait.position = PORTRAIT_BASE_POSITION
+	_portrait.scale = Vector2.ONE * (800.0 / 255.0)
 	_portrait_clip.add_child(_portrait)
+	_portrait.call("load_rig")
 
-	# Repaint the counter from the architectural raster above the portrait. This
-	# makes the merchant stand inside the stall instead of reading as a sticker
-	# pasted over it, while the backdrop remains a separately authored layer.
 	_counter_occluder = Control.new()
 	_counter_occluder.name = "ForegroundCounterOccluder"
 	_place(_counter_occluder, Rect2(0.0, 636.0, 640.0, 338.0))
@@ -267,7 +330,8 @@ func _build_static_scene() -> void:
 	counter_raster.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_counter_occluder.add_child(counter_raster)
 
-	_title_panel = _raster_panel(DARK_FRAME_PATH, Color("4a3425"))
+	_title_panel = _panel()
+	_set_panel_material(_title_panel, "dialogue")
 	_title_panel.name = "ScavengerWaresTitlePanel"
 	_place(_title_panel, Rect2(600.0, 28.0, 870.0, 92.0))
 	_canvas.add_child(_title_panel)
@@ -282,7 +346,7 @@ func _build_static_scene() -> void:
 	title.add_theme_constant_override("outline_size", 5)
 	_title_panel.add_child(title)
 
-	_currency_panel = _raster_panel(DARK_FRAME_PATH, Color("493325"))
+	_currency_panel = _panel()
 	_currency_panel.name = "ScavengerCurrencyPanel"
 	_place(_currency_panel, Rect2(1495.0, 38.0, 385.0, 72.0))
 	_canvas.add_child(_currency_panel)
@@ -304,7 +368,7 @@ func _build_static_scene() -> void:
 
 	_detail_panel = Control.new()
 	_detail_panel.name = "ScavengerDetailPanel"
-	_place(_detail_panel, Rect2(1475.0, 160.0, 420.0, 630.0))
+	_place(_detail_panel, Rect2(1475.0, 156.0, 420.0, 722.0))
 	_detail_panel.clip_contents = true
 	_canvas.add_child(_detail_panel)
 	var detail_frame := TextureRect.new()
@@ -318,15 +382,18 @@ func _build_static_scene() -> void:
 	_detail_panel.add_child(detail_frame)
 	_build_detail_content()
 
-	_sell_panel = _raster_panel(DARK_FRAME_PATH, Color("463226"))
+	_sell_panel = _panel()
+	_set_panel_material(_sell_panel, "tray")
 	_sell_panel.name = "SellFromPackPanel"
-	_place(_sell_panel, Rect2(16.0, 700.0, 608.0, 318.0))
+	_place(_sell_panel, Rect2(658.0, 132.0, 794.0, 778.0))
 	_canvas.add_child(_sell_panel)
 	_build_sell_content()
+	_build_dialogue_and_modes()
+	_shade_ui_labels(_canvas)
 
-	_leave_button = _raster_button("LEAVE", Color("6e2d24"), Color("9a4735"))
+	_leave_button = _action("Leave")
 	_leave_button.name = "ScavengerLeaveButton"
-	_place(_leave_button, Rect2(1540.0, 920.0, 310.0, 82.0))
+	_place(_leave_button, Rect2(1540.0, 950.0, 310.0, 70.0))
 	UiTypography.set_button_size(_leave_button, 30)
 	_leave_button.tooltip_text = "Close the shop and return to the room's doors."
 	_leave_button.pressed.connect(func() -> void: leave_requested.emit())
@@ -345,10 +412,10 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	group.name = "%sShelf" % label_text.capitalize()
 	_place(group, rect)
 	_canvas.add_child(group)
-	var plaque := PanelContainer.new()
+	var plaque := ShopPanel.new()
 	plaque.name = "%sPlaque" % label_text.capitalize()
 	_place(plaque, Rect2(-120.0, 0.0, 150.0, 44.0))
-	plaque.add_theme_stylebox_override("panel", _raster_style(DARK_FRAME_PATH, Color("4b3526")))
+	plaque.add_theme_stylebox_override("panel", _panel_insets())
 	group.add_child(plaque)
 	var label := Label.new()
 	label.text = label_text
@@ -389,7 +456,7 @@ func _build_detail_content() -> void:
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_detail_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_detail_title.custom_minimum_size = Vector2(0.0, 42.0)
-	UiTypography.set_label_size(_detail_title, 25)
+	UiTypography.set_label_size(_detail_title, 28)
 	_detail_title.add_theme_color_override("font_color", Color("f2d49d"))
 	_detail_title.add_theme_color_override("font_outline_color", Color("120b08"))
 	_detail_title.add_theme_constant_override("outline_size", 3)
@@ -397,15 +464,15 @@ func _build_detail_content() -> void:
 	_detail_kind = Label.new()
 	_detail_kind.name = "ScavengerDetailKind"
 	_detail_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_detail_kind.custom_minimum_size = Vector2(0.0, 22.0)
-	UiTypography.set_label_size(_detail_kind, 15)
+	_detail_kind.custom_minimum_size = Vector2(0.0, 34.0)
+	UiTypography.set_label_size(_detail_kind, 17)
 	_detail_kind.add_theme_color_override("font_color", Color("b8a78e"))
 	stack.add_child(_detail_kind)
 	var separator := HSeparator.new()
 	stack.add_child(separator)
 	_detail_card_host = CenterContainer.new()
 	_detail_card_host.name = "ScavengerDetailCardHost"
-	_detail_card_host.custom_minimum_size = Vector2(0.0, 312.0)
+	_detail_card_host.custom_minimum_size = Vector2(0.0, 356.0)
 	_detail_card_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stack.add_child(_detail_card_host)
 	_detail_card_nav = HBoxContainer.new()
@@ -414,7 +481,7 @@ func _build_detail_content() -> void:
 	_detail_card_nav.alignment = BoxContainer.ALIGNMENT_CENTER
 	_detail_card_nav.add_theme_constant_override("separation", 8)
 	stack.add_child(_detail_card_nav)
-	_detail_card_previous = _raster_button("‹", Color("30251e"), Color("56402c"))
+	_detail_card_previous = _action("‹")
 	_detail_card_previous.name = "ScavengerPreviousGrantedCard"
 	_detail_card_previous.custom_minimum_size = Vector2(48.0, 40.0)
 	UiTypography.set_button_size(_detail_card_previous, 24)
@@ -426,10 +493,10 @@ func _build_detail_content() -> void:
 	_detail_card_counter.custom_minimum_size = Vector2(220.0, 40.0)
 	_detail_card_counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_detail_card_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_detail_card_counter, 15)
+	UiTypography.set_label_size(_detail_card_counter, 17)
 	_detail_card_counter.add_theme_color_override("font_color", Color("d9c6a6"))
 	_detail_card_nav.add_child(_detail_card_counter)
-	_detail_card_next = _raster_button("›", Color("30251e"), Color("56402c"))
+	_detail_card_next = _action("›")
 	_detail_card_next.name = "ScavengerNextGrantedCard"
 	_detail_card_next.custom_minimum_size = Vector2(48.0, 40.0)
 	UiTypography.set_button_size(_detail_card_next, 24)
@@ -444,65 +511,135 @@ func _build_detail_content() -> void:
 	UiTypography.set_label_size(_detail_price, 18)
 	_detail_price.add_theme_color_override("font_color", Color("efbd67"))
 	stack.add_child(_detail_price)
-	_detail_action = _raster_button("BUY", Color("214459"), Color("2e6985"))
+	_detail_action = _action("BUY")
 	_detail_action.name = "ScavengerTradeActionButton"
-	_detail_action.custom_minimum_size = Vector2(0.0, 58.0)
-	UiTypography.set_button_size(_detail_action, 23)
+	_detail_action.custom_minimum_size = Vector2(0.0, 66.0)
+	UiTypography.set_button_size(_detail_action, 24)
 	_detail_action.pressed.connect(_on_detail_action)
 	stack.add_child(_detail_action)
 	_detail_card_nav.visible = false
 
 func _build_sell_content() -> void:
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 18)
-	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 18)
-	margin.add_theme_constant_override("margin_bottom", 16)
-	_sell_panel.add_child(margin)
-	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 8)
-	margin.add_child(stack)
-	_sell_heading = Label.new()
-	_sell_heading.text = "SELL FROM PACK"
-	_sell_heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_sell_heading, 25)
-	_sell_heading.add_theme_color_override("font_color", Color("efd39d"))
-	_sell_heading.add_theme_color_override("font_outline_color", Color("170d08"))
-	_sell_heading.add_theme_constant_override("outline_size", 3)
-	stack.add_child(_sell_heading)
-	var instruction := Label.new()
-	instruction.text = "Choose a ware • review its exact value on the right"
-	instruction.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	instruction.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(instruction, 16)
-	instruction.add_theme_color_override("font_color", Color("cdbda3"))
-	stack.add_child(instruction)
-	var pager := HBoxContainer.new()
-	pager.name = "SellInventoryPager"
-	pager.custom_minimum_size = Vector2(0.0, SELL_TILE_SIZE.y)
-	pager.alignment = BoxContainer.ALIGNMENT_CENTER
-	pager.add_theme_constant_override("separation", 5)
-	stack.add_child(pager)
-	_sell_previous = _raster_button("‹", Color("34271f"), Color("57422e"))
-	_sell_previous.name = "SellPreviousPage"
-	_sell_previous.custom_minimum_size = Vector2(36.0, SELL_TILE_SIZE.y)
-	UiTypography.set_button_size(_sell_previous, 26)
-	_sell_previous.tooltip_text = "Previous pack page."
-	_sell_previous.pressed.connect(_turn_sell_page.bind(-1))
-	pager.add_child(_sell_previous)
-	_sell_row = HBoxContainer.new()
+	var content := Control.new()
+	_sell_panel.add_child(content)
+	_sell_heading = _label_at(content, "Sell from pack", Rect2(14, 0, 480, 48), 30)
+	var categories: Array = ["all", MAGIC, GEAR, ITEM]
+	for index: int in range(categories.size()):
+		var category: String = categories[index]
+		var button := _action("ALL" if category == "all" else "ITEMS" if category == ITEM else category.to_upper())
+		button.name = "PackFilter_" + category
+		button.toggle_mode = true
+		button.set("surface", "dialogue")
+		_place(button, Rect2(14 + index * 189, 58, 180, 46))
+		UiTypography.set_button_size(button, 19)
+		button.pressed.connect(_set_pack_filter.bind(category))
+		content.add_child(button)
+		_filter_buttons.append(button)
+	_sell_row = GridContainer.new()
 	_sell_row.name = "SellInventoryRow"
-	_sell_row.custom_minimum_size = Vector2(SELL_TILE_SIZE.x * SELL_PAGE_SIZE + 12.0 * (SELL_PAGE_SIZE - 1), SELL_TILE_SIZE.y)
-	_sell_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	_sell_row.add_theme_constant_override("separation", 12)
-	pager.add_child(_sell_row)
-	_sell_next = _raster_button("›", Color("34271f"), Color("57422e"))
+	_sell_row.columns = 3
+	_sell_row.add_theme_constant_override("h_separation", 8)
+	_sell_row.add_theme_constant_override("v_separation", 10)
+	_place(_sell_row, Rect2(12, 120, 748, 602))
+	content.add_child(_sell_row)
+	_sell_previous = _action("‹")
+	_sell_previous.name = "SellPreviousPage"
+	_place(_sell_previous, Rect2(564, 3, 78, 45))
+	_sell_previous.pressed.connect(_turn_sell_page.bind(-1))
+	content.add_child(_sell_previous)
+	_sell_next = _action("›")
 	_sell_next.name = "SellNextPage"
-	_sell_next.custom_minimum_size = Vector2(36.0, SELL_TILE_SIZE.y)
-	UiTypography.set_button_size(_sell_next, 26)
-	_sell_next.tooltip_text = "Next pack page."
+	_place(_sell_next, Rect2(662, 3, 78, 45))
 	_sell_next.pressed.connect(_turn_sell_page.bind(1))
-	pager.add_child(_sell_next)
+	content.add_child(_sell_next)
+
+func _label_at(parent: Node, words: String, rect: Rect2, font_size: int, color: Color = Color("f0d6a8")) -> Label:
+	var label := Label.new()
+	label.text = words
+	_place(label, rect)
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, font_size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
+	label.add_theme_constant_override("shadow_offset_y", 3)
+	label.add_theme_color_override("font_outline_color", Color("180f0b"))
+	label.add_theme_constant_override("outline_size", 3)
+	parent.add_child(label)
+	return label
+
+func _build_dialogue_and_modes() -> void:
+	_dialogue_panel = _panel()
+	_set_panel_material(_dialogue_panel, "dialogue")
+	_dialogue_panel.name = "ScavengerDialogue"
+	_place(_dialogue_panel, Rect2(32, 744, 568, 278))
+	_canvas.add_child(_dialogue_panel)
+	var content := Control.new()
+	_dialogue_panel.add_child(content)
+	_label_at(content, "THE SCAVENGER", Rect2(20, 4, 504, 46), 30)
+	_dialogue_words = _label_at(content, "", Rect2(20, 61, 504, 134), 25, Color("e4d8c0"))
+	_dialogue_words.name = "ScavengerDialogueBody"
+	_dialogue_words.add_theme_font_override("font", UiTypography.text_font())
+	_dialogue_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_receipt_heading = _label_at(content, "", Rect2(20, 61, 504, 38), 25)
+	_receipt_heading.name = "ScavengerReceiptHeading"
+	_receipt_detail = _label_at(content, "", Rect2(20, 105, 504, 52), 24, Color("eee1c7"))
+	_receipt_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_receipt_amount = _label_at(content, "", Rect2(20, 167, 504, 40), 27)
+	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]: label.hide()
+	_mode_buy = _action("Browse wares")
+	_mode_buy.name = "ScavengerBrowseMode"
+	_place(_mode_buy, Rect2(670, 950, 378, 70))
+	_mode_buy.toggle_mode = true
+	UiTypography.set_button_size(_mode_buy, 25)
+	_mode_buy.pressed.connect(_set_pack_mode.bind(false))
+	_canvas.add_child(_mode_buy)
+	_mode_sell = _action("Sell from pack")
+	_mode_sell.name = "ScavengerSellMode"
+	_place(_mode_sell, Rect2(1065, 950, 378, 70))
+	_mode_sell.toggle_mode = true
+	UiTypography.set_button_size(_mode_sell, 25)
+	_mode_sell.pressed.connect(_set_pack_mode.bind(true))
+	_canvas.add_child(_mode_sell)
+	_sync_dialogue()
+
+func show_dialogue(_dialogue: Dictionary) -> void:
+	# A single shop-owned welcome: wares stay clickable, with no board overlay.
+	_sync_dialogue()
+
+func _sync_dialogue() -> void:
+	if _dialogue_words == null: return
+	_dialogue_words.text = "Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell."
+
+
+func _set_pack_mode(selling: bool) -> void:
+	_intro_open = false
+	_pack_mode = selling
+	_selected_item_id = ""
+	_selected_source = null
+	_selected_is_sell = selling
+	_sync_mode()
+	_sync_detail()
+	_update_selection_effects()
+
+func _set_pack_filter(category: String) -> void:
+	_pack_filter = category
+	_sell_page = 0
+	_selected_item_id = ""
+	_selected_source = null
+	_rebuild_inventory()
+	_sync_mode()
+	_sync_detail()
+
+func _sync_mode() -> void:
+	for group: Control in _animated_groups: group.visible = not _pack_mode
+	_sell_panel.visible = _pack_mode
+	_mode_buy.set_pressed_no_signal(not _pack_mode)
+	_mode_sell.set_pressed_no_signal(_pack_mode)
+	for button: Button in _filter_buttons:
+		button.set_pressed_no_signal(button.name == "PackFilter_" + _pack_filter)
+	_sync_dialogue()
+	_configure_focus_neighbors()
 
 func _rebuild_inventory() -> void:
 	if _run_engine == null or _magic_group == null:
@@ -542,9 +679,14 @@ func _rebuild_inventory() -> void:
 		for item_id: String in ids:
 			var offer: Control = _offer_sources.get("buy:" + item_id) as Control
 			if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
-	_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
+	_all_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
+	_sellable_ids = _all_sellable_ids.filter(func(id: Variant) -> bool: return _pack_filter == "all" or str(_run_engine.call("merchant_item_kind", str(id))) == _pack_filter)
 	_populate_sell_page()
 	_update_selection_effects()
+	_shade_ui_labels(_magic_group)
+	_shade_ui_labels(_gear_group)
+	_shade_ui_labels(_item_group)
+	_shade_ui_labels(_sell_panel)
 
 func _forget_offer(key: String) -> void:
 	var source: Control = _offer_sources.get(key) as Control
@@ -560,33 +702,45 @@ func _forget_offer(key: String) -> void:
 func _populate_sell_page() -> void:
 	var page_count: int = maxi(1, ceili(float(_sellable_ids.size()) / float(SELL_PAGE_SIZE)))
 	_sell_page = clampi(_sell_page, 0, page_count - 1)
-	var signature: String = "%d|%d|%d" % [hash(_sellable_ids), _sell_page, page_count]
+	var signature: String = "%d|%d|%d" % [hash([_sellable_ids, _pack_filter]), _sell_page, page_count]
 	if signature == _sell_page_signature: return
 	_sell_page_signature = signature
 	for key_var: Variant in _offer_sources.keys():
 		var key: String = str(key_var)
 		if key.begins_with("sell:"): _forget_offer(key)
 	_clear_children(_sell_row)
-	_sell_heading.text = "SELL FROM PACK" if page_count == 1 else "SELL FROM PACK  •  %d/%d" % [_sell_page + 1, page_count]
+	_sell_heading.text = "YOUR PACK" if page_count == 1 else "YOUR PACK  ·  %d / %d" % [_sell_page + 1, page_count]
 	_sell_previous.disabled = _sell_page <= 0
 	_sell_next.disabled = _sell_page >= page_count - 1
+	var count: int = mini(SELL_PAGE_SIZE, maxi(0, _sellable_ids.size() - _sell_page * SELL_PAGE_SIZE))
+	var rows: int = ceili(float(count) / 3.0)
+	var grid_height: float = 180.0 if count == 0 else rows * SELL_TILE_SIZE.y + maxi(0, rows - 1) * 10.0
+	_sell_row.custom_minimum_size.y = grid_height
+	_sell_row.size.y = grid_height
+	_sell_panel.custom_minimum_size.y = grid_height + 168.0
+	_sell_panel.size.y = grid_height + 168.0
 	if _sellable_ids.is_empty():
 		var empty := Label.new()
-		empty.text = "Nothing in your pack can be sold here."
-		empty.custom_minimum_size = _sell_row.custom_minimum_size
+		empty.text = "No spare wares to sell." if _pack_filter == "all" else "No %s to sell." % ("items" if _pack_filter == ITEM else _pack_filter)
+		empty.custom_minimum_size = Vector2(748, 180)
+		_sell_row.columns = 1
 		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		UiTypography.set_label_size(empty, 17)
 		empty.add_theme_color_override("font_color", Color("a99b86"))
 		_sell_row.add_child(empty)
 	else:
+		_sell_row.columns = 3
 		var first_index: int = _sell_page * SELL_PAGE_SIZE
 		for index: int in range(first_index, mini(first_index + SELL_PAGE_SIZE, _sellable_ids.size())):
 			_sell_row.add_child(_build_sell_offer(str(_sellable_ids[index])))
 
 func _turn_sell_page(delta: int) -> void:
+	var focus: Control = get_viewport().gui_get_focus_owner()
 	_sell_page += delta
 	_populate_sell_page()
+	if focus == _sell_next and _sell_next.disabled: _sell_previous.grab_focus()
+	elif focus == _sell_previous and _sell_previous.disabled: _sell_next.grab_focus()
 	_restore_selection_after_rebuild()
 	_sync_detail()
 	_update_selection_effects()
@@ -630,7 +784,8 @@ func _build_magic_offer(item_id: String) -> Control:
 	return button
 
 func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
-	var button := _raster_button("", Color("34271f"), Color("51402e")) if selling else _shelf_offer_button()
+	var button := _shelf_offer_button()
+	button.set("pack", selling)
 	button.name = "%sOffer_%s" % [kind.capitalize(), item_id]
 	button.custom_minimum_size = SELL_TILE_SIZE if selling else OFFER_TILE_SIZE
 	_wire_offer_button(button, item_id, selling)
@@ -651,7 +806,7 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	icon_center.add_child(icon)
 	var caption_parent: Container = stack
 	if not selling:
-		var caption := _raster_panel(DARK_FRAME_PATH, Color("3d2b20"))
+		var caption := _panel()
 		caption.custom_minimum_size = Vector2(178.0, 50.0)
 		stack.add_child(caption)
 		var caption_stack := VBoxContainer.new()
@@ -669,7 +824,7 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	caption_parent.add_child(name_label)
 	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
 	var price := Label.new()
-	price.text = "VALUE %d" % amount if selling else "%d EMBERS" % amount
+	price.text = "+%d EMBERS" % amount if selling else "%d EMBERS" % amount
 	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	UiTypography.set_label_size(price, 15)
 	price.add_theme_color_override("font_color", Color("9cdb96") if selling else Color("f2bd65"))
@@ -687,7 +842,8 @@ func _build_sell_offer(item_id: String) -> Control:
 	return _build_icon_offer(item_id, kind, true)
 
 func _build_sell_magic_offer(item_id: String) -> Control:
-	var button := _raster_button("", Color("34271f"), Color("51402e"))
+	var button := _shelf_offer_button()
+	button.set("pack", true)
 	button.name = "SellMagicOffer_%s" % item_id
 	button.custom_minimum_size = SELL_TILE_SIZE
 	_wire_offer_button(button, item_id, true)
@@ -698,12 +854,12 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_add_centered_button_content(button, stack)
 	var center := CenterContainer.new()
-	center.custom_minimum_size = Vector2(122.0, 166.0)
+	center.custom_minimum_size = Vector2(122.0, 150.0)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(center)
-	_build_native_scaled_card(center, item_id, Vector2(112.0, 156.0), "SellMagicCard", false)
+	_build_native_scaled_card(center, item_id, Vector2(100.0, 140.0), "SellMagicCard", false)
 	var value := Label.new()
-	value.text = "VALUE %d" % int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
+	value.text = "+%d EMBERS" % int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
 	value.custom_minimum_size = Vector2(SELL_TILE_SIZE.x, 24.0)
 	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -752,7 +908,8 @@ func _build_native_scaled_card(
 
 func _wire_offer_button(button: Button, item_id: String, selling: bool) -> void:
 	button.clip_contents = false
-	button.pressed.connect(_select_item.bind(item_id, selling, button))
+	button.set("reduced_motion", _reduced_motion)
+	button.pressed.connect(_activate_item.bind(item_id, selling, button))
 	button.focus_entered.connect(_focus_item.bind(item_id, selling, button))
 	button.focus_exited.connect(_offer_focus_exited.bind(button))
 	button.mouse_entered.connect(_hover_item.bind(item_id, button))
@@ -771,11 +928,11 @@ func _add_centered_button_content(button: Button, content: Control) -> void:
 	center.add_child(content)
 
 func _price_plaque(item_id: String, selling: bool) -> Control:
-	var plaque := PanelContainer.new()
+	var plaque := ShopPanel.new()
 	plaque.custom_minimum_size = Vector2(126.0, 34.0)
 	var cost: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
 	var affordable: bool = _offer_is_affordable(item_id, selling)
-	plaque.add_theme_stylebox_override("panel", _raster_style(DARK_FRAME_PATH, Color("4c3423") if affordable else Color("302b27")))
+	plaque.add_theme_stylebox_override("panel", _panel_insets())
 	var label := Label.new()
 	label.text = "%d EMBERS" % cost
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -801,6 +958,9 @@ func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
 	return "%s\nPrice: %d embers — need %d more" % [_item_name(item_id), amount, amount - held]
 
 func _select_item(item_id: String, selling: bool, source: Control) -> void:
+	if _intro_open:
+		_intro_open = false
+		_sync_dialogue()
 	var selection_changed: bool = item_id != _selected_item_id or selling != _selected_is_sell
 	_selected_item_id = item_id
 	_selected_is_sell = selling
@@ -809,6 +969,24 @@ func _select_item(item_id: String, selling: bool, source: Control) -> void:
 		_detail_card_index = 0
 	_update_selection_effects()
 	_sync_detail()
+
+func _activate_item(item_id: String, selling: bool, source: Control) -> void:
+	_select_item(item_id, selling, source)
+	# Accept explicitly enters the selected ware's trade action. Directional
+	# browsing can keep previewing other wares without silently changing a trade.
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null and bool(router.call("using_controller")) and not _detail_action.disabled:
+		_detail_action.grab_focus()
+
+func _on_gui_focus_changed(control: Control) -> void:
+	if visible and control != null and is_ancestor_of(control):
+		controller_context_changed.emit()
+
+func controller_action_label() -> String:
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused == _detail_action: return "Sell" if _selected_is_sell else "Buy"
+	if focused != null and focused.has_meta("shop_affordable"): return "Inspect"
+	return "Select"
 
 func _focus_item(item_id: String, selling: bool, source: Control) -> void:
 	_select_item(item_id, selling, source)
@@ -846,10 +1024,8 @@ func _update_selection_effects() -> void:
 		var affordable: bool = true if source == null else bool(source.get_meta("shop_affordable", true))
 		var base_tint := Color.WHITE if affordable else Color(0.48, 0.48, 0.48, 0.86)
 		var selected_tint := Color("fff1c2") if affordable else Color(0.60, 0.56, 0.48, 0.92)
-		if control is PanelContainer:
-			(control as PanelContainer).add_theme_stylebox_override("panel", _selection_style(key == selected_key))
-		else:
-			control.modulate = selected_tint if key == selected_key else base_tint
+		if control is Ware: control.set("chosen", key == selected_key)
+		control.modulate = selected_tint if key == selected_key else base_tint
 		if source != null and source != control:
 			source.modulate = selected_tint if key == selected_key else base_tint
 
@@ -861,6 +1037,7 @@ func _sync_detail() -> void:
 	if _detail_title == null:
 		return
 	if _selected_item_id.is_empty() or _run_engine == null:
+		_detail_panel.hide()
 		_detail_title.text = "SELECT A WARE"
 		_detail_kind.text = "MAGIC • GEAR • ITEMS"
 		_detail_card_ids.clear()
@@ -873,6 +1050,7 @@ func _sync_detail() -> void:
 		_detail_action.disabled = true
 		_configure_focus_neighbors()
 		return
+	_detail_panel.show()
 	var item_id: String = _selected_item_id
 	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
 	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if _selected_is_sell else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
@@ -886,13 +1064,14 @@ func _sync_detail() -> void:
 		var equipment: Dictionary = GameData.equipment_def(item_id)
 		var slot_name: String = str(equipment.get("slot", "gear")).to_upper()
 		var card_count_text: String = "%d CARD%s" % [_detail_card_ids.size(), "" if _detail_card_ids.size() == 1 else "S"]
-		_detail_kind.text = "GEAR • %s • %s • %s" % [slot_name, _rarity(item_id).to_upper(), card_count_text]
+		_detail_kind.text = "%s · %s · %s" % [slot_name, _rarity(item_id).to_upper(), card_count_text]
 	else:
 		_detail_card_ids.append(item_id)
 		_detail_kind.text = "%s • %s" % [kind.to_upper(), _rarity(item_id).to_upper()]
 	_render_detail_card()
-	_detail_price.text = "VALUE %d EMBERS" % amount if _selected_is_sell else ("PRICE %d EMBERS" % amount if affordable else "NEED %d MORE EMBERS" % (amount - held))
-	_detail_action.text = "SELL FOR %d" % amount if _selected_is_sell else "BUY FOR %d" % amount
+	_detail_price.text = "Removes this ware from your pack" if _selected_is_sell else ("Adds to reserve magic" if kind == MAGIC else "Adds to your pack")
+	if not affordable: _detail_price.text = "Need %d more embers" % (amount - held)
+	_detail_action.text = "Sell · %d embers" % amount if _selected_is_sell else "Buy · %d embers" % amount
 	_detail_action.disabled = not affordable
 	_detail_action.tooltip_text = "Sell the selected owned ware." if _selected_is_sell else ("Buy the selected ware." if affordable else "You cannot afford this ware.")
 	_configure_focus_neighbors()
@@ -909,7 +1088,7 @@ func _render_detail_card() -> void:
 	var card_id: String = _detail_card_ids[_detail_card_index]
 	if card_id != _rendered_detail_card_id:
 		_clear_children(_detail_card_host)
-		_build_native_scaled_card(_detail_card_host, card_id, Vector2(220.0, 310.0), "DetailCard", false)
+		_build_native_scaled_card(_detail_card_host, card_id, Vector2(250.0, 352.0), "DetailCard", false)
 		_rendered_detail_card_id = card_id
 	var multiple_cards: bool = _detail_card_ids.size() > 1
 	_detail_card_nav.visible = multiple_cards
@@ -981,8 +1160,7 @@ func _process(delta: float) -> void:
 	if not visible or _portrait == null or _reduced_motion:
 		return
 	_ambient_time += delta
-	_portrait.position.y = PORTRAIT_BASE_POSITION.y + sin(_ambient_time * 1.15) * 3.0
-	_portrait.rotation = sin(_ambient_time * 0.72) * 0.003
+	_portrait.call("apply_pose", "idle", fposmod(_ambient_time / 2.5, 1.0))
 
 func _animate_slot_scale(control: Control, target: Vector2) -> void:
 	if control == null:
@@ -1000,57 +1178,56 @@ func _animate_slot_scale(control: Control, target: Vector2) -> void:
 	tween.tween_property(control, "scale", target, 0.12).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _configure_focus_neighbors() -> void:
-	if not is_inside_tree() or _run_engine == null:
-		return
-	var rows: Dictionary = {
-		MAGIC: _buy_offer_controls(MAGIC),
-		GEAR: _buy_offer_controls(GEAR),
-		ITEM: _buy_offer_controls(ITEM),
-	}
-	var magic_row: Array[Control] = rows[MAGIC] as Array[Control]
-	var gear_row: Array[Control] = rows[GEAR] as Array[Control]
-	var item_row: Array[Control] = rows[ITEM] as Array[Control]
-	var sell_row: Array[Control] = _visible_sell_offer_controls()
-	var detail_entry: Control = _detail_card_previous if _detail_card_nav.visible else (_detail_action if not _detail_action.disabled else _leave_button)
-	_configure_offer_row(magic_row, [], gear_row, null, detail_entry)
-	_configure_offer_row(gear_row, magic_row, item_row, null, detail_entry)
-	_configure_offer_row(item_row, gear_row, [], sell_row.back() if not sell_row.is_empty() else null, detail_entry)
-
-	if not sell_row.is_empty():
-		for index: int in range(sell_row.size()):
-			var offer: Control = sell_row[index]
-			var left_target: Control = sell_row[index - 1] if index > 0 else (_sell_previous if not _sell_previous.disabled else offer)
-			var right_target: Control = sell_row[index + 1] if index + 1 < sell_row.size() else (_sell_next if not _sell_next.disabled else (item_row[0] if not item_row.is_empty() else offer))
-			_set_focus_neighbor(offer, SIDE_LEFT, left_target)
-			_set_focus_neighbor(offer, SIDE_RIGHT, right_target)
-			_set_focus_neighbor(offer, SIDE_TOP, item_row[mini(index, item_row.size() - 1)] if not item_row.is_empty() else offer)
-			_set_focus_neighbor(offer, SIDE_BOTTOM, offer)
-	if _sell_previous != null:
-		_set_focus_neighbor(_sell_previous, SIDE_RIGHT, sell_row[0] if not sell_row.is_empty() else _sell_next)
-		_set_focus_neighbor(_sell_previous, SIDE_TOP, item_row[0] if not item_row.is_empty() else _sell_previous)
-	if _sell_next != null:
-		_set_focus_neighbor(_sell_next, SIDE_LEFT, sell_row.back() if not sell_row.is_empty() else _sell_previous)
-		_set_focus_neighbor(_sell_next, SIDE_RIGHT, item_row[0] if not item_row.is_empty() else _sell_next)
-		_set_focus_neighbor(_sell_next, SIDE_TOP, item_row[0] if not item_row.is_empty() else _sell_next)
-
-	var selected_row: Array[Control] = rows.get(_selected_kind(), item_row) as Array[Control]
-	var selected_row_edge: Control = selected_row.back() if not selected_row.is_empty() else _leave_button
-	if _detail_card_previous != null:
-		_set_focus_neighbor(_detail_card_previous, SIDE_LEFT, selected_row_edge)
-		_set_focus_neighbor(_detail_card_previous, SIDE_RIGHT, _detail_card_next)
-		_set_focus_neighbor(_detail_card_previous, SIDE_BOTTOM, _detail_action)
-	if _detail_card_next != null:
-		_set_focus_neighbor(_detail_card_next, SIDE_LEFT, _detail_card_previous)
-		_set_focus_neighbor(_detail_card_next, SIDE_RIGHT, _detail_action)
-		_set_focus_neighbor(_detail_card_next, SIDE_BOTTOM, _detail_action)
-	if _detail_action != null:
-		_set_focus_neighbor(_detail_action, SIDE_LEFT, selected_row_edge)
-		_set_focus_neighbor(_detail_action, SIDE_TOP, _detail_card_next if _detail_card_nav.visible else selected_row_edge)
-		_set_focus_neighbor(_detail_action, SIDE_BOTTOM, _leave_button)
-		_set_focus_neighbor(_detail_action, SIDE_RIGHT, _leave_button)
-	if _leave_button != null:
-		_set_focus_neighbor(_leave_button, SIDE_TOP, _detail_action if not _detail_action.disabled else selected_row_edge)
-		_set_focus_neighbor(_leave_button, SIDE_LEFT, item_row.back() if not item_row.is_empty() else selected_row_edge)
+	if not is_inside_tree() or _run_engine == null or _mode_buy == null: return
+	var magic: Array[Control] = _buy_offer_controls(MAGIC)
+	var gear: Array[Control] = _buy_offer_controls(GEAR)
+	var items: Array[Control] = _buy_offer_controls(ITEM)
+	var pack: Array[Control] = _visible_sell_offer_controls()
+	var entry: Control = _detail_card_previous if _detail_card_nav.visible and _detail_panel.visible else _detail_action if _detail_panel.visible and not _detail_action.disabled else _leave_button
+	var last: Control = _mode_sell if _pack_mode else _mode_buy
+	if _pack_mode:
+		for index: int in range(pack.size()):
+			var source: Control = pack[index]
+			_set_focus_neighbor(source, SIDE_LEFT, pack[index - 1] if index % 3 > 0 else _mode_buy)
+			_set_focus_neighbor(source, SIDE_RIGHT, pack[index + 1] if index % 3 < 2 and index + 1 < pack.size() else entry)
+			_set_focus_neighbor(source, SIDE_TOP, pack[index - 3] if index >= 3 else _filter_buttons[mini(index, 3)])
+			_set_focus_neighbor(source, SIDE_BOTTOM, pack[index + 3] if index + 3 < pack.size() else _mode_sell)
+		if not pack.is_empty(): last = pack.back()
+		for index: int in range(_filter_buttons.size()):
+			var button: Button = _filter_buttons[index]
+			_set_focus_neighbor(button, SIDE_LEFT, _filter_buttons[index - 1] if index > 0 else _mode_buy)
+			_set_focus_neighbor(button, SIDE_RIGHT, _filter_buttons[index + 1] if index < 3 else entry)
+			_set_focus_neighbor(button, SIDE_BOTTOM, pack[mini(index, pack.size() - 1)] if not pack.is_empty() else _mode_sell)
+			_set_focus_neighbor(button, SIDE_TOP, _sell_next if not _sell_next.disabled else _sell_previous if not _sell_previous.disabled else button)
+		_set_focus_neighbor(_sell_previous, SIDE_RIGHT, _sell_next if not _sell_next.disabled else _filter_buttons[0])
+		_set_focus_neighbor(_sell_next, SIDE_LEFT, _sell_previous if not _sell_previous.disabled else _filter_buttons[3])
+		_set_focus_neighbor(_sell_previous, SIDE_BOTTOM, _filter_buttons[0])
+		_set_focus_neighbor(_sell_next, SIDE_BOTTOM, _filter_buttons[3])
+	else:
+		_configure_offer_row(magic, [], gear, _mode_buy, entry)
+		_configure_offer_row(gear, magic, items, _mode_buy, entry)
+		_configure_offer_row(items, gear, [], _mode_buy, entry)
+		for offer: Control in items: _set_focus_neighbor(offer, SIDE_BOTTOM, _mode_buy if offer == items[0] else _mode_sell)
+		if not items.is_empty(): last = items.back()
+	var selected: Control = _selected_source if is_instance_valid(_selected_source) and _selected_source.is_visible_in_tree() else last
+	_set_focus_neighbor(_detail_card_previous, SIDE_LEFT, selected)
+	_set_focus_neighbor(_detail_card_previous, SIDE_RIGHT, _detail_card_next)
+	_set_focus_neighbor(_detail_card_previous, SIDE_BOTTOM, _detail_action if not _detail_action.disabled else _leave_button)
+	_set_focus_neighbor(_detail_card_next, SIDE_LEFT, _detail_card_previous)
+	_set_focus_neighbor(_detail_card_next, SIDE_RIGHT, _detail_action if not _detail_action.disabled else _leave_button)
+	_set_focus_neighbor(_detail_card_next, SIDE_BOTTOM, _detail_action if not _detail_action.disabled else _leave_button)
+	_set_focus_neighbor(_detail_action, SIDE_LEFT, selected)
+	_set_focus_neighbor(_detail_action, SIDE_TOP, _detail_card_next if _detail_card_nav.visible else selected)
+	_set_focus_neighbor(_detail_action, SIDE_BOTTOM, _leave_button)
+	_set_focus_neighbor(_detail_action, SIDE_RIGHT, _leave_button)
+	_set_focus_neighbor(_leave_button, SIDE_TOP, _detail_action if _detail_panel.visible and not _detail_action.disabled else last)
+	_set_focus_neighbor(_leave_button, SIDE_LEFT, _mode_sell)
+	_set_focus_neighbor(_mode_buy, SIDE_LEFT, _mode_buy)
+	_set_focus_neighbor(_mode_buy, SIDE_RIGHT, _mode_sell)
+	_set_focus_neighbor(_mode_buy, SIDE_TOP, last)
+	_set_focus_neighbor(_mode_sell, SIDE_LEFT, _mode_buy)
+	_set_focus_neighbor(_mode_sell, SIDE_RIGHT, _leave_button)
+	_set_focus_neighbor(_mode_sell, SIDE_TOP, last)
 
 func _configure_offer_row(
 	row: Array[Control],
@@ -1115,63 +1292,25 @@ func _layout_canvas() -> void:
 	_canvas.scale = Vector2.ONE * fit
 	_canvas.position = (size - REFERENCE_SIZE * fit) * 0.5
 
-func _raster_panel(path: String, tint: Color) -> PanelContainer:
-	var panel := PanelContainer.new()
-	panel.add_theme_stylebox_override("panel", _raster_style(path, tint))
+func _panel() -> PanelContainer:
+	var panel := ShopPanel.new()
+	panel.add_theme_stylebox_override("panel", _panel_insets())
 	return panel
 
-func _raster_button(text_value: String, normal_tint: Color, hover_tint: Color) -> Button:
-	var button := Button.new()
+func _action(text_value: String) -> Button:
+	var button := ShopAction.new()
 	button.text = text_value
-	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_stylebox_override("normal", _raster_style(DARK_FRAME_PATH, normal_tint))
-	button.add_theme_stylebox_override("hover", _raster_style(DARK_FRAME_PATH, hover_tint))
-	button.add_theme_stylebox_override("pressed", _raster_style(DARK_FRAME_PATH, hover_tint.darkened(0.18)))
-	button.add_theme_stylebox_override("focus", _selection_style(true))
-	button.add_theme_stylebox_override("disabled", _raster_style(DARK_FRAME_PATH, Color("292724")))
-	button.add_theme_color_override("font_color", Color("f1d39a"))
-	button.add_theme_color_override("font_hover_color", Color("fff0bd"))
-	button.add_theme_color_override("font_focus_color", Color("fff0bd"))
-	button.add_theme_color_override("font_disabled_color", Color("857d70"))
-	button.add_theme_color_override("font_outline_color", Color("170e09"))
-	button.add_theme_constant_override("outline_size", 2)
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	button.reduced_motion = _reduced_motion
 	return button
 
 func _shelf_offer_button() -> Button:
-	var button := Button.new()
-	button.focus_mode = Control.FOCUS_ALL
-	var empty := StyleBoxEmpty.new()
-	button.add_theme_stylebox_override("normal", empty)
-	button.add_theme_stylebox_override("disabled", empty)
-	button.add_theme_stylebox_override("hover", _selection_style(true))
-	button.add_theme_stylebox_override("pressed", _selection_style(true))
-	button.add_theme_stylebox_override("focus", _selection_style(true))
-	button.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	return button
+	return Ware.new()
 
-func _raster_style(path: String, tint: Color) -> StyleBoxTexture:
-	var style := StyleBoxTexture.new()
-	style.texture = AssetLoader.load_texture(path)
-	style.modulate_color = tint
-	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		style.set_texture_margin(side, 18.0)
-		style.set_content_margin(side, 12.0)
+func _panel_insets() -> StyleBoxEmpty:
+	var style := StyleBoxEmpty.new()
+	for side: int in [SIDE_LEFT, SIDE_RIGHT, SIDE_TOP, SIDE_BOTTOM]: style.set_content_margin(side, 12)
 	return style
 
-func _selection_style(selected: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.20, 0.13, 0.07, 0.12 if selected else 0.0)
-	style.border_color = Color("f5c867") if selected else Color.TRANSPARENT
-	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		style.set_border_width(side, 4 if selected else 0)
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_left = 8
-	style.corner_radius_bottom_right = 8
-	style.shadow_color = Color(1.0, 0.55, 0.12, 0.26) if selected else Color.TRANSPARENT
-	style.shadow_size = 14 if selected else 0
-	return style
 
 func _place(control: Control, rect: Rect2) -> void:
 	control.position = rect.position
@@ -1190,3 +1329,18 @@ func _make_mouse_passive(node: Node) -> void:
 		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for child: Node in node.get_children():
 		_make_mouse_passive(child)
+
+func _set_panel_material(panel: PanelContainer, surface: String) -> void:
+	panel.set("surface", surface)
+
+func _shade_ui_labels(node: Node) -> void:
+	if node is CardWidget or node is ShopAction: return
+	if node is Label:
+		var label: Label = node as Label
+		var original_color: Color = label.get_theme_color("font_color")
+		Materials.shade(label, label.get_theme_font_size("font_size"), maxf(label.size.y, label.custom_minimum_size.y))
+		label.add_theme_color_override("font_color", original_color)
+		if label == _dialogue_words:
+			label.add_theme_font_override("font", UiTypography.text_font())
+			label.material = null
+	for child: Node in node.get_children(): _shade_ui_labels(child)

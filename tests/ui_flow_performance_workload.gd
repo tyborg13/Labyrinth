@@ -49,6 +49,7 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 		var expected: Dictionary = engine.buy_merchant_item(before, RunEngine.MERCHANT_SCAVENGER, buy_id)
 		phases[prefix + "/shop_buy"] = await _phase(func() -> void: _click(shop.find_child("ScavengerTradeActionButton", true, false)), 100)
 		_assert_trade(expected, "buy", phases[prefix + "/shop_buy"])
+		await _phase(func() -> void: _click(shop.find_child("ScavengerSellMode", true, false)), 12)
 		var sell_sources: Dictionary = shop.get("_offer_sources") as Dictionary
 		var sell_key: String = ""
 		for key: String in sell_sources:

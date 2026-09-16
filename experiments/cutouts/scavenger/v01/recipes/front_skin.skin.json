@@ -1,0 +1,50 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skin.json",
+  "fields": [
+    {
+      "name": "continuous_breath",
+      "parts": [
+        "hood",
+        "occupied_hand",
+        "pack",
+        "lantern",
+        "coat"
+      ],
+      "bones": [
+        "root",
+        "chest",
+        "head"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            126,
+            178
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 70
+        },
+        {
+          "center": [
+            116,
+            69
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 32
+        }
+      ]
+    }
+  ]
+}

@@ -295,7 +295,9 @@ consumable outside combat. Its payload records `action` (`equip` or `stow`),
 merchant room. Its payload records `action` (`buy` or `sell`), `merchant_kind`
 (`scavenger`), `item_kind` (`magic`, `equipment`, or `item`), `item_id`, ember `amount`,
 `held_embers_before`, `held_embers_after`, the current `room`, and the updated
-equipment, magic, item, reward-card, and deck state.
+equipment, magic, item, reward-card, and deck state. Scavenger purchase and sale
+receipts animate only after that committed event/save; presentation overlap,
+reduced motion, or leaving the shop never repeats or defers the transaction.
 
 Intermediate dragon victories emit `combat_ended` and return the run to room
 mode without `reward_offered` or `run_ended`; only defeat and the depth-24

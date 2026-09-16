@@ -3489,6 +3489,11 @@ func _refresh_controller_prompts() -> void:
 	if _controller_prompt_bar == null:
 		return
 	var graft_open: bool = _graftwright_view != null and _graftwright_view.visible
+	var scavenger_open: bool = _scavenger_shop_view != null and _scavenger_shop_view.visible
+	_controller_prompt_bar.anchor_top = 1.0 if scavenger_open else 0.0
+	_controller_prompt_bar.anchor_bottom = _controller_prompt_bar.anchor_top
+	_controller_prompt_bar.offset_top = -50.0 if scavenger_open else 14.0
+	_controller_prompt_bar.offset_bottom = _controller_prompt_bar.offset_top
 	_controller_prompt_bar.anchor_left = 0.8 if graft_open else 0.5
 	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
 	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
@@ -3559,7 +3564,7 @@ func _refresh_controller_prompts() -> void:
 			prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Inspect"})
 	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:
 		prompts = [
-			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Trade"},
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": _scavenger_shop_view.controller_action_label()},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
@@ -6450,6 +6455,7 @@ func _build_scavenger_shop_overlay(stage: Control) -> void:
 	_scavenger_shop_view.buy_requested.connect(_on_scavenger_buy_requested)
 	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
 	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
+	_scavenger_shop_view.controller_context_changed.connect(_refresh_controller_prompts)
 	_scavenger_shop_view.item_hovered.connect(_on_merchant_row_mouse_entered)
 	_scavenger_shop_view.item_unhovered.connect(_on_merchant_row_mouse_exited)
 
@@ -8140,6 +8146,9 @@ func _dialogue_cursor_feedback_context(local_position: Vector2) -> String:
 
 func _start_dialogue(dialogue: Dictionary) -> void:
 	if dialogue.is_empty():
+		return
+	if str(dialogue.get("npc_id", "")) == RunEngineScript.MERCHANT_SCAVENGER and _scavenger_shop_view != null:
+		_scavenger_shop_view.show_dialogue(dialogue)
 		return
 	_cancel_drag_play()
 	_close_pile_view()
@@ -26392,6 +26401,9 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	var before_embers: int = _run_engine.held_embers(_run_state)
 	var before_state: Dictionary = _run_state.duplicate(true)
 	var amount: int = _run_engine.merchant_sell_value(merchant_kind, item_id)
+	var sale_origin := Rect2()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
+		sale_origin = _scavenger_shop_view.purchase_origin(item_id, source_row)
 	_close_pinned_tooltip()
 	_run_state = _run_engine.sell_merchant_item(_run_state, merchant_kind, item_id)
 	if _run_state == before_state:
@@ -26407,37 +26419,16 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 		return
 	_persist_committed_boundary("merchant_sell")
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
-	await _animate_merchant_trade_row(source_row, merchant_kind, item_id, false)
 	_refresh_ui()
+	_play_reward_collect_sfx()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
+		_scavenger_shop_view.present_sale(item_id, sale_origin)
 	_merchant_trade_animation_active = false
 	call_deferred("_recover_controller_focus")
 
 func _on_scavenger_sell_requested(item_id: String, source: Control) -> void:
 	await _on_merchant_sell_pressed(RunEngineScript.MERCHANT_SCAVENGER, item_id, source)
 
-func _animate_merchant_trade_row(source_row: Control, merchant_kind: String, item_id: String, buying: bool) -> void:
-	if not _node_is_alive(source_row):
-		return
-	if _reduced_motion_enabled():
-		return
-	var row: Control = source_row
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.pivot_offset = row.size * 0.5
-	var start_position: Vector2 = row.position
-	var accent: Color = _merchant_item_accent(merchant_kind, item_id)
-	var flash_color := Color(
-		clampf(accent.r * 1.35 + 0.18, 0.0, 1.0),
-		clampf(accent.g * 1.35 + 0.18, 0.0, 1.0),
-		clampf(accent.b * 1.35 + 0.18, 0.0, 1.0),
-		1.0
-	)
-	var tween: Tween = create_tween()
-	tween.tween_property(row, "modulate", flash_color, 0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.parallel().tween_property(row, "scale", Vector2(1.025, 1.025), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(row, "modulate", Color(1.0, 1.0, 1.0, 0.16), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(row, "scale", Vector2(0.985, 0.985), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	tween.parallel().tween_property(row, "position", start_position + Vector2(10.0 if buying else -10.0, 0.0), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-	await tween.finished
 
 func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2, accent: Color) -> void:
 	if _card_fx_layer == null or source_rect.size.x <= 0.0 or source_rect.size.y <= 0.0:

@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "character_id": "scavenger",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skin.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 48,
+      "duration": 2.5,
+      "loop": true,
+      "preview_cycles": 2
+    }
+  },
+  "rigid_bones": [
+    "root",
+    "head"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "layouts/front.json",
+    "recipes/front_skin.skin.json",
+    "source/original.png",
+    "source/ownership.json",
+    "recipes/build_case.py",
+    "recipes/registration.json",
+    "segmented/segmentation.json"
+  ],
+  "source_baseline": {
+    "kind": "existing_production_paint",
+    "path": "assets/art/npcs/scavenger.png",
+    "sha256": "16a9d613f3cd2d0005eaab71a0c77df48ebeea70a2d8ae9517c4b42c7b155682",
+    "art_status": "native 255px source, unchanged RGBA; all ownership reconstructs exactly"
+  }
+}

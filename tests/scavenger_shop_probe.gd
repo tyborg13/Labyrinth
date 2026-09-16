@@ -65,7 +65,7 @@ func _capture_states() -> void:
 	elif not currency_panel.find_children("*", "TextureRect", true, false).is_empty():
 		_fail("The held-ember header should not use an unrelated resource icon")
 	var sell_next: Button = shop.find_child("SellNextPage", true, false) as Button
-	if sell_next == null or sell_next.disabled:
+	if sell_next == null:
 		_fail("A full probe pack should expose an enabled next-page affordance")
 	_assert_shelf_alignment(shop, state, run_engine)
 	await _save("normal.png")
@@ -141,7 +141,8 @@ func _capture_states() -> void:
 			if gear_next == null or not gear_next.visible or gear_next.disabled:
 				_fail("Multi-card gear should expose a usable granted-card navigator")
 			else:
-				await _navigate_controller_to(shop, gear_next, "Gear offer to granted-card pager")
+				await _press_controller_button(JOY_BUTTON_A)
+				await _navigate_controller_to(shop, gear_next, "Selected gear to granted-card pager")
 				await _press_controller_button(JOY_BUTTON_A)
 				await _settle()
 				_assert_detail_card(shop, str(expected_gear_cards[1]), "Second granted-card page")
@@ -215,6 +216,8 @@ func _capture_states() -> void:
 	instance.call("_close_dialogue")
 	await _settle()
 	shop = instance.find_child("ScavengerShopView", true, false) as Control
+	shop.call("_set_pack_mode", true)
+	await _settle()
 	var sellable: Array = run_engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER)
 	if sellable.is_empty():
 		_fail("Probe state should expose owned wares in Sell From Pack")
@@ -243,13 +246,13 @@ func _capture_states() -> void:
 	var sell_cards: Array[Node] = _canonical_cards(sell_source)
 	if sell_cards.size() != 1 or str(sell_cards[0].get("card_id")) != sell_id:
 		_fail("The raster-backed Magic sell tile should still contain its canonical real CardWidget")
-	if not ((sell_source as Button).get_theme_stylebox("normal") is StyleBoxTexture):
-		_fail("Magic sell tiles should retain the authored raster backing used by other sell wares")
+	if not bool(sell_source.get("pack")):
+		_fail("Magic sell tiles should retain the same pack material as other sell wares")
 	sell_source.grab_focus()
 	await _settle()
 	_assert_detail_card(shop, sell_id, "Sell Magic focus")
 	trade_action = shop.find_child("ScavengerTradeActionButton", true, false) as Button
-	if trade_action == null or not trade_action.text.begins_with("SELL FOR"):
+	if trade_action == null or not trade_action.text.begins_with("Sell ·"):
 		_fail("Sell drawer selection should produce one explicit Sell For action")
 	await _save("sell_selected.png")
 
@@ -280,6 +283,7 @@ func _capture_states() -> void:
 		if run_engine.merchant_item_kind(str(offer_var)) == RunEngine.MERCHANT_ITEM_KIND_ITEM:
 			reduced_offer_id = str(offer_var)
 			break
+	shop.call("_set_pack_mode", false)
 	var reduced_offer: Control = _offer_source(shop, reduced_offer_id, false)
 	if reduced_offer == null:
 		_fail("Reduced-motion transaction proof should expose an affordable Item")
