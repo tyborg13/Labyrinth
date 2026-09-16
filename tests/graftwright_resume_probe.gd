@@ -43,6 +43,13 @@ func _initialize() -> void:
 	var resumed: Dictionary = current_scene.get("_run_state")
 	check(resumed["current_room"] == original["current_room"], "Continue preserves the saved destination")
 	check(Rules.owned(resumed) == Rules.owned(original), "Continue preserves all equipment before any graft")
+	check(bool(view.call("semantic_snapshot")["intro_open"]), "Menu resume enters the NPC dialogue")
+	await capture("02_resumed_dialogue.png")
+	await click(view.find_child("GraftBrowse", true, false) as Button)
+	await click(view.find_child("ChooseRecipient", true, false) as Button)
+	await click(view.find_child("Pick_undertaker_plate", true, false) as Button)
+	await click(view.find_child("ChooseSacrifice", true, false) as Button)
+	await click(view.find_child("Pick_patched_cloak", true, false) as Button)
 	await capture("02_resumed_workbench.png")
 	# Finish the user's example through the live UI, then return to a newly
 	# instantiated menu and resume the persisted result through controller input.

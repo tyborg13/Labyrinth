@@ -3526,7 +3526,7 @@ func _refresh_controller_prompts() -> void:
 		var browsing: bool = bool(graft_snapshot.get("inspecting", false)) or not str(graft_snapshot.get("picker_role", "")).is_empty()
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": action},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back" if browsing else "Leave"},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back" if browsing else "Continue" if bool(graft_snapshot.get("used", false)) else "Skip"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
 		if focused != null and focused.has_meta("graft_card_id"):

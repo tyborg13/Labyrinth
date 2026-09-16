@@ -36,6 +36,7 @@ func _initialize() -> void:
 	scene.call("_load_run_state", Suite.fixture())
 	await create_timer(0.5).timeout
 	view = scene.find_child("GraftwrightView", true, false) as Control
+	view.call("begin_work")
 	view.call("select_recipient", "undertaker_plate")
 	view.call("select_donor", "patched_cloak")
 	# Sample actual idle extremes, then verify the front bench pixels stay fixed
@@ -48,6 +49,8 @@ func _initialize() -> void:
 	view.call("_process", 0.0)
 	var low: Image = await still("portrait_low.png")
 	check(high.get_region(Rect2i(0, 795, 470, 160)).get_data() == low.get_region(Rect2i(0, 795, 470, 160)).get_data(), "Portrait never paints over the foreground bench")
+	check(high.get_region(Rect2i(178, 749, 34, 41)).get_data() == low.get_region(Rect2i(178, 749, 34, 41)).get_data(), "Purple thread spool stays in front of moving portrait")
+	check(high.get_region(Rect2i(232, 747, 37, 43)).get_data() == low.get_region(Rect2i(232, 747, 37, 43)).get_data(), "Silver thread spool stays in front of moving portrait")
 	check(high.get_region(Rect2i(90, 200, 300, 570)).get_data() != low.get_region(Rect2i(90, 200, 300, 570)).get_data(), "Visible portrait actually moves behind the fixed bench")
 	view.set_process(true)
 	await click(view.find_child("SourceCard_1", true, false) as Button)

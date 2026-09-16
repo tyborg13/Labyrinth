@@ -56,7 +56,7 @@ func _draw() -> void:
 			glow.shadow_color = Color(accent, 0.36)
 			glow.shadow_size = 13
 			draw_style_box(glow, rect.grow(3))
-	if (active or chosen) and kind in ["card", "equipment", "action"]:
+	if controller_focus_visible() and kind in ["card", "equipment", "action"]:
 		var color: Color = Color("fff1d5") if active else accent
 		var r: Rect2 = rect.grow(5)
 		var length: float = 17.0
@@ -68,7 +68,7 @@ func _draw() -> void:
 		if active or chosen:
 			draw_rect(rect, Color(accent, 0.10))
 			draw_line(Vector2(0, rect.end.y), rect.end, accent, 2.0, true)
-		if has_focus(): draw_rect(rect.grow(2), Color("fff1d5"), false, 1.5)
+		if controller_focus_visible(): draw_rect(rect.grow(2), Color("fff1d5"), false, 1.5)
 
 func _gui_input(event: InputEvent) -> void:
 	if card_face == null: return
@@ -85,3 +85,8 @@ func _get_tooltip(at_position: Vector2) -> String:
 func _make_custom_tooltip(for_text: String) -> Object:
 	if card_face != null: return card_face.call("_make_custom_tooltip", for_text)
 	return null
+
+func controller_focus_visible() -> bool:
+	if disabled or not has_focus(): return false
+	var router: Node = get_node_or_null("/root/InputRouter")
+	return router != null and bool(router.call("using_controller"))

@@ -4,6 +4,7 @@ const Parallel = preload("res://scripts/parallel_runtime.gd")
 const Suite = preload("res://tests/suites/graftwright_suite.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
+const Rules = preload("res://scripts/graftwright_rules.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Router = preload("res://scripts/input_router.gd")
@@ -45,8 +46,19 @@ func _initialize() -> void:
 	view = scene.find_child("GraftwrightView", true, false) as Control
 	check(view != null and view.visible, "Live run opens Graftwright workbench")
 	if view == null: quit(1); return
-	view.call("select_recipient", "undertaker_plate")
-	view.call("select_donor", "patched_cloak")
+	check(bool(view.call("semantic_snapshot")["intro_open"]), "Encounter opens with deliberate NPC dialogue")
+	check_dialogue_bounds()
+	await capture("18_entry_dialogue.png")
+	await click(view.find_child("GraftBrowse", true, false) as Button)
+	check(view.call("semantic_snapshot")["recipient"] == "" and view.call("semantic_snapshot")["donor"] == "", "Both equipment slots start empty")
+	check(not bool(view.call("semantic_snapshot")["can_commit"]), "Empty choices cannot graft")
+	await capture("19_empty_choices.png")
+	await click(view.find_child("ChooseSacrifice", true, false) as Button)
+	await click(view.find_child("Pick_patched_cloak", true, false) as Button)
+	check(view.call("semantic_snapshot")["donor"] == "patched_cloak" and view.call("semantic_snapshot")["recipient"] == "", "Sacrifice can be chosen first without filling Improve")
+	await capture("20_sacrifice_only.png")
+	await click(view.find_child("ChooseRecipient", true, false) as Button)
+	await click(view.find_child("Pick_undertaker_plate", true, false) as Button)
 	await capture("01_workbench.png")
 	var source: Button = view.find_child("SourceCard_1", true, false) as Button
 	check(source != null, "Source card is a native focusable button")
@@ -60,6 +72,7 @@ func _initialize() -> void:
 	check(bool(snapshot["can_commit"]), "Two direct card clicks enable the explicit graft")
 	check(int(snapshot["source_index"]) == 1 and int(snapshot["target_index"]) == 1, "Correct source and target selected")
 	check(proof_viewport.gui_get_focus_owner() != view.find_child("GraftCommit", true, false), "Destructive action is not auto-focused")
+	check(not (view.find_child("TargetCard_1", true, false) as Button).call("controller_focus_visible"), "Pointer selection has no corner reticle")
 	await capture("02_preview.png")
 	check(not bool(view.call("semantic_snapshot")["inspecting"]), "Ordinary selection never opens repeated rules text")
 	source = view.find_child("SourceCard_1", true, false) as Button
@@ -137,7 +150,19 @@ func _initialize() -> void:
 	proof_viewport.push_input(joy, true)
 	await process_frame
 	check(int(view.call("semantic_snapshot")["target_index"]) == 1, "Controller accept selects focused replacement")
+	check((view.find_child("TargetCard_1", true, false) as Button).call("controller_focus_visible"), "Controller focus has explicit corners")
 	await capture("07_controller_focus.png")
+	for down: bool in [true, false]:
+		var keyboard := InputEventKey.new()
+		keyboard.keycode = KEY_TAB
+		keyboard.pressed = down
+		proof_viewport.push_input(keyboard, true)
+		await process_frame
+	check(not root.get_node("InputRouter").call("using_controller"), "Keyboard navigation leaves controller reticle mode")
+	var keyboard_focus: Button = proof_viewport.gui_get_focus_owner() as Button
+	check(keyboard_focus != null and not bool(keyboard_focus.call("controller_focus_visible")), "Keyboard retains focus with glow and no corners")
+	await capture("24_keyboard_focus.png")
+	(view.find_child("TargetCard_1", true, false) as Button).grab_focus()
 	root.get_node("InputRouter").call("set_modality", Router.MODALITY_POINTER)
 	for down: bool in [true, false]:
 		var inspect_event := InputEventJoypadButton.new()
@@ -185,6 +210,7 @@ func _initialize() -> void:
 		if not (many["equipped_equipment"] as Dictionary).values().has(id): many["equipment_inventory"].append(id)
 	scene.call("_load_run_state", many)
 	view.call("select_recipient", "undertaker_plate")
+	view.call("select_donor", "patched_cloak")
 	await click(view.find_child("ChooseRecipient", true, false) as Button)
 	check(view.call("semantic_snapshot")["picker_role"] == "recipient", "Equipment mount opens the organized grid")
 	await click(view.find_child("Category_weapon", true, false) as Button)
@@ -192,6 +218,10 @@ func _initialize() -> void:
 	for id: String in view.call("semantic_snapshot")["picker_items"]:
 		check(Data.equipment_slot(id) == "weapon", "Equipment grid contains only the selected type")
 	await capture("12_inventory_categories.png")
+	for slot: String in Data.EQUIPMENT_SLOTS:
+		await click(view.find_child("Category_" + slot, true, false) as Button)
+		check(view.call("semantic_snapshot")["picker_slot"] == slot, "Every equipment category accepts pointer navigation: " + slot)
+	await click(view.find_child("Category_weapon", true, false) as Button)
 	# The open modal must own pointer input even where the old card sits below it.
 	var before_picker: Dictionary = view.call("semantic_snapshot")
 	await click(view.find_child("SourceCard_0", true, false) as Button)
@@ -201,7 +231,19 @@ func _initialize() -> void:
 	await click(view.find_child("Pick_iron_cleaver", true, false) as Button)
 	check(view.call("semantic_snapshot")["recipient"] == "iron_cleaver" and view.call("semantic_snapshot")["picker_role"] == "", "Grid selection returns directly to the new recipient")
 	await click(view.find_child("ChooseSacrifice", true, false) as Button)
-	check((view.find_child("Category_armor", true, false) as Button).disabled, "Donor browser is locked to the recipient type")
+	check(not (view.find_child("Category_armor", true, false) as Button).disabled, "Every sacrifice category remains browsable")
+	await click(view.find_child("Category_armor", true, false) as Button)
+	check(view.call("semantic_snapshot")["picker_slot"] == "armor", "Sacrifice browser changes to another native type")
+	check((view.find_child("Pick_patched_cloak", true, false) as Button).disabled, "An incompatible sacrifice cannot be selected")
+	check(view.find_child("PickerChangeRecipient", true, false) != null, "Incompatible category exposes a way to choose equipment to improve")
+	await capture("21_incompatible_category.png")
+	await click(view.find_child("PickerChangeRecipient", true, false) as Button)
+	check(view.call("semantic_snapshot")["picker_role"] == "recipient" and view.call("semantic_snapshot")["picker_slot"] == "armor", "Category action retains the chosen type when changing Improve")
+	await click(view.find_child("Pick_undertaker_plate", true, false) as Button)
+	check(view.call("semantic_snapshot")["donor"] == "", "Changing to another type clears the sacrifice instead of choosing one")
+	await click(view.find_child("ChooseSacrifice", true, false) as Button)
+	await click(view.find_child("Pick_patched_cloak", true, false) as Button)
+	await click(view.find_child("ChooseSacrifice", true, false) as Button)
 	for step: int in range(26):
 		await action(&"ui_focus_next")
 		var focus: Control = proof_viewport.gui_get_focus_owner()
@@ -226,6 +268,40 @@ func _initialize() -> void:
 	proof_viewport.push_input(back, true)
 	await process_frame
 	check(not view.visible, "Controller Back can leave without grafting")
+
+	# Both entry and workbench Skip resolve without consuming any owned item.
+	var skip_state: Dictionary = state.duplicate(true)
+	skip_state["seed"] = int(skip_state["seed"]) + 100
+	scene.call("_load_run_state", skip_state)
+	await create_timer(0.35).timeout
+	check(bool(view.call("semantic_snapshot")["intro_open"]), "A new encounter shows entry dialogue")
+	await click(view.find_child("GraftSkip", true, false) as Button)
+	check(not view.visible and Rules.owned(scene.get("_run_state")) == Rules.owned(skip_state), "Dialogue Skip preserves all equipment")
+	check(str((scene.get("_run_state") as Dictionary).get("mode")) != "graftwright", "Dialogue Skip resolves the encounter")
+	var empty_entry: Dictionary = empty.duplicate(true)
+	empty_entry["seed"] = int(empty_entry["seed"]) + 101
+	scene.call("_load_run_state", empty_entry)
+	await create_timer(0.35).timeout
+	check(view.find_child("GraftBrowse", true, false) == null, "No-pair entry offers a direct Skip")
+	check_dialogue_bounds()
+	await capture("22_no_pair_dialogue.png")
+	await click(view.find_child("GraftSkip", true, false) as Button)
+	check(not view.visible and Rules.owned(scene.get("_run_state")) == Rules.owned(empty_entry), "No-pair Skip preserves equipment")
+	skip_state["seed"] = int(skip_state["seed"]) + 1
+	scene.call("_load_run_state", skip_state)
+	await create_timer(0.35).timeout
+	await click(view.find_child("GraftBrowse", true, false) as Button)
+	await click(view.find_child("ChooseRecipient", true, false) as Button)
+	await click(view.find_child("Pick_undertaker_plate", true, false) as Button)
+	check(view.call("semantic_snapshot")["donor"] == "" and view.call("semantic_snapshot")["recipient"] == "undertaker_plate", "Improve can be chosen first without an automatic sacrifice")
+	await capture("23_improve_only.png")
+	await click(view.find_child("ChooseRecipient", true, false) as Button)
+	await click(view.find_child("Category_boots", true, false) as Button)
+	check((view.find_child("Pick_skirmisher_boots", true, false) as Button).disabled, "A lone piece identifies its missing pair without locking the category")
+	await capture("25_no_matching_pair.png")
+	view.call("request_leave")
+	await click(view.find_child("GraftLeave", true, false) as Button)
+	check(not view.visible and Rules.owned(scene.get("_run_state")) == Rules.owned(skip_state), "Workbench Skip preserves every item")
 
 	scene.queue_free()
 	await process_frame
@@ -267,3 +343,11 @@ func action(action_name: StringName) -> void:
 		event.pressed = down
 		proof_viewport.push_input(event, true)
 		await process_frame
+
+func check_dialogue_bounds() -> void:
+	var body: Label = view.find_child("GraftwrightDialogueBody", true, false) as Label
+	var panel: Control = view.find_child("GraftwrightDialogue", true, false) as Control
+	check(body != null and panel != null, "Entry dialogue has a bounded text surface")
+	if body == null or panel == null: return
+	check(Rect2(Vector2(24, 24), panel.size - Vector2(48, 48)).encloses(body.get_rect()), "Dialogue body stays inside the panel with padding")
+	check(body.get_line_count() * body.get_line_height() <= body.size.y, "All dialogue lines fit without clipping")

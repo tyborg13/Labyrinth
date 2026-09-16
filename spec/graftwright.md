@@ -15,7 +15,7 @@ The whole donor is consumed. The recipient keeps its identity and card count.
 - Sacrificing equipped gear automatically equips the recipient. If Open Arsenal
   has both pieces equipped, the survivor occupies its native slot and the extra
   trinket slot becomes empty. The preview names this consequence.
-- Leave consumes nothing and resolves the encounter. Continue after a graft
+- Skip consumes nothing and resolves the encounter. Continue after a graft
   returns to the ordinary map flow. Travel cannot bypass an unresolved encounter.
 
 Section-map layout revision 3 converts about one fifth of eligible ordinary
@@ -36,22 +36,45 @@ or economy balance result.
 
 ## Presentation and input
 
-Surface: a full-screen NPC workbench. The player question is “Which card do I
-want to preserve in this equipment?” Graft is the single destructive commit;
-Leave is always available before commitment. The highest-rarity compatible
-recipient and a compatible donor are initially displayed, but no destructive
-card selection is assumed. Single-card recipients and existing inherited slots
-select their sole valid replacement automatically after a source is chosen.
+Surface: an NPC introduction followed by a full-screen workbench. The player
+question is “Which card do I want to preserve in equipment I improve?” The
+introduction uses the established dialogue material and explains same-type
+pieces, one transferred card, replacement, and irreversible sacrifice in the
+Graftwright's voice. **Browse equipment** opens the workbench; **Skip** resolves
+the encounter without consuming anything. With no compatible pair, the dialogue
+offers Skip directly. Dialogue is shown when entering an unused encounter; a
+saved completed graft resumes its result without replaying the introduction.
 
-Two dark suede work trays separate equipment and cards from the atelier. Red
-**Sacrifice / Will be destroyed** and green **Keep / Stays equipped** (or the
-actual inventory/equip consequence) anchor the role of each piece. Recessed,
-thread-bound mounts are the equipment controls. Clicking either opens a native
-scrolling five-column grid grouped by Weapon, Offhand, Armor, Boots, and Trinket.
-The donor browser locks to the recipient's native type. Counts, equipped/kept
-markers, selection, and focus remain visible; choosing an item immediately
-returns to the workbench. Back preserves the current selection. There are no
-horizontal pagers or mixed equipment rails.
+Both **Sacrifice** and **Improve** start empty. Neither equipment nor cards are
+selected by rarity or another heuristic. Empty mounts say **Choose**; selected
+mounts say **Change**. Either piece may be chosen first. Choosing an incompatible
+Improve type clears the old sacrifice instead of silently supplying another.
+Single-card recipients and existing inherited slots still select their sole
+valid replacement after a source card is chosen. Graft is the single destructive
+commit; Skip remains available throughout the uncommitted workbench.
+
+The work trays have opaque bronze rims and stitched title/footer rails, with
+translucent suede centers that reveal the atelier. Empty trays are compact and
+expand only when their equipment's cards need space. Equipment rows combine a
+recessed mount with a name and concrete equip/destroy consequence. Equipment
+textures use cached visible-alpha bounds, so transparent source padding cannot
+offset the item in its circular aperture. Headings, browser Back, replacement
+names, and the consumed-equipment label are centered in the artwork's measured
+rails. Shared UI fonts use restrained top lighting, fine texture, and a soft
+shadow rather than a blanket thick outline; dialogue body text remains plain.
+
+Red **Sacrifice / Will be destroyed** and green **Improve / Stays equipped** (or
+the actual inventory/equip consequence) identify each piece. Clicking a mount
+opens a native scrolling five-column grid grouped by Weapon, Offhand, Armor,
+Boots, and Trinket. Every category is browsable, including empty categories.
+Incompatible sacrifices are disabled; the footer names the required type and
+provides **Choose equipment to improve**, preserving the browsed category.
+Recipient choices without another matching piece identify that missing pair.
+Counts, equipped/improving markers, and selection remain visible. Choosing an
+item immediately returns to the workbench; Back preserves the current selection.
+The browser hides the prior controls so its transparency reveals only the
+atelier, never ghosted cards or overlapping labels. There are no horizontal
+pagers or mixed equipment rails.
 
 Shared CardWidgets show the actual effective cards on both sides. A violet
 **Carry forward** treatment identifies the source, dimmed **Lost** cards explain
@@ -66,10 +89,12 @@ and no confirmation wizard or extra Next button is introduced.
 Native Buttons preserve pointer, keyboard, controller activation, directional
 focus, Tab traversal, and Back. The grid traps focus while open and scrolls with
 focus. Its whole canvas, including its dimmer, renders above CardWidget's raised
-cost badges. Padding inside the scroll viewport protects focus brackets. Focus
-never defaults to Graft. The device prompt bar names the focused action and
-changes Leave to Back while browsing equipment or inspecting a card. Right-click,
-F1, or controller Y opens a deliberate, anchored rules popover; Back restores
+cost badges. Padding inside the scroll viewport protects focus brackets. Pointer
+and keyboard interaction use lift, soft glow, and selection ribbons. Corner brackets appear
+only on the focused controller object; switching back to keyboard or pointer
+removes them. Focus never defaults to Graft. The device prompt bar names the
+focused action and shows Skip before commitment, Continue on the result, and Back while browsing
+equipment or inspecting a card. Right-click, F1, or controller Y opens a deliberate, anchored rules popover; Back restores
 focus without selecting or consuming anything. The native per-icon tooltips are
 retained. Result cards can be inspected with Accept; initial result focus remains
 on Continue. Ordinary card selection never opens this popover.
@@ -90,9 +115,11 @@ Reduced motion omits travel and idle motion and resolves after a 0.18-second bea
 the static result communicates the same outcome.
 
 The existing masked tailor remains behind a foreground layer taken from the
-exact original atelier: the bench occludes the lower portrait during its subtle
-vertical motion. Portrait and bench share the same fit-to-view coordinate space,
-so their perspective does not drift with viewport size. Additional ImageGen art
+exact original atelier: the bench and separately traced silhouettes of the
+thread spools, pincushion, pins, and draped cloth occlude the portrait during its
+subtle vertical motion. Texture-mapped polygons sample the original painting at
+its source coordinates; no rectangular background patch cuts across the body.
+Portrait and bench share the same fit-to-view coordinate space, so their perspective does not drift with viewport size. Additional ImageGen art
 provides a quiet workmat, recessed equipment cradle, and ritual clasp. Text,
 cards, selection, and animation are all live UI. Exact new prompts, source paths,
 and hashes are in [graftwright_art.json](graftwright_art.json).
@@ -145,18 +172,20 @@ checks that same menu predicate as well as the persisted state contract.
   result/reload, no donor, controller, reduced motion, map, three-card equipment,
   save rejection, categorized large inventories, source-only selection, modal
   pointer/focus isolation, explicit pointer/F1/controller rule inspection, and
-  replacement of an inherited slot.
+  replacement of an inherited slot, entry dialogue, empty mounts, either item
+  chosen first, incompatible-category recovery, and equipment-preserving Skip
+  from dialogue, empty inventory, and workbench.
   Dispatches GUI pointer/key/controller events and asserts navigation and outcome.
 - `tests/graftwright_motion_probe.gd`: native 1920x1080 animation frames with
   timestamps; pixel comparisons prove that the portrait moves while the bench
-  remains in front, and the result equipment has idle motion.
+  and above-counter spools remain in front, and the result equipment has idle motion.
 - `tests/main_menu_resume_test.gd`: production-menu eligibility before and after
   a graft, saved encounter label, unchanged save contents, and rejection of a
   mismatched room type.
 - `tests/graftwright_resume_probe.gd`: copies the actual generated fixture into
   an isolated namespace, clicks Continue in the real main menu, completes a graft,
   then returns through a fresh menu using controller input to resume the result.
-  Captures native 1920x1080 menu and workbench states at 100% UI scale.
+  Captures native 1920x1080 menu, entry dialogue, and workbench states at 100% UI scale.
 - `tests/run_tests.gd`: full regression, including an end-to-end six-boss route
   that resolves Graftwright visits and retains the original victory assertions.
 - `tests/test_icon_identity_policy.py`: unique map emblem registration.
