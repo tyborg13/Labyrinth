@@ -1,5 +1,6 @@
 extends SceneTree
-## Native motion proof. Frames are untouched viewport captures with timestamps.
+## Native motion proof. Viewport captures with timestamps; lossless extrema and
+## representative ritual frames plus full-resolution JPEG frames for the reel.
 
 const Parallel = preload("res://scripts/parallel_runtime.gd")
 const Suite = preload("res://tests/suites/graftwright_suite.gd")
@@ -42,10 +43,10 @@ func _initialize() -> void:
 	# Sample actual idle extremes, then verify the front bench pixels stay fixed
 	# while the visible portrait moves behind it. These are real renderer images.
 	view.set_process(false)
-	view.set("_elapsed", PI / 1.8)
+	view.set("_elapsed", 0.0)
 	view.call("_process", 0.0)
 	var high: Image = await still("portrait_high.png")
-	view.set("_elapsed", PI * 3.0 / 1.8)
+	view.set("_elapsed", 1.2)
 	view.call("_process", 0.0)
 	var low: Image = await still("portrait_low.png")
 	check(high.get_region(Rect2i(0, 795, 470, 160)).get_data() == low.get_region(Rect2i(0, 795, 470, 160)).get_data(), "Portrait never paints over the foreground bench")
@@ -55,20 +56,22 @@ func _initialize() -> void:
 	view.set_process(true)
 	await click(view.find_child("SourceCard_1", true, false) as Button)
 	await click(view.find_child("TargetCard_1", true, false) as Button)
-	await record(15)
+	await record(75)
 	await click(view.find_child("GraftCommit", true, false) as Button)
 	await record(135)
 	check(bool(view.call("semantic_snapshot")["used"]), "Recorded ritual reaches the committed result")
-	var bobbing: TextureRect = view.get("_result_icon") as TextureRect
+	var bobbing: Control = view.get("_result_mount") as Control
 	var y: float = bobbing.position.y
 	await create_timer(0.5).timeout
 	check(absf(bobbing.position.y - y) > 0.05, "Result item has visible idle motion")
 	var manifest := FileAccess.open(OUTPUT.path_join("timing.json"), FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"size": [1920, 1080], "timestamps_seconds": timestamps}, "\t"))
 	manifest.close()
-	print("Motion captured; exporting %d full-resolution PNG frames." % frames.size())
+	print("Motion captured; exporting %d full-resolution frames." % frames.size())
 	for i: int in range(frames.size()):
-		check(frames[i].save_png(OUTPUT.path_join("frames/%04d.png" % i)) == OK, "Motion frame saved")
+		check(frames[i].save_jpg(OUTPUT.path_join("frames/%04d.jpg" % i), 0.98) == OK, "Motion frame saved")
+		if i in [0, 30, 60, 100, 120, 140, 209]:
+			check(frames[i].save_png(OUTPUT.path_join("keyframe_%04d.png" % i)) == OK, "Lossless motion keyframe saved")
 		frames[i] = null
 	print(ProjectSettings.globalize_path(OUTPUT))
 	scene.queue_free()

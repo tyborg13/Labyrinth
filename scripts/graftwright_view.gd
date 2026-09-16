@@ -16,6 +16,8 @@ const Choice = preload("res://scripts/graftwright_choice.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
 const ThreadEffect = preload("res://scripts/graftwright_thread_effect.gd")
 const Glow = preload("res://scripts/graftwright_glow.gdshader")
+const FrameRim = preload("res://scripts/graftwright_frame_rim.gdshader")
+const PortraitRig = preload("res://scripts/graftwright_cutout/rig.gd")
 const MatMaterial = preload("res://scripts/graftwright_workmat.gdshader")
 const TypeMaterial = preload("res://scripts/graftwright_type.gdshader")
 const UiSkinScript = preload("res://scripts/ui_skin.gd")
@@ -49,7 +51,8 @@ var _inline_error: String = ""
 var _elapsed: float = 0.0
 var _canvas: Control
 var _content: Control
-var _portrait: TextureRect
+var _portrait: Node2D
+var _keyboard_navigation: bool = false
 var _bench: Control
 var _commit: Button
 var _leave: Button
@@ -63,6 +66,7 @@ var _picker_scroll: ScrollContainer
 var _picker_items: Array[String]
 var _effect: Control
 var _result_icon: TextureRect
+var _result_mount: Control
 var _result_shadow: ColorRect
 var _inspection: Control
 var _inspection_return: Button
@@ -84,8 +88,14 @@ func _ensure_built() -> void:
 	_canvas.size = SIZE
 	add_child(_canvas)
 	_picture(_canvas, ART + "atelier.png", Rect2(Vector2.ZERO, SIZE), false)
-	_portrait = _picture(_canvas, "res://assets/art/npcs/graftwright.png", Rect2(-35, 105, 530, 800))
+	_portrait = PortraitRig.new()
 	_portrait.name = "GraftwrightPortrait"
+	# Same full-resolution painting and registration as the former portrait.
+	# Logical cutout coordinates never reduce the source texture resolution.
+	_portrait.position = Vector2(-123.333, 151.667)
+	_portrait.scale = Vector2.ONE * (706.6667 / 255.0)
+	_canvas.add_child(_portrait)
+	_portrait.call("load_rig")
 	# Re-render the exact foreground portion of the original scene above the
 	# portrait. Its torso actually disappears behind the bench as it breathes.
 	_bench = Control.new()
@@ -97,7 +107,7 @@ func _ensure_built() -> void:
 	_canvas.add_child(_bench)
 	_picture(_bench, ART + "atelier.png", Rect2(0, -794, 1920, 1080), false)
 	_build_foreground_props()
-	_title = _label(_canvas, "Graftwright", Rect2(48, 65, 350, 60), Typography.SIZE_HERO, IVORY, true)
+	_title = _label(_canvas, "Graftwright", Rect2(28, 54, 420, 76), 48, IVORY, true)
 	_title.name = "AtelierTitle"
 	_content = Control.new()
 	_content.size = SIZE
@@ -245,6 +255,7 @@ func _rebuild() -> void:
 	_source_icon = null
 	_recipient_icon = null
 	_result_icon = null
+	_result_mount = null
 	_result_shadow = null
 	_commit = null
 	_consequence = null
@@ -258,10 +269,10 @@ func _rebuild() -> void:
 	_wire_focus.call_deferred()
 
 func _build_workbench() -> void:
-	_mat(_content, Rect2(470, 150, 690, 360 if donor.is_empty() else 735))
-	_mat(_content, Rect2(1175, 150, 690, 360 if recipient.is_empty() else 735))
-	_label(_content, "Sacrifice", Rect2(530, 185, 570, 36), Typography.SIZE_SECTION_LARGE, RED.lerp(IVORY, 0.45), true)
-	_label(_content, "Improve", Rect2(1235, 185, 570, 36), Typography.SIZE_SECTION_LARGE, GREEN.lerp(IVORY, 0.45), true)
+	_mat(_content, Rect2(470, 120, 690, 390 if donor.is_empty() else 765), true)
+	_mat(_content, Rect2(1175, 120, 690, 390 if recipient.is_empty() else 765), true)
+	_label(_content, "Sacrifice", Rect2(530, 165, 570, 52), 38, RED.lerp(IVORY, 0.45), true)
+	_label(_content, "Improve", Rect2(1235, 165, 570, 52), 38, GREEN.lerp(IVORY, 0.45), true)
 	_source_icon = _equipment_well(donor, LEFT, RED, "donor")
 	_recipient_icon = _equipment_well(recipient, RIGHT, GREEN, "recipient")
 	if not donor.is_empty(): _label(_content, "WILL BE DESTROYED", Rect2(LEFT - 47, 342, 306, 45), 17, RED, true)
@@ -318,15 +329,17 @@ func _equipment_well(id: String, center: float, color: Color, role: String) -> T
 	button.set_meta("graft_action_label", "Choose" if id.is_empty() else "Change")
 	button.face_size = Vector2(168, 168)
 	_glow(button.art(), Rect2(4, 8, 160, 160), Color(color, 0.25))
+	if not id.is_empty():
+		var framed: TextureRect = _framed_equipment(button.art(), id, Rect2(0, 0, 168, 168))
+		_ribbon(button.art(), "CHANGE", Rect2(32, 169, 104, 25), MUTED)
+		var name_label: Label = _label(_content, _item_name(id), Rect2(center - 47, 265, 306, 74), 28, IVORY, true)
+		name_label.name = "SacrificeName" if role == "donor" else "ImproveName"
+		return framed
 	_picture(button.art(), ART + "item_cradle.png", Rect2(0, 0, 168, 168))
 	if id.is_empty():
 		_label(button.art(), "Choose", Rect2(24, 61, 120, 44), 24, IVORY, true)
 		return null
-	var icon: TextureRect = _equipment_picture(button.art(), id, Rect2(34, 34, 100, 100))
-	_ribbon(button.art(), "CHANGE", Rect2(32, 169, 104, 25), MUTED)
-	var name_label: Label = _label(_content, _item_name(id), Rect2(center - 47, 265, 306, 74), 28, IVORY, true)
-	name_label.name = "SacrificeName" if role == "donor" else "ImproveName"
-	return icon
+	return null
 
 func _compare_strip(old_name: String, new_name: String) -> void:
 	# The original art's lower leather rail is centered 61 px above the bottom.
@@ -385,9 +398,9 @@ func _build_picker() -> void:
 	_picker.mouse_filter = Control.MOUSE_FILTER_STOP
 	_content.add_child(_picker)
 	_solid(_picker, Rect2(Vector2.ZERO, SIZE), Color(0.025, 0.018, 0.035, 0.76))
-	_mat(_picker, Rect2(480, 160, 1385, 770))
-	_label(_picker, "Equipment to sacrifice" if _picker_role == "donor" else "Equipment to improve", Rect2(545, 195, 1070, 36), 24, IVORY)
-	var close: Button = _quiet(_picker, "Back", Rect2(1670, 195, 125, 36), close_picker)
+	_mat(_picker, Rect2(480, 130, 1385, 800), true)
+	_label(_picker, "Equipment to sacrifice" if _picker_role == "donor" else "Equipment to improve", Rect2(545, 175, 1070, 52), 30, IVORY)
+	var close: Button = _quiet(_picker, "Back", Rect2(1670, 175, 125, 52), close_picker)
 	close.name = "PickerBack"
 	var owned: Array[String] = Rules.owned(state)
 	for i: int in range(Data.EQUIPMENT_SLOTS.size()):
@@ -431,8 +444,7 @@ func _build_picker() -> void:
 		button.chosen = id == (donor if _picker_role == "donor" else recipient)
 		button.disabled = not Rules.pair_error(state, recipient, id).is_empty() if _picker_role == "donor" and not recipient.is_empty() else Rules.donors(state, id).is_empty() or (_picker_role == "recipient" and id == donor)
 		if button.chosen: _glow(button.art(), Rect2(9, -6, 162, 162), Color(button.accent, 0.50))
-		_picture(button.art(), ART + "item_cradle.png", Rect2(17, 0, 146, 146))
-		_equipment_picture(button.art(), id, Rect2(48, 27, 84, 84))
+		_framed_equipment(button.art(), id, Rect2(17, 0, 146, 146))
 		_label(button.art(), _item_name(id), Rect2(1, 149, 178, 48), 18, IVORY, true)
 		if id == recipient and _picker_role == "donor": _ribbon(button.art(), "IMPROVING", Rect2(25, 117, 130, 24), GREEN)
 		elif id == donor and _picker_role == "recipient": _ribbon(button.art(), "SACRIFICING", Rect2(25, 117, 130, 24), RED)
@@ -447,13 +459,18 @@ func _build_picker() -> void:
 
 func _build_result() -> void:
 	var result: Dictionary = _result()
-	_mat(_content, Rect2(730, 150, 900, 735))
-	_label(_content, "Graft complete", Rect2(810, 185, 740, 36), 24, GREEN.lerp(IVORY, 0.45), true)
+	_mat(_content, Rect2(730, 120, 900, 765), true)
+	_label(_content, "Graft complete", Rect2(810, 165, 740, 52), 42, GREEN.lerp(IVORY, 0.45), true)
 	_glow(_content, Rect2(1060, 239, 240, 210), Color(VIOLET, 0.35))
-	_picture(_content, ART + "item_cradle.png", Rect2(1096, 247, 168, 168))
-	_result_shadow = _glow(_content, Rect2(1130, 378, 100, 24), Color(0, 0, 0, 0.95))
-	_result_shadow.pivot_offset = Vector2(50, 12)
-	_result_icon = _equipment_picture(_content, recipient, Rect2(1128, 279, 104, 104))
+	_result_shadow = _glow(_content, Rect2(1087, 405, 186, 30), Color(0, 0, 0, 0.95))
+	_result_shadow.pivot_offset = Vector2(93, 15)
+	_result_mount = Control.new()
+	_result_mount.name = "FloatingEquipment"
+	_result_mount.position = Vector2(1090, 238)
+	_result_mount.size = Vector2(180, 180)
+	_result_mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_content.add_child(_result_mount)
+	_result_icon = _framed_equipment(_result_mount, recipient, Rect2(0, 0, 180, 180))
 	_label(_content, _item_name(recipient), Rect2(790, 424, 780, 44), 30, IVORY, true)
 	var cards: Array = Data.equipment_cards(recipient, state)
 	var start: float = 1180.0 - (cards.size() * CARD_SIZE.x + (cards.size() - 1) * 24.0) * 0.5
@@ -498,6 +515,7 @@ func present_result(next_state: Dictionary) -> void:
 	if reduced_motion: tween.tween_interval(0.18)
 	else:
 		var ghost: Button = _card(_canvas, str(Data.equipment_cards(donor, state)[donor_index]), _source_cards[donor_index].position, true, VIOLET, func() -> void: pass)
+		ghost.z_index = 50 # Above the target CardWidget's raised cost badge.
 		ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ghost.focus_mode = Control.FOCUS_NONE
 		ghost.modulate.a = 0.0
@@ -530,10 +548,10 @@ func present_result(next_state: Dictionary) -> void:
 func _process(delta: float) -> void:
 	if not visible: return
 	_elapsed += delta
-	if _portrait != null: _portrait.position.y = 105.0 + (0.0 if reduced_motion else sin(_elapsed * 0.9) * 3.5)
-	if _result_icon != null and is_instance_valid(_result_icon):
+	if _portrait != null: _portrait.call("apply_pose", "rest" if reduced_motion else "idle", fposmod(_elapsed / 2.4, 1.0))
+	if _result_mount != null and is_instance_valid(_result_mount):
 		var bob: float = 0.0 if reduced_motion else sin(_elapsed * 1.6) * 4.0
-		_result_icon.position.y = 279 + bob
+		_result_mount.position.y = 238 + bob
 		_result_shadow.scale.x = 1.0 + bob * 0.012
 
 func _wire_focus() -> void:
@@ -567,6 +585,7 @@ func _choice(parent: Node, rect: Rect2, action: Callable, kind: String = "quiet"
 	button.kind = kind
 	button.accent = color
 	button.reduced_motion = reduced_motion
+	button.keyboard_navigation = _keyboard_navigation
 	button.pressed.connect(action)
 	button.focus_entered.connect(func() -> void: interaction_changed.emit())
 	parent.add_child(button)
@@ -661,21 +680,44 @@ func close_inspection() -> void:
 	_wire_focus()
 	interaction_changed.emit()
 
-func _mat(parent: Node, rect: Rect2) -> void:
+func _mat(parent: Node, rect: Rect2, large_header: bool = false) -> void:
+	if large_header:
+		# Expand only the painted header's leather inset. The metal border and
+		# lower rail retain their native thickness and the title gets real room.
+		_mat_slice(parent, Rect2(rect.position, Vector2(rect.size.x, 43)), Rect2(0, 0, 1122, 86), 0, 0)
+		_mat_slice(parent, Rect2(rect.position + Vector2(0, 43), Vector2(rect.size.x, 56)), Rect2(0, 86, 1122, 40), 0, 0)
+		_mat_slice(parent, Rect2(rect.position + Vector2(0, 99), Vector2(rect.size.x, rect.size.y - 99)), Rect2(0, 126, 1122, 1276), 34, 160)
+	else:
+		_mat_slice(parent, rect, Rect2(), 160, 160)
+
+func _mat_slice(parent: Node, rect: Rect2, region: Rect2, top: int, bottom: int) -> void:
 	var mat := NinePatchRect.new()
 	mat.texture = Assets.load_texture(ART + "workmat.png")
+	mat.region_rect = region
 	mat.position = rect.position
 	mat.size = rect.size * 2.0
 	mat.scale = Vector2.ONE * 0.5
 	mat.patch_margin_left = 120
 	mat.patch_margin_right = 120
-	mat.patch_margin_top = 160
-	mat.patch_margin_bottom = 160
+	mat.patch_margin_top = top
+	mat.patch_margin_bottom = bottom
 	mat.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var material := ShaderMaterial.new()
 	material.shader = MatMaterial
 	mat.material = material
 	parent.add_child(mat)
+
+func _framed_equipment(parent: Node, id: String, rect: Rect2) -> TextureRect:
+	_picture(parent, ART + "item_cradle.png", rect)
+	var icon: TextureRect = _equipment_picture(parent, id, Rect2(rect.position + rect.size * 0.20, rect.size * 0.60))
+	# Replay the existing cradle's rim above the gear. Its central fabric is
+	# punched out by the shader, leaving an actual foreground lip at every edge.
+	var rim: TextureRect = _picture(parent, ART + "item_cradle.png", rect)
+	rim.name = "EquipmentRim"
+	var material := ShaderMaterial.new()
+	material.shader = FrameRim
+	rim.material = material
+	return icon
 
 func _ribbon(parent: Node, title: String, rect: Rect2, color: Color) -> void:
 	_solid(parent, rect, Color(0.06, 0.035, 0.065, 0.96))
@@ -755,11 +797,16 @@ func semantic_snapshot() -> Dictionary:
 
 func _input(event: InputEvent) -> void:
 	if not visible or busy: return
-	# Keyboard focus uses the same understated glow as pointer interaction.
-	# A real controller event restores the router's controller modality normally.
 	if event is InputEventKey and event.pressed:
+		_keyboard_navigation = true
 		var router: Node = get_node_or_null("/root/InputRouter")
 		if router != null: router.call("set_modality", "pointer")
+	elif event is InputEventMouseMotion or event is InputEventMouseButton:
+		_keyboard_navigation = false
+	elif not (event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return
+	for button: Node in _canvas.find_children("*", "Button", true, false):
+		if button is Choice: button.set("keyboard_navigation", _keyboard_navigation)
 
 func _build_intro() -> void:
 	# Reuse the game's dialogue material; the workshop and speaker remain visible.
@@ -774,7 +821,7 @@ func _build_intro() -> void:
 	style.shadow_size = 20
 	panel.add_theme_stylebox_override("panel", style)
 	_content.add_child(panel)
-	_label(panel, "Graftwright", Rect2(44, 25, 1072, 48), 30, IVORY)
+	_label(panel, "Graftwright", Rect2(44, 20, 1072, 58), 40, IVORY)
 	var words: String = "Lay down two pieces of the same kind. I'll unpick one to stitch a card into the other, replacing a card you choose. The offering won't survive my needle."
 	if not _has_pair():
 		words = "My needle needs two pieces of the same kind. Bring me something to spare, and I'll unpick it to stitch one of its cards into another piece, replacing a card you choose."

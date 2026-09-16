@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "character_id": "graftwright",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_hd.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 48,
+      "duration": 2.4,
+      "loop": true,
+      "preview_cycles": 2
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "needle_hand",
+    "lantern"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "layouts/front.json",
+    "layouts/front_skin.json",
+    "recipes/build_case.py",
+    "recipes/front_skin.skin.json",
+    "recipes/registration.json",
+    "segmented/segmentation.json",
+    "source/coat_registered.png",
+    "source/head_registered.png",
+    "source/lantern_registered.png",
+    "source/needle_hand_registered.png",
+    "source/original.png",
+    "source/ownership.json",
+    "source/registered.png"
+  ],
+  "source_baseline": {
+    "kind": "existing_npc_portrait",
+    "commit": "e97ac78c4fe8df14b8884500ffdc57bbf0628a18",
+    "source_sha256": "aa4439435626626f5a6d75871627e310d23ca25546dab2222bd99e66f876a6fa",
+    "art_status": "Original full-resolution paint; explicit ownership, continuous shared skin; no generated fill needed for translation-only idle."
+  }
+}

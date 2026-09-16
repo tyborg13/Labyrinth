@@ -12,6 +12,8 @@ var reduced_motion: bool = false
 var face_size := Vector2.ZERO
 var artwork: Control
 var _lift: float = 0.0
+var keyboard_navigation: bool = false
+var _pressed_visual: bool = false
 
 func _ready() -> void:
 	for state_name: String in ["normal", "hover", "pressed", "disabled", "focus"]:
@@ -26,19 +28,25 @@ func art() -> Control:
 		add_child(artwork)
 	return artwork
 
+func interaction_active() -> bool:
+	# Automatic focus is a navigation destination, not a pointer hover. Otherwise
+	# the first button/card is already raised before the mouse ever reaches it.
+	return not disabled and (is_hovered() or (has_focus() and (keyboard_navigation or controller_focus_visible())))
+
 func _process(delta: float) -> void:
-	var active: bool = not disabled and (is_hovered() or has_focus())
-	var next: float = 4.0 if active else 1.5 if chosen else 0.0
-	_lift = 0.0 if reduced_motion else lerpf(_lift, next, minf(1.0, delta * 14.0))
+	var active: bool = interaction_active()
+	_pressed_visual = not disabled and is_pressed()
+	var next: float = -2.0 if _pressed_visual else 6.0 if active else 1.5 if chosen else 0.0
+	_lift = 0.0 if reduced_motion else lerpf(_lift, next, minf(1.0, delta * 24.0))
 	if artwork != null:
 		artwork.position.y = -_lift
-		artwork.modulate = Color(1.08, 1.06, 1.12, 1.0) if active else Color(1, 1, 1, 0.58 if disabled or muted else 1.0)
+		artwork.modulate = Color(0.79, 0.73, 0.86, 1.0) if _pressed_visual else Color(1.24, 1.17, 1.29, 1.0) if active else Color(1, 1, 1, 0.58 if disabled or muted else 1.0)
 	queue_redraw()
 
 func _draw() -> void:
 	var extent: Vector2 = face_size if face_size != Vector2.ZERO else size
 	var rect := Rect2(Vector2(0, -_lift), extent)
-	var active: bool = not disabled and (is_hovered() or has_focus())
+	var active: bool = interaction_active()
 	if kind == "card":
 		var shadow := StyleBoxFlat.new()
 		shadow.bg_color = Color(0.025, 0.015, 0.028, 0.8)
@@ -47,13 +55,13 @@ func _draw() -> void:
 		shadow.shadow_size = 12 + int(_lift)
 		shadow.shadow_offset = Vector2(0, 8 + _lift)
 		draw_style_box(shadow, rect)
-		if chosen:
+		if chosen or active:
 			var glow := StyleBoxFlat.new()
 			glow.bg_color = Color.TRANSPARENT
 			glow.set_corner_radius_all(8)
 			glow.set_border_width_all(2)
-			glow.border_color = accent
-			glow.shadow_color = Color(accent, 0.36)
+			glow.border_color = accent.lerp(Color("fff1d5"), 0.45) if active else accent
+			glow.shadow_color = Color(accent, 0.55 if active else 0.36)
 			glow.shadow_size = 13
 			draw_style_box(glow, rect.grow(3))
 	if controller_focus_visible() and kind in ["card", "equipment", "action"]:
@@ -66,7 +74,7 @@ func _draw() -> void:
 			draw_polyline(PackedVector2Array([corner + Vector2(0, sy * length), corner, corner + Vector2(sx * length, 0)]), color, 2.0, true)
 	if kind in ["quiet", "tab"]:
 		if active or chosen:
-			draw_rect(rect, Color(accent, 0.10))
+			draw_rect(rect, Color(accent, 0.23 if _pressed_visual else 0.15 if active else 0.08))
 			draw_line(Vector2(0, rect.end.y), rect.end, accent, 2.0, true)
 		if controller_focus_visible(): draw_rect(rect.grow(2), Color("fff1d5"), false, 1.5)
 

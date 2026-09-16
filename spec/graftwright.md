@@ -110,14 +110,14 @@ and carries it along interwoven violet silk into the replacement slot. Continuou
 mesh ribbons use soft shader falloff, a luminous core, and fine moving fibers;
 there are no bead/dot particles. Selection, unpick, binding, and completion retain
 the existing audio cues. Input stays locked for the roughly 2.2-second sequence.
-The result fades in with its equipment floating subtly above a soft shadow.
+The result fades in with its gear and foreground cradle floating together above a soft shadow.
 Reduced motion omits travel and idle motion and resolves after a 0.18-second beat;
 the static result communicates the same outcome.
 
 The existing masked tailor remains behind a foreground layer taken from the
 exact original atelier: the bench and separately traced silhouettes of the
 thread spools, pincushion, pins, and draped cloth occlude the portrait during its
-subtle vertical motion. Texture-mapped polygons sample the original painting at
+segmented idle. Texture-mapped polygons sample the original painting at
 its source coordinates; no rectangular background patch cuts across the body.
 Portrait and bench share the same fit-to-view coordinate space, so their perspective does not drift with viewport size. Additional ImageGen art
 provides a quiet workmat, recessed equipment cradle, and ritual clasp. Text,
@@ -196,3 +196,7 @@ resilience, and visual proof are checked on the states above. Equipment browsing
 uses a type-organized grid with vertical scrolling and no horizontal pagers. Alternate resolution
 and scale configurations are outside this task's requested proof matrix; normal
 UI scaling remains supported by the workbench's fit-to-view canvas.
+
+### Interaction and cutout refinement
+
+The player still chooses a sacrifice, an item to improve, and the card swap. This pass makes those two roles and the completed graft the largest in-panel headings, gives every active control distinct pointer-hover, navigation-focus and held states, and encloses gear behind the painted cradle lip. The completed framed assembly floats over a grounded shadow. The existing NPC painting becomes a front-only editable cutout with a coordinated torso, head and needle-hand idle; the counter and its props stay in front. Proof covers native 1920×1080/100% hover/press and input handoff, the complete cutout idle, reduced motion, and real graft/save/resume behavior.
