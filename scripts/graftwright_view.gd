@@ -68,6 +68,8 @@ var _recipient_icon: TextureRect
 var _picker: Control
 var _picker_scroll: ScrollContainer
 var _picker_items: Array[String]
+var _unravel_material: ShaderMaterial
+var _unravel_warmed: bool = false
 var _effect: Control
 var _result_icon: TextureRect
 var _result_mount: Control
@@ -88,6 +90,8 @@ func _ensure_built() -> void:
 	backdrop.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(backdrop)
+	_unravel_material = ShaderMaterial.new()
+	_unravel_material.shader = UnravelShader
 	_canvas = Control.new()
 	_canvas.size = SIZE
 	add_child(_canvas)
@@ -157,7 +161,23 @@ func present() -> void:
 	if entering and not reduced_motion:
 		_canvas.modulate.a = 0.0
 		create_tween().tween_property(_canvas, "modulate:a", 1.0, 0.25)
+	if not _unravel_warmed:
+		_unravel_warmed = true
+		_warm_unravel_shader.call_deferred()
 	if entering: call_deferred("focus_first")
+
+func _warm_unravel_shader() -> void:
+	# A first-use CanvasGroup shader can stall the transfer-to-dissolve beat.
+	# Render the same pipeline behind the opaque backdrop during entry; merely
+	# preloading the Shader does not create its graphics pipeline on Metal.
+	var warm := CanvasGroup.new()
+	warm.name = "UnravelWarmup"
+	warm.material = _unravel_material
+	add_child(warm)
+	move_child(warm, 0)
+	_solid(warm, Rect2(0, 0, 16, 16), Color.WHITE)
+	for _frame: int in range(3): await RenderingServer.frame_post_draw
+	if is_instance_valid(warm): warm.queue_free()
 
 func focus_first() -> void:
 	if busy or not visible: return
@@ -512,6 +532,7 @@ func present_result(next_state: Dictionary) -> void:
 	for child: Node in _content.find_children("*", "Button", true, false): (child as Button).disabled = true
 	_ritual_stage = "prepare"
 	if reduced_motion:
+		sound_requested.emit("unpick")
 		await get_tree().create_timer(0.18).timeout
 	else:
 		_ritual_elapsed = 0.0
@@ -559,11 +580,10 @@ func present_result(next_state: Dictionary) -> void:
 		for child: Node in _sacrifice_content.find_children("*", "CanvasItem", true, false):
 			(child as CanvasItem).z_index = 0
 			(child as CanvasItem).z_as_relative = true
-		var material := ShaderMaterial.new()
-		material.shader = UnravelShader
-		group.material = material
+		_unravel_material.set_shader_parameter("progress", 0.0)
+		group.material = _unravel_material
 		var dissolve: Tween = create_tween()
-		dissolve.tween_method(func(progress: float) -> void: material.set_shader_parameter("progress", progress), 0.0, 1.0, 0.72)
+		dissolve.tween_method(func(progress: float) -> void: _unravel_material.set_shader_parameter("progress", progress), 0.0, 1.0, 0.72)
 		await dissolve.finished
 		effect.queue_free()
 		_effect = null

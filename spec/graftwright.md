@@ -113,7 +113,9 @@ to **Inherited** and the entire sacrifice panel unravels from top to bottom over
 0.72 seconds. A CanvasGroup includes the frame, paint, labels, equipment, and
 raised cost badges in one dissolve: a fine luminous violet edge and irregular
 paint fragments reveal the original workshop beneath. The surviving panel is
-untouched. The silk finishes fading while the donor unravels.
+untouched. The silk finishes fading while the donor unravels. The dissolve pipeline is
+warmed for three frames behind the opaque backdrop at encounter entry, then
+reused, avoiding a first-use graphics compilation hitch during destruction.
 
 Input stays locked for the roughly three-second sequence; the transaction is
 still saved before any animation. The result fades in over 0.28 seconds only
