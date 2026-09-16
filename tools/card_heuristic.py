@@ -17,7 +17,8 @@ available. The local combat band is wider: depth 1 enemies have 85% HP, depth 2
 uses base stats, and depth 3 enemies have 112% HP. Standard depths share the same normal-room roster
 eligibility; depth controls density and scaling instead of gating enemy types.
 The first combat remains a kill-all tutorial. Later standard rooms use a seeded
-25/25/25/25 mix of kill-all, kill-leader, survive, and reach-exit objectives;
+50/25/25 mix of kill-all, kill-leader, and reach-exit objectives;
+survive is temporarily out of rotation but retains saved-encounter support;
 boss rooms always use kill-leader without generic leader stat scaling.
 Survival targets initiative 42/46/50 by local depth with one reinforcement every
 16 time; reach-exit rooms add 1/2/2 enemies and three crates while favoring
@@ -133,9 +134,9 @@ BASE_DRAW_PER_TURN = 2
 BASE_PLAYER_MOVEMENT = 2
 MAX_HAND_SIZE = 7
 COMBAT_OBJECTIVE_WEIGHTS_PERCENT = {
-    "kill_all": 25,
+    "kill_all": 50,
     "kill_leader": 25,
-    "survive": 25,
+    "survive": 0,
     "reach_exit": 25,
 }
 SURVIVAL_TARGET_CLOCK_BY_LOCAL_DEPTH = [42, 46, 50]
@@ -180,6 +181,29 @@ ENEMY_TACTICAL_ROLES = {
 }
 
 
+GUARDIAN_ASSUMPTIONS = {
+    "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
+    "roster": "one 36–44 HP bespoke leader plus one or two 4–6 HP helpers; all have 1x1 footprints",
+    "clock": "Roc and Cantor initiative 20 plus Time 4–7; their helpers initiative 19 plus Time 4; other Guardians retain initiative 9–12 and helpers 8–10; ordinary Wisp remains 7 plus 4",
+    "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
+    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
+    "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
+    "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
+    "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
+    "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "ground_targeting": "surface-producing attacks admit legal empty floor; a preceding attack can share Fire ground with previous-target Detonate; damage still requires an occupant and no extra fuel is assumed",
+    "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
+    "trophy_curves": {
+        "ashen_brand": "D * (1 + .25 * (maximum overlapping crosses - 1)), round once halves up; one hit per actor",
+        "resonant_clapper": "D * (1 + .25 * enemy hop), round once halves up; native heads start at zero and empty relays/conduction do not advance it",
+        "winters_spur": "one base Move per straight Ice segment; corners and leaving Ice restart cost, Rubble surcharge remains",
+        "galehook_talon": "up to N * F enemy-steps for N contiguous collinear enemies and printed force F; blocked/contact-interrupted groups stop together",
+        "cragbound_gauntlet": "ranged Earth spells create one 3-HP outcrop at an empty chosen center; no separate Move or Stoneskin cost; occupied targets stay ordinary spell hits",
+        "procession_lantern": "existing Illusion movement consumes the same independent Move as the hero; no added HP, vision, or card target",
+    },
+}
+
+
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
     return {
@@ -188,6 +212,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "guardian_encounters": GUARDIAN_ASSUMPTIONS,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,

@@ -10,15 +10,15 @@ const ONBOARDING_ROOM_KEY: String = "objective_onboarding"
 const ICON_ROOT: String = "res://assets/art/icons/objectives/"
 const DEFINITIONS := {
 	KILL_ALL: {
-		"name": "Kill All Enemies",
-		"short_name": "Kill All",
+		"name": "Defeat All Enemies",
+		"short_name": "Defeat All",
 		"description": "Defeat every enemy in the room.",
 		"icon_path": ICON_ROOT + "kill_all_enemies.png"
 	},
 	KILL_LEADER: {
-		"name": "Kill the Leader",
-		"short_name": "Kill Leader",
-		"description": "Slay the marked leader. The remaining enemies fall when their leader dies.",
+		"name": "Defeat the Leader",
+		"short_name": "Defeat Leader",
+		"description": "Defeat the marked leader. Remaining enemies withdraw.",
 		"icon_path": ICON_ROOT + "kill_the_leader.png"
 	},
 	SURVIVE: {
@@ -51,7 +51,7 @@ static func build_for_room(run_seed: int, room: Dictionary, travel_dir: Vector2i
 	}
 	match objective_type:
 		KILL_LEADER:
-			var boss_room: bool = str(room.get("type", "combat")) == "boss"
+			var boss_room: bool = str(room.get("type", "combat")) in ["boss", "guardian"]
 			# Bosses already own authored health and defenses. They use the leader
 			# objective so killing the boss ends the encounter, without receiving a
 			# second layer of generic leader scaling.
@@ -72,10 +72,10 @@ static func definition(objective_type: String) -> Dictionary:
 	return Dictionary(DEFINITIONS.get(objective_type, DEFINITIONS[KILL_ALL])).duplicate(true)
 
 static func display_name(objective_type: String) -> String:
-	return str(definition(objective_type).get("name", "Kill All Enemies"))
+	return str(definition(objective_type).get("name", "Defeat All Enemies"))
 
 static func short_name(objective_type: String) -> String:
-	return str(definition(objective_type).get("short_name", "Kill All"))
+	return str(definition(objective_type).get("short_name", "Defeat All"))
 
 static func description(objective_type: String) -> String:
 	return str(definition(objective_type).get("description", "Defeat every enemy in the room."))
@@ -150,7 +150,7 @@ static func is_control_intent(intent: Dictionary) -> bool:
 
 static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", "combat"))
-	if room_type == "boss":
+	if room_type in ["boss", "guardian"]:
 		return KILL_LEADER
 	if room_type != "combat":
 		return KILL_ALL
@@ -163,7 +163,9 @@ static func _type_for_room(run_seed: int, room: Dictionary) -> String:
 	if roll < 50:
 		return KILL_LEADER
 	if roll < 75:
-		return SURVIVE
+		# Survive is parked for now. Keep its rules and saved encounters supported,
+		# but use Kill All for its former slot without changing other seeded rooms.
+		return KILL_ALL
 	return REACH_EXIT
 
 static func _eligible_exit_specs(room: Dictionary, travel_dir: Vector2i) -> Array[Dictionary]:
@@ -213,3 +215,21 @@ static func _mixed_seed(run_seed: int, coord: Vector2i, salt: int) -> int:
 	value ^= coord.y * 83492791
 	value ^= salt * 2654435761
 	return value
+
+# Keep persisted objective ids stable. Resolve copy from the current identity so
+# resumed saves also show named dragon/guardian objectives without migration.
+static func title_for_objective(objective: Dictionary) -> String:
+	var type: String = str(objective.get("type", KILL_ALL))
+	if type == KILL_LEADER:
+		var identity: String = str(objective.get("leader_type", ""))
+		var data: Dictionary = preload("res://scripts/game_data.gd").enemy_def(identity)
+		if bool(data.get("guardian",false)) or preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(identity):
+			return "Defeat %s" % str(data.get("name",identity.capitalize()))
+	return display_name(type)
+
+static func description_for_objective(objective: Dictionary) -> String:
+	var type: String = str(objective.get("type",KILL_ALL))
+	var title: String = title_for_objective(objective)
+	if type == KILL_LEADER and title != display_name(type):
+		return ""
+	return description(type)

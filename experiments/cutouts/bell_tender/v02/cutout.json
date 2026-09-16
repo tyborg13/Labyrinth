@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "character_id": "bell_tender",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned_v02.json",
+    "rear": "layouts/rear_skinned_v02.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 16,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 20,
+      "duration": 0.3,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "strike": {
+      "frames": 24,
+      "duration": 0.6,
+      "loop": false,
+      "preview_cycles": 1
+    },
+    "cast": {
+      "frames": 28,
+      "duration": 0.8,
+      "loop": false,
+      "preview_cycles": 1
+    },
+    "brace": {
+      "frames": 24,
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "preview_cycles": 1
+    }
+  },
+  "rigid_bones": [
+    "foot_far",
+    "foot_near",
+    "hand_far",
+    "hand_near",
+    "spear"
+  ],
+  "contact_feet": [
+    "foot_far",
+    "foot_near"
+  ],
+  "sources": [
+    "anatomy_front.json",
+    "anatomy_rear.json",
+    "ownership_front.json",
+    "ownership_rear.json",
+    "source/front.png",
+    "source/rear.png"
+  ],
+  "source_baseline": {
+    "kind": "case_fork",
+    "character_id": "bell_tender",
+    "files": {
+      "anatomy_front.json": "87b5f23c518fb20c1f68796aca7681af961361f1284cc0bf0f8e721e4cb83fc0",
+      "anatomy_rear.json": "591ce5a2213567cd98f619cb311293ad6270f5af43f6bfd99c99f8b2374a93c0",
+      "cutout.json": "28f652bf63854331c11a010f0b38c7b396abdbdab524db4bf74e734dd85a29ce",
+      "layouts/front_skinned_v02.json": "93c88b6c89ea73b47093fd38f15a2641420ee84f4b3720743710c1c6d9cbe890",
+      "layouts/rear_skinned_v02.json": "adbdc0f1207bd3d50526b4a5cc6d2d4dbe39122807ecf843246a47dd8d31260e",
+      "motion.gd": "8c0629971203e552095d04bdbeec38992cb0ffda3c5c33a3714e55b946f57496",
+      "ownership_front.json": "a0ac53292d2320432c713dea4d3188dfb727fce5d8bc5e3eabd6ee4b83095f3e",
+      "ownership_rear.json": "e1949eea448ca0fd7e66fd58b2416d6611be2b7c8864d234fb39685f1e27c9b9",
+      "paint_front_v02/arm_far.png": "cab80b21a8f4ac7a3cb491deb6c0fb07bdc3ccd180db9e413d6fd266b3e63315",
+      "paint_front_v02/arm_near.png": "5009a6b6128bcbe16d1683ca4fe0dcc78babb9fe6d5a72b6b83da4774e0b6149",
+      "paint_front_v02/body.png": "29fda57c50dcd08fc9e513abbda3f47b77485a2bd99b4f4e52adca103a809bce",
+      "paint_front_v02/drape.png": "8c2cbf87fec74051b2e446c7b8a1c46db497615ecd9db8882ba46d863dc531a8",
+      "paint_front_v02/foot_far.png": "fd53b7c1f94027facd8e6e1799068a02b9f5283f57cb769d03451bb0775580f0",
+      "paint_front_v02/foot_near.png": "6b044c1fa199c2c4b0c8250fce17314a5849997978601a3b1ac85147ce8facfc",
+      "paint_front_v02/hand_far.png": "9a6dd12bd98c2c421f323a89de5238a79c8c147bdeb856f04ecdfe90a2ee086e",
+      "paint_front_v02/hand_near.png": "d76ab5af9a6f676d158217b348c17dd6a73f7fc8be382db3801eda99603cb9f9",
+      "paint_front_v02/head.png": "b8786de78a26d055bc3c9e67bcb82cf5c16786f8313de007c113fe67b719603a",
+      "paint_front_v02/leg_far.png": "b9231b04b077c6a374c0d43be227bc8e4fddbc2551bcea7c18d1d79911014571",
+      "paint_front_v02/leg_near.png": "b03e74583a047258e0dd014e588f53d4cd9f026e6dbb1c123828d20f02a27453",
+      "paint_front_v02/spear.png": "c8de622794a40290fd29524ca49579794d0df67a6f1da669ba6d113eb015f72c",
+      "paint_rear_v02/arm_far.png": "6cbee2158ebc6d8991c3c77f1ebe91bbf7e778cd3e1629cfc8860ef4de7a1eab",
+      "paint_rear_v02/arm_near.png": "c6ecaaca36c51a656142670cd606bfd584e6a9ed3e2ec20f17ad67f5755ad2d2",
+      "paint_rear_v02/body.png": "f754176229d2b120537f680266a1c46d4a48ce2b9422322b4b20b0fbbbbaca1b",
+      "paint_rear_v02/drape.png": "706d3c33a0004de52660b348e66abe4a447db9bae75739ff10b0628029332f98",
+      "paint_rear_v02/foot_far.png": "39075126f524aa6fabe50dab319f633e499e22cc5f1aec83f5062ad45519d8e5",
+      "paint_rear_v02/foot_near.png": "f48e9ec22c4c38de5d081c09be5b65f08aa391a90fdeeeddd7db22902ab0a32a",
+      "paint_rear_v02/hand_far.png": "911c610f55fa3189dca2dd80a73e589eed4d0bf5bf0e6469d9336b822e52da61",
+      "paint_rear_v02/hand_near.png": "4ac59fe01c89d217531de1b5767e49ffa376db11f43406c0a2d44fb152fcb2a6",
+      "paint_rear_v02/head.png": "bce3075ca1def3745a9b676aa594e0c43451b85c952a7c560aeff7fcecfd6b2e",
+      "paint_rear_v02/leg_far.png": "2e97b1d078fec0a45edbfcc6df814d05098e460e1334cc8f7fe3cad42121bb2c",
+      "paint_rear_v02/leg_near.png": "00695ed32cf3667d63e8208a030bbeb3ac88607a99cde7e892b49197198a8345",
+      "paint_rear_v02/spear.png": "14f9c4847caefd0fd746cfa4c1fa3699955989176eb014468491a2ccebc728ad",
+      "source/front.png": "b5af37767b20a36033e36437124682c1f411e9ecef05361a9fce53c1c537966a",
+      "source/rear.png": "c6a09719d93753eaeeb7b6be6f75f8a33a87e3b52f0087b9758624114608b434"
+    }
+  },
+  "draw_order_parts": {
+    "front": [
+      "spear",
+      "head",
+      "foot_near",
+      "Skin_leg_near",
+      "foot_far",
+      "Skin_leg_far",
+      "hand_near",
+      "Skin_arm_near",
+      "hand_far",
+      "Skin_arm_far",
+      "Skin_drape",
+      "Skin_body"
+    ],
+    "rear": [
+      "spear",
+      "head",
+      "foot_near",
+      "Skin_leg_near",
+      "foot_far",
+      "Skin_leg_far",
+      "hand_near",
+      "Skin_arm_near",
+      "hand_far",
+      "Skin_arm_far",
+      "Skin_drape",
+      "Skin_body"
+    ]
+  },
+  "segmentation": {
+    "front": "segmented_front_v04/segmentation.json",
+    "rear": "segmented_rear_v04/segmentation.json"
+  }
+}

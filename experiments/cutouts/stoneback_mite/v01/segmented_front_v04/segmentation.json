@@ -1,0 +1,150 @@
+{
+  "ok": true,
+  "source_sha256": "230fa5fbaa0565904ec045df68a5412efe909b628399d5ae4f06c08dade287ac",
+  "ownership_sha256": "de1b4af67901aa884e89311cc1f5022b06ea9211db503ed837b5964f84f9a3bd",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        48,
+        108
+      ],
+      "bbox": [
+        48,
+        108,
+        124,
+        222
+      ]
+    },
+    {
+      "name": "foot_front_near",
+      "file": "foot_front_near.png",
+      "offset": [
+        122,
+        220
+      ],
+      "bbox": [
+        122,
+        220,
+        145,
+        246
+      ]
+    },
+    {
+      "name": "leg_front_near",
+      "file": "leg_front_near.png",
+      "offset": [
+        122,
+        159
+      ],
+      "bbox": [
+        122,
+        159,
+        154,
+        222
+      ]
+    },
+    {
+      "name": "foot_front_far",
+      "file": "foot_front_far.png",
+      "offset": [
+        10,
+        220
+      ],
+      "bbox": [
+        10,
+        220,
+        21,
+        236
+      ]
+    },
+    {
+      "name": "leg_front_far",
+      "file": "leg_front_far.png",
+      "offset": [
+        10,
+        170
+      ],
+      "bbox": [
+        10,
+        170,
+        60,
+        220
+      ]
+    },
+    {
+      "name": "foot_middle_near",
+      "file": "foot_middle_near.png",
+      "offset": [
+        201,
+        221
+      ],
+      "bbox": [
+        201,
+        221,
+        212,
+        241
+      ]
+    },
+    {
+      "name": "leg_middle_near",
+      "file": "leg_middle_near.png",
+      "offset": [
+        154,
+        158
+      ],
+      "bbox": [
+        154,
+        158,
+        218,
+        221
+      ]
+    },
+    {
+      "name": "foot_hind_near",
+      "file": "foot_hind_near.png",
+      "offset": [
+        237,
+        216
+      ],
+      "bbox": [
+        237,
+        216,
+        245,
+        227
+      ]
+    },
+    {
+      "name": "leg_hind_near",
+      "file": "leg_hind_near.png",
+      "offset": [
+        193,
+        159
+      ],
+      "bbox": [
+        193,
+        159,
+        245,
+        216
+      ]
+    },
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        47,
+        87
+      ],
+      "bbox": [
+        47,
+        87,
+        218,
+        212
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

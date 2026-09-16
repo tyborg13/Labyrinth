@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "rimejaw",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 9,
+      "meshes": 6,
+      "vertices": 13092
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 16752
+    }
+  },
+  "errors": []
+}

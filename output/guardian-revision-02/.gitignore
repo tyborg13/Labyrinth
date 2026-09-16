@@ -1,0 +1,15 @@
+*
+!.gitignore
+!review.md
+!proof-summary.json
+!animation-review/
+!animation-review/*.png
+!inspection-final/
+!inspection-final/*.png
+!map-final/
+!map-final/*.png
+!gameplay-review/
+!gameplay-review/*.png
+!gameplay-review/*.json
+!logs/
+!logs/*.log

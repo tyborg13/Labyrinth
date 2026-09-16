@@ -104,6 +104,9 @@ func _initialize() -> void:
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/ground_targeting_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/combat_outcome_feedback_suite.gd").run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	AudioRoutingSuite.run(Callable(self, "_assert"))
@@ -12555,7 +12558,7 @@ func _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets() -> void
 	var guiding_attack: Dictionary = radiance_actions[0] as Dictionary
 	var guiding_targets: Array[Vector2i] = combat.valid_targets_for_player_action(radiance_state, guiding_attack)
 	_assert(radiance_actions.size() == 1 and not guiding_targets.has(enemy_tile), "Guiding Flare should inherit ordinary attack visibility and reject a hidden enemy")
-	_assert(not guiding_targets.has(Vector2i(3, 4)), "Guiding Flare should not use standalone Light's empty-floor targeting")
+	_assert(guiding_targets.has(Vector2i(3, 4)), "Guiding Flare can paint visible Fire ground while preserving ordinary attack visibility")
 	var visible_radiance_state: Dictionary = combat.apply_player_action(radiance_state, {"type": "truesight", "duration": 2})
 	visible_radiance_state["player"]["pos"] = enemy_tile + Vector2i(-2, 0)
 	_assert(combat.valid_targets_for_player_action(visible_radiance_state, guiding_attack).has(enemy_tile), "Guiding Flare should expose one combined attack-and-Light target step once the enemy is attackable")

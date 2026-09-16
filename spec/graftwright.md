@@ -22,7 +22,7 @@ Section-map layout revision 3 converts about one fifth of eligible ordinary
 service opportunities into Graftwrights. A service is eligible only after three
 combats on **every incoming route**, calculated from completed group fight budgets
 and preceding fights on the current branch. The runtime also requires three
-cleared combat/boss rooms. Campfires, bosses, and the 66-room/40-fight route budgets
+cleared standard combat, Guardian, and boss rooms. Campfires, bosses, and the 66-room/40-fight route budgets
 are preserved. Generation is seeded; saved older maps retain their original
 topology. Legacy circular maps do not gain retroactive Graftwright nodes.
 

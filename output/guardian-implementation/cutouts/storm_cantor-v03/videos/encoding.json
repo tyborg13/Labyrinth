@@ -1,0 +1,89 @@
+{
+  "clips": [
+    {
+      "file": "videos/front_idle.mp4",
+      "source_frames": 32,
+      "source_seconds": 3.2,
+      "encoded_frames": 192,
+      "encoded_seconds": 3.2,
+      "duration_error_seconds": 0.0
+    },
+    {
+      "file": "videos/front_walk.mp4",
+      "source_frames": 40,
+      "source_seconds": 0.64,
+      "encoded_frames": 38,
+      "encoded_seconds": 0.6333333333333333,
+      "duration_error_seconds": -0.00666666666666671
+    },
+    {
+      "file": "videos/front_strike.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.54,
+      "encoded_frames": 32,
+      "encoded_seconds": 0.5333333333333333,
+      "duration_error_seconds": -0.00666666666666671
+    },
+    {
+      "file": "videos/front_cast.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.72,
+      "encoded_frames": 43,
+      "encoded_seconds": 0.7166666666666667,
+      "duration_error_seconds": -0.0033333333333332993
+    },
+    {
+      "file": "videos/front_brace.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.6400000000000008,
+      "encoded_frames": 38,
+      "encoded_seconds": 0.6333333333333333,
+      "duration_error_seconds": -0.006666666666667487
+    },
+    {
+      "file": "videos/rear_idle.mp4",
+      "source_frames": 32,
+      "source_seconds": 3.2,
+      "encoded_frames": 192,
+      "encoded_seconds": 3.2,
+      "duration_error_seconds": 0.0
+    },
+    {
+      "file": "videos/rear_walk.mp4",
+      "source_frames": 40,
+      "source_seconds": 0.64,
+      "encoded_frames": 38,
+      "encoded_seconds": 0.6333333333333333,
+      "duration_error_seconds": -0.00666666666666671
+    },
+    {
+      "file": "videos/rear_strike.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.54,
+      "encoded_frames": 32,
+      "encoded_seconds": 0.5333333333333333,
+      "duration_error_seconds": -0.00666666666666671
+    },
+    {
+      "file": "videos/rear_cast.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.72,
+      "encoded_frames": 43,
+      "encoded_seconds": 0.7166666666666667,
+      "duration_error_seconds": -0.0033333333333332993
+    },
+    {
+      "file": "videos/rear_brace.mp4",
+      "source_frames": 18,
+      "source_seconds": 0.6400000000000008,
+      "encoded_frames": 38,
+      "encoded_seconds": 0.6333333333333333,
+      "duration_error_seconds": -0.006666666666667487
+    }
+  ],
+  "reel": "videos/cutout_review.mp4",
+  "timing": "Case-declared playback speed; 60fps frame repetition, no synthesized poses; per-clip boundary rounding is at most one 60fps frame",
+  "full_decode": "PASS",
+  "source_seconds": 11.480000000000002,
+  "encoded_seconds": 11.433333333333334
+}

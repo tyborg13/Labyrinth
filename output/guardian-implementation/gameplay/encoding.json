@@ -1,0 +1,164 @@
+[
+  {
+    "label": "ashen_reaver_0",
+    "native_frames": 43,
+    "first_time": 0.002832,
+    "last_time": 1.438405,
+    "video": "output/guardian-implementation/gameplay/ashen_reaver_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/ashen_reaver_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "ashen_reaver_1",
+    "native_frames": 201,
+    "first_time": 0.004018,
+    "last_time": 6.821513,
+    "video": "output/guardian-implementation/gameplay/ashen_reaver_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/ashen_reaver_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "ashen_reaver_2",
+    "native_frames": 205,
+    "first_time": 0.00446,
+    "last_time": 6.983276,
+    "video": "output/guardian-implementation/gameplay/ashen_reaver_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/ashen_reaver_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "rimejaw_0",
+    "native_frames": 48,
+    "first_time": 0.002944,
+    "last_time": 1.629169,
+    "video": "output/guardian-implementation/gameplay/rimejaw_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/rimejaw_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "rimejaw_1",
+    "native_frames": 238,
+    "first_time": 0.003872,
+    "last_time": 8.088635,
+    "video": "output/guardian-implementation/gameplay/rimejaw_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/rimejaw_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "rimejaw_2",
+    "native_frames": 144,
+    "first_time": 0.0041,
+    "last_time": 4.905482,
+    "video": "output/guardian-implementation/gameplay/rimejaw_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/rimejaw_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "storm_cantor_0",
+    "native_frames": 48,
+    "first_time": 0.003118,
+    "last_time": 1.63284,
+    "video": "output/guardian-implementation/gameplay/storm_cantor_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/storm_cantor_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "storm_cantor_1",
+    "native_frames": 171,
+    "first_time": 0.004414,
+    "last_time": 5.868085,
+    "video": "output/guardian-implementation/gameplay/storm_cantor_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/storm_cantor_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "storm_cantor_2",
+    "native_frames": 247,
+    "first_time": 0.004501,
+    "last_time": 8.432759,
+    "video": "output/guardian-implementation/gameplay/storm_cantor_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/storm_cantor_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "gallows_roc_0",
+    "native_frames": 48,
+    "first_time": 0.002974,
+    "last_time": 1.620792,
+    "video": "output/guardian-implementation/gameplay/gallows_roc_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/gallows_roc_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "gallows_roc_1",
+    "native_frames": 233,
+    "first_time": 0.004717,
+    "last_time": 7.873003,
+    "video": "output/guardian-implementation/gameplay/gallows_roc_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/gallows_roc_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "gallows_roc_2",
+    "native_frames": 89,
+    "first_time": 0.005036,
+    "last_time": 3.023855,
+    "video": "output/guardian-implementation/gameplay/gallows_roc_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/gallows_roc_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "craghide_0",
+    "native_frames": 49,
+    "first_time": 0.002924,
+    "last_time": 1.641215,
+    "video": "output/guardian-implementation/gameplay/craghide_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/craghide_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "craghide_1",
+    "native_frames": 97,
+    "first_time": 0.004112,
+    "last_time": 3.26604,
+    "video": "output/guardian-implementation/gameplay/craghide_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/craghide_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "craghide_2",
+    "native_frames": 198,
+    "first_time": 0.00426,
+    "last_time": 6.684548,
+    "video": "output/guardian-implementation/gameplay/craghide_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/craghide_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "last_lamplighter_0",
+    "native_frames": 49,
+    "first_time": 0.002716,
+    "last_time": 1.633693,
+    "video": "output/guardian-implementation/gameplay/last_lamplighter_0.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/last_lamplighter_0",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "last_lamplighter_1",
+    "native_frames": 192,
+    "first_time": 0.003771,
+    "last_time": 6.522181,
+    "video": "output/guardian-implementation/gameplay/last_lamplighter_1.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/last_lamplighter_1",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  },
+  {
+    "label": "last_lamplighter_2",
+    "native_frames": 245,
+    "first_time": 0.003935,
+    "last_time": 8.263238,
+    "video": "output/guardian-implementation/gameplay/last_lamplighter_2.mp4",
+    "native_source": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gameplay/last_lamplighter_2",
+    "timing": "native elapsed timestamp deltas; display resampled to 30 fps"
+  }
+]

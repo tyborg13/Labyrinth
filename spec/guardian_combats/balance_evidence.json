@@ -1,0 +1,3570 @@
+{
+  "guardian_assumptions": {
+    "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
+    "roster": "one 36\u201344 HP bespoke leader plus one or two 4\u20136 HP helpers; all have 1x1 footprints",
+    "clock": "Roc and Cantor initiative 20 plus Time 4\u20137; their helpers initiative 19 plus Time 4; other Guardians retain initiative 9\u201312 and helpers 8\u201310; ordinary Wisp remains 7 plus 4",
+    "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
+    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
+    "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
+    "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
+    "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
+    "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "ground_targeting": "surface-producing attacks admit legal empty floor; a preceding attack can share Fire ground with previous-target Detonate; damage still requires an occupant and no extra fuel is assumed",
+    "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
+    "trophy_curves": {
+      "ashen_brand": "D * (1 + .25 * (maximum overlapping crosses - 1)), round once halves up; one hit per actor",
+      "resonant_clapper": "D * (1 + .25 * enemy hop), round once halves up; native heads start at zero and empty relays/conduction do not advance it",
+      "winters_spur": "one base Move per straight Ice segment; corners and leaving Ice restart cost, Rubble surcharge remains",
+      "galehook_talon": "up to N * F enemy-steps for N contiguous collinear enemies and printed force F; blocked/contact-interrupted groups stop together",
+      "cragbound_gauntlet": "ranged Earth spells create one 3-HP outcrop at an empty chosen center; no separate Move or Stoneskin cost; occupied targets stay ordinary spell hits",
+      "procession_lantern": "existing Illusion movement consumes the same independent Move as the hero; no added HP, vision, or card target"
+    }
+  },
+  "relevant_card_scores": [
+    {
+      "card_id": "rimeplate_lock",
+      "name": "Rimeplate Lock",
+      "rarity": "epic",
+      "element": "ice",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 6,
+      "description": "Gain 3 Stoneskin and 3 Block, then deal 2 Ice damage at range 2, immobilize, and leave Ice.",
+      "score": 5.0472,
+      "breakdown": {
+        "offense": 0.6162000000000001,
+        "control": 2.041,
+        "defense": 1.9500000000000002,
+        "flow": 0.0,
+        "surfaces": 0.39,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.5,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": -0.45,
+        "total": 5.0472
+      },
+      "source_tags": [
+        "equipment"
+      ],
+      "is_reward_pool": false,
+      "is_elemental_reward": false,
+      "is_neutral_reward": false,
+      "is_equipment": true,
+      "is_equipment_granted": true,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": [
+        "rimeplate_harness"
+      ]
+    },
+    {
+      "card_id": "frostbolt",
+      "name": "Frostbolt",
+      "rarity": "common",
+      "element": "ice",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Deal 4 Ice damage at range 3, then leave Ice.",
+      "score": 4.0466,
+      "breakdown": {
+        "offense": 1.65336,
+        "control": 1.1951999999999998,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 0.49799999999999994,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.25,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 4.0466
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "basalt_guard",
+      "name": "Basalt Guard",
+      "rarity": "rare",
+      "element": "earth",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 6,
+      "description": "Create a 4-health illusion on Rubble at range 3, then gain 4 Block and 2 Stoneskin.",
+      "score": 3.9952,
+      "breakdown": {
+        "offense": 0.0,
+        "control": 0.36,
+        "defense": 3.7199999999999998,
+        "flow": 0.0,
+        "surfaces": 0.36519999999999997,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": -0.45,
+        "total": 3.9952
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "kite_bash",
+      "name": "Kite Bash",
+      "rarity": "common",
+      "element": "none",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Gain 6 block, then bash an adjacent enemy for 3 and push 1.",
+      "score": 2.9028,
+      "breakdown": {
+        "offense": 0.5103000000000001,
+        "control": 0.1925,
+        "defense": 1.5,
+        "flow": 0.0,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.25,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 2.9028
+      },
+      "source_tags": [
+        "equipment"
+      ],
+      "is_reward_pool": false,
+      "is_elemental_reward": false,
+      "is_neutral_reward": false,
+      "is_equipment": true,
+      "is_equipment_granted": true,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": [
+        "ward_kite"
+      ]
+    },
+    {
+      "card_id": "stone_plate",
+      "name": "Stone Plate",
+      "rarity": "common",
+      "element": "earth",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Gain 4 Stoneskin, then draw 1.",
+      "score": 2.9,
+      "breakdown": {
+        "offense": 0.0,
+        "control": 0.0,
+        "defense": 1.6,
+        "flow": 0.85,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 2.9
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "gust_step",
+      "name": "Gust Step",
+      "rarity": "common",
+      "element": "air",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Pull 2 at range 2 for 3 damage, then Move 1.",
+      "score": 2.6107,
+      "breakdown": {
+        "offense": 0.9477000000000001,
+        "control": 0.533,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.08,
+        "radiance": 0.0,
+        "synergy": 0.6000000000000001,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 2.6107
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "chain_bolt",
+      "name": "Chain Bolt",
+      "rarity": "common",
+      "element": "lightning",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 5,
+      "description": "Deal 4 Lightning damage with Chain 2 at range 3.",
+      "score": 2.5565,
+      "breakdown": {
+        "offense": 2.5565078999999997,
+        "control": 0.0,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.0,
+        "total": 2.5565
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "shadow_step",
+      "name": "Shadow Step",
+      "rarity": "common",
+      "element": "none",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Blink 3, then draw 1.",
+      "score": 2.54,
+      "breakdown": {
+        "offense": 0.0,
+        "control": 0.0,
+        "defense": 0.0,
+        "flow": 0.85,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.99,
+        "radiance": 0.0,
+        "synergy": 0.25,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 2.54
+      },
+      "source_tags": [
+        "starter"
+      ],
+      "is_reward_pool": false,
+      "is_elemental_reward": false,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": true,
+      "is_item": false,
+      "is_starter": true,
+      "equipment_ids": [
+        "patched_cloak"
+      ]
+    },
+    {
+      "card_id": "cinder_bloom",
+      "name": "Cinder Bloom",
+      "rarity": "common",
+      "element": "fire",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 6,
+      "description": "Deal 2 in a cross at range 2, then leave Fire in the pattern.",
+      "score": 2.0647,
+      "breakdown": {
+        "offense": 0.9859200000000001,
+        "control": 0.0,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 1.5288,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": -0.45,
+        "total": 2.0647
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "cinderline_tempo",
+      "name": "Cinderline Tempo",
+      "rarity": "common",
+      "element": "fire",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Deal 2 at range 2, then Detonate 6 at the impact.",
+      "score": 2.0545,
+      "breakdown": {
+        "offense": 2.004467678571429,
+        "control": 0.0,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.4,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 2.0545
+      },
+      "source_tags": [
+        "reward-pool",
+        "elemental-reward"
+      ],
+      "is_reward_pool": true,
+      "is_elemental_reward": true,
+      "is_neutral_reward": false,
+      "is_equipment": false,
+      "is_equipment_granted": false,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": []
+    },
+    {
+      "card_id": "cleaver_hook",
+      "name": "Cleaver Hook",
+      "rarity": "common",
+      "element": "none",
+      "burn": false,
+      "flurry": false,
+      "consume_on_play": false,
+      "health_cost": 0,
+      "rules_version": 5,
+      "balance_revision": "short_reach_v1",
+      "retired": false,
+      "time": 4,
+      "description": "Hack an adjacent enemy for 6 and shove 1.",
+      "score": 1.7499,
+      "breakdown": {
+        "offense": 1.10745,
+        "control": 0.1925,
+        "defense": 0.0,
+        "flow": 0.0,
+        "surfaces": 0.0,
+        "surface_fuel_cost": 0.0,
+        "mobility": 0.0,
+        "radiance": 0.0,
+        "synergy": 0.0,
+        "health_cost": 0.0,
+        "burn_card_penalty": 0.0,
+        "flurry_compression_bonus": 0.0,
+        "flurry_commitment_penalty": 0.0,
+        "tempo": 0.45,
+        "total": 1.7499
+      },
+      "source_tags": [
+        "equipment"
+      ],
+      "is_reward_pool": false,
+      "is_elemental_reward": false,
+      "is_neutral_reward": false,
+      "is_equipment": true,
+      "is_equipment_granted": true,
+      "is_item": false,
+      "is_starter": false,
+      "equipment_ids": [
+        "iron_cleaver"
+      ]
+    }
+  ],
+  "pacing_trials": [
+    {
+      "case": "ashen_reaver-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 1,
+          "surface_created:fire": 4,
+          "surface_created:ice": 1,
+          "surface_damage:enemy": 3
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "lantern_shot": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 6,
+          "surface_damage:enemy": 3
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 3,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1
+        },
+        "decisions": 15,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 9,
+          "surface_damage:enemy": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "patch_up": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_created:fire": 4,
+          "surface_created:ice": 2,
+          "surface_damage:enemy": 6,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 3,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "rime_shard": 1,
+          "shadow_step": 1
+        },
+        "decisions": 15,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 4,
+          "surface_created:ice": 4,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 23,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 1,
+          "surface_created:fire": 5,
+          "surface_created:ice": 2,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 2,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 4,
+          "surface_created:electrified": 7,
+          "surface_created:ice": 2,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_conducted": 7,
+          "surface_created:electrified": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 15,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "detonate": 1,
+          "guardian_helper_summoned": 1,
+          "surface_conducted": 8,
+          "surface_created:electrified": 4,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 6,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 16,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 2,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "patch_up": 1,
+          "rime_shard": 1,
+          "shadow_step": 1
+        },
+        "decisions": 13,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 19,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 2,
+          "surface_created:ice": 3,
+          "surface_removed:freeze": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 3,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "ember_tithe": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 21,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 6,
+          "surface_removed:detonate": 1,
+          "trap_triggered": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 5,
+          "surface_damage:enemy": 3,
+          "surface_removed:terrain_created": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1
+        },
+        "decisions": 18,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 7,
+          "surface_created:rubble": 4,
+          "surface_damage:enemy": 4
+        }
+      }
+    },
+    {
+      "case": "craghide-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "icicle_lance": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "rime_shard": 1,
+          "warded_advance": 1
+        },
+        "decisions": 16,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 18,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 2,
+          "surface_created:ice": 1,
+          "surface_created:rubble": 3,
+          "surface_removed:freeze": 1
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s0-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 23,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 1,
+          "guardian_light_snuffed": 2,
+          "surface_created:fire": 2,
+          "surface_damage:enemy": 5
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s0-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 20,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 2,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 3
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s0-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "rime_shard": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 2,
+          "status_applied": 2,
+          "surface_created:ice": 3,
+          "surface_removed:freeze": 1
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "lantern_shot": 1,
+          "quarry_step": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 4
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 9,
+          "surface_damage:enemy": 7
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cold_grasp": 1,
+          "frostbolt": 2,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1
+        },
+        "decisions": 16,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 3,
+          "surface_created:fire": 3,
+          "surface_created:ice": 2,
+          "surface_damage:enemy": 2,
+          "surface_removed:freeze": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "shadow_step": 1
+        },
+        "decisions": 13,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 2,
+          "surface_created:fire": 5,
+          "surface_created:ice": 1,
+          "surface_damage:enemy": 5,
+          "surface_removed:freeze": 1,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1
+        },
+        "decisions": 20,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 2,
+          "surface_created:fire": 5,
+          "surface_created:ice": 3,
+          "surface_damage:enemy": 6,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "rime_shard": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 5,
+          "surface_created:ice": 5,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "hamstring_shot": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 16,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 16,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 1,
+          "surface_conducted": 29,
+          "surface_created:electrified": 8,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "ember_tithe": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_conducted": 8,
+          "surface_created:electrified": 7,
+          "surface_created:fire": 4,
+          "surface_damage:enemy": 7,
+          "surface_removed:detonate": 1,
+          "surface_replaced:electrified": 3,
+          "surface_replaced:fire": 2
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 15,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 4,
+          "trap_triggered": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 5,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "frostbolt": 2,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 4,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 3,
+          "surface_conducted": 38,
+          "surface_created:electrified": 10,
+          "surface_created:ice": 2,
+          "surface_removed:freeze": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 3,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1
+        },
+        "decisions": 12,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 4,
+          "surface_removed:detonate": 1,
+          "trap_triggered": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "kite_bash": 1,
+          "rime_shard": 1,
+          "shadow_step": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 10,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 3,
+          "surface_created:ice": 3,
+          "surface_removed:freeze": 1,
+          "trap_triggered": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 16,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 33,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 5,
+          "surface_damage:enemy": 4,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cold_grasp": 2,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "warded_advance": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 15,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 4,
+          "surface_created:ice": 2,
+          "surface_created:rubble": 2,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "craghide-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_created:fire": 6,
+          "surface_created:rubble": 4,
+          "surface_damage:enemy": 10,
+          "surface_removed:detonate": 1,
+          "surface_removed:terrain_created": 1
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s2-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 1,
+          "guardian_light_snuffed": 2,
+          "surface_created:fire": 2,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s2-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 10,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 27,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 18,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 4,
+          "guardian_light_restored": 3,
+          "guardian_light_snuffed": 4,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s2-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 9,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 2,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 2,
+          "icicle_lance": 1,
+          "patch_up": 1,
+          "rime_shard": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 27,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 21,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 4,
+          "guardian_light_restored": 3,
+          "guardian_light_snuffed": 4,
+          "status_applied": 6,
+          "surface_created:ice": 4,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 20,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "surface_created:fire": 12,
+          "surface_damage:enemy": 10,
+          "surface_damage:player": 1,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 16,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 27,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 10,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 8
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 16,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "shadow_step": 1
+        },
+        "decisions": 26,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 11,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "status_applied": 3,
+          "surface_created:fire": 7,
+          "surface_created:ice": 5,
+          "surface_damage:enemy": 10,
+          "surface_removed:detonate": 1,
+          "surface_replaced:fire": 1,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 9,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 20,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "status_applied": 1,
+          "surface_created:fire": 4,
+          "surface_created:ice": 4,
+          "surface_damage:enemy": 12,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 2,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "rime_shard": 1,
+          "shadow_step": 1
+        },
+        "decisions": 18,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 14,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 8,
+          "surface_created:ice": 7,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "frostbolt": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1
+        },
+        "decisions": 10,
+        "endpoint": "defeat",
+        "guardian_id": "storm_cantor",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "surface_conducted": 23,
+          "surface_created:electrified": 4,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 14,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 29,
+        "endpoint": "defeat",
+        "guardian_id": "storm_cantor",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 2,
+          "surface_conducted": 23,
+          "surface_created:electrified": 10,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5,
+          "surface_replaced:electrified": 1,
+          "surface_replaced:fire": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 18,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "detonate": 1,
+          "surface_created:fire": 4,
+          "surface_damage:enemy": 3,
+          "surface_removed:detonate": 1,
+          "trap_triggered": 2
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 1,
+          "shadow_step": 1
+        },
+        "decisions": 11,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "status_applied": 2,
+          "surface_created:ice": 1,
+          "surface_removed:freeze": 1,
+          "trap_triggered": 2
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "kite_bash": 1,
+          "shadow_step": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "detonate": 1,
+          "surface_created:fire": 6,
+          "surface_damage:enemy": 5,
+          "surface_removed:detonate": 1,
+          "trap_triggered": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 25,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 2,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 2,
+          "ember_tithe": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 2,
+          "kite_bash": 2,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 47,
+        "endpoint": "defeat",
+        "guardian_id": "storm_cantor",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 8,
+          "detonate": 1,
+          "guardian_helper_summoned": 6,
+          "surface_conducted": 27,
+          "surface_created:electrified": 12,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 11,
+          "surface_removed:detonate": 1,
+          "surface_replaced:electrified": 2,
+          "surface_replaced:fire": 4
+        }
+      }
+    },
+    {
+      "case": "craghide-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 9,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 2,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 26,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 20,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_created:fire": 6,
+          "surface_created:rubble": 4,
+          "surface_damage:enemy": 10,
+          "surface_removed:detonate": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 30,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 40,
+        "endpoint": "bounded_stalemate",
+        "guardian_id": "craghide",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 7,
+          "surface_damage:enemy": 4,
+          "surface_removed:detonate": 1,
+          "surface_removed:terrain_created": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 24,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 3,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 40,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 4,
+          "surface_created:ice": 5,
+          "surface_created:rubble": 3,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s5-mixed-clear_helpers",
+      "exit": 0,
+      "result": {
+        "activations": 10,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 2,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 30,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 17,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "guardian_helper_summoned": 3,
+          "guardian_light_restored": 4,
+          "guardian_light_snuffed": 4,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 4
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s5-fire-focus_guardian",
+      "exit": 0,
+      "result": {
+        "activations": 7,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 2,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 24,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 21,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "guardian_helper_summoned": 3,
+          "guardian_light_restored": 3,
+          "guardian_light_snuffed": 3,
+          "surface_created:fire": 3,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s5-ice-control",
+      "exit": 0,
+      "result": {
+        "activations": 6,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 2,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 2,
+          "status_applied": 3,
+          "surface_created:ice": 3,
+          "surface_removed:freeze": 1
+        }
+      }
+    }
+  ],
+  "revision_02_policy_comparison": [
+    {
+      "case": "ashen_reaver-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 3,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "lantern_shot": 1,
+          "quarry_step": 1,
+          "shadow_step": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 14,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 9,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5,
+          "surface_damage:player": 1
+        }
+      },
+      "baseline": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "lantern_shot": 1
+        },
+        "decisions": 14,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 6,
+          "surface_damage:enemy": 3
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 10,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 2,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "lantern_shot": 2,
+          "patch_up": 1,
+          "shadow_step": 2,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 32,
+        "endpoint": "defeat",
+        "guardian_id": "ashen_reaver",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 8,
+          "detonate": 1,
+          "guardian_helper_summoned": 5,
+          "surface_created:fire": 24,
+          "surface_damage:enemy": 20,
+          "surface_damage:player": 1,
+          "surface_removed:detonate": 1
+        }
+      },
+      "baseline": {
+        "activations": 5,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 9,
+          "surface_damage:enemy": 7
+        }
+      }
+    },
+    {
+      "case": "ashen_reaver-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 14,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 3,
+          "frostbolt": 1,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "kite_bash": 2,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "rime_shard": 1,
+          "shadow_step": 2,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 46,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 3,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 10,
+          "guardian_helper_summoned": 7,
+          "status_applied": 1,
+          "surface_created:fire": 27,
+          "surface_created:ice": 1,
+          "surface_damage:enemy": 30,
+          "surface_replaced:fire": 1,
+          "surface_replaced:ice": 1
+        }
+      },
+      "baseline": {
+        "activations": 16,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "shadow_step": 1
+        },
+        "decisions": 26,
+        "endpoint": "guardian_victory",
+        "guardian_id": "ashen_reaver",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "surface_created:fire": 11,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 8,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "patch_up": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 27,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 4,
+          "surface_created:fire": 3,
+          "surface_created:ice": 6,
+          "surface_damage:enemy": 2,
+          "surface_replaced:fire": 2
+        }
+      },
+      "baseline": {
+        "activations": 5,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 23,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 1,
+          "surface_created:fire": 5,
+          "surface_created:ice": 2,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "patch_up": 1
+        },
+        "decisions": 16,
+        "endpoint": "defeat",
+        "guardian_id": "rimejaw",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 1,
+          "status_applied": 1,
+          "surface_created:fire": 8,
+          "surface_created:ice": 3,
+          "surface_damage:enemy": 15,
+          "surface_replaced:ice": 2
+        }
+      },
+      "baseline": {
+        "activations": 5,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1
+        },
+        "decisions": 20,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "status_applied": 2,
+          "surface_created:fire": 5,
+          "surface_created:ice": 3,
+          "surface_damage:enemy": 6,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "rimejaw-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 5,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "patch_up": 1,
+          "shadow_step": 1
+        },
+        "decisions": 13,
+        "endpoint": "defeat",
+        "guardian_id": "rimejaw",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 2,
+          "surface_created:ice": 4
+        }
+      },
+      "baseline": {
+        "activations": 7,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 2,
+          "hamstring_shot": 1,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "rime_shard": 1,
+          "shadow_step": 1
+        },
+        "decisions": 18,
+        "endpoint": "guardian_victory",
+        "guardian_id": "rimejaw",
+        "hp": 14,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 8,
+          "surface_created:ice": 7,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 5,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "hamstring_shot": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_conducted": 2,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5,
+          "surface_removed:detonate": 1
+        }
+      },
+      "baseline": {
+        "activations": 6,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "hamstring_shot": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_conducted": 7,
+          "surface_created:electrified": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 10,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "guardian_helper_summoned": 1,
+          "surface_conducted": 7,
+          "surface_created:electrified": 5,
+          "surface_created:fire": 7,
+          "surface_damage:enemy": 6,
+          "surface_removed:detonate": 1,
+          "surface_replaced:electrified": 1
+        }
+      },
+      "baseline": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "ember_tithe": 1,
+          "guiding_flare": 1,
+          "hamstring_shot": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "storm_cantor",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_conducted": 8,
+          "surface_created:electrified": 7,
+          "surface_created:fire": 4,
+          "surface_damage:enemy": 7,
+          "surface_removed:detonate": 1,
+          "surface_replaced:electrified": 3,
+          "surface_replaced:fire": 2
+        }
+      }
+    },
+    {
+      "case": "storm_cantor-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "frostbolt": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "patch_up": 1
+        },
+        "decisions": 9,
+        "endpoint": "defeat",
+        "guardian_id": "storm_cantor",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "status_applied": 1,
+          "surface_conducted": 42,
+          "surface_created:electrified": 5,
+          "surface_created:ice": 1
+        }
+      },
+      "baseline": {
+        "activations": 6,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "frostbolt": 1,
+          "icicle_lance": 1,
+          "kite_bash": 1
+        },
+        "decisions": 10,
+        "endpoint": "defeat",
+        "guardian_id": "storm_cantor",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "surface_conducted": 23,
+          "surface_created:electrified": 4,
+          "surface_replaced:ice": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 6,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 23,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 3,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 5,
+          "guardian_helper_summoned": 4,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 6,
+          "trap_triggered": 2
+        }
+      },
+      "baseline": {
+        "activations": 4,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 16,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1
+        },
+        "decisions": 17,
+        "endpoint": "defeat",
+        "guardian_id": "gallows_roc",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 5,
+          "guardian_helper_summoned": 3,
+          "surface_created:fire": 6,
+          "surface_damage:enemy": 8,
+          "surface_damage:player": 1,
+          "trap_triggered": 2
+        }
+      },
+      "baseline": {
+        "activations": 3,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "needle_flurry": 1,
+          "shadow_step": 1
+        },
+        "decisions": 12,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "detonate": 1,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 4,
+          "surface_removed:detonate": 1,
+          "trap_triggered": 1
+        }
+      }
+    },
+    {
+      "case": "gallows_roc-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 1,
+          "kite_bash": 1,
+          "patch_up": 1,
+          "rime_shard": 1
+        },
+        "decisions": 14,
+        "endpoint": "defeat",
+        "guardian_id": "gallows_roc",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 1,
+          "status_applied": 2,
+          "surface_created:ice": 3,
+          "trap_triggered": 2
+        }
+      },
+      "baseline": {
+        "activations": 4,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 1,
+          "shadow_step": 1
+        },
+        "decisions": 11,
+        "endpoint": "guardian_victory",
+        "guardian_id": "gallows_roc",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 1,
+          "status_applied": 2,
+          "surface_created:ice": 1,
+          "surface_removed:freeze": 1,
+          "trap_triggered": 2
+        }
+      }
+    },
+    {
+      "case": "craghide-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 9,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 2,
+          "patch_up": 1,
+          "shadow_step": 2,
+          "warded_advance": 1
+        },
+        "decisions": 28,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 13,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 6,
+          "detonate": 1,
+          "guardian_helper_summoned": 3,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 6,
+          "surface_damage:enemy": 3,
+          "surface_removed:detonate": 1,
+          "surface_removed:terrain_created": 1
+        }
+      },
+      "baseline": {
+        "activations": 7,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "slipstream_cut": 1
+        },
+        "decisions": 19,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "surface_created:fire": 4,
+          "surface_created:rubble": 5,
+          "surface_damage:enemy": 3,
+          "surface_removed:terrain_created": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "patch_up": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 9,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 1,
+          "surface_created:fire": 6,
+          "surface_created:rubble": 4,
+          "surface_damage:enemy": 11
+        }
+      },
+      "baseline": {
+        "activations": 6,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "cinder_bloom": 1,
+          "cinderline_tempo": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "guiding_flare": 1,
+          "hearth_rush": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "detonate": 1,
+          "surface_created:fire": 6,
+          "surface_created:rubble": 4,
+          "surface_damage:enemy": 10,
+          "surface_removed:detonate": 1,
+          "surface_removed:terrain_created": 1
+        }
+      }
+    },
+    {
+      "case": "craghide-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 8,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "cold_grasp": 1,
+          "icicle_lance": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "warded_advance": 1
+        },
+        "decisions": 18,
+        "endpoint": "defeat",
+        "guardian_id": "craghide",
+        "hp": 0,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "guardian_helper_summoned": 1,
+          "status_applied": 4,
+          "surface_created:ice": 2,
+          "surface_created:rubble": 2,
+          "surface_removed:freeze": 1
+        }
+      },
+      "baseline": {
+        "activations": 24,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 3,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "shadow_step": 1,
+          "warded_advance": 1
+        },
+        "decisions": 40,
+        "endpoint": "guardian_victory",
+        "guardian_id": "craghide",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "status_applied": 4,
+          "surface_created:ice": 5,
+          "surface_created:rubble": 3,
+          "surface_removed:freeze": 2
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s0-mixed-clear_helpers",
+      "exit": 0,
+      "summary": {
+        "activations": 8,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 2,
+          "kite_bash": 1,
+          "needle_flurry": 1,
+          "quarry_step": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 25,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 20,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 5,
+          "guardian_helper_summoned": 4,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 3,
+          "surface_created:fire": 5,
+          "surface_created:rubble": 1,
+          "surface_damage:enemy": 5
+        }
+      },
+      "baseline": {
+        "activations": 6,
+        "approach": "clear_helpers",
+        "build": "mixed",
+        "cards_played": {
+          "butcher_chop": 1,
+          "chain_bolt": 1,
+          "cinder_bloom": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "kite_bash": 1,
+          "shadow_step": 1,
+          "sidestep_slash": 1,
+          "slipstream_cut": 1,
+          "warded_advance": 1
+        },
+        "decisions": 20,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 0,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 2,
+          "surface_created:fire": 5,
+          "surface_damage:enemy": 3
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s2-fire-focus_guardian",
+      "exit": 0,
+      "summary": {
+        "activations": 6,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 2,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "patch_up": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 22,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 4,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 4,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 3,
+          "surface_created:fire": 4,
+          "surface_damage:enemy": 4
+        }
+      },
+      "baseline": {
+        "activations": 4,
+        "approach": "focus_guardian",
+        "build": "fire",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "ember_tithe": 1,
+          "firebrand_volley": 1,
+          "hearth_rush": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "patch_up": 1,
+          "sidestep_slash": 1
+        },
+        "decisions": 17,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 22,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 2,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 2,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 1,
+          "guardian_light_snuffed": 2,
+          "surface_created:fire": 2,
+          "surface_damage:enemy": 6
+        }
+      }
+    },
+    {
+      "case": "last_lamplighter-s5-ice-control",
+      "exit": 0,
+      "summary": {
+        "activations": 9,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 2,
+          "frostbolt": 2,
+          "icicle_lance": 1,
+          "kite_bash": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 27,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 6,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 4,
+          "guardian_helper_summoned": 4,
+          "guardian_light_restored": 3,
+          "guardian_light_snuffed": 4,
+          "status_applied": 6,
+          "surface_created:ice": 4,
+          "surface_removed:freeze": 2
+        }
+      },
+      "baseline": {
+        "activations": 6,
+        "approach": "control",
+        "build": "ice",
+        "cards_played": {
+          "butcher_chop": 1,
+          "cleaver_hook": 1,
+          "cold_grasp": 1,
+          "frostbolt": 2,
+          "icicle_lance": 1,
+          "lantern_shot": 1,
+          "needle_flurry": 1,
+          "rime_shard": 1,
+          "sidestep_slash": 1,
+          "warded_advance": 1
+        },
+        "decisions": 21,
+        "endpoint": "guardian_victory",
+        "guardian_id": "last_lamplighter",
+        "hp": 24,
+        "policy": "board_surface_playtest v1 with declared target preference; no optimality or win-rate claim",
+        "section": 5,
+        "seed": 7262026,
+        "surface_events": {
+          "actor_death": 3,
+          "guardian_helper_summoned": 2,
+          "guardian_light_restored": 2,
+          "guardian_light_snuffed": 2,
+          "status_applied": 3,
+          "surface_created:ice": 3,
+          "surface_removed:freeze": 1
+        }
+      }
+    }
+  ],
+  "revision_02_limits": "18 one-seed fixed-policy regression/pacing cases, not a human win rate or complete-run progression model. 11 victories, 7 defeats, no bounded stalls.",
+  "revision_04_scope": "Intent execution, summon fallback and presentation corrections only; refreshed intrinsic card scores and current encounter assumptions. Earlier fixed-policy pacing trials remain historical evidence, not new revision-04 runs."
+}

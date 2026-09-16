@@ -1,0 +1,74 @@
+{
+  "reference_commit": "bb8b0bae3d9acbb55e33f3921780bab2b86ea67c",
+  "runtime_commit": "fab34b6ddd8d228073836dca180abdf532cf910d",
+  "reference": "cutouts/<actor>-v01",
+  "current": "cutouts/<actor>-v03",
+  "total_native_pose_images": 4680,
+  "actors": [
+    {
+      "actor": "ash_hound",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "ashen_reaver",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "bell_tender",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "craghide",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "gallows_roc",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "last_lamplighter",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "rime_spitter",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "rime_whelp",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "rimejaw",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "roc_fledgling",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "stoneback_mite",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "storm_cantor",
+      "native_pose_images": 360,
+      "byte_identical": true
+    },
+    {
+      "actor": "wick_shade",
+      "native_pose_images": 360,
+      "byte_identical": true
+    }
+  ]
+}

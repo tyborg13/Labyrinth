@@ -91,7 +91,10 @@ static func run(expect: Callable) -> void:
 	_test_player_facing_turn_terminology(expect)
 
 static func _test_complete_set_contract(expect: Callable) -> void:
-	var relics: Dictionary = GameData.relics()
+	var relics: Dictionary = GameData.relics().duplicate(true)
+	# Guardian trophies are an encounter-exclusive pool, covered by GuardianSuite.
+	for id: String in relics.keys():
+		if bool(relics[id].get("exclusive_guardian", false)): relics.erase(id)
 	expect.call(relics.size() == 60, "The Radiance package redesign should contain exactly 60 relics")
 	for relic_id: String in NEW_RELIC_IDS:
 		expect.call(relics.has(relic_id), "New relic %s should be present" % relic_id)

@@ -12,6 +12,14 @@ const ICON_BOSS: String = "boss"
 const ICON_SCAVENGER: String = "scavenger"
 
 const ROOM_TYPE_ICON_PATHS := {
+	"guardian": "res://assets/art/icons/guardians/guardian_category.png",
+	"guardian_ashen_reaver": "res://assets/art/map/guardians/ashen_reaver_emblem.png",
+	"guardian_rimejaw": "res://assets/art/map/guardians/rimejaw_emblem.png",
+	"guardian_storm_cantor": "res://assets/art/map/guardians/storm_cantor_emblem.png",
+	"guardian_gallows_roc": "res://assets/art/map/guardians/gallows_roc_emblem.png",
+	"guardian_craghide": "res://assets/art/map/guardians/craghide_emblem.png",
+	"guardian_last_lamplighter": "res://assets/art/map/guardians/last_lamplighter_emblem.png",
+
 	"start": "res://assets/art/icons/map/lantern.png",
 	"combat": "res://assets/art/icons/map/fight.png",
 	"campfire": "res://assets/art/icons/map/campfire.png",
@@ -32,6 +40,8 @@ static func icon_id_for_room(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", ICON_COMBAT))
 	if room_type in ["blacksmith", "arcanist"]:
 		room_type = ICON_SCAVENGER
+	if room_type == "guardian":
+		return "guardian_" + str(room.get("guardian_id", "ashen_reaver"))
 	if room_type == ICON_BOSS:
 		return "boss_" + str(room.get("boss_id", "tharokh"))
 	if room_type == ICON_COMBAT and not room.has("section_index"):

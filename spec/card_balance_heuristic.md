@@ -127,8 +127,10 @@ grouped by active relic ids.
 Encounter calibration is also important:
 
 - The first combat remains a `Kill All` onboarding encounter. Later standard
-  rooms deterministically use an equal `25/25/25/25` mix of `Kill All`, `Kill
-  the Leader`, `Survive`, and `Reach the Exit`; boss rooms always use `Kill the
+  rooms deterministically use a `50/25/25` mix of `Kill All`, `Kill
+  the Leader`, and `Reach the Exit`. `Survive` is temporarily out of rotation;
+  its former seeded slots use `Kill All`, while its implementation and saved
+  encounters remain supported. Boss rooms always use `Kill the
   Leader` without applying the generic leader health/defense bonus on top of
   authored boss stats. Survival targets initiative clock
   `42/46/50` at local depths `1/2/3` and schedules one reinforcement every `16`
@@ -608,3 +610,55 @@ Rubble 0.44 credits leaving-cost control after a melee painter; Electrified
 Geometry/contact availability remains bounded. Reusable conduction no longer
 receives a repeated-consumption penalty; Fire/Ice consumption still does.
 Bleed and passive Fire do not receive Chill/Frozen direct-attack multipliers.
+
+
+## Optional Guardian cohort
+
+Fresh maps replace one middle-group fight per section with an optional named
+Guardian; the 66-room / 40-fight opportunity budget is unchanged. Each has a
+36–44 HP leader and one or two 4–6 HP helpers, all occupying one tile. Guardian
+repeat clocks retain initiative 9–12 plus Time 4–7 except Roc and Cantor, now
+initiative 20 plus Time 4–7. Their helpers use initiative 19 plus Time 4;
+Cantor Wisps receive this encounter-specific base while ordinary Wisps remain
+7 + 4. Other helpers retain initiative 8–10 plus Time 4–6. At maximum depth
+acceleration the two revised leaders still take at least 20 clock units and
+their helpers at least 19, versus an ordinary two-Time-5 player turn at 19. The ordinary local and
+completed-section HP, damage and support curves apply without a generic leader
+multiplier. Original non-summoned helpers grant one player-card defeat play and zero Embers;
+all summoned replacements and original Wisps/Shades grant neither. Each Guardian
+announces at most one missing roster helper per activation, with at most two
+helpers alive. Helpers advance on each intent and prefer complementary safe
+flanks, keeping Guardian approach and strike tiles clear for replacements.
+Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
+Cantor/Tender extend one shared network toward the player; Peal uses its full
+connected area. Craghide outcrop bursts reach two tiles. Only explicitly authored
+directional ground patterns retain orientation; ordinary attacks track live targets.
+Displacement translates their approach and footprint; blockers/traps shorten the approach
+and a surviving caster strikes from its actual arrival. Player dodges do not re-aim
+the attack. Occupied summon reservations relocate within the existing summon range,
+retaining roster caps and avoiding the caster’s attack footprint. Skipped slots advance. Craghide cannot seal connected floor;
+all outcrops block movement and attack sight and can be cleared by AI.
+
+These optional fights and exclusive trophies are their own analytics cohort;
+they do not inflate every printed card's intrinsic score. The scorer exposes
+this contract in `guardian_encounters` under `--show-assumptions`. Its trophy
+curves distinguish planning payoff from guaranteed value: Brand adds 25% base
+Detonate damage per extra overlapping cross, once per actor at its best-covered
+footprint cell; Clapper adds 25% base damage per native enemy hop, ignoring
+empty relays and conduction-only victims. Both round the combined amount once,
+halves up. Spur discounts straight Ice segments but preserves corners and
+Rubble surcharges. Talon can yield N × F enemy-steps, bounded by formation and
+obstructions. Gauntlet adds one 3-HP outcrop at the empty center of a ranged Earth spell,
+with no added target, Move or Stoneskin cost. The useful delay varies with
+routes and enemy damage; three terrain HP is not three guaranteed player HP. Lantern redirects existing independent Move to an Illusion without
+adding health, vision or another card target. These are conditional synergies,
+not flat intrinsic damage or tempo bonuses.
+
+
+Surface-producing attacks may aim at legal empty ground. A preceding attack
+may also share a Fire-ground target with a previous-target Detonate. Range,
+visibility and sight still apply, and the attack's own damage requires a victim.
+The scorer already values painted ground by ranged placement access separately
+from occupant damage and inherits the initiating attack's reach for Detonate;
+these coefficients remain unchanged. No additional Fire, forced contact or
+owned Gauntlet is assumed in intrinsic card scores.

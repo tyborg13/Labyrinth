@@ -8,6 +8,8 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"raise_cover": {"label":"Raise Cover","description":"Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.","path":"res://assets/art/icons/guardians/raise_cover.png"},
+	"reclaim_cover": {"label":"Reclaim Cover","description":"Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
 	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
 	"surface_fire": {"label": "Fire", "description": "Deals 3 damage on turn start and 2 damage when entered.", "path": "%s/surface_fire.png" % ICON_ROOT},
 	"surface_ice": {"label": "Ice", "description": "Entering or starting a turn on Ice applies Chilled.", "path": "%s/surface_ice.png" % ICON_ROOT},
@@ -727,6 +729,8 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 			options = options_by_index[index]
 		var row: Array = tokens_for_action(action, options)
 		previous_action_row_index = append_action_row(rows, action, row, previous_action_row_index)
+		var guardian_row: Array = tokens_for_guardian_rule(action)
+		if not guardian_row.is_empty(): rows.append(guardian_row)
 		var bonus_row: Array = tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
@@ -826,7 +830,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
-			tokens.append(_aoe_pattern_token(action))
+			if str(action.get("guardian_shape", "")).is_empty(): tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 		"push":
 			_append_optional_hit_token(tokens, action, options)
@@ -895,13 +899,21 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Summons lightning wisps."))
+			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
+			var count: int = int(action.get("count", 1))
+			var summon_text: String = "Calls %s." % minion_name
+			if action.has("guardian_cap"): summon_text += " Up to %d living." % int(action["guardian_cap"])
+			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
+			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
 		"raise_terrain":
-			tokens.append(_token_for_action_field(action, "stoneskin", "count", int(action.get("count", 0)), "neutral", "Raises attackable Worldspines around the arena."))
-			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each Worldspine."))
+			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
+			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))
 		"terrain_burst":
 			_append_damage_token(tokens, "melee", action, options)
-			tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
+			if str(action.get("guardian_kind", "")) == "crag_outcrop":
+				tokens.append(text_token("All outcrops · within %d" % int(action.get("range",1)), "warning", "Surviving outcrops rupture every floor tile within the shown distance."))
+			else:
+				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
 		"cinder_marks":
 			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates Fire on the marked tiles."))
 			_append_damage_token(tokens, "ranged", action, options)
@@ -916,6 +928,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
+	if int(action.get("outcrop_health", 0)) > 0:
+		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
 		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
@@ -1091,6 +1105,8 @@ static func surface_token(kind: String, detail: String = "") -> Dictionary:
 static func surface_condition_token(condition: Dictionary) -> Dictionary:
 	var kind: String = str(condition.get("surface", ""))
 	var subject: String = str(condition.get("subject", "target"))
+	if subject == "conducted" and kind.is_empty():
+		return text_token("Conducted hits:", "neutral", "Applies only to hits carried by a conductive connection.")
 	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", "on" if bool(condition.get("present", true)) else "off"]
 	var suffix: String = "consumed:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
 	var condition_text: String = ("%s %s %s" % [prefix, label(surface_icon_key(kind)), suffix]).replace(" :", ":")
@@ -1112,3 +1128,31 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 		var icon: String = _damage_icon_for_action(action, "ranged") if key == "damage" else action_icon_key(action) if key == "amount" else key
 		tokens.append(token_for(icon, "%+d" % amount, "condition"))
 	return tokens
+
+static func tokens_for_guardian_rule(action: Dictionary) -> Array:
+	var row: Array = []
+	var shape: String = str(action.get("guardian_shape",""))
+	match shape:
+		"line", "broken_line", "sweep":
+			var pattern: Array = []
+			var width: int = int(action.get("guardian_width",3 if shape=="sweep" else 1))
+			for side: int in range(-width/2,width/2+1):
+				for distance: int in range(1,int(action.get("guardian_length",action.get("range",1)))+1):
+					if shape!="broken_line" or distance!=2: pattern.append([side,-distance])
+			row.append(_aoe_pattern_token({"pattern":pattern,"range":0}))
+			row.append(text_token("Fixed direction", "warning", "Pattern follows the caster; direction stays fixed."))
+		"connector":
+			row.append(text_token("%d linked tiles" % int(action.get("guardian_count",1)),"warning","Extends existing Electrified toward its target."))
+		"conductor":
+			row.append(surface_token("electrified"))
+			row.append(text_token("Connected network", "warning", "Origin: the marked conductor."))
+	if int(action.get("self_expose",0))>0:
+		row.append(text_token("Self:"))
+		row.append(token_for("expose",action["self_expose"]))
+	for field: String in ["trail_surface","terminal_surface"]:
+		if action.has(field):
+			row.append(surface_token(str(action[field])))
+			row.append(text_token("Trail" if field=="trail_surface" else "At lane end"))
+	if bool(action.get("snuff_brazier",false)):
+		row.append(text_token("One brazier dark", "warning", "Lasts until Last Procession, including a skipped turn."))
+	return row

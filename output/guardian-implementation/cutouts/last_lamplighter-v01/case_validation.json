@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "last_lamplighter",
+  "layouts": {
+    "front": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 8841
+    },
+    "rear": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 9414
+    }
+  },
+  "errors": []
+}

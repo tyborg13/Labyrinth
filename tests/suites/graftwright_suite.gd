@@ -60,6 +60,20 @@ static func run(check: Callable) -> void:
 	for room: Dictionary in (early["rooms"] as Dictionary).values():
 		if str(room.get("type", "")) == "combat": room["cleared"] = false
 	check.call(not Rules.error(early, "undertaker_plate", "patched_cloak", 1, 1).is_empty(), "Runtime rejects grafts before three completed combats")
+	# Guardians replace standard fights on section routes and must satisfy the
+	# same three-combat gate used when placing the Graftwright encounter.
+	var guardian_route: Dictionary = state.duplicate(true)
+	var replaced_combat: Dictionary = {}
+	for room: Dictionary in (guardian_route["rooms"] as Dictionary).values():
+		if str(room.get("type", "")) == "combat" and bool(room.get("cleared", false)):
+			room["type"] = "guardian"
+			replaced_combat = room
+			break
+	var after_guardian: Dictionary = engine.graft_equipment(guardian_route, "undertaker_plate", "patched_cloak", 1, 1)
+	check.call(not Rules.owned(after_guardian).has("patched_cloak"), "Two standard combats and a defeated Guardian unlock the encountered Graftwright")
+	replaced_combat["cleared"] = false
+	var before_guardian: Dictionary = engine.graft_equipment(guardian_route, "undertaker_plate", "patched_cloak", 1, 1)
+	check.call(Rules.owned(before_guardian).has("patched_cloak") and not before_guardian.has("equipment_grafts"), "An undefeated Guardian does not grant early graft access")
 	var closed: Dictionary = Rules.leave(state)
 	check.call(closed["mode"] == "room" and Rules.owned(closed) == Rules.owned(state), "Leaving without grafting consumes nothing")
 	var later: Dictionary = grafted.duplicate(true)
@@ -147,6 +161,6 @@ static func _test_map(check: Callable) -> void:
 			if type == "graftwright":
 				found += 1
 				check.call(fights >= 3, "Every incoming route to a Graftwright has completed three combats")
-			if type in ["combat", "boss"]: fights += 1
+			if type in ["combat", "guardian", "boss"]: fights += 1
 			for edge: Dictionary in room.get("connections", []): pending.append({"coord": edge["coord"], "fights": fights})
 	check.call(found > 20, "Graftwright appears across deterministic map seeds")

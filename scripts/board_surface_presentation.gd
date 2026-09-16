@@ -101,10 +101,15 @@ static func _draw_rubble(c: CanvasItem, p: Vector2, w: float, seed: int) -> void
 		_draw_ground_block(c, chunk["at"], chunk["size"], int(chunk["grain"]), batch)
 	if batch != null: batch.flush()
 
-static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int, batch: StaticBatch = null) -> void:
+# Outcrops use irregular fracture planes, fixed mineral grain and embedded chips.
+# Only their vertical dimensions rise; the footprint remains planted.
+static func draw_outcrop(c: CanvasItem, center: Vector2, width: float, seed: int, rise: float = 1.0, opacity: float = 1.0) -> void:
+	preload("res://scripts/stone_outcrop_art.gd").draw(c,center,width,seed,rise,opacity)
+
+static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int, batch: StaticBatch = null, height_scale: float = 1.0, opacity: float = 1.0) -> void:
 	var wide: float = size * (1.0 + SpellFx._hash(seed + 1) * 0.40)
 	var depth: float = size * (0.43 + SpellFx._hash(seed + 2) * 0.20)
-	var lift: float = size * (0.55 + SpellFx._hash(seed + 3) * 0.45)
+	var lift: float = size * (0.55 + SpellFx._hash(seed + 3) * 0.45) * height_scale
 	var top := PackedVector2Array([
 		p + Vector2(-wide * 0.85, -depth * 0.28 - lift),
 		p + Vector2(-wide * 0.18, -depth - lift),
@@ -113,8 +118,9 @@ static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int
 		p + Vector2(wide * 0.12, depth - lift * 0.88),
 		p + Vector2(-wide, depth * 0.38 - lift * 0.91)])
 	if batch != null: batch.flush()
-	_floor_glow(c, p + Vector2(size * 0.12, size * 0.18), Vector2(wide * 3.5, depth * 3.2), Color(0.065, 0.050, 0.040, 0.82))
+	_floor_glow(c, p + Vector2(size * 0.12, size * 0.18), Vector2(wide * 3.5, depth * 3.2), Color(0.065, 0.050, 0.040, 0.82 * opacity))
 	var stone := Color("a19179").lerp(Color("746f64"), SpellFx._hash(seed + 8))
+	stone.a = opacity
 	for edge: int in range(2, 6):
 		var next: int = (edge + 1) % 6
 		var foot_a: Vector2 = top[edge] + Vector2(0, lift)
@@ -122,14 +128,14 @@ static func _draw_ground_block(c: CanvasItem, p: Vector2, size: float, seed: int
 		var face := PackedVector2Array([top[edge], top[next], foot_b, foot_a])
 		var shade: float = 0.43 if edge < 4 else 0.66
 		_material_polygon(c, batch, face, PackedColorArray([stone.darkened(1.0 - shade), stone.darkened(0.37), stone.darkened(0.56), stone.darkened(0.68)]))
-		_draw_mineral_grain(c, face, Color(stone.lightened(0.38), 0.44), seed + edge * 13, batch)
+		_draw_mineral_grain(c, face, Color(stone.lightened(0.38), 0.44 * opacity), seed + edge * 13, batch)
 	var colors := PackedColorArray()
 	for vertex: int in range(top.size()):
 		colors.append(stone.lightened(0.04 + SpellFx._hash(seed + vertex * 11) * 0.20))
 	_material_polygon(c, batch, top, colors)
-	_draw_mineral_grain(c, top, Color(stone.lightened(0.44), 0.49), seed, batch)
+	_draw_mineral_grain(c, top, Color(stone.lightened(0.44), 0.49 * opacity), seed, batch)
 	var hub: Vector2 = (top[0] + top[3]) * 0.5
-	_draw_material_clusters(c, batch, top, hub, size * 0.13, seed, Color(stone.lightened(0.32), 0.72), Color(stone.darkened(0.56), 0.62), 15)
+	_draw_material_clusters(c, batch, top, hub, size * 0.13, seed, Color(stone.lightened(0.32), 0.72 * opacity), Color(stone.darkened(0.56), 0.62 * opacity), 15)
 	# Chipped secondary planes and mineral flecks follow each block's lighting.
 	for flake: int in range(5):
 		var at: Vector2 = hub.lerp(top[flake], 0.28 + SpellFx._hash(seed + flake * 19) * 0.45)
@@ -601,14 +607,20 @@ static func draw_preview(canvas: CanvasItem, tile: Vector2i, center: Vector2, wi
 			var b: Vector2 = polygon[(edge + 1) % 4]
 			canvas.draw_line(a.lerp(b, 0.15), a.lerp(b, 0.84), Color(tint, 0.7), maxf(1.0, width * 0.012), true)
 
-static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, width: float, events: Array, progress: float) -> void:
-	if progress >= 1.0: return
+static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, width: float, events: Array, progress: float, reduced: bool = false) -> void:
+	if progress >= 1.0 and not reduced: return
 	for event_var: Variant in events:
 		if typeof(event_var) != TYPE_DICTIONARY: continue
 		var event: Dictionary = event_var as Dictionary
 		if event.get("tile", Vector2i(-1, -1)) != tile and not (event.get("tiles", []) as Array).has(tile): continue
+		var element: String = str(event.get("feedback_element", ""))
+		if not element.is_empty():
+			SpellFx.prepare()
+			if not reduced: SpellFx.ground(canvas,element,center,width*0.64,progress,0.85)
+			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,false)
+			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,true)
 		var kind: String = str(event.get("kind", ""))
-		if kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
+		if not element.is_empty() or kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
 		var tint: Color = color_for(str(event.get("surface", "fire")))
 		var alpha: float = sin(clampf(progress, 0.0, 1.0) * PI) * 0.55
 		_floor_glow(canvas, center, Vector2(width * (0.5 + progress * 0.8), width * (0.18 + progress * 0.28)), Color(tint, alpha))

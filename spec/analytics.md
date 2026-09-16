@@ -246,7 +246,9 @@ boundaries retain their existing semantics.
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and
-visible enemy count. Objective analysis uses the additive `objective_type`,
+visible enemy count. Survive is temporarily excluded from new room generation;
+existing saved Survive encounters retain their objective and analytics fields.
+Objective analysis uses the additive `objective_type`,
 `objective_target_clock`, `objective_leader_type`, `objective_exit_count`, and
 `objective_initial_enemy_count` start fields. `combat_ended` records the final
 initiative clock, reinforcement waves, leader-cleared follower count, leader
@@ -547,3 +549,36 @@ Run-start, combat-start, equipment-equip, and merchant-trade payloads also inclu
 additive `equipment_grafts` snapshots. Compiled deck and card-play events continue
 to use effective cards. No card effects or historical JSONL records are rewritten.
 See [graftwright.md](graftwright.md) for the run-only state model and limits.
+
+## Guardian encounters and trophies
+
+Guardian encounters retain `kill_leader` as the objective identifier. Common
+context now adds `room_type`, `guardian_id`, `boss_id`, and the resolved
+`objective_name`; presentation uses “Defeat” and named characters. Group ordinary
+fights, guardians and dragons by `room_type` when comparing encounter outcomes.
+
+A guardian victory records `reward_offered` with `reward_kind: guardian_trophy`
+and `offered_relics`. Claiming the exclusive trophy records `reward_choice` with
+`choice: claim`, `relic_id` and `guardian_id` after the saved claim boundary.
+Room completion and ownership prevent duplicate awards on replay.
+
+Guardian `enemy_action_resolved` records add `guardian_mechanic`, `declared_tiles`
+and `resolved_tiles`; broken cover can shrink a previously declared quake or
+blocked lane. They also add `interrupted`; interrupted Guardian status steps
+remain in this event stream instead of disappearing with their cancelled attack.
+Conduction resolution tiles include the entire affected network. Replacement
+summons use the same Guardian helper event on every successful return. Reinforcement creation, brazier outages/restoration, outcrop creation
+and Illusion relocation use the existing append-only `surface_event` stream and
+its combat/sequence idempotency keys. Illusion movement consumes shared Move but is not counted as `player_moved`.
+Its payload records Illusion id/path, movement spent, and source relic.
+The gauntlet no longer emits cover commands. Shared `terrain_created` outcomes
+record `terrain_id`, `terrain_kind`, `tile`, `health`, `element` and normal
+card/enemy `source` metadata. Historical command records remain readable.
+Ground-targeted cards retain the ordinary card-play event and selected tile;
+empty attacks produce no synthetic victim or defeat records.
+Intent focus and elemental feedback are presentation only and emit no combat actions.
+Native Chain trace hits add `enemy_hop`, unmodified `base_damage`, and
+`chain_bonus_damage`; connected conduction side hits never receive hop credit.
+Preview copies do not append analytics. No changes to historical JSONL are required.
+
+Guardian light restoration surface events retain `guardian_light_restored` and add `tiles` (only newly relit braziers) plus `trigger_intent` (`last_procession`). The matching intent refresh carries the completed Guardian board snapshot so restoration and departed Shades are presented at the actual boundary. Input recovered from a non-tutorial save does not emit tutorial milestone events.

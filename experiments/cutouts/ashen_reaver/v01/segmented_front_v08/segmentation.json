@@ -1,0 +1,178 @@
+{
+  "ok": true,
+  "source_sha256": "0bd057164c1bc7423eeb335c0e1f032aef710c2fe7ae5aa4812d64ba169d2832",
+  "ownership_sha256": "5481da96e42deb8fc25a4d53d941228ddd86cd524848dd1205d0294abaf725d7",
+  "parts": [
+    {
+      "name": "blade",
+      "file": "blade.png",
+      "offset": [
+        2,
+        126
+      ],
+      "bbox": [
+        2,
+        126,
+        98,
+        228
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        123,
+        10
+      ],
+      "bbox": [
+        123,
+        10,
+        159,
+        68
+      ]
+    },
+    {
+      "name": "hand_near",
+      "file": "hand_near.png",
+      "offset": [
+        64,
+        127
+      ],
+      "bbox": [
+        64,
+        127,
+        86,
+        151
+      ]
+    },
+    {
+      "name": "hand_far",
+      "file": "hand_far.png",
+      "offset": [
+        177,
+        132
+      ],
+      "bbox": [
+        177,
+        132,
+        199,
+        152
+      ]
+    },
+    {
+      "name": "drape",
+      "file": "drape.png",
+      "offset": [
+        76,
+        111
+      ],
+      "bbox": [
+        76,
+        111,
+        197,
+        193
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        78,
+        210
+      ],
+      "bbox": [
+        78,
+        210,
+        110,
+        240
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        157,
+        207
+      ],
+      "bbox": [
+        157,
+        207,
+        197,
+        230
+      ]
+    },
+    {
+      "name": "leg_near",
+      "file": "leg_near.png",
+      "offset": [
+        87,
+        131
+      ],
+      "bbox": [
+        87,
+        131,
+        130,
+        213
+      ]
+    },
+    {
+      "name": "leg_far",
+      "file": "leg_far.png",
+      "offset": [
+        150,
+        134
+      ],
+      "bbox": [
+        150,
+        134,
+        180,
+        227
+      ]
+    },
+    {
+      "name": "arm_near",
+      "file": "arm_near.png",
+      "offset": [
+        68,
+        69
+      ],
+      "bbox": [
+        68,
+        69,
+        111,
+        130
+      ]
+    },
+    {
+      "name": "arm_far",
+      "file": "arm_far.png",
+      "offset": [
+        161,
+        69
+      ],
+      "bbox": [
+        161,
+        69,
+        197,
+        139
+      ]
+    },
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        82,
+        36
+      ],
+      "bbox": [
+        82,
+        36,
+        182,
+        154
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

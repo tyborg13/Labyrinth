@@ -1751,6 +1751,845 @@
           }
         ]
       }
+    ],
+    "encounter_base_initiative": {
+      "guardian": 19
+    }
+  },
+  "ashen_reaver": {
+    "name": "Ashen Reaver",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 40,
+    "base_initiative": 10,
+    "reward_embers": 8,
+    "accent": "#c86d46",
+    "art_path": "res://assets/units/ashen_reaver.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "raking_flame",
+        "name": "Raking Flame",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "surface",
+            "surface": "fire",
+            "range": 4,
+            "guardian_shape": "broken_line",
+            "guardian_width": 3
+          }
+        ]
+      },
+      {
+        "id": "hooked_sweep",
+        "name": "Hooked Sweep",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "aoe",
+            "range": 2,
+            "damage": 6,
+            "guardian_shape": "sweep",
+            "guardian_length": 2,
+            "surface": "fire",
+            "push": 1
+          }
+        ]
+      },
+      {
+        "id": "executioners_fall",
+        "name": "Executioner’s Fall",
+        "time": 7,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "ranged",
+            "range": 4,
+            "damage": 8,
+            "guardian_shape": "line",
+            "surface": "fire",
+            "self_expose": 3
+          }
+        ]
+      }
+    ]
+  },
+  "rimejaw": {
+    "name": "Rimejaw",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 38,
+    "base_initiative": 10,
+    "reward_embers": 8,
+    "accent": "#97c6d7",
+    "art_path": "res://assets/units/rimejaw.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "rime_trail",
+        "name": "Rime Trail",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2,
+            "trail_surface": "ice"
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
+          }
+        ]
+      },
+      {
+        "id": "harrowing_pounce",
+        "name": "Harrowing Pounce",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 7,
+            "element": "ice",
+            "surface": "ice"
+          }
+        ]
+      },
+      {
+        "id": "frostbite",
+        "name": "Frostbite",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 6,
+            "element": "ice"
+          }
+        ]
+      }
+    ]
+  },
+  "storm_cantor": {
+    "name": "Storm Cantor",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 3,
+      "retreat_distance": 2
+    },
+    "max_hp": 38,
+    "base_initiative": 20,
+    "reward_embers": 8,
+    "accent": "#9884cf",
+    "art_path": "res://assets/units/storm_cantor.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "lay_the_choir",
+        "name": "Lay the Choir",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "surface",
+            "surface": "electrified",
+            "range": 5,
+            "guardian_shape": "connector",
+            "guardian_count": 4
+          }
+        ]
+      },
+      {
+        "id": "peal",
+        "name": "Peal",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "ranged",
+            "range": 4,
+            "damage": 6,
+            "element": "lightning",
+            "guardian_shape": "conductor",
+            "surface_bonus": {
+              "subject": "conducted",
+              "shock": 1
+            }
+          }
+        ]
+      },
+      {
+        "id": "broken_rhythm",
+        "name": "Broken Rhythm",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 2,
+            "damage": 5
+          }
+        ]
+      },
+      {
+        "id": "call_the_spark",
+        "name": "Call the Spark",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "summon_minions",
+            "minion_type": "lightning_wisp",
+            "count": 1,
+            "guardian_cap": 1
+          }
+        ]
+      }
+    ]
+  },
+  "gallows_roc": {
+    "name": "Gallows Roc",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 36,
+    "base_initiative": 20,
+    "reward_embers": 8,
+    "accent": "#b1aa93",
+    "art_path": "res://assets/units/gallows_roc.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "hookwind",
+        "name": "Hookwind",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 1
+          },
+          {
+            "type": "ranged",
+            "range": 4,
+            "damage": 3,
+            "guardian_shape": "line",
+            "guardian_width": 3,
+            "pull": 2
+          }
+        ]
+      },
+      {
+        "id": "razor_pinion",
+        "name": "Razor Pinion",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "aoe",
+            "range": 2,
+            "damage": 6,
+            "guardian_shape": "sweep",
+            "guardian_length": 2,
+            "push": 2
+          }
+        ]
+      },
+      {
+        "id": "grave_dive",
+        "name": "Grave Dive",
+        "time": 7,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 8,
+            "bleed": 1
+          }
+        ]
+      }
+    ]
+  },
+  "craghide": {
+    "name": "Craghide",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 44,
+    "base_initiative": 12,
+    "reward_embers": 8,
+    "accent": "#9b987a",
+    "art_path": "res://assets/units/craghide.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "upheaval",
+        "name": "Upheaval",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "raise_terrain",
+            "count": 2,
+            "health": 3,
+            "guardian_kind": "crag_outcrop",
+            "range": 4
+          }
+        ]
+      },
+      {
+        "id": "groundsplit",
+        "name": "Groundsplit",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "terrain_burst",
+            "damage": 7,
+            "range": 2,
+            "guardian_kind": "crag_outcrop"
+          }
+        ]
+      },
+      {
+        "id": "crushing_rush",
+        "name": "Crushing Rush",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 7,
+            "sunder": 1
+          }
+        ]
+      }
+    ]
+  },
+  "last_lamplighter": {
+    "name": "Last Lamplighter",
+    "ai_profile": {
+      "role": "guardian",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 44,
+    "base_initiative": 10,
+    "reward_embers": 8,
+    "accent": "#b6ab88",
+    "art_path": "res://assets/units/last_lamplighter.png",
+    "art_scale": 1.15,
+    "intent_cycle": true,
+    "guardian": true,
+    "intents": [
+      {
+        "id": "snuff",
+        "name": "Snuff",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "summon_minions",
+            "minion_type": "wick_shade",
+            "count": 1,
+            "guardian_cap": 2,
+            "snuff_brazier": true
+          }
+        ]
+      },
+      {
+        "id": "mourning_hook",
+        "name": "Mourning Hook",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "range": 4,
+            "damage": 4,
+            "guardian_shape": "line",
+            "pull": 1
+          }
+        ]
+      },
+      {
+        "id": "last_procession",
+        "name": "Last Procession",
+        "time": 7,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 8
+          }
+        ],
+        "restore_braziers": true
+      }
+    ]
+  },
+  "ash_hound": {
+    "name": "Ash Hound",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 5,
+    "base_initiative": 8,
+    "reward_embers": 0,
+    "accent": "#c86d46",
+    "art_path": "res://assets/units/ash_hound.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "bite",
+        "name": "Bite",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
+          }
+        ]
+      },
+      {
+        "id": "circle",
+        "name": "Flanking Bite",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "push": 1
+          }
+        ]
+      }
+    ]
+  },
+  "rime_whelp": {
+    "name": "Rime Whelp",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 6,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#97c6d7",
+    "art_path": "res://assets/units/rime_whelp.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "bite",
+        "name": "Bite",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
+          }
+        ]
+      },
+      {
+        "id": "circle",
+        "name": "Rime Snap",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "element": "ice"
+          }
+        ]
+      }
+    ]
+  },
+  "rime_spitter": {
+    "name": "Rime Spitter",
+    "ai_profile": {
+      "role": "artillery",
+      "preferred_range": 3,
+      "retreat_distance": 2
+    },
+    "max_hp": 5,
+    "base_initiative": 10,
+    "reward_embers": 0,
+    "accent": "#97c6d7",
+    "art_path": "res://assets/units/rime_spitter.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "needle",
+        "name": "Rime Needle",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "range": 3,
+            "damage": 2,
+            "guardian_shape": "line",
+            "terminal_surface": "ice"
+          }
+        ]
+      },
+      {
+        "id": "recover",
+        "name": "Frost Spit",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "range": 3,
+            "damage": 2,
+            "element": "ice"
+          }
+        ]
+      }
+    ]
+  },
+  "bell_tender": {
+    "name": "Bell Tender",
+    "ai_profile": {
+      "role": "controller",
+      "preferred_range": 3,
+      "retreat_distance": 2
+    },
+    "max_hp": 5,
+    "base_initiative": 19,
+    "reward_embers": 0,
+    "accent": "#9884cf",
+    "art_path": "res://assets/units/bell_tender.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "connector",
+        "name": "Join the Choir",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "surface",
+            "surface": "electrified",
+            "range": 4,
+            "guardian_shape": "connector",
+            "guardian_count": 2
+          }
+        ]
+      },
+      {
+        "id": "staff_bolt",
+        "name": "Staff Bolt",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "range": 3,
+            "damage": 3,
+            "element": "lightning"
+          }
+        ]
+      }
+    ]
+  },
+  "roc_fledgling": {
+    "name": "Roc Fledgling",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 5,
+    "base_initiative": 19,
+    "reward_embers": 0,
+    "accent": "#b1aa93",
+    "art_path": "res://assets/units/roc_fledgling.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "circle",
+        "name": "Darting Peck",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2
+          }
+        ]
+      },
+      {
+        "id": "peck",
+        "name": "Hooked Peck",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
+          }
+        ]
+      }
+    ]
+  },
+  "stoneback_mite": {
+    "name": "Stoneback Mite",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 6,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#9b987a",
+    "art_path": "res://assets/units/stoneback_mite.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "bite",
+        "name": "Claw",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 3
+          }
+        ]
+      },
+      {
+        "id": "brace",
+        "name": "Driving Claw",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 1
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "push": 1
+          }
+        ]
+      }
+    ],
+    "death_surface": "rubble"
+  },
+  "wick_shade": {
+    "name": "Wick Shade",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 2
+    },
+    "max_hp": 4,
+    "base_initiative": 9,
+    "reward_embers": 0,
+    "accent": "#b6ab88",
+    "art_path": "res://assets/units/wick_shade.png",
+    "art_scale": 0.75,
+    "intent_cycle": true,
+    "guardian": false,
+    "intents": [
+      {
+        "id": "grasp",
+        "name": "Grasp",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2
+          }
+        ]
+      },
+      {
+        "id": "drift",
+        "name": "Hooking Grasp",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "range": 1,
+            "damage": 2,
+            "pull": 1
+          }
+        ]
+      }
     ]
   }
 }

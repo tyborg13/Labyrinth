@@ -51,6 +51,9 @@ func _run() -> void:
 	_assert(first_proxy.process_mode == Node.PROCESS_MODE_DISABLED, "A pooled proxy subtree should not spend frame time while hidden")
 	_assert(first_proxy.get_parent() == run_scene.get("_card_proxy_pool_host"), "A pooled proxy should leave every visible FX/drag layer")
 
+	run_scene.call("_release_card_proxy", first_proxy)
+	_assert(pool.size() == 1, "Overlapping card cleanup must release the same proxy only once")
+
 	var reused_proxy: Control = run_scene.call("_spawn_card_proxy", "quick_stab", source_rect) as Control
 	var reused_widget: Control = reused_proxy.get_child(0) as Control
 	_assert(reused_proxy.get_instance_id() == first_proxy_id, "The next card effect should reuse the released proxy node")
@@ -117,6 +120,31 @@ func _run() -> void:
 	pool = run_scene.get("_card_proxy_pool") as Array
 	_assert(pool.size() == 2, "The card proxy pool should never retain more than its two-instance limit")
 	_assert(overflow.is_queued_for_deletion(), "Overflow proxies should be queued for deletion instead of retained")
+
+	var stale: Variant = pooled_b
+	pooled_b.free()
+	var recovered: Control = run_scene.call("_take_pooled_card_proxy")
+	_assert(recovered == pooled_a, "A freed pool entry must be discarded before assigning a Control")
+	if is_instance_valid(recovered): recovered.free()
+
+
+	var hand_box := preload("res://scripts/hand_fan_container.gd").new()
+	ui_root.add_child(hand_box)
+	run_scene.set("hand_box",hand_box)
+	run_scene.set("_run_state",{"mode":"combat"})
+	run_scene.set("_combat_state",{"deck":{"hand":["quick_stab"]}})
+	var staged_cards: Array[String] = ["guarded_step"]
+	var staged_proxies: Array[Control] = [Control.new()]
+	ui_root.add_child(staged_proxies[0])
+	run_scene.set("_draw_hand_transition_cards",staged_cards)
+	run_scene.set("_draw_hand_transition_proxies",staged_proxies)
+	hand_box.visible=false
+	run_scene.set("_animation_lock",true)
+	run_scene.call("_finish_draw_hand_transition_for_refresh")
+	_assert(not hand_box.visible and staged_proxies.size()==1,"An intermediate hand refresh preserves the running staged hand")
+	run_scene.set("_animation_lock",false)
+	run_scene.call("_finish_draw_hand_transition_for_refresh")
+	_assert(hand_box.visible and staged_proxies.is_empty(),"Unlock restores the authoritative hand even if staged card identities are stale")
 
 	run_scene.free()
 	ui_root.queue_free()

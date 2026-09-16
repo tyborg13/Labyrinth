@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "bell_tender",
+  "layouts": {
+    "front": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 11183
+    },
+    "rear": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 12110
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,762 @@
+{
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        127,
+        240
+      ]
+    },
+    "pelvis": {
+      "parent": "root",
+      "position": [
+        148,
+        124
+      ]
+    },
+    "torso": {
+      "parent": "pelvis",
+      "position": [
+        148,
+        124
+      ]
+    },
+    "tail": {
+      "parent": "torso",
+      "position": [
+        180,
+        135
+      ]
+    },
+    "head": {
+      "parent": "torso",
+      "position": [
+        81,
+        125
+      ]
+    },
+    "hip_fore_near": {
+      "parent": "torso",
+      "position": [
+        121,
+        124
+      ]
+    },
+    "knee_fore_near": {
+      "parent": "hip_fore_near",
+      "position": [
+        142,
+        170
+      ]
+    },
+    "foot_fore_near": {
+      "parent": "knee_fore_near",
+      "position": [
+        108,
+        231
+      ]
+    },
+    "hip_fore_far": {
+      "parent": "torso",
+      "position": [
+        93,
+        147
+      ]
+    },
+    "knee_fore_far": {
+      "parent": "hip_fore_far",
+      "position": [
+        92,
+        180
+      ]
+    },
+    "foot_fore_far": {
+      "parent": "knee_fore_far",
+      "position": [
+        70,
+        207
+      ]
+    },
+    "hip_hind_near": {
+      "parent": "torso",
+      "position": [
+        165,
+        126
+      ]
+    },
+    "knee_hind_near": {
+      "parent": "hip_hind_near",
+      "position": [
+        181,
+        166
+      ]
+    },
+    "foot_hind_near": {
+      "parent": "knee_hind_near",
+      "position": [
+        192,
+        209
+      ]
+    },
+    "hip_hind_far": {
+      "parent": "torso",
+      "position": [
+        142,
+        142
+      ]
+    },
+    "knee_hind_far": {
+      "parent": "hip_hind_far",
+      "position": [
+        125,
+        166
+      ]
+    },
+    "foot_hind_far": {
+      "parent": "knee_hind_far",
+      "position": [
+        111,
+        186
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "tail",
+      "bone": "tail",
+      "polygon": [
+        [
+          178,
+          118
+        ],
+        [
+          211,
+          136
+        ],
+        [
+          238,
+          155
+        ],
+        [
+          244,
+          180
+        ],
+        [
+          240,
+          203
+        ],
+        [
+          227,
+          219
+        ],
+        [
+          191,
+          227
+        ],
+        [
+          193,
+          221
+        ],
+        [
+          216,
+          210
+        ],
+        [
+          229,
+          189
+        ],
+        [
+          231,
+          171
+        ],
+        [
+          210,
+          154
+        ],
+        [
+          185,
+          146
+        ]
+      ],
+      "z": 1,
+      "field": [
+        "torso",
+        "tail"
+      ],
+      "extra_polygons": [
+        [
+          [
+            177,
+            118
+          ],
+          [
+            203,
+            121
+          ],
+          [
+            229,
+            139
+          ],
+          [
+            246,
+            163
+          ],
+          [
+            249,
+            200
+          ],
+          [
+            238,
+            218
+          ],
+          [
+            217,
+            230
+          ],
+          [
+            189,
+            233
+          ],
+          [
+            187,
+            220
+          ],
+          [
+            214,
+            203
+          ],
+          [
+            224,
+            183
+          ],
+          [
+            224,
+            167
+          ],
+          [
+            197,
+            148
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "head",
+      "bone": "head",
+      "polygon": [
+        [
+          19,
+          210
+        ],
+        [
+          4,
+          173
+        ],
+        [
+          29,
+          120
+        ],
+        [
+          43,
+          91
+        ],
+        [
+          58,
+          52
+        ],
+        [
+          86,
+          43
+        ],
+        [
+          76,
+          64
+        ],
+        [
+          56,
+          98
+        ],
+        [
+          75,
+          90
+        ],
+        [
+          83,
+          63
+        ],
+        [
+          115,
+          49
+        ],
+        [
+          109,
+          73
+        ],
+        [
+          91,
+          112
+        ],
+        [
+          89,
+          141
+        ],
+        [
+          71,
+          177
+        ],
+        [
+          57,
+          204
+        ]
+      ],
+      "z": 19,
+      "field": [
+        "torso",
+        "head"
+      ],
+      "extra_polygons": [
+        [
+          [
+            4,
+            169
+          ],
+          [
+            16,
+            139
+          ],
+          [
+            25,
+            107
+          ],
+          [
+            42,
+            86
+          ],
+          [
+            40,
+            64
+          ],
+          [
+            65,
+            51
+          ],
+          [
+            85,
+            43
+          ],
+          [
+            89,
+            52
+          ],
+          [
+            68,
+            80
+          ],
+          [
+            68,
+            94
+          ],
+          [
+            82,
+            74
+          ],
+          [
+            114,
+            47
+          ],
+          [
+            122,
+            56
+          ],
+          [
+            112,
+            79
+          ],
+          [
+            86,
+            124
+          ],
+          [
+            72,
+            174
+          ],
+          [
+            30,
+            221
+          ],
+          [
+            8,
+            213
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "foot_fore_near",
+      "bone": "foot_fore_near",
+      "polygon": [
+        [
+          76,
+          214
+        ],
+        [
+          135,
+          214
+        ],
+        [
+          135,
+          245
+        ],
+        [
+          76,
+          245
+        ]
+      ],
+      "z": 14,
+      "rigid": true
+    },
+    {
+      "name": "leg_fore_near",
+      "bone": "hip_fore_near",
+      "polygon": [
+        [
+          105,
+          108
+        ],
+        [
+          137,
+          112
+        ],
+        [
+          152,
+          167
+        ],
+        [
+          140,
+          193
+        ],
+        [
+          132,
+          212
+        ],
+        [
+          127,
+          244
+        ],
+        [
+          77,
+          244
+        ],
+        [
+          85,
+          217
+        ],
+        [
+          111,
+          187
+        ],
+        [
+          121,
+          169
+        ],
+        [
+          106,
+          151
+        ]
+      ],
+      "z": 13,
+      "field": [
+        "torso",
+        "hip_fore_near",
+        "knee_fore_near",
+        "foot_fore_near"
+      ],
+      "extra_polygons": [
+        [
+          [
+            128,
+            155
+          ],
+          [
+            164,
+            155
+          ],
+          [
+            164,
+            210
+          ],
+          [
+            128,
+            210
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "foot_fore_far",
+      "bone": "foot_fore_far",
+      "polygon": [
+        [
+          41,
+          194
+        ],
+        [
+          89,
+          194
+        ],
+        [
+          89,
+          220
+        ],
+        [
+          41,
+          220
+        ]
+      ],
+      "z": 4,
+      "rigid": true
+    },
+    {
+      "name": "leg_fore_far",
+      "bone": "hip_fore_far",
+      "polygon": [
+        [
+          79,
+          145
+        ],
+        [
+          107,
+          151
+        ],
+        [
+          105,
+          180
+        ],
+        [
+          83,
+          216
+        ],
+        [
+          43,
+          218
+        ],
+        [
+          42,
+          200
+        ],
+        [
+          74,
+          181
+        ]
+      ],
+      "z": 3,
+      "field": [
+        "torso",
+        "hip_fore_far",
+        "knee_fore_far",
+        "foot_fore_far"
+      ],
+      "extra_polygons": [
+        [
+          [
+            101,
+            158
+          ],
+          [
+            123,
+            158
+          ],
+          [
+            123,
+            184
+          ],
+          [
+            101,
+            184
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "foot_hind_near",
+      "bone": "foot_hind_near",
+      "polygon": [
+        [
+          163,
+          193
+        ],
+        [
+          216,
+          193
+        ],
+        [
+          216,
+          223
+        ],
+        [
+          163,
+          223
+        ]
+      ],
+      "z": 11,
+      "rigid": true
+    },
+    {
+      "name": "leg_hind_near",
+      "bone": "hip_hind_near",
+      "polygon": [
+        [
+          152,
+          107
+        ],
+        [
+          177,
+          111
+        ],
+        [
+          189,
+          151
+        ],
+        [
+          198,
+          174
+        ],
+        [
+          199,
+          192
+        ],
+        [
+          214,
+          217
+        ],
+        [
+          167,
+          219
+        ],
+        [
+          170,
+          198
+        ],
+        [
+          169,
+          174
+        ],
+        [
+          158,
+          164
+        ]
+      ],
+      "z": 10,
+      "field": [
+        "torso",
+        "hip_hind_near",
+        "knee_hind_near",
+        "foot_hind_near"
+      ],
+      "extra_polygons": [
+        [
+          [
+            190,
+            151
+          ],
+          [
+            208,
+            151
+          ],
+          [
+            208,
+            196
+          ],
+          [
+            190,
+            196
+          ]
+        ]
+      ]
+    },
+    {
+      "name": "body",
+      "bone": "torso",
+      "polygon": [
+        [
+          73,
+          95
+        ],
+        [
+          120,
+          63
+        ],
+        [
+          152,
+          78
+        ],
+        [
+          195,
+          113
+        ],
+        [
+          200,
+          152
+        ],
+        [
+          169,
+          169
+        ],
+        [
+          130,
+          159
+        ],
+        [
+          87,
+          167
+        ]
+      ],
+      "z": 8,
+      "rigid": true
+    }
+  ],
+  "chains": [
+    {
+      "kind": "leg",
+      "name": "fore_near",
+      "bones": [
+        "hip_fore_near",
+        "knee_fore_near",
+        "foot_fore_near"
+      ],
+      "phase": 0
+    },
+    {
+      "kind": "leg",
+      "name": "fore_far",
+      "bones": [
+        "hip_fore_far",
+        "knee_fore_far",
+        "foot_fore_far"
+      ],
+      "phase": 0.5
+    },
+    {
+      "kind": "leg",
+      "name": "hind_near",
+      "bones": [
+        "hip_hind_near",
+        "knee_hind_near",
+        "foot_hind_near"
+      ],
+      "phase": 0.5
+    },
+    {
+      "kind": "leg",
+      "name": "hind_far",
+      "bones": [
+        "hip_hind_far",
+        "knee_hind_far",
+        "foot_hind_far"
+      ],
+      "phase": 0,
+      "occluded": true
+    }
+  ],
+  "family": "quadruped"
+}

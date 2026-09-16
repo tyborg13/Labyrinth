@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "craghide",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 13799
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 12246
+    }
+  },
+  "errors": []
+}

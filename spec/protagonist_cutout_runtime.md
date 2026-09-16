@@ -83,3 +83,18 @@ The accepted checkpoint was integrated with upstream performance work at `685c3d
 ## Offhand ranged actions
 
 The integrated straight-arm casting and temporary crossbow clips, their source sockets, timing, art provenance, and proof contract are documented in [protagonist_ranged_animations.md](protagonist_ranged_animations.md). The 21 accepted joints gain one independent offhand weapon attachment; existing rest paint and idle/walk/sword poses are protected by differential tests.
+
+## Illusion animation ownership
+
+Illusions and illusion placement previews reuse protagonist paint and rig definitions,
+but own persistent renderers keyed by their illusion/preview actor key. Player
+movement, melee, casting, shooting, and facing never change their front idle pose.
+Only `presentation.illusion_motion[actor_key]` can supply an individual illusion's
+own action; an absent descriptor returns it to idle. Placement previews always
+idle. Reduced motion uses the same neutral rest pose. Removed illusions release
+their renderers, and retained board layers share the pool by reference.
+
+`tests/illusion_animation_gameplay_probe.gd` exercises real player actions beside
+two illusions at 1920×1080/100%, plus explicitly addressed illusion motion. The
+focused protagonist suite checks ownership, return to idle, and cleanup. This is
+presentation routing only; it adds no independent illusion combat ability.

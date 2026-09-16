@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "source_sha256": "3e7fed36cc1e53bd5b645f161c4d7f0864b1787fa47ca8743dcc7dc199cf9733",
+  "ownership_sha256": "b59237eab696f4da1c90a3a1887033b0c544e896916cd1f6bb01e911f5568d1f",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        75,
+        9
+      ],
+      "bbox": [
+        75,
+        9,
+        160,
+        95
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        79,
+        224
+      ],
+      "bbox": [
+        79,
+        224,
+        123,
+        244
+      ]
+    },
+    {
+      "name": "leg_near",
+      "file": "leg_near.png",
+      "offset": [
+        84,
+        143
+      ],
+      "bbox": [
+        84,
+        143,
+        129,
+        224
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        169,
+        222
+      ],
+      "bbox": [
+        169,
+        222,
+        211,
+        246
+      ]
+    },
+    {
+      "name": "leg_far",
+      "file": "leg_far.png",
+      "offset": [
+        148,
+        157
+      ],
+      "bbox": [
+        148,
+        157,
+        200,
+        231
+      ]
+    },
+    {
+      "name": "hand_near",
+      "file": "hand_near.png",
+      "offset": [
+        35,
+        133
+      ],
+      "bbox": [
+        35,
+        133,
+        69,
+        182
+      ]
+    },
+    {
+      "name": "arm_near",
+      "file": "arm_near.png",
+      "offset": [
+        52,
+        95
+      ],
+      "bbox": [
+        52,
+        95,
+        105,
+        155
+      ]
+    },
+    {
+      "name": "hand_far",
+      "file": "hand_far.png",
+      "offset": [
+        181,
+        143
+      ],
+      "bbox": [
+        181,
+        143,
+        219,
+        201
+      ]
+    },
+    {
+      "name": "arm_far",
+      "file": "arm_far.png",
+      "offset": [
+        151,
+        59
+      ],
+      "bbox": [
+        151,
+        59,
+        217,
+        157
+      ]
+    },
+    {
+      "name": "drape",
+      "file": "drape.png",
+      "offset": [
+        77,
+        95
+      ],
+      "bbox": [
+        77,
+        95,
+        207,
+        222
+      ]
+    },
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        105,
+        38
+      ],
+      "bbox": [
+        105,
+        38,
+        184,
+        107
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

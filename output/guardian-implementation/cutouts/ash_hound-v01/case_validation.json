@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "ash_hound",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 13861
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 12909
+    }
+  },
+  "errors": []
+}

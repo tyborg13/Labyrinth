@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "storm_cantor",
+  "layouts": {
+    "front": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 6183
+    },
+    "rear": {
+      "joints": 18,
+      "parts": 12,
+      "meshes": 6,
+      "vertices": 8668
+    }
+  },
+  "errors": []
+}

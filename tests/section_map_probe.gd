@@ -38,7 +38,10 @@ func _initialize() -> void:
 	panel.call("set_run_state", state)
 	await _capture("01_entry.png")
 	var legend: Control = panel.find_child("MapLegend", true, false)
-	_check(legend.get_child_count() == 7, "All seven room concepts retain their legend entries")
+	_check(legend.get_child_count() == 9, "All nine room concepts retain their legend entries")
+	_check(legend.find_child("Legend_guardian", true, false) != null and legend.find_child("Legend_graftwright", true, false) != null, "Guardian and Graftwright retain distinct map legend identities")
+	var scout: Control = panel.get("_scout")
+	_check(legend.get_global_rect().end.x <= scout.get_global_rect().position.x and scout.get_global_rect().end.x <= panel.get_global_rect().end.x, "The expanded legend and Scout fit inside the map without overlap")
 	for item: Control in legend.get_children():
 		_check((item.get_child(0) as Control).size.x >= 48, "Legend emblems are enlarged and framed")
 	_check((legend.get_child(0).get_child(1) as Label).text == "Standard combat", "The combat legend uses the current encounter tier")

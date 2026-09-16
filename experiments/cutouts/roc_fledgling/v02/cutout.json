@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "character_id": "roc_fledgling",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned_v02.json",
+    "rear": "layouts/rear_skinned_v02.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 16,
+      "duration": 1.6,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 20,
+      "duration": 0.28,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "strike": {
+      "frames": 24,
+      "duration": 0.6,
+      "loop": false,
+      "preview_cycles": 1
+    },
+    "cast": {
+      "frames": 28,
+      "duration": 0.8,
+      "loop": false,
+      "preview_cycles": 1
+    },
+    "brace": {
+      "frames": 24,
+      "duration": 0.6666666666666666,
+      "loop": false,
+      "preview_cycles": 1
+    }
+  },
+  "rigid_bones": [
+    "foot_far",
+    "foot_near"
+  ],
+  "contact_feet": [
+    "foot_far",
+    "foot_near"
+  ],
+  "sources": [
+    "anatomy_front.json",
+    "anatomy_rear.json",
+    "ownership_front.json",
+    "ownership_rear.json",
+    "source/front.png",
+    "source/rear.png",
+    "source/rear_imagegen.json",
+    "source/rear_imagegen_original.png"
+  ],
+  "source_baseline": {
+    "kind": "case_fork",
+    "character_id": "roc_fledgling",
+    "files": {
+      "anatomy_front.json": "781a313b77dafb05cccec0c48ef326df3a9017ab58098cb231029f1f79950cd6",
+      "anatomy_rear.json": "9b15b797eb2f2ab5c17e81589a3a0879da1aa69ad17e3eae2514a0dd7d493c93",
+      "cutout.json": "b7b635d0071a9c95cb9236a2461e2a5eb53937b65b07a3bf9220f41aa38ac6d3",
+      "layouts/front_skinned_v02.json": "7c3518edecd8810d82e7a96b4eecfe1ee4c5d297746d4ee42758b6df5542fde9",
+      "layouts/rear_skinned_v02.json": "1a5624780d76cedf65aa78c8418445ff24547b007a10fae57ed45194a61fc54d",
+      "motion.gd": "8c0629971203e552095d04bdbeec38992cb0ffda3c5c33a3714e55b946f57496",
+      "ownership_front.json": "bf84736892f550cf75bee5e14754772ed4bbd17116a1d28fc7830ea8fe578524",
+      "ownership_rear.json": "d11017474089717d6e8f6b0cf414a996063d0d41fa2fe19061fd5fbb9db21ec5",
+      "paint_front_v02/body.png": "189c9ead4e7f7c8683da4cd64534de5ee73e5de76b53dff07f02fdde26a96779",
+      "paint_front_v02/foot_far.png": "f274470dcb2a1906410189c83266a304880a7ea8b47778b82c8790618f3eb5ef",
+      "paint_front_v02/foot_near.png": "1647ca4f45df95cda64fb3a5e995a21e6dfe25bb34878e3ef9c6e366216276b6",
+      "paint_front_v02/head.png": "7622782ce75d8c0472714f971479406dca4fbba9ddbf794bd156f26ec43a5f18",
+      "paint_front_v02/leg_far.png": "3fd9057cdbcd49709d8e7e6af622c28c8d7868a570d8b55821e3461ed770be02",
+      "paint_front_v02/leg_near.png": "39d80568cf44037f25afc73dd217a4de9fdfa88262929ea9c384fd9261a08df5",
+      "paint_front_v02/tail.png": "fec061e15f7ef42e3332dc7d7c4eb48412e06c4345ad8dfa1b123a3a8b7f7607",
+      "paint_front_v02/wing_far.png": "44fbc05168305ccea764ffd81963806cdc6c14992f2e29841abc24f255ea8076",
+      "paint_front_v02/wing_near.png": "e25c21e670e27eacc9ad66e61c652c6913a4df25be71d5102527e31118bd933c",
+      "paint_rear_v02/body.png": "f46110da6958f3c5a0e18f228fca9321442b741c2871390bb48988e41507e6a2",
+      "paint_rear_v02/foot_far.png": "50669398bbcb1c0b7153a3b46bc3aedb1a635f453357be899500e077ad868af3",
+      "paint_rear_v02/foot_near.png": "5a09bb01e13d4ee7d9612648cae605d6ca1aac4c498def0ff90abc1dacc0f3d8",
+      "paint_rear_v02/head.png": "d2fad8e50e2ec25330c2941fc12ae0af7867207c9dc9d4b701e0b64672a7c64a",
+      "paint_rear_v02/leg_far.png": "848c0ccec20d0c643c1af686489d1eb666e0d23b3e4061e5c768a84ed24f42ae",
+      "paint_rear_v02/leg_near.png": "9ed71022a40c5d8050a557425ecc4e871a02a308b1d630cb6e00bfcd2521c67a",
+      "paint_rear_v02/tail.png": "f991701f4f27b0ad8f1959f8755ee89216bdcf8d5975a41fe5ab4351ca77c3aa",
+      "paint_rear_v02/wing_far.png": "0fe64031eb16bf956250c7a072e38746b9432f4f806bda42a8ab14a0dd7e3f1e",
+      "paint_rear_v02/wing_near.png": "3cf81d1a8ab77ba38061c42fd8280b0618d58a1499880692492d4d8f15adde3c",
+      "source/front.png": "d7720b48660348ada2b87d870890929614db979bdd6f7d5f4163716f02d682a3",
+      "source/rear.png": "d678acbe8564403cf4f4685bd33b76ac76f2bc04e5d3736866885617f7615f8a",
+      "source/rear_imagegen.json": "b1650e9b43e99e827907cac94d9e8667b061115c7b0dd65d3b911b0d3ade0c24",
+      "source/rear_imagegen_original.png": "55ecda7311fa73a8f86faf33f5524898c01b9ccdea45cd536a812cb043e7f45b"
+    }
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_tail",
+      "Skin_head",
+      "foot_near",
+      "Skin_leg_near",
+      "foot_far",
+      "Skin_leg_far",
+      "Skin_wing_near",
+      "Skin_wing_far",
+      "Skin_body"
+    ],
+    "rear": [
+      "Skin_tail",
+      "Skin_head",
+      "foot_near",
+      "Skin_leg_near",
+      "foot_far",
+      "Skin_leg_far",
+      "Skin_wing_near",
+      "Skin_wing_far",
+      "Skin_body"
+    ]
+  },
+  "segmentation": {
+    "front": "segmented_front_v04/segmentation.json",
+    "rear": "segmented_rear_v04/segmentation.json"
+  }
+}

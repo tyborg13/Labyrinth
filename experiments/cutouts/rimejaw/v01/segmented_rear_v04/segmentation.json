@@ -1,0 +1,164 @@
+{
+  "ok": true,
+  "source_sha256": "ecb8221d2593723d88fa996a0a52b048064b424e28b93b741cd27f2f9cab1792",
+  "ownership_sha256": "8e59ecd414a899bb6d025930086d546900b5474e39758613018ca0952f18da17",
+  "parts": [
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        15,
+        50
+      ],
+      "bbox": [
+        15,
+        50,
+        159,
+        231
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        152,
+        49
+      ],
+      "bbox": [
+        152,
+        49,
+        239,
+        188
+      ]
+    },
+    {
+      "name": "foot_fore_near",
+      "file": "foot_fore_near.png",
+      "offset": [
+        196,
+        198
+      ],
+      "bbox": [
+        196,
+        198,
+        235,
+        223
+      ]
+    },
+    {
+      "name": "leg_fore_near",
+      "file": "leg_fore_near.png",
+      "offset": [
+        171,
+        113
+      ],
+      "bbox": [
+        171,
+        113,
+        218,
+        198
+      ]
+    },
+    {
+      "name": "foot_fore_far",
+      "file": "foot_fore_far.png",
+      "offset": [
+        129,
+        181
+      ],
+      "bbox": [
+        129,
+        181,
+        178,
+        205
+      ]
+    },
+    {
+      "name": "leg_fore_far",
+      "file": "leg_fore_far.png",
+      "offset": [
+        127,
+        135
+      ],
+      "bbox": [
+        127,
+        135,
+        189,
+        187
+      ]
+    },
+    {
+      "name": "foot_hind_near",
+      "file": "foot_hind_near.png",
+      "offset": [
+        126,
+        214
+      ],
+      "bbox": [
+        126,
+        214,
+        179,
+        246
+      ]
+    },
+    {
+      "name": "leg_hind_near",
+      "file": "leg_hind_near.png",
+      "offset": [
+        101,
+        112
+      ],
+      "bbox": [
+        101,
+        112,
+        158,
+        215
+      ]
+    },
+    {
+      "name": "foot_hind_far",
+      "file": "foot_hind_far.png",
+      "offset": [
+        52,
+        194
+      ],
+      "bbox": [
+        52,
+        194,
+        95,
+        220
+      ]
+    },
+    {
+      "name": "leg_hind_far",
+      "file": "leg_hind_far.png",
+      "offset": [
+        58,
+        127
+      ],
+      "bbox": [
+        58,
+        127,
+        103,
+        194
+      ]
+    },
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        77,
+        68
+      ],
+      "bbox": [
+        77,
+        68,
+        176,
+        155
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

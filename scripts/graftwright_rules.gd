@@ -10,7 +10,7 @@ static func completed_combats(state: Dictionary) -> int:
 	for value: Variant in (state.get("rooms", {}) as Dictionary).values():
 		if typeof(value) != TYPE_DICTIONARY: continue
 		var room: Dictionary = value as Dictionary
-		if str(room.get("type", "")) in ["combat", "boss"] and bool(room.get("cleared", false)):
+		if str(room.get("type", "")) in ["combat", "guardian", "boss"] and bool(room.get("cleared", false)):
 			count += 1
 	return count
 

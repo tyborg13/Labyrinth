@@ -3,6 +3,7 @@ class_name CombatBoardView
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
+var _illusion_renderers: Dictionary = {}
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
 const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
 const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
@@ -24,6 +25,9 @@ const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 var _warden_renderers: Dictionary = {}
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 var _crawler_renderers: Dictionary = {}
+const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
+const GuardianPool = preload("res://scripts/guardian_cutout/pool.gd")
+var _guardian_renderers: Dictionary = {}
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
 const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
@@ -653,6 +657,7 @@ var _focus_tiles_lookup_cache: Dictionary = {}
 var _confirmation_target_tiles_lookup_cache: Dictionary = {}
 var _objective_exit_tiles_lookup_cache: Dictionary = {}
 var _projected_attack_tiles_lookup_cache: Dictionary = {}
+var _summon_tiles_lookup_cache: Dictionary = {}
 var _projected_destination_tiles_lookup_cache: Dictionary = {}
 var _ability_tiles_lookup_cache: Dictionary = {}
 var _ambient_element_id_cache: String = ElementData.NONE
@@ -696,6 +701,9 @@ var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
+var _path_depth_clip := PackedVector2Array()
+var _path_depth_tile := Vector2i(-1,-1)
+static var _path_crumble_cache: Dictionary = {}
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
@@ -787,6 +795,8 @@ func protagonist_animation_snapshot() -> Dictionary:
 
 func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if str(unit.get("type", "")) == "player":
+		if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
+			return _illusion_renderers.get(str(unit.get("key", "")), null) as Node
 		return _protagonist_renderer
 	var renderer: Node = _directional_enemy_renderer_for_unit(unit)
 	if renderer == null:
@@ -794,6 +804,38 @@ func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if renderer == null:
 		renderer = _zekarion_renderer_for_unit(unit)
 	return renderer
+
+func _sync_illusion_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actor_keys: Dictionary = {}
+	var motions: Dictionary = presentation.get("illusion_motion", {})
+	var units: Array[Dictionary] = []
+	for illusion_var: Variant in combat_state.get("illusions", []):
+		if typeof(illusion_var) == TYPE_DICTIONARY and int(illusion_var.get("hp", 0)) > 0:
+			units.append({"key": "illusion_%d" % int(illusion_var.get("id", -1)), "role": "illusion"})
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) == TYPE_DICTIONARY and str(preview_var.get("role", "illusion_preview")) == "illusion_preview":
+			units.append({"key": str(preview_var.get("key", "illusion_preview")), "role": "illusion_preview"})
+	for unit: Dictionary in units:
+		var role: String = str(unit.get("role", ""))
+		var actor_key: String = str(unit.get("key", ""))
+		actor_keys[actor_key] = true
+		var renderer: Node = _illusion_renderers.get(actor_key, null) as Node
+		if not is_instance_valid(renderer):
+			renderer = ProtagonistCutout.new()
+			renderer.name = "IllusionCutout_" + actor_key
+			add_child(renderer)
+			_illusion_renderers[actor_key] = renderer
+		# Sharing player paint must never share the player's live action pose.
+		# Only motion explicitly addressed to this illusion can interrupt its idle.
+		var motion: Dictionary = motions.get(actor_key, {}) if role == "illusion" else {}
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)))
+	for actor_key: String in _illusion_renderers.keys():
+		if not actor_keys.has(actor_key):
+			var renderer: Node = _illusion_renderers[actor_key]
+			_illusion_renderers.erase(actor_key)
+			renderer.queue_free()
 
 func _cutout_floor_registrations() -> Dictionary:
 	var registrations: Dictionary = {}
@@ -926,7 +968,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
-	return (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
+	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
 func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _bile_bloomer_renderers.get(actor_key, null) as Node
@@ -938,6 +980,8 @@ func bile_bloomer_source_pixel_scale() -> float:
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
 
 func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	if GuardianCutout.handles(str(unit.get("type", ""))):
+		return _guardian_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
 	match str(unit.get("type", "")):
 		"vyraketh":
 			return _vyraketh_renderer_for_unit(unit)
@@ -968,6 +1012,14 @@ func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
 		"cinder_ooze":
 			return CinderOozePresentation.renderer_for_unit(self, unit)
 	return _warden_renderer_for_unit(unit)
+
+func guardian_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _guardian_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func _sync_guardian_renderers() -> void:
+	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
+		GuardianPool.sync(self, _guardian_renderers, combat_state, presentation)
 
 func _sync_bile_bloomer_renderers() -> void:
 	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
@@ -1955,7 +2007,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -1986,7 +2038,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
 			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
 			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-			"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
 			"_ability_tiles_lookup_cache",
 			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
@@ -2614,9 +2666,11 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
+	_sync_illusion_renderers()
 	_sync_warden_renderers()
 	_sync_crawler_renderers()
 	_sync_acolyte_renderers()
+	_sync_guardian_renderers()
 	_sync_bile_bloomer_renderers()
 	_sync_gaoler_renderers()
 	_sync_cinder_droplet_renderers()
@@ -2656,6 +2710,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_confirmation_target_tiles_lookup_cache = _vector2i_lookup(presentation.get("confirmation_target_tiles", []))
 		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
 		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
+		_summon_tiles_lookup_cache.clear()
 		_projected_destination_tiles_lookup_cache.clear()
 		var projected_destination: Vector2i = presentation.get("projected_destination", Vector2i(-999, -999))
 		if projected_destination.x > -999:
@@ -2664,6 +2719,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			if typeof(threat_var) != TYPE_DICTIONARY:
 				continue
 			var threat: Dictionary = threat_var
+			for summon_tile: Vector2i in _vector2i_array(threat.get("summon", [])):
+				_summon_tiles_lookup_cache[summon_tile] = true
 			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
 				_projected_attack_tiles_lookup_cache[attack_tile] = true
 			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
@@ -2771,7 +2828,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if overlay_presentation_cache_changed:
 			retained_sync_fields.append_array([
 				"_focus_tiles_lookup_cache", "_confirmation_target_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
-				"_projected_attack_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
+				"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
 			])
 		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
 			if not presentation_changes.has(unit_key):
@@ -3019,7 +3076,7 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"player_aoe_preview_active":
 				overlay_changed = true
-			"path_color", "path_tiles":
+			"path_color", "path_tiles", "displacement_paths":
 				path_changed = true
 			"enemy_threat_previews":
 				overlay_changed = true
@@ -3061,7 +3118,7 @@ func _queue_presentation_change_redraws(
 			"protagonist_motion":
 				# The rig keeps a stable texture; its small hand charge lives on FX.
 				effects_changed = true
-			"warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
+			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Per-actor viewports retain their texture RID between poses.
 				pass
 			"tile_drag_aiming":
@@ -3090,6 +3147,8 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if path_changed:
 		_queue_render_layer_redraw(_path_render_layer)
+		for tile: Vector2i in _scene_render_layers_by_tile:
+			_queue_scene_render_layer_for_tile(tile)
 	if impact_floor_changed or action_floor_changed:
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 	if impact_floor_changed:
@@ -3760,6 +3819,21 @@ func _loot_tooltip_at_position(at_position: Vector2) -> String:
 			return _loot_tooltip_text(loot)
 	return ""
 
+func enemy_intent_tooltip(actor_key: String) -> String:
+	var lines := PackedStringArray()
+	var seen: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		if _enemy_hud_actor_key(unit) != actor_key: continue
+		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
+			for token: Dictionary in row:
+				# The expanded row already states ordinary movement, damage and reach.
+				if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
+				var detail: String = ActionIcons.token_tooltip(token)
+				if detail.is_empty() or seen.has(detail): continue
+				seen[detail] = true
+				lines.append(detail)
+	return "\n".join(lines)
+
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 		if typeof(loot_var) != TYPE_DICTIONARY:
@@ -3953,7 +4027,7 @@ func _draw_path_render_layer() -> void:
 		_record_dynamic_draw_time(started_usec)
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
-	_draw_path_preview()
+	# Paths are ground decals submitted in each tile after its surfaces.
 	_record_render_section_time("path_preview", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -3983,6 +4057,7 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	_draw_board_surface(_render_layer_tile)
+	_draw_path_depth_pass(_render_layer_tile)
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
@@ -4609,6 +4684,8 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		if typeof(source_var) != TYPE_DICTIONARY:
 			continue
 		var source: Dictionary = source_var as Dictionary
+		# Braziers carry their own animated flame and prop tooltip.
+		if str(source.get("id", "")).begins_with("brazier:"): continue
 		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
@@ -6029,11 +6106,18 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _ability_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, ABILITY_HIGHLIGHT)
 		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
-	if _attack_tiles_lookup_cache.has(tile):
+	if _attack_tiles_lookup_cache.has(tile) and not _projected_attack_tiles_lookup_cache.has(tile):
 		_draw_attack_tile_highlight(tile)
 	if _projected_attack_tiles_lookup_cache.has(tile):
 		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
 		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
+	if _summon_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, Color(0.24, 0.80, 0.30, 0.23))
+		_draw_tile_ring(tile, Color(0.52, 0.96, 0.48, 0.95), 3.6, 0.78)
+		var summon_icon: Texture2D = ActionIcons.icon_texture("summon_minions")
+		if summon_icon != null:
+			var icon_side: float = _tile_width() * 0.23
+			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	if draw_aoe_footprint:
@@ -6173,6 +6257,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
 		_draw_board_surface(tile)
+		_draw_path_depth_pass(tile)
 		_draw_enemy_threat_depth_pass(tile)
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
@@ -6249,6 +6334,13 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 			_draw_campfire_prop_glow(tile, draw_rect)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		draw_texture_rect(texture, draw_rect, false, tint)
+		if str(prop.get("kind","")).begins_with("watch_brazier"):
+			_register_tooltip(draw_rect,"Watch Brazier · Light radius 2" if str(prop["kind"])=="watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession.")
+		if str(prop.get("kind",""))=="watch_brazier_lit":
+			var reduced: bool = bool(presentation.get("reduced_motion",false))
+			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
+			var bowl: Vector2 = draw_rect.position+draw_rect.size*Vector2(0.5,0.46)
+			BoardSurfacePresentation._draw_fire(self,bowl,draw_rect.size.x*0.72,phase,tile.x*101+tile.y*307,reduced)
 
 func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -7174,7 +7266,12 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	draw_texture_rect(texture, terrain_rect, false, tint)
+	if terrain_kind == "crag_outcrop":
+		tint.a = maxf(tint.a,0.58)
+		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
+		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+	else:
+		draw_texture_rect(texture, terrain_rect, false, tint)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7189,12 +7286,18 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
+	if terrain_kind == "crag_outcrop": tint.a = maxf(tint.a,0.58)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
 	if progress < 0.84:
 		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	draw_texture_rect(texture, terrain_rect, false, tint)
+	if terrain_kind == "crag_outcrop":
+		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
+	else:
+		draw_texture_rect(texture, terrain_rect, false, tint)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "crag_outcrop":
+		return Rect2(_tile_center(tile)-Vector2(_tile_width()*0.42,_tile_width()*0.75),Vector2(_tile_width()*0.84,_tile_width()*0.90))
 	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
 	var draw_height: float = draw_width
 	if texture != null and texture.get_size().x > 0.0:
@@ -7261,12 +7364,15 @@ func _terrain_key(terrain: Dictionary) -> String:
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	var terrain_kind: String = str(terrain.get("kind", ""))
-	var label: String = "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
-	return "%s\n%d/%d HP" % [
+	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
+	var text: String = "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
 		int(terrain.get("max_hp", 1))
 	]
+
+	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
+	return text
 
 func _visible_units() -> Array[Dictionary]:
 	if _submission_cache_valid:
@@ -8694,8 +8800,8 @@ func _enemy_intent_expanded(unit: Dictionary) -> bool:
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
 		actor_key = "enemy_%d" % int(unit.get("id", -1))
-	if not actor_key.is_empty() and expanded_keys.has(actor_key):
-		return true
+	if not expanded_keys.is_empty():
+		return expanded_keys.has(actor_key)
 	return (
 		_unit_footprint_tiles(unit).has(_hover_tile)
 		or _unit_footprint_tiles(unit).has(_controller_focus_tile)
@@ -9397,6 +9503,10 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	if from_tile.x < 0 or to_tile.x < 0:
 		return tiles
 	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if bool(effect.get("ground_burst",false)):
+		for tile: Vector2i in _vector2i_array(effect.get("burst_tiles",[])):
+			_elemental_append_unique_depth_tile(tiles,tile)
+		return tiles
 	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
 		# Travel stays on its clipped interval. Only a visible, reached target
 		# receives the ordinary rear/actor/front impact, including reduced motion.
@@ -9466,6 +9576,14 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not depth_tiles.has(tile):
+		return
+	if bool(effect.get("ground_burst",false)):
+		var reduced: bool = bool(presentation.get("reduced_motion",false))
+		var phase: float = 0.42 if reduced else AttackFxLibrary.impact_progress_for_style(style,progress)
+		if not reduced and progress<AttackFxLibrary.travel_end_progress(style): return
+		var point: Vector2 = _tile_center(tile)
+		var fade: float = 1.0 if reduced else _elemental_impact_volume_fade(style,phase)
+		ElementalSpellFx.impact(self,_elemental_style_id(style),point,_elemental_performance_size(style,phase)*0.88,phase,fade,reduced,foreground_pass)
 		return
 	var current_depth_tile: Vector2i = _elemental_scene_depth_tile_for_effect(effect, progress)
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
@@ -11595,9 +11713,32 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
+func _draw_path_depth_pass(tile: Vector2i) -> void:
+	_path_depth_tile = tile
+	_path_depth_clip = _tile_polygon(tile)
+	_draw_path_preview()
+	_path_depth_clip = PackedVector2Array()
+	_path_depth_tile = Vector2i(-1,-1)
+
+func _draw_path_color_polygon(polygon: PackedVector2Array, color: Color) -> void:
+	if _path_depth_clip.is_empty():
+		draw_colored_polygon(polygon,color)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polygons(polygon,_path_depth_clip):
+		if _polygon_can_draw(piece): draw_colored_polygon(piece,color)
+
+func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antialiased: bool) -> void:
+	if _path_depth_clip.is_empty():
+		draw_polyline(line,color,width,antialiased)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line,_path_depth_clip):
+		if piece.size()>1: draw_polyline(piece,color,width,antialiased)
+
 func _draw_path_preview() -> void:
 	if _blink_preview_effect_active():
 		return
+	for path: Array in presentation.get("displacement_paths",[]):
+		_draw_path_tiles(_vector2i_array(path),ENEMY_PATH_PREVIEW_COLOR)
 	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
 	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
 	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
@@ -11626,6 +11767,7 @@ func _threat_has_projected_movement(threat: Dictionary) -> bool:
 	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
 func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
+	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
 	if path_tiles.is_empty():
 		return
 	var tile_width: float = _tile_width()
@@ -11774,6 +11916,19 @@ func _unified_path_arrow_polygon(
 	return _largest_path_polygon(merged)
 
 func _path_crumble_geometry(
+	path_tiles: Array[Vector2i],
+	path_points: PackedVector2Array,
+	unified_arrow: PackedVector2Array,
+	shaft_width: float,
+	allow_boundary_damage: bool = true
+) -> Dictionary:
+	var key: int = hash([path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage])
+	if not _path_crumble_cache.has(key):
+		if _path_crumble_cache.size()>=32: _path_crumble_cache.clear()
+		_path_crumble_cache[key] = _build_path_crumble_geometry(path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage)
+	return _path_crumble_cache[key]
+
+func _build_path_crumble_geometry(
 	path_tiles: Array[Vector2i],
 	path_points: PackedVector2Array,
 	unified_arrow: PackedVector2Array,
@@ -12348,7 +12503,7 @@ func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, colo
 	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
 	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
-	draw_colored_polygon(polygon, edge_color)
+	_draw_path_color_polygon(polygon, edge_color)
 	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
 		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
 		var eased: float = smoothstep(0.0, 1.0, progress)
@@ -12385,14 +12540,14 @@ func _draw_path_surface_spalls(spalls: Array, shaft_width: float, color: Color) 
 		if not _polygon_can_draw(polygon):
 			continue
 		var center: Vector2 = spall.get("center", _path_polygon_center(polygon))
-		draw_colored_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
-		draw_colored_polygon(polygon, recess_color)
+		_draw_path_color_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
+		_draw_path_color_polygon(polygon, recess_color)
 		var floor_polygon: PackedVector2Array = _scaled_path_polygon(polygon, center, 0.56)
 		# Very slim ranged ribbons can collapse the innermost spall floor below
 		# Metal's triangulation precision even though the full recess remains valid.
 		# Keep the visible lip/recess and omit only that degenerate inner facet.
 		if _polygon_can_draw(floor_polygon):
-			draw_colored_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
+			_draw_path_color_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
 
 func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
@@ -12413,13 +12568,13 @@ func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 			var line: PackedVector2Array = line_var as PackedVector2Array
 			if line.size() < 2:
 				continue
-			draw_polyline(
+			_draw_path_line(
 				_shifted_path_polygon(line, lip_offset),
 				lip_color,
 				maxf(0.75, shaft_width * MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO),
 				true
 			)
-			draw_polyline(
+			_draw_path_line(
 				line,
 				dark_color,
 				maxf(1.25, shaft_width * MOVE_PATH_CRACK_DARK_WIDTH_RATIO),
@@ -12457,7 +12612,7 @@ func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, c
 		var shifted := PackedVector2Array()
 		for point: Vector2 in polygon:
 			shifted.append(point + offset)
-		draw_colored_polygon(shifted, color)
+		_draw_path_color_polygon(shifted, color)
 
 func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
 	if radius <= 0.0:
@@ -13059,6 +13214,8 @@ func _load_board_prop_assets() -> void:
 
 func _load_scene_prop_assets() -> void:
 	_scene_prop_textures = {
+		"watch_brazier_lit": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_lit.png"),
+		"watch_brazier_dark": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_dark.png"),
 		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
 		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
@@ -13130,6 +13287,8 @@ func _load_loot_and_terrain_assets() -> void:
 		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
 	_terrain_textures = {
+		"raised_cover": AssetLoader.load_texture_source_first("res://assets/props/guardians/raised_cover.png"),
+		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
@@ -13351,6 +13510,10 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(WardenCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
 		return
+	if GuardianCutout.handles(unit_type):
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GuardianCutout.rest_path(unit_type))
+		_queue_unit_shadow_source_data(unit_type)
+		return
 	if unit_type == "bile_bloomer":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(BileBloomerCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
@@ -13554,6 +13717,7 @@ func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
 	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]
 
 func _texture_for_scene_prop(prop: Dictionary) -> Texture2D:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return _scene_prop_textures.get("watch_brazier_dark",null)
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
 	if _scene_prop_idle_animation_active(prop) and not idle_frames.is_empty():
 		return idle_frames[_scene_prop_idle_frame_index(prop)]
@@ -13584,8 +13748,10 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 	if is_instance_valid(cutout):
 		return cutout.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
-	if unit_type == "player" and is_instance_valid(_protagonist_renderer):
-		return _protagonist_renderer.call("texture") as Texture2D
+	if unit_type == "player":
+		var renderer: Node = unit_cutout_renderer(unit)
+		if is_instance_valid(renderer):
+			return renderer.call("texture") as Texture2D
 	if _unit_uses_procedural_shadow_dissolve(unit):
 		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -13776,6 +13942,7 @@ func _unit_death_frame_seconds(unit: Dictionary) -> float:
 	return maxf(0.01, float(definition.get("death_frame_seconds", DEATH_FRAME_SECONDS)))
 
 func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return 0 if bool(presentation.get("reduced_motion",false)) else int(floor(_idle_elapsed*12.0))
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
 	if idle_frames.is_empty():
 		return 0
@@ -13888,6 +14055,7 @@ func _unit_death_animation_active(unit: Dictionary) -> bool:
 	return _unit_has_authored_death_animation(unit)
 
 func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return visible and not combat_state.is_empty() and not bool(presentation.get("reduced_motion",false))
 	if not visible or combat_state.is_empty():
 		return false
 	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()
@@ -14979,6 +15147,8 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 			row.append(support_token)
 		if not row.is_empty():
 			rows.append(row)
+		var guardian_row: Array = ActionIcons.tokens_for_guardian_rule(action)
+		if not guardian_row.is_empty(): rows.append(guardian_row)
 		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
@@ -15401,7 +15571,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 	_draw_surface_connection_preview(tile)
 	_draw_surface_conduction_floor(tile)
-	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)))
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)), bool(presentation.get("reduced_motion", false)))
 
 func _draw_surface_connection_preview(tile: Vector2i) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):

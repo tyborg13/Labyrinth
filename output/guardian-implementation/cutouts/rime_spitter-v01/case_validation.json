@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "rime_spitter",
+  "layouts": {
+    "front": {
+      "joints": 18,
+      "parts": 10,
+      "meshes": 7,
+      "vertices": 10032
+    },
+    "rear": {
+      "joints": 18,
+      "parts": 10,
+      "meshes": 7,
+      "vertices": 8155
+    }
+  },
+  "errors": []
+}

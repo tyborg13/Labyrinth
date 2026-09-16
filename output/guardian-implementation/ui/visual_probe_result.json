@@ -1,0 +1,1161 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 253.7874,
+          "luma_mean": 32.07559218996568,
+          "luma_min": 0.0,
+          "luma_range": 253.7874,
+          "luma_stdev": 43.45509318180791,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_card_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 27.628823287722213,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 40.17048844990403,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 239.7234,
+          "luma_mean": 20.89912135400185,
+          "luma_min": 0.0,
+          "luma_range": 239.7234,
+          "luma_stdev": 26.3880552535888,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_map_choice.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.11919999999998,
+          "luma_mean": 9.941593024363597,
+          "luma_min": 0.0,
+          "luma_range": 247.11919999999998,
+          "luma_stdev": 26.76014301025382,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7594,
+          "luma_mean": 31.36168922808781,
+          "luma_min": 0.0,
+          "luma_range": 245.7594,
+          "luma_stdev": 45.97181411786218,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_relic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 242.77540000000002,
+          "luma_mean": 11.211996812719686,
+          "luma_min": 0.0,
+          "luma_range": 242.77540000000002,
+          "luma_stdev": 22.6475499543908,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_reward.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 23.141620919009643,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 35.66393509745032,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_controller_cancel.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 33.41848436016548,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 47.71614950970378,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_raise_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 32.67326263444618,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 46.69906568518062,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_raised.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 32.57206782663218,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 46.584081903304636,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_reclaimed.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 31.62691605504117,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 42.66124802722464,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_card_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 28.976830010277883,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 41.00689905623311,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.11919999999998,
+          "luma_mean": 10.342415094120025,
+          "luma_min": 0.0,
+          "luma_range": 247.11919999999998,
+          "luma_stdev": 27.92151816882995,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 32.74818857560395,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 46.80715865701512,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_relic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 31.903580603443466,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 42.74302473548022,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_card_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 25.74385772302813,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 40.62705600847411,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.11919999999998,
+          "luma_mean": 10.161034277132243,
+          "luma_min": 0.0,
+          "luma_range": 247.11919999999998,
+          "luma_stdev": 27.545445405210657,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 31.481920108346912,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 45.57564272862764,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_relic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 240.9508,
+          "luma_mean": 21.082054100760377,
+          "luma_min": 0.0,
+          "luma_range": 240.9508,
+          "luma_stdev": 28.70580522740085,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/guardian_map_details.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 29.437183094744643,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 44.798214152747256,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/illusion_dark_move_committed.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 29.73290324264065,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 45.21631184269061,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/illusion_dark_move_target.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 27.124891928975284,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 41.18521656895874,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.3752,
+          "luma_mean": 18.806302170990037,
+          "luma_min": 0.0,
+          "luma_range": 248.3752,
+          "luma_stdev": 24.715654614368002,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_map_entry.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 25.555605749760343,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 39.618955497462004,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_outage.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.7474,
+          "luma_mean": 9.500985570235397,
+          "luma_min": 0.0,
+          "luma_range": 245.7474,
+          "luma_stdev": 26.66301351814376,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 28.691486827740704,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 44.433265217830574,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_relic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 27.268818400028934,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 40.198281034975054,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.11919999999998,
+          "luma_mean": 10.328847334708955,
+          "luma_min": 0.0,
+          "luma_range": 247.11919999999998,
+          "luma_stdev": 28.301681267540907,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.0,
+          "luma_mean": 32.547571816666924,
+          "luma_min": 0.0,
+          "luma_range": 248.0,
+          "luma_stdev": 45.862421918449265,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_relic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 16.748507102184412,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 26.649060597058888,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_-1_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 16.7246640145539,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 26.54164140984092,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_0_-1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 16.704591509808616,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 26.52907763907342,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_0_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 16.702260578141374,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 26.50133057288979,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_1_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.07959999999997,
+          "luma_mean": 16.700893020406543,
+          "luma_min": 0.0,
+          "luma_range": 249.07959999999997,
+          "luma_stdev": 26.509100128883368,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_reduced_motion.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.19259999999997,
+          "luma_mean": 27.599188575605343,
+          "luma_min": 0.0,
+          "luma_range": 249.19259999999997,
+          "luma_stdev": 36.63047991695044,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.83159999999998,
+          "luma_mean": 29.7409592336252,
+          "luma_min": 0.0,
+          "luma_range": 248.83159999999998,
+          "luma_stdev": 38.10371152477071,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.83159999999998,
+          "luma_mean": 29.782137049190034,
+          "luma_min": 0.0,
+          "luma_range": 248.83159999999998,
+          "luma_stdev": 38.00632785602507,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.19259999999997,
+          "luma_mean": 29.059507639984748,
+          "luma_min": 0.0,
+          "luma_range": 249.19259999999997,
+          "luma_stdev": 37.6158905115436,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.18859999999998,
+          "luma_mean": 31.412074541281598,
+          "luma_min": 0.0,
+          "luma_range": 248.18859999999998,
+          "luma_stdev": 39.282959217223855,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.18859999999998,
+          "luma_mean": 31.333027851151634,
+          "luma_min": 0.0,
+          "luma_range": 248.18859999999998,
+          "luma_stdev": 39.173763327134026,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.26599999999996,
+          "luma_mean": 28.562356702780676,
+          "luma_min": 0.0,
+          "luma_range": 251.26599999999996,
+          "luma_stdev": 37.63391910421415,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.98399999999998,
+          "luma_mean": 30.37093221290395,
+          "luma_min": 0.0,
+          "luma_range": 247.98399999999998,
+          "luma_stdev": 38.63546027446929,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.98399999999998,
+          "luma_mean": 32.095268261623346,
+          "luma_min": 0.0,
+          "luma_range": 247.98399999999998,
+          "luma_stdev": 41.22168155368073,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.19259999999997,
+          "luma_mean": 28.58222820705171,
+          "luma_min": 0.0,
+          "luma_range": 249.19259999999997,
+          "luma_stdev": 38.674065221748954,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.72939999999997,
+          "luma_mean": 30.716041319990712,
+          "luma_min": 0.0,
+          "luma_range": 249.72939999999997,
+          "luma_stdev": 39.69305800923003,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.65719999999996,
+          "luma_mean": 30.6492818490954,
+          "luma_min": 0.0,
+          "luma_range": 249.65719999999996,
+          "luma_stdev": 39.779046981011184,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.43159999999997,
+          "luma_mean": 29.610911732835447,
+          "luma_min": 0.0,
+          "luma_range": 251.43159999999997,
+          "luma_stdev": 38.580251446078464,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.43159999999997,
+          "luma_mean": 31.89613554650169,
+          "luma_min": 0.0,
+          "luma_range": 251.43159999999997,
+          "luma_stdev": 40.15141754826703,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.89759999999998,
+          "luma_mean": 32.13652995491697,
+          "luma_min": 0.0,
+          "luma_range": 249.89759999999998,
+          "luma_stdev": 41.08104184074958,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.19259999999997,
+          "luma_mean": 28.0782345499807,
+          "luma_min": 0.0,
+          "luma_range": 249.19259999999997,
+          "luma_stdev": 37.64000915076898,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_0.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.83159999999998,
+          "luma_mean": 29.79250560739932,
+          "luma_min": 0.0,
+          "luma_range": 248.83159999999998,
+          "luma_stdev": 38.79634715517592,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_1.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.67879999999997,
+          "luma_mean": 30.928561222711814,
+          "luma_min": 0.0,
+          "luma_range": 251.67879999999997,
+          "luma_stdev": 40.289312404858904,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_2.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7874,
+          "luma_mean": 32.329856425967996,
+          "luma_min": 0.0,
+          "luma_range": 253.7874,
+          "luma_stdev": 43.312461896928546,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_card_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.7152,
+          "luma_mean": 27.303440003160738,
+          "luma_min": 0.0,
+          "luma_range": 253.7152,
+          "luma_stdev": 40.39118750996943,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_encounter.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.11919999999998,
+          "luma_mean": 10.237953104243411,
+          "luma_min": 0.0,
+          "luma_range": 247.11919999999998,
+          "luma_stdev": 27.906483833469107,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_pre_battle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 31.3313302949971,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 45.75477949545905,
+          "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_relic.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/implement-guardian-combats-and-animated-encounters",
+    "--script",
+    "tests/guardian_gameplay_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 253.7874,
+      "luma_mean": 32.07559218996568,
+      "luma_min": 0.0,
+      "luma_range": 253.7874,
+      "luma_stdev": 43.45509318180791,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_card_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 27.628823287722213,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 40.17048844990403,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 239.7234,
+      "luma_mean": 20.89912135400185,
+      "luma_min": 0.0,
+      "luma_range": 239.7234,
+      "luma_stdev": 26.3880552535888,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_map_choice.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.11919999999998,
+      "luma_mean": 9.941593024363597,
+      "luma_min": 0.0,
+      "luma_range": 247.11919999999998,
+      "luma_stdev": 26.76014301025382,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7594,
+      "luma_mean": 31.36168922808781,
+      "luma_min": 0.0,
+      "luma_range": 245.7594,
+      "luma_stdev": 45.97181411786218,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_relic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 242.77540000000002,
+      "luma_mean": 11.211996812719686,
+      "luma_min": 0.0,
+      "luma_range": 242.77540000000002,
+      "luma_stdev": 22.6475499543908,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/ashen_reaver_reward.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 23.141620919009643,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 35.66393509745032,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_controller_cancel.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 33.41848436016548,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 47.71614950970378,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_raise_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 32.67326263444618,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 46.69906568518062,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_raised.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 32.57206782663218,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 46.584081903304636,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/cover_reclaimed.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 31.62691605504117,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 42.66124802722464,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_card_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 28.976830010277883,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 41.00689905623311,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.11919999999998,
+      "luma_mean": 10.342415094120025,
+      "luma_min": 0.0,
+      "luma_range": 247.11919999999998,
+      "luma_stdev": 27.92151816882995,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 32.74818857560395,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 46.80715865701512,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/craghide_relic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 31.903580603443466,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 42.74302473548022,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_card_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 25.74385772302813,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 40.62705600847411,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.11919999999998,
+      "luma_mean": 10.161034277132243,
+      "luma_min": 0.0,
+      "luma_range": 247.11919999999998,
+      "luma_stdev": 27.545445405210657,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 31.481920108346912,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 45.57564272862764,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/gallows_roc_relic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 240.9508,
+      "luma_mean": 21.082054100760377,
+      "luma_min": 0.0,
+      "luma_range": 240.9508,
+      "luma_stdev": 28.70580522740085,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/guardian_map_details.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 29.437183094744643,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 44.798214152747256,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/illusion_dark_move_committed.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 29.73290324264065,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 45.21631184269061,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/illusion_dark_move_target.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 27.124891928975284,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 41.18521656895874,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.3752,
+      "luma_mean": 18.806302170990037,
+      "luma_min": 0.0,
+      "luma_range": 248.3752,
+      "luma_stdev": 24.715654614368002,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_map_entry.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 25.555605749760343,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 39.618955497462004,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_outage.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.7474,
+      "luma_mean": 9.500985570235397,
+      "luma_min": 0.0,
+      "luma_range": 245.7474,
+      "luma_stdev": 26.66301351814376,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 28.691486827740704,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 44.433265217830574,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/last_lamplighter_relic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 27.268818400028934,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 40.198281034975054,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.11919999999998,
+      "luma_mean": 10.328847334708955,
+      "luma_min": 0.0,
+      "luma_range": 247.11919999999998,
+      "luma_stdev": 28.301681267540907,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.0,
+      "luma_mean": 32.547571816666924,
+      "luma_min": 0.0,
+      "luma_range": 248.0,
+      "luma_stdev": 45.862421918449265,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/rimejaw_relic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 16.748507102184412,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 26.649060597058888,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_-1_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 16.7246640145539,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 26.54164140984092,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_0_-1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 16.704591509808616,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 26.52907763907342,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_0_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 16.702260578141374,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 26.50133057288979,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_facing_1_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.07959999999997,
+      "luma_mean": 16.700893020406543,
+      "luma_min": 0.0,
+      "luma_range": 249.07959999999997,
+      "luma_stdev": 26.509100128883368,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/roc_reduced_motion.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.19259999999997,
+      "luma_mean": 27.599188575605343,
+      "luma_min": 0.0,
+      "luma_range": 249.19259999999997,
+      "luma_stdev": 36.63047991695044,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.83159999999998,
+      "luma_mean": 29.7409592336252,
+      "luma_min": 0.0,
+      "luma_range": 248.83159999999998,
+      "luma_stdev": 38.10371152477071,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.83159999999998,
+      "luma_mean": 29.782137049190034,
+      "luma_min": 0.0,
+      "luma_range": 248.83159999999998,
+      "luma_stdev": 38.00632785602507,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_ashen_reaver_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.19259999999997,
+      "luma_mean": 29.059507639984748,
+      "luma_min": 0.0,
+      "luma_range": 249.19259999999997,
+      "luma_stdev": 37.6158905115436,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.18859999999998,
+      "luma_mean": 31.412074541281598,
+      "luma_min": 0.0,
+      "luma_range": 248.18859999999998,
+      "luma_stdev": 39.282959217223855,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.18859999999998,
+      "luma_mean": 31.333027851151634,
+      "luma_min": 0.0,
+      "luma_range": 248.18859999999998,
+      "luma_stdev": 39.173763327134026,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_craghide_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.26599999999996,
+      "luma_mean": 28.562356702780676,
+      "luma_min": 0.0,
+      "luma_range": 251.26599999999996,
+      "luma_stdev": 37.63391910421415,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.98399999999998,
+      "luma_mean": 30.37093221290395,
+      "luma_min": 0.0,
+      "luma_range": 247.98399999999998,
+      "luma_stdev": 38.63546027446929,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.98399999999998,
+      "luma_mean": 32.095268261623346,
+      "luma_min": 0.0,
+      "luma_range": 247.98399999999998,
+      "luma_stdev": 41.22168155368073,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_gallows_roc_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.19259999999997,
+      "luma_mean": 28.58222820705171,
+      "luma_min": 0.0,
+      "luma_range": 249.19259999999997,
+      "luma_stdev": 38.674065221748954,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.72939999999997,
+      "luma_mean": 30.716041319990712,
+      "luma_min": 0.0,
+      "luma_range": 249.72939999999997,
+      "luma_stdev": 39.69305800923003,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.65719999999996,
+      "luma_mean": 30.6492818490954,
+      "luma_min": 0.0,
+      "luma_range": 249.65719999999996,
+      "luma_stdev": 39.779046981011184,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_last_lamplighter_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.43159999999997,
+      "luma_mean": 29.610911732835447,
+      "luma_min": 0.0,
+      "luma_range": 251.43159999999997,
+      "luma_stdev": 38.580251446078464,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.43159999999997,
+      "luma_mean": 31.89613554650169,
+      "luma_min": 0.0,
+      "luma_range": 251.43159999999997,
+      "luma_stdev": 40.15141754826703,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.89759999999998,
+      "luma_mean": 32.13652995491697,
+      "luma_min": 0.0,
+      "luma_range": 249.89759999999998,
+      "luma_stdev": 41.08104184074958,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_rimejaw_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.19259999999997,
+      "luma_mean": 28.0782345499807,
+      "luma_min": 0.0,
+      "luma_range": 249.19259999999997,
+      "luma_stdev": 37.64000915076898,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_0.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.83159999999998,
+      "luma_mean": 29.79250560739932,
+      "luma_min": 0.0,
+      "luma_range": 248.83159999999998,
+      "luma_stdev": 38.79634715517592,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_1.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.67879999999997,
+      "luma_mean": 30.928561222711814,
+      "luma_min": 0.0,
+      "luma_range": 251.67879999999997,
+      "luma_stdev": 40.289312404858904,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/runtime_storm_cantor_2.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7874,
+      "luma_mean": 32.329856425967996,
+      "luma_min": 0.0,
+      "luma_range": 253.7874,
+      "luma_stdev": 43.312461896928546,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_card_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.7152,
+      "luma_mean": 27.303440003160738,
+      "luma_min": 0.0,
+      "luma_range": 253.7152,
+      "luma_stdev": 40.39118750996943,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_encounter.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.11919999999998,
+      "luma_mean": 10.237953104243411,
+      "luma_min": 0.0,
+      "luma_range": 247.11919999999998,
+      "luma_stdev": 27.906483833469107,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_pre_battle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 31.3313302949971,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 45.75477949545905,
+      "path": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1/probes/guardian_ui/storm_cantor_relic.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "implement-guardian-combats-and-anima-1789414184372758000-83510-guardian_gameplay_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/guardian_gameplay_probe.gd"
+}

@@ -15,7 +15,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -84,6 +84,8 @@ func _initialize() -> void:
 func _parse_args() -> Dictionary:
 	var parsed: Dictionary = {
 		"scenario": "combat",
+		"guardian_id": "ashen_reaver",
+		"guardian_case": "encounter",
 		"seed": DEFAULT_SEED,
 		"show_help": false,
 		"allow_live_user_dir": false,
@@ -138,6 +140,12 @@ func _parse_args() -> Dictionary:
 			"--scenario":
 				index += 1
 				parsed["scenario"] = _required_arg(args, index, arg)
+			"--guardian-id":
+				index += 1
+				parsed["guardian_id"] = _required_arg(args, index, arg)
+			"--guardian-case":
+				index += 1
+				parsed["guardian_case"] = _required_arg(args, index, arg)
 			"--seed":
 				index += 1
 				parsed["seed"] = int(_required_arg(args, index, arg))
@@ -329,6 +337,8 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
+	elif str(_options.get("scenario", "")) == "guardian":
+		progression = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(progression)
 	elif str(_options.get("scenario", "")) == "guided_tutorial":
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
 		# agree on the first-run counter as well as tutorial eligibility.
@@ -337,6 +347,14 @@ func _build_progression() -> Dictionary:
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 	match scenario:
+		"guardian":
+			var id: String = str(_options.get("guardian_id", "ashen_reaver"))
+			var study: String = str(_options.get("guardian_case", "encounter"))
+			if preload("res://scripts/guardian_library.gd").for_guardian(id).is_empty() or not preload("res://tools/guardian_inspection.gd").CASES.has(study) or (study == "outage" and id != "last_lamplighter") or (study == "outcrops" and id != "craghide") or (study == "summon" and id != "storm_cantor"):
+				_fail("Unknown Guardian or incompatible Guardian inspection case.")
+				return {}
+			var guardian_state: Dictionary = preload("res://tools/guardian_inspection.gd").build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(int(_options["seed"]), progression)), _options)
+			return _apply_combat_overrides(guardian_state) if str(guardian_state.get("mode",""))=="combat" else _apply_room_overrides(guardian_state)
 		"start":
 			return _build_start_run(progression)
 		"character":
@@ -544,7 +562,7 @@ func _build_pre_battle_run(progression: Dictionary) -> Dictionary:
 	state = _run_state_for_room(state, coord, RunEngine.MODE_PRE_BATTLE, travel_dir)
 	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
 	var room: Dictionary = _run_engine.room_metadata(state, coord).duplicate(true)
-	if str(room.get("type", "")) not in ["combat", "boss"]:
+	if str(room.get("type", "")) not in ["combat", "boss", "guardian"]:
 		room["type"] = "combat"
 		room["element"] = str(room.get("element", ElementData.NONE))
 	room["revealed"] = true
@@ -1155,7 +1173,7 @@ func _first_room_coord_with_min_enemies(state: Dictionary, min_enemies: int) -> 
 				if maxi(absi(x), absi(y)) != radius:
 					continue
 				var room: Dictionary = _run_engine.room_metadata(state, coord)
-				if str(room.get("type", "")) not in ["combat", "boss"]:
+				if str(room.get("type", "")) not in ["combat", "boss", "guardian"]:
 					continue
 				var layout: Dictionary = _run_engine.call("_combat_layout_for_room", room, _fixture_travel_dir_for_coord(coord), state)
 				var enemies: Array = layout.get("enemies", [])

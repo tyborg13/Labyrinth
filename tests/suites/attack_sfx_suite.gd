@@ -30,6 +30,10 @@ static func run(expect: Callable) -> void:
 		var trap_entry: Dictionary = AttackSfxLibrary.entry_for_trap({"element": element_id})
 		expect.call(str(trap_entry.get("path", "")) == str(EXPECTED_PATHS[element_id]), "%s traps should use the same selected elemental sound" % element_id.capitalize())
 
+	for fuel: String in ["fire","rubble"]:
+		var detonation: Dictionary = AttackSfxLibrary.entry_for_player_action({"element":"none"},{"type":"detonate","_detonate_surface":fuel})
+		expect.call(str(detonation.get("path",""))==EXPECTED_PATHS["earth" if fuel=="rubble" else "fire"],fuel+" detonation uses its consumed surface sound")
+
 	var generic_entry: Dictionary = AttackSfxLibrary.entry_for_player_action({}, {"type": "ranged", "range": 5})
 	expect.call(str(generic_entry.get("id", "")) == AttackSfxLibrary.RANGED_SFX_ID, "Non-elemental ranged attacks should retain the bow sound")
 	var melee_entry: Dictionary = AttackSfxLibrary.entry_for_player_action({"element": "fire"}, {"type": "melee", "range": 1, "_card_element": "fire"})

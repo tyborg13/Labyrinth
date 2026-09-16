@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "roc_fledgling",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 9,
+      "meshes": 7,
+      "vertices": 11045
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 9,
+      "meshes": 7,
+      "vertices": 7804
+    }
+  },
+  "errors": []
+}

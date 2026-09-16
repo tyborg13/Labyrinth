@@ -1,0 +1,24 @@
+Running task-local command:
+  task: implement-guardian-combats-and-animated-encounters
+  run: implement-guardian-combats-and-animated-1789481513067180000-98533
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789481513067180000-98533
+  Steam: disabled
+  command: /private/tmp/guardian-revision-packed-empty/guardian_smoke --headless
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+GUARDIAN PACKED RENDERER: ash_hound PASS
+GUARDIAN PACKED RENDERER: ashen_reaver PASS
+GUARDIAN PACKED RENDERER: bell_tender PASS
+GUARDIAN PACKED RENDERER: craghide PASS
+GUARDIAN PACKED RENDERER: gallows_roc PASS
+GUARDIAN PACKED RENDERER: last_lamplighter PASS
+GUARDIAN PACKED RENDERER: rime_spitter PASS
+GUARDIAN PACKED RENDERER: rime_whelp PASS
+GUARDIAN PACKED RENDERER: rimejaw PASS
+GUARDIAN PACKED RENDERER: roc_fledgling PASS
+GUARDIAN PACKED RENDERER: stoneback_mite PASS
+GUARDIAN PACKED RENDERER: storm_cantor PASS
+GUARDIAN PACKED RENDERER: wick_shade PASS
+GUARDIAN PACK RUNTIME: PASS editor=false

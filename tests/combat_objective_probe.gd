@@ -247,6 +247,19 @@ func _capture_exit_reward_and_departure(instance: Node, fixture: Dictionary) -> 
 	await _capture("06_reach_exit_committed_door_opening.png")
 
 func _find_fixture(objective_type: String, depth: int) -> Dictionary:
+	# Survive remains inspectable as an explicit legacy fixture while out of rotation.
+	if objective_type == CombatObjectiveRules.SURVIVE:
+		var fixture: Dictionary = _find_fixture(CombatObjectiveRules.KILL_ALL, depth)
+		if fixture.is_empty():
+			return {}
+		var objective: Dictionary = CombatObjectiveRules.definition(objective_type)
+		objective["type"] = objective_type
+		objective["target_clock"] = CombatObjectiveRules.SURVIVAL_TARGET_BY_ENCOUNTER_DEPTH[clampi(depth, 1, 3) - 1]
+		objective["reinforcement_interval"] = CombatObjectiveRules.SURVIVAL_REINFORCEMENT_INTERVAL
+		objective["next_reinforcement_clock"] = CombatObjectiveRules.SURVIVAL_REINFORCEMENT_INTERVAL
+		objective["reinforcement_waves_spawned"] = 0
+		fixture["layout"]["objective"] = objective
+		return fixture
 	var room: Dictionary = _room_metadata(depth)
 	var generator := RoomGenerator.new()
 	for seed: int in range(1, 500):

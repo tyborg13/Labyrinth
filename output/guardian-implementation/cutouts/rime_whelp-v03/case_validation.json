@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "rime_whelp",
+  "layouts": {
+    "front": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 14778
+    },
+    "rear": {
+      "joints": 17,
+      "parts": 11,
+      "meshes": 7,
+      "vertices": 11721
+    }
+  },
+  "errors": []
+}

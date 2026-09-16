@@ -35,3 +35,8 @@ Thumbs.db
 /experiments/cutouts/*/v*/proof*/
 /experiments/cutouts/*/v*/art_proof*/
 /output/cutout-roster/
+
+# Resettable Guardian feedback-pass proofs and inspection saves.
+/output/guardian-revision-03/
+
+/output/guardian-revision-04/

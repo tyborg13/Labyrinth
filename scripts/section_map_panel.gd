@@ -170,7 +170,7 @@ func _build_legend() -> HBoxContainer:
 	var legend := HBoxContainer.new()
 	legend.name = "MapLegend"
 	legend.add_theme_constant_override("separation", 18)
-	for type: String in ["combat", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]:
+	for type: String in ["combat", "guardian", "event", "scavenger", "graftwright", "treasure", "campfire", "boss", "unknown"]:
 		var item := HBoxContainer.new()
 		item.add_theme_constant_override("separation", 8)
 		item.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -470,6 +470,9 @@ func room_description(coord: Vector2i) -> String:
 		detail += " · %d lost Embers" % int(node.get("recovery_amount", 0))
 	if bool(node.get("revealed", false)) and str(node.get("type", "")) == "graftwright":
 		detail = "Inherit an equipment card · " + detail
+	if str(node.get("type","")) == "guardian" and bool(node.get("revealed",false)):
+		var guardian: Dictionary = preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id","")))
+		return "%s · Guardian combat\n%s" % [guardian.get("name","Guardian"),detail]
 	return _room_label(node) + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:
@@ -664,12 +667,14 @@ func event_has_discoveries() -> bool:
 func _room_label(node: Dictionary) -> String:
 	if not bool(node.get("revealed", false)):
 		return "Unknown"
+	if str(node.get("type", "")) == "guardian":
+		return str(preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id", ""))).get("name","Guardian"))
 	if str(node.get("type", "")) == "boss":
 		return str(node.get("boss_id", "Boss")).capitalize()
 	return _type_label(str(node.get("type", "")))
 
 func _type_label(type: String) -> String:
-	return {"combat": "Standard combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Campfire", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
+	return {"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Campfire", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
 
 func _roman(index: int) -> String:
 	return ["I", "II", "III", "IV", "V", "VI"][clampi(index, 0, 5)]

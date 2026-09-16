@@ -307,7 +307,7 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 			"campfire":
 				state = engine.leave_campfire(state)
 			"treasure":
-				state = engine.claim_relic(state, "")
+				state = engine.claim_relic(state, str((state.get("pending_relics", []) as Array)[0]) if not (state.get("guardian_reward", {}) as Dictionary).is_empty() else "")
 			"reward":
 				state = engine.claim_card_reward(state, "")
 			"escape":

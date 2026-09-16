@@ -1,0 +1,254 @@
+{
+  "native_manifest": "/Users/borgerding/workspace/Labyrinth.worktrees/implement-guardian-combats-and-animated-encounters/output/guardian-revision-02/gameplay-v02.json",
+  "raw_capture": "/private/tmp/labyrinth-godot-home/implement-guardian-combats-and-anima-1789480981072802000-97961-guardian_gameplay_probe-1/Library/Application Support/Escape the Umbra Visual Probe implement-guardian-combats-and-anima-1789480981072802000-97961-guardian_gameplay_probe-1/probes/guardian_ui",
+  "size": [
+    1920,
+    1080
+  ],
+  "ui_scale": 1.0,
+  "observed_actions": {
+    "ash_hound": {
+      "strike": true,
+      "walk": true
+    },
+    "ashen_reaver": {
+      "strike": true,
+      "walk": true
+    },
+    "bell_tender": {
+      "cast": true,
+      "walk": true
+    },
+    "craghide": {
+      "brace": true,
+      "strike": true,
+      "walk": true
+    },
+    "gallows_roc": {
+      "cast": true,
+      "strike": true,
+      "walk": true
+    },
+    "last_lamplighter": {
+      "cast": true,
+      "strike": true,
+      "walk": true
+    },
+    "rime_spitter": {
+      "cast": true,
+      "walk": true
+    },
+    "rime_whelp": {
+      "strike": true,
+      "walk": true
+    },
+    "rimejaw": {
+      "strike": true,
+      "walk": true
+    },
+    "roc_fledgling": {
+      "strike": true,
+      "walk": true
+    },
+    "stoneback_mite": {
+      "brace": true,
+      "strike": true,
+      "walk": true
+    },
+    "storm_cantor": {
+      "cast": true,
+      "strike": true,
+      "walk": true
+    },
+    "wick_shade": {
+      "strike": true,
+      "walk": true
+    }
+  },
+  "fixture_only": {
+    "health": 999,
+    "vision_bonus": 12
+  },
+  "clips": [
+    {
+      "label": "ashen_reaver_card_0",
+      "frames": 41,
+      "capture_seconds": 1.591226
+    },
+    {
+      "label": "ashen_reaver_0",
+      "frames": 116,
+      "capture_seconds": 4.408677
+    },
+    {
+      "label": "ashen_reaver_card_1",
+      "frames": 39,
+      "capture_seconds": 1.546801
+    },
+    {
+      "label": "ashen_reaver_1",
+      "frames": 253,
+      "capture_seconds": 9.853516
+    },
+    {
+      "label": "ashen_reaver_2",
+      "frames": 205,
+      "capture_seconds": 7.871363
+    },
+    {
+      "label": "ashen_reaver_3",
+      "frames": 225,
+      "capture_seconds": 8.684987
+    },
+    {
+      "label": "rimejaw_card_0",
+      "frames": 41,
+      "capture_seconds": 1.610264
+    },
+    {
+      "label": "rimejaw_0",
+      "frames": 175,
+      "capture_seconds": 6.811969
+    },
+    {
+      "label": "rimejaw_card_1",
+      "frames": 38,
+      "capture_seconds": 1.52655
+    },
+    {
+      "label": "rimejaw_1",
+      "frames": 269,
+      "capture_seconds": 10.341031
+    },
+    {
+      "label": "rimejaw_2",
+      "frames": 217,
+      "capture_seconds": 8.417324
+    },
+    {
+      "label": "rimejaw_3",
+      "frames": 169,
+      "capture_seconds": 6.502044
+    },
+    {
+      "label": "storm_cantor_card_0",
+      "frames": 42,
+      "capture_seconds": 1.620174
+    },
+    {
+      "label": "storm_cantor_0",
+      "frames": 101,
+      "capture_seconds": 4.115142
+    },
+    {
+      "label": "storm_cantor_card_1",
+      "frames": 41,
+      "capture_seconds": 1.653029
+    },
+    {
+      "label": "storm_cantor_1",
+      "frames": 262,
+      "capture_seconds": 10.188306
+    },
+    {
+      "label": "storm_cantor_2",
+      "frames": 237,
+      "capture_seconds": 9.107906
+    },
+    {
+      "label": "storm_cantor_3",
+      "frames": 211,
+      "capture_seconds": 8.325911
+    },
+    {
+      "label": "gallows_roc_card_0",
+      "frames": 43,
+      "capture_seconds": 1.655985
+    },
+    {
+      "label": "gallows_roc_0",
+      "frames": 298,
+      "capture_seconds": 11.596448
+    },
+    {
+      "label": "gallows_roc_card_1",
+      "frames": 51,
+      "capture_seconds": 1.99757
+    },
+    {
+      "label": "gallows_roc_1",
+      "frames": 391,
+      "capture_seconds": 14.845452
+    },
+    {
+      "label": "gallows_roc_2",
+      "frames": 236,
+      "capture_seconds": 8.96393
+    },
+    {
+      "label": "gallows_roc_3",
+      "frames": 243,
+      "capture_seconds": 9.225362
+    },
+    {
+      "label": "craghide_card_0",
+      "frames": 42,
+      "capture_seconds": 1.602508
+    },
+    {
+      "label": "craghide_0",
+      "frames": 39,
+      "capture_seconds": 1.520464
+    },
+    {
+      "label": "craghide_card_1",
+      "frames": 39,
+      "capture_seconds": 1.537345
+    },
+    {
+      "label": "craghide_1",
+      "frames": 241,
+      "capture_seconds": 9.461777
+    },
+    {
+      "label": "craghide_2",
+      "frames": 259,
+      "capture_seconds": 10.037979
+    },
+    {
+      "label": "craghide_3",
+      "frames": 190,
+      "capture_seconds": 7.223436
+    },
+    {
+      "label": "last_lamplighter_card_0",
+      "frames": 40,
+      "capture_seconds": 1.58236
+    },
+    {
+      "label": "last_lamplighter_0",
+      "frames": 168,
+      "capture_seconds": 6.599256
+    },
+    {
+      "label": "last_lamplighter_card_1",
+      "frames": 41,
+      "capture_seconds": 1.638684
+    },
+    {
+      "label": "last_lamplighter_1",
+      "frames": 248,
+      "capture_seconds": 9.747769
+    },
+    {
+      "label": "last_lamplighter_2",
+      "frames": 295,
+      "capture_seconds": 11.509003
+    },
+    {
+      "label": "last_lamplighter_3",
+      "frames": 85,
+      "capture_seconds": 3.318715
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "source": "/Users/borgerding/.codex/generated_images/01a09fb5-2429-7972-b142-dc39eb4d1e90/exec-3a2500c7-0e37-4bd1-ae80-695a6d7a290c.png",
+  "crop": {
+    "left": 70,
+    "top": 85,
+    "width": 908,
+    "height": 1070
+  },
+  "height": 232,
+  "left": 2,
+  "top": 9,
+  "kernel": "nearest",
+  "purpose": "Whole-source registration of the corrected clear-of-body weapon pose."
+}

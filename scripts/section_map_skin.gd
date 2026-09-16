@@ -185,3 +185,35 @@ static func draw_medallion(canvas: CanvasItem, center: Vector2, radius: float, i
 	if glint_alpha > 0.0:
 		canvas.draw_circle(center, radius * 0.74, Color(1.0, 0.88, 0.63, glint_alpha))
 	canvas.draw_mesh(medallion_rim_mesh(), _texture("medallion"), Transform2D(Vector2(radius, 0), Vector2(0, radius), center), frame_tint)
+
+# Guardian emblems contain their own painted rims. Derive their outlines from
+# those exact textures, rather than the unrelated ordinary-room brass frame.
+static var _icon_contours: Dictionary = {}
+static func icon_edge(id: String, index: int) -> Vector2:
+	if not _icon_contours.has(id):
+		var source: Texture2D = icon_texture(id)
+		if source == null: return Vector2.from_angle(TAU*float(index)/MEDALLION_SEGMENTS)
+		var image: Image = source.get_image()
+		var half: float = float(image.get_width())*.5
+		var points := PackedVector2Array()
+		for ray: int in range(MEDALLION_SEGMENTS):
+			var direction := Vector2.from_angle(TAU*float(ray)/MEDALLION_SEGMENTS)
+			var edge: float = half*.8
+			for sample: int in range(ceili(half*1.42),0,-1):
+				var pixel := Vector2i(Vector2.ONE*half+direction*float(sample))
+				if pixel.x<0 or pixel.y<0 or pixel.x>=image.get_width() or pixel.y>=image.get_height(): continue
+				if image.get_pixelv(pixel).a>.55:
+					edge=float(sample)
+					break
+			points.append(direction*edge/half)
+		_icon_contours[id]=points
+	return (_icon_contours[id] as PackedVector2Array)[posmod(index,MEDALLION_SEGMENTS)]
+
+static func icon_contour(id: String, center: Vector2, radius: float, gap: float, closed: bool = true) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for index: int in range(MEDALLION_SEGMENTS):
+		var tangent: Vector2 = icon_edge(id,index+1)-icon_edge(id,index-1)
+		var normal := Vector2(tangent.y,-tangent.x).normalized()
+		points.append(center+icon_edge(id,index)*radius+normal*gap)
+	if closed: points.append(points[0])
+	return points

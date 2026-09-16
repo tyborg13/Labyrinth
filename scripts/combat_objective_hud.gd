@@ -62,9 +62,9 @@ func set_combat_state(state: Dictionary) -> bool:
 		return changed
 	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
 	var icon_path: String = CombatObjectiveRules.icon_path(objective_type)
-	var title_text: String = CombatObjectiveRules.display_name(objective_type).to_upper()
+	var title_text: String = CombatObjectiveRules.title_for_objective(objective).to_upper()
 	var detail_text: String = _live_detail(state, objective)
-	var next_tooltip: String = "%s\n%s" % [CombatObjectiveRules.display_name(objective_type), CombatObjectiveRules.description(objective_type)]
+	var next_tooltip: String = "%s\n%s" % [CombatObjectiveRules.title_for_objective(objective), CombatObjectiveRules.description_for_objective(objective)]
 	var next_signature: String = "%s|%s|%s|%s" % [icon_path, title_text, detail_text, next_tooltip]
 	if visible and next_signature == _presentation_signature:
 		return false
@@ -192,6 +192,10 @@ func _build() -> void:
 	_intro_text_stack.add_child(_intro_title)
 	_set_intro_font_progress(1.0)
 	_set_intro_shadow_progress(0.0)
+
+func preferred_width() -> float:
+	if _title == null: return 350.0
+	return maxf(350.0, _title.get_theme_font("font").get_string_size(_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x + 98.0)
 
 func set_hud_rect(rect: Rect2) -> void:
 	set_anchors_preset(Control.PRESET_TOP_LEFT)
@@ -406,8 +410,13 @@ func _set_intro_font_progress(progress: float) -> void:
 	if _intro_title != null:
 		_intro_title.add_theme_font_size_override(
 			"font_size",
-			roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
+			_intro_title_font_size(amount)
 		)
+
+func _intro_title_font_size(amount: float) -> int:
+	var requested: int = roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
+	var width: float = _intro_title.get_theme_font("font").get_string_size(_intro_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, requested).x
+	return mini(requested, floori(float(requested) * (INTRO_TEXT_SIZE.x - 32.0) / maxf(1.0, width)))
 
 func _set_intro_shadow_progress(progress: float) -> void:
 	intro_shadow_progress = clampf(progress, 0.0, 1.0)

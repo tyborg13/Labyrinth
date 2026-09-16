@@ -1,0 +1,24 @@
+Running task-local command:
+  task: implement-guardian-combats-and-animated-encounters
+  run: implement-guardian-combats-and-animated-1789412412441804000-81360
+  HOME: /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789412412441804000-81360
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/implement-guardian-combats-and-animated-1789412412441804000-81360/godot.log --headless --path . --script tests/guardian_cutout_motion_probe.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+Guardian motion sampled: ashen_reaver
+Guardian motion sampled: rimejaw
+Guardian motion sampled: storm_cantor
+Guardian motion sampled: gallows_roc
+Guardian motion sampled: craghide
+Guardian motion sampled: last_lamplighter
+Guardian motion sampled: ash_hound
+Guardian motion sampled: rime_whelp
+Guardian motion sampled: rime_spitter
+Guardian motion sampled: bell_tender
+Guardian motion sampled: roc_fledgling
+Guardian motion sampled: stoneback_mite
+Guardian motion sampled: wick_shade
+GUARDIAN MOTION: PASS 0
