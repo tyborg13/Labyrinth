@@ -700,6 +700,9 @@ var _ambient_render_layer: Control = null
 var _overlay_render_layer: Control = null
 var _ground_render_layer: Control = null
 var _path_render_layer: Control = null
+var _path_depth_clip := PackedVector2Array()
+var _path_depth_tile := Vector2i(-1,-1)
+static var _path_crumble_cache: Dictionary = {}
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
@@ -3108,6 +3111,8 @@ func _queue_presentation_change_redraws(
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if path_changed:
 		_queue_render_layer_redraw(_path_render_layer)
+		for tile: Vector2i in _scene_render_layers_by_tile:
+			_queue_scene_render_layer_for_tile(tile)
 	if impact_floor_changed or action_floor_changed:
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 	if impact_floor_changed:
@@ -3986,7 +3991,7 @@ func _draw_path_render_layer() -> void:
 		_record_dynamic_draw_time(started_usec)
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
-	_draw_path_preview()
+	# Paths are ground decals submitted in each tile after its surfaces.
 	_record_render_section_time("path_preview", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -4016,6 +4021,7 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	_draw_board_surface(_render_layer_tile)
+	_draw_path_depth_pass(_render_layer_tile)
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
@@ -4642,6 +4648,8 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		if typeof(source_var) != TYPE_DICTIONARY:
 			continue
 		var source: Dictionary = source_var as Dictionary
+		# Braziers carry their own animated flame and prop tooltip.
+		if str(source.get("id", "")).begins_with("brazier:"): continue
 		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
@@ -6213,6 +6221,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
 	for tile: Vector2i in tiles:
 		_draw_board_surface(tile)
+		_draw_path_depth_pass(tile)
 		_draw_enemy_threat_depth_pass(tile)
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
@@ -6289,6 +6298,13 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 			_draw_campfire_prop_glow(tile, draw_rect)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
 		draw_texture_rect(texture, draw_rect, false, tint)
+		if str(prop.get("kind","")).begins_with("watch_brazier"):
+			_register_tooltip(draw_rect,"Watch Brazier · Light radius 2" if str(prop["kind"])=="watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession.")
+		if str(prop.get("kind",""))=="watch_brazier_lit":
+			var reduced: bool = bool(presentation.get("reduced_motion",false))
+			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
+			var bowl: Vector2 = draw_rect.position+draw_rect.size*Vector2(0.5,0.46)
+			BoardSurfacePresentation._draw_fire(self,bowl,draw_rect.size.x*0.72,phase,tile.x*101+tile.y*307,reduced)
 
 func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
 	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
@@ -7215,6 +7231,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
 	if terrain_kind == "crag_outcrop":
+		tint.a = maxf(tint.a,0.58)
 		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
@@ -7233,6 +7250,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
+	if terrain_kind == "crag_outcrop": tint.a = maxf(tint.a,0.58)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
 	if progress < 0.84:
 		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
@@ -9449,6 +9467,10 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	if from_tile.x < 0 or to_tile.x < 0:
 		return tiles
 	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if bool(effect.get("ground_burst",false)):
+		for tile: Vector2i in _vector2i_array(effect.get("burst_tiles",[])):
+			_elemental_append_unique_depth_tile(tiles,tile)
+		return tiles
 	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
 		# Travel stays on its clipped interval. Only a visible, reached target
 		# receives the ordinary rear/actor/front impact, including reduced motion.
@@ -9518,6 +9540,14 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not depth_tiles.has(tile):
+		return
+	if bool(effect.get("ground_burst",false)):
+		var reduced: bool = bool(presentation.get("reduced_motion",false))
+		var phase: float = 0.42 if reduced else AttackFxLibrary.impact_progress_for_style(style,progress)
+		if not reduced and progress<AttackFxLibrary.travel_end_progress(style): return
+		var point: Vector2 = _tile_center(tile)
+		var fade: float = 1.0 if reduced else _elemental_impact_volume_fade(style,phase)
+		ElementalSpellFx.impact(self,_elemental_style_id(style),point,_elemental_performance_size(style,phase)*0.88,phase,fade,reduced,foreground_pass)
 		return
 	var current_depth_tile: Vector2i = _elemental_scene_depth_tile_for_effect(effect, progress)
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
@@ -11647,6 +11677,27 @@ func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: 
 	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
+func _draw_path_depth_pass(tile: Vector2i) -> void:
+	_path_depth_tile = tile
+	_path_depth_clip = _tile_polygon(tile)
+	_draw_path_preview()
+	_path_depth_clip = PackedVector2Array()
+	_path_depth_tile = Vector2i(-1,-1)
+
+func _draw_path_color_polygon(polygon: PackedVector2Array, color: Color) -> void:
+	if _path_depth_clip.is_empty():
+		draw_colored_polygon(polygon,color)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polygons(polygon,_path_depth_clip):
+		if _polygon_can_draw(piece): draw_colored_polygon(piece,color)
+
+func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antialiased: bool) -> void:
+	if _path_depth_clip.is_empty():
+		draw_polyline(line,color,width,antialiased)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line,_path_depth_clip):
+		if piece.size()>1: draw_polyline(piece,color,width,antialiased)
+
 func _draw_path_preview() -> void:
 	if _blink_preview_effect_active():
 		return
@@ -11680,6 +11731,7 @@ func _threat_has_projected_movement(threat: Dictionary) -> bool:
 	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
 func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
+	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
 	if path_tiles.is_empty():
 		return
 	var tile_width: float = _tile_width()
@@ -11828,6 +11880,19 @@ func _unified_path_arrow_polygon(
 	return _largest_path_polygon(merged)
 
 func _path_crumble_geometry(
+	path_tiles: Array[Vector2i],
+	path_points: PackedVector2Array,
+	unified_arrow: PackedVector2Array,
+	shaft_width: float,
+	allow_boundary_damage: bool = true
+) -> Dictionary:
+	var key: int = hash([path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage])
+	if not _path_crumble_cache.has(key):
+		if _path_crumble_cache.size()>=32: _path_crumble_cache.clear()
+		_path_crumble_cache[key] = _build_path_crumble_geometry(path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage)
+	return _path_crumble_cache[key]
+
+func _build_path_crumble_geometry(
 	path_tiles: Array[Vector2i],
 	path_points: PackedVector2Array,
 	unified_arrow: PackedVector2Array,
@@ -12402,7 +12467,7 @@ func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, colo
 	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
 	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
-	draw_colored_polygon(polygon, edge_color)
+	_draw_path_color_polygon(polygon, edge_color)
 	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
 		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
 		var eased: float = smoothstep(0.0, 1.0, progress)
@@ -12439,14 +12504,14 @@ func _draw_path_surface_spalls(spalls: Array, shaft_width: float, color: Color) 
 		if not _polygon_can_draw(polygon):
 			continue
 		var center: Vector2 = spall.get("center", _path_polygon_center(polygon))
-		draw_colored_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
-		draw_colored_polygon(polygon, recess_color)
+		_draw_path_color_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
+		_draw_path_color_polygon(polygon, recess_color)
 		var floor_polygon: PackedVector2Array = _scaled_path_polygon(polygon, center, 0.56)
 		# Very slim ranged ribbons can collapse the innermost spall floor below
 		# Metal's triangulation precision even though the full recess remains valid.
 		# Keep the visible lip/recess and omit only that degenerate inner facet.
 		if _polygon_can_draw(floor_polygon):
-			draw_colored_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
+			_draw_path_color_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
 
 func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
@@ -12467,13 +12532,13 @@ func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
 			var line: PackedVector2Array = line_var as PackedVector2Array
 			if line.size() < 2:
 				continue
-			draw_polyline(
+			_draw_path_line(
 				_shifted_path_polygon(line, lip_offset),
 				lip_color,
 				maxf(0.75, shaft_width * MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO),
 				true
 			)
-			draw_polyline(
+			_draw_path_line(
 				line,
 				dark_color,
 				maxf(1.25, shaft_width * MOVE_PATH_CRACK_DARK_WIDTH_RATIO),
@@ -12511,7 +12576,7 @@ func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, c
 		var shifted := PackedVector2Array()
 		for point: Vector2 in polygon:
 			shifted.append(point + offset)
-		draw_colored_polygon(shifted, color)
+		_draw_path_color_polygon(shifted, color)
 
 func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
 	if radius <= 0.0:
@@ -13616,6 +13681,7 @@ func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
 	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]
 
 func _texture_for_scene_prop(prop: Dictionary) -> Texture2D:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return _scene_prop_textures.get("watch_brazier_dark",null)
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
 	if _scene_prop_idle_animation_active(prop) and not idle_frames.is_empty():
 		return idle_frames[_scene_prop_idle_frame_index(prop)]
@@ -13838,6 +13904,7 @@ func _unit_death_frame_seconds(unit: Dictionary) -> float:
 	return maxf(0.01, float(definition.get("death_frame_seconds", DEATH_FRAME_SECONDS)))
 
 func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return 0 if bool(presentation.get("reduced_motion",false)) else int(floor(_idle_elapsed*12.0))
 	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
 	if idle_frames.is_empty():
 		return 0
@@ -13950,6 +14017,7 @@ func _unit_death_animation_active(unit: Dictionary) -> bool:
 	return _unit_has_authored_death_animation(unit)
 
 func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return visible and not combat_state.is_empty() and not bool(presentation.get("reduced_motion",false))
 	if not visible or combat_state.is_empty():
 		return false
 	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()

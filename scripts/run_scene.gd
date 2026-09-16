@@ -9307,6 +9307,10 @@ func _guided_tutorial_reconcile_phase() -> void:
 		_guided_tutorial_phase_id = ContextualCombatTutorial.PHASE_COMPLETE
 
 func _guided_tutorial_is_active() -> bool:
+	# An active profile can be loaded into an ordinary fight (including an
+	# inspection save). Hidden tutorial rails must never restrict that combat.
+	if str(_run_state.get("mode", "")) == "combat" and not GuidedCombatScenario.is_authored(_combat_state):
+		return false
 	return not _is_debug_boss_run() and ContextualCombatTutorial.is_active(_progression)
 
 func _guided_tutorial_card_selection_phases() -> Array[String]:
@@ -18307,6 +18311,9 @@ func _preview_target_tile_is_known(state: Dictionary, information_state: Diction
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
 		var enemy: Dictionary = enemy_var
+		# Defeated actors remain in the snapshot. A living replacement may now
+		# occupy that square; its visibility owns the targeting decision.
+		if int(enemy.get("hp",0))<=0: continue
 		if not _enemy_footprint_tiles(enemy).has(target_tile):
 			continue
 		return _combat_engine.is_enemy_visible_to_player(information_state, enemy, visible_lookup)
@@ -21253,7 +21260,14 @@ func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictiona
 		return
 	_load_pending_preview_state(attack_preview)
 	if not _pending_target_tiles.has(target_tile):
-		_refresh_ui()
+		# The chosen move can be interrupted, or its contact effect can defeat
+		# the chosen victim. Finish this one-click decision with a missed strike;
+		# never strand a committed card on an impossible required target.
+		var missed_index: int = _pending_action_index
+		_pending_selected_targets.append(INVALID_TARGET_TILE)
+		var continuation: Dictionary = _card_preview_from_state(card_id,_preview_combat_state,_pending_actions,missed_index+1)
+		_append_skipped_target_placeholders(missed_index+1,int(continuation.get("action_index",0)))
+		await _apply_pending_preview_result(continuation)
 		return
 	var attack_action_index: int = _pending_action_index
 	if _target_needs_force_orientation(_pending_actions[_pending_action_index], target_tile):
@@ -22986,6 +23000,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				effect["range"] = 1
 				effect["from"] = effect_target_tile
 				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+				effect["ground_burst"] = true
+				effect["burst_tiles"] = focus_tiles.duplicate()
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await preload("res://scripts/protagonist_cutout/ranged_action.gd").prepare(self, before_state, effect, base_presentation)
 			var primary_sound: Dictionary = AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action)
@@ -23429,7 +23445,17 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					_render_board_state(animated_state, intent_presentation)
 					await get_tree().create_timer(0.20).timeout
 			"intent_refresh":
+				var dark_tiles: Array[Vector2i]
+				for brazier: Dictionary in animated_state.get("guardian_braziers",[]):
+					if not bool(brazier.get("lit",true)): dark_tiles.append(brazier["pos"])
 				_apply_animation_step(animated_state, step)
+				var relit_texts: Array[Dictionary]
+				for brazier: Dictionary in animated_state.get("guardian_braziers",[]):
+					if bool(brazier.get("lit",true)) and dark_tiles.has(brazier["pos"]):
+						relit_texts.append({"tile":brazier["pos"],"text":"Relit","color":Color("ffe394")})
+				if not relit_texts.is_empty():
+					_set_action_banner("Last Procession · Braziers relit")
+					await _animate_floating_text_presentation(animated_state,{"floating_texts":relit_texts})
 				_render_board_state(animated_state, {})
 			"move":
 				await _animate_move_step(animated_state, step)
@@ -24446,7 +24472,7 @@ func _apply_guardian_props(display_state: Dictionary, target_presentation: Dicti
 		var props: Array = target_presentation.get("scene_props", []).duplicate(false)
 		for brazier: Dictionary in display_state["guardian_braziers"]:
 			if _combat_engine.is_tile_visible_to_player(display_state,brazier["pos"]):
-				props.append({"kind":"watch_brazier_lit" if bool(brazier.get("lit",true)) else "watch_brazier_dark", "tile":brazier["pos"],"width_scale":0.60,"baseline_scale":0.13})
+				props.append({"kind":"watch_brazier_lit" if bool(brazier.get("lit",true)) else "watch_brazier_dark", "tile":brazier["pos"],"width_scale":0.60,"baseline_scale":0.36})
 		target_presentation["scene_props"] = props
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:

@@ -24,6 +24,7 @@ func _run() -> void:
 	_test_pressure_and_replacements()
 	_test_pattern_outcomes_and_feedback()
 	_test_connected_cohort()
+	_test_displaced_patterns_and_occupied_summons()
 	var names = preload("res://scripts/combat_objective_rules.gd")
 	check(names.display_name("kill_all")=="Defeat All Enemies","ordinary all-enemy objective says Defeat")
 	check(names.title_for_objective({"type":"kill_leader","leader_type":"warden"})=="Defeat the Leader","ordinary leader stays generic")
@@ -199,7 +200,7 @@ func _test_encounter_edges() -> void:
 	if path.size()>1:
 		state["terrain"].append({"kind":"raised_cover","pos":path[1],"hp":3,"max_hp":3,"owner_kind":"player"})
 		var blocked: Dictionary = engine.enemy_intent_plan(state,0)
-		check(blocked["path"].size()==1 and blocked["projected_attack"].is_empty(),"held approach preview stops at newly raised cover")
+		check(blocked["path"].size()==1 and not blocked["projected_attack"].has(Vector2i(4,7)),"blocked approach previews its strike from the actual position")
 		var start: Vector2i = state["enemies"][0]["pos"]
 		state = engine.resolve_enemy_turn_with_steps(state,0)["state"]
 		check(state["enemies"][0]["pos"]==start and state["player"]["hp"]==24,"blocked sweep cannot overlap cover or attack from its old endpoint")
@@ -386,7 +387,7 @@ func _test_inspection_rules() -> void:
 	check(Guardians.inspection_summary({"type":"wick_shade","guardian_helper":true}).contains("Stays through Last Procession"), "Shade inspection distinguishes temporary and starting helpers")
 	var snuff: Dictionary = data.enemy_def("last_lamplighter")["intents"][0]
 	var procession: Dictionary = data.enemy_def("last_lamplighter")["intents"][2]
-	check(Guardians.intent_notes(snuff).contains("until Last Procession"), "Snuff inspection explains outage duration")
+	check(Guardians.intent_notes(snuff).contains("after Last Procession"), "Snuff inspection explains outage duration")
 	check(Guardians.intent_notes(procession).contains("even when skipped") and Guardians.intent_notes(procession).contains("Snuff’s Shades"), "Procession inspection explains unconditional light and Shade cleanup")
 	check(Guardians.intent_notes(data.enemy_def("craghide")["intents"][1]).contains("Overlapping bursts hit once"), "Groundsplit inspection explains its overlap exception")
 
@@ -554,3 +555,38 @@ func _test_connected_cohort() -> void:
 			shown_network=(step.get("tiles",[]) as Array).has(Vector2i(6,4)) and not str(step.get("status_text","")).is_empty()
 	check(shown_network,"Peal animates the affected network and explicitly reports Shock")
 	check(surfaces.connected_component(outcome["state"],Vector2i(2,4)).has(Vector2i(6,4)),"electrified network remains available to the Wisp's next attack")
+
+func _test_displaced_patterns_and_occupied_summons() -> void:
+	var engine := Combat.new()
+	var rules = preload("res://scripts/guardian_combat_rules.gd")
+	for id: String in ["last_lamplighter","gallows_roc","ashen_reaver"]:
+		var state: Dictionary = guardian_fixture(id)
+		for y: int in range(1,8):
+			for x: int in range(1,8): state["grid"][y][x]="stone"
+		state["player"]["pos"] = Vector2i(4,7)
+		set_cycle(engine,state,1 if id in ["last_lamplighter","ashen_reaver"] else 0)
+		var before: Dictionary = engine.enemy_intent_plan(state,0)
+		state["enemies"][0]["pos"] += Vector2i(1,0)
+		var plan: Dictionary = engine.enemy_intent_plan(state,0)
+		check(not plan["projected_attack"].is_empty(),id+" retains a ground pattern after displacement")
+		var result: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
+		var shown: Array[Vector2i]
+		for step: Dictionary in result["steps"]:
+			if bool(step.get("guardian_mechanic",false)) and str(step.get("kind",""))!="summon":
+				for tile: Vector2i in step.get("tiles",[]):
+					if not shown.has(tile): shown.append(tile)
+		check(shown==plan["projected_attack"],id+" displaced preview matches resolved action tiles")
+	for info: Dictionary in Guardians.DEFINITIONS.values():
+		var state: Dictionary = guardian_fixture(info["id"])
+		state["enemies"][1]["hp"]=0
+		set_cycle(engine,state,0)
+		var reserved: Array = engine.enemy_intent_plan(state,0).get("projected_summon",[])
+		check(not reserved.is_empty(),str(info["id"])+" announces replacement")
+		if reserved.is_empty(): continue
+		state["player"]["pos"]=reserved[0]
+		var plan: Dictionary = engine.enemy_intent_plan(state,0)
+		var fallback: Array = plan.get("projected_summon",[])
+		check(not fallback.is_empty() and not fallback.has(state["player"]["pos"]),str(info["id"])+" redirects occupied summon reservation")
+		var result: Dictionary = engine.resolve_enemy_turn_with_steps(state,0)
+		var spawned: Array = result["state"]["enemies"].slice(state["enemies"].size())
+		check(spawned.size()==1 and fallback.has(spawned[0]["pos"]),str(info["id"])+" summon resolves on the replacement preview")

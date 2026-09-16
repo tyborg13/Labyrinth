@@ -32,12 +32,17 @@ STUDIES = {
     "ground_targeting": "Try Detonate on empty Fire ground within normal range, without a trophy",
     "network": "Play against the Cantor cohort after its opening electrical setup",
     "telegraph": "Inspect the Guardian's third intent and its current threats",
+    "occupied_summon": "Stand on the reserved helper square and inspect its valid replacement",
+    "displaced_pattern": "Inspect an announced pattern after displacing its caster",
+    "sweep": "Play Low Sweep against a replacement Wisp sharing a defeated Wisp's square",
+    "occlusion": "Inspect cover with the player standing behind it",
+    "relight": "Begin with a dark brazier before Last Procession restores it",
 }
 
 
 def generate(actor: str, case: str, launch: bool = False) -> dict:
     key = actor + "-" + case
-    manifest = ROOT / "output/guardian-revision-03/fixtures" / (key + ".json")
+    manifest = ROOT / "output/guardian-revision-04/fixtures" / (key + ".json")
     manifest.parent.mkdir(parents=True, exist_ok=True)
     command = [sys.executable, str(ROOT / "tools/inspection_fixture.py"),
                "--project", str(ROOT), "--task-id", TASK,
@@ -71,11 +76,12 @@ def main() -> None:
         cases += [("last_lamplighter", "map_entry"),
                   ("ashen_reaver", "reward"), ("ashen_reaver", "ground_targeting"), ("last_lamplighter", "outage"),
                   ("craghide", "outcrops"), ("storm_cantor", "summon"), ("storm_cantor", "network")]
+        cases += [("craghide", "occupied_summon"), ("craghide", "occlusion"), ("storm_cantor", "sweep"), ("last_lamplighter", "relight"), ("last_lamplighter", "displaced_pattern"), ("gallows_roc", "displaced_pattern")]
         cases += [(actor, "telegraph") for actor in ["ashen_reaver", "rimejaw", "gallows_roc"]]
     results = [generate(actor, case, args.launch) for actor, case in cases]
     if args.all:
         head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-        dest = ROOT / "output/guardian-revision-03/fixtures/catalog.json"
+        dest = ROOT / "output/guardian-revision-04/fixtures/catalog.json"
         dest.write_text(json.dumps({"head": head, "fixtures": results}, indent=2) + "\n")
         print(f"Verified {len(results)} Guardian fixtures: {dest}")
 

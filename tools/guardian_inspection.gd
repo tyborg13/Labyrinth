@@ -8,7 +8,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Rules = preload("res://scripts/guardian_combat_rules.gd")
-const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network", "ground_targeting"]
+const CASES = ["encounter", "pre_battle", "map_entry", "map_choice", "relic", "reward", "outage", "telegraph", "outcrops", "summon", "reinforcements", "network", "ground_targeting", "occupied_summon", "displaced_pattern", "sweep", "occlusion", "relight"]
 
 static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, options: Dictionary) -> Dictionary:
 	var state: Dictionary = source.duplicate(true)
@@ -93,18 +93,57 @@ static func build(engine: RefCounted, combat: RefCounted, source: Dictionary, op
 			battle["enemies"][0]["guardian_cycle"]=2
 			combat._assign_enemy_intent(battle,0,rng)
 		battle["player"]["hp"]=state["player_hp"]
-	elif study == "reinforcements":
+	elif study in ["reinforcements","occupied_summon"]:
 		battle["enemies"][1]["hp"]=0
 		var rng := RandomNumberGenerator.new()
 		rng.seed=51
 		battle["enemies"][0]["guardian_cycle"]=int(battle["enemies"][0].get("guardian_cycle",0))-1
 		combat._assign_enemy_intent(battle,0,rng)
+		if study=="occupied_summon":
+			var reserved: Array = combat.enemy_intent_plan(battle,0).get("projected_summon",[])
+			assert(not reserved.is_empty())
+			battle["player"]["pos"]=reserved[0]
+	elif study in ["displaced_pattern","relight"]:
+		assert(id in ["last_lamplighter","gallows_roc"])
+		var rng := RandomNumberGenerator.new()
+		rng.seed=51
+		battle["player"]["pos"]=Vector2i(4,7)
+		battle["enemies"][0]["guardian_cycle"]=1 if study=="relight" else 0 if id=="last_lamplighter" else -1
+		combat._assign_enemy_intent(battle,0,rng)
+		if study=="displaced_pattern":
+			battle["enemies"][0]["pos"]+=Vector2i(1,0)
+			# This focused study exposes the translated footprint despite Umbra.
+			battle["umbra"]["vision_bonus"]=8
+			battle["umbra"]["vision_bonus_activations"]=-1
+		else: battle["guardian_braziers"][0]["lit"]=false
+	elif study=="sweep":
+		assert(id=="storm_cantor")
+		battle["player"]["pos"]=Vector2i(4,3)
+		battle["enemies"][0]["pos"]=Vector2i(4,5)
+		battle["enemies"][1]["pos"]=Vector2i(2,3)
+		battle["enemies"][1]["hp"]=0
+		battle["enemies"][2]["hp"]=0
+		var replacement: Dictionary = combat._spawned_enemy_entry(battle,"lightning_wisp",4,Vector2i(2,3),true)
+		replacement["guardian_helper"]=true
+		battle["enemies"].append(replacement)
+		battle["enemies"][0]["guardian_cycle"]=2
+		var rng := RandomNumberGenerator.new()
+		rng.seed=51
+		combat._assign_enemy_intent(battle,0,rng)
+		combat._assign_enemy_intent(battle,battle["enemies"].size()-1,rng)
+		combat._schedule_enemy_after_spawn(battle,replacement,0)
+	elif study=="occlusion":
+		assert(id=="craghide")
+		battle["player"]["pos"]=Vector2i(4,4)
+		battle["grid"][5][5]="stone"
+		assert(preload("res://scripts/combat_terrain_rules.gd").raise_outcrop(combat,battle,Vector2i(5,5),3,{"actor_kind":"enemy","actor_id":1}))
 	elif study == "telegraph":
 		var rng := RandomNumberGenerator.new()
 		rng.seed = 51
 		battle["enemies"][0]["guardian_cycle"] = 1
 		combat._assign_enemy_intent(battle,0,rng)
 	if study not in ["relic","ground_targeting"]: _seed_hand(battle, ["chain_bolt","stone_plate","shadow_step","cleaver_hook","patch_up"])
+	if study=="sweep": _seed_hand(battle,["hamstring_shot","needle_flurry","cleaver_hook","patch_up","stone_plate"])
 	state["combat_state"] = battle
 	return state
 

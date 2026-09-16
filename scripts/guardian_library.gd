@@ -106,7 +106,7 @@ static func intent_notes(intent: Dictionary) -> String:
 		if action.has("surface") and str(action.get("guardian_shape","")) in ["line","broken_line","sweep"] and str(action.get("type","")) in ["melee","ranged","aoe"]:
 			notes.append("%s remains even if the strike misses." % str(action["surface"]).capitalize())
 		if bool(action.get("snuff_brazier",false)):
-			notes.append("Darkness lasts until Last Procession.")
+			notes.append("Braziers relight after Last Procession.")
 		if str(action.get("guardian_kind",""))=="crag_outcrop":
 			if str(action.get("type",""))=="raise_terrain": notes.append("Up to two outcrops; each fuels Groundsplit.")
 			elif str(action.get("type",""))=="terrain_burst": notes.append("Overlapping bursts hit once.")

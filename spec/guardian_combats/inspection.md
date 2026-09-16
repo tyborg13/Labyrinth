@@ -5,6 +5,7 @@ The six optional Guardian combats are Ashen Reaver, Rimejaw, Storm Cantor, Gallo
 From this worktree, launch any fresh, verified combat with:
 
 ```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/implement-guardian-combats-and-animated-encounters
 python3 tools/guardian_inspection.py ashen_reaver --launch
 ```
 
@@ -12,14 +13,14 @@ The launcher regenerates and reload-verifies the save before opening the game. C
 
 | Guardian id | Trophy | Encounter mechanic |
 | --- | --- | --- |
-| `ashen_reaver` | Ashen Brand | Fixed Fire lanes, two returning Hounds, exposed sword recovery |
+| `ashen_reaver` | Ashen Brand | Fixed-direction Fire lanes, two returning Hounds, exposed sword recovery |
 | `rimejaw` | Winter's Spur | Ice trails and bites, aggressive Whelp, ranged Spitter |
 | `storm_cantor` | Resonant Clapper | Shared conductive network, Bell Tender extension, Peal and Wisp |
 | `gallows_roc` | Galehook Talon | Broad wind lanes, displacement, returning Fledglings, Air traps |
 | `craghide` | Cragbound Gauntlet | Outcrop bursts within 2, returning Mites |
 | `last_lamplighter` | Procession Lantern | Temporary brazier outage, permanent companion and temporary Shades |
 
-Add `--case pre_battle` to inspect the foes and equipment before starting. Click a foe to read its known moves, encounter rules and whether its helpers return. Add `--case relic` to try the trophy on a small staged board using ordinary actions. These six studies cover connected Fire detonation, straight Ice movement, growing native Chain damage, group displacement, Raise/Reclaim cover, and independent Illusion movement through darkness. Raise/Reclaim are separate commands; relics add no card targeting steps.
+Add `--case pre_battle` to inspect the foes and equipment before starting. Click a foe to read its known moves, encounter rules and whether its helpers return. Add `--case relic` to try the trophy on a small staged board using ordinary actions. These six studies cover connected Fire detonation, straight Ice movement, growing native Chain damage, group displacement, Earth spells creating outcrops on empty ground, and independent Illusion movement through darkness. Relics add no card targeting steps.
 
 Additional starting moments:
 
@@ -35,7 +36,24 @@ python3 tools/guardian_inspection.py ashen_reaver --case reinforcements --launch
 python3 tools/guardian_inspection.py storm_cantor --case network --launch
 ```
 
-`telegraph` also works for Ashen Reaver and Rimejaw. The outage and outcrop cases advance the normal opening initiative sequence. The summon case additionally removes the opening Wisp and stages Cantor's replacement intent. `reinforcements` is available for every Guardian, as is an adjacent `map_choice` fixture for inspecting its selected emblem. `network` starts after the Cantor cohort’s opening electrical setup. These are deliberately pre-action states. Save/quit and Continue can test normal persistence. `python3 tools/guardian_inspection.py --all` rebuilds and verifies all 39 fixtures; their standard manifests and launch commands are in `output/guardian-revision-02/fixtures/catalog.json`.
+`telegraph` also works for Ashen Reaver and Rimejaw. The outage and outcrop cases advance the normal opening initiative sequence. The summon case additionally removes the opening Wisp and stages Cantor's replacement intent. `reinforcements` is available for every Guardian, as is an adjacent `map_choice` fixture for inspecting its selected emblem. `network` starts after the Cantor cohort’s opening electrical setup. These are deliberately pre-action states. Save/quit and Continue can test normal persistence. `python3 tools/guardian_inspection.py --all` rebuilds and verifies all 46 fixtures; their standard manifests and launch commands are in `output/guardian-revision-04/fixtures/catalog.json`.
+
+## Latest regression fixtures
+
+These focused pre-action saves isolate the fourth-pass fixes:
+
+| Guardian | `--case` | Inspect |
+| --- | --- | --- |
+| `storm_cantor` | `sweep` | Low Sweep against the replacement Wisp; the hand and input remain usable afterward |
+| `craghide` | `occupied_summon` | Backup chooses another green square while the player occupies its reservation |
+| `craghide` | `occlusion` | An outcrop remains visible with an actor behind it |
+| `last_lamplighter` | `displaced_pattern` | The pushed caster retains a visible, matching pattern |
+| `gallows_roc` | `displaced_pattern` | The displaced Roc retains its attack direction |
+| `last_lamplighter` | `relight` | Last Procession restores the dark brazier with a local cue |
+| `ashen_reaver` | `relic` | Connected Fire detonation with a full Fire burst and sound |
+| `rimejaw` | `relic` | Movement arrows above Ice and Rubble |
+
+For example, from this worktree run `python3 tools/guardian_inspection.py storm_cantor --case sweep --launch`. The displaced-pattern studies reveal the arena for inspection; regular encounter fixtures retain normal Umbra. The Sweep study preserves both the defeated and replacement Wisp records that caused the input lockup.
 
 ## Balance evidence
 

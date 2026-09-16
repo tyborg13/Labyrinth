@@ -337,6 +337,8 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
+	elif str(_options.get("scenario", "")) == "guardian":
+		progression = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(progression)
 	elif str(_options.get("scenario", "")) == "guided_tutorial":
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
 		# agree on the first-run counter as well as tutorial eligibility.

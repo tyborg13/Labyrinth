@@ -2706,11 +2706,14 @@ func _enemy_intent_refresh_step(state: Dictionary, enemy_id: int) -> Dictionary:
 	var intent: Dictionary = enemy.get("intent", {}) as Dictionary
 	if intent.is_empty():
 		return {}
-	return {
+	var step: Dictionary = {
 		"kind": "intent_refresh",
 		"actor_key": _enemy_key(enemy),
 		"intent": intent.duplicate(true),
 	}
+	if not (state.get("guardian_braziers",[]) as Array).is_empty():
+		step["guardian_board_after"] = GuardianCombatRules.board_snapshot(state)
+	return step
 
 func _enemy_visibility_for_player_by_id(state: Dictionary, enemy_id: int) -> int:
 	var enemy_index: int = _enemy_index_for_id(state, enemy_id)

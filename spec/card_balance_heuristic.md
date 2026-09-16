@@ -630,9 +630,11 @@ flanks, keeping Guardian approach and strike tiles clear for replacements.
 Reaver marks up to nine Fire tiles and leaves Fire after missed sword strikes.
 Cantor/Tender extend one shared network toward the player; Peal uses its full
 connected area. Craghide outcrop bursts reach two tiles. Only explicitly authored
-ground patterns retain fixed tiles; ordinary attacks track live targets. For held lanes:
-skipped slots advance, new obstructions can shorten an approach, and the
-attack does not chase a dodging target. Craghide cannot seal connected floor;
+directional ground patterns retain orientation; ordinary attacks track live targets.
+Displacement translates their approach and footprint; blockers/traps shorten the approach
+and a surviving caster strikes from its actual arrival. Player dodges do not re-aim
+the attack. Occupied summon reservations relocate within the existing summon range,
+retaining roster caps and avoiding the caster’s attack footprint. Skipped slots advance. Craghide cannot seal connected floor;
 all outcrops block movement and attack sight and can be cleared by AI.
 
 These optional fights and exclusive trophies are their own analytics cohort;

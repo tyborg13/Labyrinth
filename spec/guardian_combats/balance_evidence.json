@@ -2,20 +2,21 @@
   "guardian_assumptions": {
     "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
     "roster": "one 36\u201344 HP bespoke leader plus one or two 4\u20136 HP helpers; all have 1x1 footprints",
-    "clock": "Guardian initiative 9\u201312 plus Time 4\u20137; helpers initiative 8\u201310 plus Time 4\u20136; existing wisp initiative 7 plus Time 4",
-    "telegraphs": "only authored ground patterns hold world-space tiles and approaches; ordinary attacks use live targets; skipped slots advance; new blockers and traps can interrupt the held plan",
-    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its declared attack tiles",
+    "clock": "Roc and Cantor initiative 20 plus Time 4\u20137; their helpers initiative 19 plus Time 4; other Guardians retain initiative 9\u201312 and helpers 8\u201310; ordinary Wisp remains 7 plus 4",
+    "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
+    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
     "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
     "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
     "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
-    "geometry": "recoverable player cover blocks movement and attack sight; Craghide outcrops cannot disconnect floor routes; normal obstacle-clearing AI applies",
+    "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "ground_targeting": "surface-producing attacks admit legal empty floor; a preceding attack can share Fire ground with previous-target Detonate; damage still requires an occupant and no extra fuel is assumed",
     "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
     "trophy_curves": {
       "ashen_brand": "D * (1 + .25 * (maximum overlapping crosses - 1)), round once halves up; one hit per actor",
       "resonant_clapper": "D * (1 + .25 * enemy hop), round once halves up; native heads start at zero and empty relays/conduction do not advance it",
       "winters_spur": "one base Move per straight Ice segment; corners and leaving Ice restart cost, Rubble surcharge remains",
       "galehook_talon": "up to N * F enemy-steps for N contiguous collinear enemies and printed force F; blocked/contact-interrupted groups stop together",
-      "cragbound_gauntlet": "1 independent Move plus all Stoneskin -> equal cover HP; reclaim costs 1 Move and refunds surviving HP only",
+      "cragbound_gauntlet": "ranged Earth spells create one 3-HP outcrop at an empty chosen center; no separate Move or Stoneskin cost; occupied targets stay ordinary spell hits",
       "procession_lantern": "existing Illusion movement consumes the same independent Move as the hero; no added HP, vision, or card target"
     }
   },
@@ -3564,5 +3565,6 @@
       }
     }
   ],
-  "revision_02_limits": "18 one-seed fixed-policy regression/pacing cases, not a human win rate or complete-run progression model. 11 victories, 7 defeats, no bounded stalls."
+  "revision_02_limits": "18 one-seed fixed-policy regression/pacing cases, not a human win rate or complete-run progression model. 11 victories, 7 defeats, no bounded stalls.",
+  "revision_04_scope": "Intent execution, summon fallback and presentation corrections only; refreshed intrinsic card scores and current encounter assumptions. Earlier fixed-policy pacing trials remain historical evidence, not new revision-04 runs."
 }

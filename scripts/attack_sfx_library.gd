@@ -68,6 +68,8 @@ static func entry_for_player_action(card: Dictionary, action: Dictionary) -> Dic
 		if category.is_empty():
 			category = category_for_action(action)
 		var element_id: String = str(action.get("element", action.get("_card_element", card.get("element", "none"))))
+		if str(action.get("type", "")) == "detonate":
+			element_id = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
 		sfx_id = _default_sfx_id(category, str(action.get("type", "")), element_id)
 	return entry(sfx_id)
 
@@ -142,7 +144,7 @@ static func category_for_kind(kind: String, attack_range: int = 0) -> String:
 			return ""
 
 static func _default_sfx_id(category: String, action_type: String, element_id: String) -> String:
-	if category == "ranged" and action_type in ["ranged", "aoe", "lightning_strikes"] and ELEMENTAL_RANGED_SFX_IDS.has(element_id):
+	if (category == "ranged" or action_type == "detonate") and action_type in ["ranged", "aoe", "lightning_strikes", "detonate"] and ELEMENTAL_RANGED_SFX_IDS.has(element_id):
 		return str(ELEMENTAL_RANGED_SFX_IDS.get(element_id, RANGED_SFX_ID))
 	return str(CATEGORY_SFX.get(category, RANGED_SFX_ID))
 

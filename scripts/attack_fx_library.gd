@@ -94,7 +94,8 @@ static func animation_frame_seconds(effect: Dictionary, fallback_seconds: float,
 	if style == STYLE_DEFAULT:
 		return maxf(0.0, fallback_seconds)
 	if reduced_motion:
-		return 0.0
+		# A ground burst needs one readable, stationary contact frame.
+		return 0.18 if bool(effect.get("ground_burst",false)) else 0.0
 	match style:
 		STYLE_EARTH_SPIKES:
 			return EARTH_FRAME_SECONDS

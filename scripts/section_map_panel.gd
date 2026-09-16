@@ -470,8 +470,7 @@ func room_description(coord: Vector2i) -> String:
 		detail += " · %d lost Embers" % int(node.get("recovery_amount", 0))
 	if str(node.get("type","")) == "guardian" and bool(node.get("revealed",false)):
 		var guardian: Dictionary = preload("res://scripts/guardian_library.gd").for_guardian(str(node.get("guardian_id","")))
-		var relic: Dictionary = preload("res://scripts/game_data.gd").relic_def(str(guardian.get("relic","")))
-		return "%s · Guardian combat\n%s\nReward: %s\n%s" % [guardian.get("name","Guardian"),detail,relic.get("name",""),relic.get("description","")]
+		return "%s · Guardian combat\n%s" % [guardian.get("name","Guardian"),detail]
 	return _room_label(node) + "\n" + detail
 
 func _show_preview(coord: Vector2i) -> void:

@@ -1140,7 +1140,7 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 				for distance: int in range(1,int(action.get("guardian_length",action.get("range",1)))+1):
 					if shape!="broken_line" or distance!=2: pattern.append([side,-distance])
 			row.append(_aoe_pattern_token({"pattern":pattern,"range":0}))
-			row.append(text_token("Fixed tiles", "warning", "Requires its declared destination."))
+			row.append(text_token("Fixed direction", "warning", "Pattern follows the caster; direction stays fixed."))
 		"connector":
 			row.append(text_token("%d linked tiles" % int(action.get("guardian_count",1)),"warning","Extends existing Electrified toward its target."))
 		"conductor":

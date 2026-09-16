@@ -563,3 +563,5 @@ Intent focus and elemental feedback are presentation only and emit no combat act
 Native Chain trace hits add `enemy_hop`, unmodified `base_damage`, and
 `chain_bonus_damage`; connected conduction side hits never receive hop credit.
 Preview copies do not append analytics. No changes to historical JSONL are required.
+
+Guardian light restoration surface events retain `guardian_light_restored` and add `tiles` (only newly relit braziers) plus `trigger_intent` (`last_procession`). The matching intent refresh carries the completed Guardian board snapshot so restoration and departed Shades are presented at the actual boundary. Input recovered from a non-tutorial save does not emit tutorial milestone events.

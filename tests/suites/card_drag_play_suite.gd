@@ -112,6 +112,8 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_modal_controller_handoff_suspends_targeting_cursors(tree, expect)
 	await _test_controller_handoff_cancels_pointer_drags(tree, expect)
 	await _test_targetless_click_confirmation_paths(tree, expect)
+	await _test_replacement_target_shortcut(tree, expect)
+	await _test_interrupted_shortcut_finishes(tree, expect)
 
 
 static func _test_card_widget_drag_threshold(tree: SceneTree, expect: Callable) -> void:
@@ -873,6 +875,60 @@ static func _test_targetless_click_confirmation_paths(tree: SceneTree, expect: C
 	stoneskin_after = int(((player_click_instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("stoneskin", 0))
 	expect.call(stoneskin_after > stoneskin_before and not _hand(player_click_instance).has("stone_plate"), "Clicking the player should remain a valid targetless-card confirmation path")
 	player_click_instance.queue_free()
+	await tree.process_frame
+
+
+static func _test_replacement_target_shortcut(tree: SceneTree, expect: Callable) -> void:
+	var instance: Node = await _live_instance(tree,expect,"hamstring_shot",Vector2i(5,4),91804)
+	if instance==null: return
+	var state: Dictionary = instance.get("_combat_state")
+	state["player"]["pos"]=Vector2i(3,4)
+	var defeated: Dictionary = state["enemies"][0].duplicate(true)
+	defeated["hp"]=0
+	defeated["id"]=99
+	state["enemies"].push_front(defeated)
+	# Real Umbra filtering must reject the corpse without hiding its replacement.
+	state["umbra"]["vision_bonus"]=0
+	instance.set("_combat_state",state)
+	(instance.get("_run_state") as Dictionary)["combat_state"]=state
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_ui")
+	var hp: int = state["enemies"][1]["hp"]
+	await instance.call("_on_card_pressed",0)
+	await instance.call("_on_board_tile_clicked",Vector2i(5,4))
+	var after: Dictionary = instance.get("_combat_state")
+	expect.call(int(instance.get("_selected_card_index"))<0 and not bool(instance.get("_pending_umbra_commit_locked")),"A replacement on a corpse's square must never strand Low Sweep targeting")
+	expect.call(after["enemies"][1]["hp"]<hp,"The one-click Sweep hits the living replacement")
+	expect.call((instance.get("hand_box") as Control).is_visible_in_tree() and not bool(instance.get("_animation_lock")),"Sweep restores the hand and accepts further input")
+	instance.queue_free()
+	await tree.process_frame
+
+
+static func _test_interrupted_shortcut_finishes(tree: SceneTree, expect: Callable) -> void:
+	var target:=Vector2i(5,4)
+	var instance: Node=await _live_instance(tree,expect,"hamstring_shot",target,91805)
+	if instance==null: return
+	var state: Dictionary=instance.get("_combat_state")
+	state["player"]["pos"]=Vector2i(3,4)
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_ui")
+	await instance.call("_on_card_pressed",0)
+	var preview: Dictionary=instance.call("_active_card_preview")
+	var plan: Dictionary=instance.call("_shortcut_plan_for_tile",preview,target)
+	expect.call(not plan.is_empty(),"Interrupted Sweep starts with a legal one-click route")
+	if not plan.is_empty():
+		# A new obstruction invalidates the chosen arrival after the route was
+		# accepted. The committed movement must not wait for a second target.
+		var arrival: Vector2i=plan["move_target"]
+		state["grid"][arrival.y][arrival.x]="wall"
+		var pending: Dictionary=instance.get("_preview_combat_state")
+		pending["grid"][arrival.y][arrival.x]="wall"
+		var hp: int=state["enemies"][0]["hp"]
+		await instance.call("_on_pending_shortcut_clicked",target,plan)
+		var after: Dictionary=instance.get("_combat_state")
+		expect.call(after["enemies"][0]["hp"]==hp,"An unreachable follow-up misses instead of damaging the target")
+		expect.call(int(instance.get("_selected_card_index"))<0 and not bool(instance.get("_pending_umbra_commit_locked")) and not bool(instance.get("_animation_lock")),"An interrupted one-click Sweep completes without an input lock")
+	instance.queue_free()
 	await tree.process_frame
 
 
