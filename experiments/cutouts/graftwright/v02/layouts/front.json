@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "facing": "front",
+  "canvas_size": [
+    255,
+    255
+  ],
+  "joints": {
+    "root": {
+      "parent": null,
+      "position": [
+        128,
+        246
+      ]
+    },
+    "chest": {
+      "parent": "root",
+      "position": [
+        126,
+        146
+      ]
+    },
+    "head": {
+      "parent": "chest",
+      "position": [
+        132,
+        58
+      ]
+    },
+    "needle_hand": {
+      "parent": "chest",
+      "position": [
+        172,
+        91
+      ]
+    },
+    "lantern": {
+      "parent": "chest",
+      "position": [
+        71,
+        134
+      ]
+    }
+  },
+  "parts": [
+    {
+      "name": "head",
+      "bone": "head",
+      "file": "source/head_registered.png",
+      "offset": [
+        0,
+        0
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "needle_hand",
+      "bone": "needle_hand",
+      "file": "source/needle_hand_registered.png",
+      "offset": [
+        0,
+        0
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "lantern",
+      "bone": "lantern",
+      "file": "source/lantern_registered.png",
+      "offset": [
+        0,
+        0
+      ],
+      "z_index": 0
+    },
+    {
+      "name": "coat",
+      "bone": "chest",
+      "file": "source/coat_registered.png",
+      "offset": [
+        0,
+        0
+      ],
+      "z_index": 0
+    }
+  ],
+  "joint_meshes": [],
+  "landmarks": {
+    "mask": [
+      134,
+      48
+    ],
+    "needle_grip": [
+      177,
+      85
+    ],
+    "cuff": [
+      144,
+      143
+    ],
+    "bench_contact": [
+      127,
+      232
+    ]
+  }
+}

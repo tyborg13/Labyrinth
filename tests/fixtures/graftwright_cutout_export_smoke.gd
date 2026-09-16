@@ -7,6 +7,7 @@ func _ready() -> void:
 	passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 5
 	for phase: float in [0.0, 0.25, 0.5, 0.75, 1.0]:
 		rig.call("apply_pose", "idle", phase)
+		rig.call("apply_pose", "graft", phase)
 	for node: Node in rig.find_children("*", "Polygon2D", true, false):
 		passed = passed and (node as Polygon2D).texture.get_size() == Vector2(1448, 1448)
 	rig.queue_free()

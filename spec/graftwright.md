@@ -105,14 +105,22 @@ rules. This screen uses only anchored identity, action, state, or consequence
 copy. Save failure and the Open Arsenal empty-slot consequence have dedicated
 backing; ordinary selection does not produce a bottom-of-screen explanation.
 
-The ritual fades the sacrificed piece and lost cards, lifts the chosen real card,
-and carries it along interwoven violet silk into the replacement slot. Continuous
-mesh ribbons use soft shader falloff, a luminous core, and fine moving fibers;
-there are no bead/dot particles. Selection, unpick, binding, and completion retain
-the existing audio cues. Input stays locked for the roughly 2.2-second sequence.
-The result fades in with its gear and foreground cradle floating together above a soft shadow.
-Reduced motion omits travel and idle motion and resolves after a 0.18-second beat;
-the static result communicates the same outcome.
+The ritual first lowers the Graftwright's occupied forearm toward the sacrifice
+(0.44 seconds), then lifts and carries the chosen real card along interwoven
+violet silk into the replacement slot (1.8 seconds). The donor equipment stays
+visible throughout transfer. Once the inherited card lands, its ribbon changes
+to **Inherited** and the entire sacrifice panel unravels from top to bottom over
+0.72 seconds. A CanvasGroup includes the frame, paint, labels, equipment, and
+raised cost badges in one dissolve: a fine luminous violet edge and irregular
+paint fragments reveal the original workshop beneath. The surviving panel is
+untouched. The silk finishes fading while the donor unravels.
+
+Input stays locked for the roughly three-second sequence; the transaction is
+still saved before any animation. The result fades in over 0.28 seconds only
+after dissolution completes. **Completed equipment, its frame and shadow remain
+stationary**; completion bobbing is explicitly retired. Reduced motion omits
+gesture, travel, and disintegration and resolves after the existing 0.18-second
+beat. The static result communicates the same consumption and inherited card.
 
 The existing masked tailor remains behind a foreground layer taken from the
 exact original atelier: the bench and separately traced silhouettes of the
@@ -178,7 +186,8 @@ checks that same menu predicate as well as the persisted state contract.
   Dispatches GUI pointer/key/controller events and asserts navigation and outcome.
 - `tests/graftwright_motion_probe.gd`: native 1920x1080 animation frames with
   timestamps; pixel comparisons prove that the portrait moves while the bench
-  and above-counter spools remain in front, and the result equipment has idle motion.
+  and above-counter spools remain in front, and the result equipment remains stationary. It records preparation, transfer,
+  dissolution, and result in order, plus the reduced-motion transaction.
 - `tests/main_menu_resume_test.gd`: production-menu eligibility before and after
   a graft, saved encounter label, unchanged save contents, and rejection of a
   mismatched room type.
@@ -199,4 +208,15 @@ UI scaling remains supported by the workbench's fit-to-view canvas.
 
 ### Interaction and cutout refinement
 
-The player still chooses a sacrifice, an item to improve, and the card swap. This pass makes those two roles and the completed graft the largest in-panel headings, gives every active control distinct pointer-hover, navigation-focus and held states, and encloses gear behind the painted cradle lip. The completed framed assembly floats over a grounded shadow. The existing NPC painting becomes a front-only editable cutout with a coordinated torso, head and needle-hand idle; the counter and its props stay in front. Proof covers native 1920×1080/100% hover/press and input handoff, the complete cutout idle, reduced motion, and real graft/save/resume behavior.
+The player still chooses a sacrifice, an item to improve, and the card swap. This pass makes those two roles and the completed graft the largest in-panel headings, gives every active control distinct pointer-hover, navigation-focus and held states, and encloses gear behind the painted cradle lip. The completed framed assembly remains still over a grounded shadow. The existing NPC painting becomes a front-only editable cutout with a coordinated torso, head and needle-hand idle; the counter and its props stay in front. Proof covers native 1920×1080/100% hover/press and input handoff, the complete cutout idle, reduced motion, and real graft/save/resume behavior.
+
+### Final ritual flourish
+
+Design statement: on the existing Graftwright workbench, the player has already
+committed a clear card swap. The new motion connects the NPC's needle to that
+transaction, then visibly consumes the donor only after its card has arrived.
+The unchanged source/target hierarchy, shared CardWidgets and result panel carry
+all rules and consequences; the effect adds no copy or decisions. Pointer,
+keyboard and controller keep the same input lock and result focus, while reduced
+motion bypasses the spectacle. Native 1920×1080/100% proof covers the whole gesture,
+the dissolve at multiple heights, the result transition and stationary mount.

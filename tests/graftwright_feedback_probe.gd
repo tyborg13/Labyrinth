@@ -62,7 +62,7 @@ func _initialize() -> void:
 	view.set("_elapsed", PI / 3.2)
 	view.call("_process", 0.0)
 	await capture("16_result_high.png")
-	check(icon.position == local and mount.position != start, "Result frame and gear move together")
+	check(icon.position == local and mount.position == start, "Completed gear and frame stay stationary")
 	var rim: Control = mount.get_node("EquipmentRim")
 	check(rim.get_index() > icon.get_index(), "Painted cradle lip occludes result gear")
 	var rig: Node = view.get("_portrait")

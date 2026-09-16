@@ -1,0 +1,49 @@
+{
+  "facing": "front",
+  "input_layout": "layouts/front.json",
+  "output_layout": "layouts/front_skin.json",
+  "fields": [
+    {
+      "name": "continuous_body",
+      "parts": [
+        "head",
+        "needle_hand",
+        "lantern",
+        "coat"
+      ],
+      "bones": [
+        "root",
+        "chest",
+        "head"
+      ],
+      "grid": [
+        6,
+        6
+      ],
+      "bands": [
+        {
+          "center": [
+            128,
+            216
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 62
+        },
+        {
+          "center": [
+            132,
+            86
+          ],
+          "axis": [
+            0,
+            -1
+          ],
+          "width": 24
+        }
+      ]
+    }
+  ]
+}

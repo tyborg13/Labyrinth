@@ -1,0 +1,66 @@
+{
+  "ok": true,
+  "source_sha256": "b7c536c64ebfce67955e45def31f5bf1295e2d06ccf8f2f337aa21227902de6b",
+  "ownership_sha256": "97a017bf880d58b7501b4701e65ab7ea50d8412f4636e107b12b5cce7df33d01",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        84,
+        0
+      ],
+      "bbox": [
+        84,
+        0,
+        166,
+        79
+      ]
+    },
+    {
+      "name": "needle_hand",
+      "file": "needle_hand.png",
+      "offset": [
+        132,
+        39
+      ],
+      "bbox": [
+        132,
+        39,
+        221,
+        154
+      ]
+    },
+    {
+      "name": "lantern",
+      "file": "lantern.png",
+      "offset": [
+        32,
+        71
+      ],
+      "bbox": [
+        32,
+        71,
+        95,
+        177
+      ]
+    },
+    {
+      "name": "coat",
+      "file": "coat.png",
+      "offset": [
+        38,
+        43
+      ],
+      "bbox": [
+        38,
+        43,
+        220,
+        255
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

@@ -103,7 +103,7 @@ func _initialize() -> void:
 	var persisted: Dictionary = Store.load_saved_run()
 	check(not view.call("semantic_snapshot")["used"], "Save is checked before the ritual has finished")
 	check(Data.equipment_cards("undertaker_plate", persisted) == ["undertaker_stand", "shadow_step"], "Saved result matches preview before animation completes")
-	await create_timer(2.0).timeout
+	await create_timer(2.75).timeout
 	check(bool(view.call("semantic_snapshot")["used"]), "Ritual reaches committed result")
 	await capture("04_result.png")
 	scene.call("_load_run_state", persisted)

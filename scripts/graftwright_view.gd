@@ -17,6 +17,7 @@ const CardScene = preload("res://scenes/card_widget.tscn")
 const ThreadEffect = preload("res://scripts/graftwright_thread_effect.gd")
 const Glow = preload("res://scripts/graftwright_glow.gdshader")
 const FrameRim = preload("res://scripts/graftwright_frame_rim.gdshader")
+const UnravelShader = preload("res://scripts/graftwright_unravel.gdshader")
 const PortraitRig = preload("res://scripts/graftwright_cutout/rig.gd")
 const MatMaterial = preload("res://scripts/graftwright_workmat.gdshader")
 const TypeMaterial = preload("res://scripts/graftwright_type.gdshader")
@@ -52,6 +53,9 @@ var _elapsed: float = 0.0
 var _canvas: Control
 var _content: Control
 var _portrait: Node2D
+var _sacrifice_content: Control
+var _ritual_elapsed: float = -1.0
+var _ritual_stage: String = ""
 var _keyboard_navigation: bool = false
 var _bench: Control
 var _commit: Button
@@ -269,18 +273,22 @@ func _rebuild() -> void:
 	_wire_focus.call_deferred()
 
 func _build_workbench() -> void:
-	_mat(_content, Rect2(470, 120, 690, 390 if donor.is_empty() else 765), true)
+	_sacrifice_content = Control.new()
+	_sacrifice_content.name = "SacrificePanel"
+	_sacrifice_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_content.add_child(_sacrifice_content)
+	_mat(_sacrifice_content, Rect2(470, 120, 690, 390 if donor.is_empty() else 765), true)
 	_mat(_content, Rect2(1175, 120, 690, 390 if recipient.is_empty() else 765), true)
-	_label(_content, "Sacrifice", Rect2(530, 165, 570, 52), 38, RED.lerp(IVORY, 0.45), true)
+	_label(_sacrifice_content, "Sacrifice", Rect2(530, 165, 570, 52), 38, RED.lerp(IVORY, 0.45), true)
 	_label(_content, "Improve", Rect2(1235, 165, 570, 52), 38, GREEN.lerp(IVORY, 0.45), true)
-	_source_icon = _equipment_well(donor, LEFT, RED, "donor")
-	_recipient_icon = _equipment_well(recipient, RIGHT, GREEN, "recipient")
-	if not donor.is_empty(): _label(_content, "WILL BE DESTROYED", Rect2(LEFT - 47, 342, 306, 45), 17, RED, true)
+	_source_icon = _equipment_well(_sacrifice_content, donor, LEFT, RED, "donor")
+	_recipient_icon = _equipment_well(_content, recipient, RIGHT, GREEN, "recipient")
+	if not donor.is_empty(): _label(_sacrifice_content, "WILL BE DESTROYED", Rect2(LEFT - 47, 342, 306, 45), 17, RED, true)
 	var equip_text: String = "EQUIPMENT RETAINED"
 	if not Rules.equipped_slot(state, recipient).is_empty(): equip_text = "STAYS EQUIPPED"
 	elif not Rules.equipped_slot(state, donor).is_empty(): equip_text = "WILL BE EQUIPPED"
 	if not recipient.is_empty(): _label(_content, equip_text, Rect2(RIGHT - 47, 342, 306, 45), 17, GREEN, true)
-	if not donor.is_empty(): _label(_content, "CARRY ONE CARD", Rect2(555, 437, 520, 30), 18, MUTED, true)
+	if not donor.is_empty(): _label(_sacrifice_content, "CARRY ONE CARD", Rect2(555, 437, 520, 30), 18, MUTED, true)
 	if not recipient.is_empty(): _label(_content, "REPLACE ONE CARD" if Rules.inherited_index(state, recipient) < 0 else "REPLACE INHERITED CARD", Rect2(1260, 437, 520, 30), 18, MUTED, true)
 	var source: Array = Data.equipment_cards(donor, state)
 	var target: Array = Data.equipment_cards(recipient, state)
@@ -291,12 +299,12 @@ func _build_workbench() -> void:
 	for i: int in range(source.size()):
 		var index: int = i
 		var selected: bool = i == donor_index
-		var button: Button = _card(_content, str(source[i]), Vector2(source_start + i * (CARD_SIZE.x + source_gap), 474), selected, VIOLET, func() -> void: select_source(index))
+		var button: Button = _card(_sacrifice_content, str(source[i]), Vector2(source_start + i * (CARD_SIZE.x + source_gap), 474), selected, VIOLET, func() -> void: select_source(index))
 		button.name = "SourceCard_%d" % i
-		if selected: _ribbon(_content, "CARRY FORWARD", Rect2(button.position.x - 3, 766, 206, 28), VIOLET)
+		if selected: _ribbon(_sacrifice_content, "CARRY FORWARD", Rect2(button.position.x - 3, 766, 206, 28), VIOLET)
 		elif donor_index >= 0:
 			button.set("muted", true)
-			_ribbon(_content, "LOST", Rect2(button.position.x, 766, 200, 28), RED)
+			_ribbon(_sacrifice_content, "LOST", Rect2(button.position.x, 766, 200, 28), RED)
 		_source_cards.append(button)
 	for i: int in range(target.size()):
 		var index: int = i
@@ -323,8 +331,8 @@ func _build_workbench() -> void:
 		var backing: ColorRect = _solid(_content, Rect2(505, 944, 725, 78), Color("17111beb"))
 		_content.move_child(backing, _consequence.get_index())
 
-func _equipment_well(id: String, center: float, color: Color, role: String) -> TextureRect:
-	var button := _choice(_content, Rect2(center - (84 if id.is_empty() else 245), 240, 168, 192), func() -> void: open_picker(role), "equipment", color)
+func _equipment_well(parent: Control, id: String, center: float, color: Color, role: String) -> TextureRect:
+	var button := _choice(parent, Rect2(center - (84 if id.is_empty() else 245), 240, 168, 192), func() -> void: open_picker(role), "equipment", color)
 	button.name = "ChooseSacrifice" if role == "donor" else "ChooseRecipient"
 	button.set_meta("graft_action_label", "Choose" if id.is_empty() else "Change")
 	button.face_size = Vector2(168, 168)
@@ -332,7 +340,7 @@ func _equipment_well(id: String, center: float, color: Color, role: String) -> T
 	if not id.is_empty():
 		var framed: TextureRect = _framed_equipment(button.art(), id, Rect2(0, 0, 168, 168))
 		_ribbon(button.art(), "CHANGE", Rect2(32, 169, 104, 25), MUTED)
-		var name_label: Label = _label(_content, _item_name(id), Rect2(center - 47, 265, 306, 74), 28, IVORY, true)
+		var name_label: Label = _label(parent, _item_name(id), Rect2(center - 47, 265, 306, 74), 28, IVORY, true)
 		name_label.name = "SacrificeName" if role == "donor" else "ImproveName"
 		return framed
 	_picture(button.art(), ART + "item_cradle.png", Rect2(0, 0, 168, 168))
@@ -465,7 +473,7 @@ func _build_result() -> void:
 	_result_shadow = _glow(_content, Rect2(1087, 405, 186, 30), Color(0, 0, 0, 0.95))
 	_result_shadow.pivot_offset = Vector2(93, 15)
 	_result_mount = Control.new()
-	_result_mount.name = "FloatingEquipment"
+	_result_mount.name = "CompletedEquipment"
 	_result_mount.position = Vector2(1090, 238)
 	_result_mount.size = Vector2(180, 180)
 	_result_mount.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -501,27 +509,30 @@ func reject(message: String) -> void:
 
 func present_result(next_state: Dictionary) -> void:
 	busy = true
-	var effect := ThreadEffect.new()
-	effect.name = "GraftRitual"
-	effect.size = SIZE
-	effect.origin = _source_cards[donor_index].position + CARD_SIZE * 0.5
-	effect.destination = _target_cards[target_index].position + CARD_SIZE * 0.5
-	effect.reduced_motion = reduced_motion
-	_canvas.add_child(effect)
-	_effect = effect
 	for child: Node in _content.find_children("*", "Button", true, false): (child as Button).disabled = true
-	sound_requested.emit("unpick")
-	var tween: Tween = create_tween()
-	if reduced_motion: tween.tween_interval(0.18)
+	_ritual_stage = "prepare"
+	if reduced_motion:
+		await get_tree().create_timer(0.18).timeout
 	else:
+		_ritual_elapsed = 0.0
+		await get_tree().create_timer(0.44).timeout
+		if not is_inside_tree(): return
+		_ritual_stage = "transfer"
+		var effect := ThreadEffect.new()
+		effect.name = "GraftRitual"
+		effect.size = SIZE
+		effect.origin = _source_cards[donor_index].position + CARD_SIZE * 0.5
+		effect.destination = _target_cards[target_index].position + CARD_SIZE * 0.5
+		_canvas.add_child(effect)
+		_effect = effect
+		sound_requested.emit("unpick")
 		var ghost: Button = _card(_canvas, str(Data.equipment_cards(donor, state)[donor_index]), _source_cards[donor_index].position, true, VIOLET, func() -> void: pass)
 		ghost.z_index = 50 # Above the target CardWidget's raised cost badge.
 		ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ghost.focus_mode = Control.FOCUS_NONE
 		ghost.modulate.a = 0.0
-		tween.set_parallel(true)
-		if _source_icon != null: tween.tween_property(_source_icon, "modulate:a", 0.0, 0.85)
-		for card: Button in _source_cards: tween.tween_property(card, "modulate:a", 0.12, 0.95)
+		var tween: Tween = create_tween().set_parallel(true)
+		tween.tween_property(_source_cards[donor_index], "modulate:a", 0.12, 0.25)
 		tween.tween_property(_target_cards[target_index], "modulate:a", 0.06, 0.5).set_delay(0.5)
 		tween.tween_property(ghost, "modulate:a", 0.94, 0.25).set_delay(0.22)
 		tween.tween_method(func(progress: float) -> void:
@@ -530,29 +541,54 @@ func present_result(next_state: Dictionary) -> void:
 			ghost.rotation = sin(progress * PI) * -0.09
 		, 0.0, 1.0, 1.45).set_delay(0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_callback(func() -> void: sound_requested.emit("bind")).set_delay(1.35)
-		tween.tween_property(ghost, "modulate:a", 0.0, 0.24).set_delay(1.94)
-		tween.chain().tween_callback(ghost.queue_free)
-	await tween.finished
+		await tween.finished
+		if not is_inside_tree(): return
+		# Leave the inherited card visibly in its destination while the donor goes.
+		ghost.rotation = 0.0
+		ghost.position = _target_cards[target_index].position
+		_ritual_stage = "unravel"
+		_ribbon(_content, "INHERITED", Rect2(_target_cards[target_index].position.x - 3, 766, 206, 28), GREEN)
+		var group := CanvasGroup.new()
+		group.name = "SacrificeUnravel"
+		group.fit_margin = 40.0
+		group.clear_margin = 40.0
+		_content.add_child(group)
+		_sacrifice_content.reparent(group, false)
+		# CanvasGroup only merges one canvas layer. Include raised cost badges
+		# in the panel being consumed instead of leaving them floating behind.
+		for child: Node in _sacrifice_content.find_children("*", "CanvasItem", true, false):
+			(child as CanvasItem).z_index = 0
+			(child as CanvasItem).z_as_relative = true
+		var material := ShaderMaterial.new()
+		material.shader = UnravelShader
+		group.material = material
+		var dissolve: Tween = create_tween()
+		dissolve.tween_method(func(progress: float) -> void: material.set_shader_parameter("progress", progress), 0.0, 1.0, 0.72)
+		await dissolve.finished
+		effect.queue_free()
+		_effect = null
+		ghost.queue_free()
 	if not is_inside_tree(): return
-	effect.queue_free()
-	_effect = null
+	_ritual_elapsed = -1.0
+	_ritual_stage = ""
 	state = next_state.duplicate(true)
 	busy = false
 	_rebuild()
 	sound_requested.emit("complete")
 	_leave.grab_focus()
 	if not reduced_motion:
-		_content.modulate.a = 0.25
-		create_tween().tween_property(_content, "modulate:a", 1.0, 0.32)
+		_content.modulate.a = 0.0
+		create_tween().tween_property(_content, "modulate:a", 1.0, 0.28)
 
 func _process(delta: float) -> void:
 	if not visible: return
 	_elapsed += delta
-	if _portrait != null: _portrait.call("apply_pose", "rest" if reduced_motion else "idle", fposmod(_elapsed / 2.4, 1.0))
-	if _result_mount != null and is_instance_valid(_result_mount):
-		var bob: float = 0.0 if reduced_motion else sin(_elapsed * 1.6) * 4.0
-		_result_mount.position.y = 238 + bob
-		_result_shadow.scale.x = 1.0 + bob * 0.012
+	if _portrait != null:
+		if _ritual_elapsed >= 0.0 and not reduced_motion:
+			_ritual_elapsed += delta
+			_portrait.call("apply_pose", "graft", minf(_ritual_elapsed / 2.96, 1.0))
+		else:
+			_portrait.call("apply_pose", "rest" if reduced_motion else "idle", fposmod(_elapsed / 2.4, 1.0))
 
 func _wire_focus() -> void:
 	var scope: Control = _inspection if _inspection != null else _picker if _picker != null else _content
@@ -793,7 +829,7 @@ func _card_name(id: String) -> String:
 	return str(Data.card_def(id).get("name", id))
 
 func semantic_snapshot() -> Dictionary:
-	return {"recipient": recipient, "donor": donor, "source_index": donor_index, "target_index": target_index, "busy": busy, "used": _used(), "can_commit": _commit != null and is_instance_valid(_commit) and not _commit.disabled, "result": _result(), "reduced_motion": reduced_motion, "intro_open": _intro_open, "inspecting": _inspection != null, "picker_role": _picker_role, "picker_slot": _picker_slot, "picker_items": _picker_items.duplicate(), "props_occlude_portrait": _props != null and _props.get_index() > _portrait.get_index(), "bench_occludes_portrait": _bench != null and _bench.get_index() > _portrait.get_index()}
+	return {"recipient": recipient, "donor": donor, "source_index": donor_index, "target_index": target_index, "busy": busy, "ritual_stage": _ritual_stage, "used": _used(), "can_commit": _commit != null and is_instance_valid(_commit) and not _commit.disabled, "result": _result(), "reduced_motion": reduced_motion, "intro_open": _intro_open, "inspecting": _inspection != null, "picker_role": _picker_role, "picker_slot": _picker_slot, "picker_items": _picker_items.duplicate(), "props_occlude_portrait": _props != null and _props.get_index() > _portrait.get_index(), "bench_occludes_portrait": _bench != null and _bench.get_index() > _portrait.get_index()}
 
 func _input(event: InputEvent) -> void:
 	if not visible or busy: return

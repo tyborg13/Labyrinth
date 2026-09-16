@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "character_id": "graftwright",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_hd.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 48,
+      "duration": 2.4,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "graft": {
+      "frames": 72,
+      "duration": 2.96,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "needle_hand",
+    "lantern"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "layouts/front.json",
+    "layouts/front_skin.json",
+    "recipes/build_case.py",
+    "recipes/front_skin.skin.json",
+    "recipes/registration.json",
+    "segmented/segmentation.json",
+    "source/coat_registered.png",
+    "source/head_registered.png",
+    "source/lantern_registered.png",
+    "source/needle_hand_registered.png",
+    "source/original.png",
+    "source/ownership.json",
+    "source/registered.png",
+    "recipes/segment_gesture.py",
+    "source/hidden_torso_generated.png",
+    "source/gesture_ownership.json",
+    "source/idle_layout.json",
+    "source/generation.json"
+  ],
+  "source_baseline": {
+    "kind": "case_fork",
+    "character_id": "graftwright",
+    "files": {
+      "cutout.json": "2e89c8b32af8644d1a954d62b558f4f375a2d4f5c4d78a7af420df87509732e4",
+      "layouts/front.json": "0617fc313f7925dd6cc0eb6aa6b67b7636b34d83efbd4ba366efe7953313b3c4",
+      "layouts/front_hd.json": "d10b8388d6489b33dc3574216e3283f28958bb41cae09fb0e52cbdf293efef71",
+      "layouts/front_skin.json": "0a26b0dc71e557bf77b8ea8ccd0dcdde86d9e796fa94ba0fcf6a35b71e9d6ebe",
+      "motion.gd": "2ad7c33153df4b0e8ae0eb6a54bb9270748f31276ec4c17b5d41fa2a33cbe378",
+      "paint/coat.png": "f7b5003eabc80e8e9989bab816032daeeadfb419b28604be391556e44b0525ad",
+      "paint/head.png": "9178277fe9c4678b65665a46c0f822b7d23d0e8c1ffea2d5475b86aaf4812f0b",
+      "paint/lantern.png": "69f7e3d78d742024fe1b6a3b180be8050ed7900ca8204406b53294103bbbcb17",
+      "paint/needle_hand.png": "a42eed9731412b31acb3195bb5494612666823fc803b6703be76de609505ec00",
+      "recipes/build_case.py": "0d1bf4017be6c71f4e8b723aac42ba41a9dd394daf9071c89ee6bc4e7e7124eb",
+      "recipes/front_skin.skin.json": "410c111016e46f746ba4a3a74997bc836bb8f6dc238dd028ac3bd27bf5468b31",
+      "recipes/registration.json": "9950f599c2437d188294148adcb84955a936450c820bb1598b918f3ff9d726af",
+      "segmented/segmentation.json": "3c981fe3219180cb58f49463fa2d2910524d51da3ce4888ef935e60cddd52f28",
+      "source/coat_registered.png": "3e07d59c8ef05b639f304bcc0df81daaa9872972a35b670614fe29ec6582f459",
+      "source/head_registered.png": "e86262abf8ad9e6b05d7f874bfe240e86f585f67ac240a5ca160857aa4b582d1",
+      "source/lantern_registered.png": "f3029a041890616795abc740589fc7975efb8f6f0186b8055aea89ea3dc0d296",
+      "source/needle_hand_registered.png": "2e4ca7bf980d013c305a5696f0a09f1eb210296d37cdf8d642644327b77bd38f",
+      "source/original.png": "aa4439435626626f5a6d75871627e310d23ca25546dab2222bd99e66f876a6fa",
+      "source/ownership.json": "97a017bf880d58b7501b4701e65ab7ea50d8412f4636e107b12b5cce7df33d01",
+      "source/registered.png": "b7c536c64ebfce67955e45def31f5bf1295e2d06ccf8f2f337aa21227902de6b"
+    },
+    "gesture_extension": "Rigid original forearm/hand/needle, original coat restored to torso ownership, a generated hidden-torso backing through the arm mask. No original portrait redesign."
+  },
+  "draw_order_parts": {
+    "front": [
+      "Skin_needle_hand"
+    ]
+  }
+}

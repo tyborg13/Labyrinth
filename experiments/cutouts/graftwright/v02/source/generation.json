@@ -1,0 +1,8 @@
+{
+  "tool": "built-in image_gen.imagegen",
+  "prompt": "Use case: precise-object-edit. Asset: hidden torso backing for a 2D skeletal cutout of this exact masked Graftwright character. EDIT the provided portrait, preserving its exact composition, proportions, scale, position, costume, face, colors and painterly pixel-detail style. Remove ONLY the exposed raised pale forearm and hand on the right side of the image, the long curved silver sewing needle it holds, and the purple thread attached to that needle. Leave the empty black-and-gold sleeve cuff at the bottom of the removed forearm in its original place. Naturally reconstruct the dark purple/black coat and weathered ivory vest behind the removed forearm, with coherent fine gold embroidery, matching the adjacent painted materials. The removed hand/needle outside the body silhouette should become transparent, not cloth. Keep head, torso silhouette, lantern, hair, other arm, draped cape, collar, jewelry, sleeve cuff and lower costume unchanged. We will use only a small masked patch of the newly exposed chest/coat under the old forearm; other original pixels are retained. Transparent background, same 3:4 portrait composition as reference, no floor, no text, no extra limbs, no needle, no hand or skin stump protruding from the empty cuff.",
+  "edit_target": "source/original.png",
+  "untouched_output": "source/hidden_torso_generated.png",
+  "output_sha256": "60dbb14835974ee8f7a43ca061f39d02d97136226fbceea5b31483ad7c71efb5",
+  "disposition": "Selected only as hidden torso fill through the explicit forearm ownership mask; all visible face, hand, needle, lantern, and costume pixels remain from the original."
+}
