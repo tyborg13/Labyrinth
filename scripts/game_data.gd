@@ -316,7 +316,7 @@ static func starter_equipment_ids() -> Array:
 			result.append(equipment_id)
 	return result
 
-static func equipment_cards(equipment_id: String) -> Array:
+static func equipment_cards(equipment_id: String, run_state: Dictionary = {}) -> Array:
 	var item: Dictionary = equipment_def(equipment_id)
 	var result: Array = []
 	var raw_cards: Array = item.get("cards", [])
@@ -333,15 +333,21 @@ static func equipment_cards(equipment_id: String) -> Array:
 		var count: int = maxi(1, int(entry.get("count", 1)))
 		for _copy_index: int in range(count):
 			result.append(card_id)
+	var grafts: Dictionary = run_state.get("equipment_grafts", {}) as Dictionary
+	var graft: Dictionary = grafts.get(equipment_id, {}) as Dictionary
+	var index: int = int(graft.get("index", -1))
+	var card_id: String = str(graft.get("card_id", ""))
+	if index >= 0 and index < result.size() and not card_def(card_id).is_empty():
+		result[index] = card_id
 	return result
 
-static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Array, item_cards: Array = []) -> Array:
+static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Array, item_cards: Array = [], run_state: Dictionary = {}) -> Array:
 	var result: Array = []
 	for slot: String in EQUIPMENT_SLOTS:
 		var equipment_id: String = str(equipped_equipment.get(slot, ""))
 		if equipment_id.is_empty():
 			continue
-		result.append_array(equipment_cards(equipment_id))
+		result.append_array(equipment_cards(equipment_id, run_state))
 	for card_id_var: Variant in magic_cards:
 		var card_id: String = str(card_id_var)
 		if not card_id.is_empty():

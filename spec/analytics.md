@@ -69,6 +69,7 @@ available:
 - `progression_moltshard_gained`
 - `skill_triggered`
 - `equipment_equipped`
+- `equipment_grafted`
 - `magic_attuned`
 - `item_equipped`
 - `item_picked_up`
@@ -531,3 +532,18 @@ saved. The additive scope/target/outlined-room fields distinguish this behavior
 from older saved branch reveals; no historical events are rewritten. Revealing
 neighbor outlines does not grant their identities or record a route choice.
 Showing a physical exit on the board remains an inspection action.
+
+### Graftwright inheritance
+
+`equipment_grafted` uses the saved section-map outbox and its existing stable
+revision key. Its payload contains `recipient`, `donor`, native equipment `slot`,
+`room`, `recipient_equipped`, `card_id`, `replaced_card_id`, zero-based `index`,
+original donor `source`, and `before_cards`/`after_cards`. Exactly one event is
+staged for a successful transaction. Previewing, cancelling, invalid requests,
+and replaying a used encounter emit no additional graft event. The live scene
+persists before the ritual; the console flushes after saving its session.
+
+Run-start, combat-start, equipment-equip, and merchant-trade payloads also include
+additive `equipment_grafts` snapshots. Compiled deck and card-play events continue
+to use effective cards. No card effects or historical JSONL records are rewritten.
+See [graftwright.md](graftwright.md) for the run-only state model and limits.

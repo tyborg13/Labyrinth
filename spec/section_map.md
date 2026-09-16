@@ -61,6 +61,14 @@ resolved, persists the outcome, and cannot grant either choice twice. A survey
 with no new discoveries is disabled. This is a real event transaction, not an
 unimplemented icon placeholder.
 
+Layout revision 3 adds the **Graftwright**, an optional service for inheriting one
+equipment card by sacrificing another same-type piece. Eligible service nodes
+have a seeded 20% conversion chance only after at least three combats on every
+incoming route. The existing fight/visit budgets and mandatory campfires remain
+unchanged. Older saved layouts retain their topology. Its needle/thread emblem
+and map tooltip identify the service; entry opens its workbench and leaving or
+finishing returns to route selection. See [graftwright.md](graftwright.md).
+
 ## Runtime presentation and input
 
 The map is a mostly full-screen modal over the board. After an encounter and its

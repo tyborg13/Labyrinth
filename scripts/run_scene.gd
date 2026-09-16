@@ -44,6 +44,7 @@ const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
+const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
@@ -1822,6 +1823,7 @@ var _relic_choice_title_effect: RelicChoiceTitleEffect
 var _relic_choice_title: Label
 var _relic_choice_host: CenterContainer
 var _relic_choice_bar: HBoxContainer
+var _graftwright_view: GraftwrightView
 var _scavenger_shop_view: ScavengerShopView
 var _post_combat_victory_overlay: Control
 var _reward_intro_suppressed: bool = false
@@ -2145,6 +2147,16 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _graftwright_view != null and _graftwright_view.visible:
+		if _graftwright_view.busy:
+			get_viewport().set_input_as_handled()
+			return
+		if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+			_handle_controller_input(event)
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_graftwright_view.request_leave()
+			get_viewport().set_input_as_handled()
+		return
 	if InputRouterScript.is_controller_event(event):
 		var controller_handled: bool = await _handle_controller_input(event)
 		if controller_handled:
@@ -2579,6 +2591,7 @@ func _controller_uses_gui_focus() -> bool:
 	)
 
 func _controller_modal_visible() -> bool:
+	if _graftwright_view != null and _graftwright_view.visible: return true
 	for control: Control in [
 		_skill_choice_scrim,
 		_skill_status_scrim,
@@ -2965,7 +2978,7 @@ func _controller_equipment_pickup_detail(equipment_id: String) -> String:
 	if item.is_empty():
 		return "Equipment pickup"
 	var card_names: Array[String] = []
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		var card_id: String = str(card_id_var)
 		var card: Dictionary = GameData.card_def(card_id)
 		card_names.append(str(card.get("name", card_id)))
@@ -3307,6 +3320,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if _graftwright_view != null and _graftwright_view.visible: return _graftwright_view
 	if (
 		_guided_tutorial_requires_continue()
 		and _contextual_combat_prompt_host != null
@@ -3444,6 +3458,10 @@ func _refresh_controller_interface() -> void:
 func _refresh_controller_prompts() -> void:
 	if _controller_prompt_bar == null:
 		return
+	var graft_open: bool = _graftwright_view != null and _graftwright_view.visible
+	_controller_prompt_bar.anchor_left = 0.8 if graft_open else 0.5
+	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
+	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
 	var prompts: Array = []
 	if _guided_tutorial_hard_gate_active():
 		match _guided_tutorial_phase_id:
@@ -3494,6 +3512,15 @@ func _refresh_controller_prompts() -> void:
 	elif _pre_battle_scrim != null and _pre_battle_scrim.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"},
+			{"action": &"controller_dpad", "label": "Navigate"},
+		]
+	elif _graftwright_view != null and _graftwright_view.visible:
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		var action: String = "Select"
+		if focused is Button and not (focused as Button).text.is_empty(): action = (focused as Button).text
+		prompts = [
+			{"action": InputRouterScript.ACTION_ACCEPT, "label": action},
+			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
 	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:
@@ -6206,6 +6233,7 @@ func _build_context_choice_overlay() -> void:
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
 	_build_relic_choice_overlay(stage_root)
+	_build_graftwright_overlay(stage_root)
 	_build_scavenger_shop_overlay(stage_root)
 	_build_run_end_recap(stage_root)
 	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
@@ -6291,6 +6319,56 @@ func _build_relic_choice_overlay(stage_root: Control) -> void:
 	_relic_choice_bar.add_theme_constant_override("separation", 28)
 	_relic_choice_host.add_child(_relic_choice_bar)
 	_layout_relic_choice_overlay()
+
+func _build_graftwright_overlay(stage: Control) -> void:
+	_graftwright_view = GraftwrightView.new()
+	_graftwright_view.name = "GraftwrightView"
+	_graftwright_view.hide()
+	_graftwright_view.z_index = 123
+	_graftwright_view.z_as_relative = false
+	var host: Control = ui_root if ui_root != null else stage
+	host.add_child(_graftwright_view)
+	_graftwright_view.graft_requested.connect(_on_graft_requested)
+	_graftwright_view.leave_requested.connect(_on_graftwright_leave)
+	_graftwright_view.sound_requested.connect(_on_graftwright_sound)
+	_graftwright_view.interaction_changed.connect(_refresh_controller_prompts)
+
+func _on_graftwright_sound(cue: String) -> void:
+	match cue:
+		"select": _play_card_play_sfx()
+		"unpick": _play_sfx({"path": "res://assets/audio/sfx/relic_choices_open.wav", "volume_db": -8.0})
+		"bind": _play_reward_card_flip_sfx()
+		"complete": _play_item_equip_sfx()
+
+func _on_graft_requested(recipient: String, donor: String, donor_index: int, target_index: int) -> void:
+	var reason: String = GraftwrightView.Rules.error(_run_state, recipient, donor, donor_index, target_index)
+	if not reason.is_empty():
+		_graftwright_view.reject(reason)
+		return
+	var next: Dictionary = _run_engine.graft_equipment(_run_state, recipient, donor, donor_index, target_index)
+	if not bool(SectionMapGraph.room(next, next.get("current_room", Vector2i.ZERO)).get("graft_used", false)):
+		_graftwright_view.reject(str(next.get("notice", "Unable to graft these items.")))
+		return
+	# Persist the entire atomic transaction before presentation. Closing the game
+	# during the ritual resumes its finished result, never a duplicate sacrifice.
+	var persisted: Dictionary = _persist_run_state_snapshot(next, false, "equipment_grafted")
+	if not bool(persisted.get("saved", false)):
+		_graftwright_view.reject("Could not save. Your equipment is unchanged.")
+		return
+	_run_state = next
+	_animation_lock = true
+	await _graftwright_view.present_result(next)
+	_animation_lock = false
+	_refresh_ui()
+	_schedule_controller_modal_refresh()
+
+func _on_graftwright_leave() -> void:
+	if _graftwright_view.busy: return
+	_run_state = _run_engine.leave_graftwright(_run_state)
+	_persist_committed_boundary("graftwright_leave")
+	_graftwright_view.hide()
+	_refresh_ui()
+	_schedule_controller_modal_refresh()
 
 func _build_scavenger_shop_overlay(stage: Control) -> void:
 	_scavenger_shop_view = ScavengerShopView.new()
@@ -14638,6 +14716,7 @@ func _refresh_choice_bar() -> void:
 	_clear_relic_choice_overlay()
 	_sync_merchant_shop_room()
 	var mode: String = str(_run_state.get("mode", "room"))
+	if _graftwright_view != null and mode != "graftwright": _graftwright_view.hide()
 	var relic_offer_sfx_signature: String = ""
 	if mode not in ["victory", "defeat"] and _run_end_recap != null:
 		_run_end_recap.reset()
@@ -14648,6 +14727,9 @@ func _refresh_choice_bar() -> void:
 	if mode == "combat" and not _combat_state.is_empty() and _combat_engine.is_player_turn(_combat_state):
 		_add_pass_preview_chip()
 	match mode:
+		"graftwright":
+			_graftwright_view.configure(_run_state, _reduced_motion_enabled())
+			_graftwright_view.present()
 		"combat":
 			if _surface_aim.active():
 				_add_surface_skill_choices()
@@ -28715,7 +28797,7 @@ func _build_equipment_deck_group(equipment_id: String, heading: String) -> Contr
 	row.add_theme_constant_override("v_separation", 6)
 	vbox.add_child(row)
 	var accent := Color(GameData.equipment_accent(equipment_id))
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		row.add_child(_build_equipment_card_badge(str(card_id_var), accent))
 	return vbox
 
@@ -30087,7 +30169,7 @@ func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = fa
 	card_row.add_theme_constant_override("separation", 8)
 	card_row.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(card_row)
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		card_row.add_child(_build_card_preview_widget(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE, interactive))
 	if not _equipment_overlay_can_change():
 		var locked_label := Label.new()
@@ -30190,7 +30272,7 @@ func _equipment_tooltip(equipment_id: String) -> String:
 		str(item.get("name", equipment_id)),
 		"%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
 	]
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		var card: Dictionary = GameData.card_def(str(card_id_var))
 		lines.append(str(card.get("name", card_id_var)))
 	if not _equipment_overlay_can_change():
@@ -30201,7 +30283,7 @@ func _equipment_card_summary(equipment_id: String) -> String:
 	if equipment_id.is_empty():
 		return ""
 	var names: Array = []
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
 		names.append(str(GameData.card_def(str(card_id_var)).get("name", card_id_var)))
 	return ", ".join(names)
 
@@ -30838,6 +30920,7 @@ func _analytics_log_run_started() -> void:
 		"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"equipment_grafts": (_run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"collected_equipment": (_run_state.get("collected_equipment", []) as Array).duplicate(true),
 		"recovery_marker_active": not recovery_marker.is_empty(),
 		"recovery_marker_amount": int(recovery_marker.get("amount", 0)),
@@ -31198,6 +31281,7 @@ func _analytics_log_equipment_equipped(slot: String, previous_equipment_id: Stri
 		"equipment_id": equipment_id,
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"equipment_grafts": (_run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	})
 
@@ -31235,6 +31319,7 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"room": _run_state.get("current_room", Vector2i.ZERO),
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"equipment_grafts": (_run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"collected_equipment": (_run_state.get("collected_equipment", []) as Array).duplicate(true),
 		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
 		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
@@ -31305,6 +31390,7 @@ func _analytics_log_combat_started(reason: String) -> void:
 			"item_inventory": (_run_state.get("item_inventory", []) as Array).duplicate(true),
 			"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
+		"equipment_grafts": (_run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"equipment_drops": _analytics_equipment_loot_ids(_combat_state),
 		"opening_hand": _analytics_zone_cards(_combat_state, "hand")
 	})

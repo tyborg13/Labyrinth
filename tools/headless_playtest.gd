@@ -1,5 +1,6 @@
 extends SceneTree
 
+const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
@@ -104,7 +105,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, map, moves, move N, scout N, event embers|survey, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, map, moves, move N, scout N, event embers|survey, graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -212,6 +213,8 @@ func _handle_command(command: String) -> void:
 			_run_state = _run_engine.resolve_map_event(_run_state, str(parts[1]) if parts.size() > 1 else "")
 			_progression = (_run_state.get("progression", _progression) as Dictionary).duplicate(true)
 			_print_state()
+		"graft":
+			_command_graft(command.split(" ", false))
 		"cards", "hand", "h":
 			_print_cards()
 		"card", "click", "play":
@@ -324,6 +327,8 @@ func _print_state() -> void:
 			_print_relic_state()
 		"campfire":
 			_print_campfire_state()
+		"graftwright":
+			_print_graftwright_state()
 		"event":
 			print("The Lost Cartographer: event embers (25 Embers) or event survey (reveal all routes up to four rooms ahead).")
 		"victory", "defeat", "rested":
@@ -1552,6 +1557,23 @@ func _command_reward(parts: PackedStringArray) -> void:
 	_append_note("- Reward: took %s.\n" % str(GameData.card_def(card_id).get("name", card_id)))
 	_print_state()
 
+func _print_graftwright_state() -> void:
+	print("Graftwright: one same-type card inheritance; the donor is destroyed.")
+	for id: String in GraftwrightRules.owned(_run_state):
+		print("  %s [%s]: %s" % [id, GameData.equipment_slot(id), str(GameData.equipment_cards(id, _run_state))])
+	print("Command: graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX (zero-based), or leave.")
+	var reason: String = GraftwrightRules.room_error(_run_state)
+	if not reason.is_empty(): print(reason)
+
+func _command_graft(parts: PackedStringArray) -> void:
+	if parts.size() != 5 or not parts[3].is_valid_int() or not parts[4].is_valid_int():
+		_print_graftwright_state()
+		return
+	_run_state = _run_engine.graft_equipment(_run_state, parts[1], parts[2], int(parts[3]), int(parts[4]))
+	_save_session()
+	print(str(_run_state.get("notice", "")))
+	_print_state()
+
 func _print_relic_state() -> void:
 	var relics: Array = _run_state.get("pending_relics", [])
 	print("Relics:")
@@ -1581,6 +1603,11 @@ func _command_relic(parts: PackedStringArray) -> void:
 	_print_state()
 
 func _command_leave() -> void:
+	if str(_run_state.get("mode", "")) == "graftwright":
+		_run_state = _run_engine.leave_graftwright(_run_state)
+		_save_session()
+		_print_state()
+		return
 	if str(_run_state.get("mode", "")) != "campfire":
 		print("Not at campfire.")
 		return

@@ -18,6 +18,7 @@ const ROOM_TYPE_ICON_PATHS := {
 	"treasure": "res://assets/art/icons/map/relic.png",
 	"scavenger": "res://assets/art/icons/map/scavenger.png",
 	"event": "res://assets/art/icons/map/event.png",
+	"graftwright": "res://assets/art/icons/map/graftwright.png",
 	"scout": "res://assets/art/icons/map/scout.png",
 	"boss_tharokh": "res://assets/art/icons/map/boss_tharokh.png",
 	"boss_vyraketh": "res://assets/art/icons/map/boss_vyraketh.png",

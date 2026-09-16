@@ -6,7 +6,7 @@ class_name SectionMapGraph
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
-const LAYOUT_REVISION: int = 2
+const LAYOUT_REVISION: int = 3
 const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
 const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
 const INVALID: Vector2i = Vector2i(-999, -999)
@@ -82,6 +82,17 @@ static func initialize(state: Dictionary) -> void:
 					var combat_index: int = types.find("combat")
 					types[combat_index] = types[0]
 					types[0] = "combat"
+				# Every path through an earlier group has the same fight budget.
+				# Gate using that minimum plus this branch's preceding combats,
+				# never map depth (service order is shuffled).
+				var fights_before: int = FIGHT_COUNTS[index] - 1 - fights_left - group_fights
+				for previous_section: int in range(index): fights_before += FIGHT_COUNTS[previous_section]
+				for offset: int in range(types.size()):
+					if types[offset] == "combat":
+						fights_before += 1
+					elif types[offset] in ["treasure", "scavenger", "event"] and fights_before >= 3:
+						if posmod(seed_value * 13 + index * 37 + group * 19 + branch * 7 + offset * 11, 5) == 0:
+							types[offset] = "graftwright"
 				var path: Array[Vector2i] = []
 				for offset: int in range(length):
 					var local_step: int = step + offset

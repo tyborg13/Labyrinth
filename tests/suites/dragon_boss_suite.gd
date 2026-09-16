@@ -302,6 +302,8 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 				state = engine.move_to_room(state, destination)
 			"event":
 				state = engine.resolve_map_event(state, "embers")
+			"graftwright":
+				state = engine.leave_graftwright(state)
 			"campfire":
 				state = engine.leave_campfire(state)
 			"treasure":

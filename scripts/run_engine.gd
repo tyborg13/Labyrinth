@@ -1,6 +1,8 @@
 extends RefCounted
 class_name RunEngine
 
+const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
+
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -876,6 +878,9 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			next_state["rooms"] = rooms
 			next_state["mode"] = "campfire"
 			next_state["combat_state"] = {}
+		"graftwright":
+			next_state["mode"] = "room" if bool(room.get("cleared", false)) else "graftwright"
+			next_state["combat_state"] = {}
 		"event":
 			next_state["mode"] = "room" if bool(room.get("cleared", false)) else "event"
 			next_state["combat_state"] = {}
@@ -1345,6 +1350,12 @@ func can_change_magic(run_state: Dictionary) -> bool:
 func can_change_items(run_state: Dictionary) -> bool:
 	return can_change_equipment(run_state)
 
+func graft_equipment(run_state: Dictionary, recipient: String, donor: String, donor_index: int, target_index: int) -> Dictionary:
+	return GraftwrightRules.apply(run_state, recipient, donor, donor_index, target_index)
+
+func leave_graftwright(run_state: Dictionary) -> Dictionary:
+	return GraftwrightRules.leave(run_state)
+
 func equip_equipment(run_state: Dictionary, equipment_id: String, target_slot: String = "") -> Dictionary:
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not can_change_equipment(next_state):
@@ -1616,6 +1627,9 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 			var collected: Array = next_state.get("collected_equipment", []).duplicate()
 			collected.erase(item_id)
 			next_state["collected_equipment"] = collected
+			var grafts: Dictionary = (next_state.get("equipment_grafts", {}) as Dictionary).duplicate(true)
+			grafts.erase(item_id)
+			next_state["equipment_grafts"] = grafts
 			next_state["notice"] = "Sold %s." % str(GameData.equipment_def(item_id).get("name", item_id))
 		MERCHANT_ITEM_KIND_MAGIC:
 			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
@@ -2108,7 +2122,8 @@ func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
 	next_state["deck_cards"] = GameData.compile_deck_cards(
 		next_state.get("equipped_equipment", {}) as Dictionary,
 		next_state.get("attuned_magic_cards", []) as Array,
-		next_state.get("equipped_items", []) as Array
+		next_state.get("equipped_items", []) as Array,
+		next_state
 	)
 	return next_state
 

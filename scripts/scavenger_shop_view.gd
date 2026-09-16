@@ -881,7 +881,7 @@ func _sync_detail() -> void:
 	_detail_title.text = _item_name(item_id)
 	_detail_card_ids.clear()
 	if kind == GEAR:
-		for card_id_var: Variant in GameData.equipment_cards(item_id):
+		for card_id_var: Variant in GameData.equipment_cards(item_id, _run_state):
 			_detail_card_ids.append(str(card_id_var))
 		var equipment: Dictionary = GameData.equipment_def(item_id)
 		var slot_name: String = str(equipment.get("slot", "gear")).to_upper()

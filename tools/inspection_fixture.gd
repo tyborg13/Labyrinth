@@ -15,7 +15,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -362,6 +362,8 @@ func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 			return _build_room_mode_run(progression, "campfire")
 		"treasure":
 			return _build_room_mode_run(progression, "treasure")
+		"graftwright":
+			return _build_graftwright_run(progression)
 		"blacksmith", "arcanist", "scavenger":
 			return _build_merchant_run(progression, scenario)
 		"victory":
@@ -604,6 +606,29 @@ func _build_room_mode_run(progression: Dictionary, mode: String) -> Dictionary:
 		if str(_options.get("notice", "")).is_empty():
 			state["notice"] = "Inspection fixture: relic cache."
 	return _apply_room_overrides(state)
+
+func _build_graftwright_run(progression: Dictionary) -> Dictionary:
+	var state: Dictionary = _apply_loadout(_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression))
+	var rooms: Dictionary = state.get("rooms", {}) as Dictionary
+	var destination: Vector2i = INVALID_COORD
+	var cleared: int = 0
+	for key: String in rooms:
+		var room: Dictionary = rooms[key] as Dictionary
+		if str(room.get("type", "")) == "combat" and cleared < 3:
+			room["cleared"] = true
+			room["visited"] = true
+			cleared += 1
+		if str(room.get("type", "")) == "graftwright" and destination == INVALID_COORD:
+			destination = room.get("coord", INVALID_COORD)
+	if destination == INVALID_COORD:
+		_fail("No generated Graftwright available for this seed.")
+		return state
+	state["rooms"] = rooms
+	state = _run_state_for_room(state, destination, "graftwright", Vector2i(1, 0))
+	var room: Dictionary = (state["rooms"] as Dictionary)[_room_key(destination)] as Dictionary
+	room["cleared"] = false
+	room["graft_used"] = false
+	return state
 
 func _build_merchant_run(progression: Dictionary, merchant_kind: String) -> Dictionary:
 	var seed: int = int(_options.get("seed", DEFAULT_SEED))

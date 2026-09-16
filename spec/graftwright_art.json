@@ -1,0 +1,26 @@
+{
+  "generator": "built-in ImageGen",
+  "date": "2026-09-15",
+  "reference": "User-approved Graftwright concept from equipment-inheritance-concepts/graftwright-encounter-v1.png",
+  "note": "The briefs below summarize the production art direction, rather than reconstructing verbatim generation prompts. Generated outputs were copied intact; all UI and animation are rendered in Godot.",
+  "assets": [
+    {
+      "path": "assets/art/npcs/graftwright.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-a9a8f9bb-fdb2-4f7a-a9c2-04d59f9e6b8f.png",
+      "sha256": "aa4439435626626f5a6d75871627e310d23ca25546dab2222bd99e66f876a6fa",
+      "brief": "Transparent masked tailor portrait; cracked ivory mask, swept dark hair, plum-black stitched coat, bone needle, violet thread, articulated brass lantern support."
+    },
+    {
+      "path": "assets/art/ui/graftwright/atelier.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-8f7033c1-eb1c-48db-a225-317a5ce2f9cb.png",
+      "sha256": "cd530e7f8a6f9e0157d20afce104ccff129a7216a08c9a5fa1b17343ab6b6c25",
+      "brief": "Empty gothic atelier with dark timber workbench, bruised-plum curtains, verdigris candlelight, and open central space for live UI. No text, NPC or cards baked in."
+    },
+    {
+      "path": "assets/art/icons/map/graftwright.png",
+      "generated_source": "/Users/borgerding/.codex/generated_images/01a09fca-3ffa-7310-95d0-84d27065c38f/exec-b887a8d7-1e1b-43f2-abaf-0ff5d817c734.png",
+      "sha256": "0232a198df55ba2fd99310d4a05705d0794dc7e101cbce172937e8184973f8fe",
+      "brief": "Distinct transparent needle, violet thread loop and leather fragment map emblem; readable silhouette inside the existing map medallion."
+    }
+  ]
+}

@@ -53,6 +53,7 @@ const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const UmbraActionAnimationSuite = preload("res://tests/suites/umbra_action_animation_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
+const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
 const ScavengerShopSuite = preload("res://tests/suites/scavenger_shop_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const GuidedCombatTutorialSuite = preload("res://tests/suites/guided_combat_tutorial_suite.gd")
@@ -140,6 +141,7 @@ func _initialize() -> void:
 	ControllerInputSuite.run(Callable(self, "_assert"))
 	CardDragPlaySuite.run(Callable(self, "_assert"))
 	ItemPickupSuite.run(Callable(self, "_assert"))
+	GraftwrightSuite.run(Callable(self, "_assert"))
 	ScavengerShopSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
@@ -7247,7 +7249,7 @@ func _test_combat_board_loads_door_icons_for_room_types() -> void:
 	var board := CombatBoardView.new()
 	board.call("_load_assets")
 	var textures: Dictionary = board.get("_door_icon_textures") as Dictionary
-	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "event", "boss_tharokh", "boss_vyraketh", "boss_vaeloryx", "boss_iskaldra", "boss_zekarion", "boss_noctyrax"]:
+	for icon_id: String in ["fire", "combat", "campfire", "treasure", "scavenger", "event", "graftwright", "boss_tharokh", "boss_vyraketh", "boss_vaeloryx", "boss_iskaldra", "boss_zekarion", "boss_noctyrax"]:
 		_assert(textures.get(icon_id, null) != null, "Combat board should load door icons for elemental and non-combat destinations")
 	board.free()
 
