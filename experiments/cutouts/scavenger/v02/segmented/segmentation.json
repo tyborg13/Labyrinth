@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "source_sha256": "16a9d613f3cd2d0005eaab71a0c77df48ebeea70a2d8ae9517c4b42c7b155682",
+  "ownership_sha256": "620eb4f7876db9d0373cfe69a726e251c2356aaab418a6e6741bbda41e4eb8a1",
+  "parts": [
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        83,
+        9
+      ],
+      "bbox": [
+        83,
+        9,
+        145,
+        68
+      ]
+    },
+    {
+      "name": "occupied_hand",
+      "file": "occupied_hand.png",
+      "offset": [
+        111,
+        65
+      ],
+      "bbox": [
+        111,
+        65,
+        154,
+        120
+      ]
+    },
+    {
+      "name": "pack",
+      "file": "pack.png",
+      "offset": [
+        137,
+        28
+      ],
+      "bbox": [
+        137,
+        28,
+        192,
+        148
+      ]
+    },
+    {
+      "name": "lantern",
+      "file": "lantern.png",
+      "offset": [
+        62,
+        146
+      ],
+      "bbox": [
+        62,
+        146,
+        89,
+        189
+      ]
+    },
+    {
+      "name": "coat",
+      "file": "coat.png",
+      "offset": [
+        62,
+        56
+      ],
+      "bbox": [
+        62,
+        56,
+        186,
+        248
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

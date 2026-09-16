@@ -44,7 +44,15 @@ func _capture_states() -> void:
 	var rig: Node = _shop.get("_portrait")
 	var bones: Dictionary = rig.get("bones")
 	var rest_root: Transform2D = (bones["root"] as Bone2D).transform
+	rig.call("apply_pose", "idle", 0.0)
+	var rest_head: Vector2 = (bones["head"] as Bone2D).global_position
+	var rest_hand: Vector2 = (bones["grip_hand"] as Bone2D).global_position
+	var rest_pack: Vector2 = (bones["pack"] as Bone2D).global_position
 	rig.call("apply_pose", "idle", 0.5)
+	var head_shift: Vector2 = (bones["head"] as Bone2D).global_position - rest_head
+	var hand_shift: Vector2 = (bones["grip_hand"] as Bone2D).global_position - rest_hand
+	var pack_shift: Vector2 = (bones["pack"] as Bone2D).global_position - rest_pack
+	_check(bones.size() == 11 and head_shift.distance_to(hand_shift) > 3.0 and head_shift.distance_to(pack_shift) > 3.0, "Head, gripping hand and carried pack articulate separately at scene scale")
 	_check((bones["root"] as Bone2D).transform == rest_root, "Idle keeps the lower body planted")
 	await _save("01_entry.png")
 	var sell_mode: Control = _shop.get("_mode_sell") as Control
@@ -79,6 +87,7 @@ func _capture_states() -> void:
 	await _save("08_sale_flight.png")
 	await create_timer(0.55).timeout
 	await _save("09_sale_receipt.png")
+	_assert_receipt("ward_kite", true)
 	var receipts_before_repeat: Array[Node] = (_shop.get("_purchase_effects") as Control).get_children()
 	var before_repeat: Dictionary = (_scene.get("_run_state") as Dictionary).duplicate(true)
 	_scene.call("_on_merchant_sell_pressed", "scavenger", "ward_kite", null)
@@ -118,6 +127,7 @@ func _capture_states() -> void:
 	await create_timer(0.16).timeout
 	_check(((_scene.get("_run_state") as Dictionary)["magic_inventory"] as Array).has("grave_mortar"), "Controller Buy purchases the inspected Magic ware")
 	await _save("12_purchase.png")
+	_assert_receipt("grave_mortar", false)
 	await create_timer(0.75).timeout
 	# Empty and unaffordable states retain all navigation and explain why.
 	state = _scavenger_state(engine)
@@ -181,6 +191,12 @@ func _click(control: Control, settle: bool = true) -> void:
 func _save(filename: String) -> void:
 	await RenderingServer.frame_post_draw
 	_check_bounds(_shop)
+	if (_shop.get("_detail_panel") as Control).visible:
+		var title: Label = _shop.get("_detail_title") as Label
+		var action: Button = _shop.get("_detail_action") as Button
+		_check(Rect2(44, 54, 332, 84).encloses(Rect2(title.position, title.size)), "Name stays in the dark header interior, below border art")
+		_check(Rect2(46, 588, 328, 78).encloses(Rect2(action.position, action.size)), "Trade action stays above the lower frame ornament")
+		_check(_shop.find_child("ScavengerDetailKind", true, false) == null and _shop.find_child("ScavengerDetailPrice", true, false) == null, "Inspection omits redundant category, rarity and ownership copy")
 	_check(_viewport.get_texture().get_image().get_size() == VIEWPORT_SIZE, "Proof is exactly 1920x1080")
 	_viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(GLOW_OUTPUT.path_join(filename)))
 
@@ -254,3 +270,14 @@ func _press_controller_button(button_index: int) -> void:
 	release.device = 0
 	_viewport.push_input(release, true)
 	await process_frame
+
+func _assert_receipt(item_id: String, selling: bool) -> void:
+	var heading: Label = _shop.get("_receipt_heading") as Label
+	var name_label: Label = _shop.get("_receipt_detail") as Label
+	var amount: Label = _shop.get("_receipt_amount") as Label
+	_check(heading.text == ("SOLD" if selling else "PURCHASED"), "Receipt has one clear transaction heading")
+	_check(name_label.text == str(_shop.call("_item_name", item_id)), "Receipt names the exact traded item")
+	_check((_shop.get("_receipt_visual") as Control).get_child_count() == 1, "Receipt includes a single item visual")
+	var tint: Color = amount.get_theme_color("font_color")
+	_check(tint.g > tint.r if selling else tint.r > tint.g, "Receipt amount is green for income and red for spend")
+	_check(amount.text.begins_with("+" if selling else "−"), "Receipt communicates currency direction without relying on color")

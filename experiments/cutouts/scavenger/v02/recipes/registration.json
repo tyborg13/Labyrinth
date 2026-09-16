@@ -1,0 +1,42 @@
+{
+  "native_size": [
+    255,
+    255
+  ],
+  "landmarks": {
+    "hood_apex": [
+      109,
+      11
+    ],
+    "neck": [
+      113,
+      54
+    ],
+    "near_shoulder": [
+      147,
+      68
+    ],
+    "occupied_grip": [
+      120,
+      84
+    ],
+    "belt": [
+      110,
+      121
+    ],
+    "lantern_hook": [
+      75,
+      152
+    ],
+    "left_sole": [
+      94,
+      230
+    ],
+    "right_sole": [
+      144,
+      244
+    ]
+  },
+  "hidden_coverage": "No newly exposed anatomy. All partitions share a continuous source-space field; no part rotates away from the original painting. The lower legs remain planted.",
+  "timing": "2.5 second coordinated breath. Chest rises 0.9 native pixels; head adds 0.65. No cloth ripple, rotation, global sprite translation or new view."
+}

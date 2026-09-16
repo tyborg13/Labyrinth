@@ -9,6 +9,7 @@ signal item_hovered(merchant_kind: String, item_id: String, source: Control)
 signal item_unhovered(merchant_kind: String, item_id: String, source: Control)
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const GameData = preload("res://scripts/game_data.gd")
@@ -62,13 +63,11 @@ var _gear_group: Control
 var _item_group: Control
 var _detail_panel: Control
 var _detail_title: Label
-var _detail_kind: Label
 var _detail_card_host: CenterContainer
 var _detail_card_nav: HBoxContainer
 var _detail_card_previous: Button
 var _detail_card_counter: Label
 var _detail_card_next: Button
-var _detail_price: Label
 var _detail_action: Button
 var _sell_panel: PanelContainer
 var _sell_heading: Label
@@ -96,6 +95,10 @@ var _mode_sell: Button
 var _filter_buttons: Array[Button] = []
 var _dialogue_panel: PanelContainer
 var _dialogue_words: Label
+var _dialogue_title: Label
+var _receipt_visual: Control
+var _receipt_ember: TextureRect
+var _receipt_rule: HSeparator
 var _receipt_heading: Label
 var _receipt_detail: Label
 var _receipt_amount: Label
@@ -196,7 +199,7 @@ func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	effect.reduced_motion = _reduced_motion
 	effect.selling = selling
 	effect.origin = origin
-	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(284, 150)
+	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(92, 164)
 	effect.currency_destination = _currency_panel.position + _currency_panel.size * 0.5
 	_purchase_effects.add_child(effect)
 	_build_purchase_proxy(effect.proxy, item_id, origin.size)
@@ -204,20 +207,31 @@ func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 func _clear_receipt() -> void:
 	if _receipt_tween != null and _receipt_tween.is_valid(): _receipt_tween.kill()
 	if _dialogue_words != null: _dialogue_words.show()
-	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]:
-		if label != null: label.hide()
+	if _dialogue_title != null: _dialogue_title.show()
+	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]:
+		if control != null: control.hide()
 	if _currency_panel != null: _currency_panel.modulate = Color.WHITE
 
 func _show_receipt(item_id: String, amount: int, selling: bool) -> void:
 	if _receipt_tween != null and _receipt_tween.is_valid(): _receipt_tween.kill()
 	_dialogue_words.hide()
-	_receipt_heading.text = "SOLD" if selling else "ADDED TO PACK"
+	_dialogue_title.hide()
+	_receipt_heading.text = "SOLD" if selling else "PURCHASED"
 	_receipt_detail.text = _item_name(item_id)
-	_receipt_amount.text = ("+%d EMBERS" if selling else "−%d EMBERS") % amount
-	_receipt_amount.add_theme_color_override("font_color", Color("bfe1ae") if selling else Color("f0ce88"))
-	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]:
-		label.show()
-		label.modulate = Color.WHITE
+	_receipt_amount.text = ("+%d" if selling else "−%d") % amount
+	_receipt_amount.add_theme_color_override("font_color", Color("bfe1ae") if selling else Color("ef9290"))
+	_clear_children(_receipt_visual)
+	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+	var visual_size := Vector2(104, 146) if kind == MAGIC else Vector2(112, 112)
+	var visual := Control.new()
+	visual.position = (_receipt_visual.size - visual_size) * 0.5
+	visual.size = visual_size
+	_receipt_visual.add_child(visual)
+	_build_purchase_proxy(visual, item_id, visual_size)
+	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]:
+		control.show()
+		control.modulate = Color.WHITE
+	_receipt_rule.modulate = Color(0.8, 0.63, 0.37, 0.5)
 	if not _reduced_motion:
 		_currency_panel.modulate = Color(1.4, 1.23, 1.05)
 		_receipt_tween = create_tween()
@@ -435,88 +449,49 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	return group
 
 func _build_detail_content() -> void:
-	var margin := MarginContainer.new()
-	margin.name = "ScavengerInspectionContentMargin"
-	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 38)
-	margin.add_theme_constant_override("margin_top", 32)
-	margin.add_theme_constant_override("margin_right", 38)
-	margin.add_theme_constant_override("margin_bottom", 32)
-	_detail_panel.add_child(margin)
-	var stack := VBoxContainer.new()
-	stack.name = "ScavengerInspectionContent"
-	stack.add_theme_constant_override("separation", 7)
-	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	margin.add_child(stack)
-	_detail_title = Label.new()
+	# These are the dark interior regions of inspection_frame_v1, measured in
+	# the 420x722 registered panel. Container bounds alone include its ornament.
+	_detail_title = _label_at(_detail_panel, "", Rect2(48, 56, 324, 78), 28)
 	_detail_title.name = "ScavengerDetailTitle"
 	_detail_title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_detail_title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_detail_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	_detail_title.custom_minimum_size = Vector2(0.0, 42.0)
-	UiTypography.set_label_size(_detail_title, 28)
-	_detail_title.add_theme_color_override("font_color", Color("f2d49d"))
-	_detail_title.add_theme_color_override("font_outline_color", Color("120b08"))
-	_detail_title.add_theme_constant_override("outline_size", 3)
-	stack.add_child(_detail_title)
-	_detail_kind = Label.new()
-	_detail_kind.name = "ScavengerDetailKind"
-	_detail_kind.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_detail_kind.custom_minimum_size = Vector2(0.0, 34.0)
-	UiTypography.set_label_size(_detail_kind, 17)
-	_detail_kind.add_theme_color_override("font_color", Color("b8a78e"))
-	stack.add_child(_detail_kind)
-	var separator := HSeparator.new()
-	stack.add_child(separator)
 	_detail_card_host = CenterContainer.new()
 	_detail_card_host.name = "ScavengerDetailCardHost"
-	_detail_card_host.custom_minimum_size = Vector2(0.0, 356.0)
-	_detail_card_host.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	stack.add_child(_detail_card_host)
+	_place(_detail_card_host, Rect2(50, 144, 320, 378))
+	_detail_panel.add_child(_detail_card_host)
 	_detail_card_nav = HBoxContainer.new()
 	_detail_card_nav.name = "ScavengerGrantedCardNavigator"
-	_detail_card_nav.custom_minimum_size = Vector2(0.0, 42.0)
+	_place(_detail_card_nav, Rect2(48, 532, 324, 42))
 	_detail_card_nav.alignment = BoxContainer.ALIGNMENT_CENTER
 	_detail_card_nav.add_theme_constant_override("separation", 8)
-	stack.add_child(_detail_card_nav)
+	_detail_panel.add_child(_detail_card_nav)
 	_detail_card_previous = _action("‹")
 	_detail_card_previous.name = "ScavengerPreviousGrantedCard"
-	_detail_card_previous.custom_minimum_size = Vector2(48.0, 40.0)
+	_detail_card_previous.custom_minimum_size = Vector2(48, 40)
 	UiTypography.set_button_size(_detail_card_previous, 24)
 	_detail_card_previous.tooltip_text = "Show the previous card granted by this gear."
 	_detail_card_previous.pressed.connect(_turn_detail_card.bind(-1))
 	_detail_card_nav.add_child(_detail_card_previous)
 	_detail_card_counter = Label.new()
 	_detail_card_counter.name = "ScavengerGrantedCardCounter"
-	_detail_card_counter.custom_minimum_size = Vector2(220.0, 40.0)
+	_detail_card_counter.custom_minimum_size = Vector2(212, 40)
 	_detail_card_counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_detail_card_counter.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_detail_card_counter, 17)
-	_detail_card_counter.add_theme_color_override("font_color", Color("d9c6a6"))
+	UiTypography.set_label_size(_detail_card_counter, 20)
 	_detail_card_nav.add_child(_detail_card_counter)
 	_detail_card_next = _action("›")
 	_detail_card_next.name = "ScavengerNextGrantedCard"
-	_detail_card_next.custom_minimum_size = Vector2(48.0, 40.0)
+	_detail_card_next.custom_minimum_size = Vector2(48, 40)
 	UiTypography.set_button_size(_detail_card_next, 24)
 	_detail_card_next.tooltip_text = "Show the next card granted by this gear."
 	_detail_card_next.pressed.connect(_turn_detail_card.bind(1))
 	_detail_card_nav.add_child(_detail_card_next)
-	_detail_price = Label.new()
-	_detail_price.name = "ScavengerDetailPrice"
-	_detail_price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_detail_price.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_detail_price.custom_minimum_size = Vector2(0.0, 30.0)
-	UiTypography.set_label_size(_detail_price, 18)
-	_detail_price.add_theme_color_override("font_color", Color("efbd67"))
-	stack.add_child(_detail_price)
 	_detail_action = _action("BUY")
 	_detail_action.name = "ScavengerTradeActionButton"
-	_detail_action.custom_minimum_size = Vector2(0.0, 66.0)
+	_place(_detail_action, Rect2(50, 596, 320, 66))
 	UiTypography.set_button_size(_detail_action, 24)
 	_detail_action.pressed.connect(_on_detail_action)
-	stack.add_child(_detail_action)
+	_detail_panel.add_child(_detail_action)
 	_detail_card_nav.visible = false
 
 func _build_sell_content() -> void:
@@ -576,17 +551,37 @@ func _build_dialogue_and_modes() -> void:
 	_canvas.add_child(_dialogue_panel)
 	var content := Control.new()
 	_dialogue_panel.add_child(content)
-	_label_at(content, "THE SCAVENGER", Rect2(20, 4, 504, 46), 30)
+	_dialogue_title = _label_at(content, "THE SCAVENGER", Rect2(20, 4, 504, 46), 30)
 	_dialogue_words = _label_at(content, "", Rect2(20, 61, 504, 134), 25, Color("e4d8c0"))
 	_dialogue_words.name = "ScavengerDialogueBody"
 	_dialogue_words.add_theme_font_override("font", UiTypography.text_font())
 	_dialogue_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_receipt_heading = _label_at(content, "", Rect2(20, 61, 504, 38), 25)
+	_receipt_heading = _label_at(content, "", Rect2(20, 9, 260, 44), 27)
 	_receipt_heading.name = "ScavengerReceiptHeading"
-	_receipt_detail = _label_at(content, "", Rect2(20, 105, 504, 52), 24, Color("eee1c7"))
+	_receipt_amount = _label_at(content, "", Rect2(308, 9, 144, 44), 29)
+	_receipt_amount.name = "ScavengerReceiptAmount"
+	_receipt_amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_receipt_ember = TextureRect.new()
+	_receipt_ember.name = "ScavengerReceiptEmbers"
+	_place(_receipt_ember, Rect2(462, 13, 36, 36))
+	_receipt_ember.texture = ActionIcons.icon_texture("ember")
+	_receipt_ember.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_receipt_ember.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_receipt_ember.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(_receipt_ember)
+	_receipt_rule = HSeparator.new()
+	_place(_receipt_rule, Rect2(20, 62, 484, 1))
+	_receipt_rule.modulate = Color(0.8, 0.63, 0.37, 0.5)
+	content.add_child(_receipt_rule)
+	_receipt_visual = Control.new()
+	_receipt_visual.name = "ScavengerReceiptItem"
+	_place(_receipt_visual, Rect2(24, 78, 112, 152))
+	_receipt_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(_receipt_visual)
+	_receipt_detail = _label_at(content, "", Rect2(162, 94, 336, 118), 28, Color("eee1c7"))
+	_receipt_detail.name = "ScavengerReceiptName"
 	_receipt_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_receipt_amount = _label_at(content, "", Rect2(20, 167, 504, 40), 27)
-	for label: Label in [_receipt_heading, _receipt_detail, _receipt_amount]: label.hide()
+	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]: control.hide()
 	_mode_buy = _action("Browse wares")
 	_mode_buy.name = "ScavengerBrowseMode"
 	_place(_mode_buy, Rect2(670, 950, 378, 70))
@@ -1039,13 +1034,11 @@ func _sync_detail() -> void:
 	if _selected_item_id.is_empty() or _run_engine == null:
 		_detail_panel.hide()
 		_detail_title.text = "SELECT A WARE"
-		_detail_kind.text = "MAGIC • GEAR • ITEMS"
 		_detail_card_ids.clear()
 		_detail_card_index = 0
 		_clear_children(_detail_card_host)
 		_rendered_detail_card_id = ""
 		_detail_card_nav.visible = false
-		_detail_price.text = ""
 		_detail_action.text = "SELECT AN OFFER"
 		_detail_action.disabled = true
 		_configure_focus_neighbors()
@@ -1061,16 +1054,9 @@ func _sync_detail() -> void:
 	if kind == GEAR:
 		for card_id_var: Variant in GameData.equipment_cards(item_id, _run_state):
 			_detail_card_ids.append(str(card_id_var))
-		var equipment: Dictionary = GameData.equipment_def(item_id)
-		var slot_name: String = str(equipment.get("slot", "gear")).to_upper()
-		var card_count_text: String = "%d CARD%s" % [_detail_card_ids.size(), "" if _detail_card_ids.size() == 1 else "S"]
-		_detail_kind.text = "%s · %s · %s" % [slot_name, _rarity(item_id).to_upper(), card_count_text]
 	else:
 		_detail_card_ids.append(item_id)
-		_detail_kind.text = "%s • %s" % [kind.to_upper(), _rarity(item_id).to_upper()]
 	_render_detail_card()
-	_detail_price.text = "Removes this ware from your pack" if _selected_is_sell else ("Adds to reserve magic" if kind == MAGIC else "Adds to your pack")
-	if not affordable: _detail_price.text = "Need %d more embers" % (amount - held)
 	_detail_action.text = "Sell · %d embers" % amount if _selected_is_sell else "Buy · %d embers" % amount
 	_detail_action.disabled = not affordable
 	_detail_action.tooltip_text = "Sell the selected owned ware." if _selected_is_sell else ("Buy the selected ware." if affordable else "You cannot afford this ware.")
@@ -1093,7 +1079,7 @@ func _render_detail_card() -> void:
 	var multiple_cards: bool = _detail_card_ids.size() > 1
 	_detail_card_nav.visible = multiple_cards
 	if multiple_cards:
-		_detail_card_counter.text = "GRANTED CARD  %d / %d" % [_detail_card_index + 1, _detail_card_ids.size()]
+		_detail_card_counter.text = "%d / %d" % [_detail_card_index + 1, _detail_card_ids.size()]
 		_detail_card_previous.disabled = false
 		_detail_card_next.disabled = false
 
@@ -1160,7 +1146,7 @@ func _process(delta: float) -> void:
 	if not visible or _portrait == null or _reduced_motion:
 		return
 	_ambient_time += delta
-	_portrait.call("apply_pose", "idle", fposmod(_ambient_time / 2.5, 1.0))
+	_portrait.call("apply_pose", "idle", fposmod(_ambient_time / PortraitRig.IDLE_SECONDS, 1.0))
 
 func _animate_slot_scale(control: Control, target: Vector2) -> void:
 	if control == null:

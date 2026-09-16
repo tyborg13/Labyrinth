@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "character_id": "scavenger",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_articulated.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 60,
+      "duration": 1.8,
+      "loop": true,
+      "preview_cycles": 2
+    }
+  },
+  "rigid_bones": [
+    "root",
+    "head",
+    "grip_hand",
+    "hanging_hand",
+    "lantern",
+    "pack"
+  ],
+  "contact_feet": [],
+  "sources": [
+    "layouts/front.json",
+    "recipes/articulate.py",
+    "recipes/build_case.py",
+    "recipes/front_skin.skin.json",
+    "recipes/registration.json",
+    "recipes/registration_v02.json",
+    "segmented/segmentation.json",
+    "segmented_articulated/segmentation.json",
+    "source/original.png",
+    "source/ownership.json",
+    "source/ownership_articulated.json"
+  ],
+  "source_baseline": {
+    "kind": "case_fork",
+    "character_id": "scavenger",
+    "files": {
+      "cutout.json": "0ac646371d512127bd360e9f03d5f04c2cd2c4cbbb55de52d66a5269dd51c127",
+      "layouts/front.json": "da367f77604db4b64b5efeaa84dbd99bd1e57b7074b3088cd85e1e8e6ad3ee45",
+      "layouts/front_skin.json": "4b16077600561b2acce6fa409b127cc3b50e1f11a1e113719e27e3f3c2388fb0",
+      "motion.gd": "ebbdd400e0047de6f671f724bd9248f07024828db19706f7c350d04cb9042650",
+      "recipes/build_case.py": "f6c6034101c40ef368eda8b3690343396319c0dbcaf318750e224e863b05a5c8",
+      "recipes/front_skin.skin.json": "92259b5092a3257b8afbe8ffd735f55acc633c48e9e4251c5ed48cb028a77b2a",
+      "recipes/registration.json": "043388a62235ee16ffc5f7ddbfb2a54f83a464bb50782092cdb94e1d8efc6a49",
+      "segmented/coat.png": "6f4bb069409473ca96af897e77a1d722efbfe9c96d65419fbd1f4296cb35981b",
+      "segmented/hood.png": "11c19c0bff45555bd304e0272e09abf1744d6cc24a2442c3f9207586239be091",
+      "segmented/lantern.png": "87b964ef126bb3095a1c1ae1af961dc2ec945e92e784fc19a6fc52e7db523451",
+      "segmented/occupied_hand.png": "fccabd3496777be6f2188a8b331673f54dc86ceee93fcdf9c20708e8d5310abc",
+      "segmented/pack.png": "18d0fad08e072822bfb45f2fc5a17503654c805ce5c72ad97abfe2fcbdef2403",
+      "segmented/segmentation.json": "e5e810ba486d0073868ffd59411a784491481b7bfac7c655b1cfcd37f21364ac",
+      "source/original.png": "16a9d613f3cd2d0005eaab71a0c77df48ebeea70a2d8ae9517c4b42c7b155682",
+      "source/ownership.json": "620eb4f7876db9d0373cfe69a726e251c2356aaab418a6e6741bbda41e4eb8a1"
+    }
+  }
+}

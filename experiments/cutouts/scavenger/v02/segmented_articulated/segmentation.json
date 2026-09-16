@@ -1,0 +1,108 @@
+{
+  "ok": true,
+  "source_sha256": "16a9d613f3cd2d0005eaab71a0c77df48ebeea70a2d8ae9517c4b42c7b155682",
+  "ownership_sha256": "df24c95836bc71d76566e4eaa267e0a1cf924c9c1a9a86cf31093e8f42b89cdb",
+  "parts": [
+    {
+      "name": "hood",
+      "file": "hood.png",
+      "offset": [
+        83,
+        9
+      ],
+      "bbox": [
+        83,
+        9,
+        145,
+        68
+      ]
+    },
+    {
+      "name": "occupied_hand",
+      "file": "occupied_hand.png",
+      "offset": [
+        111,
+        65
+      ],
+      "bbox": [
+        111,
+        65,
+        154,
+        120
+      ]
+    },
+    {
+      "name": "pack",
+      "file": "pack.png",
+      "offset": [
+        137,
+        28
+      ],
+      "bbox": [
+        137,
+        28,
+        192,
+        148
+      ]
+    },
+    {
+      "name": "lantern",
+      "file": "lantern.png",
+      "offset": [
+        62,
+        146
+      ],
+      "bbox": [
+        62,
+        146,
+        89,
+        189
+      ]
+    },
+    {
+      "name": "near_sleeve",
+      "file": "near_sleeve.png",
+      "offset": [
+        126,
+        57
+      ],
+      "bbox": [
+        126,
+        57,
+        154,
+        126
+      ]
+    },
+    {
+      "name": "far_arm",
+      "file": "far_arm.png",
+      "offset": [
+        63,
+        66
+      ],
+      "bbox": [
+        63,
+        66,
+        104,
+        146
+      ]
+    },
+    {
+      "name": "coat_and_legs",
+      "file": "coat_and_legs.png",
+      "offset": [
+        62,
+        56
+      ],
+      "bbox": [
+        62,
+        56,
+        186,
+        248
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

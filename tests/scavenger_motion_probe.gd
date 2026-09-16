@@ -1,4 +1,5 @@
 extends "res://tests/scavenger_glowup_probe.gd"
+const ScavengerIdle = preload("res://scripts/scavenger_cutout/motion.gd")
 ## Fixed 30fps native presentation samples, after real RunScene trades.
 ## The production effects are sampled on their own elapsed clock, never rebuilt.
 func _capture_states() -> void:
@@ -44,7 +45,7 @@ func _capture_states() -> void:
 				effect.set("_elapsed", time)
 				effect.call("_update_pose")
 				effect.queue_redraw()
-		(_shop.get("_portrait") as Node).call("apply_pose", "idle", fposmod(float(index) / 75.0, 1.0))
+		(_shop.get("_portrait") as Node).call("apply_pose", "idle", fposmod(float(index) / (30.0 * ScavengerIdle.IDLE_SECONDS), 1.0))
 		await process_frame
 		await RenderingServer.frame_post_draw
 		_viewport.get_texture().get_image().save_png(frame_dir.path_join("frame_%04d.png" % index))
