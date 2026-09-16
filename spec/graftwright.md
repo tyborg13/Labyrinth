@@ -68,8 +68,11 @@ focus, Tab traversal, and Back. The grid traps focus while open and scrolls with
 focus. Its whole canvas, including its dimmer, renders above CardWidget's raised
 cost badges. Padding inside the scroll viewport protects focus brackets. Focus
 never defaults to Graft. The device prompt bar names the focused action and
-changes Leave to Back while browsing equipment. The completed result is passive;
-Continue is its sole focus target.
+changes Leave to Back while browsing equipment or inspecting a card. Right-click,
+F1, or controller Y opens a deliberate, anchored rules popover; Back restores
+focus without selecting or consuming anything. The native per-icon tooltips are
+retained. Result cards can be inspected with Accept; initial result focus remains
+on Continue. Ordinary card selection never opens this popover.
 
 The [durable copy preference](game_ui_rubric.md#durable-player-preference-relevant-anchored-copy)
 forbids decorative floating taglines and automatic repetition of visible card
@@ -141,7 +144,8 @@ checks that same menu predicate as well as the persisted state contract.
   100% UI scale. Source images are not resized. Covers initial, selected, ritual,
   result/reload, no donor, controller, reduced motion, map, three-card equipment,
   save rejection, categorized large inventories, source-only selection, modal
-  pointer/focus isolation, and replacement of an inherited slot.
+  pointer/focus isolation, explicit pointer/F1/controller rule inspection, and
+  replacement of an inherited slot.
   Dispatches GUI pointer/key/controller events and asserts navigation and outcome.
 - `tests/graftwright_motion_probe.gd`: native 1920x1080 animation frames with
   timestamps; pixel comparisons prove that the portrait moves while the bench
@@ -159,7 +163,7 @@ checks that same menu predicate as well as the persisted state contract.
 
 UI rubric: immediate comprehension, hierarchy, gameplay visibility, compact copy,
 state/consequence, interaction completeness, cohesion, accessibility, layout
-resilience, and visual proof are checked on the states above. Inventory rails use
-explicit page arrows, with no desktop horizontal scrollbars. Alternate resolution
+resilience, and visual proof are checked on the states above. Equipment browsing
+uses a type-organized grid with vertical scrolling and no horizontal pagers. Alternate resolution
 and scale configurations are outside this task's requested proof matrix; normal
 UI scaling remains supported by the workbench's fit-to-view canvas.

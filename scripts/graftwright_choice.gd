@@ -1,6 +1,9 @@
 extends Button
 ## Native input/focus with object-specific art, never a stretched action skin.
 
+signal inspect_requested
+
+var card_face: Control
 var kind: String = "quiet"
 var accent := Color("cfa2f7")
 var chosen: bool = false
@@ -66,3 +69,19 @@ func _draw() -> void:
 			draw_rect(rect, Color(accent, 0.10))
 			draw_line(Vector2(0, rect.end.y), rect.end, accent, 2.0, true)
 		if has_focus(): draw_rect(rect.grow(2), Color("fff1d5"), false, 1.5)
+
+func _gui_input(event: InputEvent) -> void:
+	if card_face == null: return
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		inspect_requested.emit()
+		accept_event()
+
+func _get_tooltip(at_position: Vector2) -> String:
+	# Preserve the shared icon explanations without repeating the card's whole
+	# description on hover, focus, or selection.
+	if card_face != null: return str(card_face.call("_get_tooltip", at_position))
+	return ""
+
+func _make_custom_tooltip(for_text: String) -> Object:
+	if card_face != null: return card_face.call("_make_custom_tooltip", for_text)
+	return null

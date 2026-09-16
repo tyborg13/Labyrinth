@@ -11,6 +11,7 @@ const Rules = preload("res://scripts/graftwright_rules.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const Choice = preload("res://scripts/graftwright_choice.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
 const ThreadEffect = preload("res://scripts/graftwright_thread_effect.gd")
@@ -56,6 +57,8 @@ var _picker_items: Array[String]
 var _effect: Control
 var _result_icon: TextureRect
 var _result_shadow: ColorRect
+var _inspection: Control
+var _inspection_return: Button
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -140,7 +143,9 @@ func present() -> void:
 
 func focus_first() -> void:
 	if busy or not visible: return
-	if _picker != null:
+	if _inspection != null:
+		(_inspection.find_child("InspectionBack", true, false) as Button).grab_focus()
+	elif _picker != null:
 		for id: String in _picker_items:
 			var choice: Button = _picker.find_child("Pick_" + id, true, false) as Button
 			if choice != null and not choice.disabled:
@@ -153,7 +158,8 @@ func focus_first() -> void:
 
 func request_leave() -> void:
 	if busy: return
-	if not _picker_role.is_empty(): close_picker()
+	if _inspection != null: close_inspection()
+	elif not _picker_role.is_empty(): close_picker()
 	else: leave_requested.emit()
 
 func _used() -> bool:
@@ -215,6 +221,11 @@ func select_target(index: int) -> void:
 	sound_requested.emit("select")
 
 func _rebuild() -> void:
+	if _inspection != null:
+		_canvas.remove_child(_inspection)
+		_inspection.queue_free()
+		_inspection = null
+		_inspection_return = null
 	for child: Node in _content.get_children():
 		_content.remove_child(child)
 		child.queue_free()
@@ -419,8 +430,8 @@ func _build_result() -> void:
 		var selected: bool = i == int(result.get("index", -1))
 		var card: Button = _card(_content, str(cards[i]), Vector2(start + i * 232, 540), selected, GREEN, func() -> void: pass)
 		card.name = "ResultCard_%d" % i
-		card.focus_mode = Control.FOCUS_NONE
-		card.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card.set_meta("graft_action_label", "Inspect")
+		card.pressed.connect(func() -> void: _open_inspection(card))
 		if selected: _ribbon(_content, "INHERITED", Rect2(card.position.x, 831, 200, 30), GREEN)
 	_label(_content, _item_name(str(result.get("donor", ""))) + " consumed", Rect2(780, 881, 800, 34), 20, MUTED, true)
 	_leave = _action(_content, "Continue", Rect2(997, 937, 365, 120), request_leave)
@@ -494,7 +505,7 @@ func _process(delta: float) -> void:
 		_result_shadow.scale.x = 1.0 + bob * 0.012
 
 func _wire_focus() -> void:
-	var scope: Control = _picker if _picker != null else _content
+	var scope: Control = _inspection if _inspection != null else _picker if _picker != null else _content
 	var buttons: Array[Button]
 	for node: Node in scope.find_children("*", "Button", true, false):
 		var button: Button = node as Button
@@ -557,8 +568,66 @@ func _card(parent: Node, id: String, position_value: Vector2, selected: bool, co
 	card.call("configure", id, false, false, true, false, false)
 	composition.add_child(card)
 	_passive(card)
+	button.card_face = card
+	button.set_meta("graft_card_id", id)
+	button.inspect_requested.connect(func() -> void: _open_inspection(button))
 	button.set_meta("graft_action_label", "Select")
 	return button
+
+func inspect_focused() -> bool:
+	if busy or _picker != null: return false
+	if _inspection != null:
+		close_inspection()
+		return true
+	var focused: Button = get_viewport().gui_get_focus_owner() as Button
+	if focused == null or not focused.has_meta("graft_card_id"): return false
+	_open_inspection(focused)
+	return true
+
+func _open_inspection(source: Button) -> void:
+	if busy or _picker != null or _inspection != null: return
+	var id: String = str(source.get_meta("graft_card_id", ""))
+	if id.is_empty(): return
+	_inspection_return = source
+	_inspection = Control.new()
+	_inspection.name = "CardInspection"
+	_inspection.size = SIZE
+	_inspection.z_index = 60
+	_inspection.mouse_filter = Control.MOUSE_FILTER_STOP
+	_canvas.add_child(_inspection)
+	_solid(_inspection, Rect2(Vector2.ZERO, SIZE), Color(0.02, 0.015, 0.03, 0.32))
+	_inspection.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed: close_inspection()
+	)
+	var panel: PanelContainer = Tooltip.make_lines(_card_name(id), PackedStringArray([str(Data.card_def(id).get("description", ""))]))
+	panel.name = "ExactRules"
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	panel.hide()
+	_inspection.add_child(panel)
+	var back: Button = _quiet(panel.get_child(0), "Back", Rect2(0, 0, 340, 38), close_inspection)
+	back.name = "InspectionBack"
+	back.custom_minimum_size = Vector2(340, 38)
+	# Wait for wrapped rules to establish their actual height, then anchor the
+	# popover immediately above the inspected card without a first-frame flash.
+	await get_tree().process_frame
+	if _inspection == null or not is_instance_valid(panel): return
+	panel.size = panel.get_combined_minimum_size()
+	var point: Vector2 = _canvas.get_global_transform_with_canvas().affine_inverse() * source.get_global_transform_with_canvas().origin
+	panel.position = Vector2(clampf(point.x + CARD_SIZE.x * 0.5 - panel.size.x * 0.5, 20, SIZE.x - panel.size.x - 20), maxf(100, point.y - panel.size.y - 18))
+	panel.show()
+	_wire_focus()
+	back.grab_focus()
+	interaction_changed.emit()
+
+func close_inspection() -> void:
+	if _inspection == null: return
+	_canvas.remove_child(_inspection)
+	_inspection.queue_free()
+	_inspection = null
+	if is_instance_valid(_inspection_return): _inspection_return.grab_focus()
+	_inspection_return = null
+	_wire_focus()
+	interaction_changed.emit()
 
 func _mat(parent: Node, rect: Rect2) -> void:
 	var mat := NinePatchRect.new()
@@ -636,4 +705,4 @@ func _card_name(id: String) -> String:
 	return str(Data.card_def(id).get("name", id))
 
 func semantic_snapshot() -> Dictionary:
-	return {"recipient": recipient, "donor": donor, "source_index": donor_index, "target_index": target_index, "busy": busy, "used": _used(), "can_commit": _commit != null and is_instance_valid(_commit) and not _commit.disabled, "result": _result(), "reduced_motion": reduced_motion, "picker_role": _picker_role, "picker_slot": _picker_slot, "picker_items": _picker_items.duplicate(), "bench_occludes_portrait": _bench != null and _bench.get_index() > _portrait.get_index()}
+	return {"recipient": recipient, "donor": donor, "source_index": donor_index, "target_index": target_index, "busy": busy, "used": _used(), "can_commit": _commit != null and is_instance_valid(_commit) and not _commit.disabled, "result": _result(), "reduced_motion": reduced_motion, "inspecting": _inspection != null, "picker_role": _picker_role, "picker_slot": _picker_slot, "picker_items": _picker_items.duplicate(), "bench_occludes_portrait": _bench != null and _bench.get_index() > _portrait.get_index()}

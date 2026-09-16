@@ -2153,6 +2153,10 @@ func _input(event: InputEvent) -> void:
 			return
 		if event is InputEventJoypadButton or event is InputEventJoypadMotion:
 			_handle_controller_input(event)
+		if event.is_action_pressed(InputRouterScript.ACTION_PASS) or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_F1):
+			if _graftwright_view.inspect_focused():
+				get_viewport().set_input_as_handled()
+				return
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 			_graftwright_view.request_leave()
 			get_viewport().set_input_as_handled()
@@ -3518,12 +3522,15 @@ func _refresh_controller_prompts() -> void:
 		var focused: Control = get_viewport().gui_get_focus_owner()
 		var action: String = "Select"
 		if focused != null: action = str(focused.get_meta("graft_action_label", "Select"))
-		var browsing: bool = not str(_graftwright_view.semantic_snapshot().get("picker_role", "")).is_empty()
+		var graft_snapshot: Dictionary = _graftwright_view.semantic_snapshot()
+		var browsing: bool = bool(graft_snapshot.get("inspecting", false)) or not str(graft_snapshot.get("picker_role", "")).is_empty()
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": action},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Back" if browsing else "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
 		]
+		if focused != null and focused.has_meta("graft_card_id"):
+			prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Inspect"})
 	elif _merchant_shop_open and not _current_room_merchant_kind().is_empty() and _scavenger_shop_view != null and _scavenger_shop_view.visible:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Trade"},

@@ -61,6 +61,27 @@ func _initialize() -> void:
 	check(int(snapshot["source_index"]) == 1 and int(snapshot["target_index"]) == 1, "Correct source and target selected")
 	check(proof_viewport.gui_get_focus_owner() != view.find_child("GraftCommit", true, false), "Destructive action is not auto-focused")
 	await capture("02_preview.png")
+	check(not bool(view.call("semantic_snapshot")["inspecting"]), "Ordinary selection never opens repeated rules text")
+	source = view.find_child("SourceCard_1", true, false) as Button
+	source.grab_focus()
+	for down: bool in [true, false]:
+		var key := InputEventKey.new()
+		key.keycode = KEY_F1
+		key.pressed = down
+		proof_viewport.push_input(key, true)
+		await process_frame
+	await process_frame
+	check(bool(view.call("semantic_snapshot")["inspecting"]), "F1 opens optional exact rules for the focused card")
+	await capture("16_card_inspection.png")
+	await action(&"ui_focus_next")
+	check(view.find_child("CardInspection", true, false).is_ancestor_of(proof_viewport.gui_get_focus_owner()), "Inspection traps focus")
+	view.call("request_leave")
+	check(not bool(view.call("semantic_snapshot")["inspecting"]) and proof_viewport.gui_get_focus_owner() == source, "Inspection Back restores card focus without leaving")
+	await click(source, MOUSE_BUTTON_RIGHT)
+	await process_frame
+	check(bool(view.call("semantic_snapshot")["inspecting"]), "Right-click opens deliberate card inspection")
+	view.call("request_leave")
+	check(int(view.call("semantic_snapshot")["source_index"]) == 1 and int(view.call("semantic_snapshot")["target_index"]) == 1, "Inspection preserves both selected cards")
 	var commit: Button = view.find_child("GraftCommit", true, false) as Button
 	await click(commit)
 	await create_timer(0.62).timeout
@@ -117,11 +138,27 @@ func _initialize() -> void:
 	await process_frame
 	check(int(view.call("semantic_snapshot")["target_index"]) == 1, "Controller accept selects focused replacement")
 	await capture("07_controller_focus.png")
+	root.get_node("InputRouter").call("set_modality", Router.MODALITY_POINTER)
+	for down: bool in [true, false]:
+		var inspect_event := InputEventJoypadButton.new()
+		inspect_event.button_index = JOY_BUTTON_Y
+		inspect_event.pressed = down
+		proof_viewport.push_input(inspect_event, true)
+		await process_frame
+	await process_frame
+	check(bool(view.call("semantic_snapshot")["inspecting"]), "Controller Y opens exact card rules on demand")
+	check(root.get_node("InputRouter").call("using_controller"), "Y inspection switches from pointer to controller prompts")
+	await capture("17_controller_inspection.png")
+	view.call("request_leave")
 	commit = view.find_child("GraftCommit", true, false) as Button
 	await click(commit)
 	await create_timer(0.3).timeout
 	check(not bool(view.call("semantic_snapshot")["busy"]) and bool(view.call("semantic_snapshot")["used"]), "Reduced motion resolves without thread flight")
 	await capture("08_reduced_motion_result.png")
+	await click(view.find_child("ResultCard_1", true, false) as Button)
+	await process_frame
+	check(bool(view.call("semantic_snapshot")["inspecting"]), "Completed cards retain explicit inspection")
+	view.call("request_leave")
 	view.call("request_leave")
 	await create_timer(0.4).timeout
 	check(not view.visible, "Continue closes workbench and returns to map")
@@ -200,7 +237,7 @@ func check(ok: bool, message: String) -> void:
 		failed = true
 		push_error(message)
 
-func click(button: Button) -> void:
+func click(button: Button, mouse_button: MouseButton = MOUSE_BUTTON_LEFT) -> void:
 	if button == null: check(false, "Missing interactive button"); return
 	var point: Vector2 = button.get_global_transform_with_canvas() * (button.size * 0.5)
 	var move := InputEventMouseMotion.new()
@@ -209,7 +246,7 @@ func click(button: Button) -> void:
 	proof_viewport.push_input(move, true)
 	for down: bool in [true, false]:
 		var event := InputEventMouseButton.new()
-		event.button_index = MOUSE_BUTTON_LEFT
+		event.button_index = mouse_button
 		event.position = point
 		event.pressed = down
 		root.get_node("InputRouter").call("_input", event)
