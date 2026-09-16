@@ -38,6 +38,15 @@ func _initialize() -> void:
 	):
 		_fail("guided tutorial fixture is not at the authored pre-action combat state")
 		return
+	if str(metadata.get("scenario", "")) == "graftwright":
+		# A serialized contract alone does not prove that Continue is available.
+		# Use the same predicate that enables the production main-menu action.
+		var menu: Control = load("res://scripts/main_menu.gd").new()
+		var preview: Dictionary = menu.call("_build_saved_run_preview", run_state)
+		menu.free()
+		if preview.is_empty():
+			_fail("Graftwright fixture cannot be resumed from the main menu")
+			return
 	var payload: Dictionary = {
 		"ok": true,
 		"scenario": str(metadata.get("scenario", "")),

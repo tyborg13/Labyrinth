@@ -96,7 +96,10 @@ append-only map outbox and idempotency keys; see [analytics.md](analytics.md).
 The manual console exposes `graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX`
 with zero-based indexes and `leave`. It saves through its normal isolated session
 boundary. `inspection_fixture.py --scenario graftwright` uses a generated room
-with three cleared combats and accepts ordinary loadout options.
+with three cleared combats and accepts ordinary loadout options. The main menu
+recognizes Graftwright saves both before and after the ritual, displays the saved
+encounter in its resume summary, and keeps Continue available. Fixture verification
+checks that same menu predicate as well as the persisted state contract.
 
 ## Verification and UI rubric
 
@@ -111,6 +114,13 @@ with three cleared combats and accepts ordinary loadout options.
   result/reload, no donor, controller, reduced motion, map, three-card equipment,
   save rejection, large inventory paging, and replacement of an inherited slot.
   Dispatches GUI pointer/key/controller events and asserts navigation and outcome.
+- `tests/main_menu_resume_test.gd`: production-menu eligibility before and after
+  a graft, saved encounter label, unchanged save contents, and rejection of a
+  mismatched room type.
+- `tests/graftwright_resume_probe.gd`: copies the actual generated fixture into
+  an isolated namespace, clicks Continue in the real main menu, completes a graft,
+  then returns through a fresh menu using controller input to resume the result.
+  Captures native 1920x1080 menu and workbench states at 100% UI scale.
 - `tests/run_tests.gd`: full regression, including an end-to-end six-boss route
   that resolves Graftwright visits and retains the original victory assertions.
 - `tests/test_icon_identity_policy.py`: unique map emblem registration.

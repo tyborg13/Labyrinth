@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_resume_test_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_test_run.save"
@@ -16,6 +17,7 @@ func _initialize() -> void:
 	ProgressionStore.set_run_storage_path(RUN_PATH)
 	_cleanup_storage()
 	await _test_valid_save_summary_and_replacement_gate()
+	await _test_graftwright_saves_resume()
 	await _test_no_save_hides_summary()
 	await _test_corrupt_save_is_hidden_and_recoverable()
 	_cleanup_storage()
@@ -95,6 +97,29 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Confirmed replacement should preserve the existing New Game ember-reset semantic")
 	instance.free()
 	await process_frame
+
+func _test_graftwright_saves_resume() -> void:
+	var state: Dictionary = GraftwrightSuite.fixture()
+	_assert(ProgressionStore.save_data(state["progression"]), "Graftwright resume fixture should write progression")
+	for used: bool in [false, true]:
+		if used:
+			state = RunEngine.new().graft_equipment(state, "undertaker_plate", "patched_cloak", 1, 1)
+		_assert(ProgressionStore.save_run_state(state), "Graftwright resume fixture should write the run")
+		var bytes_before: PackedByteArray = _run_file_bytes()
+		var instance: Node = await _instantiate_menu()
+		if instance == null: return
+		var button: Button = instance.get_node("MenuColumn/ContinueButton")
+		var location: Label = instance.get_node("ResumePanel/ResumeMargin/ResumeVBox/ResumeLocation")
+		_assert(not button.disabled and button.text == "Continue Run", "Graftwright save should enable Continue before and after grafting (used=%s)" % used)
+		_assert(location.text.contains("GRAFTWRIGHT"), "Graftwright save summary should identify the encounter")
+		_assert(_run_file_bytes() == bytes_before, "Inspecting a Graftwright save must not change equipment or replay a graft")
+		var invalid: Dictionary = state.duplicate(true)
+		var coord: Vector2i = invalid["current_room"]
+		invalid["rooms"]["%d,%d" % [coord.x, coord.y]]["type"] = "combat"
+		_assert((instance.call("_build_saved_run_preview", invalid) as Dictionary).is_empty(), "A mismatched room must not masquerade as a resumable Graftwright")
+		_stop_menu_music(instance)
+		instance.queue_free()
+		await process_frame
 
 func _test_no_save_hides_summary() -> void:
 	ProgressionStore.clear_saved_run()

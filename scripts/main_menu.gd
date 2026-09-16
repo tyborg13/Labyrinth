@@ -48,7 +48,8 @@ const SAVED_RUN_MODE_LABELS := {
 	"combat": "IN COMBAT",
 	"reward": "CHOOSING A REWARD",
 	"campfire": "AT CAMPFIRE",
-	"treasure": "AT TREASURE"
+	"treasure": "AT TREASURE",
+	"graftwright": "AT GRAFTWRIGHT"
 }
 const TITLE_FACE_TOP_COLOR := Color("fff7cf")
 const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
@@ -611,6 +612,8 @@ func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coo
 		"treasure":
 			var relics_value: Variant = run_state.get("pending_relics", null)
 			return typeof(relics_value) == TYPE_ARRAY and not (relics_value as Array).is_empty()
+		"graftwright":
+			return str(room.get("type", "")) == "graftwright"
 		"room", "campfire":
 			return true
 	return false
