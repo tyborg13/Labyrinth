@@ -10,7 +10,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const MENU_SCENE_PATH := "res://scenes/main_menu.tscn"
 const MAKERS_SEAL_PATH := "res://assets/art/ui/boot_splash_makers_seal.png"
 const FADE_IN_SECONDS := 0.4
-const HOLD_SECONDS := 2.0
+const HOLD_SECONDS := 1.0
 const FADE_OUT_SECONDS := 0.35
 const MENU_FADE_SECONDS := 0.4
 
@@ -58,7 +58,7 @@ func _play_intro() -> void:
 	await _fade(seal, 1.0, FADE_IN_SECONDS)
 	await _present_frame()
 	_set_phase(&"hold")
-	# Keep a full two seconds at full opacity, independent of loading and fades.
+	# Keep a full second at full opacity, independent of loading and fades.
 	var hold_until_ms := Time.get_ticks_msec() + int(HOLD_SECONDS * 1000.0)
 	while Time.get_ticks_msec() < hold_until_ms:
 		await get_tree().process_frame

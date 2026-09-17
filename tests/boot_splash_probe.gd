@@ -5,7 +5,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const SIZE := Vector2i(1920, 1080)
-const OUTPUT_DIR := "user://probes/boot_splash_makers_seal_20260827_v3"
+const OUTPUT_DIR := "user://probes/boot_splash_one_second_20260916_v1"
 const APPROVED_SHA256 := "a2fea0706c12f6e9e066e5b3f54d2660423d42d733975a110f0ffe45b79f211c"
 
 var _recording: bool = false
@@ -44,7 +44,7 @@ func _run() -> void:
 	await _capture_motion(settings)
 	RenderingServer.frame_post_draw.disconnect(_record_frame)
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
-	print("TEST RESULT: PASS (startup fades, two-second hold, reduced motion and menu handoff)")
+	print("TEST RESULT: PASS (startup fades, one-second hold, reduced motion and menu handoff)")
 	quit()
 
 
@@ -86,7 +86,7 @@ func _capture_sequence(settings: Dictionary, reduced: bool) -> void:
 	while completed_menu.is_empty():
 		await process_frame
 	var menu: Control = completed_menu[0]
-	assert(phase_times["fade_out"] - phase_times["hold"] >= 2000)
+	assert(phase_times["fade_out"] - phase_times["hold"] >= 1000)
 	assert(not root.gui_disable_input and current_scene == menu)
 	assert(is_equal_approx(menu.modulate.a, 1.0))
 	assert(menu.get_node("MenuColumn/StartButton").visible)
