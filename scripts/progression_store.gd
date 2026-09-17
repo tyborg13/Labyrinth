@@ -488,7 +488,13 @@ static func _run_dictionary_is_nonempty(path: String) -> bool:
 	return typeof(data) == TYPE_DICTIONARY and not (data as Dictionary).is_empty()
 
 static func save_run_state(run_state: Dictionary) -> bool:
-	if not _archive_before_surface_migration(_run_storage_path, false) or not _archive_before_surface_migration(_run_backup_path(), false):
+	# Reuse this transaction's inspection for migration and crash recovery. Both
+	# used to deserialize the entire previous run independently on every save.
+	# Never cache across transactions: externally restored/corrupt files must be
+	# inspected again. The newly written temporary file is still read back below.
+	var live_inspection: Dictionary = _inspect_run_file(_run_storage_path)
+	var backup_inspection: Dictionary = _inspect_run_file(_run_backup_path())
+	if not _archive_before_surface_migration(_run_storage_path, false, live_inspection) or not _archive_before_surface_migration(_run_backup_path(), false, backup_inspection):
 		return false
 	var temp_path: String = _run_temp_path()
 	var backup_path: String = _run_backup_path()
@@ -503,8 +509,8 @@ static func save_run_state(run_state: Dictionary) -> bool:
 		_remove_run_file_if_present(temp_path)
 		return false
 	var live_path: String = ProjectSettings.globalize_path(_run_storage_path)
-	var live_exists: bool = FileAccess.file_exists(_run_storage_path)
-	var live_valid: bool = live_exists and _run_dictionary_is_nonempty(_run_storage_path)
+	var live_exists: bool = bool(live_inspection["exists"])
+	var live_valid: bool = bool(live_inspection["valid"])
 	var backup_valid: bool = false
 	if live_valid:
 		_remove_run_file_if_present(backup_path)
@@ -513,7 +519,7 @@ static func save_run_state(run_state: Dictionary) -> bool:
 			return false
 		backup_valid = true
 	else:
-		backup_valid = _run_dictionary_is_nonempty(backup_path)
+		backup_valid = bool(backup_inspection["valid"])
 		if live_exists:
 			if DirAccess.remove_absolute(live_path) != OK:
 				_remove_run_file_if_present(temp_path)
@@ -539,20 +545,42 @@ static func clear_saved_run() -> void:
 static func _run_temp_path() -> String:
 	return "%s.tmp" % _run_storage_path
 
+static func _inspect_run_file(path: String) -> Dictionary:
+	var result: Dictionary = {"exists": FileAccess.file_exists(path), "readable": false, "valid": false, "surface_rules_version": 0}
+	if not result["exists"]:
+		return result
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return result
+	var raw: Variant = file.get_var(false)
+	file.close()
+	result["readable"] = true
+	result["valid"] = typeof(raw) == TYPE_DICTIONARY and not (raw as Dictionary).is_empty()
+	if result["valid"]:
+		result["surface_rules_version"] = int((raw as Dictionary).get("surface_rules_version", 0))
+	return result
+
 # Unlike the rotating crash-recovery backup, this archive survives successful
 # writes and clearing a completed run. The content hash makes retries idempotent
 # while preserving different legacy saves a player may explicitly restore.
-static func _archive_before_surface_migration(path: String, profile: bool) -> bool:
-	if not FileAccess.file_exists(path):
-		return true
-	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
-	if file == null:
-		return false
-	var raw: Variant = JSON.parse_string(file.get_as_text()) if profile else file.get_var(false)
-	file.close()
-	if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
-		return true # Invalid live files still use the ordinary recovery path.
-	if int((raw as Dictionary).get("surface_rules_version", 0)) >= SURFACE_RULES_VERSION:
+static func _archive_before_surface_migration(path: String, profile: bool, run_inspection: Dictionary = {}) -> bool:
+	var version: int = 0
+	if not profile:
+		var inspection: Dictionary = _inspect_run_file(path) if run_inspection.is_empty() else run_inspection
+		if not bool(inspection["exists"]): return true
+		if not bool(inspection["readable"]): return false
+		if not bool(inspection["valid"]): return true
+		version = int(inspection["surface_rules_version"])
+	else:
+		if not FileAccess.file_exists(path): return true
+		var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+		if file == null: return false
+		var raw: Variant = JSON.parse_string(file.get_as_text())
+		file.close()
+		if typeof(raw) != TYPE_DICTIONARY or (raw as Dictionary).is_empty():
+			return true # Invalid live files still use the ordinary recovery path.
+		version = int((raw as Dictionary).get("surface_rules_version", 0))
+	if version >= SURFACE_RULES_VERSION:
 		return true
 	var digest: String = FileAccess.get_sha256(path)
 	if digest.is_empty():

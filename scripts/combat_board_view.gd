@@ -2691,27 +2691,55 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
-	_sync_illusion_renderers()
-	_sync_warden_renderers()
-	_sync_crawler_renderers()
-	_sync_acolyte_renderers()
-	_sync_guardian_renderers()
-	_sync_bile_bloomer_renderers()
-	_sync_gaoler_renderers()
-	_sync_cinder_droplet_renderers()
-	CinderOozePresentation.sync(self)
-	_sync_frostglass_renderers()
-	_sync_grave_surgeon_renderers()
-	_sync_harrier_renderers()
-	_sync_iskaldra_renderers()
-	_sync_lightning_wisp_renderers()
-	_sync_noctyrax_renderers()
-	_sync_tharokh_renderers()
-	_sync_vaeloryx_renderers()
-	_sync_veilbound_acolyte_renderers()
-	_sync_vyraketh_renderers()
-	_sync_zekarion_renderers()
-	if is_instance_valid(_protagonist_renderer):
+	# A pose-only submission affects its addressed family. Other persistent
+	# canvases continue their own idle processing; walking the complete roster
+	# for every family needlessly resubmitted unrelated actors each frame.
+	var refresh_cutout_roster: bool = not _submission_cache_initialized
+	for key: String in ["player", "enemies", "illusions", "npcs"]:
+		refresh_cutout_roster = refresh_cutout_roster or combat_render_changes.has(key)
+	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
+		refresh_cutout_roster = refresh_cutout_roster or presentation_changes.has(key)
+	if refresh_cutout_roster or presentation_changes.has("illusion_motion"):
+		_sync_illusion_renderers()
+	if refresh_cutout_roster or presentation_changes.has("warden_motion"):
+		_sync_warden_renderers()
+	if refresh_cutout_roster or presentation_changes.has("crawler_motion"):
+		_sync_crawler_renderers()
+	if refresh_cutout_roster or presentation_changes.has("acolyte_motion"):
+		_sync_acolyte_renderers()
+	if refresh_cutout_roster or presentation_changes.has("guardian_motion"):
+		_sync_guardian_renderers()
+	if refresh_cutout_roster or presentation_changes.has("bile_bloomer_motion"):
+		_sync_bile_bloomer_renderers()
+	if refresh_cutout_roster or presentation_changes.has("gaoler_motion"):
+		_sync_gaoler_renderers()
+	if refresh_cutout_roster or presentation_changes.has("cinder_droplet_motion"):
+		_sync_cinder_droplet_renderers()
+	if refresh_cutout_roster or presentation_changes.has("cinder_ooze_motion"):
+		CinderOozePresentation.sync(self)
+	if refresh_cutout_roster or presentation_changes.has("frostglass_motion"):
+		_sync_frostglass_renderers()
+	if refresh_cutout_roster or presentation_changes.has("grave_surgeon_motion"):
+		_sync_grave_surgeon_renderers()
+	if refresh_cutout_roster or presentation_changes.has("harrier_motion"):
+		_sync_harrier_renderers()
+	if refresh_cutout_roster or presentation_changes.has("iskaldra_motion"):
+		_sync_iskaldra_renderers()
+	if refresh_cutout_roster or presentation_changes.has("lightning_wisp_motion"):
+		_sync_lightning_wisp_renderers()
+	if refresh_cutout_roster or presentation_changes.has("noctyrax_motion"):
+		_sync_noctyrax_renderers()
+	if refresh_cutout_roster or presentation_changes.has("tharokh_motion"):
+		_sync_tharokh_renderers()
+	if refresh_cutout_roster or presentation_changes.has("vaeloryx_motion"):
+		_sync_vaeloryx_renderers()
+	if refresh_cutout_roster or presentation_changes.has("veilbound_acolyte_motion"):
+		_sync_veilbound_acolyte_renderers()
+	if refresh_cutout_roster or presentation_changes.has("vyraketh_motion"):
+		_sync_vyraketh_renderers()
+	if refresh_cutout_roster or presentation_changes.has("zekarion_motion"):
+		_sync_zekarion_renderers()
+	if is_instance_valid(_protagonist_renderer) and (refresh_cutout_roster or presentation_changes.has("protagonist_motion")):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
 	var registration_changes: Dictionary = {}

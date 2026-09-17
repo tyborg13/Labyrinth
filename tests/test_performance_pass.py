@@ -25,6 +25,19 @@ class PerformancePassTest(unittest.TestCase):
         phase["viewport_render_gpu_ms"]["median"] = 2.5
         self.assertEqual(performance_pass._metric_value(report, metric), 2.5)
 
+    def test_animation_matrix_rejects_different_cases_or_vsync(self):
+        import copy
+        baseline = {"benchmarks": {"animation_matrix": {"result": {
+            "case_ids": ["crawler", "split_family"], "vsync_mode": 0,
+            "actual_backing_size": "(1920, 1080)",
+        }}}}
+        for field, value in (("case_ids", ["crawler"]), ("vsync_mode", 1),
+                             ("actual_backing_size", "(3024, 1898)")):
+            candidate = copy.deepcopy(baseline)
+            candidate["benchmarks"]["animation_matrix"]["result"][field] = value
+            self.assertTrue(any(field in issue for issue in
+                                performance_pass._compatibility_problems(baseline, candidate)))
+
     def test_forecast_semantic_changes_reject_comparison(self):
         baseline = {"benchmarks": {"simulation": {"result": {"enemy_forecast_digest": 11}}}}
         candidate = {"benchmarks": {"simulation": {"result": {"enemy_forecast_digest": 12}}}}

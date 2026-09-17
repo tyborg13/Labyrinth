@@ -595,7 +595,7 @@ func _verify_static_render_cache_visual_equivalence(board: Control, viewport: Su
 	state["traps"] = []
 	state["surfaces"] = {"2,2": {"elemental": "fire", "rubble": true}, "3,2": {"elemental": "ice", "rubble": false}, "2,3": {"elemental": "electrified", "rubble": false}}
 	var presentation: Dictionary = {"board_backdrop_visible": true}
-	board.set_process(false)
+	board.process_mode = Node.PROCESS_MODE_DISABLED
 	board.call("set_static_render_cache_enabled", false)
 	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	board.queue_redraw()
@@ -664,7 +664,7 @@ func _verify_umbra_multimesh_visual_equivalence(board: Control, viewport: SubVie
 	presentation["effect"] = {}
 	presentation["ambient_time_seconds"] = 42.0
 	presentation["umbra_time_seconds"] = 42.0
-	board.set_process(false)
+	board.process_mode = Node.PROCESS_MODE_DISABLED
 	_set_umbra_circle_multimesh_enabled(board, false)
 	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, presentation)
 	var render_sources: Array[Control]

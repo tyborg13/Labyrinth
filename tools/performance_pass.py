@@ -22,6 +22,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADLESS_BENCHMARKS = {
+    "cutout_cpu": ("CUTOUT CPU PERF RESULT:", "tests/cutout_cpu_performance_benchmark.gd"),
     "surface_cpu": ("SURFACE CPU PERF RESULT:", "tests/surface_cpu_performance_benchmark.gd"),
     "simulation": ("PERF RESULT:", "tests/performance_benchmark.gd"),
     "runtime_integration": (
@@ -38,6 +39,7 @@ HEADLESS_BENCHMARKS = {
     ),
 }
 NATIVE_BENCHMARKS = {
+    "animation_matrix": ("ANIMATION MATRIX RESULT:", "tests/combat_animation_matrix_benchmark.gd"),
     "ui_flow": ("UI FLOW PERF RESULT:", "tests/ui_flow_performance_benchmark.gd"),
     "surface_frame": ("SURFACE FRAME PERF RESULT:", "tests/surface_frame_performance_benchmark.gd"),
     "render": ("RENDER PERF RESULT:", "tests/render_performance_benchmark.gd"),
@@ -293,6 +295,23 @@ for temperature in ("cold", "warm_1", "warm_2"):
     for phase in ("shop_resume", "shop_idle", "inspect_grave_mortar", "inspect_boiled_leather", "inspect_duelist_rapier", "inspect_nail_bomb", "shop_buy", "shop_sell", "shop_leave", "shop_reopen", "map_open", "map_idle", "map_close", "reward_resume_reveal", "reward_idle", "reward_hover", "reward_claim", "reward_heal"):
         for metric in ("frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.p99", "frame_interval_ms.max", "frames_over_16_67_ms", "frames_over_33_33_ms", "handler_ms"):
             COMPARISON_METRICS[f"ui_flow.phases.{temperature}/{phase}.{metric}"] = "lower"
+
+
+for field in ("schema_version", "workload_id", "viewport", "actual_backing_size", "renderer", "rendering_method", "sample_boundary", "phase_frames", "warmup_frames", "vsync_mode", "case_ids", "actual_window_size", "display_driver", "transition_frames"):
+    COMPATIBILITY_FIELDS[f"animation matrix {field}"] = ("benchmarks", "animation_matrix", "result", field)
+for case in ("early_melee", "mixed_casters", "split_family", "guardian_helpers", "dragon_support", "late_specialists"):
+    for field in ("install_usec", "static_memory_bytes", "nodes", "objects"):
+        COMPARISON_METRICS[f"animation_matrix.cases.{case}.{field}"] = "lower"
+    for phase in ("idle", "walk", "attack", "reduced_motion"):
+        for metric in ("frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.p99", "frame_interval_ms.max", "frames_over_16_67_ms", "frames_over_33_33_ms", "submission_usec.median", "submission_usec.p95", "draw_calls.median"):
+            COMPARISON_METRICS[f"animation_matrix.cases.{case}.{phase}.{metric}"] = "lower"
+
+
+for field in ("schema_version", "workload_id", "case_ids", "actor_ids", "repetitions", "measurement_class"):
+    COMPATIBILITY_FIELDS[f"cutout CPU {field}"] = ("benchmarks", "cutout_cpu", "result", field)
+for case in ("early_melee", "mixed_casters", "split_family", "guardian_helpers", "dragon_support", "late_specialists"):
+    for metric in ("create_usec.median", "create_usec.p95", "live_data_bytes.median"):
+        COMPARISON_METRICS[f"cutout_cpu.construction.{case}.{metric}"] = "lower"
 
 
 def _cpu_profile_command(command: list[str], cpu_profile: str) -> list[str]:

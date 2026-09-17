@@ -11,7 +11,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v14"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v15"
 const HAND: Array = [
 	"threaded_path",
 	"sidestep_slash",
@@ -2180,12 +2180,24 @@ func _select_card(instance: Node, hand_index: int, play_kind: String = "play") -
 		return 0.0
 	var hand: Array = (((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array)
 	var local_x: float = widget.size.x - 18.0 if hand_index == hand.size() - 1 else 18.0
-	var hover_position := Vector2(local_x, minf(72.0, widget.size.y * 0.24))
+	var hover_position := Vector2(local_x, widget.size.y * 0.5)
 	_routed_pointer_motion(widget, hover_position)
-	# A real card click follows hover delivery. Give the retained hand fan one frame
-	# to raise the hovered card before routing the press so the native workload does
-	# not click an overlapping neighbor with the pre-hover geometry.
-	await process_frame
+	# The fan takes 130 ms to finish raising a hovered card. One process-frame
+	# wait races that layout and can move the exposed strip out from under the
+	# synthetic pointer. Locate and verify the actual routed hit before clicking.
+	await _settle_render_frames(20)
+	var hit: bool = false
+	for x: float in [local_x, widget.size.x * 0.5, widget.size.x - 24.0]:
+		for y: float in [widget.size.y * 0.5, widget.size.y * 0.7, 100.0]:
+			hover_position = Vector2(x, y)
+			_routed_pointer_motion(widget, hover_position)
+			var hovered: Control = widget.get_viewport().gui_get_hovered_control()
+			if hovered == widget:
+				hit = true
+				break
+		if hit:
+			break
+	_expect(hit, "card click must hit the intended card through the viewport GUI router")
 	var handler_ms: float = _routed_left_click(widget, hover_position)
 	await process_frame
 	if int(instance.get("_selected_card_index")) != hand_index and int(instance.get("_card_action_choice_index")) == hand_index:
@@ -2219,7 +2231,7 @@ func _measure_ranged_trap_hand_regression(instance: Node) -> Dictionary:
 		return {}
 	await _select_card(instance, hand_index)
 	await _await_render_frame()
-	var trap_tile := Vector2i(2, 2)
+	var trap_tile := Vector2i(4, 2)
 	var pending_tiles: Array[Vector2i] = _vector2i_array(instance.get("_pending_target_tiles"))
 	_expect(pending_tiles.has(trap_tile), "Pale Spark must be able to target the authored ranged trap")
 	if not pending_tiles.has(trap_tile):

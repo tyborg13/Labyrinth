@@ -655,7 +655,10 @@ func _normal_combat_run() -> Dictionary:
 			var moved: Dictionary = _run_engine.move_to_room(run_state, coord)
 			if str(moved.get("mode", "")) == "combat" and not (moved.get("combat_state", {}) as Dictionary).is_empty():
 				moved["debug_boss_run"] = false
-				return moved
+				# Start ordinary checkpoint comparisons from the same canonical state
+				# as Continue. Legacy surface repair is tested separately above;
+				# comparing unnormalized v4 input to resumed v5 is not divergence.
+				return _run_engine.repair_loaded_run_state(moved)
 	return {}
 
 func _player_fixture(base_run: Dictionary, card_id: String) -> Dictionary:

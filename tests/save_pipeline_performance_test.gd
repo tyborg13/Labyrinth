@@ -115,6 +115,7 @@ func _representative_run_state() -> Dictionary:
 		})
 	return {
 		"schema": 7,
+		"surface_rules_version": ProgressionStore.SURFACE_RULES_VERSION,
 		"seed": 741992,
 		"mode": "combat",
 		"checkpoint_index": -1,

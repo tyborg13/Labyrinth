@@ -1,0 +1,74 @@
+[
+  {
+    "case": "dragon_support.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 103,
+    "mean_channel_delta": 0.0068060378086419755,
+    "changed_channel_ratio": 0.0011325713734567902,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/dragon_support.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/dragon_support.png"
+  },
+  {
+    "case": "split_family.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 106,
+    "mean_channel_delta": 0.006781563464506173,
+    "changed_channel_ratio": 0.0011170187114197532,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/split_family.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/split_family.png"
+  },
+  {
+    "case": "guardian_helpers.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 98,
+    "mean_channel_delta": 0.00674901138117284,
+    "changed_channel_ratio": 0.0011322096836419754,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/guardian_helpers.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/guardian_helpers.png"
+  },
+  {
+    "case": "mixed_casters.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 122,
+    "mean_channel_delta": 0.006680290316358025,
+    "changed_channel_ratio": 0.0010853105709876542,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/mixed_casters.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/mixed_casters.png"
+  },
+  {
+    "case": "late_specialists.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 113,
+    "mean_channel_delta": 0.006955054012345679,
+    "changed_channel_ratio": 0.0011399257330246913,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/late_specialists.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/late_specialists.png"
+  },
+  {
+    "case": "early_melee.png",
+    "size": [
+      1920,
+      1080
+    ],
+    "max_channel_delta": 0,
+    "mean_channel_delta": 0.0,
+    "changed_channel_ratio": 0.0,
+    "base": "/tmp/labyrinth-godot-home/sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-base-1789673991751125000-2119-combat_animation_matrix-1/performance/combat_animation_matrix/early_melee.png",
+    "candidate": "/tmp/labyrinth-godot-home/sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/Library/Application Support/Escape the Umbra Visual Probe sept17-matrix-native-candidate-1789674066139849000-2139-combat_animation_matrix-1/performance/combat_animation_matrix/early_melee.png"
+  }
+]

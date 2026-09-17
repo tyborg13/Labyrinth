@@ -1,6 +1,7 @@
 extends Node2D
 
 ## Runtime version of the accepted pass-seven cutout. One instance per painted facing.
+const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
 const BASE: String = "res://assets/units/protagonist_cutout"
 const CANVAS_SIZE := Vector2i(512, 512)
@@ -9,6 +10,7 @@ const SOURCE_SIZE := Vector2(255, 255)
 
 var facing: String = "front"
 var layout: Dictionary = {}
+var _source_data: RigData.Data
 var bones: Dictionary = {}
 var rest_transforms: Dictionary = {}
 var load_errors: PackedStringArray = []
@@ -44,16 +46,17 @@ func load_rig() -> bool:
 	if not has_facing(facing):
 		load_errors.append("No actual cutout layout for facing: " + facing)
 		return false
-	var parsed: Variant = JSON.parse_string(FileAccess.get_file_as_string(_layout_path(facing)))
-	if not parsed is Dictionary:
-		load_errors.append("Invalid cutout layout: " + _layout_path(facing))
+	var prepared: RigData.Data = RigData.load_source(_layout_path(facing))
+	if not prepared.error.is_empty():
+		load_errors.append(prepared.error)
 		return false
 	for child: Node in get_children():
 		remove_child(child)
 		child.free()
 	bones.clear()
 	rest_transforms.clear()
-	layout = parsed as Dictionary
+	_source_data = prepared
+	layout = prepared.layout
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	skeleton = Skeleton2D.new()
 	skeleton.name = "Skeleton"
@@ -114,16 +117,17 @@ func load_rig() -> bool:
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		sprite.owner = self
 	if use_cape_mesh:
-		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape")
-	for mesh: Dictionary in joint_meshes:
-		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")))
+		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape", "cape")
+	for mesh_index: int in range(joint_meshes.size()):
+		var mesh: Dictionary = joint_meshes[mesh_index]
+		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")), "joint:%d" % mesh_index)
 	if not load_errors.is_empty():
 		return false
 	_loaded_facing = facing
 	apply_pose("idle", 0.0)
 	return true
 
-func _build_mesh(data: Dictionary, mesh_name: String) -> void:
+func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> void:
 	# Meshes share the skeleton's source-pixel coordinate space. Parenting them
 	# to a Bone2D would apply that moving transform a second time.
 	var mesh := Polygon2D.new()
@@ -131,64 +135,43 @@ func _build_mesh(data: Dictionary, mesh_name: String) -> void:
 	mesh.set_meta("equipment_slot", str(data.get("equipment_slot", "")))
 	mesh.texture = _texture(str(data["file"]))
 	mesh.texture_repeat = CanvasItem.TEXTURE_REPEAT_DISABLED
-	var vertices := PackedVector2Array()
-	var uvs := PackedVector2Array()
-	for point: Variant in data["vertices"]:
-		vertices.append(_vector(point))
-	for point: Variant in data["uvs"]:
-		uvs.append(_vector(point))
-	if vertices.size() != uvs.size():
-		load_errors.append(mesh_name + ": vertex/UV count differs")
+	var prepared: Dictionary = _source_data.prepare_mesh(data, mesh_name, source_key)
+	if prepared.has("error"):
+		load_errors.append(str(prepared["error"]))
 		mesh.free()
 		return
-	mesh.polygon = vertices
-	mesh.uv = uvs
-	var triangles: Array = []
-	for triangle: Variant in data["triangles"]:
-		if triangle.size() != 3:
-			load_errors.append(mesh_name + ": a mesh face must contain three indices")
-			mesh.free()
-			return
-		for index: int in triangle:
-			if index < 0 or index >= vertices.size():
-				load_errors.append(mesh_name + ": triangle index outside vertex array")
-				mesh.free()
-				return
-		triangles.append(PackedInt32Array(triangle))
-	mesh.polygons = triangles
+	mesh.polygon = prepared["vertices"]
+	mesh.uv = prepared["uvs"]
+	mesh.polygons = prepared["triangles"]
 	mesh.z_index = int(data.get("z_index", 3))
 	mesh.z_as_relative = false
 	add_child(mesh)
 	mesh.owner = self
 	mesh.skeleton = mesh.get_path_to(skeleton)
-	var weights: Dictionary = data["weights"]
-	var totals := PackedFloat32Array()
-	totals.resize(vertices.size())
-	for bone_name: String in weights:
-		var influence := PackedFloat32Array(weights[bone_name])
-		if influence.size() != vertices.size() or not bones.has(bone_name):
-			load_errors.append(mesh_name + ": invalid skin weights for " + bone_name)
-			continue
-		for index: int in range(influence.size()):
-			if not is_finite(influence[index]) or influence[index] < 0.0:
-				load_errors.append(mesh_name + ": invalid influence for " + bone_name)
-				return
-			totals[index] += influence[index]
-		mesh.add_bone(skeleton.get_path_to(bones[bone_name]), influence)
-	for total: float in totals:
-		if absf(total - 1.0) > 0.001:
-			load_errors.append(mesh_name + ": vertex weights do not sum to one")
-			return
+	for bone_name: String in prepared["weights"]:
+		mesh.add_bone(skeleton.get_path_to(bones[bone_name]), prepared["weights"][bone_name])
 	mesh.queue_redraw()
 
 func apply_pose(clip_name: String, phase: float) -> void:
 	var pose: Dictionary = Motion.sample_pose(clip_name, phase, layout, facing)
+	_apply_sampled_pose(pose, true)
+
+# A sample specifies the final local transform. Resetting to rest and then
+# setting position/rotation/scale/skew separately dirtied the skeleton up to five
+# times per bone. Submit the same composed transform once, leaving stationary
+# bones untouched. Do not quantize poses: authored animation cadence is retained.
+func _apply_sampled_pose(pose: Dictionary, update_visibility: bool = false) -> void:
 	for bone_name: String in bones:
 		var bone: Bone2D = bones[bone_name]
 		var override: Dictionary = pose.get(bone_name, {})
-		bone.transform = rest_transforms[bone_name]
-		bone.position = override.get("position", bone.position)
-		bone.rotation = float(override.get("rotation", 0.0))
-		bone.scale = override.get("scale", Vector2.ONE)
-		bone.skew = float(override.get("skew", 0.0))
-		bone.visible = bool(override.get("visible", true))
+		var rest: Transform2D = rest_transforms[bone_name]
+		var next_transform := Transform2D(
+			float(override.get("rotation", 0.0)),
+			override.get("scale", Vector2.ONE),
+			float(override.get("skew", 0.0)),
+			override.get("position", rest.origin)
+		)
+		if bone.transform != next_transform:
+			bone.transform = next_transform
+		if update_visibility:
+			bone.visible = bool(override.get("visible", true))

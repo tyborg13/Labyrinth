@@ -1609,6 +1609,8 @@ var _card_action_choice_index: int = -1
 var _card_action_choice_options: Dictionary = {}
 var _card_action_choice_mode: String = "play"
 var _hovered_card_index: int = -1
+var _updating_hand_interactions: bool = false
+var _hand_hover_refresh_pending: bool = false
 var _focused_intent_enemy_id: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
 var _board_hover_threat_active: bool = false
@@ -17103,6 +17105,7 @@ func _update_existing_hand_interaction_state() -> bool:
 		if widget == null or widget.card_id != str(hand[index]):
 			return false
 	performance_phase_started = _record_runtime_performance_phase("hand_interaction_verify", performance_phase_started)
+	_updating_hand_interactions = true
 	for index: int in range(hand.size()):
 		var widget: CardWidget = _hand_card_control(index) as CardWidget
 		var options: Dictionary = _card_playability_for_index(index)
@@ -17143,6 +17146,7 @@ func _update_existing_hand_interaction_state() -> bool:
 		else:
 			widget.remove_meta("drag_hand_origin")
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_widget", performance_phase_started)
+	_updating_hand_interactions = false
 	var emphasized_hand_index: int = (
 		_hovered_card_index
 		if active_hand_index < 0 and _drag_card_index < 0 and _animating_hand_card_index < 0
@@ -17151,6 +17155,13 @@ func _update_existing_hand_interaction_state() -> bool:
 	_set_hand_emphasized_index(emphasized_hand_index, false)
 	_consume_hand_ready_wave()
 	_record_runtime_performance_phase("hand_interaction_emphasis_total", performance_phase_started)
+	if _hand_hover_refresh_pending:
+		# Enabling an overlapping fan changes hit testing synchronously for each
+		# card. Render only its final hover, after all cards have their new state.
+		_hand_hover_refresh_pending = false
+		_refresh_stage_view()
+		_refresh_turn_order_bar()
+		_refresh_contextual_combat_tutorial()
 	return true
 
 func _fit_current_hand_layout_to_visible_width(expected_revision: int, retry_count: int = 0) -> void:
@@ -20798,6 +20809,9 @@ func _on_card_hover_started(index: int) -> void:
 	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
 	_hovered_card_index = index
+	if _updating_hand_interactions:
+		_hand_hover_refresh_pending = true
+		return
 	_set_hand_emphasized_index(index)
 	# The persistent dock uses the resting fan envelope and must not move with
 	# this visual emphasis.
@@ -20810,6 +20824,10 @@ func _on_card_hover_ended(index: int) -> void:
 		return
 	if _hovered_card_index == index:
 		_hovered_card_index = -1
+		if _updating_hand_interactions:
+			if not _animation_lock:
+				_hand_hover_refresh_pending = true
+			return
 		_set_hand_emphasized_index(-1)
 		if _animation_lock:
 			return
