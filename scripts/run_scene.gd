@@ -1562,6 +1562,12 @@ var _board_preview_display_cache: Dictionary = {}
 var _preview_selection_revision: int = 0
 var _card_preview_cache: Dictionary = {}
 var _card_playability_cache: Dictionary = {}
+var _committed_hand_query_generation: int = 0
+var _committed_hand_query_state: Dictionary = {}
+var _committed_hand_query_flags: Dictionary = {}
+var _committed_hand_query_display: Dictionary = {}
+var _committed_hand_query_diagnostics: Dictionary = {}
+
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
 var _card_widget_display_cache: Dictionary = {}
@@ -3732,6 +3738,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_cancel_committed_hand_queries()
 	_set_targeting_cursor_suppressed(false)
 	_shutdown_audio()
 	_finalize_performance_telemetry_scene("scene_exit")
@@ -4780,6 +4787,11 @@ func _combat_choice_placeholder_size() -> Vector2:
 	return _ui_skin.button_native_size(UiSkin.BUTTON_HEIGHT_ACTION, 0.0, UiSkin.VARIANT_LARGE)
 
 func _layout_choice_button_overlay() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_choice_button_overlay_content()
+	_record_runtime_performance_phase("deferred_layout_choice_button_overlay", started)
+
+func _layout_choice_button_overlay_content() -> void:
 	if _choice_button_overlay == null:
 		return
 	if not choice_bar.is_inside_tree():
@@ -9149,6 +9161,11 @@ func _setup_pile_widgets() -> void:
 	call_deferred("_layout_combat_piles")
 
 func _layout_combat_piles() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_combat_piles_content()
+	_record_runtime_performance_phase("deferred_layout_combat_piles", started)
+
+func _layout_combat_piles_content() -> void:
 	if piles_bar == null or not piles_bar.is_inside_tree():
 		return
 	var pile_size: Vector2 = piles_bar.get_combined_minimum_size()
@@ -9186,6 +9203,11 @@ func _setup_contextual_combat_tutorial() -> void:
 	call_deferred("_layout_contextual_combat_prompt_overlay")
 
 func _layout_contextual_combat_prompt_overlay() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_contextual_combat_prompt_overlay_content()
+	_record_runtime_performance_phase("deferred_layout_contextual_combat_prompt_overlay", started)
+
+func _layout_contextual_combat_prompt_overlay_content() -> void:
 	if _contextual_combat_prompt_host == null or _contextual_combat_prompt == null:
 		return
 	if not _contextual_combat_prompt_host.visible:
@@ -9485,7 +9507,7 @@ func _guided_tutorial_phase_displayable(phase_id: String) -> bool:
 	if not player_turn:
 		return false
 	if phase_id == ContextualCombatTutorial.PHASE_SELECT_PLAYER:
-		return not _combat_engine.player_movement_targets(_combat_state).is_empty()
+		return _combat_engine.player_has_movement_target(_combat_state)
 	if phase_id == ContextualCombatTutorial.PHASE_CHOOSE_MOVE:
 		return _player_movement_selected and not _player_movement_target_tiles.is_empty()
 	if phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT:
@@ -10387,6 +10409,11 @@ func _setup_movement_meter() -> void:
 	_refresh_player_movement_meter()
 
 func _sync_hand_side_widths() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_sync_hand_side_widths_content()
+	_record_runtime_performance_phase("deferred_sync_hand_side_widths", started)
+
+func _sync_hand_side_widths_content() -> void:
 	if left_action_stack == null:
 		return
 	var left_width: float = _visible_hbox_minimum_width(piles_bar)
@@ -10447,6 +10474,11 @@ func _queue_header_hud_layout() -> void:
 	call_deferred("_layout_turn_order_anchor")
 
 func _layout_header_hud() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_header_hud_content()
+	_record_runtime_performance_phase("deferred_layout_header_hud", started)
+
+func _layout_header_hud_content() -> void:
 	if title_box == null:
 		return
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
@@ -10537,6 +10569,11 @@ func _relic_bar_first_row_bottom_y() -> float:
 	return bottom
 
 func _layout_turn_order_anchor() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_turn_order_anchor_content()
+	_record_runtime_performance_phase("deferred_layout_turn_order_anchor", started)
+
+func _layout_turn_order_anchor_content() -> void:
 	if _turn_order_anchor == null:
 		return
 	var header_bottom: float = TURN_ORDER_RAIL_TOP_GAP
@@ -10576,6 +10613,11 @@ func _utility_stack_visible_bottom() -> float:
 	return bottom
 
 func _layout_boss_health_overlay() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_boss_health_overlay_content()
+	_record_runtime_performance_phase("deferred_layout_boss_health_overlay", started)
+
+func _layout_boss_health_overlay_content() -> void:
 	if _boss_health_overlay == null:
 		return
 	var viewport_size: Vector2 = get_viewport_rect().size
@@ -10608,6 +10650,11 @@ func _layout_boss_health_overlay() -> void:
 		)
 
 func _layout_combat_action_dock() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_combat_action_dock_content()
+	_record_runtime_performance_phase("deferred_layout_combat_action_dock", started)
+
+func _layout_combat_action_dock_content() -> void:
 	if _play_meter == null or _movement_meter == null:
 		return
 	var in_combat: bool = str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty()
@@ -10960,6 +11007,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
 	_close_large_map()
@@ -11062,7 +11110,10 @@ func _refresh_ui(
 	_sync_progression_from_run()
 	_sync_umbra_warning_progression()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_progression_sync_total", performance_phase_started)
-	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
+	# unlock_entries normalizes and owns the run snapshot itself. Only bootstrap
+	# an empty run here, since discovery synchronization deliberately skips it.
+	if _run_state.is_empty():
+		_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_sync_grimoire_discoveries()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_grimoire_sync", performance_phase_started)
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
@@ -11293,7 +11344,9 @@ func _begin_locked_hand_render_cache() -> void:
 	await _locked_hand_render_cache.capture(hand_box, self)
 
 func _end_locked_hand_render_cache() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_locked_hand_render_cache.restore()
+	_record_runtime_performance_phase("locked_hand_restore", started)
 
 func _update_performance_telemetry_context() -> void:
 	var telemetry: Node = get_node_or_null("/root/PerformanceTelemetry")
@@ -12436,6 +12489,11 @@ func _combat_objective_hud_state() -> Dictionary:
 	return hud_state
 
 func _layout_combat_objective_hud() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_combat_objective_hud_content()
+	_record_runtime_performance_phase("deferred_layout_combat_objective_hud", started)
+
+func _layout_combat_objective_hud_content() -> void:
 	if _combat_objective_hud == null:
 		return
 	if _combat_objective_hud.intro_active:
@@ -13689,7 +13747,7 @@ func _refresh_player_movement_meter() -> void:
 	var enabled: bool = (
 		remaining > 0
 		and _combat_engine.is_player_turn(_combat_state)
-		and not _combat_engine.player_movement_targets(_combat_state).is_empty()
+		and _combat_engine.player_has_movement_target(_combat_state)
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
 		_movement_meter.tooltip_text = "Movement unavailable: there is no legal destination."
@@ -13892,6 +13950,11 @@ func _action_step_status_for_index(index: int, current_index: int, skipped_indic
 	return "remaining"
 
 func _layout_action_step_tracker() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_layout_action_step_tracker_content()
+	_record_runtime_performance_phase("deferred_layout_action_step_tracker", started)
+
+func _layout_action_step_tracker_content() -> void:
 	if _action_step_tracker == null or not _action_step_tracker.visible:
 		if _action_context_connector != null:
 			_action_context_connector.visible = false
@@ -17886,6 +17949,7 @@ func set_runtime_performance_instrumentation_enabled(enabled: bool) -> void:
 	_runtime_performance_commit_overhead_usec = 0
 	_runtime_performance_frame_top.clear()
 	_runtime_animation_clock_stats.clear()
+	_committed_hand_query_diagnostics.clear()
 	_combat_engine.set_runtime_performance_interval_sink(
 		Callable(self, "_record_external_runtime_performance_interval") if enabled else Callable()
 	)
@@ -18378,27 +18442,29 @@ func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
 		and _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
 	)
 
-func _preview_umbra_is_limited(state: Dictionary = {}) -> bool:
+func _preview_umbra_is_limited(state: Dictionary = {}, information_override: Variant = null) -> bool:
 	# Preview state may already contain a simulated move, light source, Vision,
 	# True Sight, or Dispel Umbra result. Information gating must always use the
 	# committed state until the card resolution actually starts.
-	if not _combat_state.is_empty():
-		return _combat_engine.effective_umbra_radius(_combat_state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
+	var committed: Dictionary = information_override as Dictionary if typeof(information_override) == TYPE_DICTIONARY else _combat_state
+	if not committed.is_empty():
+		return _combat_engine.effective_umbra_radius(committed) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
 	return not state.is_empty() and _combat_engine.effective_umbra_radius(state) < CombatEngineScript.UMBRA_UNLIMITED_RADIUS
 
-func _preview_information_state(state: Dictionary) -> Dictionary:
-	if _preview_umbra_is_limited(state) and not _combat_state.is_empty():
-		return _combat_state
+func _preview_information_state(state: Dictionary, information_override: Variant = null) -> Dictionary:
+	var committed: Dictionary = information_override as Dictionary if typeof(information_override) == TYPE_DICTIONARY else _combat_state
+	if _preview_umbra_is_limited(state, committed) and not committed.is_empty():
+		return committed
 	return state
 
-func _preview_target_tiles_for_action(state: Dictionary, action: Dictionary, raw_target_tiles: Variant) -> Array[Vector2i]:
+func _preview_target_tiles_for_action(state: Dictionary, action: Dictionary, raw_target_tiles: Variant, information_override: Variant = null) -> Array[Vector2i]:
 	var raw_targets: Array = []
 	if typeof(raw_target_tiles) == TYPE_ARRAY:
 		raw_targets = raw_target_tiles as Array
 	var target_tiles: Array[Vector2i] = _vector2i_array(raw_targets)
-	if not _preview_umbra_is_limited(state):
+	if not _preview_umbra_is_limited(state, information_override):
 		return target_tiles
-	var information_state: Dictionary = _preview_information_state(state)
+	var information_state: Dictionary = _preview_information_state(state, information_override)
 	# A selected card can expose dozens of legal centers. Visibility is constant
 	# for the whole submission, so build it once instead of recomputing Umbra
 	# radius, light sources, and relic modifiers once per candidate tile.
@@ -18446,7 +18512,7 @@ func _preview_aoe_target_is_known(state: Dictionary, information_state: Dictiona
 	# traps, and destructible terrain without making their occupancy targetable.
 	return _combat_engine.is_tile_visible_to_player(information_state, center_tile, visible_lookup)
 
-func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dictionary:
+func _sanitize_preview_for_umbra_information(source_preview: Dictionary, information_override: Variant = null) -> Dictionary:
 	if source_preview.is_empty():
 		return source_preview
 	var raw_target_tiles: Array = source_preview.get("target_tiles", []) as Array
@@ -18455,7 +18521,7 @@ func _sanitize_preview_for_umbra_information(source_preview: Dictionary) -> Dict
 	var preview: Dictionary = source_preview.duplicate(false)
 	var action: Dictionary = source_preview.get("action", {}) as Dictionary
 	var state: Dictionary = source_preview.get("state", {}) as Dictionary
-	var target_tiles: Array[Vector2i] = _preview_target_tiles_for_action(state, action, source_preview.get("target_tiles", []))
+	var target_tiles: Array[Vector2i] = _preview_target_tiles_for_action(state, action, source_preview.get("target_tiles", []), information_override)
 	preview["target_tiles"] = target_tiles
 	if target_tiles.is_empty() and not bool(source_preview.get("skip_allowed", false)):
 		preview["playable"] = false
@@ -18596,16 +18662,84 @@ func _card_playability_for_index(index: int) -> Dictionary:
 		return {"printed_playable": full_playable, "any_playable": full_playable}
 	if _card_playability_cache.has(preview_key):
 		return _card_playability_cache[preview_key] as Dictionary
+	var summary: Dictionary = _card_playability_for_state(_combat_state, index)
+	_card_playability_cache[preview_key] = summary
+	return summary
+
+func _card_playability_for_state(state: Dictionary, index: int) -> Dictionary:
+	if state.is_empty() or _combat_engine.cards_remaining_this_turn(state) <= 0:
+		return {"printed_playable": false, "any_playable": false}
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
+	if index < 0 or index >= hand.size():
+		return {}
 	var performance_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var phase_started: int = performance_started
 	var card_id: String = str(hand[index])
-	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, "play")
+	var prepared_state: Dictionary = _combat_engine.prepare_player_card(state, index, "play")
+	phase_started = _record_runtime_performance_phase("card_playability_prepare", phase_started)
 	var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
-	var preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_from_state(card_id, prepared_state, actions, 0, false, true, true, true))
+	phase_started = _record_runtime_performance_phase("card_playability_actions", phase_started)
+	var raw_preview: Dictionary = _card_preview_from_state(card_id, prepared_state, actions, 0, false, true, true, true, state)
+	phase_started = _record_runtime_performance_phase("card_playability_walk", phase_started)
+	var preview: Dictionary = _sanitize_preview_for_umbra_information(raw_preview, state)
+	_record_runtime_performance_phase("card_playability_information", phase_started)
 	var playable: bool = bool(preview.get("playable", false))
 	var summary: Dictionary = {"printed_playable": playable, "any_playable": playable}
-	_card_playability_cache[preview_key] = summary
 	_record_runtime_performance_phase("card_playability_total", performance_started)
 	return summary
+
+func committed_hand_query_instrumentation_snapshot() -> Dictionary:
+	return _committed_hand_query_diagnostics.duplicate(true)
+
+func _cancel_committed_hand_queries() -> void:
+	_committed_hand_query_generation += 1
+	_committed_hand_query_state = {}
+	_committed_hand_query_flags.clear()
+	_committed_hand_query_display.clear()
+
+func _schedule_committed_hand_queries(source: Dictionary) -> void:
+	_cancel_committed_hand_queries()
+	if not is_inside_tree() or source.is_empty() or not _combat_engine.combat_outcome(source).is_empty():
+		return
+	_warm_committed_hand_queries(source, _committed_hand_query_generation)
+
+func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
+	# Use the already-authored card flight/hold. No caller awaits this job and
+	# adoption takes only ready results; it never waits for the remaining cards.
+	await get_tree().process_frame
+	if generation != _committed_hand_query_generation or not is_inside_tree():
+		return
+	var normalize_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var state: Dictionary = _combat_engine.normalize_player_movement_pool(source)
+	_record_runtime_performance_phase("committed_hand_query_normalize", normalize_started)
+	_committed_hand_query_state = state
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
+	for index: int in range(hand.size()):
+		await get_tree().process_frame
+		if generation != _committed_hand_query_generation or not is_inside_tree():
+			return
+		var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_committed_hand_query_flags[index] = _card_playability_for_state(state, index)
+		_committed_hand_query_display[index] = _card_widget_display(str(hand[index]), state)
+		_record_runtime_performance_phase("committed_hand_query_warm", started)
+		if _runtime_performance_instrumentation_enabled:
+			_committed_hand_query_diagnostics["prepared_cards"] = int(_committed_hand_query_diagnostics.get("prepared_cards", 0)) + 1
+
+func _adopt_committed_hand_queries() -> void:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# Full value equality, not a hash or selected-field guess, guards hand order,
+	# Umbra information, status, relics, skill charges, surfaces and RNG/history.
+	if not _committed_hand_query_state.is_empty() and _committed_hand_query_state == _combat_state:
+		for index: int in _committed_hand_query_flags:
+			_card_playability_cache[_card_preview_cache_key(index)] = _committed_hand_query_flags[index]
+		for index: int in _committed_hand_query_display:
+			_card_widget_display_cache[_card_preview_cache_key(index, "display")] = _committed_hand_query_display[index]
+		_record_runtime_performance_phase("committed_hand_query_adopt", started)
+		if _runtime_performance_instrumentation_enabled:
+			_committed_hand_query_diagnostics["adopted_cards"] = int(_committed_hand_query_diagnostics.get("adopted_cards", 0)) + _committed_hand_query_flags.size()
+	elif _runtime_performance_instrumentation_enabled:
+		_committed_hand_query_diagnostics["rejected_batches"] = int(_committed_hand_query_diagnostics.get("rejected_batches", 0)) + 1
+	_cancel_committed_hand_queries()
 
 func _show_card_action_choices(index: int, options: Dictionary) -> void:
 	if not bool(options.get("any_playable", false)):
@@ -18681,7 +18815,9 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
 	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
-	var preview_state: Dictionary = state.duplicate(true)
+	# Display simulation replaces only turn_flags (with its own copy). It never
+	# mutates the board, decks or history: retain those read-only references.
+	var preview_state: Dictionary = state.duplicate(false)
 	var previous_action_row_index: int = -1
 	for action_var: Variant in card.get("actions", []):
 		var action: Dictionary = action_var
@@ -18989,7 +19125,8 @@ func _card_preview_from_state(
 	has_effect: bool = false,
 	use_position_only_move_legality: bool = true,
 	allow_skip_suffix_shortcut: bool = true,
-	playability_only: bool = false
+	playability_only: bool = false,
+	information_override: Variant = null
 ) -> Dictionary:
 	var working_state: Dictionary = combat_state
 	var cursor: int = action_index
@@ -19016,15 +19153,17 @@ func _card_preview_from_state(
 					actions,
 					cursor + 1,
 					effect_seen,
-					use_position_only_move_legality
+					use_position_only_move_legality,
+					true,
+					information_override
 				)
 			var accept_target: Callable = Callable()
-			if playability_only and not skip_playable and _preview_umbra_is_limited(working_state):
-				var information_state: Dictionary = _preview_information_state(working_state)
+			if playability_only and not skip_playable and _preview_umbra_is_limited(working_state, information_override):
+				var information_state: Dictionary = _preview_information_state(working_state, information_override)
 				accept_target = _preview_target_is_known_for_action.bind(working_state, information_state, action, _combat_engine.umbra_visible_tile_lookup(information_state))
 			var existence_only: bool = playability_only and (
 				(str(action.get("type", "")) in ["move", "blink"] and _remaining_actions_include_shortcut_attack(actions, cursor + 1))
-				or _umbra_defers_movement_followup_preview(working_state, action, actions, cursor)
+				or _umbra_defers_movement_followup_preview(working_state, action, actions, cursor, information_override)
 				or _remaining_actions_are_targetless(actions, cursor + 1)
 				or (allow_skip_suffix_shortcut and _continuation_can_finish_by_skipping_targets(actions, cursor + 1, true))
 			)
@@ -19046,7 +19185,7 @@ func _card_preview_from_state(
 					"action": action,
 					"skip_allowed": skip_playable
 				}
-			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor):
+			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor, information_override):
 				return {
 					"card_id": card_id,
 					"state": working_state,
@@ -19121,7 +19260,9 @@ func _card_preview_from_state(
 					actions,
 					cursor + 1,
 					true,
-					use_position_only_move_legality
+					use_position_only_move_legality,
+					true,
+					information_override
 				):
 					valid_targets.append(target_tile)
 					if playability_only:
@@ -19161,7 +19302,8 @@ func _card_preview_continuation_is_playable(
 	action_index: int,
 	has_effect: bool,
 	use_position_only_move_legality: bool,
-	allow_skip_suffix_shortcut: bool = true
+	allow_skip_suffix_shortcut: bool = true,
+	information_override: Variant = null
 ) -> bool:
 	# Legality only needs to know whether at least one continuation exists. Building
 	# complete nested preview dictionaries for every future target caused targeted
@@ -19195,14 +19337,15 @@ func _card_preview_continuation_is_playable(
 					cursor + 1,
 					effect_seen,
 					use_position_only_move_legality,
-					allow_skip_suffix_shortcut
+					allow_skip_suffix_shortcut,
+					information_override
 				)
 			):
 				return true
 			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action)
 			if candidate_targets.is_empty():
 				return false
-			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor):
+			if _umbra_defers_movement_followup_preview(working_state, action, actions, cursor, information_override):
 				return true
 			if _remaining_actions_are_targetless(actions, cursor + 1):
 				return true
@@ -19233,7 +19376,8 @@ func _card_preview_continuation_is_playable(
 					cursor + 1,
 					true,
 					use_position_only_move_legality,
-					allow_skip_suffix_shortcut
+					allow_skip_suffix_shortcut,
+					information_override
 				):
 					return true
 			return false
@@ -19253,10 +19397,10 @@ func _continuation_can_finish_by_skipping_targets(actions: Array, action_index: 
 			return false
 	return true
 
-func _umbra_defers_movement_followup_preview(state: Dictionary, action: Dictionary, actions: Array, action_index: int) -> bool:
+func _umbra_defers_movement_followup_preview(state: Dictionary, action: Dictionary, actions: Array, action_index: int, information_override: Variant = null) -> bool:
 	if str(action.get("type", "")) not in ["move", "blink"]:
 		return false
-	if not _preview_umbra_is_limited(state):
+	if not _preview_umbra_is_limited(state, information_override):
 		return false
 	for index: int in range(action_index + 1, actions.size()):
 		if typeof(actions[index]) == TYPE_DICTIONARY and _combat_engine.player_action_needs_target(actions[index] as Dictionary):
@@ -21620,6 +21764,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var committed_run_state: Dictionary = _run_state.duplicate(true)
 	committed_run_state = _run_state_for_combat_checkpoint(committed_run_state, committed_combat_state)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "player_card")
+	_schedule_committed_hand_queries(committed_run_state.get("combat_state", {}) as Dictionary)
 	_play_card_play_sfx()
 	var staged_card_proxy: Control = await _animate_card_play_fx(card_id, source_rect, card_size)
 	# The center beat confirms the committed card. Its flight to the pile is
@@ -21652,16 +21797,21 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
 			await _play_post_combat_victory(transition_combat_state)
+	var card_finish_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_board_presentation.clear()
 	_set_action_banner("")
 	_run_state = committed_run_state
 	_sync_combat_state_from_run()
+	_adopt_committed_hand_queries()
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "card_effect")
+	card_finish_started = _record_runtime_performance_phase("card_finish_sync_and_draw_analytics", card_finish_started)
 	_analytics_log_card_played(card_id, played_instance_id, previous_combat_state, committed_combat_state, actions, selected_targets)
+	card_finish_started = _record_runtime_performance_phase("card_finish_played_analytics", card_finish_started)
 	_analytics_log_playable_cards()
 	_analytics_log_combat_transition(previous_run_state, "card_play", transition_combat_state)
+	card_finish_started = _record_runtime_performance_phase("card_finish_playable_and_transition_analytics", card_finish_started)
 	if _guided_tutorial_is_active():
 		match guided_commit_phase:
 			ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET, ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD:
@@ -21688,6 +21838,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	_reset_card_resolution()
 	_hovered_card_index = -1
 	_end_locked_hand_render_cache()
+	_record_runtime_performance_phase("card_finish_cleanup", card_finish_started)
 	if _reward_intro_pending():
 		await _play_reward_reveal()
 	else:
@@ -31020,9 +31171,9 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	if not run_state.is_empty():
 		room_meta = _run_engine.room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
 	var player: Dictionary = (combat_state.get("player", {}) as Dictionary) if not combat_state.is_empty() else {}
-	var combat_analytics: Dictionary = (combat_state.get("analytics", {}) as Dictionary).duplicate(true)
-	var run_analytics: Dictionary = (run_state.get("analytics", {}) as Dictionary).duplicate(true)
-	var progression: Dictionary = (run_state.get("progression", _progression) as Dictionary).duplicate(true)
+	var combat_analytics: Dictionary = combat_state.get("analytics", {}) as Dictionary
+	var run_analytics: Dictionary = run_state.get("analytics", {}) as Dictionary
+	var progression: Dictionary = run_state.get("progression", _progression) as Dictionary
 	var context: Dictionary = {
 		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 		"run_id": str(run_analytics.get("run_id", "")),
@@ -31825,6 +31976,8 @@ func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary
 	var pickup_counts: Dictionary = BattlefieldItemRules.hand_pickup_counts(before_state, after_state)
 	var before_hand_ids: Dictionary = {}
 	var events: Array[Dictionary] = []
+	var base_context: Dictionary = {}
+	var draw_pile_size: int = -1
 	for instance_id_var: Variant in _analytics_zone_ids(before_tracker, "hand"):
 		before_hand_ids[str(instance_id_var)] = true
 	var after_hand_ids: Array = _analytics_zone_ids(after_tracker, "hand")
@@ -31838,14 +31991,20 @@ func _analytics_log_card_draws(before_state: Dictionary, after_state: Dictionary
 		if int(pickup_counts.get(card_id, 0)) > 0:
 			draw_reason = "item_pickup"
 			pickup_counts[card_id] = int(pickup_counts[card_id]) - 1
+		if base_context.is_empty():
+			base_context = _analytics_context_from_states(_run_state, after_state)
+			draw_pile_size = _analytics_zone_cards(after_state, "draw").size()
+		var context: Dictionary = base_context.duplicate(true)
+		context["card_id"] = card_id
+		context["card_instance_id"] = instance_id
 		events.append({
 			"event_type": "card_drawn",
-			"context": _analytics_context_from_states(_run_state, after_state, card_id, instance_id),
+			"context": context,
 			"payload": {
 				"reason": draw_reason,
 				"hand_index": index,
 				"hand_size": after_hand_cards.size(),
-				"draw_pile_size": _analytics_zone_cards(after_state, "draw").size()
+				"draw_pile_size": draw_pile_size
 			}
 		})
 	_analytics_store.write_events(events)
@@ -32254,9 +32413,11 @@ func _analytics_log_enemy_phase_events(phase_result: Dictionary) -> void:
 
 func _sync_combat_state_from_run() -> void:
 	var entering_combat: bool = _combat_state.is_empty()
-	_combat_state = (_run_state.get("combat_state", {}) as Dictionary).duplicate(true)
+	# Normalization already owns a deep snapshot; avoid making a throwaway copy
+	# immediately before it. Empty combat still receives an owned dictionary.
+	var source: Dictionary = _run_state.get("combat_state", {}) as Dictionary
+	_combat_state = _combat_engine.normalize_player_movement_pool(source) if not source.is_empty() else {}
 	if not _combat_state.is_empty():
-		_combat_state = _combat_engine.normalize_player_movement_pool(_combat_state)
 		if str(_run_state.get("mode", "")) == "combat":
 			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
 	if entering_combat and not _combat_state.is_empty():
@@ -32267,12 +32428,12 @@ func _sync_combat_state_from_run() -> void:
 	_mark_combat_preview_state_changed()
 
 func _sync_progression_from_run() -> void:
-	var run_progression: Dictionary = (_run_state.get("progression", {}) as Dictionary).duplicate(true)
+	var run_progression: Dictionary = _run_state.get("progression", {}) as Dictionary
 	if run_progression.is_empty():
 		return
 	# Victory has transferred the wallet into the embedded profile. A later
 	# discovery/save must preserve that bank after held Embers have been cleared.
-	_progression = run_progression if str(_run_state.get("mode", "")) == "victory" else ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
+	_progression = run_progression.duplicate(true) if str(_run_state.get("mode", "")) == "victory" else ProgressionStore.set_embers(run_progression, _run_engine.held_embers(_run_state))
 
 func _sync_progression_analytics_outbox_to_run() -> void:
 	if _run_state.is_empty():

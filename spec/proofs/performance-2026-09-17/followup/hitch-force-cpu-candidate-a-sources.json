@@ -1,0 +1,17 @@
+{
+  "cwd": "/Users/borgerding/workspace/Labyrinth.worktrees/thorough-steam-deck-performance-pass-across-varied-gameplay-and-animatio",
+  "git_head": "c17c2106e9f16a587a371753be055814bcd77162",
+  "files": {
+    "scripts/run_scene.gd": "97372e16d769986de72bdec6d085d64576ccfe3fae36371f8d0fc6a79032dff5",
+    "scripts/combat_engine.gd": "19408963093f33a95cd6fb470460b28912ed1dc0bb9c54bb8874ea0ca5e4eac1",
+    "scripts/run_engine.gd": "8706f2b1294ae53b0d129ba08130fd5c14ed08566120dc68c749af97bd86b663",
+    "scripts/skill_tree_library.gd": "d70e2491f9d4c38bfd1f7c575f11e12916a8ee891f9d7735f6b049406dc22687",
+    "scripts/progression_store.gd": "c02daf515121c8d4926bfb36d7835fb542c34792bd06def3ca184719059ee473",
+    "scripts/card_widget.gd": "a69f14ecb84647b3dee535cf3b155735a213eef2bbc4de763ad2fbe65d9b0fd3",
+    "tests/runtime_frame_performance_benchmark.gd": "f9b952d58bae7db2acdc987d3ccca88bfaea64111113895835df305c2b8fe81f",
+    "tests/combat_action_cpu_attribution.gd": "e467f8940ba7f553b4e1798f4c7f0e1b1023598788ffb74112e8a285ebe39205",
+    "tests/combat_boundary_cpu_benchmark.gd": "64b84d37c63ed9a59e1fc032fd01679d4ef5d82b3d412b51c64317b62e470e2c",
+    "tests/card_query_cost_matrix.gd": "db90eccc9ffab379fa450fc71bbe394544d940a5f508d66272c756626b586b08",
+    "tools/performance_pass.py": "647f6537f3d73fd648198a96b3dad8aa6ac82ccb55a300821cd1ee5238d5b569"
+  }
+}

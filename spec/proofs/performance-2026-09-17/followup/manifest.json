@@ -1,0 +1,186 @@
+{
+  "status": "CPU proof complete; final native rendering and animation-pacing proof pending unlocked display",
+  "followup_base_commit": "c17c2106e9f16a587a371753be055814bcd77162",
+  "artifacts": [
+    {
+      "path": "hitch-followup-measurements.json",
+      "source_file": "hitch-followup-measurements.json",
+      "sha256": "9a109fb176af4e87e6e3d90211e16bf43fca2c71dec3f0541a8d5b613e5c2bfc",
+      "uncompressed_sha256": "9a109fb176af4e87e6e3d90211e16bf43fca2c71dec3f0541a8d5b613e5c2bfc"
+    },
+    {
+      "path": "hitch-force-query-proof.log.gz",
+      "source_file": "hitch-force-query-proof.log",
+      "sha256": "f78fd43c7f9ed0e4bc796bcdb63c9eec23e8e38433c70e9c5f710a6b36fea268",
+      "uncompressed_sha256": "0c5ebaf3cb765a21a4ceece6c1b02e6e26d272c057942907d9606f7c78388e7c"
+    },
+    {
+      "path": "hitch-force-cpu-base-a.json.gz",
+      "source_file": "hitch-force-cpu-base-a.json",
+      "sha256": "0044a4a6436b5019e7ec4f251c0f2e1bf29cb85077000ce6a7224ce42cd3c099",
+      "uncompressed_sha256": "d90916c9a94dceb47a17de40038d454831ffec826e2f70ac1ca81d9e563e6800"
+    },
+    {
+      "path": "hitch-force-cpu-base-a.log.gz",
+      "source_file": "hitch-force-cpu-base-a.log",
+      "sha256": "7625afef2c81f324cea414188a5cdcda5410ef7ff3edc6e34bc5eb1f4d021d41",
+      "uncompressed_sha256": "17ec4479cc034c1756efc28f6ba8033bb78c44d79150ab5c2f66f4166ebe09ec"
+    },
+    {
+      "path": "hitch-force-cpu-base-a-sources.json",
+      "source_file": "hitch-force-cpu-base-a-sources.json",
+      "sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa",
+      "uncompressed_sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa"
+    },
+    {
+      "path": "hitch-force-cpu-base-b.json.gz",
+      "source_file": "hitch-force-cpu-base-b.json",
+      "sha256": "3b4ee0f20bdb62997ece1735106ed70615e62cc8ea8bf09ddd07b76d1d7a8aa7",
+      "uncompressed_sha256": "83de5a8a871c8f34f29b9599ca96d3fae02cd2626bf2f2a3cdbd425c615e8051"
+    },
+    {
+      "path": "hitch-force-cpu-base-b.log.gz",
+      "source_file": "hitch-force-cpu-base-b.log",
+      "sha256": "bf457d7b164c2a4d78098de272702ed895c139656c3d3536c719f5b48a9f2793",
+      "uncompressed_sha256": "ae288e15568068078d828abb9fd2e500dbce0ca9b5888869cc899ba59a59e2ef"
+    },
+    {
+      "path": "hitch-force-cpu-base-b-sources.json",
+      "source_file": "hitch-force-cpu-base-b-sources.json",
+      "sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa",
+      "uncompressed_sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-a.json.gz",
+      "source_file": "hitch-force-cpu-candidate-a.json",
+      "sha256": "f455e02eda07ce145362092e9fa6dfc2a0372826d4d9f05b7a8590f2a921cf4e",
+      "uncompressed_sha256": "79ec543aa2fbf3095f0eb8f6bdb4283aae7900cb675cbe1f67943571dff17035"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-a.log.gz",
+      "source_file": "hitch-force-cpu-candidate-a.log",
+      "sha256": "f798b4e7d8983d5b6de177f58d0510399eb41439935bba39170bc2ebb94119a8",
+      "uncompressed_sha256": "4ee7949f1418daa831b6725d9c657adc577ddd3a7f00949bb7446c71d22c894e"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-a-sources.json",
+      "source_file": "hitch-force-cpu-candidate-a-sources.json",
+      "sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e",
+      "uncompressed_sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-b.json.gz",
+      "source_file": "hitch-force-cpu-candidate-b.json",
+      "sha256": "8de44b4fc7aff06a09160b7cb5ac0d6725a8d33f02a0993a0640560471840274",
+      "uncompressed_sha256": "4535b5147695176bd8c6a3fbed9a419f03edf93c301f08f9386a39c45abf2cab"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-b.log.gz",
+      "source_file": "hitch-force-cpu-candidate-b.log",
+      "sha256": "067e660e7ad7b7a77d82132ebfa2df5b28dcb2a9c0099dd14d2f7d21b0ea26d8",
+      "uncompressed_sha256": "6d1688158168ca1d123ca5a9b4acb74fa68995c20cee065f7bc5b1a5bf1b693a"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-b-sources.json",
+      "source_file": "hitch-force-cpu-candidate-b-sources.json",
+      "sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e",
+      "uncompressed_sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e"
+    },
+    {
+      "path": "hitch-force-cpu-base-reduced.json.gz",
+      "source_file": "hitch-force-cpu-base-reduced.json",
+      "sha256": "8d3d5ca761d5974dd180f2490f8a2f2828c28213f7c2cd29b141db2d43e30724",
+      "uncompressed_sha256": "e7bca92905794367c7a8c6af796808261621eb236df85c7286134ed9ca6b14ae"
+    },
+    {
+      "path": "hitch-force-cpu-base-reduced.log.gz",
+      "source_file": "hitch-force-cpu-base-reduced.log",
+      "sha256": "aacdfbe962cc3464217350b54d1b66fe214b421cf3fd1cb3a8730c69c05e1d87",
+      "uncompressed_sha256": "74fb4f48ccff312e1309f321e7bb624d16e8e36aa5ba39f0ea3aa06bad6bb394"
+    },
+    {
+      "path": "hitch-force-cpu-base-reduced-sources.json",
+      "source_file": "hitch-force-cpu-base-reduced-sources.json",
+      "sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa",
+      "uncompressed_sha256": "bb2d6ec9d42f5a01aeab56d9ecbf30abbabde620403c6e1c21b471316ab665aa"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-reduced.json.gz",
+      "source_file": "hitch-force-cpu-candidate-reduced.json",
+      "sha256": "2bd56c373018c6d9d8e46c6c99ece24f9ac2e81cb4fb82e64ff872d64b15259d",
+      "uncompressed_sha256": "626aa635069d3b34385c3bb5850ea98fa66961d0759f285dc534f04d232a0ead"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-reduced.log.gz",
+      "source_file": "hitch-force-cpu-candidate-reduced.log",
+      "sha256": "f5214b9398939e2fde8b735d2f9319c8d7ee1c56e02792d109b0a5cd9689e7b3",
+      "uncompressed_sha256": "820ece2fec72205db47519d01d5f320d67887b633ed7f27ba99ea96b61d12102"
+    },
+    {
+      "path": "hitch-force-cpu-candidate-reduced-sources.json",
+      "source_file": "hitch-force-cpu-candidate-reduced-sources.json",
+      "sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e",
+      "uncompressed_sha256": "43773ec4a7c689bccb46b9da8ca9e6903e0cc00f61808e92253abd8f83522e3e"
+    },
+    {
+      "path": "hitch-final-combat_analytics_context_equivalence_test.log.gz",
+      "source_file": "hitch-final-combat_analytics_context_equivalence_test.log",
+      "sha256": "64367a08954be4395238d34e141982da2ca87ed992e2f6134bc3b8cb2838468f",
+      "uncompressed_sha256": "7a0bfba8ee6f08463c9dc40e52e0e8f7e7b5acc06e382746d58780b6c2305d4d"
+    },
+    {
+      "path": "hitch-final-committed_hand_queries_test.log.gz",
+      "source_file": "hitch-final-committed_hand_queries_test.log",
+      "sha256": "5645cf31d96d2c48b97e5d7222786353c47a445041264c4475cd573623009c79",
+      "uncompressed_sha256": "46fff4169d0972f3afebd0417d52220649c65dd892c8c6ee2d975bbd4fca16d7"
+    },
+    {
+      "path": "hitch-final-board_surface_presentation_test.log.gz",
+      "source_file": "hitch-final-board_surface_presentation_test.log",
+      "sha256": "ef47e65580f5abb23070cf42aeaa77010db1bb7a792339bf0f1e9efaf223be24",
+      "uncompressed_sha256": "826895f2ec5145894cf0d52eb3f8dcccc636c35e5b1230eaecf6d58dad5303f1"
+    },
+    {
+      "path": "hitch-final-save_resume_boundary_test.log.gz",
+      "source_file": "hitch-final-save_resume_boundary_test.log",
+      "sha256": "7de11d9ed6c35b5906a6a59f3600fa0233f6d3e770c268a905b5fe9c0137f5ed",
+      "uncompressed_sha256": "6b955dccbea67858eabfce0d494044262e9d0956ca44adfdbc9870479ed6c5b1"
+    },
+    {
+      "path": "hitch-final-surface_analytics_batch_test.log.gz",
+      "source_file": "hitch-final-surface_analytics_batch_test.log",
+      "sha256": "bbe8efd8819efa6761e3500e6e1d46ba6f2337d94a081fe76cd7ba05f053c11a",
+      "uncompressed_sha256": "a7a0a46d092c6b748d110216fd070ae38ae42219dcf976c1518666849d59fed0"
+    },
+    {
+      "path": "hitch-final-profile_read_equivalence_test.log.gz",
+      "source_file": "hitch-final-profile_read_equivalence_test.log",
+      "sha256": "94646d35ea680a50e337315c596f07d7df4572b405f42ada08db558a131e1877",
+      "uncompressed_sha256": "64fb1a0774b64ef8c77ff34d3e0a486d4f34708788a58a5a2af9ad7213accef7"
+    },
+    {
+      "path": "hitch-final-card_draw_hand_flow_test.log.gz",
+      "source_file": "hitch-final-card_draw_hand_flow_test.log",
+      "sha256": "bec60f42085049816442f0d92128d1f6a0eae8a6014c594dd6c7ac22e4f37a4e",
+      "uncompressed_sha256": "34d25b4dc7cd5e347c9d7632484376c04b158c4a4823c613e4fe6e15d3fa44fd"
+    },
+    {
+      "path": "hitch-final-combat_boundary_equivalence_test.log.gz",
+      "source_file": "hitch-final-combat_boundary_equivalence_test.log",
+      "sha256": "93a9acf40944e513f417ad97a83b36d63966367945b65472d6e28657dd913ca8",
+      "uncompressed_sha256": "060eac6153332169a75d7ee80db3d2b5d2b038c126541ca6f260212698558db9"
+    },
+    {
+      "path": "hitch-final-full.log.gz",
+      "source_file": "hitch-final-full.log",
+      "sha256": "9bdc632aa80032f45a35db09a0e85cd60fbf5c7354105b1f20691680cac7ba7b",
+      "uncompressed_sha256": "25eb8580c4356bfaec0c689dd0a6693f0f4623b1a590453007a2a6ab42c64c1c"
+    },
+    {
+      "path": "hitch-force-final-full.log.gz",
+      "source_file": "hitch-force-final-full.log",
+      "sha256": "d40a3628fab94d29940e7cb72ee4f3fc393274a559a9bc320331ec361edd56ca",
+      "uncompressed_sha256": "b0692b8c6f3ee7133ca45bb24afcc07b89e696551e8ada452cbb69be0234bf28"
+    }
+  ]
+}

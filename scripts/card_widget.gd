@@ -707,7 +707,38 @@ func reset_ready_wave_state() -> void:
 		_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		_ready_wave_glow.scale = Vector2.ONE
 
+static var _layout_probe_enabled: bool = false
+static var _layout_probe_frames: Dictionary = {}
+
+static func set_layout_instrumentation_enabled(enabled: bool) -> void:
+	_layout_probe_enabled = enabled
+	if enabled:
+		_layout_probe_frames.clear()
+
+static func layout_instrumentation_snapshot() -> Dictionary:
+	return _layout_probe_frames.duplicate(true)
+
+static func _record_layout_probe(phase: String, started: int) -> void:
+	if not _layout_probe_enabled:
+		return
+	var elapsed: int = Time.get_ticks_usec() - started
+	var frame: int = Engine.get_process_frames()
+	if not _layout_probe_frames.has(frame):
+		if _layout_probe_frames.size() >= 512:
+			_layout_probe_frames.erase(_layout_probe_frames.keys()[0])
+		_layout_probe_frames[frame] = {}
+	var phases: Dictionary = _layout_probe_frames[frame]
+	var entry: Dictionary = phases.get(phase, {"count": 0, "inclusive_usec": 0})
+	entry["count"] = int(entry["count"]) + 1
+	entry["inclusive_usec"] = int(entry["inclusive_usec"]) + elapsed
+	phases[phase] = entry
+
 func _apply_configuration() -> void:
+	var started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
+	_apply_configuration_content()
+	_record_layout_probe("configuration", started)
+
+func _apply_configuration_content() -> void:
 	if not is_node_ready():
 		return
 	mouse_filter = Control.MOUSE_FILTER_STOP if _interactive else Control.MOUSE_FILTER_IGNORE
@@ -1067,6 +1098,11 @@ func _refresh_summary_display(card: Dictionary) -> void:
 	_render_summary_icon_rows(rows)
 
 func _render_summary_icon_rows(rows: Array) -> void:
+	var started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
+	_rebuild_summary_icon_rows(rows)
+	_record_layout_probe("summary_rows", started)
+
+func _rebuild_summary_icon_rows(rows: Array) -> void:
 	if _summary_icon_box == null:
 		return
 	_clear_children(_summary_icon_box)

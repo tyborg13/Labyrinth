@@ -16,6 +16,9 @@ const LAYOUT_NODE_SIZES: Dictionary = {
 static var _cache: Dictionary = {}
 static var _ordered_ids_cache: Array[String]
 static var _completion_cache: Dictionary = {}
+const REPAIR_CACHE_LIMIT: int = 64
+static var _repair_cache: Dictionary = {}
+static var _repair_cache_definitions: Dictionary = {}
 
 static func definitions() -> Dictionary:
 	if not _cache.is_empty():
@@ -38,6 +41,8 @@ static func clear_cache() -> void:
 	_cache.clear()
 	_ordered_ids_cache.clear()
 	_completion_cache.clear()
+	_repair_cache.clear()
+	_repair_cache_definitions = {}
 
 static func ordered_ids() -> Array[String]:
 	if not _ordered_ids_cache.is_empty():
@@ -124,11 +129,18 @@ static func effect(skill_id: String) -> Dictionary:
 	return ((definitions().get(skill_id, {}) as Dictionary).get("effect", {}) as Dictionary).duplicate(true)
 
 static func effect_type(skill_id: String) -> String:
-	return str(effect(skill_id).get("type", ""))
+	return str(((definitions().get(skill_id, {}) as Dictionary).get("effect", {}) as Dictionary).get("type", ""))
 
 static func skill_id_for_effect(effect_id: String) -> String:
-	for skill_id: String in ordered_ids():
-		if effect_type(skill_id) == effect_id:
+	if _ordered_ids_cache.is_empty():
+		ordered_ids()
+	var data: Dictionary = definitions()
+	# This read-only scan can use the internal ordering directly. The public
+	# ordered_ids API still returns an owned array, and live definition edits
+	# remain visible instead of introducing a second derived effect-ID cache.
+	for skill_id: String in _ordered_ids_cache:
+		var effect_data: Dictionary = (data.get(skill_id, {}) as Dictionary).get("effect", {}) as Dictionary
+		if str(effect_data.get("type", "")) == effect_id:
 			return skill_id
 	return ""
 
@@ -346,6 +358,15 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 	var safe_target: int = clampi(target_count, 0, maxi(0, definitions().size()))
 	var source: Array[String] = normalized_ids(value)
 	var preference: Array[String] = _unique_known_ids(preferred_order)
+	# Profile getters and save transactions repeatedly repair the same small
+	# selection. Cache only its complete inputs, never the mutable profile/history.
+	# Keep returned arrays owned, bound retained entries, and follow data reloads.
+	if not is_same(_repair_cache_definitions, definitions()):
+		_repair_cache.clear()
+		_repair_cache_definitions = definitions()
+	var cache_key: String = var_to_str([safe_target, source, preference])
+	if _repair_cache.has(cache_key):
+		return _copy_string_array(_repair_cache[cache_key])
 	for skill_id: String in source:
 		if not preference.has(skill_id):
 			preference.append(skill_id)
@@ -379,6 +400,9 @@ static func repaired_selection(value: Variant, target_count: int, preferred_orde
 		if chosen_id.is_empty():
 			chosen_id = available[0]
 		result.append(chosen_id)
+	if _repair_cache.size() >= REPAIR_CACHE_LIMIT:
+		_repair_cache.erase(_repair_cache.keys()[0])
+	_repair_cache[cache_key] = _copy_string_array(result)
 	return result
 
 static func validation_errors() -> Array[String]:

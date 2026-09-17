@@ -51,6 +51,17 @@ static func _assert_card_matches_full_walk(scene: Node, combat: CombatEngine, st
 	var expected: bool = bool(sanitized.get("playable", false))
 	var summary: Dictionary = scene.call("_card_playability_for_index", index)
 	_assert_flags(summary, expected, expect, label)
+	# Future-hand queries must use the supplied committed information snapshot,
+	# even while the live scene is displaying a different Umbra/player state.
+	var foreign: Dictionary = state.duplicate(false)
+	foreign["umbra"] = {"stage": "clear" if str((state.get("umbra", {}) as Dictionary).get("stage", "clear")) == "heart" else "heart"}
+	foreign["player"] = {"pos": Vector2i(8, 1), "hp": 1}
+	scene.set("_combat_state", foreign)
+	var isolated: Dictionary = scene.call("_card_playability_for_state", state, index)
+	_assert_flags(isolated, expected, expect, "%s isolated committed information" % label)
+	expect.call(scene.get("_combat_state") == foreign, "%s isolated query cannot replace live scene state" % label)
+	scene.set("_combat_state", state)
+
 	expect.call(not summary.has("play") and not summary.has("target_tiles"), "%s summary must contain flags without a partial interaction payload" % label)
 	expect.call((scene.get("_card_preview_cache") as Dictionary).is_empty() and (scene.get("_card_play_options_cache") as Dictionary).is_empty(), "%s summary must not populate either full-preview cache" % label)
 	_assert_flags(scene.call("_card_playability_for_index", index), expected, expect, "%s warm summary" % label)

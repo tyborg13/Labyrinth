@@ -80,6 +80,17 @@ class PerformancePassTest(unittest.TestCase):
             self.assertTrue(any("sample boundary metadata missing" in problem for problem in problems))
 
 
+    def test_runtime_measurement_modes_reject_comparison(self):
+        for field in ("section_instrumentation_enabled", "reduced_motion"):
+            baseline = {"benchmarks": {"runtime_frame": {"result": {field: True}}}}
+            candidate = {"benchmarks": {"runtime_frame": {"result": {field: False}}}}
+            self.assertTrue(performance_pass._compatibility_problems(baseline, candidate))
+
+    def test_action_cpu_rejects_different_hands(self):
+        baseline = {"benchmarks": {"combat_action_cpu": {"result": {"hand": ["pale_spark"]}}}}
+        candidate = {"benchmarks": {"combat_action_cpu": {"result": {"hand": ["pale_spark", "shadow_step"]}}}}
+        self.assertTrue(performance_pass._compatibility_problems(baseline, candidate))
+
     def test_different_cpu_profiles_reject_comparison(self):
         baseline = {"environment": {"cpu_profile": "normal"}}
         candidate = {"environment": {"cpu_profile": "background"}}

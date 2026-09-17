@@ -190,7 +190,7 @@ func _test_action_step_damage(scene: Node, combat: RefCounted) -> void:
 	state["relics"] = ["tracker_first_attack_fixture"]
 	var effects: Array[Dictionary]
 	effects.append({"type": "first_attack_bonus", "value": 4})
-	engine.set("_relic_effect_cache_key", "tracker_first_attack_fixture")
+	engine.set("_relic_effect_cache_ids", ["tracker_first_attack_fixture"])
 	engine.set("_relic_effect_cache", effects)
 	scene.set("_combat_state", state)
 	var strikes: Array = [{"type": "ranged", "range": 6, "damage": 10}, {"type": "ranged", "range": 6, "damage": 8}]

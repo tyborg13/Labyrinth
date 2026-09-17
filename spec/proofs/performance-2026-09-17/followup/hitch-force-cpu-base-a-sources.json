@@ -1,0 +1,17 @@
+{
+  "cwd": "/tmp/labyrinth-perf-2026-09-17/hitch-baseline",
+  "git_head": "c17c2106e9f16a587a371753be055814bcd77162",
+  "files": {
+    "scripts/run_scene.gd": "dd15c888f8876520b3a6af6230fb57acb8e73b06a57cbf7d27c0370f312af212",
+    "scripts/combat_engine.gd": "21b267983e173117bc7700022fb4732bb5183e642028c6baaa32d98ba05141b4",
+    "scripts/run_engine.gd": "767c2cc95f7f23c0ce787d80f2ac39313d92e0fb9f72ec0d874fb6b27409fe36",
+    "scripts/skill_tree_library.gd": "f8bb5b87daa0c4789a8db30febc458a538c1999bf35767f935297e0de13b0966",
+    "scripts/progression_store.gd": "75a798edc11468beb3e15224635cd6d830eacd93d4d4aea62170071ccb7d60e7",
+    "scripts/card_widget.gd": "a69f14ecb84647b3dee535cf3b155735a213eef2bbc4de763ad2fbe65d9b0fd3",
+    "tests/runtime_frame_performance_benchmark.gd": "f9b952d58bae7db2acdc987d3ccca88bfaea64111113895835df305c2b8fe81f",
+    "tests/combat_action_cpu_attribution.gd": "e467f8940ba7f553b4e1798f4c7f0e1b1023598788ffb74112e8a285ebe39205",
+    "tests/combat_boundary_cpu_benchmark.gd": "64b84d37c63ed9a59e1fc032fd01679d4ef5d82b3d412b51c64317b62e470e2c",
+    "tests/card_query_cost_matrix.gd": "db90eccc9ffab379fa450fc71bbe394544d940a5f508d66272c756626b586b08",
+    "tools/performance_pass.py": "647f6537f3d73fd648198a96b3dad8aa6ac82ccb55a300821cd1ee5238d5b569"
+  }
+}

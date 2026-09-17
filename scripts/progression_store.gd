@@ -749,7 +749,15 @@ static func defiance_capacity_for_level(level: int) -> int:
 	return int(clampi(level, 1, GameData.max_progression_level()) / DEFIANCE_LEVEL_INTERVAL)
 
 static func selected_skill_ids(data: Dictionary) -> Array[String]:
-	var normalized: Dictionary = _normalized_data(data.duplicate(true))
+	# Selection repair depends only on schema, level, skills and legacy stats.
+	# Do not migrate/copy run history, tutorials, grimoire and outbox to read it.
+	var selection: Dictionary = {
+		"progression_schema": data.get("progression_schema", 1),
+		"level": data.get("level", 1),
+		"skill_ids": data.get("skill_ids", []),
+		"stats": data.get("stats", {}),
+	}
+	var normalized: Dictionary = _normalized_data(selection)
 	return SkillTreeLibrary.normalized_ids(normalized.get("skill_ids", []))
 
 static func has_skill(data: Dictionary, skill_id: String) -> bool:
@@ -813,7 +821,7 @@ static func purchase_level_with_stats(data: Dictionary, _stat_ids: Array) -> Dic
 	return _normalized_data(data.duplicate(true))
 
 static func moltshard_count(data: Dictionary) -> int:
-	return maxi(0, int(_normalized_data(data.duplicate(true)).get("moltshards", 0)))
+	return maxi(0, int(data.get("moltshards", 0)))
 
 static func add_moltshards(data: Dictionary, amount: int = 1) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
@@ -843,9 +851,13 @@ static func add_moltshard_for_award(data: Dictionary, award_id: String) -> Dicti
 	return _normalized_data(normalized)
 
 static func progression_analytics_outbox(data: Dictionary) -> Array[Dictionary]:
-	return _normalized_progression_analytics_outbox(
-		_normalized_data(data.duplicate(true)).get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
-	)
+	# Older events require the combat-unit migration; current events need only
+	# field validation and owned context/payload copies, not whole-profile repair.
+	if int(data.get("progression_schema", 1)) < 6:
+		return _normalized_progression_analytics_outbox(
+			_normalized_data(data.duplicate(true)).get(PROGRESSION_ANALYTICS_OUTBOX_KEY, [])
+		)
+	return _normalized_progression_analytics_outbox(data.get(PROGRESSION_ANALYTICS_OUTBOX_KEY, []))
 
 static func queue_progression_analytics_event(
 	data: Dictionary,

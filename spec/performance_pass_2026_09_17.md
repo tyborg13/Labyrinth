@@ -4,6 +4,8 @@ This pass targets the main Escape the Umbra app, especially combat on Steam Deck
 
 The most repeatable improvements are actor construction, duplicate-actor memory, board submission, and save checkpoints. In one matched native gameplay pair, the three enemy-turn scenarios produced 81 → 56 frames over 16.67 ms across 5,541 → 5,554 frames. Frames over 33.33 ms remained 6 → 6. Significant transition spikes remain and need further work.
 
+This document records the first checkpoint. The continued hitch investigation and its newer evidence are in the [follow-up report](performance_followup_2026_09_17.md).
+
 ## Source and measurement conditions
 
 - Base: local `master`, `2c1eab7ce6e0d694d0bbd89a56a6b097ea15525a`.

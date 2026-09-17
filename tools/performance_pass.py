@@ -22,6 +22,9 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 HEADLESS_BENCHMARKS = {
+    "card_query_cpu": ("CARD QUERY COST MATRIX RESULT:", "tests/card_query_cost_matrix.gd"),
+    "combat_action_cpu": ("ACTION CPU ATTRIBUTION RESULT:", "tests/combat_action_cpu_attribution.gd"),
+    "combat_boundary_cpu": ("BOUNDARY CPU PERF RESULT:", "tests/combat_boundary_cpu_benchmark.gd"),
     "cutout_cpu": ("CUTOUT CPU PERF RESULT:", "tests/cutout_cpu_performance_benchmark.gd"),
     "surface_cpu": ("SURFACE CPU PERF RESULT:", "tests/surface_cpu_performance_benchmark.gd"),
     "simulation": ("PERF RESULT:", "tests/performance_benchmark.gd"),
@@ -220,6 +223,13 @@ COMPARISON_METRICS.update({
     for metric in ("preview_usec", "apply_usec")
 })
 
+COMPARISON_METRICS.update({
+    f"combat_boundary_cpu.cases.{case}.{operation}.{metric}": "lower"
+    for case in ("open", "dense", "surface_ready", "heart")
+    for operation in ("hand_flags", "hand_display", "context", "checkpoint_sync", "profile_normalize")
+    for metric in ("median_usec", "p95_usec")
+})
+
 COMPATIBILITY_FIELDS = {
     "CPU scheduling profile": ("environment", "cpu_profile"),
     "report schema": ("schema_version",),
@@ -240,6 +250,17 @@ COMPATIBILITY_FIELDS = {
     "runtime frame schema": ("benchmarks", "runtime_frame", "result", "schema_version"),
     "enemy round semantics": ("benchmarks", "runtime_frame", "result", "enemy_round_digests"),
     "runtime frame sample boundary": ("benchmarks", "runtime_frame", "result", "sample_boundary"),
+    "runtime frame section instrumentation": ("benchmarks", "runtime_frame", "result", "section_instrumentation_enabled"),
+    "runtime frame reduced motion": ("benchmarks", "runtime_frame", "result", "reduced_motion"),
+    "combat action CPU reduced motion": ("benchmarks", "combat_action_cpu", "result", "reduced_motion"),
+    "card query CPU workload": ("benchmarks", "card_query_cpu", "result", "workload_id"),
+    "card query CPU cards": ("benchmarks", "card_query_cpu", "result", "card_ids"),
+    "card query CPU fixtures": ("benchmarks", "card_query_cpu", "result", "fixtures"),
+    "card query CPU repetitions": ("benchmarks", "card_query_cpu", "result", "repetitions"),
+    "card query CPU skills": ("benchmarks", "card_query_cpu", "result", "developed_skills"),
+    "combat action CPU workload": ("benchmarks", "combat_action_cpu", "result", "workload_id"),
+    "combat action CPU hand": ("benchmarks", "combat_action_cpu", "result", "hand"),
+    "combat boundary workload": ("benchmarks", "combat_boundary_cpu", "result", "workload_id"),
     "runtime frame workload": ("benchmarks", "runtime_frame", "result", "workload_id"),
     "runtime frame viewport": ("benchmarks", "runtime_frame", "result", "viewport"),
     "runtime frame renderer": ("benchmarks", "runtime_frame", "result", "renderer"),

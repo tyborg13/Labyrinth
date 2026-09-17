@@ -112,7 +112,7 @@ const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
 # hook asks for the same expanded effect definitions. Keep that immutable
 # expansion on the engine instead of deep-copying every effect for every target,
 # preview, status hook, and death hook.
-var _relic_effect_cache_key: String = ""
+var _relic_effect_cache_ids: Array = []
 var _relic_effect_cache: Array[Dictionary] = []
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
@@ -277,7 +277,9 @@ func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
 	var grid: Array = state.get("grid", [])
 	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var personal_radius: int = effective_umbra_radius(state)
-	var sources: Array[Dictionary] = _effective_light_sources(state)
+	var sources: Array[Dictionary]
+	if personal_radius < UMBRA_UNLIMITED_RADIUS:
+		sources = _effective_light_sources(state)
 	for y: int in range(grid.size()):
 		var row: Array = grid[y] as Array
 		for x: int in range(row.size()):
@@ -302,14 +304,27 @@ func umbra_visible_tile_lookup(state: Dictionary) -> Dictionary:
 func is_tile_visible_to_player(state: Dictionary, tile: Vector2i, visible_lookup: Dictionary = {}) -> bool:
 	if not visible_lookup.is_empty():
 		return visible_lookup.has(tile)
-	if effective_umbra_radius(state) >= UMBRA_UNLIMITED_RADIUS:
+	var radius: int = effective_umbra_radius(state)
+	if radius >= UMBRA_UNLIMITED_RADIUS:
 		return true
-	return umbra_visible_tiles(state).has(tile)
+	# A single-tile query need not allocate and scan the complete visible board.
+	# Keep the full-list contract for limited sight, including ragged grid bounds
+	# and the light-source fallback used by umbra_visible_tiles.
+	var grid: Array = state.get("grid", []) as Array
+	if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
+		return false
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	if PathUtils.manhattan(player_pos, tile) <= radius:
+		return true
+	for source: Dictionary in _effective_light_sources(state):
+		if PathUtils.manhattan(source.get("pos", Vector2i(-999, -999)), tile) <= maxi(0, int(source.get("radius", 0))):
+			return true
+	return false
 
 func is_enemy_visible_to_player(state: Dictionary, enemy: Dictionary, visible_lookup: Dictionary = {}) -> bool:
 	if int(enemy.get("hp", 0)) <= 0:
 		return false
-	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
+	var definition: Dictionary = GameData.enemies().get(str(enemy.get("type", "")), {}) as Dictionary
 	if bool(definition.get("boss_bar", false)):
 		return true
 	if _player_has_truesight(state):
@@ -372,7 +387,16 @@ func light_source_umbra_suppression(state: Dictionary) -> int:
 	return _light_source_umbra_suppression(state)
 
 func _illusion_light_radius(state: Dictionary) -> int:
-	return _illusion_light_radius_from_contributors(_illusion_light_contributors(state))
+	# Rules need only the radius, not formatted display names and contributor
+	# dictionaries for every visibility/target/path test.
+	var radius: int = 0
+	var skill_id: String = SkillTreeLibrary.skill_id_for_effect("illusion_light")
+	if not skill_id.is_empty() and has_skill(state, skill_id):
+		radius += maxi(0, int(SkillTreeLibrary.effect(skill_id).get("radius", 1)))
+	for effect: Dictionary in _relic_effects(state):
+		if str(effect.get("type", "")) == "illusion_light_aura":
+			radius += maxi(0, int(effect.get("radius", 1)))
+	return radius
 
 func _illusion_light_contributors(state: Dictionary) -> Array[Dictionary]:
 	var contributors: Array[Dictionary] = _dictionary_values([])
@@ -401,11 +425,13 @@ func _illusion_light_radius_from_contributors(contributors: Array[Dictionary]) -
 	return radius
 
 func _light_source_umbra_suppression(state: Dictionary) -> int:
-	var source_count: int = _effective_light_sources(state).size()
+	var source_count: int = -1
 	var suppression: int = 0
 	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) != "light_source_umbra_suppression":
 			continue
+		if source_count < 0:
+			source_count = _effective_light_sources(state).size()
 		var thresholds: Array = effect.get("thresholds", []) as Array
 		var stages: Array = effect.get("stages", []) as Array
 		for index: int in range(mini(thresholds.size(), stages.size())):
@@ -442,7 +468,17 @@ func skill_ids(state: Dictionary) -> Array[String]:
 	return SkillTreeLibrary.normalized_ids(state.get("skill_ids", []))
 
 func has_skill(state: Dictionary, skill_id: String) -> bool:
-	return skill_ids(state).has(skill_id)
+	# Membership needs neither deduplication nor a newly allocated normalized
+	# list. Preserve normalization's string conversion and known-ID restriction.
+	if skill_id.is_empty() or not SkillTreeLibrary.has_definition(skill_id):
+		return false
+	var values: Variant = state.get("skill_ids", [])
+	if typeof(values) != TYPE_ARRAY:
+		return false
+	for value: Variant in values:
+		if str(value) == skill_id:
+			return true
+	return false
 
 func skill_was_used(state: Dictionary, skill_id: String) -> bool:
 	return bool((state.get("skill_flags", {}) as Dictionary).get("used:%s" % skill_id, false))
@@ -1069,14 +1105,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 					continue
 				if not is_enemy_visible_to_player(state, enemy, visible_lookup):
 					continue
-				var resolved_force_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved_action, enemy_index)
-				var force_direction: Vector2i = _action_force_direction(resolved_force_action)
-				var force_amount: int = _forced_movement_amount(resolved_force_action)
-				if force_direction != Vector2i.ZERO:
-					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
-						continue
-				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
-					continue
+				# Range/line of sight cannot be made legal by a force direction.
+				# Reject distant actors before computing force directions/collisions.
 				var enemy_targetable: bool = false
 				for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
 					if PathUtils.manhattan(player_pos, enemy_tile) > forced_range:
@@ -1085,8 +1115,17 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 						continue
 					enemy_targetable = true
 					break
-				if enemy_targetable:
-					_append_enemy_footprint_targets(targets, enemy)
+				if not enemy_targetable:
+					continue
+				var resolved_force_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved_action, enemy_index)
+				var force_direction: Vector2i = _action_force_direction(resolved_force_action)
+				var force_amount: int = _forced_movement_amount(resolved_force_action)
+				if force_direction != Vector2i.ZERO:
+					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
+						continue
+				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
+					continue
+				_append_enemy_footprint_targets(targets, enemy)
 	if targeting_type in ["melee", "ranged", "push", "pull"]:
 		var ground_any: bool = action.has("surface") or bool(action.get("_ground_target_any", false)) or int(action.get("outcrop_health", 0)) > 0
 		var ground_surface: String = str(action.get("_ground_target_surface", ""))
@@ -2416,6 +2455,14 @@ func player_movement_targets(state: Dictionary) -> Array[Vector2i]:
 	if action.is_empty():
 		return []
 	return valid_targets_for_player_action(state, action)
+
+func player_has_movement_target(state: Dictionary) -> bool:
+	var action: Dictionary = player_movement_action(state)
+	if action.is_empty():
+		return false
+	# Use the same navigation and acceptance rules as the full target list, but
+	# stop after its first legal destination when only availability is needed.
+	return not valid_targets_for_player_action(state, action, 1).is_empty()
 
 func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var movement_state: Dictionary = state.duplicate(true)
@@ -5781,9 +5828,22 @@ func _enemy_gain_frost_armor(state: Dictionary, enemy_index: int, action: Dictio
 	return next_state
 
 func _light_source_covers_tile(state: Dictionary, tile: Vector2i) -> bool:
-	for source: Dictionary in _effective_light_sources(state):
+	# Query the same sources without constructing the complete presentation list.
+	# This runs for each actor/path tile, including True Sight legality checks.
+	for source_var: Variant in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var
 		if PathUtils.manhattan(source.get("pos", INVALID_TILE), tile) <= maxi(0, int(source.get("radius", 0))):
 			return true
+	for brazier: Dictionary in state.get("guardian_braziers", []):
+		if bool(brazier.get("lit", true)) and PathUtils.manhattan(brazier["pos"], tile) <= 2:
+			return true
+	var aura_radius: int = _illusion_light_radius(state)
+	if aura_radius > 0:
+		for illusion: Dictionary in _live_illusions(state):
+			if PathUtils.manhattan(illusion.get("pos", INVALID_TILE), tile) <= aura_radius:
+				return true
 	return false
 
 func _actor_has_radiance_protection(state: Dictionary, target: Dictionary) -> bool:
@@ -5870,7 +5930,13 @@ func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direc
 		return false
 	if not sideways and not pushing and after_distance >= before_distance:
 		return false
-	return not _enemy_direction_path(state, enemy_index, step_direction, 1).is_empty()
+	# The direction query needs only the first collision check. The path helper
+	# owns a deep copy because it simulates subsequent positions; none is changed
+	# here, so use the same footprint/occupancy rules against the read-only state.
+	var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
+	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
+	return _enemy_can_occupy_anchor(state, enemy, candidate, occupied, player_pos)
 
 func _enemy_direction_path(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int) -> Array[Vector2i]:
 	var path: Array[Vector2i] = []
@@ -9952,12 +10018,10 @@ func _relic_once_key(effect: Dictionary, suffix: String, element_id: String, inc
 
 func _relic_effects(state: Dictionary) -> Array[Dictionary]:
 	var relic_ids: Array = state.get("relics", []) as Array
-	var key_parts := PackedStringArray()
-	for relic_id_var: Variant in relic_ids:
-		key_parts.append(str(relic_id_var))
-	var cache_key: String = "\u001f".join(key_parts)
-	if cache_key != _relic_effect_cache_key:
-		_relic_effect_cache_key = cache_key
+	# Array equality checks the complete ordered inputs without allocating a
+	# string key for every rules query. Own the key so in-place edits invalidate.
+	if relic_ids != _relic_effect_cache_ids:
+		_relic_effect_cache_ids = relic_ids.duplicate(true)
 		_relic_effect_cache = GameData.relic_effects_for_ids(relic_ids)
 	return _relic_effect_cache
 

@@ -11,7 +11,7 @@ const DEFAULT_VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const WARMUP_FRAMES: int = 45
 const IDLE_FRAMES: int = 150
 const OUTPUT_DIR: String = "user://performance/runtime_frame_benchmark"
-const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v15"
+const WORKLOAD_ID: String = "depth_13_live_run_interaction_matrix_v20"
 const HAND: Array = [
 	"threaded_path",
 	"sidestep_slash",
@@ -246,6 +246,7 @@ func _initialize() -> void:
 	var probe_settings: Dictionary = probe_settings_store.default_settings()
 	probe_settings["display_mode"] = "windowed"
 	probe_settings["ui_scale"] = 1.0
+	probe_settings["reduced_motion"] = OS.get_environment("LABYRINTH_RUNTIME_PERF_REDUCED_MOTION") == "1"
 	probe_settings_store.save_settings(probe_settings)
 	await process_frame
 
@@ -502,6 +503,8 @@ func _initialize() -> void:
 		"schema_version": 3,
 		"workload_id": WORKLOAD_ID,
 		"sample_boundary": "RenderingServer.frame_post_draw_v1",
+		"section_instrumentation_enabled": _section_instrumentation_enabled(),
+		"reduced_motion": bool(probe_settings["reduced_motion"]),
 		"viewport": "%dx%d" % [_viewport_size.x, _viewport_size.y],
 		"renderer": RenderingServer.get_video_adapter_name(),
 		"rendering_method": str(ProjectSettings.get_setting("rendering/renderer/rendering_method", "")),
@@ -768,7 +771,8 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		_expect(hand_index >= 0, "%s must exist in the live benchmark hand" % card_id)
 		if hand_index < 0:
 			continue
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		var card_click_pipelines_before: int = _canvas_pipeline_compilation_count()
@@ -782,19 +786,22 @@ func _measure_preview_matrix(instance: Node) -> Dictionary:
 		var click_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		all_card_click_handler_samples.append(click_handler_ms)
 		all_card_click_frame_completion_samples.append(click_frame_completion_ms)
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var cold_result: Dictionary = await _measure_current_preview_hovers(instance)
 		var cold_stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		var cold_frame_profile: Dictionary = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
 		var cold_submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		var card_result: Dictionary = await _measure_current_preview_hovers(instance)
 		card_result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		card_result["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		card_result["card_layout_profile"] = CardWidget.layout_instrumentation_snapshot()
 		card_result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		board.call("set_submission_performance_instrumentation_enabled", false)
 		var board_profile: Dictionary = board.call("render_instrumentation_snapshot") as Dictionary
@@ -1016,7 +1023,8 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 	if targets.is_empty():
 		return context
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
-	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+	instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 	board.call("set_submission_performance_instrumentation_enabled", true)
 	board.call("reset_render_instrumentation")
 	var cold_handler_samples: Array[float] = []
@@ -1070,6 +1078,7 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 		"board_profile": board.call("render_instrumentation_snapshot") as Dictionary,
 	}, true)
 	board.call("set_submission_performance_instrumentation_enabled", false)
+	CardWidget.set_layout_instrumentation_enabled(false)
 	instance.call("set_runtime_performance_instrumentation_enabled", false)
 	return result
 
@@ -1111,11 +1120,13 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 		var threat_started: int = Time.get_ticks_usec()
 		_combat.enemy_threat_tiles(combat_state, enemy_index)
 		var threat_ms: float = float(Time.get_ticks_usec() - threat_started) / 1000.0
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		var enemy_enter_ms: float = _timed_call(instance, "_on_turn_order_enemy_hovered", [tile, actor_key])
 		var stage_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		var submission_profile: Dictionary = board.call("submission_performance_instrumentation_snapshot") as Dictionary
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		board.call("set_submission_performance_instrumentation_enabled", false)
 		var enemy_exit_ms: float = _timed_call(instance, "_on_turn_order_enemy_unhovered", [tile, actor_key])
@@ -1147,9 +1158,11 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 
 	samples.clear()
 	for pile_kind: String in ["draw", "discard", "burn"]:
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		var pile_open_ms: float = _timed_call(instance, "_open_pile_view", [pile_kind])
 		var pile_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		samples.append(pile_open_ms)
 		# Let the native renderer consume the opened pooled-card hierarchy through
@@ -1159,9 +1172,11 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 		var pile_close_ms: float = _timed_call(instance, "_close_pile_view")
 		samples.append(pile_close_ms)
 		await process_frame
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		var pile_reopen_ms: float = _timed_call(instance, "_open_pile_view", [pile_kind])
 		var pile_reopen_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		samples.append(pile_reopen_ms)
 		var pile_reclose_ms: float = _timed_call(instance, "_close_pile_view")
@@ -1194,9 +1209,11 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 
 	samples.clear()
 	for mode: String in ["equipment", "magic", "skills"]:
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		var character_open_ms: float = _timed_call(instance, "_open_character_overlay", [mode])
 		var character_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		var skill_tree_profile: Dictionary = {}
 		var skill_tree_var: Variant = instance.get("_skill_tree_view")
@@ -1207,9 +1224,11 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 		var character_close_ms: float = _timed_call(instance, "_close_card_upgrade_overlay")
 		samples.append(character_close_ms)
 		await process_frame
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		var character_reopen_ms: float = _timed_call(instance, "_open_character_overlay", [mode])
 		var character_reopen_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		samples.append(character_reopen_ms)
 		var character_reclose_ms: float = _timed_call(instance, "_close_card_upgrade_overlay")
@@ -1234,11 +1253,13 @@ func _measure_interaction_matrix(instance: Node) -> Dictionary:
 	samples.append(ability_open_ms)
 	RenderingServer.force_draw(false)
 	var ability_select_samples: Array[float] = []
-	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+	instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 	for skill_id: String in SKILLS:
 		ability_select_samples.append(_timed_call(instance, "_select_skill_status_skill", [skill_id]))
 		samples.append(ability_select_samples[ability_select_samples.size() - 1])
 	var ability_select_profile: Dictionary = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+	CardWidget.set_layout_instrumentation_enabled(false)
 	instance.call("set_runtime_performance_instrumentation_enabled", false)
 	var ability_next_page_ms: float = _timed_call(instance, "_on_skill_status_page_pressed", [1])
 	var ability_previous_page_ms: float = _timed_call(instance, "_on_skill_status_page_pressed", [-1])
@@ -1531,7 +1552,8 @@ func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dic
 	_board_pointer_hover(instance, target)
 	await _await_render_frame()
 	_reset_board_render_instrumentation(instance)
-	instance.call("set_runtime_performance_instrumentation_enabled", true)
+	CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+	instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 	sampler.begin()
 	var started: int = Time.get_ticks_usec()
 	_board_pointer_click(instance, target)
@@ -1554,6 +1576,7 @@ func _measure_movement_pool_action(instance: Node, sampler: FrameSampler) -> Dic
 	phase["board_profile"] = _board_render_instrumentation(instance)
 	phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 	phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+	CardWidget.set_layout_instrumentation_enabled(false)
 	instance.call("set_runtime_performance_instrumentation_enabled", false)
 	_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "independent movement animation must finish before the deadlock guard")
 	_expect((after_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == target, "routed independent movement must commit the chosen destination")
@@ -1586,7 +1609,8 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		await _await_render_frame()
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_reset_board_render_instrumentation(instance)
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		sampler.begin()
 		var action_started: int = Time.get_ticks_usec()
@@ -1616,8 +1640,11 @@ func _measure_action_matrix(instance: Node, sampler: FrameSampler) -> Dictionary
 		phase["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		phase["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		phase["card_layout_profile"] = CardWidget.layout_instrumentation_snapshot()
+		phase["committed_hand_queries"] = instance.call("committed_hand_query_instrumentation_snapshot") if instance.has_method("committed_hand_query_instrumentation_snapshot") else {}
 		phase["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		board.call("set_submission_performance_instrumentation_enabled", false)
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s confirmed play must change committed combat state" % card_id)
@@ -1737,6 +1764,8 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 		await _settle_frames(3)
 		var before_state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
 		_expect(_combat.skill_is_ready(before_state, skill_id), "%s must be ready in its authored ability workload" % skill_id)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		sampler.begin()
 		var started: int = Time.get_ticks_usec()
 		var routed_controls: Dictionary = await _activate_skill_through_viewport(instance, skill_id)
@@ -1799,6 +1828,12 @@ func _measure_ability_action_matrix(instance: Node, sampler: FrameSampler) -> Di
 		phase["state_changed"] = before_state != (instance.get("_combat_state") as Dictionary)
 		_expect(bool(phase["state_changed"]), "%s activation must change committed combat state" % skill_id)
 		_expect(wait_frames < MAX_ANIMATION_SETTLE_FRAMES, "%s activation animation must settle before the deadlock guard" % skill_id)
+		phase["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
+		phase["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		phase["card_layout_profile"] = CardWidget.layout_instrumentation_snapshot()
+		phase["committed_hand_queries"] = instance.call("committed_hand_query_instrumentation_snapshot") if instance.has_method("committed_hand_query_instrumentation_snapshot") else {}
+		CardWidget.set_layout_instrumentation_enabled(false)
+		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		results[skill_id] = phase
 	return results
 
@@ -1959,7 +1994,8 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 			pass_button != null and pass_button.is_visible_in_tree() and not pass_button.disabled,
 			"%s must expose the live Pass button after authored layout readiness: %s" % [composition_id, str(pass_readiness)]
 		)
-		instance.call("set_runtime_performance_instrumentation_enabled", true)
+		CardWidget.set_layout_instrumentation_enabled(_section_instrumentation_enabled())
+		instance.call("set_runtime_performance_instrumentation_enabled", _section_instrumentation_enabled())
 		board.call("set_submission_performance_instrumentation_enabled", true)
 		board.call("reset_render_instrumentation")
 		sampler.begin()
@@ -1985,9 +2021,11 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 		result["animation_clock"] = instance.call("runtime_animation_clock_snapshot") as Dictionary
 		result["stage_profile"] = instance.call("runtime_performance_instrumentation_snapshot") as Dictionary
 		result["stage_frame_profile"] = instance.call("runtime_performance_frame_instrumentation_snapshot") as Dictionary
+		result["card_layout_profile"] = CardWidget.layout_instrumentation_snapshot()
 		result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot") as Dictionary
 		result["board_profile"] = board.call("render_instrumentation_snapshot") as Dictionary
 		board.call("set_submission_performance_instrumentation_enabled", false)
+		CardWidget.set_layout_instrumentation_enabled(false)
 		instance.call("set_runtime_performance_instrumentation_enabled", false)
 		var final_state: Dictionary = instance.get("_combat_state") as Dictionary
 		result["state_changed"] = before_state != final_state
@@ -3054,3 +3092,8 @@ func _expect(condition: bool, message: String) -> void:
 
 func _phase_log(message: String) -> void:
 	print("RUNTIME FRAME PERF PHASE: %s (%d ms)" % [message, Time.get_ticks_msec()])
+
+func _section_instrumentation_enabled() -> bool:
+	# Section attribution is a separate diagnostic workload. Measure native
+	# shipping-like pacing with it disabled, never subtract its cost afterward.
+	return OS.get_environment("LABYRINTH_RUNTIME_PERF_SECTIONS") != "0"

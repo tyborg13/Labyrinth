@@ -1068,7 +1068,12 @@ func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
 	return next_state
 
 func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = run_state.duplicate(true)
+	# The old combat snapshot is replaced, so cloning its entire event history
+	# before overwriting it only adds checkpoint work. Every retained field and
+	# the replacement still become independently owned deep copies.
+	var next_state: Dictionary = run_state.duplicate(false)
+	next_state.erase("combat_state")
+	next_state = next_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
 	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
@@ -1079,13 +1084,13 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 		int(next_state.get(DEFIANCE_CAPACITY_KEY, 0))
 	)
 	next_state = _apply_recovered_embers_from_combat(next_state, combat_state)
-	next_state = _apply_collected_equipment_from_combat(next_state, combat_state)
+	next_state = _apply_collected_equipment_to_owned_state(next_state, combat_state)
 	# Combat owns pickup/consumption transactions, including duplicate copies.
 	# Copying the snapshot is idempotent across checkpoints, finish and reload.
 	if combat_state.has("equipped_items"):
 		next_state["equipped_items"] = _item_card_array(combat_state.get("equipped_items", []))
 		next_state["item_inventory"] = _item_card_array(combat_state.get("item_inventory", []))
-		next_state = _rebuild_deck_cards(next_state)
+		_rebuild_deck_cards_in_place(next_state)
 		for loot: Dictionary in BattlefieldItemRules.pickups_between(run_state.get("combat_state", {}), combat_state):
 			var card_id: String = str(loot.get("card_id", ""))
 			if next_state["equipped_items"].has(card_id) or next_state["item_inventory"].has(card_id):
@@ -1960,6 +1965,10 @@ func exit_options(run_state: Dictionary) -> Array[Dictionary]:
 
 func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	_repair_equipment_state_in_place(next_state)
+	return next_state
+
+func _repair_equipment_state_in_place(next_state: Dictionary) -> void:
 	var equipped: Dictionary = (next_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
 	if equipped.is_empty():
 		equipped = GameData.starting_equipped_equipment()
@@ -1986,9 +1995,9 @@ func _repair_equipment_state(run_state: Dictionary) -> Dictionary:
 		next_state["collected_equipment"] = collected
 	if not next_state.has("reward_cards"):
 		next_state["reward_cards"] = _migrated_reward_cards_from_deck(next_state.get("deck_cards", []), equipped)
-	next_state = _repair_magic_state(next_state)
-	next_state = _repair_item_state(next_state)
-	return _rebuild_deck_cards(next_state)
+	_repair_magic_state_in_place(next_state)
+	_repair_item_state_in_place(next_state)
+	_rebuild_deck_cards_in_place(next_state)
 
 func _clear_removed_skill_pending(run_state: Dictionary, previous_skills: Array[String], _current_skills: Array[String]) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
@@ -2037,13 +2046,17 @@ func _stow_invalid_wild_trinket(run_state: Dictionary) -> Dictionary:
 
 func _repair_magic_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	_repair_magic_state_in_place(next_state)
+	return next_state
+
+func _repair_magic_state_in_place(next_state: Dictionary) -> void:
 	var reward_cards: Array = _string_array(next_state.get("reward_cards", []))
 	next_state["reward_cards"] = reward_cards
 	if not next_state.has("attuned_magic_cards") and not next_state.has("magic_inventory"):
 		var migrated_magic: Dictionary = _magic_loadout_from_collected_rewards(reward_cards)
 		next_state["attuned_magic_cards"] = migrated_magic.get("attuned_magic_cards", [])
 		next_state["magic_inventory"] = migrated_magic.get("magic_inventory", [])
-		return next_state
+		return
 	var attuned: Array = _string_array(next_state.get("attuned_magic_cards", []))
 	var inventory: Array = _string_array(next_state.get("magic_inventory", []))
 	var limit: int = GameData.magic_loadout_limit()
@@ -2055,7 +2068,7 @@ func _repair_magic_state(run_state: Dictionary) -> Dictionary:
 	attuned = _filled_attuned_magic(attuned)
 	next_state["attuned_magic_cards"] = attuned
 	next_state["magic_inventory"] = inventory
-	return next_state
+	return
 
 func _magic_loadout_from_collected_rewards(reward_cards: Array) -> Dictionary:
 	var attuned: Array = []
@@ -2086,6 +2099,10 @@ func _filled_attuned_magic(attuned_cards: Array) -> Array:
 
 func _repair_item_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	_repair_item_state_in_place(next_state)
+	return next_state
+
+func _repair_item_state_in_place(next_state: Dictionary) -> void:
 	var inventory: Array = _item_card_array(next_state.get("item_inventory", []))
 	var equipped: Array = _item_card_array(next_state.get("equipped_items", []))
 	var limit: int = GameData.item_loadout_limit()
@@ -2096,7 +2113,7 @@ func _repair_item_state(run_state: Dictionary) -> Dictionary:
 			equipped.pop_back()
 	next_state["item_inventory"] = inventory
 	next_state["equipped_items"] = equipped
-	return next_state
+	return
 
 func _item_card_array(values: Variant) -> Array:
 	var result: Array = []
@@ -2138,13 +2155,17 @@ func _migrated_reward_cards_from_deck(deck_cards: Array, equipped: Dictionary) -
 
 func _rebuild_deck_cards(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	_rebuild_deck_cards_in_place(next_state)
+	return next_state
+
+func _rebuild_deck_cards_in_place(next_state: Dictionary) -> void:
 	next_state["deck_cards"] = GameData.compile_deck_cards(
 		next_state.get("equipped_equipment", {}) as Dictionary,
 		next_state.get("attuned_magic_cards", []) as Array,
 		next_state.get("equipped_items", []) as Array,
 		next_state
 	)
-	return next_state
+	return
 
 func _run_has_equipment(run_state: Dictionary, equipment_id: String) -> bool:
 	if equipment_id.is_empty():
@@ -3464,8 +3485,8 @@ func _apply_recovered_embers_from_combat(run_state: Dictionary, combat_state: Di
 	_clear_recovery_marker_on_current_room(next_state)
 	return next_state
 
-func _apply_collected_equipment_from_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
-	var next_state: Dictionary = _repair_equipment_state(run_state)
+func _apply_collected_equipment_to_owned_state(next_state: Dictionary, combat_state: Dictionary) -> Dictionary:
+	_repair_equipment_state_in_place(next_state)
 	var added_names: Array = []
 	for equipment_var: Variant in combat_state.get("collected_equipment", []):
 		var equipment_id: String = str(equipment_var)
