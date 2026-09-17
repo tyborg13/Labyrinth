@@ -1741,7 +1741,7 @@ func _create_static_render_cache() -> void:
 	_static_render_cache_layer = get_script().new() as Control
 	_static_render_cache_layer.name = "StaticBoardRenderCacheLayer"
 	_static_render_cache_layer.set("_is_static_render_cache_layer", true)
-	_static_render_cache_layer.material = _art_treatment.material
+	_static_render_cache_layer.material = _art_treatment.cache_bake_material
 	_static_render_cache_layer.set("_art_treatment", _art_treatment)
 	_static_render_cache_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_static_render_cache_layer.focus_mode = Control.FOCUS_NONE
@@ -1750,9 +1750,7 @@ func _create_static_render_cache() -> void:
 	_static_render_cache_texture.name = "StaticBoardRenderCacheTexture"
 	_static_render_cache_texture.centered = false
 	_static_render_cache_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	var cache_material := CanvasItemMaterial.new()
-	cache_material.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
-	_static_render_cache_texture.material = cache_material
+	_static_render_cache_texture.material = _art_treatment.floor_material
 	_static_render_cache_texture.texture = _static_render_cache_viewport.get_texture()
 	add_child(_static_render_cache_texture)
 	move_child(_static_render_cache_texture, 0)
@@ -1782,6 +1780,7 @@ func _sync_static_render_cache() -> void:
 	# Cover the viewport rather than the board's input rect: zoomed/panned floor
 	# art is intentionally allowed to extend underneath surrounding HUD controls.
 	_static_render_cache_texture.transform = pixel_transform.affine_inverse()
+	_art_treatment.floor_material.set_shader_parameter("cache_to_board", pixel_transform.affine_inverse())
 	_ensure_board_layout_cache()
 	for field: String in [
 		"combat_state", "presentation", "exit_tiles", "_navigation_zoom", "_navigation_pan",
@@ -2280,6 +2279,10 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	if _art_treatment != null and not _is_dynamic_render_layer and not _is_static_render_cache_layer:
+		if _art_treatment.advance(delta, bool(presentation.get("reduced_motion", false))):
+			for effect: Control in _enemy_shadow_dissolve_effects_by_key.values():
+				_art_treatment.apply_motion_to(effect.material as ShaderMaterial)
 	_process_next_unit_shadow_prewarm()
 	var process_frame: int = Engine.get_process_frames()
 	_last_processed_render_frame = process_frame
@@ -6034,8 +6037,18 @@ func set_art_treatment_enabled(enabled: bool) -> void:
 	_queue_dynamic_redraw()
 	queue_redraw()
 
+func set_art_treatment_preset(preset: String) -> bool:
+	_ensure_art_treatment()
+	if not _art_treatment.set_preset(preset):
+		return false
+	# A deliberate look change rebakes the floor once. Normal light flicker
+	# updates the cached composite material and does not rebuild floor geometry.
+	_sync_static_render_cache()
+	_sync_enemy_shadow_dissolve_effects()
+	return true
+
 func art_treatment_snapshot() -> Dictionary:
-	return {"enabled": _art_treatment_enabled, "light_count": _art_treatment.source_count if _art_treatment != null else 0,
+	return {"enabled": _art_treatment_enabled, "preset": _art_treatment.preset if _art_treatment != null else "", "light_count": _art_treatment.source_count if _art_treatment != null else 0,
 		"light_overflow": _art_treatment.source_overflow if _art_treatment != null else 0,
 		"shared_material": _art_treatment.material if _art_treatment != null else null}
 
@@ -6051,7 +6064,7 @@ func _sync_art_lighting() -> void:
 			# One broad source for the paired fixtures. A room's key light supplies
 			# cast direction; these secondary sources provide local colored fill.
 			sources.append({"point": _tile_center(tile), "height": _tile_width() * 0.68,
-				"radius": _tile_width() * 2.35, "color": Color(1.0, 0.48, 0.17, 0.80)})
+				"radius": _tile_width() * 2.35, "color": Color(1.0, 0.68, 0.36, 0.80)})
 		for prop: Dictionary in presentation.get("scene_props", []):
 			var kind: String = str(prop.get("kind", ""))
 			if kind not in ["campfire_bonfire", "watch_brazier_lit"]:
@@ -6062,8 +6075,8 @@ func _sync_art_lighting() -> void:
 			var rect: Rect2 = _scene_prop_rect(texture, prop)
 			var ground: Vector2 = Vector2(rect.get_center().x, rect.end.y)
 			sources.push_front({"point": ground, "height": rect.size.y * 0.55,
-				"radius": _tile_width() * 3.2, "color": Color(1.0, 0.43, 0.12, 1.1)})
-	_art_treatment.configure(sources, str(combat_state.get("room_element", "")))
+				"radius": _tile_width() * 3.2, "color": Color(1.0, 0.62, 0.30, 1.1)})
+	_art_treatment.configure(sources, str(combat_state.get("room_element", "")), bool(presentation.get("reduced_motion", false)))
 
 func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WHITE, profile: int = CombatArtTreatment.PROP, source: Rect2 = Rect2()) -> void:
 	if _art_treatment == null or profile == 0:
@@ -6097,7 +6110,7 @@ func _draw_floor_contact_shading(grid: Array, tile: Vector2i, polygon: PackedVec
 		var a: Vector2 = polygon[edge]
 		var b: Vector2 = polygon[(edge + 1) % 4]
 		var points := PackedVector2Array([a, b, b.lerp(center, 0.48), a.lerp(center, 0.48)])
-		draw_polygon(points, PackedColorArray([Color(0.045, 0.03, 0.025, 0.23), Color(0.045, 0.03, 0.025, 0.23), Color.TRANSPARENT, Color.TRANSPARENT]))
+		draw_polygon(points, PackedColorArray([Color(0.035, 0.028, 0.035, 0.38), Color(0.035, 0.028, 0.035, 0.38), Color.TRANSPARENT, Color.TRANSPARENT]))
 
 func _draw_floor_moss_overlay(tile: Vector2i) -> void:
 	if not _tile_has_moss("floor", tile):
@@ -6393,7 +6406,7 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 			if loot_texture == null:
 				continue
 			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
-			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
+			_draw_loot_contact_shadow(tile, loot_rect, loot_texture, false)
 			_draw_world_texture(loot_texture, loot_rect)
 			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
 		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
@@ -7198,7 +7211,7 @@ func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Text
 		_draw_missed_equipment_disintegration(tile, bobbed_rect, loot_texture, loot, disintegration_progress)
 		return
 	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
-	_draw_rect_ground_shadow(tile, loot_rect, 0.54, 0.15, 0.10)
+	_draw_loot_contact_shadow(tile, loot_rect, loot_texture, true)
 	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
 	_draw_world_texture(loot_texture, bobbed_rect)
 
@@ -7807,6 +7820,15 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		/ INTENT_COMPASS_RING_SOURCE_DIAMETER
 	)
 	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
+	if _art_treatment_enabled:
+		# Preserve the authored attack/defense silhouettes, but seat their paint
+		# in the ground plane with a shallow offset shadow and shared local light.
+		CombatArtTreatment.draw_ground_mark(self, base_texture, center, scale_factor, Color(0.91, 0.86, 0.78, 0.80))
+		var tint: Color = _intent_compass_emblem_tint(family)
+		tint = tint.lerp(Color(0.92, 0.84, 0.73, tint.a), 0.16)
+		tint.a = 0.87
+		CombatArtTreatment.draw_ground_mark(self, emblem_texture, center, emblem_scale, tint)
+		return
 	var emblem_basis_x := Vector2(emblem_scale, 0.0)
 	var emblem_basis_y := Vector2(0.0, emblem_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
 	var base_basis_x := Vector2(scale_factor, 0.0)
@@ -14700,7 +14722,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var shadow_bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
 	var shadow_origin: Vector2 = _unit_shadow_foot_point(texture, draw_rect, shadow_bounds, unit_type)
 	shadow_origin += Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
-	_draw_contact_pool(shadow_origin, _tile_width() * 0.43, _tile_height() * 0.30, 0.31 * shadow_alpha_scale)
+	_draw_contact_pool(shadow_origin, _tile_width() * 0.48, _tile_height() * 0.34, 0.48 * shadow_alpha_scale)
 	_submitted_shadow_meshes.append(shadow_mesh)
 	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
 	if detailed_sections:
@@ -15021,6 +15043,21 @@ func _scaled_polygon(points: PackedVector2Array, scale_factor: float, offset: Ve
 		scaled.append(center + (point - center) * scale_factor)
 	return scaled
 
+func _draw_loot_contact_shadow(tile: Vector2i, rect: Rect2, texture: Texture2D, floating: bool) -> void:
+	if not _art_treatment_enabled:
+		_draw_rect_ground_shadow(tile, rect, 0.54 if floating else 0.62, 0.15 if floating else 0.18, 0.10 if floating else 0.08)
+		return
+	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var visible_size: Vector2 = _unit_shadow_draw_size(texture, rect.size, bounds)
+	var foot: Vector2 = _unit_shadow_foot_point(texture, rect, bounds)
+	# Floating pickups retain their beacon/bob; project onto the floor beneath
+	# their actual painted center, not the transparent texture-frame center.
+	if floating:
+		foot.y = _tile_center(tile).y + _tile_height() * 0.30
+	var width: float = maxf(visible_size.x * 1.12, _tile_width() * 0.16)
+	_draw_contact_pool(foot + SHADOW_LIGHT_VECTOR * _tile_width() * 0.09, width * 1.25, width * 0.43, 0.27)
+	_draw_contact_pool(foot, width * 0.83, width * 0.26, 0.52 if not floating else 0.43)
+
 func _draw_rect_ground_shadow(tile: Vector2i, draw_rect: Rect2, width_scale: float, height_scale: float, cast_scale: float) -> void:
 	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
 		return
@@ -15028,8 +15065,8 @@ func _draw_rect_ground_shadow(tile: Vector2i, draw_rect: Rect2, width_scale: flo
 	var width: float = maxf(_tile_width() * 0.24, draw_rect.size.x * width_scale)
 	var height: float = maxf(_tile_height() * 0.13, _tile_height() * height_scale)
 	if _art_treatment_enabled:
-		_draw_contact_pool(base_center + SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale * 0.7, width * 1.15, height * 1.3, 0.15)
-		_draw_contact_pool(base_center, width * 0.76, height * 0.95, 0.29)
+		_draw_contact_pool(base_center + SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale * 0.7, width * 1.20, height * 1.4, 0.23)
+		_draw_contact_pool(base_center, width * 0.86, height * 1.10, 0.44)
 		return
 	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale
 	_draw_iso_ground_shadow(base_center + cast_offset, width * 0.96, height * 0.86, width * 0.28, float(SHADOW_COLOR.a) * 0.38)
@@ -15041,7 +15078,7 @@ func _draw_wall_segment_shadow(tile: Vector2i, orientation: String, draw_rect: R
 	var height: float = _tile_height() * 0.16
 	var skew: float = width * (0.16 if orientation == "row" else -0.16)
 	if _art_treatment_enabled:
-		_draw_contact_pool(base_center, width * 1.10, height * 1.65, 0.25)
+		_draw_contact_pool(base_center, width * 1.10, height * 1.65, 0.38)
 		return
 	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * 0.12
 	_draw_iso_ground_shadow(base_center + cast_offset, width, height, skew, float(SHADOW_COLOR.a) * 0.32)

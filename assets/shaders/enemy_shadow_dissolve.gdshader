@@ -165,7 +165,7 @@ void fragment() {
 	if (art_actor_profile > 3.5 && art_actor_profile < 4.5) {
 		vec2 texel = 1.0 / (vec2(textureSize(source_texture, 0)) * atlas_region_size);
 		float neighbor = sprite_sample(flowed_uv + light_direction * texel * 1.75).a;
-		painted += vec3(1.0, 0.64, 0.30) * clamp(source.a - neighbor, 0.0, 1.0) * min(edge_energy, 0.65) * 0.60 * art_strength;
+		painted += vec3(1.0, 0.64, 0.30) * clamp(source.a - neighbor, 0.0, 1.0) * min(edge_energy, 0.65) * 0.60 * art_rim_level * art_strength;
 	}
 	vec3 body_color = mix(clamp(painted, vec3(0.0), vec3(1.0)), shadow_color, shadow_takeover);
 	body_color = mix(body_color, fracture_glint.rgb, fracture_edge * 0.52);

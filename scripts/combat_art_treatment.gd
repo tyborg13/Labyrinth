@@ -5,6 +5,7 @@ extends RefCounted
 ## This preserves the retained painter order without extra canvases/readbacks.
 
 const SHADER: Shader = preload("res://assets/shaders/combat_art_treatment.gdshader")
+const FLOOR_CACHE_SHADER: Shader = preload("res://assets/shaders/combat_floor_light.gdshader")
 const UV_LANE: float = 8.0
 const FLOOR: int = 1
 const STONE: int = 2
@@ -12,19 +13,40 @@ const PROP: int = 3
 const ACTOR: int = 4
 const ACTOR_ATLAS: int = 5
 const EMISSIVE: int = 6
+const GROUND_MARK: int = 7
+# Inspection presets, not player-facing settings. All share the same geometry,
+# shadows and source list so the comparison changes only the lighting treatment.
+const PRESETS := {
+	"gentle": {"ambient": 0.90, "gain": 0.38, "reach": 1.05, "contrast": 1.02, "saturation": 0.94, "rim": 0.80, "tint": Vector3(0.985, 0.985, 1.01)},
+	"warm": {"ambient": 0.77, "gain": 0.68, "reach": 1.0, "contrast": 1.05, "saturation": 0.92, "rim": 1.0, "tint": Vector3(1.015, 0.985, 0.95)},
+	"balanced": {"ambient": 0.62, "gain": 0.95, "reach": 1.0, "contrast": 1.07, "saturation": 0.90, "rim": 1.20, "tint": Vector3(0.94, 0.98, 1.045)},
+	"moody": {"ambient": 0.46, "gain": 1.25, "reach": 0.93, "contrast": 1.10, "saturation": 0.88, "rim": 1.45, "tint": Vector3(0.91, 0.965, 1.075)},
+	"dramatic": {"ambient": 0.32, "gain": 1.55, "reach": 0.88, "contrast": 1.13, "saturation": 0.86, "rim": 1.65, "tint": Vector3(0.89, 0.95, 1.10)},
+}
 const MAX_LIGHTS: int = 24
 const SHADOW_CAST: Vector2 = Vector2(0.19, 0.105)
 
 var material: ShaderMaterial
+var cache_bake_material: ShaderMaterial
+var floor_material: ShaderMaterial
 var contact_texture: GradientTexture2D
 var enabled: bool = true
 var _parameters: Dictionary = {}
 var source_count: int = 0
 var source_overflow: int = 0
+var preset: String = "balanced"
+var _clock: float = 0.0
+var _reduced_motion: bool = true
+var _light_flicker := PackedFloat32Array()
+var _source_phases := PackedFloat32Array()
 
 func _init() -> void:
 	material = ShaderMaterial.new()
 	material.shader = SHADER
+	cache_bake_material = ShaderMaterial.new()
+	cache_bake_material.shader = SHADER
+	floor_material = ShaderMaterial.new()
+	floor_material.shader = FLOOR_CACHE_SHADER
 	var gradient := Gradient.new()
 	gradient.offsets = PackedFloat32Array([0.0, 0.20, 0.58, 1.0])
 	gradient.colors = PackedColorArray([Color.WHITE, Color(1, 1, 1, 0.82), Color(1, 1, 1, 0.27), Color(1, 1, 1, 0)])
@@ -35,11 +57,15 @@ func _init() -> void:
 	contact_texture.fill = GradientTexture2D.FILL_RADIAL
 	contact_texture.fill_from = Vector2(0.5, 0.5)
 	contact_texture.fill_to = Vector2(1.0, 0.5)
+	var requested: String = OS.get_environment("LABYRINTH_ART_LOOK")
+	if PRESETS.has(requested):
+		preset = requested
 	configure([], "")
 
-func configure(sources: Array, element: String) -> void:
+func configure(sources: Array, element: String, reduced_motion: bool = true) -> void:
 	var positions := PackedVector4Array()
 	var colors := PackedVector4Array()
+	_source_phases.clear()
 	source_count = mini(sources.size(), MAX_LIGHTS)
 	source_overflow = maxi(0, sources.size() - MAX_LIGHTS)
 	for index: int in range(MAX_LIGHTS):
@@ -49,9 +75,11 @@ func configure(sources: Array, element: String) -> void:
 			var color: Color = entry.get("color", Color(1.0, 0.48, 0.17, 0.8))
 			positions.append(Vector4(point.x, point.y, float(entry["radius"]), float(entry.get("height", 0.0))))
 			colors.append(Vector4(color.r, color.g, color.b, color.a))
+			_source_phases.append(point.x * 0.031 + point.y * 0.017)
 		else:
 			positions.append(Vector4.ZERO)
 			colors.append(Vector4.ZERO)
+			_source_phases.append(0.0)
 	var ambient := Vector3(0.985, 0.985, 1.01)
 	match element:
 		"ice": ambient = Vector3(0.965, 0.985, 1.025)
@@ -60,12 +88,63 @@ func configure(sources: Array, element: String) -> void:
 		"earth": ambient = Vector3(0.99, 0.995, 0.965)
 	_parameters = {"art_strength": 1.0 if enabled else 0.0, "art_light_count": source_count,
 		"art_lights": positions, "art_light_colors": colors, "art_ambient": ambient}
+	_apply_preset_parameters()
+	_reduced_motion = reduced_motion
+	_update_flicker()
+	_apply_materials()
+
+func _apply_materials() -> void:
 	apply_to(material)
+	apply_to(floor_material)
+	apply_to(cache_bake_material)
+	var steady := PackedFloat32Array()
+	steady.resize(MAX_LIGHTS)
+	steady.fill(1.0)
+	cache_bake_material.set_shader_parameter("art_light_flicker", steady)
+
+func set_preset(value: String) -> bool:
+	if not PRESETS.has(value):
+		return false
+	preset = value
+	_apply_preset_parameters()
+	_apply_materials()
+	return true
+
+func _apply_preset_parameters() -> void:
+	var look: Dictionary = PRESETS[preset]
+	for key: String in ["ambient", "gain", "reach", "contrast", "saturation", "rim"]:
+		_parameters["art_" + key + "_level"] = look[key]
+	_parameters["art_look_tint"] = look["tint"]
+
+func advance(delta: float, reduced_motion: bool) -> bool:
+	if not enabled or source_count == 0:
+		return false
+	if reduced_motion and _reduced_motion:
+		return false
+	_reduced_motion = reduced_motion
+	if not reduced_motion:
+		_clock = fmod(_clock + maxf(delta, 0.0), 3600.0)
+	_update_flicker()
+	apply_motion_to(material)
+	apply_motion_to(floor_material)
+	return true
+
+func _update_flicker() -> void:
+	_light_flicker.resize(MAX_LIGHTS)
+	for index: int in range(MAX_LIGHTS):
+		var phase: float = _source_phases[index]
+		# Two slow, low-amplitude components; computed per source on the CPU,
+		# never per fragment. Reduced motion has an exact stable value of one.
+		_light_flicker[index] = 1.0 if _reduced_motion else 1.0 + 0.045 * sin(_clock * 3.7 + phase) + 0.025 * sin(_clock * 6.1 + phase * 1.71)
+	_parameters["art_light_flicker"] = _light_flicker
+
+func apply_motion_to(target: ShaderMaterial) -> void:
+	target.set_shader_parameter("art_light_flicker", _light_flicker)
 
 func set_enabled(value: bool) -> void:
 	enabled = value
 	_parameters["art_strength"] = 1.0 if enabled else 0.0
-	material.set_shader_parameter("art_strength", _parameters["art_strength"])
+	_apply_materials()
 
 func apply_to(target: ShaderMaterial) -> void:
 	for key: String in _parameters:
@@ -104,3 +183,10 @@ static func draw_polygon(canvas: CanvasItem, points: PackedVector2Array, colors:
 	for index: int in range(tagged.size()):
 		tagged[index].x += UV_LANE * float(profile)
 	canvas.draw_polygon(points, colors, tagged, texture)
+
+static func draw_ground_mark(canvas: CanvasItem, texture: Texture2D, center: Vector2, scale: float, tint: Color) -> void:
+	var size: Vector2 = texture.get_size() * Vector2(scale, scale * 0.5)
+	var rect := Rect2(center - size * 0.5, size)
+	var shadow_rect := Rect2(rect.position + Vector2(0.7, 1.5), size)
+	canvas.draw_texture_rect(texture, shadow_rect, false, Color(0.025, 0.017, 0.014, 0.42))
+	draw_rect(canvas, texture, rect, tint, GROUND_MARK)

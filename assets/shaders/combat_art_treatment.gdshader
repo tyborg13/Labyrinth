@@ -28,7 +28,7 @@ void fragment() {
 			vec2 edge_uv = UV + direction * TEXTURE_PIXEL_SIZE * 1.75;
 			float neighbor = texture(TEXTURE, clamp(edge_uv, vec2(0.0), vec2(1.0))).a;
 			float edge = clamp(source.a - neighbor, 0.0, 1.0);
-			rgb += vec3(1.0, 0.64, 0.30) * edge * min(edge_energy, 0.65) * 0.60 * art_strength;
+			rgb += vec3(1.0, 0.64, 0.30) * edge * min(edge_energy, 0.65) * 0.60 * art_rim_level * art_strength;
 		}
 		source.rgb = clamp(rgb, vec3(0.0), vec3(1.0));
 	}

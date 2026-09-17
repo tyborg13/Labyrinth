@@ -1,0 +1,10 @@
+{
+  "scripts/combat_art_treatment.gd": "1e27734c557c7b04eae136a5bda9b3616d3871b5bd70e29f0e7fc849128b3980",
+  "scripts/combat_board_view.gd": "eb71fb05f5ad4610df2b89fe6ede9dde8c3534588f0d37a143a45ff437be2c22",
+  "assets/shaders/combat_art_palette.gdshaderinc": "65db2f35ff708173274e05bbdaf208ef7ef69d72e7fd9d961bd50d05f7c0ead3",
+  "assets/shaders/combat_art_treatment.gdshader": "503a2ae9d662a2155ffb44c1a9c0f1635e5b301c64c028b8329a96272b906c36",
+  "assets/shaders/combat_floor_light.gdshader": "5da38ff4ef8431dd133e53b5e8f4f20064d620f800b8b417e55f7d493e069a5f",
+  "assets/shaders/enemy_shadow_dissolve.gdshader": "9c165565e7ae2932e7ad6cf79f9e5467590a9df82bdfdf97d3e2c94b78d57e8f",
+  "tests/combat_lighting_variants_probe.gd": "a145c5071009b02fa622a9d28a4cf788e06f86eba474aae05f1e6b367714ad2e",
+  "tests/combat_art_treatment_probe.gd": "e4fdd4919a23df57a998c52e92e90ee97dbf7c6731930ea1c8920dc2538a9cac"
+}
