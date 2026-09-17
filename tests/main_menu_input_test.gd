@@ -263,6 +263,9 @@ func _click_after_hover(instance: Node, button: Button) -> void:
 	await process_frame
 
 func _test_startup_sequence(reduced_motion: bool) -> void:
+	# Keep the menu cached so resource loading cannot extend the measured hold.
+	var ready_menu: PackedScene = load("res://scenes/main_menu.tscn")
+	_expect(ready_menu != null, "Startup timing should use a loaded menu")
 	var settings: Dictionary = SettingsStore.default_settings()
 	settings["reduced_motion"] = reduced_motion
 	_expect(SettingsStore.save_settings(settings), "Startup test settings should save")
@@ -280,7 +283,7 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 		_expect(not cursor.visible and not cursor.is_processing_input(), "Startup should hide the cursor and suppress click feedback")
 	while startup.phase != &"hold":
 		await process_frame
-	_expect(is_equal_approx(startup.seal.modulate.a, 1.0), "The two-second hold should be fully opaque")
+	_expect(is_equal_approx(startup.seal.modulate.a, 1.0), "The one-second hold should be fully opaque")
 	while result.is_empty() and startup.phase != &"menu_fade_in":
 		await process_frame
 	if not reduced_motion:
@@ -294,7 +297,8 @@ func _test_startup_sequence(reduced_motion: bool) -> void:
 	while result.is_empty():
 		await process_frame
 	var menu: Control = result[0]
-	_expect(phase_times["fade_out"] - phase_times["hold"] >= 2000, "The seal should remain fully visible for at least two seconds")
+	var hold_ms: int = phase_times["fade_out"] - phase_times["hold"]
+	_expect(hold_ms >= 1000 and hold_ms < 1500, "The ready-menu seal hold should last one second, allowing scheduling slack")
 	if not reduced_motion:
 		_expect(phase_times["hold"] - phase_times["fade_in"] >= 350, "Normal startup should fade the seal in")
 		_expect(phase_times["menu_black"] - phase_times["fade_out"] >= 300, "Normal startup should fade the seal out")

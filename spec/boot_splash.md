@@ -11,13 +11,13 @@ crop, retouch, or replace its typography without a new request.
 
 ## Startup sequence
 
-After inspection, the user requested a two-second minimum and then smooth fades.
-The native Godot splash is static, so the visible sequence now belongs to
+The startup uses a one-second minimum opaque hold, halving the former two-second
+pause. The native Godot splash is static, so the visible sequence belongs to
 `scenes/startup.tscn` and `scripts/startup.gd`:
 
 1. Native boot and the first scene frame are solid black.
 2. Fade the unchanged seal in over 0.4 seconds with a sine ease.
-3. Keep it fully opaque for **at least two seconds**, measured by a monotonic clock.
+3. Keep it fully opaque for **at least one second**, measured by a monotonic clock.
 4. Once the menu resource has loaded, fade the seal to black over 0.35 seconds.
 5. Instantiate the existing menu behind black, then reveal it over 0.4 seconds.
 6. Restore input and the cursor, and free the startup scene.
@@ -34,7 +34,7 @@ use Godot's `Keep File (exported as is)` import mode, and `startup.gd` loads the
 raw approved PNG through `AssetLoader`.
 
 `SettingsStore.motion_duration` disables the fades for reduced-motion users while
-preserving the two-second opaque hold. Viewport input is disabled until the menu
+preserving the one-second opaque hold. Viewport input is disabled until the menu
 is fully visible. The prior input/cursor state is restored on completion or early
 scene teardown, preventing activation of hidden menu controls or a stranded lock.
 No gameplay, save schema, menu controls, input mappings, or menu music are changed.

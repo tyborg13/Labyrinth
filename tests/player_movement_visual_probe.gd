@@ -243,7 +243,9 @@ func _assert_movement_hud(instance: Node, expected_remaining: int, expected_capa
 		var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 		if pass_chip != null and pass_chip.visible:
 			var pass_rect: Rect2 = pass_chip.get_global_rect()
-			_assert(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should stack beneath the co-located resource meters" % label)
+			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
+			_assert(play_rect.end.x < hand_bounds.position.x and pass_rect.position.x > hand_bounds.end.x, "%s Pass should flank the hand opposite the resource meters" % label)
+			_assert(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % label)
 
 func _assert_board_path(instance: Node, destination: Vector2i, label: String) -> void:
 	var board: Node = instance.get_node(BOARD_PATH)
