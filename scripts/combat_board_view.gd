@@ -4933,30 +4933,33 @@ func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2,
 		sin(time_seconds * 0.74 + _ambient_hash01(source_seed + 11) * TAU) * tile_width * 0.045,
 		sin(time_seconds * 0.58 + _ambient_hash01(source_seed + 13) * TAU) * tile_height * 0.08
 	)
-	_draw_campfire_soft_ellipse(
-		floor_point + drift + Vector2(0.0, tile_height * 0.12),
-		tile_width * (1.78 + slow_breath * 0.08),
-		Vector2(1.78, 0.78),
-		-0.04,
-		Color(1.0, 0.40, 0.12, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.62 * flicker),
-		24
-	)
-	_draw_campfire_soft_ellipse(
-		floor_point - drift * 0.50 + Vector2(-tile_width * 0.15, tile_height * 0.03),
-		tile_width * 1.28,
-		Vector2(1.58, 0.72),
-		0.16,
-		Color(1.0, 0.61, 0.23, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.38 * flicker),
-		18
-	)
-	_draw_campfire_soft_ellipse(
-		floor_point + drift * 0.62 + Vector2(tile_width * 0.12, -tile_height * 0.08),
-		tile_width * 0.74,
-		Vector2(1.32, 0.66),
-		-0.20,
-		Color(1.0, 0.80, 0.38, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.36 * flicker),
-		14
-	)
+	# Keep the old floor wash only for the untreated comparison. The shared
+	# material lights treated floors; flame emission below remains visible.
+	if not _art_treatment_enabled:
+		_draw_campfire_soft_ellipse(
+			floor_point + drift + Vector2(0.0, tile_height * 0.12),
+			tile_width * (1.78 + slow_breath * 0.08),
+			Vector2(1.78, 0.78),
+			-0.04,
+			Color(1.0, 0.40, 0.12, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.62 * flicker),
+			24
+		)
+		_draw_campfire_soft_ellipse(
+			floor_point - drift * 0.50 + Vector2(-tile_width * 0.15, tile_height * 0.03),
+			tile_width * 1.28,
+			Vector2(1.58, 0.72),
+			0.16,
+			Color(1.0, 0.61, 0.23, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.38 * flicker),
+			18
+		)
+		_draw_campfire_soft_ellipse(
+			floor_point + drift * 0.62 + Vector2(tile_width * 0.12, -tile_height * 0.08),
+			tile_width * 0.74,
+			Vector2(1.32, 0.66),
+			-0.20,
+			Color(1.0, 0.80, 0.38, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.36 * flicker),
+			14
+		)
 	if glow_texture != null:
 		_draw_ambient_particle_sprite(
 			glow_texture,
@@ -4967,7 +4970,8 @@ func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2,
 			Color(1.0, 0.50, 0.14, 1.0)
 		)
 		return
-	draw_circle(floor_point, tile_width * 1.65, Color(1.0, 0.48, 0.18, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.22 * flicker))
+	if not _art_treatment_enabled:
+		draw_circle(floor_point, tile_width * 1.65, Color(1.0, 0.48, 0.18, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.22 * flicker))
 	draw_circle(flame_point, tile_width * 0.74, Color(1.0, 0.78, 0.34, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.20 * flicker))
 
 func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
@@ -6144,7 +6148,9 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 # Light is part of the retained stone surface: it never redraws the floor for
 # flame flicker, floats over a board edge, or covers targeting/actor silhouettes.
 func _draw_pillar_torch_floor_light(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
-	if _pillar_torch_light_texture == null or not _tile_drawn_as_floor(grid, tile):
+	# Shared world lighting already shades the stone. An unbounded orange
+	# overlay here would bypass its local budget and count each torch twice.
+	if _art_treatment_enabled or _pillar_torch_light_texture == null or not _tile_drawn_as_floor(grid, tile):
 		return
 	var light_size := Vector2(_tile_width() * 3.2, _tile_height() * 3.2)
 	for dy: int in range(-COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS, COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS + 1):

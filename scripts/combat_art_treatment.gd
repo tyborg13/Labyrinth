@@ -105,7 +105,7 @@ func set_preset(value: String) -> bool:
 
 func _apply_preset_parameters() -> void:
 	var look: Dictionary = LightingProfiles.definition(preset)
-	for key: String in ["ambient", "gain", "reach", "contrast", "saturation", "rim"]:
+	for key: String in ["ambient", "gain", "local_budget", "reach", "contrast", "saturation", "rim"]:
 		_parameters["art_" + key + "_level"] = look[key]
 	_parameters["art_look_tint"] = look["tint"]
 

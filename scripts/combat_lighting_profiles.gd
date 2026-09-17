@@ -4,13 +4,15 @@ extends RefCounted
 ## See spec/combat_art_treatment.md for tuning, extension and reconstruction.
 
 const DEFAULT_ID: String = "warm"
+# Ambient carries the scene; local_budget softly bounds overlapping firelight.
+# Original revision values remain in spec/proofs/combat-art-treatment/reference/lighting-capture.json.
 # Declaration order is the comparison order; add new looks here only.
 const PRESETS := {
-	"gentle": {"ambient": 0.90, "gain": 0.38, "reach": 1.05, "contrast": 1.02, "saturation": 0.94, "rim": 0.80, "tint": Vector3(0.985, 0.985, 1.01)},
-	"warm": {"ambient": 0.77, "gain": 0.68, "reach": 1.0, "contrast": 1.05, "saturation": 0.92, "rim": 1.0, "tint": Vector3(1.015, 0.985, 0.95)},
-	"balanced": {"ambient": 0.62, "gain": 0.95, "reach": 1.0, "contrast": 1.07, "saturation": 0.90, "rim": 1.20, "tint": Vector3(0.94, 0.98, 1.045)},
-	"moody": {"ambient": 0.46, "gain": 1.25, "reach": 0.93, "contrast": 1.10, "saturation": 0.88, "rim": 1.45, "tint": Vector3(0.91, 0.965, 1.075)},
-	"dramatic": {"ambient": 0.32, "gain": 1.55, "reach": 0.88, "contrast": 1.13, "saturation": 0.86, "rim": 1.65, "tint": Vector3(0.89, 0.95, 1.10)},
+	"gentle": {"ambient": 0.94, "gain": 0.23, "local_budget": 0.70, "reach": 1.05, "contrast": 1.02, "saturation": 0.94, "rim": 0.80, "tint": Vector3(0.985, 0.985, 1.01)},
+	"warm": {"ambient": 0.88, "gain": 0.38, "local_budget": 0.70, "reach": 1.0, "contrast": 1.05, "saturation": 0.92, "rim": 1.0, "tint": Vector3(1.015, 0.985, 0.95)},
+	"balanced": {"ambient": 0.80, "gain": 0.46, "local_budget": 0.70, "reach": 1.0, "contrast": 1.07, "saturation": 0.90, "rim": 1.20, "tint": Vector3(0.94, 0.98, 1.045)},
+	"moody": {"ambient": 0.65, "gain": 0.62, "local_budget": 0.70, "reach": 0.93, "contrast": 1.10, "saturation": 0.88, "rim": 1.45, "tint": Vector3(0.91, 0.965, 1.075)},
+	"dramatic": {"ambient": 0.52, "gain": 0.80, "local_budget": 0.70, "reach": 0.88, "contrast": 1.13, "saturation": 0.86, "rim": 1.65, "tint": Vector3(0.89, 0.95, 1.10)},
 }
 
 static func ids() -> Array[String]:

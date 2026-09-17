@@ -6,8 +6,9 @@ uniform vec4 art_lights[24]; // board-local ground xy, radius, light height
 uniform vec4 art_light_colors[24];
 uniform vec3 art_ambient = vec3(0.985, 0.985, 1.01);
 // Warm fallback values; live materials are configured from CombatLightingProfiles.
-uniform float art_ambient_level = 0.77;
-uniform float art_gain_level = 0.68;
+uniform float art_ambient_level = 0.88;
+uniform float art_gain_level = 0.38;
+uniform float art_local_budget_level = 0.70;
 uniform float art_reach_level = 1.0;
 uniform float art_contrast_level = 1.05;
 uniform float art_saturation_level = 0.92;
@@ -32,6 +33,7 @@ vec3 art_grade(vec3 rgb, float profile) {
 
 vec3 art_illumination_sample(vec2 point, float profile, bool animated, out vec2 direction, out float edge_energy) {
 	vec3 light = vec3(0.0);
+	float total_weight = 0.0;
 	direction = vec2(-0.06, -0.033);
 	edge_energy = 0.06;
 	for (int i = 0; i < art_light_count; i++) {
@@ -44,12 +46,17 @@ vec3 art_illumination_sample(vec2 point, float profile, bool animated, out vec2 
 		if (distance_squared < 1.0) {
 			float weight = pow(1.0 - sqrt(distance_squared), 1.6) * art_light_colors[i].a * (animated ? art_light_flicker[i] : 1.0);
 			light += art_light_colors[i].rgb * weight;
+			total_weight += weight;
 			edge_energy = max(edge_energy, weight);
 			direction += delta / max(length(delta), 0.001) * weight;
 		}
 	}
 	direction /= max(length(direction), 0.001);
-	return min(light, vec3(1.2));
+	// Saturate local energy smoothly, preserving the weighted light hue.
+	// Unlike per-channel clipping this cannot turn many orange sources white;
+	// unlike dividing by source count, distant torches do not dim a nearby one.
+	float budget = max(art_local_budget_level, 0.001);
+	return light * budget / (budget + total_weight);
 }
 
 vec3 art_illumination(vec2 point, float profile, out vec2 direction, out float edge_energy) {

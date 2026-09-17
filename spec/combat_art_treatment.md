@@ -7,11 +7,12 @@ Combat floor art, stone, props, loot and actors share value/color calibration, c
 - `CombatArtTreatment` owns a shared world material, a steady floor-bake material, a cached-floor composite material and one small radial contact texture per board. It reuses the existing retained floor viewport and painter order. There are no new viewports, screen readbacks, normal maps, blur or shadow-map passes.
 - World-art draws opt in with a palette profile encoded in UV.x lanes of width 8. The vertex shader removes the lane before sampling. Ordinary 0–1 UVs and untextured commands bypass the treatment, preserving health bars, targeting, surfaces, status feedback, particle colors and text. Future UV repetition must stay below lane 8 or use a separate material.
 - Profiles distinguish floor, stone, props, ordinary actors, atlas actors, emissive actors and ground intent marks. Family-specific saturation/exposure adjustments share a split-tone grade. Emissive art retains its identity. These are authored calibrations, not physical lighting or automatic per-image histogram matching.
-- Lower ambient illumination and stronger local fill establish visible light/dark regions. A soft highlight shoulder preserves painted details near torches. Actor ambient is clamped to at least 0.48; intent marks receive a 0.70 minimum and less diffuse gain to preserve tactical readability.
+- Ambient illumination carries the scene; restrained local fill supplies accents. Each fragment accumulates only in-range source weights, then scales their summed RGB by `budget / (budget + total_weight)`. This softly bounds overlapping firelight without dimming an isolated light when distant sources are added, and preserves the weighted hue instead of independently clipping color channels. A soft highlight shoulder preserves painted details near torches. Actor ambient is clamped to at least 0.48; intent marks receive a 0.70 minimum and less diffuse gain to preserve tactical readability.
 - Rim light samples the completed cutout alpha inward along a continuous weighted local-light direction. It cannot reveal transparent pixels or outline individual rig joints. Atlas sprites receive diffuse fill and grade without edge sampling, avoiding adjacent atlas frames. Illusions and tactical movement previews retain authored tints.
 - Living art and the surviving painted portion of enemy dissolves share palette, light and flicker data. Dissolve, impact flashes and Umbra concealment still control coverage.
 - At most 24 sources are uploaded on layout/scene-prop/element changes, with lit campfires/braziers prioritized. One broad source represents each column's paired torches. Each source varies by at most ±7%, using two slow CPU sine components with a position-derived phase. The root board advances these values once per frame; retained layers do not each advance the clock. Reduced motion holds all values at exactly one and skips repeated animation uploads.
 - The floor is baked at steady lighting. Its existing cached sprite receives the ratio of live to steady diffuse illumination, preserving premultiplied alpha without rebaking geometry on flicker. This adds two bounded source loops to the cached composite shader. The ratio intentionally approximates relighting of the additive wash, highlight shoulder and already-composited decorative commands; the small flicker amplitude limits this discrepancy. Changing a preset rebakes the floor once.
+- Legacy per-column floor halos and broad campfire floor ellipses are skipped while the shared treatment is active, so they cannot add an unbounded second orange wash. Flame-centered halos and emissive effects remain; disabling the treatment restores the original floor overlays for comparison.
 - Contact shading uses soft pools and short fades beside visible walls/pillars; it is not screen-space AO. The fixed room key supplies cast direction; local torches supply secondary diffuse/rim light without occluder-aware per-light cast shadows.
 - Potion contact pools anchor to cached visible-alpha bounds rather than transparent image margins. Floating equipment retains its beacon/bob, with its contact pool projected onto the floor.
 - Ground intent marks retain the existing icon identities, family colors, footprint sizing and isometric plane. A shallow offset shadow, modest tint integration and ground-profile lighting reduce their pasted-on appearance. Hit testing and rules are unchanged.
@@ -20,15 +21,17 @@ Combat floor art, stone, props, loot and actors share value/color calibration, c
 
 **Warm is the global in-game default for every combat.** It is selected by `CombatLightingProfiles.DEFAULT_ID` in [the registry](../scripts/combat_lighting_profiles.gd), including new boards and loaded saves. No room, enemy, biome or encounter selects another look. The board also renders noncombat rooms, which inherit the same treatment as before. Existing elemental ambient tints and actual source positions still affect each scene; “Warm everywhere” does not mean all rooms have identical pixels.
 
-All five approved looks retain their original numerical values. They are stored together in registry declaration order; they are not a player settings menu:
+All five looks are stored together in registry declaration order; they are not a player settings menu. After extended play showed excessive orange coverage in dense rooms, their ambient/local balance was revised as below. Profile tint, contrast, saturation, radius and rim remain unchanged. The original exact values and screenshots remain in [the original reference manifest](proofs/combat-art-treatment/reference/lighting-capture.json); original runtime is commit `c527d0afae188de7855d09b0b2baafe4679268b0`.
 
 | Preset | Ambient | Local gain | Radius scale | Rim scale |
 | --- | --- | --- | --- | --- |
-| gentle | 0.90 | 0.38 | 1.05 | 0.80 |
-| warm | 0.77 | 0.68 | 1.00 | 1.00 |
-| balanced | 0.62 | 0.95 | 1.00 | 1.20 |
-| moody | 0.46 | 1.25 | 0.93 | 1.45 |
-| dramatic | 0.32 | 1.55 | 0.88 | 1.65 |
+| gentle | 0.94 | 0.23 | 1.05 | 0.80 |
+| warm | 0.88 | 0.38 | 1.00 | 1.00 |
+| balanced | 0.80 | 0.46 | 1.00 | 1.20 |
+| moody | 0.65 | 0.62 | 0.93 | 1.45 |
+| dramatic | 0.52 | 0.80 | 0.88 | 1.65 |
+
+Every profile currently uses `local_budget = 0.70`. The shader output approaches this bound as overlapping source energy grows; it is not a hard source-count cap or a global dimmer. Higher values allow a stronger accumulated local wash, while `gain` controls the final contribution and `ambient` establishes the room-wide base. Keep the budget positive.
 
 `CombatLightingProfiles.ids()` enumerates every look. `definition(id)` returns a separate copy of all values; unknown IDs return an empty dictionary. `CombatArtTreatment` reads the registry for each material setup, not each frame. Its `preset` remains stable when room lighting is reconfigured.
 
@@ -48,17 +51,18 @@ The separate art, intent and death probes exercise renderer/component edge cases
 
 ## Tune or extend without losing the original work
 
-| Registry field | Effect | Current approved range |
+| Registry field | Effect | Stored tuning range |
 | --- | --- | --- |
-| `ambient` | Base illumination outside local pools; actor/intent floors still apply | 0.32–0.90 |
-| `gain` | Strength of local colored fill | 0.38–1.55 |
+| `ambient` | Base illumination outside local pools; actor/intent floors still apply | 0.52–0.94 |
+| `gain` | Strength of local colored fill after overlap compression | 0.23–0.80 |
+| `local_budget` | Smooth upper budget for accumulated in-range source energy | 0.70 in all current looks |
 | `reach` | Multiplier on the authored source radius | 0.88–1.05 |
 | `contrast` | Value contrast around the shader's 0.18 pivot | 1.02–1.13 |
 | `saturation` | Shared saturation before material-family adjustments | 0.86–0.94 |
 | `rim` | Interior silhouette highlight strength | 0.80–1.65 |
 | `tint` | RGB multiplier (`Vector3`) for non-emissive art | See the exact registry values |
 
-These ranges describe the approved looks, not engine limits. Keep numbers finite, radius/contrast positive, and check bright/dark readability when going outside them. To explore another look, copy one complete registry entry under a stable lowercase ID and change its values. Leave `DEFAULT_ID = "warm"` until a new default is explicitly chosen. The probe enumerates the registry and writes values/image names into `lighting-capture.json`; the comparison tool reads that file, so there is no second hard-coded profile list to maintain. The probe's adjacent-look visibility threshold may need an explained adjustment if two intentionally similar profiles are added.
+These ranges describe the stored looks, not engine limits. Keep numbers finite, radius/contrast positive, and check bright/dark readability when going outside them. To explore another look, copy one complete registry entry under a stable lowercase ID and change its values. Leave `DEFAULT_ID = "warm"` until a new default is explicitly chosen. The probe enumerates the registry and writes values/image names into `lighting-capture.json`; the comparison tool reads that file, so there is no second hard-coded profile list to maintain. The probe's adjacent-look visibility threshold may need an explained adjustment if two intentionally similar profiles are added.
 
 To change the global default later, update `DEFAULT_ID`, the shader fallback values, the Warm-specific default acceptance assertions/capture name, and this document together. Runtime values come from the registry; shader defaults only cover unconfigured/debug material use.
 
@@ -73,7 +77,7 @@ For changes beyond numerical looks:
 
 ## Reconstruct the comparison and proof
 
-The committed [native reference set](proofs/combat-art-treatment/reference/README.md) contains all fifteen accepted screenshots and the capture manifest. Reconstruct the chooser/video without launching Godot:
+The committed [original native reference set](proofs/combat-art-treatment/reference/README.md) contains all fifteen accepted pre-rebalance screenshots and their original capture manifest. It is historical evidence, not the current softer lighting. Reconstruct that original chooser/video without launching Godot:
 
 ```sh
 cd <task-worktree> && python3 tools/combat_lighting_comparison.py --capture-dir spec/proofs/combat-art-treatment/reference --output-dir <new-artifact-dir> --video
@@ -100,7 +104,19 @@ cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --s
 cd <task-worktree> && python3 tools/visual_probe_runner.py tests/combat_art_treatment_probe.gd --task-id <task-id> --no-headless --expect-size 1920x1080
 ```
 
-The full suite includes [the lighting registry suite](../tests/suites/combat_lighting_profiles_suite.gd): default selection, per-element reconfiguration, every preserved look reaching all three materials, invalid-ID handling and definition-copy isolation. If changing draw/alpha/intent/death paths, also run the corresponding intent and dissolve probes listed above. The historical four-torch workload and measured source hashes remain committed under [proofs/combat-art-treatment](proofs/combat-art-treatment/variants-verification.md); its three pre-existing Umbra equivalence failures are documented there. Warm changes numeric uniforms only and adds no rendering passes; this does not establish new target-hardware performance measurements.
+The full suite includes [the lighting registry suite](../tests/suites/combat_lighting_profiles_suite.gd): default selection, per-element reconfiguration, every preserved look reaching all three materials, invalid-ID handling and definition-copy isolation. If changing draw/alpha/intent/death paths, also run the corresponding intent and dissolve probes listed above. The historical four-torch workload and measured source hashes remain committed under [proofs/combat-art-treatment](proofs/combat-art-treatment/variants-verification.md); its three pre-existing Umbra equivalence failures are documented there. The ambient rebalance adds one scalar accumulation per source and one smooth normalization after each source loop, with no new textures, draw calls, passes, uploads or floor rebakes. It also skips the duplicate floor-halo draw calls while enabled. This is an operation-count statement, not new target-hardware timing evidence.
+
+## Density rebalance and reconstruction
+
+See [the density proof](proofs/combat-art-treatment/ambient-rebalance-verification.md) for inspected two- and four-column comparisons, exact profile values, shader samples and current validation. The [density reference set](proofs/combat-art-treatment/density-reference/README.md) stores both sides at native resolution. Rooms must remain generated encounters with their original occupants, loot and column layouts; never place extra columns or merchant props into showcase combats.
+
+```sh
+cd <task-worktree> && python3 tools/visual_probe_runner.py tests/combat_lighting_density_probe.gd --task-id <task-id> --no-headless --display-driver macos --rendering-method mobile --rendering-driver metal --timeout 120 --min-images 4 --expect-size 1920x1080 --result-manifest <new-artifact-dir>/density.json
+```
+
+The probe selects seed 62001/Hollow Grotto (two columns) and seed 62002/Sealed Antechamber (four columns), coordinate `(1,1)`, using the production encounter-generation recipe used by the inspection tool. These are initial generated snapshots, not an automated playthrough. It captures Warm and Balanced with identical layouts, and separately tests actual GPU output from 0/1/2/4/24 coincident sources and one nearby plus 23 distant sources. The synthetic swatch is a shader test, never a gameplay scenario. `--baseline` exists only to record a historical renderer; it skips the new overlap bounds and is not current acceptance proof.
+
+For a future tuning iteration, capture this probe before editing, then capture it again afterward in a fresh artifact directory. Preserve both `density-capture.json` files with their images. Compare actor/stone color and neutral floor areas, not just whole-frame brightness, and retain local visible accents. Run the full variants and art probes above to check all profiles, flicker, targeting, alpha and floor-cache behavior. To re-render the original model, use its original commit in a separate worktree; merely restoring old profile numbers does not undo the overlap shader change.
 
 ## Play several combats before publication
 
@@ -119,3 +135,5 @@ cd <task-worktree> && python3 tools/godot_task_runner.py --task-id unify-combat-
 ```
 
 No environment override is required for Warm. Close the previous game instance before either command. Normal save behavior applies; the temporary inspection home may be cleaned by the OS, so use a fresh verified fixture if it disappears. Local task commits preserve the work; pushing/landing remains pending the user's play inspection and explicit approval.
+
+The user is currently trialing Balanced. To resume that trial, prefix the runner command with `env LABYRINTH_ART_LOOK=balanced`; it still reuses the existing save namespace. Profile overrides are launch-local and do not alter the save. Do not reset that ongoing run to prepare proof; generate new fixtures under a separate run ID.

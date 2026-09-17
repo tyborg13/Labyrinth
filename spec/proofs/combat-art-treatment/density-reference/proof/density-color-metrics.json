@@ -1,0 +1,50 @@
+[
+  {
+    "image": "02_columns_warm.png",
+    "board_roi": [
+      450,
+      160,
+      1480,
+      715
+    ],
+    "mean_red_minus_blue_before": 0.06558577766837534,
+    "mean_red_minus_blue_after": 0.05224511776219969,
+    "reduction_percent": 20.34078176770381
+  },
+  {
+    "image": "04_columns_warm.png",
+    "board_roi": [
+      450,
+      160,
+      1480,
+      715
+    ],
+    "mean_red_minus_blue_before": 0.10267353361396767,
+    "mean_red_minus_blue_after": 0.07437986701762017,
+    "reduction_percent": 27.556922997046275
+  },
+  {
+    "image": "02_columns_balanced.png",
+    "board_roi": [
+      450,
+      160,
+      1480,
+      715
+    ],
+    "mean_red_minus_blue_before": 0.05159992659729213,
+    "mean_red_minus_blue_after": 0.03241991963427755,
+    "reduction_percent": 37.17060900629481
+  },
+  {
+    "image": "04_columns_balanced.png",
+    "board_roi": [
+      450,
+      160,
+      1480,
+      715
+    ],
+    "mean_red_minus_blue_before": 0.09089963521527697,
+    "mean_red_minus_blue_after": 0.05375552365640342,
+    "reduction_percent": 40.86277295932532
+  }
+]
