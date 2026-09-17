@@ -26,6 +26,8 @@ var enabled: bool = true
 var _parameters: Dictionary = {}
 var source_count: int = 0
 var source_overflow: int = 0
+var source_equivalents: float = 0.0
+var local_light_scale: float = 1.0
 var preset: String = LightingProfiles.DEFAULT_ID
 var _clock: float = 0.0
 var _reduced_motion: bool = true
@@ -61,11 +63,13 @@ func configure(sources: Array, element: String, reduced_motion: bool = true) -> 
 	_source_phases.clear()
 	source_count = mini(sources.size(), MAX_LIGHTS)
 	source_overflow = maxi(0, sources.size() - MAX_LIGHTS)
+	source_equivalents = 0.0
 	for index: int in range(MAX_LIGHTS):
 		if index < source_count:
 			var entry: Dictionary = sources[index]
 			var point: Vector2 = entry["point"]
 			var color: Color = entry.get("color", Color(1.0, 0.48, 0.17, 0.8))
+			source_equivalents += maxf(float(color.a), 0.0) / LightingProfiles.TORCH_STRENGTH
 			positions.append(Vector4(point.x, point.y, float(entry["radius"]), float(entry.get("height", 0.0))))
 			colors.append(Vector4(color.r, color.g, color.b, color.a))
 			_source_phases.append(point.x * 0.031 + point.y * 0.017)
@@ -79,7 +83,8 @@ func configure(sources: Array, element: String, reduced_motion: bool = true) -> 
 		"fire": ambient = Vector3(1.015, 0.975, 0.955)
 		"lightning": ambient = Vector3(0.985, 0.97, 1.025)
 		"earth": ambient = Vector3(0.99, 0.995, 0.965)
-	_parameters = {"art_strength": 1.0 if enabled else 0.0, "art_light_count": source_count,
+	local_light_scale = LightingProfiles.local_light_scale(source_equivalents)
+	_parameters = {"art_local_light_scale": local_light_scale, "art_strength": 1.0 if enabled else 0.0, "art_light_count": source_count,
 		"art_lights": positions, "art_light_colors": colors, "art_ambient": ambient}
 	_apply_preset_parameters()
 	_reduced_motion = reduced_motion
@@ -104,8 +109,8 @@ func set_preset(value: String) -> bool:
 	return true
 
 func _apply_preset_parameters() -> void:
-	var look: Dictionary = LightingProfiles.definition(preset)
-	for key: String in ["ambient", "gain", "local_budget", "reach", "contrast", "saturation", "rim"]:
+	var look: Dictionary = LightingProfiles.resolved_definition(preset, source_equivalents)
+	for key: String in LightingProfiles.SCALAR_FIELDS:
 		_parameters["art_" + key + "_level"] = look[key]
 	_parameters["art_look_tint"] = look["tint"]
 

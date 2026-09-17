@@ -1,0 +1,241 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 28.850782726981205,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 41.50533160755984,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_balanced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 26.744595009487288,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.09854469086587,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_dramatic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.309889275541014,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 42.960773489178536,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_gentle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 27.687195112302717,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.581322531679376,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_moody.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.7541077507074,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 42.38509295282564,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_warm.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.98970510122901,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 41.675553258262156,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_balanced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 28.27080021353615,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.11207734398222,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_dramatic.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.690361167346914,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 42.382044528191166,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_gentle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.02796282821447,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.67962784431527,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_moody.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.690361167346914,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 42.382044528191166,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_warm.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/unify-combat-art-with-efficient-grading-contact-shading-and-shared-light",
+    "--script",
+    "tests/combat_lighting_density_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 28.850782726981205,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 41.50533160755984,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_balanced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 26.744595009487288,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.09854469086587,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_dramatic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.309889275541014,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 42.960773489178536,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_gentle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 27.687195112302717,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.581322531679376,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_moody.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.7541077507074,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 42.38509295282564,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/02_columns_warm.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.98970510122901,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 41.675553258262156,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_balanced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 28.27080021353615,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.11207734398222,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_dramatic.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.690361167346914,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 42.382044528191166,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_gentle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.02796282821447,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.67962784431527,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_moody.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.690361167346914,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 42.382044528191166,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1/pillar_torch_lighting_probe/04_columns_warm.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "unify-combat-art-with-efficient-grad-1789665428886427000-95241-combat_lighting_density-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/combat_lighting_density_probe.gd"
+}

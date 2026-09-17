@@ -1,0 +1,301 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.62544837469835,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.09439549880325,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/00_silhouette_hold.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.635981453629135,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.11494265871755,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/07_first_shadow_change.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.62727680715646,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.086499496606926,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/14_early_shadow_takeover.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.44669887691303,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 20.924561483175864,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/22_first_fractures.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.137705097255164,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 20.903656752683826,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/34_inward_breakup.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.625993751952297,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 20.962635267537895,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/46_shadow_breakup.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 30.43240053777869,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.506869727014248,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/60_silhouette_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 30.54471652559883,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.634843749842528,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/74_wisp_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 30.60058233942357,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.682273482759232,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/88_last_fragments.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 30.685649588712035,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.74139881239535,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/98_near_nothing.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 174.68599999999998,
+          "luma_mean": 26.175649418688767,
+          "luma_min": 0.2848,
+          "luma_range": 174.4012,
+          "luma_stdev": 18.988883501258027,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/enemy_shadow_dissolve_contact_sheet.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 29.6172275703643,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.063124806861165,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/lethal_impact_continuity_hold.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.41159999999996,
+          "luma_mean": 30.596118744042638,
+          "luma_min": 0.0,
+          "luma_range": 253.41159999999996,
+          "luma_stdev": 21.666232050575516,
+          "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/reduced_motion_62_static_breakup.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/unify-combat-art-with-efficient-grading-contact-shading-and-shared-light",
+    "--script",
+    "tests/enemy_shadow_dissolve_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.62544837469835,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.09439549880325,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/00_silhouette_hold.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.635981453629135,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.11494265871755,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/07_first_shadow_change.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.62727680715646,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.086499496606926,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/14_early_shadow_takeover.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.44669887691303,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 20.924561483175864,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/22_first_fractures.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.137705097255164,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 20.903656752683826,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/34_inward_breakup.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.625993751952297,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 20.962635267537895,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/46_shadow_breakup.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 30.43240053777869,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.506869727014248,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/60_silhouette_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 30.54471652559883,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.634843749842528,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/74_wisp_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 30.60058233942357,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.682273482759232,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/88_last_fragments.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 30.685649588712035,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.74139881239535,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/98_near_nothing.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 174.68599999999998,
+      "luma_mean": 26.175649418688767,
+      "luma_min": 0.2848,
+      "luma_range": 174.4012,
+      "luma_stdev": 18.988883501258027,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/enemy_shadow_dissolve_contact_sheet.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 29.6172275703643,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.063124806861165,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/lethal_impact_continuity_hold.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.41159999999996,
+      "luma_mean": 30.596118744042638,
+      "luma_min": 0.0,
+      "luma_range": 253.41159999999996,
+      "luma_stdev": 21.666232050575516,
+      "path": "/private/tmp/labyrinth-godot-home/unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/Library/Application Support/Escape the Umbra Visual Probe unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1/enemy_shadow_dissolve_probe_v3/1920x1080/reduced_motion_62_static_breakup.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "unify-combat-art-with-efficient-grad-1789665684936981000-95379-enemy_shadow_dissolve_pr-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/enemy_shadow_dissolve_probe.gd"
+}

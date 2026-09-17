@@ -1,0 +1,319 @@
+{
+	"baseline": false,
+	"captures": [
+		{
+			"columns": 2,
+			"image": "02_columns_gentle.png",
+			"issues": [],
+			"local_light_scale": 1.0,
+			"name": "Hollow Grotto",
+			"profile": "gentle",
+			"room": "(1, 1)",
+			"seed": 62001,
+			"source_equivalents": 2.00000002980232,
+			"values": {
+				"ambient": 0.9,
+				"contrast": 1.02,
+				"gain": 0.38,
+				"reach": 1.05,
+				"rim": 0.8,
+				"saturation": 0.94,
+				"tint": [
+					0.985000014305115,
+					0.985000014305115,
+					1.00999999046326
+				]
+			}
+		},
+		{
+			"columns": 2,
+			"image": "02_columns_warm.png",
+			"issues": [],
+			"local_light_scale": 1.0,
+			"name": "Hollow Grotto",
+			"profile": "warm",
+			"room": "(1, 1)",
+			"seed": 62001,
+			"source_equivalents": 2.00000002980232,
+			"values": {
+				"ambient": 0.77,
+				"contrast": 1.05,
+				"gain": 0.68,
+				"reach": 1.0,
+				"rim": 1.0,
+				"saturation": 0.92,
+				"tint": [
+					1.01499998569489,
+					0.985000014305115,
+					0.949999988079071
+				]
+			}
+		},
+		{
+			"columns": 2,
+			"image": "02_columns_balanced.png",
+			"issues": [],
+			"local_light_scale": 1.0,
+			"name": "Hollow Grotto",
+			"profile": "balanced",
+			"room": "(1, 1)",
+			"seed": 62001,
+			"source_equivalents": 2.00000002980232,
+			"values": {
+				"ambient": 0.62,
+				"contrast": 1.07,
+				"gain": 0.95,
+				"reach": 1.0,
+				"rim": 1.2,
+				"saturation": 0.9,
+				"tint": [
+					0.939999997615814,
+					0.980000019073486,
+					1.04499995708466
+				]
+			}
+		},
+		{
+			"columns": 2,
+			"image": "02_columns_moody.png",
+			"issues": [],
+			"local_light_scale": 1.0,
+			"name": "Hollow Grotto",
+			"profile": "moody",
+			"room": "(1, 1)",
+			"seed": 62001,
+			"source_equivalents": 2.00000002980232,
+			"values": {
+				"ambient": 0.46,
+				"contrast": 1.1,
+				"gain": 1.25,
+				"reach": 0.93,
+				"rim": 1.45,
+				"saturation": 0.88,
+				"tint": [
+					0.910000026226044,
+					0.964999973773956,
+					1.07500004768372
+				]
+			}
+		},
+		{
+			"columns": 2,
+			"image": "02_columns_dramatic.png",
+			"issues": [],
+			"local_light_scale": 1.0,
+			"name": "Hollow Grotto",
+			"profile": "dramatic",
+			"room": "(1, 1)",
+			"seed": 62001,
+			"source_equivalents": 2.00000002980232,
+			"values": {
+				"ambient": 0.32,
+				"contrast": 1.13,
+				"gain": 1.55,
+				"reach": 0.88,
+				"rim": 1.65,
+				"saturation": 0.86,
+				"tint": [
+					0.889999985694885,
+					0.949999988079071,
+					1.10000002384186
+				]
+			}
+		},
+		{
+			"columns": 4,
+			"image": "04_columns_gentle.png",
+			"issues": [],
+			"local_light_scale": 0.999999985098839,
+			"name": "Sealed Antechamber",
+			"profile": "gentle",
+			"room": "(1, 1)",
+			"seed": 62002,
+			"source_equivalents": 4.00000005960464,
+			"values": {
+				"ambient": 0.9,
+				"contrast": 1.02,
+				"gain": 0.38,
+				"reach": 1.05,
+				"rim": 0.8,
+				"saturation": 0.94,
+				"tint": [
+					0.985000014305115,
+					0.985000014305115,
+					1.00999999046326
+				]
+			}
+		},
+		{
+			"columns": 4,
+			"image": "04_columns_warm.png",
+			"issues": [],
+			"local_light_scale": 0.999999985098839,
+			"name": "Sealed Antechamber",
+			"profile": "warm",
+			"room": "(1, 1)",
+			"seed": 62002,
+			"source_equivalents": 4.00000005960464,
+			"values": {
+				"ambient": 0.9,
+				"contrast": 1.02,
+				"gain": 0.38,
+				"reach": 1.05,
+				"rim": 0.8,
+				"saturation": 0.94,
+				"tint": [
+					0.985000014305115,
+					0.985000014305115,
+					1.00999999046326
+				]
+			}
+		},
+		{
+			"columns": 4,
+			"image": "04_columns_balanced.png",
+			"issues": [],
+			"local_light_scale": 0.999999985098839,
+			"name": "Sealed Antechamber",
+			"profile": "balanced",
+			"room": "(1, 1)",
+			"seed": 62002,
+			"source_equivalents": 4.00000005960464,
+			"values": {
+				"ambient": 0.62,
+				"contrast": 1.07,
+				"gain": 0.95,
+				"reach": 1.0,
+				"rim": 1.2,
+				"saturation": 0.9,
+				"tint": [
+					0.939999997615814,
+					0.980000019073486,
+					1.04499995708466
+				]
+			}
+		},
+		{
+			"columns": 4,
+			"image": "04_columns_moody.png",
+			"issues": [],
+			"local_light_scale": 0.999999985098839,
+			"name": "Sealed Antechamber",
+			"profile": "moody",
+			"room": "(1, 1)",
+			"seed": 62002,
+			"source_equivalents": 4.00000005960464,
+			"values": {
+				"ambient": 0.46,
+				"contrast": 1.1,
+				"gain": 1.25,
+				"reach": 0.93,
+				"rim": 1.45,
+				"saturation": 0.88,
+				"tint": [
+					0.910000026226044,
+					0.964999973773956,
+					1.07500004768372
+				]
+			}
+		},
+		{
+			"columns": 4,
+			"image": "04_columns_dramatic.png",
+			"issues": [],
+			"local_light_scale": 0.999999985098839,
+			"name": "Sealed Antechamber",
+			"profile": "dramatic",
+			"room": "(1, 1)",
+			"seed": 62002,
+			"source_equivalents": 4.00000005960464,
+			"values": {
+				"ambient": 0.32,
+				"contrast": 1.13,
+				"gain": 1.55,
+				"reach": 0.88,
+				"rim": 1.65,
+				"saturation": 0.86,
+				"tint": [
+					0.889999985694885,
+					0.949999988079071,
+					1.10000002384186
+				]
+			}
+		}
+	],
+	"passed": true,
+	"schema_version": 1,
+	"shader_samples": {
+		"warm": [
+			{
+				"local_light_scale": 1.0,
+				"rgb": [
+					0.258823543787003,
+					0.254901975393295,
+					0.254901975393295
+				],
+				"sources": 0
+			},
+			{
+				"local_light_scale": 1.0,
+				"rgb": [
+					0.466666668653488,
+					0.39215686917305,
+					0.329411774873734
+				],
+				"sources": 1
+			},
+			{
+				"local_light_scale": 1.0,
+				"rgb": [
+					0.572549045085907,
+					0.529411792755127,
+					0.403921574354172
+				],
+				"sources": 2
+			},
+			{
+				"local_light_scale": 1.0,
+				"rgb": [
+					0.521568655967712,
+					0.517647087574005,
+					0.466666668653488
+				],
+				"sources": 3
+			},
+			{
+				"local_light_scale": 0.999999985098839,
+				"rgb": [
+					0.474509805440903,
+					0.47843137383461,
+					0.501960813999176
+				],
+				"sources": 4
+			},
+			{
+				"local_light_scale": 0.666666656732559,
+				"rgb": [
+					0.474509805440903,
+					0.47843137383461,
+					0.501960813999176
+				],
+				"sources": 6
+			},
+			{
+				"local_light_scale": 0.16666666418314,
+				"rgb": [
+					0.474509805440903,
+					0.47843137383461,
+					0.501960813999176
+				],
+				"sources": 24
+			}
+		]
+	},
+	"size": [
+		1920,
+		1080
+	],
+	"ui_scale": 1.0
+}

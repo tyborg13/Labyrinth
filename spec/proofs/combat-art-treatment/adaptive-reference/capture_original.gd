@@ -1,6 +1,6 @@
 extends "res://tests/combat_lighting_variants_probe.gd"
 ## Real generated density examples plus synthetic shader-only overlap assertions.
-## --baseline records a historical renderer without the current anchor gates.
+## --baseline records the pre-rebalance renderer without the new bounds gate.
 
 const Treatment = preload("res://scripts/combat_art_treatment.gd")
 
@@ -66,12 +66,10 @@ func _initialize() -> void:
 			else:
 				_expect(_difference(first, frame, Rect2i(0, 80, 290, 540)) == 0.0, "Density tuning preserves backdrop")
 				_expect(_difference(first, frame, Rect2i(440, 790, 965, 260)) == 0.0, "Density tuning preserves cards")
-			var snapshot: Dictionary = board.call("art_treatment_snapshot")
-			var equivalents: float = float(snapshot.get("source_equivalents", count))
-			var values: Dictionary = LightingProfiles.resolved_definition(look, equivalents)
+			var values: Dictionary = LightingProfiles.definition(look)
 			var tint: Vector3 = values["tint"]
 			values["tint"] = [tint.x, tint.y, tint.z]
-			captures.append({"image": filename, "profile": look, "values": values, "seed": saved["seed"], "room": str(saved["current_room"]), "name": saved["current_room_layout"]["name"], "columns": count, "source_equivalents": equivalents, "local_light_scale": snapshot.get("local_light_scale", 1.0), "issues": issues})
+			captures.append({"image": filename, "profile": look, "values": values, "seed": saved["seed"], "room": str(saved["current_room"]), "name": saved["current_room_layout"]["name"], "columns": count, "issues": issues})
 		print("DENSITY ROOM: ", JSON.stringify(captures[-1]))
 	var samples: Dictionary = await _verify_overlap()
 	var file := FileAccess.open(OUTPUT_DIR.path_join("density-capture.json"), FileAccess.WRITE)
@@ -126,43 +124,40 @@ func _verify_overlap() -> Dictionary:
 	var treatment := Treatment.new()
 	swatch.material = treatment.material
 	view.add_child(swatch)
-	var colors: Dictionary = {}
-	var samples: Array[Dictionary]
-	for count: int in [0, 1, 2, 3, 4, 6, 24]:
-		treatment.set_preset("warm")
-		treatment.configure(_coincident_sources(count), "", true)
-		var color: Color = await _swatch_pixel(view)
-		colors[count] = color
-		samples.append({"sources": count, "rgb": [color.r, color.g, color.b], "local_light_scale": treatment.local_light_scale})
-	if not OS.get_cmdline_user_args().has("--baseline"):
-		# The former absolute-low-energy gate blessed an overcorrection. Preserve
-		# the user's actual sparse reference instead of inventing a lower bound.
-		var historical: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/proofs/combat-art-treatment/density-reference/before/density-capture.json"))
-		var original_warm: Array = historical["shader_samples"]["warm"]["rgb"]
-		for count: int in [0, 1, 2]:
-			var expected: Array = original_warm[count]
-			var reference := Color(float(expected[0]), float(expected[1]), float(expected[2]))
-			_expect(_pixel_close(colors[count], reference), "Zero to two sources preserve original Warm GPU lighting")
-		treatment.set_preset("gentle")
-		treatment.configure(_coincident_sources(4), "", true)
-		var gentle: Color = await _swatch_pixel(view)
-		_expect(_pixel_close(colors[4], gentle), "Four-source Warm matches original Gentle GPU lighting")
-		for count: int in [6, 24]:
-			_expect(_pixel_close(colors[count], colors[4]), "Denser coincident sources retain the four-source energy envelope")
-	view.queue_free()
+	var samples: Dictionary = {}
+	for look: String in ["warm", "balanced"]:
+		treatment.set_preset(look)
+		var colors: Array[Color]
+		var rgb: Array
+		for count: int in [0, 1, 2, 4, 24]:
+			var sources: Array[Dictionary]
+			for index: int in range(count):
+				sources.append({"point": Vector2(128, 64), "radius": 300.0, "color": Color(1.0, 0.68, 0.36, 0.8)})
+			treatment.configure(sources, "", true)
+			await _settle()
+			await RenderingServer.frame_post_draw
+			var color: Color = view.get_texture().get_image().get_pixel(128, 64)
+			colors.append(color)
+			rgb.append([color.r, color.g, color.b])
+		# Real GPU output checks: local lighting survives, distant lights cannot
+		# dim a nearby source, and overlapping lights cannot flood neutral art.
+		var distant: Array[Dictionary]
+		distant.append({"point": Vector2(128, 64), "radius": 300.0, "color": Color(1.0, 0.68, 0.36, 0.8)})
+		for index: int in range(23):
+			distant.append({"point": Vector2(10000 + index * 100, 64), "radius": 300.0})
+		treatment.configure(distant, "", true)
+		await _settle()
+		await RenderingServer.frame_post_draw
+		var far: Color = view.get_texture().get_image().get_pixel(128, 64)
+		_expect(far.is_equal_approx(colors[1]), "Distant lights do not dim an isolated nearby torch")
+		_expect(colors[1].r - colors[0].r > 0.035, "A single local source remains visibly present")
+		if not OS.get_cmdline_user_args().has("--baseline"):
+			for index: int in range(1, colors.size()):
+				var added: Color = colors[index] - colors[0]
+				_expect(added.r - added.b < 0.10 and added.r < 0.14, "Every tested overlap count keeps colored energy bounded")
+				_expect(added.r > added.g and added.g > added.b, "Accumulation preserves the firelight hue without channel clipping")
+			_expect((colors[3].r - colors[3].b) - (colors[1].r - colors[1].b) < 0.035, "One to four overlapping lights stays a restrained accent")
+		samples[look] = {"source_counts": [0, 1, 2, 4, 24], "rgb": rgb, "one_plus_23_distant": [far.r, far.g, far.b]}
 	print("DENSITY SHADER SAMPLES: ", JSON.stringify(samples))
-	return {"warm": samples}
-
-func _coincident_sources(count: int) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	for index: int in range(count):
-		result.append({"point": Vector2(128, 64), "radius": 300.0, "color": Color(1.0, 0.68, 0.36, 0.8)})
-	return result
-
-func _swatch_pixel(view: SubViewport) -> Color:
-	await _settle()
-	await RenderingServer.frame_post_draw
-	return view.get_texture().get_image().get_pixel(128, 64)
-
-func _pixel_close(a: Color, b: Color) -> bool:
-	return maxf(absf(a.r - b.r), maxf(absf(a.g - b.g), absf(a.b - b.b))) <= 1.01 / 255.0
+	view.queue_free()
+	return samples
