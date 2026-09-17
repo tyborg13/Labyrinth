@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Combat lighting comparison</title>
+<style>
+:root {color-scheme:dark;font:16px system-ui;background:#171819;color:#eee7dc} body {max-width:1400px;margin:24px auto;padding:0 20px} h1 {font-size:22px} button,input {font:inherit} button {background:#292b2b;color:inherit;border:1px solid #65605b;border-radius:4px;padding:8px 14px;cursor:pointer} button[aria-pressed=true] {background:#70522e;border-color:#e9c58e} button:focus-visible,input:focus-visible {outline:3px solid #f2cb8d;outline-offset:3px} #choices {display:flex;flex-wrap:wrap;gap:8px} #scene {position:relative;overflow:hidden;margin:18px 0;background:#101112} #scene img {display:block;width:100%} #after {position:absolute;inset:0;width:100%;height:100%} #divider {position:absolute;top:0;bottom:0;width:2px;background:#f4dfbb;pointer-events:none} .sides {display:flex;justify-content:space-between;gap:16px} input[type=range] {width:100%;margin:14px 0} #context {color:#bcb7ae} label {display:block;margin:12px 0}
+</style>
+<h1>Combat lighting comparison</h1><p id="context"></p>
+<div id="choices" role="group" aria-label="Lighting profiles"></div>
+<div id="scene"><img id="before" alt="Untreated encounter"><img id="after" alt=""><div id="divider"></div></div>
+<div class="sides"><span id="left">Untreated</span><span id="name" aria-live="polite"></span></div>
+<label for="wipe">Comparison divider · <output id="value">50%</output></label>
+<input id="wipe" type="range" min="0" max="100" value="50">
+<label><input id="compare" type="checkbox" checked> Compare with untreated scene</label>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(() => {
+const data=JSON.parse(document.querySelector('#data').textContent);
+const before=document.querySelector('#before'), after=document.querySelector('#after');
+const slider=document.querySelector('#wipe'), compare=document.querySelector('#compare');
+const divider=document.querySelector('#divider'), name=document.querySelector('#name');
+const choices=document.querySelector('#choices');
+document.querySelector('#context').textContent=`${data.scene}. Same generated encounter, poses and camera. Global game default: ${data.default_id}.`;
+before.src=data.baseline;
+function choose(profile) {
+ after.src=profile.src; after.alt=`${profile.name} lighting on the same encounter`; name.textContent=profile.name;
+ choices.querySelectorAll('button').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.id===profile.id)));
+}
+for (const profile of data.profiles) {
+ const button=document.createElement('button'); button.type='button'; button.dataset.id=profile.id;
+ button.textContent=profile.name; button.setAttribute('aria-pressed','false');
+ button.addEventListener('click',()=>choose(profile)); choices.append(button);
+}
+function wipe() {
+ const x=compare.checked?Number(slider.value):0;
+ after.style.clipPath=`inset(0 0 0 ${x}%)`; divider.style.left=`${x}%`;
+ divider.hidden=!compare.checked; before.style.visibility=compare.checked?'visible':'hidden';
+ document.querySelector('#left').hidden=!compare.checked; slider.disabled=!compare.checked;
+ document.querySelector('#value').textContent=`${slider.value}%`;
+}
+slider.addEventListener('input',wipe); compare.addEventListener('change',wipe);
+choose(data.profiles.find(profile=>profile.id===data.selected_id)); wipe();
+})();
+</script></html>

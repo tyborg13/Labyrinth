@@ -1,5 +1,7 @@
 extends "res://tests/pillar_torch_lighting_probe.gd"
 
+const LightingProfiles = preload("res://scripts/combat_lighting_profiles.gd")
+
 class RimSwatches extends Node2D:
 	var texture: Texture2D
 	func _init() -> void:
@@ -34,6 +36,11 @@ func _capture_inspection_fixture(instance: Node, viewport: SubViewport, settings
 	var board: Control = instance.get_node("BoardUnderlay/CombatBoard")
 	var treatment: RefCounted = board.get("_art_treatment")
 	var state: Dictionary = board.get("combat_state")
+	# Ambient particles sample wall time during submission even when nodes are
+	# paused. Use the existing presentation clock seam for exact A/B frames.
+	var fixed_presentation: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
+	fixed_presentation["ambient_time_seconds"] = 1.25
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, fixed_presentation)
 	var issues: Array[String] = _scenario_issues(saved, state, board)
 	_expect(issues.is_empty(), "Realistic generated encounter: %s" % str(issues))
 	if not issues.is_empty():
@@ -50,17 +57,37 @@ func _capture_inspection_fixture(instance: Node, viewport: SubViewport, settings
 		pillar_count += row.count("pillar")
 	_expect(pillar_count >= 2 and int((board.call("art_treatment_snapshot") as Dictionary)["light_count"]) == pillar_count, "Use only this room's real torch columns")
 	print("REALISTIC SCENARIO: ", JSON.stringify({"seed": saved["seed"], "room": saved["current_room"], "name": saved["current_room_layout"]["name"], "player": state["player"]["pos"], "enemies": state["enemies"], "loot": state.get("loot", []), "torch_columns": pillar_count, "issues": issues}))
+	_expect(str(treatment.get("preset")) == LightingProfiles.DEFAULT_ID, "A live loaded combat uses the global default without a setter")
+	# Flush retained commands at the frozen clock, just as the A/B toggle does.
+	# Otherwise ambient sprites still show their last pre-freeze submission.
+	board.call("_queue_dynamic_redraw")
+	board.queue_redraw()
+	await _capture(viewport, "default_warm.png")
+	var default_frame: Image = viewport.get_texture().get_image()
+	var default_parameters: Dictionary = (treatment.get("_parameters") as Dictionary).duplicate(true)
 	board.call("set_art_treatment_enabled", false)
 	await _capture(viewport, "00_untreated.png")
 	board.call("set_art_treatment_enabled", true)
 	var reference: Image
 	var previous: Image
-	var looks: Array[String] = _strings(["gentle", "warm", "balanced", "moody", "dramatic"])
+	var looks: Array[String] = LightingProfiles.ids()
+	var captured_profiles: Array[Dictionary]
+	var default_pixel_error: float = 1.0
 	var cache_updates: int = int(board.get("_static_render_cache_update_count"))
 	for index: int in range(looks.size()):
 		_expect(bool(board.call("set_art_treatment_preset", looks[index])), "Named preset exists")
 		await _capture(viewport, "%02d_%s.png" % [index + 1, looks[index]])
 		var frame: Image = viewport.get_texture().get_image()
+		var definition: Dictionary = LightingProfiles.definition(looks[index])
+		var tint: Vector3 = definition["tint"]
+		definition["tint"] = [tint.x, tint.y, tint.z]
+		captured_profiles.append({"id": looks[index], "image": "%02d_%s.png" % [index + 1, looks[index]], "values": definition})
+		if looks[index] == LightingProfiles.DEFAULT_ID:
+			default_pixel_error = _difference(default_frame, frame, Rect2i(0, 0, 1920, 1080))
+			# Full frames contain wall-clock torch motes and deferred cutout
+			# startup; test the complete live lighting inputs exactly instead.
+			_expect(treatment.get("_parameters") == default_parameters, "Default gameplay and explicit Warm have identical lighting inputs")
+			print("DEFAULT WARM MEAN CHANNEL ERROR: ", default_pixel_error)
 		if index == 0:
 			reference = frame
 		else:
@@ -71,7 +98,7 @@ func _capture_inspection_fixture(instance: Node, viewport: SubViewport, settings
 		previous = frame
 	_expect(int(board.get("_static_render_cache_update_count")) == cache_updates + looks.size(), "Each deliberate preset change rebakes the floor exactly once")
 	_expect(not bool(board.call("set_art_treatment_preset", "invalid")), "Invalid preset rejected")
-	board.call("set_art_treatment_preset", "balanced")
+	board.call("set_art_treatment_preset", LightingProfiles.DEFAULT_ID)
 	cache_updates = int(board.get("_static_render_cache_update_count"))
 	# Isolate shared-light animation from actor motion: all scene nodes are frozen.
 	treatment.call("advance", 0.3, false)
@@ -131,6 +158,13 @@ func _capture_inspection_fixture(instance: Node, viewport: SubViewport, settings
 	print("LEGAL CAPTURED MOVE: ", origin, " -> ", destination_tile)
 	await _capture(viewport, "10_moving_actor.png")
 	await _verify_rim_response()
+	await _verify_warm_room_reuse(instance, viewport)
+	var capture_file := FileAccess.open(OUTPUT_DIR.path_join("lighting-capture.json"), FileAccess.WRITE)
+	capture_file.store_string(JSON.stringify({"schema_version": 1, "default_id": LightingProfiles.DEFAULT_ID,
+		"baseline": "00_untreated.png", "profiles": captured_profiles, "size": [1920, 1080], "ui_scale": 1.0,
+		"seed": saved["seed"], "room": str(saved["current_room"]), "room_name": saved["current_room_layout"]["name"],
+		"scenario_issues": issues, "default_warm_mean_channel_error": default_pixel_error, "probe_passed": _errors.is_empty()}, "\t"))
+
 
 
 func _scenario_issues(saved: Dictionary, state: Dictionary, board: Control) -> Array[String]:
@@ -248,3 +282,30 @@ func _verify_rim_response() -> void:
 	_expect(treatment.source_count == 24 and treatment.source_overflow == 6, "Expanded light data stays within the 24-source bound")
 	_expect((treatment.material.get_shader_parameter("art_light_flicker") as PackedFloat32Array).size() == 24, "Flicker uniform matches the bounded source arrays")
 	view.queue_free()
+
+func _verify_warm_room_reuse(instance: Node, viewport: SubViewport) -> void:
+	# Reuse the actual RunScene/board across independent, normally entered rooms.
+	# This tests presentation replacement, not combat balance or a simulated win.
+	var engine := RunEngine.new()
+	for index: int in range(3):
+		var fresh: Dictionary = engine.create_new_run(62001 + index, ProgressionStore.default_data())
+		for coord: Vector2i in engine.available_moves(fresh):
+			if str(engine.room_metadata(fresh, coord).get("type", "")) == "combat":
+				fresh = engine.move_to_room(fresh, coord)
+				if str(fresh.get("mode", "")) == RunEngine.MODE_PRE_BATTLE:
+					fresh = engine.begin_pre_battle_combat(fresh)
+				break
+		_expect(str(fresh.get("mode", "")) == "combat", "Enter the next generated encounter through RunEngine")
+		if str(fresh.get("mode", "")) != "combat":
+			return
+		instance.call("_load_run_state", fresh)
+		instance.call("_close_dialogue")
+		instance.call("_refresh_ui")
+		await _settle()
+		_freeze(instance)
+		var board: Control = instance.get_node("BoardUnderlay/CombatBoard")
+		var snapshot: Dictionary = board.call("art_treatment_snapshot")
+		_expect(snapshot["preset"] == "warm" and snapshot["enabled"], "Every replaced encounter keeps Warm active without selecting a look")
+		_expect(_occupancy_issues(board.get("combat_state"), board).is_empty(), "Generated room has valid occupant footprints")
+		print("WARM ROOM REUSE: ", JSON.stringify({"seed": fresh["seed"], "room": str(fresh["current_room"]), "name": fresh["current_room_layout"]["name"], "preset": snapshot["preset"]}))
+		await _capture(viewport, "room_%02d_warm.png" % (index + 1))

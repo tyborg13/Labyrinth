@@ -99,6 +99,7 @@ func _initialize() -> void:
 	_assert(GameData.relics().size() >= 5, "Relic data should load")
 	_assert(GameData.equipment().size() >= 5, "Equipment data should load")
 	_assert(GameData.upgrades().size() >= 3, "Upgrade data should load")
+	preload("res://tests/suites/combat_lighting_profiles_suite.gd").run(Callable(self, "_assert"))
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))

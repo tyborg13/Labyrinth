@@ -1,0 +1,103 @@
+{
+	"baseline": "00_untreated.png",
+	"default_id": "warm",
+	"default_warm_mean_channel_error": 0.000357631335664711,
+	"probe_passed": true,
+	"profiles": [
+		{
+			"id": "gentle",
+			"image": "01_gentle.png",
+			"values": {
+				"ambient": 0.9,
+				"contrast": 1.02,
+				"gain": 0.38,
+				"reach": 1.05,
+				"rim": 0.8,
+				"saturation": 0.94,
+				"tint": [
+					0.985000014305115,
+					0.985000014305115,
+					1.00999999046326
+				]
+			}
+		},
+		{
+			"id": "warm",
+			"image": "02_warm.png",
+			"values": {
+				"ambient": 0.77,
+				"contrast": 1.05,
+				"gain": 0.68,
+				"reach": 1.0,
+				"rim": 1.0,
+				"saturation": 0.92,
+				"tint": [
+					1.01499998569489,
+					0.985000014305115,
+					0.949999988079071
+				]
+			}
+		},
+		{
+			"id": "balanced",
+			"image": "03_balanced.png",
+			"values": {
+				"ambient": 0.62,
+				"contrast": 1.07,
+				"gain": 0.95,
+				"reach": 1.0,
+				"rim": 1.2,
+				"saturation": 0.9,
+				"tint": [
+					0.939999997615814,
+					0.980000019073486,
+					1.04499995708466
+				]
+			}
+		},
+		{
+			"id": "moody",
+			"image": "04_moody.png",
+			"values": {
+				"ambient": 0.46,
+				"contrast": 1.1,
+				"gain": 1.25,
+				"reach": 0.93,
+				"rim": 1.45,
+				"saturation": 0.88,
+				"tint": [
+					0.910000026226044,
+					0.964999973773956,
+					1.07500004768372
+				]
+			}
+		},
+		{
+			"id": "dramatic",
+			"image": "05_dramatic.png",
+			"values": {
+				"ambient": 0.32,
+				"contrast": 1.13,
+				"gain": 1.55,
+				"reach": 0.88,
+				"rim": 1.65,
+				"saturation": 0.86,
+				"tint": [
+					0.889999985694885,
+					0.949999988079071,
+					1.10000002384186
+				]
+			}
+		}
+	],
+	"room": "(1, 1)",
+	"room_name": "Hollow Grotto",
+	"scenario_issues": [],
+	"schema_version": 1,
+	"seed": 62001,
+	"size": [
+		1920,
+		1080
+	],
+	"ui_scale": 1.0
+}

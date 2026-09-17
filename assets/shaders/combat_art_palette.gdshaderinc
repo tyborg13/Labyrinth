@@ -5,13 +5,14 @@ uniform int art_light_count = 0;
 uniform vec4 art_lights[24]; // board-local ground xy, radius, light height
 uniform vec4 art_light_colors[24];
 uniform vec3 art_ambient = vec3(0.985, 0.985, 1.01);
-uniform float art_ambient_level = 0.62;
-uniform float art_gain_level = 0.95;
+// Warm fallback values; live materials are configured from CombatLightingProfiles.
+uniform float art_ambient_level = 0.77;
+uniform float art_gain_level = 0.68;
 uniform float art_reach_level = 1.0;
-uniform float art_contrast_level = 1.07;
-uniform float art_saturation_level = 0.90;
-uniform float art_rim_level = 1.20;
-uniform vec3 art_look_tint = vec3(0.94, 0.98, 1.045);
+uniform float art_contrast_level = 1.05;
+uniform float art_saturation_level = 0.92;
+uniform float art_rim_level = 1.0;
+uniform vec3 art_look_tint = vec3(1.015, 0.985, 0.95);
 uniform float art_light_flicker[24];
 
 bool art_emissive(float profile) { return profile > 5.5 && profile < 6.5; }

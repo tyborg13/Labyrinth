@@ -14,15 +14,7 @@ const ACTOR: int = 4
 const ACTOR_ATLAS: int = 5
 const EMISSIVE: int = 6
 const GROUND_MARK: int = 7
-# Inspection presets, not player-facing settings. All share the same geometry,
-# shadows and source list so the comparison changes only the lighting treatment.
-const PRESETS := {
-	"gentle": {"ambient": 0.90, "gain": 0.38, "reach": 1.05, "contrast": 1.02, "saturation": 0.94, "rim": 0.80, "tint": Vector3(0.985, 0.985, 1.01)},
-	"warm": {"ambient": 0.77, "gain": 0.68, "reach": 1.0, "contrast": 1.05, "saturation": 0.92, "rim": 1.0, "tint": Vector3(1.015, 0.985, 0.95)},
-	"balanced": {"ambient": 0.62, "gain": 0.95, "reach": 1.0, "contrast": 1.07, "saturation": 0.90, "rim": 1.20, "tint": Vector3(0.94, 0.98, 1.045)},
-	"moody": {"ambient": 0.46, "gain": 1.25, "reach": 0.93, "contrast": 1.10, "saturation": 0.88, "rim": 1.45, "tint": Vector3(0.91, 0.965, 1.075)},
-	"dramatic": {"ambient": 0.32, "gain": 1.55, "reach": 0.88, "contrast": 1.13, "saturation": 0.86, "rim": 1.65, "tint": Vector3(0.89, 0.95, 1.10)},
-}
+const LightingProfiles = preload("res://scripts/combat_lighting_profiles.gd")
 const MAX_LIGHTS: int = 24
 const SHADOW_CAST: Vector2 = Vector2(0.19, 0.105)
 
@@ -34,7 +26,7 @@ var enabled: bool = true
 var _parameters: Dictionary = {}
 var source_count: int = 0
 var source_overflow: int = 0
-var preset: String = "balanced"
+var preset: String = LightingProfiles.DEFAULT_ID
 var _clock: float = 0.0
 var _reduced_motion: bool = true
 var _light_flicker := PackedFloat32Array()
@@ -57,8 +49,9 @@ func _init() -> void:
 	contact_texture.fill = GradientTexture2D.FILL_RADIAL
 	contact_texture.fill_from = Vector2(0.5, 0.5)
 	contact_texture.fill_to = Vector2(1.0, 0.5)
+	# Development override only; ordinary gameplay needs no flag or saved setting.
 	var requested: String = OS.get_environment("LABYRINTH_ART_LOOK")
-	if PRESETS.has(requested):
+	if LightingProfiles.has_profile(requested):
 		preset = requested
 	configure([], "")
 
@@ -103,7 +96,7 @@ func _apply_materials() -> void:
 	cache_bake_material.set_shader_parameter("art_light_flicker", steady)
 
 func set_preset(value: String) -> bool:
-	if not PRESETS.has(value):
+	if not LightingProfiles.has_profile(value):
 		return false
 	preset = value
 	_apply_preset_parameters()
@@ -111,7 +104,7 @@ func set_preset(value: String) -> bool:
 	return true
 
 func _apply_preset_parameters() -> void:
-	var look: Dictionary = PRESETS[preset]
+	var look: Dictionary = LightingProfiles.definition(preset)
 	for key: String in ["ambient", "gain", "reach", "contrast", "saturation", "rim"]:
 		_parameters["art_" + key + "_level"] = look[key]
 	_parameters["art_look_tint"] = look["tint"]
