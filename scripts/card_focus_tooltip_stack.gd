@@ -9,7 +9,6 @@ const STACK_SEPARATION: int = 7
 
 var _follow_target: Control
 var _entries: Array[Dictionary] = []
-var _avoid_controls: Array[Control]
 
 func _ready() -> void:
 	name = "CardFocusTooltipStack"
@@ -21,12 +20,11 @@ func _ready() -> void:
 	add_theme_constant_override("separation", STACK_SEPARATION)
 	set_process(false)
 
-func show_for(target: Control, entries: Array, avoid_controls: Array = []) -> void:
+func show_for(target: Control, entries: Array) -> void:
 	hide_stack()
 	if target == null or entries.is_empty():
 		return
 	_follow_target = target
-	_avoid_controls.assign(avoid_controls)
 	for entry_var: Variant in entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -64,7 +62,6 @@ func hide_stack() -> void:
 	set_process(false)
 	_follow_target = null
 	_entries.clear()
-	_avoid_controls.clear()
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -105,15 +102,6 @@ func _follow_target_now() -> void:
 		viewport_rect.position.y + SAFE_MARGIN,
 		viewport_rect.end.y - SAFE_MARGIN - stack_size.y
 	)
-	# A hand-edge action must remain visible while its neighboring card is read.
-	# Lift the stack above that card, then clear the initiative rail horizontally.
-	for control: Control in _avoid_controls:
-		if is_instance_valid(control) and control.is_visible_in_tree() and Rect2(target_position, stack_size).intersects(control.get_global_rect()):
-			target_position.y = maxf(viewport_rect.position.y + SAFE_MARGIN, card_rect.position.y - CARD_GAP - stack_size.y)
-			break
-	for control: Control in _avoid_controls:
-		if is_instance_valid(control) and control.is_visible_in_tree() and Rect2(target_position, stack_size).intersects(control.get_global_rect()):
-			target_position.x = maxf(viewport_rect.position.x + SAFE_MARGIN, control.get_global_rect().position.x - CARD_GAP - stack_size.x)
 	global_position = target_position
 
 static func _visual_global_rect(control: Control) -> Rect2:

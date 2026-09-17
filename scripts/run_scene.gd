@@ -12452,7 +12452,7 @@ func _combat_objective_hud_target_rect() -> Rect2:
 	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
 		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
 		if play_meter_rect.size.y > 0.0:
-			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 12.0
+			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 36.0
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
 	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
 
@@ -17445,7 +17445,7 @@ func _show_card_focus_tooltips(index: int) -> void:
 		display.get("summary_rows", []) as Array,
 		leading_icons
 	)
-	_card_focus_tooltip_stack.show_for(card_control, entries, [_pass_preview_overlay, _turn_order_panel])
+	_card_focus_tooltip_stack.show_for(card_control, entries)
 
 func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
