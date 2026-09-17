@@ -1,5 +1,11 @@
 shader_type canvas_item;
 render_mode unshaded, blend_mix;
+#include "res://assets/shaders/combat_art_palette.gdshaderinc"
+uniform vec2 art_origin = vec2(0.0);
+uniform float art_actor_profile = 4.0;
+varying vec2 art_point;
+
+void vertex() { art_point = VERTEX + art_origin; }
 
 uniform float progress : hint_range(0.0, 1.0) = 0.0;
 uniform float seed = 0.0;
@@ -152,7 +158,16 @@ void fragment() {
 	vec3 shadow_color = mix(umbra_low.rgb, umbra_high.rgb, clamp(luma * 0.72 + flowed_field * 0.18, 0.0, 1.0));
 	float fracture_edge = (1.0 - smoothstep(0.0, 0.065, abs(flowed_field - threshold))) * breakup_blend;
 	fracture_edge *= source.a * smoothstep(0.08, 0.52, p) * (1.0 - smoothstep(0.82, 0.98, p));
-	vec3 body_color = mix(source.rgb, shadow_color, shadow_takeover);
+	vec2 light_direction;
+	float edge_energy;
+	vec3 light = art_illumination(art_point, art_actor_profile, light_direction, edge_energy);
+	vec3 painted = art_finish(source.rgb, art_actor_profile, light);
+	if (art_actor_profile > 3.5 && art_actor_profile < 4.5) {
+		vec2 texel = 1.0 / (vec2(textureSize(source_texture, 0)) * atlas_region_size);
+		float neighbor = sprite_sample(flowed_uv + light_direction * texel * 1.75).a;
+		painted += vec3(1.0, 0.64, 0.30) * clamp(source.a - neighbor, 0.0, 1.0) * min(edge_energy, 0.65) * 0.60 * art_strength;
+	}
+	vec3 body_color = mix(clamp(painted, vec3(0.0), vec3(1.0)), shadow_color, shadow_takeover);
 	body_color = mix(body_color, fracture_glint.rgb, fracture_edge * 0.52);
 	vec4 body = vec4(body_color, source.a * survival * final_fade);
 

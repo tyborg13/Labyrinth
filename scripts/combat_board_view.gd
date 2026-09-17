@@ -72,6 +72,9 @@ const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
+const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
+var _art_treatment: RefCounted = null
+var _art_treatment_enabled: bool = true
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -783,6 +786,7 @@ func _ready() -> void:
 	startup_started = _record_startup_performance_phase("load_assets", startup_started)
 	_schedule_enemy_shadow_dissolve_shader_prewarm()
 	startup_started = _record_startup_performance_phase("shadow_shader_prewarm", startup_started)
+	_ensure_art_treatment()
 	_create_static_render_cache()
 	_create_dynamic_render_layer()
 	_record_startup_performance_phase("retained_layers", startup_started)
@@ -1715,7 +1719,14 @@ func _on_board_resized() -> void:
 	queue_redraw()
 	_queue_dynamic_redraw()
 
+func _ensure_art_treatment() -> void:
+	if _art_treatment == null:
+		_art_treatment = CombatArtTreatment.new()
+		_art_treatment.set_enabled(_art_treatment_enabled)
+	material = _art_treatment.material
+
 func _create_static_render_cache() -> void:
+	_ensure_art_treatment()
 	if _static_render_cache_viewport != null and is_instance_valid(_static_render_cache_viewport):
 		return
 	_static_render_cache_viewport = SubViewport.new()
@@ -1730,6 +1741,8 @@ func _create_static_render_cache() -> void:
 	_static_render_cache_layer = get_script().new() as Control
 	_static_render_cache_layer.name = "StaticBoardRenderCacheLayer"
 	_static_render_cache_layer.set("_is_static_render_cache_layer", true)
+	_static_render_cache_layer.material = _art_treatment.material
+	_static_render_cache_layer.set("_art_treatment", _art_treatment)
 	_static_render_cache_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_static_render_cache_layer.focus_mode = Control.FOCUS_NONE
 	_static_render_cache_viewport.add_child(_static_render_cache_layer)
@@ -1755,6 +1768,7 @@ func _sync_static_render_cache() -> void:
 		return
 	if _static_render_cache_viewport == null or not is_instance_valid(_static_render_cache_viewport):
 		return
+	_sync_art_lighting()
 	var cache_has_content: bool = _static_render_cache_enabled and not combat_state.is_empty()
 	_static_render_cache_texture.visible = cache_has_content
 	if not cache_has_content:
@@ -1775,7 +1789,7 @@ func _sync_static_render_cache() -> void:
 		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
 		"_board_visual_framing_signature", "_board_layout_cache_visual_top_offset",
 		"_floor_variant_signature", "_moss_signature", "_tile_textures",
-		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture"
+		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture", "_art_treatment", "_art_treatment_enabled"
 	]:
 		_static_render_cache_layer.set(field, get(field))
 	# Layout depends on the real viewport and UI safe area. A SubViewport must
@@ -1797,6 +1811,7 @@ func set_static_render_cache_enabled(enabled: bool) -> void:
 	queue_redraw()
 
 func _create_dynamic_render_layer() -> void:
+	_ensure_art_treatment()
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
 		return
 	_ambient_render_layer = _create_retained_render_layer("AmbientRenderLayer", RENDER_LAYER_AMBIENT)
@@ -1820,6 +1835,9 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.set("_is_dynamic_render_layer", true)
 	layer.set("_render_layer_kind", layer_kind)
 	layer.set("_render_instrumentation_owner", self)
+	layer.set("_art_treatment", _art_treatment)
+	layer.set("_art_treatment_enabled", _art_treatment_enabled)
+	layer.material = _art_treatment.material
 	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	layer.focus_mode = Control.FOCUS_NONE
 	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -1923,6 +1941,10 @@ func _sync_enemy_shadow_dissolve_effects() -> void:
 			_enemy_shadow_dissolve_seed_for_unit(unit),
 			bool(presentation.get("reduced_motion", false))
 		)
+		if _art_treatment != null:
+			_art_treatment.apply_to(effect.material as ShaderMaterial)
+			(effect.material as ShaderMaterial).set_shader_parameter("art_origin", effect.position)
+			(effect.material as ShaderMaterial).set_shader_parameter("art_actor_profile", CombatArtTreatment.actor_profile(unit, source_texture))
 		active_keys[actor_key] = true
 	for actor_key_var: Variant in _enemy_shadow_dissolve_effects_by_key.keys():
 		if active_keys.has(actor_key_var):
@@ -2641,7 +2663,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var visual_framing_changed: bool = false
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
-	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible")
+	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible") or presentation_changes.has("scene_props") or combat_render_changes.has("room_element")
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
 	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
 	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
@@ -5997,6 +6019,86 @@ func _ambient_combined_uv_rect(texture: Texture2D) -> Rect2:
 	var atlas_size: Vector2 = _ambient_combined_atlas.get_size()
 	return Rect2(packed_region.position / atlas_size, packed_region.size / atlas_size)
 
+func set_art_treatment_enabled(enabled: bool) -> void:
+	# Inspection/profiling switch; original assets and rules are never mutated.
+	if _art_treatment_enabled == enabled or _art_treatment == null:
+		return
+	_art_treatment_enabled = enabled
+	_art_treatment.set_enabled(enabled)
+	_unit_shadow_draw_geometry_cache.clear()
+	_unit_shadow_draw_mesh_cache.clear()
+	for layer: Control in _retained_render_layers():
+		layer.set("_art_treatment_enabled", enabled)
+	_sync_static_render_cache()
+	_sync_enemy_shadow_dissolve_effects()
+	_queue_dynamic_redraw()
+	queue_redraw()
+
+func art_treatment_snapshot() -> Dictionary:
+	return {"enabled": _art_treatment_enabled, "light_count": _art_treatment.source_count if _art_treatment != null else 0,
+		"light_overflow": _art_treatment.source_overflow if _art_treatment != null else 0,
+		"shared_material": _art_treatment.material if _art_treatment != null else null}
+
+func _sync_art_lighting() -> void:
+	if _art_treatment == null or _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	var sources: Array[Dictionary] = []
+	if not combat_state.is_empty():
+		var grid: Array = combat_state.get("grid", [])
+		for tile: Vector2i in _rendered_tiles_in_draw_order():
+			if not _tile_renders_as_pillar(grid, tile):
+				continue
+			# One broad source for the paired fixtures. A room's key light supplies
+			# cast direction; these secondary sources provide local colored fill.
+			sources.append({"point": _tile_center(tile), "height": _tile_width() * 0.68,
+				"radius": _tile_width() * 2.35, "color": Color(1.0, 0.48, 0.17, 0.80)})
+		for prop: Dictionary in presentation.get("scene_props", []):
+			var kind: String = str(prop.get("kind", ""))
+			if kind not in ["campfire_bonfire", "watch_brazier_lit"]:
+				continue
+			var texture: Texture2D = _texture_for_scene_prop(prop)
+			if texture == null:
+				continue
+			var rect: Rect2 = _scene_prop_rect(texture, prop)
+			var ground: Vector2 = Vector2(rect.get_center().x, rect.end.y)
+			sources.push_front({"point": ground, "height": rect.size.y * 0.55,
+				"radius": _tile_width() * 3.2, "color": Color(1.0, 0.43, 0.12, 1.1)})
+	_art_treatment.configure(sources, str(combat_state.get("room_element", "")))
+
+func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WHITE, profile: int = CombatArtTreatment.PROP, source: Rect2 = Rect2()) -> void:
+	if _art_treatment == null or profile == 0:
+		if source.size == Vector2.ZERO:
+			draw_texture_rect(texture, rect, false, tint)
+		else:
+			draw_texture_rect_region(texture, rect, source, tint)
+		return
+	CombatArtTreatment.draw_rect(self, texture, rect, tint, profile, source)
+
+func _draw_contact_pool(center: Vector2, width: float, height: float, alpha: float) -> void:
+	if _art_treatment == null or not _art_treatment_enabled:
+		return
+	var extent := Vector2(width, height)
+	draw_texture_rect(_art_treatment.contact_texture, Rect2(center - extent * 0.5, extent), false, Color(0.055, 0.035, 0.028, alpha))
+
+func _draw_floor_contact_shading(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
+	if not _art_treatment_enabled or polygon.size() < 4:
+		return
+	# Tight edge-to-floor ambient shading is retained with the stone. Four
+	# neighbors suffice; no blur, image readback, or per-frame floor redraw.
+	var neighbors: Array[Vector2i] = _vector2i_array([Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)])
+	var center: Vector2 = _tile_center(tile)
+	for edge: int in range(4):
+		var neighbor: Vector2i = tile + neighbors[edge]
+		if neighbor.y < 0 or neighbor.y >= grid.size() or neighbor.x < 0 or neighbor.x >= (grid[neighbor.y] as Array).size():
+			continue
+		var neighbor_id: String = _display_tile_id(str(grid[neighbor.y][neighbor.x]), neighbor)
+		if neighbor_id not in ["wall", "pillar"] or not _should_render_tile(neighbor_id, neighbor, grid):
+			continue
+		var a: Vector2 = polygon[edge]
+		var b: Vector2 = polygon[(edge + 1) % 4]
+		var points := PackedVector2Array([a, b, b.lerp(center, 0.48), a.lerp(center, 0.48)])
+		draw_polygon(points, PackedColorArray([Color(0.045, 0.03, 0.025, 0.23), Color(0.045, 0.03, 0.025, 0.23), Color.TRANSPARENT, Color.TRANSPARENT]))
+
 func _draw_floor_moss_overlay(tile: Vector2i) -> void:
 	if not _tile_has_moss("floor", tile):
 		return
@@ -6007,7 +6109,7 @@ func _draw_floor_moss_overlay(tile: Vector2i) -> void:
 		_tile_center(tile) - Vector2(_tile_width() * 0.5, _tile_height() * 0.5),
 		Vector2(_tile_width(), _tile_height())
 	)
-	draw_texture_rect(texture, rect, false, Color(1.0, 1.0, 1.0, 0.94))
+	_draw_world_texture(texture, rect, Color(1.0, 1.0, 1.0, 0.94), CombatArtTreatment.FLOOR)
 
 func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
@@ -6020,9 +6122,10 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 		var tile_width: float = _tile_width()
 		var tile_height: float = _tile_height()
 		var rect := Rect2(_tile_center(tile) - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
-		draw_texture_rect(texture, rect, false)
+		_draw_world_texture(texture, rect, Color.WHITE, CombatArtTreatment.FLOOR)
 	_draw_floor_moss_overlay(tile)
 	_draw_pillar_torch_floor_light(grid, tile, polygon)
+	_draw_floor_contact_shading(grid, tile, polygon)
 	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
 
 # Light is part of the retained stone surface: it never redraws the floor for
@@ -6291,7 +6394,7 @@ func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
 				continue
 			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
 			_draw_rect_ground_shadow(tile, loot_rect, 0.62, 0.18, 0.08)
-			draw_texture_rect(loot_texture, loot_rect, false)
+			_draw_world_texture(loot_texture, loot_rect)
 			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
 		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
 			if typeof(trap_var) == TYPE_DICTIONARY:
@@ -6304,7 +6407,7 @@ func _draw_death_site_embers(tile: Vector2i) -> void:
 	var ember_loot := {"kind": "dropped_embers"}
 	var draw_rect: Rect2 = _loot_rect_for_tile(tile, texture, ember_loot)
 	_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.16, 0.08)
-	draw_texture_rect(texture, draw_rect, false)
+	_draw_world_texture(texture, draw_rect, Color.WHITE, CombatArtTreatment.EMISSIVE)
 
 func death_site_embers_snapshot() -> Dictionary:
 	var entry: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
@@ -6333,7 +6436,7 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		if str(prop.get("kind", "")) == "campfire_bonfire":
 			_draw_campfire_prop_glow(tile, draw_rect)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
-		draw_texture_rect(texture, draw_rect, false, tint)
+		_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
 		if str(prop.get("kind","")).begins_with("watch_brazier"):
 			_register_tooltip(draw_rect,"Watch Brazier · Light radius 2" if str(prop["kind"])=="watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession.")
 		if str(prop.get("kind",""))=="watch_brazier_lit":
@@ -6507,7 +6610,7 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstr
 		if texture == null:
 			return
 		var moss_rect: Rect2 = _pillar_moss_rect(draw_rect)
-		draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries))
+		_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
 		return
 	if tile_id != "wall" or not _tile_has_moss("wall", tile):
 		return
@@ -6523,7 +6626,7 @@ func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstr
 	if texture == null:
 		return
 	var moss_rect: Rect2 = _wall_moss_rect(draw_rect)
-	draw_texture_rect(texture, moss_rect, false, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries))
+	_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
 
 func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
 	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
@@ -6547,9 +6650,9 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
 			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
 			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
-				draw_texture_rect(texture, draw_rect, false, tint)
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE)
 			else:
-				draw_texture_rect_region(texture, draw_rect, source_rect, tint)
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE, source_rect)
 	elif tile_id == "door":
 		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
 		if door_texture != null:
@@ -6558,9 +6661,9 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
 			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
 			if opening_texture != null:
-				draw_texture_rect(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), false, tint)
+				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
 			else:
-				draw_texture_rect(door_texture, draw_rect, false, tint)
+				_draw_world_texture(door_texture, draw_rect, tint)
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
 				if icon_texture != null:
@@ -6611,7 +6714,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 # seam. These textured bands stay in the existing tile depth layer.
 func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
 	if tint.a >= 1.0:
-		draw_texture_rect(texture, rect, false, tint)
+		_draw_world_texture(texture, rect, tint, CombatArtTreatment.STONE)
 		return
 	var rows := PackedFloat32Array([0.0, 0.16, 0.72, 0.88, 1.0])
 	var alphas := PackedFloat32Array([maxf(tint.a, PILLAR_OBSTRUCTION_CAP_ALPHA), tint.a, tint.a, maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA), maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA)])
@@ -6632,7 +6735,7 @@ func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
 				uvs[uv_index] = (atlas.region.position + uvs[uv_index] * atlas.region.size) / draw_texture.get_size()
 		var top_color := Color(tint, alphas[index])
 		var bottom_color := Color(tint, alphas[index + 1])
-		draw_polygon(points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture)
+		CombatArtTreatment.draw_polygon(self, points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
 
 func _pillar_torch_tint(tint: Color) -> Color:
 	# Flame, fixture, halo and embers share one floor; floor lighting already
@@ -7097,7 +7200,7 @@ func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Text
 	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
 	_draw_rect_ground_shadow(tile, loot_rect, 0.54, 0.15, 0.10)
 	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
-	draw_texture_rect(loot_texture, bobbed_rect, false)
+	_draw_world_texture(loot_texture, bobbed_rect)
 
 func _missed_equipment_disintegration_progress(loot: Dictionary) -> float:
 	var equipment_id: String = str(loot.get("equipment_id", ""))
@@ -7132,11 +7235,11 @@ func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2
 		var drift := Vector2(side * draw_rect.size.x * 0.12 * slice_progress, -draw_rect.size.y * 0.16 * slice_progress * slice_progress)
 		var slice_tint: Color = tint
 		slice_tint.a *= 1.0 - smoothstep(0.52, 1.0, slice_progress)
-		draw_texture_rect_region(
+		_draw_world_texture(
 			texture,
 			Rect2(Vector2(draw_rect.position.x, dest_y) + drift, Vector2(draw_rect.size.x, next_dest_y - dest_y + 1.0)),
-			Rect2(Vector2(0.0, source_y), Vector2(source_size.x, next_source_y - source_y)),
-			slice_tint
+			slice_tint, CombatArtTreatment.PROP,
+			Rect2(Vector2(0.0, source_y), Vector2(source_size.x, next_source_y - source_y))
 		)
 
 func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
@@ -7271,7 +7374,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
-		draw_texture_rect(texture, terrain_rect, false, tint)
+		_draw_world_texture(texture, terrain_rect, tint)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7293,7 +7396,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	if terrain_kind == "crag_outcrop":
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
 	else:
-		draw_texture_rect(texture, terrain_rect, false, tint)
+		_draw_world_texture(texture, terrain_rect, tint)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
 	if terrain_kind == "crag_outcrop":
@@ -7615,7 +7718,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
-		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip)
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview"] else CombatArtTreatment.actor_profile(unit, texture))
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
@@ -7629,14 +7732,14 @@ func _umbra_actor_clip_for_unit(unit: Dictionary) -> Dictionary:
 		return {}
 	return (presentation.get("umbra_action_actor_clips", {}) as Dictionary).get(actor_key, {}) as Dictionary
 
-func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, tint: Color, clip: Dictionary) -> void:
+func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, tint: Color, clip: Dictionary, profile: int = 0) -> void:
 	if clip.is_empty():
-		draw_texture_rect(texture, draw_rect, false, tint)
+		_draw_world_texture(texture, draw_rect, tint, profile)
 		return
 	var hidden_tile: Vector2i = clip.get("hidden_tile", Vector2i(-1, -1))
 	var visible_tile: Vector2i = clip.get("visible_tile", Vector2i(-1, -1))
 	if hidden_tile.x < 0 or visible_tile.x < 0:
-		draw_texture_rect(texture, draw_rect, false, tint)
+		_draw_world_texture(texture, draw_rect, tint, profile)
 		return
 	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
 		return
@@ -7681,7 +7784,7 @@ func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, ti
 			Vector2(source_x_start, source_size.y * y_ratio_start),
 			Vector2(source_x_end - source_x_start, source_size.y * (y_ratio_end - y_ratio_start))
 		)
-		draw_texture_rect_region(texture, destination, source, tint)
+		_draw_world_texture(texture, destination, tint, profile, source)
 
 func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
@@ -14597,6 +14700,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 	var shadow_bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
 	var shadow_origin: Vector2 = _unit_shadow_foot_point(texture, draw_rect, shadow_bounds, unit_type)
 	shadow_origin += Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
+	_draw_contact_pool(shadow_origin, _tile_width() * 0.43, _tile_height() * 0.30, 0.31 * shadow_alpha_scale)
 	_submitted_shadow_meshes.append(shadow_mesh)
 	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
 	if detailed_sections:
@@ -14685,11 +14789,11 @@ func _unit_shadow_draw_cache_key(texture: Texture2D, draw_rect: Rect2, unit_type
 	# Shadow geometry is authored around the feet and translated at submission.
 	# Position is therefore not part of its identity: movement between tiles can
 	# reuse the same immutable mesh for a given sprite frame and draw size.
-	return "%d|%.3f,%.3f|%s" % [
+	return "%d|%.3f,%.3f|%s|%s" % [
 		texture.get_instance_id(),
 		draw_rect.size.x,
 		draw_rect.size.y,
-		unit_type
+		unit_type, _art_treatment_enabled
 	]
 
 func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> Array:
@@ -14895,8 +14999,8 @@ func _project_unit_shadow_polygon(local_polygon: PackedVector2Array, sprite_size
 		var horizontal_px: float = point.x * sprite_size.x * UNIT_SHADOW_SHAPE_SCALE
 		var height_px: float = -point.y * sprite_size.y * UNIT_SHADOW_SHAPE_SCALE
 		projected.append(shadow_origin + Vector2(
-			horizontal_px * UNIT_SHADOW_WIDTH_SCALE + height_px * UNIT_SHADOW_HEIGHT_CAST_X,
-			horizontal_px * UNIT_SHADOW_WIDTH_SLOPE_Y + height_px * UNIT_SHADOW_HEIGHT_CAST_Y
+			horizontal_px * UNIT_SHADOW_WIDTH_SCALE + height_px * (CombatArtTreatment.SHADOW_CAST.x if _art_treatment_enabled else UNIT_SHADOW_HEIGHT_CAST_X),
+			horizontal_px * UNIT_SHADOW_WIDTH_SLOPE_Y + height_px * (CombatArtTreatment.SHADOW_CAST.y if _art_treatment_enabled else UNIT_SHADOW_HEIGHT_CAST_Y)
 		))
 	return projected
 
@@ -14923,6 +15027,10 @@ func _draw_rect_ground_shadow(tile: Vector2i, draw_rect: Rect2, width_scale: flo
 	var base_center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.34)
 	var width: float = maxf(_tile_width() * 0.24, draw_rect.size.x * width_scale)
 	var height: float = maxf(_tile_height() * 0.13, _tile_height() * height_scale)
+	if _art_treatment_enabled:
+		_draw_contact_pool(base_center + SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale * 0.7, width * 1.15, height * 1.3, 0.15)
+		_draw_contact_pool(base_center, width * 0.76, height * 0.95, 0.29)
+		return
 	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale
 	_draw_iso_ground_shadow(base_center + cast_offset, width * 0.96, height * 0.86, width * 0.28, float(SHADOW_COLOR.a) * 0.38)
 	_draw_iso_ground_shadow(base_center, width * 0.48, height * 0.54, width * 0.08, float(SHADOW_COLOR.a) * 0.56)
@@ -14932,6 +15040,9 @@ func _draw_wall_segment_shadow(tile: Vector2i, orientation: String, draw_rect: R
 	var width: float = maxf(_tile_width() * 0.38, draw_rect.size.x * 0.82)
 	var height: float = _tile_height() * 0.16
 	var skew: float = width * (0.16 if orientation == "row" else -0.16)
+	if _art_treatment_enabled:
+		_draw_contact_pool(base_center, width * 1.10, height * 1.65, 0.25)
+		return
 	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * 0.12
 	_draw_iso_ground_shadow(base_center + cast_offset, width, height, skew, float(SHADOW_COLOR.a) * 0.32)
 	_draw_iso_ground_shadow(base_center, width * 0.56, height * 0.58, skew * 0.45, float(SHADOW_COLOR.a) * 0.46)
