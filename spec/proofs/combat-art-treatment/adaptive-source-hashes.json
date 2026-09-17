@@ -2,14 +2,14 @@
   "assets/shaders/combat_art_palette.gdshaderinc": "c4e1cf28f3b6d9ea84b95534d6f7df09ac652ec277fb94a84cf6ec785ba861af",
   "scripts/combat_art_treatment.gd": "1b22187c7854a65c9996b575141a91b36b752267e33a64e05cbf3737324af4b4",
   "scripts/combat_board_view.gd": "bc31383aedeaee664641c4f1109735806c400e460209a9905cdc1edd3d849700",
-  "scripts/combat_lighting_profiles.gd": "056541e79692246f4d73bef06d2a9cd155550e57f770fbcd45255eca57fc48cc",
+  "scripts/combat_lighting_profiles.gd": "aa82b29651010fe2343544d493a22c14cb0d039e205848daf8027dda70a0ac9b",
   "tests/combat_lighting_density_probe.gd": "2088321a33cd12117b66bd52668ad01d969f56e91a104aba06203e031a7f4c4b",
   "tests/suites/combat_lighting_profiles_suite.gd": "9bb3b8356eb78029e3568c0209b668eb5ee51f0a1f3a993dec76aef79864230e",
   "tests/combat_lighting_variants_probe.gd": "db8ec7feb6a43e0791e8c6a5c2f5bc870e1a996f35f7612fbd480fe78167e477",
   "tests/combat_art_treatment_probe.gd": "e4fdd4919a23df57a998c52e92e90ee97dbf7c6731930ea1c8920dc2538a9cac",
   "tests/enemy_shadow_dissolve_probe.gd": "ab1224ff895f594c68a1260e80d3955bc9ef544168ba6575da70cb9ae5ed7776",
   "spec/combat_art_treatment.md": "70e0b46e104f9c995be0fdf122584bc14ff51039c6e5f0e7944d300d2f6f55bf",
-  "spec/proofs/combat-art-treatment/adaptive-warm-verification.md": "2c37d152c1a034a6c5d35137a43466895a34744de687238a69864818ea672ffc",
+  "spec/proofs/combat-art-treatment/adaptive-warm-verification.md": "5118ecfc1c7253037562542a07c9ea94a04c351dd04337deda2412f24596431c",
   "spec/proofs/combat-art-treatment/adaptive-reference/.gdignore": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "spec/proofs/combat-art-treatment/adaptive-reference/README.md": "081c454ea96010738e8166509e942a42ca570c05236ca478558e1872dfde0b8b",
   "spec/proofs/combat-art-treatment/adaptive-reference/after/02_columns_warm.png": "7675eeb5e6ff6cd7263718ae3f371269a60f9ffc32024a5969e22d2cd07917fa",
@@ -29,5 +29,6 @@
   "spec/proofs/combat-art-treatment/adaptive-reference/target/04_columns_gentle.png": "b3e2a58a2c0332612d1d7ca783c68f07259174994d0db129d9ffdfd0952e7dfe",
   "spec/proofs/combat-art-treatment/adaptive-reference/target/04_columns_warm.png": "571ddcdaf523bfd7cc14e729b0f7e79e9e0a0c225b6ef879c6d79b955b7d8dcb",
   "spec/proofs/combat-art-treatment/adaptive-reference/target/density-capture.json": "c3f6d43566b5ec4c8a39c498f349bdec287b82524c4b9ab205e61a9ae2e699de",
-  "spec/proofs/combat-art-treatment/adaptive-reference/target-metrics.json": "45adad132d487b5fb04dccd2593adef47dc07a321846e479905f4a6061a5f2d5"
+  "spec/proofs/combat-art-treatment/adaptive-reference/target-metrics.json": "45adad132d487b5fb04dccd2593adef47dc07a321846e479905f4a6061a5f2d5",
+  "spec/proofs/combat-art-treatment/adaptive-reference/proof/full-suite-v2.log": "56311e6f86a4dbd17de8963a485897d3988342b7dc50ae0dc3fd745f7341ba56"
 }

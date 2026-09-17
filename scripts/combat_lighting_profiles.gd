@@ -10,7 +10,7 @@ const SPARSE_SOURCES: float = 2.0
 const DENSE_SOURCES: float = 4.0
 const TORCH_STRENGTH: float = 0.80
 const DENSE_TARGETS := {"warm": "gentle"}
-const SCALAR_FIELDS: Array[String] = ["ambient", "gain", "reach", "contrast", "saturation", "rim"]
+const SCALAR_FIELDS = ["ambient", "gain", "reach", "contrast", "saturation", "rim"]
 # Declaration order is the comparison order; add new looks here only.
 const PRESETS := {
 	"gentle": {"ambient": 0.90, "gain": 0.38, "reach": 1.05, "contrast": 1.02, "saturation": 0.94, "rim": 0.80, "tint": Vector3(0.985, 0.985, 1.01)},
