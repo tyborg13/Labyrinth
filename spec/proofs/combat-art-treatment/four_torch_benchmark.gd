@@ -329,7 +329,7 @@ func _action_presentation() -> Dictionary:
 	}
 
 func _umbra_visible_tiles() -> Array[Vector2i]:
-	var tiles: Array[Vector2i] = []
+	var tiles: Array[Vector2i]
 	for tile: Vector2i in [Vector2i(4, 4), Vector2i(4, 3), Vector2i(3, 4), Vector2i(5, 4), Vector2i(4, 5)]:
 		tiles.append(tile)
 	return tiles
@@ -445,10 +445,9 @@ func _verify_in_place_state_redraw(board: Control, presentation: Dictionary) -> 
 	var new_tile_redrew: bool = int(scene_counts.get("%d,%d" % [new_tile.x, new_tile.y], 0)) > 0
 	var redrew: bool = int(snapshot.get("full_dynamic_redraw_count", 0)) == 0 and old_tile_redrew and new_tile_redrew
 	_expect(redrew, "in-place unit mutations must selectively invalidate both old and new retained scene tiles")
-	var cache_field_mutations: Array[Dictionary] = [
-		{"key": "moss", "value": {"floor": [Vector2i(3, 3)]}},
-		{"key": "room_coord", "value": Vector2i(8, 11)},
-	]
+	var cache_field_mutations: Array[Dictionary]
+	cache_field_mutations.append({"key": "moss", "value": {"floor": [Vector2i(3, 3)]}})
+	cache_field_mutations.append({"key": "room_coord", "value": Vector2i(8, 11)})
 	for mutation: Dictionary in cache_field_mutations:
 		board.call("reset_render_instrumentation")
 		retained_state[str(mutation.get("key", ""))] = mutation.get("value")

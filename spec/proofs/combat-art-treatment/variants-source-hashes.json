@@ -6,5 +6,6 @@
   "assets/shaders/combat_floor_light.gdshader": "5da38ff4ef8431dd133e53b5e8f4f20064d620f800b8b417e55f7d493e069a5f",
   "assets/shaders/enemy_shadow_dissolve.gdshader": "9c165565e7ae2932e7ad6cf79f9e5467590a9df82bdfdf97d3e2c94b78d57e8f",
   "tests/combat_lighting_variants_probe.gd": "a145c5071009b02fa622a9d28a4cf788e06f86eba474aae05f1e6b367714ad2e",
-  "tests/combat_art_treatment_probe.gd": "e4fdd4919a23df57a998c52e92e90ee97dbf7c6731930ea1c8920dc2538a9cac"
+  "tests/combat_art_treatment_probe.gd": "e4fdd4919a23df57a998c52e92e90ee97dbf7c6731930ea1c8920dc2538a9cac",
+  "spec/proofs/combat-art-treatment/four_torch_benchmark.gd": "e87583934d4f3c4c96ffc3e0abf33ece57d2883c5e6ffac6065b17e9ff6c6f90"
 }

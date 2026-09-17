@@ -29,7 +29,7 @@ Durable root:
 
 The accepted showcase is `lighting-variants-v2/`: `00_untreated.png`, `01_gentle.png` through `05_dramatic.png`, flicker/reduced-motion/targeting/movement frames, `capture.log`, `capture-manifest.json`, `fixture-manifest.json`, the five-choice comparison and replacement silent wipe video. “Untreated” means the art-treatment inspection switch is off, not the previously sent revision.
 
-The unchanged-runtime regression/performance evidence is in `lighting-variants-v1/`: `full-suite.log`, `art-probe.log`, `intent-probe.log`, `death.log`, matching manifests, `four_torch_benchmark.gd`, `verification-runs.json` and `performance.json`. Its main showcase images are superseded, as explained above. Committed copies of timing data and the workload modification accompany this report.
+The unchanged-runtime regression/performance evidence is in `lighting-variants-v1/`: `full-suite.log`, `art-probe.log`, `intent-probe.log`, `death.log`, matching manifests, `four_torch_benchmark.gd`, `verification-runs.json` and `performance.json`. Its main showcase images are superseded, as explained above. Committed copies of timing data and the workload modification accompany this report. Peer review corrected two typed-array declarations in the committed benchmark copy to a typed default and explicit appends for Windows compatibility; the measured external script remains intact as provenance. The equivalent declaration-only correction was checked by loading the committed script in a fresh headless Godot process; runtime and timing behavior are unchanged.
 
 ## UI rubric
 
