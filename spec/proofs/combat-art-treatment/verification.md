@@ -4,7 +4,7 @@
 
 Implemented shared luminance/color calibration, restrained world grading, ambient/contact shading, coherent cast direction, local diffuse light wash, and directional silhouette rim light. Background integration is explicitly deferred. Rules, input, camera framing, HUD and background assets are unchanged.
 
-Source hashes in `source-hashes.json` identify the runtime/probe revision verified below. Design and intentional approximations are in `../../combat_art_treatment.md`.
+Source hashes in `source-hashes.json` identify the final runtime/probe revision. Peer review corrected one typed empty-array declaration for Windows compatibility; the full suite and art probe were rerun afterward. Performance and dissolve evidence precede only that equivalent declaration change, with unchanged rendering behavior. Design and intentional approximations are in `../../combat_art_treatment.md`.
 
 ## Checks
 

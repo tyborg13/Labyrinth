@@ -6042,7 +6042,7 @@ func art_treatment_snapshot() -> Dictionary:
 func _sync_art_lighting() -> void:
 	if _art_treatment == null or _is_dynamic_render_layer or _is_static_render_cache_layer:
 		return
-	var sources: Array[Dictionary] = []
+	var sources: Array[Dictionary]
 	if not combat_state.is_empty():
 		var grid: Array = combat_state.get("grid", [])
 		for tile: Vector2i in _rendered_tiles_in_draw_order():
