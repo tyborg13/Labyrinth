@@ -12,7 +12,7 @@ The most repeatable improvements are actor construction, duplicate-actor memory,
 - Native proof: 1920×1080, 100% UI scale. Foreground tests ran serially after unlocking the display, without simultaneous CPU benchmarks. Accepted reports have zero unfocused observations and empty semantic-error lists.
 - Gameplay uses the production hand cap. The animation matrix separately runs uncapped to expose rendering capacity; do not compare its absolute intervals to the vsynced gameplay benchmark.
 - GPU timers were unavailable on this renderer. Zero readings are not zero GPU cost. Render submission CPU time, synchronous handler latency, rendered frame intervals, and awaited action completion remain separate metrics.
-- Baseline production code is unchanged. Updated benchmark fixtures and instrumentation were copied identically into the baseline worktree. Reports were captured before committing; the [manifest](proofs/performance-2026-09-17/manifest.json) binds changed source files to SHA-256 hashes. Report Git metadata therefore records the base revision plus a dirty candidate, not an invented measured commit.
+- Baseline production code is unchanged. Updated benchmark fixtures and instrumentation were copied identically into the baseline worktree. Reports were captured before committing; the [manifest](proofs/performance-2026-09-17/manifest.json) records SHA-256 hashes for the original measurements and the reviewed lifecycle-fix follow-up separately. Report Git metadata therefore records the base revision plus a dirty candidate, not an invented measured commit.
 - CPU construction/submission runs were repeated in both orders, followed by a final matched pair. Native gameplay timings are one accepted full pair; small tail differences and individual maxima should not be treated as repeatable speedups.
 
 The [measurement summary](proofs/performance-2026-09-17/measurements.json) retains scenario-level results. Adjacent `.json.gz` files contain complete raw reports, including individual frame samples and section diagnostics. Failed probes are retained separately as `.log.gz` files and excluded from accepted timing claims.
@@ -42,7 +42,7 @@ The complete gameplay probe ends at the same 5,048 nodes on both builds and zero
 
 ### Selective animation submission
 
-`CombatBoardView.set_combat_state` refreshes the full cutout roster for actor/visibility/death/reduced-motion changes, and otherwise updates only families with changed motion. Other persistent renderers continue their own idle processing. The reference test forces the original complete-roster route and compares renderer lifetimes, clips, facings, activity, and bone poses through movement, action-to-idle transitions, visibility changes, in-place commits, reduced motion, and death.
+`CombatBoardView.set_combat_state` refreshes the full cutout roster for actor/visibility/death/reduced-motion changes, and otherwise updates only families with changed motion. Other persistent renderers continue their own idle processing. The reference test forces the original complete-roster route and compares renderer lifetimes, clips, facings, activity, and bone poses through movement, action-to-idle transitions, visibility changes, in-place commits, reduced motion, and death. A separate roster-initialization flag preserves identical state submissions after initial attachment or detached updates; render snapshot initialization alone cannot prove actor children exist.
 
 Final matched CPU submission medians:
 
@@ -55,6 +55,23 @@ Final matched CPU submission medians:
 The native matrix covers all 31 combat enemy actor IDs separately plus six small combinations. Each runs idle, walk, attack, and reduced-motion phases, 96 measured frames per phase, with four directions and assertions that intended clips and changing/frozen poses are actually exercised. Five mixed groups have real torch lighting. Player, illusions, surface effects, Umbra, and UI combinations are additionally covered by the gameplay probes. Screenshot replay occurs after all matrix timing.
 
 Uncapped steady-frame results are mixed and do **not** establish a general FPS improvement. For example, specialist attack median/p95 changes 6.11/8.04 → 6.02/7.98 ms, while Roc-group attack p95 changes 6.02 → 8.32 ms. Both remain below 16.67 ms in those sampled phases. No quality setting was reduced to obtain construction or CPU gains.
+
+### Review follow-up: animation-tail variance
+
+The first full matrix showed Roc-group p95 increases above the 5% investigation threshold. Three additional matched pairs test Roc helpers with early-melee and late-specialist controls, reversing build order (candidate/base, base/candidate, candidate/base). These use the same native uncapped settings, exact three-case filter, phase lengths, and camera. All six runs pass semantics/focus/orphan gates. Their raw reports and [pooled analysis](proofs/performance-2026-09-17/matrix-repeat-analysis.json) are retained.
+
+| Roc-group phase | Base p95 across three runs (ms) | Candidate p95 across three runs (ms) | Pooled p95, base → candidate (288 frames each) |
+| --- | --- | --- | ---: |
+| Idle | 6.660, 6.357, 7.470 | 6.506, 6.436, 7.199 | 6.649 → 6.518 |
+| Walk | 6.491, 7.378, 6.892 | 6.585, 7.661, 6.874 | 6.698 → 6.874 |
+| Attack | 6.962, 6.967, 5.988 | 6.591, 6.829, 7.135 | 6.270 → 6.705 |
+| Reduced motion | 6.847, 6.766, 6.471 | 6.633, 6.943, 6.948 | 6.699 → 6.914 |
+
+The original 38.3% attack-tail increase does not reproduce consistently: candidate attack p95 is lower in two pairs and higher in one, with overlapping run ranges. Walk submission medians consistently improve from 651–683 to 596–604 µs, attack from 620–652 to 572–580 µs. Summed cutout-viewport render CPU medians overlap (attack base 0.074–0.077 ms, candidate 0.071–0.078 ms); all phases have zero frames over 16.67 ms. Early-melee and specialist pooled active-phase p95s are flat or lower.
+
+Pooled Roc attack p95 is still 6.9% higher (+0.435 ms), so this is **not** evidence of improved steady animation tails. The changes save CPU and memory, while uncapped frame delivery shows substantial run variance. Compositor/scheduling variation is a plausible explanation, not a measured GPU attribution. The residual pooled difference remains disclosed; no repeatable 38% slowdown or CPU submission regression was found. A Deck run is still needed for target-hardware conclusions.
+
+The reviewer also reproduced a detached-board initialization regression. The final code separates cutout-roster initialization from render snapshot caching and invalidates it on detached updates. The focused test now covers initial attachment and reattachment after detached state changes against forced-full synchronization. The follow-up CPU pair and full suite verify this final production code; the earlier broad native gameplay report predates only this lifecycle guard.
 
 ### Save inspection and hand refreshes
 
@@ -74,7 +91,7 @@ These are rendered frame intervals in milliseconds, measured at `RenderingServer
 
 Idle median/p95 is effectively unchanged, 8.353/8.529 → 8.374/8.542 ms, with no frames over 16.67 ms. Enemy-turn median draw counts remain 1,024 / 1,084 / 945 respectively. The optimization removes CPU/data work rather than visible content or draw calls.
 
-Coverage also includes seven routed card actions, six abilities, movement-pool use, twelve interaction groups (including zoom/pan and overlays), clear/pressing/eclipse Umbra states, elemental previews/chain paths/sparse feedback, and cold plus repeated dragon dissolves. Action results are mixed: Shadow Step max improves 78.02 → 71.16 ms, but Makeshift Tool max changes 38.27 → 41.93 ms. Do not describe all actions as faster. Repeated death p95 changes 9.024 → 8.872 ms with every authored dissolve update submitted and bounded nodes.
+Coverage also includes seven routed card actions, six abilities, movement-pool use, eleven interaction groups (including zoom/pan and overlays), clear/pressing/eclipse Umbra states, elemental previews/chain paths/sparse feedback, and cold plus repeated dragon dissolves. Action results are mixed: Shadow Step max improves 78.02 → 71.16 ms, but Makeshift Tool max changes 38.27 → 41.93 ms. Do not describe all actions as faster. Repeated death p95 changes 9.024 → 8.872 ms with every authored dissolve update submitted and bounded nodes.
 
 ## Visual and regression proof
 

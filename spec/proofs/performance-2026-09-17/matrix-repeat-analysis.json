@@ -1,0 +1,560 @@
+{
+  "guardian_helpers": {
+    "idle": {
+      "base": {
+        "per_run_p95_ms": [
+          6.66,
+          6.357,
+          7.47
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.824,
+        "pooled_p95_ms": 6.649,
+        "pooled_max_ms": 12.612,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0789999989792705,
+          0.0750000011175871,
+          0.0750000001862645
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.506,
+          6.436,
+          7.199
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.8,
+        "pooled_p95_ms": 6.518,
+        "pooled_max_ms": 12.02,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0730000007897615,
+          0.0810000002384186,
+          0.0780000016093254
+        ]
+      }
+    },
+    "walk": {
+      "base": {
+        "per_run_p95_ms": [
+          6.491,
+          7.378,
+          6.892
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 3.059,
+        "pooled_p95_ms": 6.698,
+        "pooled_max_ms": 13.139,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          683.0,
+          673.0,
+          651.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0740000009536743,
+          0.0750000020489097,
+          0.0760000012814999
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.585,
+          7.661,
+          6.874
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.955,
+        "pooled_p95_ms": 6.874,
+        "pooled_max_ms": 12.212,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          596.0,
+          604.0,
+          598.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0720000006258488,
+          0.0779999997466803,
+          0.0740000000223517
+        ]
+      }
+    },
+    "attack": {
+      "base": {
+        "per_run_p95_ms": [
+          6.962,
+          6.967,
+          5.988
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.995,
+        "pooled_p95_ms": 6.27,
+        "pooled_max_ms": 12.104,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          620.0,
+          652.0,
+          645.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0749999983236194,
+          0.0770000014454126,
+          0.0740000000223517
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.591,
+          6.829,
+          7.135
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.991,
+        "pooled_p95_ms": 6.705,
+        "pooled_max_ms": 11.97,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          576.0,
+          580.0,
+          572.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0710000023245811,
+          0.0780000016093254,
+          0.0750000011175871
+        ]
+      }
+    },
+    "reduced_motion": {
+      "base": {
+        "per_run_p95_ms": [
+          6.847,
+          6.766,
+          6.471
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.797,
+        "pooled_p95_ms": 6.699,
+        "pooled_max_ms": 8.819,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0679999990388751,
+          0.0700000002980232,
+          0.0629999991506338
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.633,
+          6.943,
+          6.948
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.624,
+        "pooled_p95_ms": 6.914,
+        "pooled_max_ms": 8.906,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0580000001937151,
+          0.0459999982267618,
+          0.0610000006854534
+        ]
+      }
+    }
+  },
+  "early_melee": {
+    "idle": {
+      "base": {
+        "per_run_p95_ms": [
+          6.775,
+          6.717,
+          6.844
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.784,
+        "pooled_p95_ms": 6.727,
+        "pooled_max_ms": 7.898,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0839999988675117,
+          0.0859999991953373,
+          0.104000000283122
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.395,
+          7.298,
+          6.747
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 3.011,
+        "pooled_p95_ms": 6.642,
+        "pooled_max_ms": 8.562,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.082999998703599,
+          0.0930000003427267,
+          0.0910000000149012
+        ]
+      }
+    },
+    "walk": {
+      "base": {
+        "per_run_p95_ms": [
+          6.63,
+          11.69,
+          7.113
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 1.874,
+        "pooled_p95_ms": 7.904,
+        "pooled_max_ms": 12.955,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          658.0,
+          667.0,
+          725.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0739999981597066,
+          0.0749999983236194,
+          0.0760000012814999
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.842,
+          7.515,
+          7.386
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.188,
+        "pooled_p95_ms": 7.126,
+        "pooled_max_ms": 11.8,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          645.0,
+          657.0,
+          604.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0740000000223517,
+          0.0740000000223517,
+          0.0759999984875321
+        ]
+      }
+    },
+    "attack": {
+      "base": {
+        "per_run_p95_ms": [
+          6.942,
+          6.848,
+          7.887
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.185,
+        "pooled_p95_ms": 7.035,
+        "pooled_max_ms": 11.847,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          632.0,
+          701.0,
+          654.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0750000011175871,
+          0.0740000009536743,
+          0.0759999994188547
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.233,
+          7.07,
+          6.817
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.51,
+        "pooled_p95_ms": 6.418,
+        "pooled_max_ms": 9.947,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          621.0,
+          633.0,
+          601.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0710000023245811,
+          0.0720000006258488,
+          0.0719999996945262
+        ]
+      }
+    },
+    "reduced_motion": {
+      "base": {
+        "per_run_p95_ms": [
+          6.509,
+          7.135,
+          6.518
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.732,
+        "pooled_p95_ms": 6.61,
+        "pooled_max_ms": 8.251,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0749999983236194,
+          0.0769999986514449,
+          0.0779999997466803
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.66,
+          6.758,
+          7.262
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.585,
+        "pooled_p95_ms": 6.732,
+        "pooled_max_ms": 9.265,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0859999982640147,
+          0.0810000021010637,
+          0.117000001482666
+        ]
+      }
+    }
+  },
+  "late_specialists": {
+    "idle": {
+      "base": {
+        "per_run_p95_ms": [
+          6.643,
+          7.365,
+          7.577
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.872,
+        "pooled_p95_ms": 7.223,
+        "pooled_max_ms": 13.331,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.112000001594424,
+          0.129000000655651,
+          0.128000000491738
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.805,
+          6.375,
+          6.578
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.972,
+        "pooled_p95_ms": 6.634,
+        "pooled_max_ms": 8.182,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.0999999986961484,
+          0.105999998748302,
+          0.120000001043081
+        ]
+      }
+    },
+    "walk": {
+      "base": {
+        "per_run_p95_ms": [
+          7.508,
+          7.494,
+          7.535
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 6.078,
+        "pooled_p95_ms": 7.508,
+        "pooled_max_ms": 15.292,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          1029.0,
+          1033.0,
+          1053.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.113999998196959,
+          0.110999999567866,
+          0.114999998360872
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          7.334,
+          7.611,
+          7.497
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 5.979,
+        "pooled_p95_ms": 7.497,
+        "pooled_max_ms": 15.093,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          965.0,
+          999.0,
+          994.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.111000001430511,
+          0.110999999567866,
+          0.11400000192225
+        ]
+      }
+    },
+    "attack": {
+      "base": {
+        "per_run_p95_ms": [
+          7.824,
+          7.428,
+          7.634
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 6.081,
+        "pooled_p95_ms": 7.612,
+        "pooled_max_ms": 15.04,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          1008.0,
+          1023.0,
+          1037.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.113999998196959,
+          0.113000001758337,
+          0.112999999895692
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          7.597,
+          7.648,
+          7.515
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 6.024,
+        "pooled_p95_ms": 7.524,
+        "pooled_max_ms": 14.762,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          971.0,
+          978.0,
+          977.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.111000001430511,
+          0.108000000938773,
+          0.113000001758337
+        ]
+      }
+    },
+    "reduced_motion": {
+      "base": {
+        "per_run_p95_ms": [
+          6.647,
+          6.684,
+          6.815
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.805,
+        "pooled_p95_ms": 6.647,
+        "pooled_max_ms": 8.388,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.170999996364117,
+          0.123999996110797,
+          0.107000002637506
+        ]
+      },
+      "candidate": {
+        "per_run_p95_ms": [
+          6.985,
+          6.737,
+          6.603
+        ],
+        "pooled_sample_count": 288,
+        "pooled_median_ms": 2.099,
+        "pooled_p95_ms": 6.713,
+        "pooled_max_ms": 7.938,
+        "frames_over_16_67_ms": 0,
+        "submission_median_usec": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "all_subviewport_cpu_median_ms": [
+          0.113999997265637,
+          0.190000001341105,
+          0.169000003486872
+        ]
+      }
+    }
+  }
+}

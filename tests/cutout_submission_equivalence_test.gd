@@ -4,10 +4,23 @@ func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	var optimized: Control = CombatBoardView.new()
 	var reference: Control = CombatBoardView.new()
-	root.add_child(optimized)
-	root.add_child(reference)
 	optimized.process_mode = Node.PROCESS_MODE_DISABLED
 	reference.process_mode = Node.PROCESS_MODE_DISABLED
+	# Layout and render snapshots may be submitted before a view is attached.
+	# The first identical attached submission must still create/present actors.
+	var detached_state: Dictionary = _matrix_state(["crawler", "warden", "acolyte"])
+	var detached_presentation: Dictionary = _matrix_presentation(detached_state, "walk", 23)
+	optimized.call("set_combat_state", detached_state, [], [], Vector2i(-1,-1), "", "", {}, {}, detached_presentation)
+	root.add_child(optimized)
+	root.add_child(reference)
+	_compare_submission(optimized, reference, detached_state, detached_presentation)
+	# Existing pools can likewise become stale while removed from the tree.
+	root.remove_child(optimized)
+	detached_state["player"]["pos"] = Vector2i(6, 1)
+	detached_presentation = _matrix_presentation(detached_state, "reduced_motion", 0)
+	optimized.call("set_combat_state", detached_state, [], [], Vector2i(-1,-1), "", "", {}, {}, detached_presentation)
+	root.add_child(optimized)
+	_compare_submission(optimized, reference, detached_state, detached_presentation)
 	var cases: Array = [
 		["crawler", "warden", "acolyte"],
 		["cinder_ooze", "cinder_droplet", "cinder_droplet"],

@@ -689,6 +689,7 @@ var _unit_shadow_precomputed_loaded_keys: Dictionary = {}
 var _unit_shadow_precomputed_missing_keys: Dictionary = {}
 var _submission_cache_source_snapshot: Dictionary = {}
 var _submission_cache_initialized: bool = false
+var _cutout_roster_initialized: bool = false
 var _submission_cache_combat_changed: bool = false
 var _is_dynamic_render_layer: bool = false
 var _render_layer_kind: String = ""
@@ -2694,7 +2695,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# A pose-only submission affects its addressed family. Other persistent
 	# canvases continue their own idle processing; walking the complete roster
 	# for every family needlessly resubmitted unrelated actors each frame.
-	var refresh_cutout_roster: bool = not _submission_cache_initialized
+	# Snapshot caches can be populated before _ready(), while actor pools cannot
+	# create their child canvases until this board enters the scene tree.
+	var refresh_cutout_roster: bool = not _cutout_roster_initialized or not _submission_cache_initialized
 	for key: String in ["player", "enemies", "illusions", "npcs"]:
 		refresh_cutout_roster = refresh_cutout_roster or combat_render_changes.has(key)
 	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
@@ -2742,6 +2745,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if is_instance_valid(_protagonist_renderer) and (refresh_cutout_roster or presentation_changes.has("protagonist_motion")):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
+	# A detached update leaves existing pools stale too; resubmit them after
+	# reattachment even if the next presentation/state is identical.
+	_cutout_roster_initialized = is_inside_tree() and not _is_dynamic_render_layer and not _is_static_render_cache_layer
 	var registration_changes: Dictionary = {}
 	var current_registrations: Dictionary = _cutout_floor_registrations()
 	for actor_key: String in current_registrations:
