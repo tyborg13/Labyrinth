@@ -948,7 +948,7 @@ func _assert_combat_resource_stack(instance: Node, label: String) -> void:
 	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_require(play_meter != null and play_meter.visible, "%s should show card plays" % label)
 	_require(movement_meter != null and movement_meter.visible, "%s should show movement" % label)
-	_require(pass_chip != null and pass_chip.visible, "%s should show Pass below the resources" % label)
+	_require(pass_chip != null and pass_chip.visible, "%s should show Pass opposite the resources" % label)
 	if play_meter == null or movement_meter == null or pass_chip == null:
 		return
 	_assert_control_inside_logical_viewport(play_meter, "%s card-play meter" % label, 8.0)
@@ -959,7 +959,9 @@ func _assert_combat_resource_stack(instance: Node, label: String) -> void:
 	var pass_rect: Rect2 = pass_chip.get_global_rect()
 	_require(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0, "%s resources should share one column" % label)
 	_require(movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack immediately beneath card plays" % label)
-	_require(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should stack beneath movement" % label)
+	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
+	_require(play_rect.end.x < hand_bounds.position.x and pass_rect.position.x > hand_bounds.end.x, "%s resources and Pass should flank opposite sides of the hand" % label)
+	_require(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % label)
 	var play_icon: TextureRect = instance.get("_play_meter_icon") as TextureRect
 	var movement_icon: TextureRect = instance.get("_movement_meter_icon") as TextureRect
 	_require(play_icon != null and movement_icon != null and movement_icon.size == Vector2(30.0, 30.0) and movement_icon.size.x < play_icon.size.x, "%s movement icon should be reduced to fit comfortably inside its frame" % label)

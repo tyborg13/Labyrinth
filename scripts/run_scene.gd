@@ -4806,11 +4806,16 @@ func _layout_choice_button_overlay() -> void:
 	var preview_size: Vector2 = _pass_preview_overlay.get_combined_minimum_size()
 	var combat_dock: bool = str(_run_state.get("mode", "room")) == "combat" and _play_meter != null and _play_meter.visible
 	if combat_dock:
-		var resource_meter: Control = _movement_meter if _movement_meter != null and _movement_meter.visible else _play_meter
-		var meter_rect: Rect2 = resource_meter.get_global_rect()
+		var resource_rect: Rect2 = _play_meter.get_global_rect()
+		if _movement_meter != null and _movement_meter.visible:
+			resource_rect = resource_rect.merge(_movement_meter.get_global_rect())
+		var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
+		var hand_center_x: float = hand_bounds.get_center().x if hand_bounds.has_area() else viewport_size.x * 0.5
+		# Mirror the resource stack across the resting fan. Hover/focus expansion
+		# must never move either flank while the player is choosing a card.
 		_pass_preview_overlay.global_position = Vector2(
-			meter_rect.get_center().x - preview_size.x * 0.5,
-			meter_rect.position.y + meter_rect.size.y + PASS_PREVIEW_STACK_GAP
+			clampf(2.0 * hand_center_x - resource_rect.get_center().x - preview_size.x * 0.5, 8.0, maxf(8.0, viewport_size.x - preview_size.x - 8.0)),
+			resource_rect.get_center().y - preview_size.y * 0.5
 		)
 	else:
 		_pass_preview_overlay.global_position = Vector2(
@@ -10624,21 +10629,21 @@ func _layout_combat_action_dock() -> void:
 	var movement_size: Vector2 = _movement_meter.get_combined_minimum_size()
 	var pass_size: Vector2 = PASS_PREVIEW_CHIP_SIZE
 	var resource_stack_height: float = meter_size.y + RESOURCE_METER_STACK_GAP + movement_size.y
-	var dock_height: float = resource_stack_height + PASS_PREVIEW_STACK_GAP + pass_size.y
+	var dock_height: float = maxf(resource_stack_height, pass_size.y)
 	# The dock answers a stable question: where does the resting hand begin?  Do
 	# not feed the transient hover/focus transforms back into this placement or
 	# the meter visibly slides whenever the player inspects a card.
 	var hand_bounds: Rect2 = _combat_hand_resting_visual_bounds()
 	var dock_left: float = 8.0
-	# Put the final-action dock in the real negative space immediately before the
-	# rendered fan. This stays correct when aspect expansion or card scaling moves
-	# the leftmost card, while preserving the authored meter-over-Pass composition.
+	# Reserve equal-width flanks around the fan: resources on the left, Pass on
+	# the right. The wider Pass frame determines both centers for visual balance.
 	if hand_bounds.size.x > 0.0:
-		# The container is stable, but a focused card can expand leftward and cards
-		# preceding a later focus can fan outside its left edge. Reserve that
-		# authored maximum for every supported hand size rather than moving the dock
-		# in response to a transient hover animation.
+		# The fan already reserves half its horizontal overflow on each side. Only
+		# add the remaining hover travel so the flanks sit close without drifting
+		# during emphasis or colliding with an expanded outer card.
 		var hover_reserve: float = HandFanContainer.DEFAULT_EMPHASIS_MAX_SIDE_SHIFT
+		if hand_box != null and hand_box.get_child_count() > 1:
+			hover_reserve = maxf(0.0, hover_reserve - HandFanContainer.DEFAULT_HORIZONTAL_OVERFLOW_ALLOWANCE * 0.5)
 		dock_left = maxf(dock_left, hand_bounds.position.x - pass_size.x - 24.0 - hover_reserve)
 	var pass_left: float = clampf(dock_left, 8.0, maxf(8.0, viewport_size.x - pass_size.x - 8.0))
 	var meter_left: float = pass_left + (pass_size.x - meter_size.x) * 0.5
@@ -17440,7 +17445,7 @@ func _show_card_focus_tooltips(index: int) -> void:
 		display.get("summary_rows", []) as Array,
 		leading_icons
 	)
-	_card_focus_tooltip_stack.show_for(card_control, entries)
+	_card_focus_tooltip_stack.show_for(card_control, entries, [_pass_preview_overlay, _turn_order_panel])
 
 func _skill_card_selection_frame_style(accent: Color, emphasized: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

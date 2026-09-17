@@ -7,7 +7,7 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const HandFanContainerScript = preload("res://scripts/hand_fan_container.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 
-const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v4"
+const OUTPUT_DIR: String = "user://probes/combat_interaction_context_v5"
 const BOARD_PATH: String = "BoardUnderlay/CombatBoard"
 const HAND_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/HandScroll/HandCenter/HandTuckMargin/HandBox"
 const MINI_MAP_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/MiniMapOverlay"
@@ -239,7 +239,7 @@ func _capture_pile_interaction_states(instance: Node) -> void:
 	instance.call("_close_pile_view")
 	await _settle_ui()
 
-func _capture_pass_and_meter_states(instance: Node) -> void:
+func _capture_pass_and_meter_states(instance: Node, include_tutorial: bool = true) -> void:
 	for state_kind: String in ["safe", "danger", "unknown"]:
 		_install_pass_meter_fixture(instance, state_kind)
 		await _settle_ui()
@@ -284,6 +284,8 @@ func _capture_pass_and_meter_states(instance: Node) -> void:
 	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
 	_assert(banked_badge != null and banked_badge.visible, "Banked meter proof should expose the secondary banked row")
 	await _save_root_screenshot("%s/meter_banked.png" % OUTPUT_DIR)
+	if not include_tutorial:
+		return
 
 	# The dock is deliberately independent of tutorial placement. Restore a fresh
 	# prompt here so the focused interaction proof checks that both surfaces can
@@ -307,6 +309,8 @@ func _capture_pass_and_meter_states(instance: Node) -> void:
 	await _settle_ui()
 
 func _install_pass_meter_fixture(instance: Node, state_kind: String) -> void:
+	# Clear the old selection before installing this fixture.
+	instance.call("_reset_card_resolution")
 	var combat := CombatEngine.new()
 	var full_hand: Array = ["guarded_step", "quick_stab", "sidestep_slash", "thunderline", "patch_up"]
 	var state: Dictionary = combat.create_combat(9821, _room_layout(Vector2i(2, 4), [Vector2i(3, 4)]), {
@@ -337,8 +341,8 @@ func _install_pass_meter_fixture(instance: Node, state_kind: String) -> void:
 	run_state["combat_state"] = state.duplicate(true)
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", state.duplicate(true))
+	instance.call("_mark_combat_preview_state_changed")
 	instance.set("_animation_lock", false)
-	instance.call("_reset_card_resolution")
 	instance.call("_refresh_ui")
 
 func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
@@ -346,9 +350,10 @@ func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
 	var pass_label: Label = instance.find_child("PassActionLabel", true, false) as Label
 	var ribbon: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
 	var meter: Control = instance.get("_play_meter") as Control
+	var movement_meter: Control = instance.get("_movement_meter") as Control
 	var meter_label: Label = instance.get("_play_meter_count") as Label
-	_assert(chip != null and pass_label != null and ribbon != null and meter != null and meter_label != null, "%s pass/meter proof should build all dock controls" % state_kind)
-	if chip == null or pass_label == null or ribbon == null or meter == null or meter_label == null:
+	_assert(chip != null and pass_label != null and ribbon != null and meter != null and movement_meter != null and meter_label != null, "%s pass/meter proof should build all dock controls" % state_kind)
+	if chip == null or pass_label == null or ribbon == null or meter == null or movement_meter == null or meter_label == null:
 		return
 	_assert(absf(pass_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should stay centered" % state_kind)
 	_assert(_label_text_fits(ribbon), "%s forecast ribbon should fit its text" % state_kind)
@@ -356,17 +361,30 @@ func _assert_pass_meter_layout(instance: Node, state_kind: String) -> void:
 	var chip_rect: Rect2 = chip.get_global_rect()
 	_assert(ribbon_rect.position.y >= chip_rect.position.y + 71.0 and ribbon_rect.end.y <= chip_rect.position.y + 91.0, "%s TURN END forecast should stay contained in the authored lower ribbon" % state_kind)
 	_assert(absf(meter_label.get_global_rect().get_center().y - meter.get_global_rect().get_center().y) <= 1.0, "%s ordinary meter label should stay vertically centered" % state_kind)
-	_assert(chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "%s pass ribbon should stay below the meter plaque" % state_kind)
-	_assert(absf(meter.get_global_rect().get_center().x - chip_rect.get_center().x) <= 1.0, "%s meter should center over the wider Pass control" % state_kind)
-	_assert(_rect_is_onscreen(meter.get_global_rect()) and _rect_is_onscreen(chip_rect), "%s action dock should remain wholly on screen" % state_kind)
-	_assert(not meter.get_global_rect().intersects(chip_rect), "%s meter and Pass controls should not overlap" % state_kind)
-	_assert_combat_dock_clearance(instance, meter.get_global_rect(), chip_rect, state_kind)
+	var movement_rect: Rect2 = movement_meter.get_global_rect()
+	var resource_rect: Rect2 = meter.get_global_rect().merge(movement_rect)
+	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds")
+	_assert(absf(meter.get_global_rect().get_center().x - movement_rect.get_center().x) <= 1.0 and movement_rect.position.y >= meter.get_global_rect().end.y + 3.0, "%s movement should stack directly beneath card plays" % state_kind)
+	_assert(resource_rect.end.x < hand_bounds.position.x and chip_rect.position.x > hand_bounds.end.x, "%s resources and Pass should flank opposite sides of the hand" % state_kind)
+	_assert(hand_bounds.position.x - resource_rect.end.x <= 64.0 and chip_rect.position.x - hand_bounds.end.x <= 64.0, "%s controls should sit close to the resting fan" % state_kind)
+	_assert(absf(resource_rect.get_center().y - chip_rect.get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % state_kind)
+	_assert(absf(hand_bounds.get_center().x - resource_rect.get_center().x - (chip_rect.get_center().x - hand_bounds.get_center().x)) <= 1.0, "%s controls should mirror around the resting hand" % state_kind)
+	_assert(_rect_is_onscreen(resource_rect) and _rect_is_onscreen(chip_rect), "%s hand controls should remain wholly on screen" % state_kind)
+	var tooltips: Control = instance.get("_card_focus_tooltip_stack") as Control
+	if tooltips != null and tooltips.visible:
+		var tooltip_rect: Rect2 = tooltips.get_global_rect()
+		_assert(not tooltip_rect.intersects(chip_rect) and not tooltip_rect.intersects(resource_rect), "%s card tooltips should keep both hand controls visible" % state_kind)
+		var turn_rail: Control = instance.get("_turn_order_panel") as Control
+		if turn_rail != null and turn_rail.visible:
+			_assert(not tooltip_rect.intersects(turn_rail.get_global_rect()), "%s card tooltips should keep the turn rail visible" % state_kind)
+	_assert_combat_dock_clearance(instance, resource_rect, chip_rect, state_kind)
 
 func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect: Rect2, state_kind: String) -> void:
 	var dock_rects: Array = [meter_rect, pass_rect]
 	var board_rect: Rect2 = instance.call("_contextual_combat_rendered_board_bounds")
 	var turn_rail: Control = instance.get("_turn_order_panel") as Control
 	var tutorial: Control = instance.get("_contextual_combat_prompt") as Control
+	var objective: Control = instance.get("_combat_objective_hud") as Control
 	for dock_rect: Rect2 in dock_rects:
 		_assert(not dock_rect.intersects(board_rect), "%s action dock should not cover the combat board" % state_kind)
 		for pile: Control in [instance.get("draw_pile") as Control, instance.get("discard_pile") as Control]:
@@ -376,6 +394,8 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 			_assert(not dock_rect.intersects(turn_rail.get_global_rect()), "%s action dock should stay clear of the turn rail" % state_kind)
 		if tutorial != null and tutorial.visible:
 			_assert(not dock_rect.intersects(tutorial.get_global_rect()), "%s action dock should stay clear of the contextual tutorial" % state_kind)
+		if objective != null and objective.visible:
+			_assert(not dock_rect.intersects(objective.get_global_rect()), "%s hand controls should stay clear of the objective" % state_kind)
 	var hand: Array = ((instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []) as Array
 	_assert(hand.size() >= 3, "%s fixture should keep a representative playable hand" % state_kind)
 	for index: int in range(hand.size()):
@@ -384,13 +404,18 @@ func _assert_combat_dock_clearance(instance: Node, meter_rect: Rect2, pass_rect:
 			continue
 		var card_rect: Rect2 = instance.call("_control_visual_global_rect", card)
 		for dock_rect: Rect2 in dock_rects:
-			_assert(not dock_rect.intersects(card_rect), "%s action dock should stay left of hand card %d" % [state_kind, index + 1])
+			_assert(not dock_rect.intersects(card_rect), "%s hand controls should stay clear of card %d" % [state_kind, index + 1])
 	if not hand.is_empty():
 		var leftmost_card: Control = instance.call("_hand_card_control", 0) as Control
 		if leftmost_card != null and leftmost_card.visible:
 			var leftmost_rect: Rect2 = instance.call("_control_visual_global_rect", leftmost_card)
-			var minimum_gap: float = 4.0 if hand.size() >= 8 else 20.0
-			_assert(pass_rect.end.x <= leftmost_rect.position.x - minimum_gap, "%s Pass dock should keep a visible gap before the leftmost full-hand card" % state_kind)
+			var minimum_gap: float = 4.0 if hand.size() >= 8 else 12.0
+			_assert(meter_rect.end.x <= leftmost_rect.position.x - minimum_gap, "%s resources should keep a visible gap before the leftmost card" % state_kind)
+		var rightmost_card: Control = instance.call("_hand_card_control", hand.size() - 1) as Control
+		if rightmost_card != null and rightmost_card.visible:
+			var rightmost_rect: Rect2 = instance.call("_control_visual_global_rect", rightmost_card)
+			var minimum_gap: float = 4.0 if hand.size() >= 8 else 12.0
+			_assert(pass_rect.position.x >= rightmost_rect.end.x + minimum_gap, "%s Pass should keep a visible gap after the rightmost card" % state_kind)
 
 func _capture_hand_dock_resilience(instance: Node) -> void:
 	var hand_sets: Array = [
@@ -459,18 +484,18 @@ func _capture_hand_dock_resilience(instance: Node) -> void:
 	changing_run["combat_state"] = changing_state.duplicate(true)
 	instance.set("_combat_state", changing_state)
 	instance.set("_run_state", changing_run)
+	instance.call("_mark_combat_preview_state_changed")
 	instance.call("_refresh_ui")
-	# Rebuild emphasis before the new fan has settled. This reproduces the real
-	# draw-then-hover race: the pending geometry guard must transfer to the newer
-	# revision instead of revealing the stale five-card dock.
+	# Refresh emphasis before the new fan settles. Whether the retained hand is
+	# reused or rebuilt, the pending guard must not reveal five-card geometry.
 	await process_frame
 	var pending_revision_before: int = int(instance.get("_hand_layout_revision"))
 	instance.call("_on_card_hover_started", 1)
 	instance.call("_refresh_ui")
 	await process_frame
 	var pending_revision_after: int = int(instance.get("_hand_layout_revision"))
-	_assert(pending_revision_after > pending_revision_before, "Hovering during a pending draw must rebuild the hand at a newer revision")
-	_assert(int(instance.get("_hand_layout_pending_revision")) == pending_revision_after, "Hover rebuild must carry the pending fan layout into its newer revision")
+	_assert(pending_revision_after >= pending_revision_before, "Hovering during a pending draw must preserve or advance the pending hand revision")
+	_assert(int(instance.get("_hand_layout_pending_revision")) == pending_revision_after, "Hover refresh must preserve the pending fan layout at its current revision")
 	var pending_meter: Control = instance.get("_play_meter") as Control
 	var pending_pass_overlay: Control = instance.get("_pass_preview_overlay") as Control
 	_assert(pending_meter != null and pending_pass_overlay != null and not pending_meter.visible and not pending_pass_overlay.visible, "Hovering during a pending 5-to-7 draw must keep the stale dock hidden until the seven-card fan settles")
@@ -707,6 +732,7 @@ func _load_combat_fixture(instance: Node, hand: Array, player_pos: Vector2i, ene
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	instance.set("_combat_state", combat_state)
+	instance.call("_mark_combat_preview_state_changed")
 	instance.set("_animation_lock", false)
 	instance.call("_refresh_ui")
 	await _settle_hand_dock_transition()
@@ -812,7 +838,7 @@ func _assert_full_hd_normal_hud(instance: Node) -> void:
 	var pass_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
 	_assert(meter != null and meter.visible and pass_chip != null and pass_chip.visible, "Normal combat should show the separate card-play and Pass forecast dock")
 	if meter != null and pass_chip != null:
-		_assert(pass_chip.get_global_rect().position.y >= meter.get_global_rect().end.y + 5.0, "Pass forecast must stay separated below the card-play plaque")
+		_assert(pass_chip.get_global_rect().position.x > meter.get_global_rect().end.x, "Pass forecast must stay on the opposite side from the card-play plaque")
 
 func _assert_dense_turn_order_rail(instance: Node) -> void:
 	var rail: Control = instance.get("_turn_order_bar") as Control

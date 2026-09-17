@@ -13492,10 +13492,10 @@ func _assert_current_combat_dock_geometry(instance: Node, context: String) -> vo
 	var viewport_rect := Rect2(Vector2.ZERO, instance.get_viewport().get_visible_rect().size)
 	_assert(viewport_rect.encloses(play_rect) and viewport_rect.encloses(movement_rect) and viewport_rect.encloses(pass_rect), "%s dock should remain fully inside the viewport" % context)
 	_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack directly below card plays" % context)
-	_assert(absf(pass_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and pass_rect.position.y >= movement_rect.end.y + 5.0, "%s Pass should remain centered below both resource plaques" % context)
+	_assert(absf(pass_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s Pass should align vertically with the resource stack" % context)
 	var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 	if hand_bounds.size.x > 0.0:
-		_assert(pass_rect.end.x <= hand_bounds.position.x - 20.0, "%s dock should clear the resting hand envelope" % context)
+		_assert(play_rect.end.x <= hand_bounds.position.x - 20.0 and pass_rect.position.x >= hand_bounds.end.x + 20.0, "%s resources and Pass should clear opposite ends of the resting hand" % context)
 	for pile_property: String in ["draw_pile", "discard_pile"]:
 		var pile: Control = instance.get(pile_property) as Control
 		if pile != null and pile.visible:
@@ -13525,15 +13525,15 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 				var play_rect: Rect2 = play_meter.get_global_rect()
 				var movement_rect: Rect2 = movement_meter.get_global_rect()
 				_assert(absf(movement_rect.get_center().x - play_rect.get_center().x) <= 1.0 and movement_rect.position.y >= play_rect.end.y + 3.0, "%s movement should stack beneath card plays" % context)
-				_assert(absf(chip_rect.get_center().x - movement_rect.get_center().x) <= 1.0 and chip_rect.position.y >= movement_rect.end.y + 5.0, "%s pass forecast should center under the movement plaque" % context)
+				_assert(absf(chip_rect.get_center().y - play_rect.merge(movement_rect).get_center().y) <= 1.0, "%s pass forecast should align vertically with the resource stack" % context)
 			_assert(not chip_rect.intersects(piles_rect), "%s Pass dock should remain independent of the pile icons" % context)
 			var hand_bounds: Rect2 = instance.call("_combat_hand_resting_visual_bounds") as Rect2
 			if hand_bounds.size.x > 0.0:
-				_assert(chip_rect.end.x <= hand_bounds.position.x - 20.0, "%s Pass dock should clear the resting hand envelope" % context)
+				_assert(chip_rect.position.x >= hand_bounds.end.x + 20.0, "%s Pass should clear the right edge of the resting hand" % context)
 			_assert(chip_rect.position.x >= -1.0 and chip_rect.end.x <= viewport_width + 1.0, "%s Pass dock should stay inside the viewport" % context)
 		if action_step_tracker != null and action_step_tracker.visible and action_step_tracker.size.y > 0.0:
 			var tracker_rect: Rect2 = action_step_tracker.get_global_rect()
-			_assert(tracker_rect.position.y + tracker_rect.size.y <= chip_rect.position.y + 1.0, "%s action-step tracker should stack above the pass preview" % context)
+			_assert(not tracker_rect.intersects(chip_rect), "%s action-step tracker should stay clear of Pass" % context)
 	if row == null:
 		return
 	var actual_texts: PackedStringArray = _pass_preview_chip_damage_texts(row)
