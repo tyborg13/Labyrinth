@@ -22,6 +22,23 @@ Native screenshots and full logs are preserved outside Git at:
 
 Key files: `art_01_before.png`, `art_02_after.png`, `art_04_targeting.png`, `art_06_umbra_clip.png`, `art_07_campfire.png`, `art_08_normal_motion.png`, `action_heavy.png`, `death/enemy_shadow_dissolve_contact_sheet.png`, `visual.log`, `full-suite.log`, `death-proof.log`, and `perf-*-*.log`.
 
+## UI rubric handoff
+
+Focused surface: combat world art. The player's existing question is which card, target or move to choose, and the primary action remains selecting that legal action. Actor/terrain materials gain a common lighting treatment beneath the established tactical feedback and HUD hierarchy. No copy, icons, control placement or input mappings change. Reused components include the retained CombatBoardView layers, composed cutout textures, segmented health bars, existing torch/campfire FX and death dissolve.
+
+| Affected gate | Result and evidence |
+| --- | --- |
+| Immediate comprehension / visual hierarchy | **Pass** — legal target and selected card remain primary in `art_04_targeting.png`; decoration does not alter UI colors. |
+| Gameplay visibility / state and consequence | **Pass** — inspected movement, partial Umbra, target/HP preview, elemental stress and death progression. No alpha is added by grading or rim. |
+| Compact, precise copy | **Pass** — no copy changes. |
+| Interaction completeness | **Pass** — input routing is unchanged; full suite passes; live card selection, legal hover target, controller focus and cancel are exercised by the focused probe. |
+| Visual cohesion | **Pass** — shared palette, local fill, rim and common cast direction unify existing art without a new UI skin. |
+| Accessibility | **Pass** — reduced-motion and normal-motion variants pass; existing numeric/symbol feedback bypasses grade, preserving meaning beyond color. |
+| Layout resilience | **Pass** — unchanged geometry and readable controls in inspected 1920×1080 / 100% captures. |
+| Visual proof | **Pass** — all eight fresh scene captures, death progression and crowded elemental frame inspected. Paths and commands are recorded here. |
+
+No rubric exceptions. Remaining limits are the deliberate lighting approximations described in the design document and the measured-platform/baseline-benchmark caveats below.
+
 ## Matched performance
 
 Godot 4.6.1, Mobile/Metal 4.0, Apple M5 Pro, 1920×1080, existing `combat_board_max_content_active_umbra_v3` workload. Same unchanged benchmark script, assets, project renderer and four phases on baseline `a31807e8523e382b693ba1ec30ef11dafaff3459` and candidate. Sequential order **base, candidate, candidate, base**; 45 warm-up frames then 150 samples per phase per run. No other Godot workload ran during measurement. Complete phase statistics and semantic results are in `performance.json`.
