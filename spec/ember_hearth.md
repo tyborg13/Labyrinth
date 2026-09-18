@@ -85,11 +85,13 @@ Executed verification:
 ```sh
 python3 tools/godot_task_runner.py --task-id polish-ember-refuge-arrival-choices-healing-and-departure --stream -- godot --headless --path . --script tests/run_tests.gd
 python3 tools/godot_task_runner.py --task-id polish-ember-refuge-arrival-choices-healing-and-departure --stream -- godot --headless --path . --script tests/ember_hearth_test.gd
-python3 tools/visual_probe_runner.py tests/campfire_choice_probe.gd --task-id polish-ember-refuge-arrival-choices-healing-and-departure --no-headless --display-driver macos --rendering-method mobile --rendering-driver metal --expect-size 1920x1080 --min-images 13 --result-manifest /private/tmp/ember-hearth-proof/visual-graph-final.json
+python3 tools/visual_probe_runner.py tests/campfire_choice_probe.gd --task-id polish-ember-refuge-arrival-choices-healing-and-departure --no-headless --display-driver macos --rendering-method mobile --rendering-driver metal --expect-size 1920x1080 --min-images 13 --result-manifest /private/tmp/ember-hearth-proof/visual-native.json
 git diff --check
 ```
 
-All passed. The full suite retains its ambiguous-legacy-save warning and an
+All passed. The final focused suite and renderer capture use the current
+24-HP scale, including 22-to-24 capped recovery and 8-to-12 recovery.
+The full suite retains its ambiguous-legacy-save warning and an
 ObjectDB shutdown warning; neither is a failing assertion. Audio checks cover
 source duration, UI bus routing, one-shot invocation and waveform levels; the
 visual runner uses Dummy audio, so subjective in-game mix is left to the

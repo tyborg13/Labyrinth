@@ -32,7 +32,7 @@ func _run() -> void:
 	_instance.set_script(ProbeScene)
 	root.add_child(_instance)
 	await process_frame
-	Hearth.setup(_instance, 120, 0, false, true)
+	Hearth.setup(_instance, 8, 0, false, true)
 	var reveal_deadline: int = Time.get_ticks_msec() + 2000
 	while Hearth.panel(_instance, 0).modulate.a < 0.1 and Time.get_ticks_msec() < reveal_deadline:
 		await process_frame
@@ -41,7 +41,7 @@ func _run() -> void:
 	await Hearth.wait_ready(self)
 	_assert_framing()
 	await _capture("02_unaffordable")
-	Hearth.setup(_instance, 358, 180, false, true)
+	Hearth.setup(_instance, 22, 180, false, true)
 	await Hearth.wait_ready(self)
 	await _capture("03_ready")
 	var router: Node = root.get_node("InputRouter")
@@ -63,14 +63,14 @@ func _run() -> void:
 	var board: Node = _instance.get("board_view")
 	var presentation: Dictionary = board.get("presentation")
 	_check((presentation.get("effect", {}) as Dictionary).get("kind", "") == "heal", "Healing uses the real character effect")
-	_check(int((_instance.get("_run_state") as Dictionary).get("player_hp", 0)) == 360, "Healing shows the actual capped two-HP gain")
+	_check(int((_instance.get("_run_state") as Dictionary).get("player_hp", 0)) == 24, "Healing shows the actual capped two-HP gain")
 	await _capture("06_healing")
 	await Hearth.wait_finished(self, _instance)
 	await create_timer(0.5).timeout
 	_check(not bool(_instance.get("_animation_lock")), "Linger releases travel after the result")
 	_check((_instance.get("_large_map_scrim") as Control).visible, "The route map opens only after healing finishes")
 	await _capture("07_continue")
-	Hearth.setup(_instance, 120, 180, false, true)
+	Hearth.setup(_instance, 8, 180, false, true)
 	await Hearth.wait_ready(self)
 	router.call("set_forced_state_for_test", "controller", "steam_deck")
 	_instance.call("_refresh_controller_interface")
@@ -90,7 +90,7 @@ func _run() -> void:
 	_check((_instance.get("_large_map_scrim") as Control).visible, "Closing Skills returns to the route map")
 	await _capture("10_strength_return")
 	router.call("set_forced_state_for_test", "pointer", "steam_deck")
-	Hearth.setup(_instance, 120, 0, true, true)
+	Hearth.setup(_instance, 8, 0, true, true)
 	await Hearth.wait_ready(self)
 	await _click_panel(0)
 	await create_timer(0.24).timeout
@@ -99,7 +99,7 @@ func _run() -> void:
 	_check(Hearth.panel(_instance, 0).scale == Vector2.ONE, "Reduced motion never scales a choice")
 	await _capture("11_reduced_healing")
 	await Hearth.wait_finished(self, _instance)
-	Hearth.setup(_instance, 360, 180, false, true)
+	Hearth.setup(_instance, 24, 180, false, true)
 	await Hearth.wait_ready(self)
 	await _capture("12_full_health")
 	await _click_panel(1)

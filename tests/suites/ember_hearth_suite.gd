@@ -6,7 +6,7 @@ const Sfx = preload("res://scripts/run_sfx_library.gd")
 const Loader = preload("res://scripts/asset_loader.gd")
 const Scene = preload("res://tests/fixtures/ember_hearth_run_scene.gd")
 
-static func setup(instance: Node, hp: int = 356, embers: int = 180, reduced: bool = false, section_map: bool = false) -> Dictionary:
+static func setup(instance: Node, hp: int = 20, embers: int = 180, reduced: bool = false, section_map: bool = false) -> Dictionary:
 	var progression: Dictionary = Store.set_embers(Store.default_data(), embers)
 	var engine := RunEngine.new()
 	var state: Dictionary = engine.create_new_run(721, progression, section_map)
@@ -29,7 +29,7 @@ static func setup(instance: Node, hp: int = 356, embers: int = 180, reduced: boo
 	state["current_room_layout"] = engine.call("_display_layout_for_room", 721, room, Vector2i(1, 0))
 	state["mode"] = "campfire"
 	state["player_hp"] = hp
-	state["player_max_hp"] = 360
+	state["player_max_hp"] = 24
 	state["held_embers"] = embers
 	state["unbanked_embers"] = embers
 	var settings: Dictionary = Settings.default_settings()
@@ -79,7 +79,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	instance.set_script(Scene)
 	tree.root.add_child(instance)
 	await tree.process_frame
-	setup(instance, 358, 0)
+	setup(instance, 22, 0)
 	activate(instance, 0)
 	expect.call(not bool(instance.get("_campfire_choice_action_pending")), "Invisible arrival choices cannot be activated")
 	await wait_ready(tree)
@@ -102,15 +102,15 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	activate(instance, 0)
 	await tree.create_timer(0.36).timeout
 	var committed: Dictionary = Store.load_saved_run()
-	expect.call(int(committed.get("player_hp", 0)) == 360 and committed.get("mode", "") == "room", "Linger persists the capped heal before its visible result")
+	expect.call(int(committed.get("player_hp", 0)) == 24 and committed.get("mode", "") == "room", "Linger persists the capped heal before its visible result")
 	expect.call(bool(instance.get("_animation_lock")), "Travel remains gated while the result is visible")
 	expect.call(not bool(instance.call("_map_shortcut_can_open")), "Route map cannot cover the healing result")
 	var presentation: Dictionary = (instance.get("board_view") as Node).get("presentation")
 	expect.call((presentation.get("effect", {}) as Dictionary).get("kind", "") == "heal", "Linger reuses the character healing effect")
 	await wait_finished(tree, instance)
 	expect.call((instance.get("heard_cues") as Array).count(Sfx.HEARTH_SELECT_ID) == 1 and (instance.get("heard_cues") as Array).has(Sfx.HEARTH_RECOVER_ID), "Duplicate activation produces one selection cue and an actual recovery sound")
-	expect.call(not bool(instance.get("_animation_lock")) and int((instance.get("_run_state") as Dictionary).get("player_hp", 0)) == 360, "Duplicate activation heals once and releases input after feedback")
-	setup(instance, 360, 180, true)
+	expect.call(not bool(instance.get("_animation_lock")) and int((instance.get("_run_state") as Dictionary).get("player_hp", 0)) == 24, "Duplicate activation heals once and releases input after feedback")
+	setup(instance, 24, 180, true)
 	await wait_ready(tree)
 	expect.call(panel(instance, 0).scale == Vector2.ONE, "Reduced motion leaves option geometry stationary")
 	activate(instance, 0)
