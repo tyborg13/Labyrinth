@@ -14,12 +14,13 @@
       "early",
       "middle"
     ],
-    "source_guards": "Each acceptance run records complete scripts/project/harness/tool SHA-256 before and after execution. Both builds in each pair use identical harness and instrumentation settings. Candidate production is identical across 1259e2a and e608367.",
+    "source_guards": "Each accepted run hashes top-level scripts/*.gd plus project.godot, the two named native harnesses and the listed performance/visual runner tools before and after execution. These historical snapshots omit nested GDScripts and other scene/resource files. Recorded committed HEADs separately identify the candidate source tree. Paired harnesses and instrumentation settings match; production is identical across accepted 1259/e608 runs.",
     "unavailable_counters": [
       "viewport GPU time (all zero)",
       "render_texture_memory_bytes (signed-64 maximum sentinel)"
     ],
-    "scope_limit": "These are Mac measurements, not Steam Deck frame rates or a zero-hitch guarantee."
+    "scope_limit": "These are Mac measurements, not Steam Deck frame rates or a zero-hitch guarantee.",
+    "memory_scope": "Video-memory deltas describe whole runs, not isolated cache allocations: full +11,567,104 bytes; tail-a \u221216,482,304; tail-b +17,924,096. The retained target is bounded to one per host; allocation counters vary between runs."
   },
   "excluded_runs": {
     "sept18-rejected-reduced-visual-gate.log": "Untimed screenshot gate incorrectly required an animated phase under reduced motion. Fixed to validate authored static progress=1.0, then reran the complete reduced pair. Rejected run is not used in acceptance metrics.",
