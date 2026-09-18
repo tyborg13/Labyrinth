@@ -1,5 +1,7 @@
 # Native combat performance follow-up — 18 September 2026
 
+> Update: the previously pending native validation is complete; see [final native validation and additional hitch work](performance_native_completion_2026_09_18.md) for the current source-bound results and remaining limits. The checkpoint below is historical.
+
 This records the completed unlocked-display validation and additional rendering work for the [CPU follow-up](performance_followup_2026_09_17.md), continuing from the first reviewed checkpoint `c17c2106e9f16a587a371753be055814bcd77162`. The candidate materially reduces combat action stalls in ordinary encounters and in the larger animation/state matrix. It preserves gameplay outcomes, authored animation timings, rendering quality, input availability, and persistence boundaries.
 
 **Checkpoint status: native proof is complete for the main optimization set (1259/e608). The subsequent tracker-only cleanup (2cda) passes code review and the full regression suite, but its final native rerun is pending an unlocked display.** The measured acceptance criterion is material improvement, not a guarantee of zero hitches. Mac native frame delivery is now verified; Steam Deck frame rates are not. Brief action-boundary spikes remain, and the large overlapping-fire case still exceeds a 16.67 ms frame budget during part of its effect. Those limits are included below instead of being hidden by averages.
