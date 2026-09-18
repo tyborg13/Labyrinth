@@ -14483,14 +14483,20 @@ func _action_context_risk_color(tone: String) -> Color:
 		_:
 			return Color("9edb91")
 
-func _begin_action_step_resolution_tracker(card_id: String, actions: Array, selected_targets: Array) -> void:
+func _begin_action_step_resolution_tracker(card_id: String, actions: Array, selected_targets: Array, refresh_now: bool = true) -> void:
 	_action_step_resolution_card_id = card_id
 	_action_step_resolution_actions = actions.duplicate(true)
 	_action_step_resolution_targets = _vector2i_array(selected_targets)
-	_action_step_resolution_damage_options = _action_step_damage_options(_combat_state, actions, selected_targets)
 	_action_step_resolution_index = 0
 	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
-	_refresh_action_step_tracker()
+	# Only the multi-step resolution presentation reads this cache. Selection
+	# mode computes its own values, so a one-step card must not replay its attack
+	# here merely to populate an unused array.
+	_action_step_resolution_damage_options.clear()
+	if _action_step_resolution_active:
+		_action_step_resolution_damage_options = _action_step_damage_options(_combat_state, actions, selected_targets)
+	if refresh_now:
+		_refresh_action_step_tracker()
 
 func _lock_action_step_tracker_position_for_resolution() -> void:
 	if _action_step_tracker == null or not _action_step_tracker.visible:
@@ -21815,7 +21821,10 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	var plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
 	_lock_action_step_tracker_position_for_resolution()
 	_animating_hand_card_index = hand_index
-	_begin_action_step_resolution_tracker(card_id, actions, selected_targets)
+	# The following lock refresh rebuilds the same tracker synchronously before
+	# the first render boundary. Avoid constructing it twice; dialogue is the
+	# choice-bar early-return case and retains the immediate refresh.
+	_begin_action_step_resolution_tracker(card_id, actions, selected_targets, _dialogue_active and _dialogue_suppresses_choices)
 	_animation_lock = true
 	_sync_click_targeting_arrow()
 	_begin_card_play_meter_spend_preview(plays_spent)

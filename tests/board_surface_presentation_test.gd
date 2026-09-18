@@ -224,6 +224,9 @@ func _test_action_step_damage(scene: Node, combat: RefCounted) -> void:
 	assert(resolved_values[0]["final_damage"] == 10 and resolved_values[1]["final_damage"] == 15, "Resolution preserves completed damage and updates the next step from its actual pre-state")
 	scene.call("_clear_action_step_resolution_tracker")
 	assert((scene.get("_action_step_resolution_damage_options") as Array).is_empty(), "Resolution display cache clears with its tracker")
+	scene.call("_begin_action_step_resolution_tracker", "fixture", strikes, [])
+	scene.call("_begin_action_step_resolution_tracker", "fixture", strikes.slice(0, 1), [Vector2i(4, 3)], false)
+	assert(not scene.get("_action_step_resolution_active") and (scene.get("_action_step_resolution_damage_options") as Array).is_empty(), "A one-step card replaces and clears a previous multi-step damage cache")
 
 func _test_rubble_stop_presentation(scene: Node, combat: RefCounted) -> void:
 	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)

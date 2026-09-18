@@ -9855,7 +9855,7 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	instance.call("_lock_action_step_tracker_position_for_resolution")
 	instance.set("_animation_lock", true)
 	instance.set("_animating_hand_card_index", 0)
-	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)])
+	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)], false)
 	instance.call("_refresh_animation_lock_ui")
 	await process_frame
 	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Execution should keep tracker visible during the move animation step")
@@ -9883,6 +9883,28 @@ func _test_run_scene_action_step_tracker_states() -> void:
 	_assert_action_step_tracker_statuses(instance, ["current"], "Single-action context should show its current step")
 	_assert(str(tracker.get_meta("action_verb", "")).contains("MELEE"), "Single-action context should surface a terse action verb")
 	_assert(_button_with_text(tracker, "Cancel") != null, "Single-action context should keep Cancel in the same region")
+	# The optimized entry and ordinary immediate entry must present identical
+	# tracker metadata/values and preserve the locked position before rendering.
+	var single_actions: Array = (GameData.card_def("quick_stab").get("actions", []) as Array).duplicate(true)
+	instance.call("_lock_action_step_tracker_position_for_resolution")
+	var single_position: Vector2 = tracker.global_position
+	instance.set("_animation_lock", true)
+	instance.call("_begin_action_step_resolution_tracker", "quick_stab", single_actions, [Vector2i(3, 4)])
+	instance.call("_refresh_animation_lock_ui")
+	var expected_tracker_meta: Dictionary = {}
+	for key: String in ["step_statuses", "step_action_types", "context_mode", "action_verb", "target_state", "risk_text", "risk_tone"]:
+		expected_tracker_meta[key] = tracker.get_meta(key)
+	var expected_damage_text: String = str((instance.get("_action_step_tracker_steps") as Node).get_child(0).get_meta("action_value_text", ""))
+	instance.call("_begin_action_step_resolution_tracker", "quick_stab", single_actions, [Vector2i(3, 4)], false)
+	instance.call("_refresh_animation_lock_ui")
+	for key: String in expected_tracker_meta:
+		_assert(tracker.get_meta(key) == expected_tracker_meta[key], "Coalesced single-action tracker must preserve %s before the render boundary" % key)
+	_assert(str((instance.get("_action_step_tracker_steps") as Node).get_child(0).get_meta("action_value_text", "")) == expected_damage_text, "Coalesced single-action tracker must retain its visible damage value")
+	_assert((instance.get("_action_step_resolution_damage_options") as Array).is_empty(), "Single-action selection cannot retain unused resolution damage data")
+	_assert(tracker.global_position.is_equal_approx(single_position), "Coalesced single-action tracker must preserve its locked position")
+	var locked_selection: int = int(instance.get("_selected_card_index"))
+	instance.call("_on_cancel_requested")
+	_assert(int(instance.get("_selected_card_index")) == locked_selection and bool(instance.get("_animation_lock")), "Cancel input cannot alter or unlock a committed single-action presentation")
 
 	instance.queue_free()
 	await process_frame
