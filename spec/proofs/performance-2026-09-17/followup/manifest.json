@@ -1,5 +1,5 @@
 {
-  "status": "CPU proof complete; final native rendering and animation-pacing proof pending unlocked display",
+  "status": "Historical CPU proof complete; final native continuation is recorded in ../native-followup/manifest.json and spec/performance_native_followup_2026_09_18.md",
   "followup_base_commit": "c17c2106e9f16a587a371753be055814bcd77162",
   "artifacts": [
     {

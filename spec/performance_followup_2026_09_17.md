@@ -2,7 +2,7 @@
 
 This continues the [initial performance pass](performance_pass_2026_09_17.md), using its reviewed `c17c2106e9f16a587a371753be055814bcd77162` checkpoint as the baseline. The first checkpoint's remaining combat spikes were not treated as an acceptable finish.
 
-**Current status: CPU optimization and semantic proof are complete; final native frame-pacing and visual validation still require an unlocked display.** The latest source has not yet been accepted as a smooth rendered result. The figures below are measured CPU work on the Mac, not rendered frame intervals or Steam Deck FPS.
+**Updated 18 September: the unlocked native comparisons, rendering fixes, and visual proof for the main optimization checkpoint are complete. A subsequent tracker cleanup passes regression/code review but still needs its native rerun after the Mac unlocks.** See the [native follow-up](performance_native_followup_2026_09_18.md) for accepted rendered results and their limits. The historical figures below remain CPU measurements on the Mac, not rendered frame intervals or Steam Deck FPS.
 
 ## Work removed
 
@@ -13,7 +13,7 @@ This continues the [initial performance pass](performance_pass_2026_09_17.md), u
 - Push/pull targeting rejects out-of-range or occluded enemies before checking force directions. A one-step direction query now uses the same collision/footprint predicate without cloning the complete combat history. Complete ordered target lists and acceptance predicates are preserved.
 - The next hand's flags and display modifiers are prepared one card per process frame during the existing card animation. No caller waits for this job. Only ready entries from an exactly equal complete combat state can be adopted; incomplete entries use the ordinary synchronous path. Interactive previews retain their complete target lists. Generation changes, run loads, and scene exit cancel scratch work. The supplied committed information state is threaded through recursive preview calculations, so warming cannot borrow the live animation's Umbra information.
 
-The last change still requires rendered validation: each individual query is synchronous. Its measured slices are much smaller after fixing the knockback hotspot, but CPU measurements alone cannot establish animation smoothness.
+Each individual query remains synchronous. Its measured slices are much smaller after fixing the knockback hotspot; the later native follow-up separately validates animation pacing and expands forecast/lifecycle coverage.
 
 ## Matched CPU measurements
 
@@ -63,9 +63,9 @@ Individual case medians occasionally rose over 5% by a few microseconds: 2 cases
 
 The save/resume test deliberately triggers failed writes and corrupt input; its associated error logs are expected assertions of preserved recovery. The existing full-suite ObjectDB-at-exit warning is unchanged from baseline.
 
-## Remaining validation
+## Native validation completed in the continuation
 
-The display locked again during the follow-up. Locked/unfocused native attempts are excluded; headless CPU results are not substituted for renderer proof. Before accepting this follow-up, run matched foreground 1920×1080/100% native matrices, repeat the worst card/ability cases in both orders, include reduced motion, compare whole-action durations and tails, inspect fresh screenshots, and complete exact-HEAD peer review and a refreshed verified inspection fixture.
+The display locked during this CPU checkpoint, so locked/unfocused attempts were excluded. The [18 September native continuation](performance_native_followup_2026_09_18.md) completes matched foreground 1920×1080/100% matrices, both-order repeats, reduced motion, ordinary early/middle encounters, whole-action duration/tail comparisons, and fresh inspected visual proof. It also expands the hand/forecast lifecycle test to 93 assertions and the Python comparison suite to fifteen checks. Headless CPU results are not substituted for renderer proof.
 
 Instrumentation now includes per-frame deferred-layout/CardWidget attribution, initial hand-preparation normalization, warm-slice maxima, and actual adoption counts. The native benchmark also supports a lower-section-instrumentation mode, with matching mode required in both builds. Board/render counters remain active in that mode.
 
