@@ -21,13 +21,13 @@ Component pairs are archived as diagnostics with their own intermediate source s
 
 Apple M5 Pro, macOS 26.3.1 arm64, Godot 4.6.1, Metal/mobile, production 4× MSAA, actual native 1920×1080 and 100% UI scale. Tests run serially in the foreground, without concurrent CPU regression suites. Frame intervals end at frame_post_draw. Each pair has matching workload, harness, instrumentation, warmup, motion setting and dimensions. GPU timers return zero and the texture-memory monitor returns an overflow sentinel; neither is interpreted as a real measurement.
 
-The detailed full matrix includes the seven-card cap, varied specialist/dragon/swarm encounters, preview and hover interactions, all fixture cards, abilities, movement, enemy rounds, turn unlock, surfaces and overlapping effects. Focused normal-motion repeats reverse baseline/candidate order. A second reduced-motion pair also reverses order to investigate the first pair’s mixed tails. Reduced motion retains its authored static impact. Early depth-2 combat has five cards and three enemies; middle depth-7 combat has six cards, five enemies, relics, skills, illusion, surfaces, trap, loot and props. These ordinary scenarios complement the heavy matrix.
+The detailed full matrix includes the seven-card cap, varied specialist/dragon/swarm encounters, preview and hover interactions, all fixture cards, abilities, movement, enemy rounds, turn unlock, surfaces and overlapping effects. Focused normal-motion repeats reverse baseline/candidate order. A second reduced-motion pair also reverses order to investigate the first pair’s mixed tails. Reduced motion retains its authored static impact. Early depth-2 combat has five cards and three enemies; middle depth-7 combat has six cards, five enemies, relics, skills, illusion, surfaces, trap, loot and props. These smaller scenarios complement the heavy matrix. They are manually constructed performance fixtures, not complete generated playthroughs. In particular, the middle fixture injects four skills to exercise those combat paths; its Encore selection omits skill-tree prerequisites and is not a legal level-5 character build. Its enemy HP and the five/six-card workloads remain representative, but the loadout must not be interpreted as an exact naturally progressed character.
 
 ## Final native frame results
 
 Values are milliseconds, before → after relative to the already optimized 365dc25 checkpoint. The comparison JSON retains medians, p95, p99, maximum, threshold misses, action duration, animation contracts, memory and node totals. Maxima are isolated samples and vary between repetitions; improvement in one subsystem does not imply every frame statistic improves.
 
-### Ordinary early combat
+### Early combat fixture
 
 | Action / encounter | Worst frame (ms) | p95 (ms) | Frames >16.67 ms |
 | --- | ---: | ---: | ---: |
@@ -38,7 +38,7 @@ Values are milliseconds, before → after relative to the already optimized 365d
 | Wildfire Halo | 27.61 → 24.57 | 8.73 → 8.65 | 1 → 2 |
 | Specialists | 27.49 → 30.08 | 8.63 → 8.57 | 2 → 5 |
 
-### Ordinary middle combat
+### Middle combat fixture
 
 | Action / encounter | Worst frame (ms) | p95 (ms) | Frames >16.67 ms |
 | --- | ---: | ---: | ---: |
