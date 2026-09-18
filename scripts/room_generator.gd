@@ -1098,7 +1098,7 @@ func _room_name(coord: Vector2i, room_type: String, rng: RandomNumberGenerator, 
 	if room_type == "graftwright":
 		return "The Graftwright"
 	if room_type == "campfire":
-		return "Emberlit Campfire"
+		return "Ember Hearth"
 	if room_type == "treasure":
 		return "Relic Cache"
 	return "%s %s" % [

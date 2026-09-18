@@ -61,7 +61,7 @@
       "icon": "map_rooms",
       "body": [
         "Revealed exits show where you can travel next. Cleared rooms stay available as routes.",
-        "Combat, campfire, merchant, treasure, relic, and boss rooms each change the next choice."
+        "Combat, Ember Hearth, merchant, treasure, relic, and boss rooms each change the next choice."
       ]
     },
     {
@@ -72,7 +72,7 @@
       "icon": "loadout",
       "body": [
         "Equipment, attuned magic, item slots, relics, and learned skills shape your deck and tactics.",
-        "Most loadout changes happen outside combat, including pre-battle and campfire moments."
+        "Most loadout changes happen outside combat, including pre-battle and Ember Hearth moments."
       ]
     },
     {

@@ -47,7 +47,7 @@ const SAVED_RUN_MODE_LABELS := {
 	"pre_battle": "AT THE THRESHOLD",
 	"combat": "IN COMBAT",
 	"reward": "CHOOSING A REWARD",
-	"campfire": "AT CAMPFIRE",
+	"campfire": "AT EMBER HEARTH",
 	"treasure": "AT TREASURE",
 	"graftwright": "AT GRAFTWRIGHT"
 }

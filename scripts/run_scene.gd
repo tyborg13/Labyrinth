@@ -46,6 +46,7 @@ const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
+const EmberHearthPresentation = preload("res://scripts/ember_hearth_presentation.gd")
 const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -1305,12 +1306,13 @@ const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngineScript.CAMPFIRE_LINGER_HEAL
 const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
 const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
 const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
-const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
-const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
-const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Learn a new skill"
+const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger"
+const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace"
+const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw Strength"
 const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
 const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
-const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Spend embers, choose a skill, continue"
+const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Level up, continue"
+const CAMPFIRE_CHOICE_PANEL_SIZE: Vector2 = Vector2(300.0, 220.0)
 const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
@@ -1859,6 +1861,8 @@ var _reward_intro_suppressed: bool = false
 var _reward_reveal_pending: bool = false
 var _reward_intro_in_progress: bool = false
 var _campfire_choice_action_pending: bool = false
+var _campfire_embrace_committed: bool = false
+var _campfire_presentation := EmberHearthPresentation.new()
 var _relic_claim_in_progress: bool = false
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
@@ -2176,6 +2180,9 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _campfire_choice_action_pending:
+		get_viewport().set_input_as_handled()
+		return
 	if _graftwright_view != null and _graftwright_view.visible:
 		if _graftwright_view.busy:
 			get_viewport().set_input_as_handled()
@@ -3675,6 +3682,8 @@ func _sync_board_view_rect() -> void:
 	var target := Vector2.ZERO
 	if str(_run_state.get("mode", "room")) not in ["combat", "defeat"] and not (board_view.combat_state as Dictionary).is_empty():
 		target = board_view.room_centering_offset()
+		if str(_run_state.get("mode", "")) == "campfire" or _campfire_choice_action_pending:
+			target.y += _board_framing_safe_global_rect().get_center().y - viewport_size.y * 0.5
 	if target.is_equal_approx(_board_centering_target) and not resized:
 		return
 	var initial: bool = not _board_centering_target.is_finite()
@@ -3742,6 +3751,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_campfire_presentation.reset()
 	_board_hover_refresh_generation += 1
 	_board_hover_refresh_pending = false
 	_cancel_committed_hand_queries()
@@ -11022,6 +11032,11 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_campfire_presentation.reset()
+	if _campfire_choice_action_pending:
+		_animation_lock = false
+	_set_campfire_choice_action_pending(false)
+	_campfire_embrace_committed = false
 	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
@@ -12150,7 +12165,7 @@ func _refresh_skill_status_detail(previous_selected_id: String = "") -> void:
 		if _skill_status_detail_status != null:
 			_skill_status_detail_status.text = ""
 		if _skill_status_detail_description != null:
-			_skill_status_detail_description.text = "Learn abilities at campfires to add them here."
+			_skill_status_detail_description.text = "Learn abilities in the skill tree to add them here."
 		if _skill_status_action_button != null:
 			_skill_status_action_button.visible = false
 			_skill_status_action_button.focus_mode = Control.FOCUS_NONE
@@ -14982,6 +14997,9 @@ func _refresh_choice_bar() -> void:
 		if _relic_choice_overlay.visible:
 			_layout_relic_choice_overlay()
 			call_deferred("_layout_relic_choice_overlay")
+	if mode == "campfire":
+		var hearth_key: String = "%s:%s:%s" % [_run_state.get("seed", 0), _run_state.get("run_index", 0), _run_state.get("current_room", Vector2i.ZERO)]
+		_campfire_presentation.present(self, _relic_choice_bar, hearth_key, _reduced_motion_enabled(), _play_sfx)
 	if relic_offer_sfx_signature.is_empty():
 		_relic_choices_open_sfx_signature = ""
 	else:
@@ -16436,7 +16454,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	if _relic_choice_bar == null:
 		return
 	var panel := TooltipPanelContainer.new()
-	panel.custom_minimum_size = RELIC_CHOICE_CARD_SIZE
+	panel.custom_minimum_size = CAMPFIRE_CHOICE_PANEL_SIZE
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	panel.clip_contents = false
@@ -16445,13 +16463,14 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.focus_mode = Control.FOCUS_ALL if enabled else Control.FOCUS_NONE
 	panel.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND if enabled else Control.CURSOR_ARROW
 	panel.set_meta("choice_enabled", enabled)
+	panel.set_meta("choice_id", choice_id)
 	panel.set_meta("choice_accent", accent)
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, false, enabled))
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
-	panel.focus_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
-	panel.focus_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
+	panel.focus_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true, "focus"))
+	panel.focus_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false, "focus"))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
@@ -16479,7 +16498,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 58.0)
+	label.custom_minimum_size = Vector2(CAMPFIRE_CHOICE_PANEL_SIZE.x - 36.0, 58.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
 	label.add_theme_color_override("font_color", Color("fff1d5") if enabled else Color("d0bea2"))
@@ -16491,7 +16510,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	if not chips.is_empty():
 		var chip_row := HFlowContainer.new()
 		chip_row.alignment = FlowContainer.ALIGNMENT_CENTER
-		chip_row.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 38.0)
+		chip_row.custom_minimum_size = Vector2(CAMPFIRE_CHOICE_PANEL_SIZE.x - 36.0, 38.0)
 		chip_row.add_theme_constant_override("h_separation", 6)
 		chip_row.add_theme_constant_override("v_separation", 4)
 		chip_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -16504,7 +16523,7 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	description.autowrap_mode = TextServer.AUTOWRAP_OFF
-	description.custom_minimum_size = Vector2(RELIC_CHOICE_CARD_SIZE.x - 36.0, 28.0)
+	description.custom_minimum_size = Vector2(CAMPFIRE_CHOICE_PANEL_SIZE.x - 36.0, 28.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_label_size(description, UiTypography.SIZE_BODY)
 	description.add_theme_color_override("font_color", Color("dec9a7") if enabled else Color("d98f78"))
@@ -16617,7 +16636,10 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
 	match choice_id:
 		"linger":
-			chips.append({"text": "+%d HP" % CAMPFIRE_LINGER_HEAL_AMOUNT, "tone": "benefit"})
+			var gain: int = mini(CAMPFIRE_LINGER_HEAL_AMOUNT, maxi(0, int(_run_state.get("player_max_hp", 1)) - int(_run_state.get("player_hp", 1))))
+			chips.append({"text": "+%d HP" % gain if gain > 0 else "FULL HEALTH", "tone": "benefit"})
+		"embrace":
+			chips.append({"text": "%d EMBERS" % _run_engine.held_embers(_run_state), "tone": "cost"})
 		"strength":
 			_sync_progression_from_run()
 			var cost: int = ProgressionStore.next_level_cost(_progression)
@@ -16626,7 +16648,7 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 				chips.append({"text": "CAPPED", "tone": "disabled"})
 			elif enabled:
 				chips.append({"text": "%d EMBERS" % cost, "tone": "cost"})
-				chips.append({"text": "NEW SKILL", "tone": "benefit"})
+				chips.append({"text": "+1 SKILL POINT", "tone": "benefit"})
 			else:
 				chips.append({"text": "NEED %d" % cost, "tone": "locked"})
 				chips.append({"text": "HELD %d" % int(_progression.get("embers", 0)), "tone": "disabled"})
@@ -16699,10 +16721,14 @@ func _refresh_relic_choice_emphasis(panel: PanelContainer, relic: Dictionary) ->
 	panel.z_index = 40 if emphasized else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), emphasized))
 
-func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
+func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool, source: String = "pointer") -> void:
 	if panel == null:
 		return
+	panel.set_meta("hearth_" + source, hovered)
+	hovered = bool(panel.get_meta("hearth_pointer", false)) or bool(panel.get_meta("hearth_focus", false))
 	var enabled: bool = bool(panel.get_meta("choice_enabled", true))
+	if enabled and not _campfire_choice_action_pending:
+		_campfire_presentation.emphasize(self, panel, hovered, _play_sfx)
 	panel.z_index = 40 if hovered else 30
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, enabled))
 	var glow: PanelContainer = panel.get_node_or_null("CampfireChoiceInnerGlow") as PanelContainer
@@ -16858,28 +16884,42 @@ func _on_relic_choice_gui_input(event: InputEvent, panel: PanelContainer, relic_
 func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: PanelContainer, accent: Color) -> void:
 	var pointer_activation: bool = event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed
 	var focus_activation: bool = event.is_action_pressed("ui_accept") and not event.is_echo()
-	if not pointer_activation and not focus_activation:
-		return
-	if focus_activation and panel != null:
-		panel.accept_event()
-	if _campfire_choice_action_pending or str(_run_state.get("mode", "room")) != "campfire":
-		return
-	if choice_id == "strength" and not _can_level_at_campfire():
-		return
+	if not pointer_activation and not focus_activation: return
+	if panel != null: panel.accept_event()
+	if _campfire_choice_action_pending or _animation_lock or str(_run_state.get("mode", "room")) != "campfire": return
+	if not choice_id in ["linger", "embrace", "strength"]: return
+	if panel == null or not bool(panel.get_meta("choice_revealed", false)): return
+	if choice_id == "strength" and not _can_level_at_campfire(): return
 	_set_campfire_choice_action_pending(true)
+	_animation_lock = true
+	var token: int = _campfire_presentation.generation
 	_show_campfire_choice_feedback_pulse(panel, accent)
-	await get_tree().create_timer(0.08).timeout
-	if str(_run_state.get("mode", "room")) != "campfire":
-		_set_campfire_choice_action_pending(false)
-		return
+	await _campfire_presentation.select(self, _relic_choice_bar, panel, _reduced_motion_enabled(), _play_sfx)
+	if token != _campfire_presentation.generation: return
 	match choice_id:
 		"linger":
+			var before_hp: int = int(_run_state.get("player_hp", 0))
 			_on_campfire_linger_pressed()
+			var gain: int = int(_run_state.get("player_hp", 0)) - before_hp
+			_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_RECOVER_ID))
+			await _play_campfire_result("+%d HP" % gain if gain > 0 else "Full health", gain > 0)
 		"embrace":
-			_on_campfire_embrace_pressed()
+			await _on_campfire_embrace_pressed(true)
+			if _campfire_embrace_committed: return
 		"strength":
-			_open_level_up_overlay()
+			await _open_level_up_overlay(true)
+	if token != _campfire_presentation.generation: return
 	_set_campfire_choice_action_pending(false)
+	_animation_lock = false
+	_refresh_ui()
+	_schedule_controller_modal_refresh()
+
+func _play_campfire_result(text: String, heal: bool) -> void:
+	_set_stats_label_text(_displayed_ember_count())
+	var token: int = _campfire_presentation.generation
+	await _campfire_presentation.result(self, _board_display_state(), _stage_chrome_presentation(), text, heal, _reduced_motion_enabled(), _render_board_state)
+	if token != _campfire_presentation.generation: return
+	await _campfire_presentation.dismiss(self, _relic_choice_bar, _reduced_motion_enabled())
 
 func _set_campfire_choice_action_pending(pending: bool) -> void:
 	_campfire_choice_action_pending = pending
@@ -16900,14 +16940,14 @@ func _show_campfire_choice_feedback_pulse(panel: PanelContainer, accent: Color) 
 	pulse.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	pulse.set_anchors_preset(Control.PRESET_FULL_RECT)
 	pulse.pivot_offset = panel.size * 0.5
-	pulse.scale = Vector2(0.985, 0.985)
+	pulse.scale = Vector2.ONE if _reduced_motion_enabled() else Vector2(0.985, 0.985)
 	pulse.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	pulse.z_index = 80
 	pulse.add_theme_stylebox_override("panel", _campfire_choice_feedback_style(accent))
 	panel.add_child(pulse)
-	var tween: Tween = create_tween().set_parallel(true)
+	var tween: Tween = pulse.create_tween().set_parallel(true)
 	tween.tween_property(pulse, "modulate:a", 1.0, 0.04).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(pulse, "scale", Vector2(1.055, 1.055), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if not _reduced_motion_enabled(): tween.tween_property(pulse, "scale", Vector2(1.055, 1.055), 0.22).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(pulse, "modulate:a", 0.0, 0.19).set_delay(0.06).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	tween.finished.connect(_queue_free_node_now.bind(pulse))
 
@@ -25873,7 +25913,7 @@ func _board_status_label(preview: Dictionary) -> String:
 	if mode == "reward":
 		return ""
 	if mode == "campfire":
-		return "Campfire"
+		return "" # The room header already names the hearth.
 	if mode == "treasure":
 		return "Relic"
 	if mode == "victory":
@@ -26523,7 +26563,7 @@ func _on_reward_reroll_pressed() -> void:
 func _on_campfire_sit_pressed() -> void:
 	_on_campfire_embrace_pressed()
 
-func _on_campfire_embrace_pressed() -> void:
+func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 	_sync_progression_from_run()
 	var held: int = _run_engine.held_embers(_run_state)
 	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
@@ -26532,13 +26572,19 @@ func _on_campfire_embrace_pressed() -> void:
 		push_error("Failed to persist campfire Embrace; the run remains resumable.")
 		return
 	_progression = committed_progression
+	_campfire_embrace_committed = true
 	ProgressionStore.clear_saved_run()
+	if present_feedback:
+		var token: int = _campfire_presentation.generation
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_DEPART_ID))
+		await _play_campfire_result("%d Embers banked" % held, false)
+		if token != _campfire_presentation.generation: return
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
 func _on_campfire_linger_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
 	_persist_committed_boundary("campfire_linger")
-	_refresh_ui()
+	if not _campfire_choice_action_pending: _refresh_ui()
 
 func _on_campfire_leave_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state)
@@ -27557,6 +27603,7 @@ func _is_debug_boss_run() -> bool:
 	return bool(_run_state.get("debug_boss_run", false))
 
 func _save_run_progress() -> void:
+	if _campfire_embrace_committed: return
 	if _is_debug_boss_run():
 		return
 	var committed_state: Dictionary = _committed_run_state()
@@ -27951,10 +27998,10 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_sync_pre_battle_overlay_layering()
 	_schedule_controller_modal_refresh()
 
-func _open_level_up_overlay() -> void:
+func _open_level_up_overlay(present_feedback: bool = false) -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
 		return
-	_cancel_drag_play()
+	_cancel_drag_play(false)
 	_close_pile_view()
 	_close_menu_overlay()
 	var before_progression: Dictionary = _progression.duplicate(true)
@@ -27975,6 +28022,13 @@ func _open_level_up_overlay() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, 0)
 	_persist_committed_boundary("level_up")
 	_analytics_log_level_up(before_progression, _progression)
+	if present_feedback:
+		var token: int = _campfire_presentation.generation
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_STRENGTH_ID))
+		await _play_campfire_result("+1 Skill point", false)
+		if token != _campfire_presentation.generation: return
+		_set_campfire_choice_action_pending(false)
+		_animation_lock = false
 	_refresh_ui()
 	_progression_overlay_mode = "skills"
 	var defiance_gained: int = (
@@ -28016,6 +28070,9 @@ func _close_card_upgrade_overlay() -> void:
 	_sync_pre_battle_overlay_layering()
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
+	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	if str(room.get("type", "")) == "campfire":
+		call_deferred("_maybe_present_section_map")
 
 func _rebuild_progression_overlay() -> void:
 	if _upgrade_dialog == null:
@@ -31092,7 +31149,7 @@ func _room_title_text(room: Dictionary) -> String:
 	if room_type == "start":
 		return "Central Waypoint"
 	if room_type == "campfire":
-		return "Campfire"
+		return "Ember Hearth"
 	if room_type == "treasure":
 		return "Relic Cache"
 	if room_type == "boss":

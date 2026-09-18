@@ -1350,7 +1350,7 @@ func _legend_entries_ref() -> Array[Dictionary]:
 			"label": ElementData.name(element_id),
 			"room": {"type": "combat", "element": element_id}
 		})
-	_legend_entries_cache.append({"label": "Campfire", "room": {"type": "campfire", "element": ElementData.NONE}})
+	_legend_entries_cache.append({"label": "Ember Hearth", "room": {"type": "campfire", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Relic", "room": {"type": "treasure", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Scavenger", "room": {"type": "scavenger", "element": ElementData.NONE}})
 	_legend_entries_cache.append({"label": "Boss", "room": {"type": "boss", "element": ElementData.LIGHTNING}})
@@ -1405,7 +1405,7 @@ func _room_display_name(room: Dictionary) -> String:
 		"start":
 			return "Central Waypoint"
 		"campfire":
-			return "Emberlit Campfire"
+			return "Ember Hearth"
 		"treasure":
 			return "Relic Cache"
 		"boss":
@@ -1423,7 +1423,7 @@ func _room_type_label(room_type: String) -> String:
 		"combat":
 			return "Combat"
 		"campfire":
-			return "Campfire"
+			return "Ember Hearth"
 		"treasure":
 			return "Relic"
 		"boss":
