@@ -23575,21 +23575,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	await _animate_turn_order_alongside_defeats(before_state, after_state, {}, terrain_destruction_presented_inline)
 	while not bool(death_reward_completion.get("done", false)):
 		await get_tree().process_frame
-	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
-	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, before_state, after_state)
-	for loot_var: Variant in picked_loot:
-		if typeof(loot_var) != TYPE_DICTIONARY:
-			continue
-		var loot: Dictionary = loot_var
-		if str(loot.get("kind", "")) not in ["equipment", "item"]:
-			continue
-		var loot_tile: Vector2i = loot.get("pos", player_after_tile)
-		await _animate_pickup_acquisition_flair(
-			loot,
-			loot_tile,
-			after_state,
-			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
-		)
+	await _animate_board_pickup_acquisitions(before_state, after_state)
 	_consume_pending_card_draw_sfx(after_state)
 
 func _resolve_enemy_round() -> void:
@@ -23692,18 +23678,9 @@ func _resolve_enemy_round() -> void:
 	}
 	var finalization_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var final_combat_state: Dictionary = phase_state.duplicate(true)
-	# Forced movement can collect items during enemy activations too. Present and
-	# log those pickups after the sliced phase reaches its final deterministic state.
-	var picked_loot: Array[Dictionary] = BattlefieldItemRules.pickups_between(previous_combat_state, final_combat_state)
-	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, previous_combat_state, final_combat_state)
-	for loot: Dictionary in picked_loot:
-		_render_board_state(final_combat_state, {})
-		await _animate_pickup_acquisition_flair(
-			loot,
-			loot.get("pos", INVALID_TARGET_TILE),
-			final_combat_state,
-			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
-		)
+	# Forced movement can collect equipment as well as items. Use the same
+	# presentation boundary as player actions after the final slice settles.
+	await _animate_board_pickup_acquisitions(previous_combat_state, final_combat_state)
 	_log_item_pickups(previous_combat_state, final_combat_state)
 	var final_run_state: Dictionary = _run_state_for_combat_checkpoint(checkpoint_base_run_state, final_combat_state)
 	var outcome: String = _combat_engine.combat_outcome(final_combat_state)
@@ -26728,8 +26705,17 @@ func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2
 	_queue_free_node_now(burst)
 	_queue_free_node_now(banner)
 
-func _animate_equipment_pickup_acquisition_flair(equipment_id: String, tile: Vector2i) -> void:
-	await _animate_pickup_acquisition_flair({"kind": "equipment", "equipment_id": equipment_id}, tile)
+func _animate_board_pickup_acquisitions(before_state: Dictionary, after_state: Dictionary) -> void:
+	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
+	var hand_destination_indices: Dictionary = _pickup_hand_destination_indices(picked_loot, before_state, after_state)
+	for loot: Dictionary in picked_loot:
+		if str(loot.get("kind", "")) not in ["equipment", "item"] or str(loot.get("resolution", "")) == "missed":
+			continue
+		_render_board_state(after_state, {})
+		await _animate_pickup_acquisition_flair(
+			loot, loot.get("pos", INVALID_TARGET_TILE), after_state,
+			int(hand_destination_indices.get(_movement_loot_key(loot), -1))
+		)
 
 func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pickup_state: Dictionary = {}, hand_destination_index: int = -1) -> void:
 	var is_item: bool = str(loot.get("kind", "")) == "item"
@@ -26742,11 +26728,7 @@ func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pi
 	var center: Vector2 = _board_global_position_for_tile(tile)
 	var accent := Color(GameData.card_rarity_accent(GameData.card_rarity(content_id)) if is_item else GameData.equipment_accent(content_id))
 	var banner: Label = _spawn_loadout_acquisition_banner("ITEM FOUND" if is_item else "GEAR FOUND", center + Vector2(0.0, -92.0), accent)
-	if _reduced_motion_enabled():
-		await get_tree().create_timer(0.35).timeout
-		_queue_free_node_now(banner)
-		return
-	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
+	var ray_destination: Dictionary = _pickup_acquisition_ray_destination(loot, post_pickup_state, hand_destination_index)
 	var icon := TextureRect.new()
 	icon.name = "ItemAcquisitionIcon" if is_item else "EquipmentAcquisitionIcon"
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -26762,6 +26744,20 @@ func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pi
 	icon.modulate = Color(1.18, 1.10, 0.82, 0.0)
 	icon.z_index = 1602
 	_card_fx_layer.add_child(icon)
+	if _reduced_motion_enabled():
+		# Keep identity and destination visible without travel, scaling, or pulses.
+		var target: Vector2 = ray_destination["target_global"]
+		icon.position = target - _card_fx_layer.global_position - icon.size * 0.5
+		icon.scale = Vector2.ONE * 0.52
+		icon.rotation = 0.0
+		icon.modulate = Color.WHITE
+		var receipt: Label = _spawn_pickup_destination_receipt(ray_destination, accent)
+		await get_tree().create_timer(0.45).timeout
+		_queue_free_node_now(receipt)
+		_queue_free_node_now(icon)
+		_queue_free_node_now(banner)
+		return
+	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "equipment")
 	var burst_tween: Tween = create_tween()
 	burst_tween.tween_property(burst, "progress", 1.0, LOADOUT_ACQUISITION_FLAIR_SECONDS).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
 	var banner_tween: Tween = create_tween()
@@ -26777,11 +26773,28 @@ func _animate_pickup_acquisition_flair(loot: Dictionary, tile: Vector2i, post_pi
 	tween.parallel().tween_property(icon, "rotation", 0.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	tween.parallel().tween_property(icon, "position", icon.position + Vector2(0.0, -18.0), 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	await tween.finished
-	var ray_destination: Dictionary = _pickup_acquisition_ray_destination(loot, post_pickup_state, hand_destination_index)
-	await _animate_loadout_acquisition_ray(center, accent, ray_destination)
+	await _animate_loadout_acquisition_ray(icon.get_global_rect().get_center(), accent, ray_destination, icon)
 	_queue_free_node_now(icon)
 	_queue_free_node_now(burst)
 	_queue_free_node_now(banner)
+
+func _spawn_pickup_destination_receipt(destination: Dictionary, accent: Color) -> Label:
+	var label_text: String = "IN INVENTORY"
+	match str(destination.get("kind", "")):
+		"hand": label_text = "IN HAND"
+		"draw": label_text = "NEXT DRAW"
+	var target: Vector2 = destination["target_global"]
+	var center: Vector2 = target + Vector2(0.0, 60.0 if target.y < 100.0 else -60.0)
+	var receipt: Label = _spawn_loadout_acquisition_banner(label_text, center, accent)
+	receipt.name = "PickupDestinationReceipt"
+	UiTypography.apply_label_role(receipt, UiTypography.ROLE_BODY)
+	receipt.size = Vector2(210.0, 36.0)
+	var bounds: Rect2 = _card_fx_layer.get_global_rect()
+	receipt.global_position = Vector2(
+		clampf(center.x - receipt.size.x * 0.5, bounds.position.x + 8.0, bounds.end.x - receipt.size.x - 8.0),
+		clampf(center.y - receipt.size.y * 0.5, bounds.position.y + 8.0, bounds.end.y - receipt.size.y - 8.0)
+	)
+	return receipt
 
 func _spawn_loadout_acquisition_burst(center: Vector2, accent: Color, kind: String) -> LoadoutAcquisitionBurst:
 	var burst := LoadoutAcquisitionBurst.new()
@@ -26818,13 +26831,22 @@ func _pickup_acquisition_ray_destination(loot: Dictionary, post_pickup_state: Di
 		var state: Dictionary = post_pickup_state if not post_pickup_state.is_empty() else _combat_state
 		var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 		if not hand.is_empty():
-			var card_size: Vector2 = _hand_card_size(hand.size(), false)
 			var target_index: int = clampi(hand_destination_index, 0, hand.size() - 1) if hand_destination_index >= 0 else hand.size() - 1
-			var card_rect: Rect2 = _hand_receive_rect(target_index, hand.size(), card_size)
-			return {
-				"kind": "hand",
-				"target_global": card_rect.position + Vector2(card_rect.size.x * 0.5, minf(72.0, card_rect.size.y * 0.24))
-			}
+			var target_total: int = hand.size()
+			# Action snapshots retain the played card until finish_player_card, but
+			# its widget has already left the hand during a movement-card pickup.
+			if _animating_hand_card_index >= 0 and _animating_hand_card_index < target_total:
+				target_total -= 1
+				if target_index > _animating_hand_card_index:
+					target_index -= 1
+			var card_size: Vector2 = _hand_card_size(target_total, false)
+			var card_rect: Rect2 = _hand_receive_rect(target_index, target_total, card_size)
+			var target: Vector2 = card_rect.position + Vector2(card_rect.size.x * 0.5, minf(72.0, card_rect.size.y * 0.24))
+			# Controller board focus tucks most of the hand below the viewport.
+			# Keep the receiving icon visible at that hand edge in both motion modes.
+			if _card_fx_layer != null:
+				target.y = minf(target.y, _card_fx_layer.get_global_rect().end.y - 32.0)
+			return {"kind": "hand", "target_global": target}
 	if is_item and destination == "draw" and draw_pile != null:
 		return {"kind": "draw", "target_global": draw_pile.get_global_rect().get_center(), "arrival_control": draw_pile}
 	return {
@@ -26857,7 +26879,7 @@ func _pickup_hand_destination_indices(picked_loot: Array, before_state: Dictiona
 		available_indices[card_id] = indices
 	return result
 
-func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color, destination: Dictionary = {}) -> void:
+func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color, destination: Dictionary = {}, pickup_icon: Control = null) -> void:
 	if _card_fx_layer == null or loadout_button == null:
 		return
 	await get_tree().process_frame
@@ -26878,11 +26900,17 @@ func _animate_loadout_acquisition_ray(source_global: Vector2, accent: Color, des
 	beam.accent = accent
 	beam.start = local_start
 	beam.target = local_target
-	beam.modulate = Color(1.0, 1.0, 1.0, 0.76)
+	beam.modulate = Color(1.0, 1.0, 1.0, 0.92 if pickup_icon != null else 0.76)
 	beam.set_meta("acquisition_destination", destination_kind)
 	beam.set_meta("acquisition_target_global", target_global)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
+	# Carry the actual pickup identity along the ray. A stationary source icon
+	# plus a brief low-contrast streak did not clearly show where the item went.
+	if _node_is_alive(pickup_icon):
+		var icon_tween: Tween = create_tween().set_parallel(true)
+		icon_tween.tween_property(pickup_icon, "position", local_target - pickup_icon.size * 0.5, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		icon_tween.tween_property(pickup_icon, "scale", Vector2.ONE * 0.42, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	var beam_tween: Tween = create_tween().set_parallel(true)
 	beam_tween.tween_property(beam, "progress", 1.0, LOADOUT_ACQUISITION_RAY_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(LOADOUT_ACQUISITION_RAY_SECONDS * 0.72)
