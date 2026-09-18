@@ -1,18 +1,11 @@
+# Frozen geometry reference from 0b5e91627325ed1a4ea366c9c2363f05268422b3.
 extends RefCounted
 
 ## Deterministic, spatial spell drawing. No whole-spell sprites, live clocks, nodes,
 ## per-frame images, or transform changes: the caller owns scene depth and scale.
 
-const SpriteBatch = preload("res://scripts/elemental_spell_sprite_batch.gd")
-
 static var _clouds: Array[Texture2D] = []
 static var _light: Texture2D
-static var _ribbon_templates: Dictionary = {}
-# Match Geometry2D's convex-quad triangulation and UV order exactly.
-static var _quad_indices := PackedInt32Array([3, 0, 1, 1, 2, 3])
-static var _quad_uvs := PackedVector2Array([Vector2.ZERO, Vector2.RIGHT, Vector2.ONE, Vector2.DOWN])
-static var _quad_bones := PackedInt32Array()
-static var _quad_weights := PackedFloat32Array()
 const TAU_GOLDEN: float = 2.39996323
 
 
@@ -41,7 +34,6 @@ static func prepare() -> void:
 				var shade: float = 0.62 + 0.38 * n
 				cloud.set_pixel(x, y, Color(shade, shade, shade, a))
 		_clouds.append(ImageTexture.create_from_image(cloud))
-	SpriteBatch.prepare(_light, _clouds)
 
 
 static func color_for(element: String) -> Color:
@@ -76,24 +68,23 @@ static func _sprite(
 	p: Vector2,
 	size: Vector2,
 	angle: float,
-	tint: Color,
-	batch: SpriteBatch = null
+	tint: Color
 ) -> void:
 	if tint.a <= 0.001 or size.x <= 0.01 or size.y <= 0.01:
 		return
 	var x := Vector2(cos(angle), sin(angle)) * size.x * 0.5
 	var y := Vector2(-sin(angle), cos(angle)) * size.y * 0.5
-	var vertices := PackedVector2Array([p - x - y, p + x - y, p + x + y, p - x + y])
-	if batch != null:
-		batch.sprite(texture, vertices, tint)
-	else:
-		RenderingServer.canvas_item_add_triangle_array(c.get_canvas_item(), _quad_indices, vertices, PackedColorArray([tint]), _quad_uvs, _quad_bones, _quad_weights, texture.get_rid())
+	c.draw_polygon(
+		PackedVector2Array([p - x - y, p + x - y, p + x + y, p - x + y]),
+		PackedColorArray([tint]),
+		PackedVector2Array([Vector2.ZERO, Vector2.RIGHT, Vector2.ONE, Vector2.DOWN]),
+		texture
+	)
 
 
-
-static func _glow(c: CanvasItem, p: Vector2, size: Vector2, tint: Color, batch: SpriteBatch = null) -> void:
+static func _glow(c: CanvasItem, p: Vector2, size: Vector2, tint: Color) -> void:
 	if _light != null:
-		_sprite(c, _light, p, size, 0.0, tint, batch)
+		_sprite(c, _light, p, size, 0.0, tint)
 
 
 static func _puff(
@@ -102,11 +93,10 @@ static func _puff(
 	size: Vector2,
 	angle: float,
 	tint: Color,
-	index: int,
-	batch: SpriteBatch = null
+	index: int
 ) -> void:
 	if not _clouds.is_empty():
-		_sprite(c, _clouds[posmod(index, _clouds.size())], p, size, angle, tint, batch)
+		_sprite(c, _clouds[posmod(index, _clouds.size())], p, size, angle, tint)
 
 
 ## Feathered ribbon strips, tapered at both ends; no stacked hard-edged circles.
@@ -123,54 +113,33 @@ static func _ribbon(
 		if points[0].distance_squared_to(points[1]) < 0.0001:
 			return
 		points = PackedVector2Array([points[0], points[0].lerp(points[1], 0.5), points[1]])
-	# The authored vertex count fixes topology and taper. Reuse those immutable
-	# values; positions, normals, widths and colors still follow every live frame.
-	var count: int = points.size()
-	var template: Dictionary = _ribbon_template(count)
-	var taper: PackedFloat64Array = template["taper"]
+	# Shared vertices make a continuous, feathered strip. Explicit triangle indices
+	# avoid per-segment triangulation cracks and batch a whole filament in one draw.
 	var vertices := PackedVector2Array()
 	var colors := PackedColorArray()
-	vertices.resize(count * 3)
-	colors.resize(count * 3)
-	var clear := _tint(tint, 0.0)
-	for vertex: int in range(count):
-		var tangent: Vector2 = points[mini(vertex + 1, count - 1)] - points[maxi(0, vertex - 1)]
-		tangent = tangent.normalized()
-		var offset := Vector2(-tangent.y, tangent.x) * width * taper[vertex]
-		var index: int = vertex * 3
-		vertices[index] = points[vertex] + offset
-		vertices[index + 1] = points[vertex]
-		vertices[index + 2] = points[vertex] - offset
-		colors[index] = clear
-		colors[index + 1] = tint
-		colors[index + 2] = clear
-	RenderingServer.canvas_item_add_triangle_array(c.get_canvas_item(), template["indices"], vertices, colors)
-
-	if hot:
-		c.draw_polyline(points, _tint(tint.lightened(0.72), tint.a * 0.72), maxf(0.7, width * 0.13), true)
-
-
-static func _ribbon_template(count: int) -> Dictionary:
-	if _ribbon_templates.has(count):
-		return _ribbon_templates[count]
 	var indices := PackedInt32Array()
-	var taper := PackedFloat64Array()
-	taper.resize(count)
-	for vertex: int in range(count):
-		var u: float = float(vertex) / float(count - 1)
-		taper[vertex] = pow(maxf(0.0, sin(u * PI)), 0.6)
-		if vertex == count - 1:
+	var clear := _tint(tint, 0.0)
+	for vertex: int in range(points.size()):
+		var tangent: Vector2 = points[mini(vertex + 1, points.size() - 1)] - points[maxi(0, vertex - 1)]
+		tangent = tangent.normalized()
+		var u: float = float(vertex) / float(points.size() - 1)
+		var offset := Vector2(-tangent.y, tangent.x) * width * pow(maxf(0.0, sin(u * PI)), 0.6)
+		vertices.append(points[vertex] + offset)
+		vertices.append(points[vertex])
+		vertices.append(points[vertex] - offset)
+		colors.append(clear)
+		colors.append(tint)
+		colors.append(clear)
+		if vertex == points.size() - 1:
 			continue
 		var a: int = vertex * 3
 		var b: int = a + 3
 		indices.append_array(PackedInt32Array([a, a + 1, b + 1, a, b + 1, b]))
 		indices.append_array(PackedInt32Array([a + 1, a + 2, b + 2, a + 1, b + 2, b + 1]))
-	var template: Dictionary = {"indices": indices, "taper": taper}
-	# Authored effects use a handful of short strips. Bound the shared cache if
-	# future callers supply arbitrary counts; unusual strips still draw normally.
-	if count <= 64 and _ribbon_templates.size() < 32:
-		_ribbon_templates[count] = template
-	return template
+	RenderingServer.canvas_item_add_triangle_array(c.get_canvas_item(), indices, vertices, colors)
+
+	if hot:
+		c.draw_polyline(points, _tint(tint.lightened(0.72), tint.a * 0.72), maxf(0.7, width * 0.13), true)
 
 
 static func floor_light(
@@ -241,10 +210,9 @@ static func _fire(
 	front: bool,
 	reduced: bool
 ) -> void:
-	var batch := SpriteBatch.new(c)
 	var e: float = envelope(t) * alpha
 	if not front:
-		_glow(c, p - Vector2(0, s * 0.27), Vector2(s * 1.50, s * 1.18), Color(1.0, 0.18, 0.025, e * 0.30), batch)
+		_glow(c, p - Vector2(0, s * 0.27), Vector2(s * 1.50, s * 1.18), Color(1.0, 0.18, 0.025, e * 0.30))
 	# Separate lobes expand, roll, cool and rise, leaving holes between hot material.
 	for i: int in range(18 if not reduced else 10):
 		var angle: float = float(i) * TAU_GOLDEN
@@ -258,24 +226,21 @@ static func _fire(
 		var heat: float = 1.0 - smoothstep(0.48, 0.96, age)
 		var col := Color("623d36").lerp(Color("ff6d12"), heat)
 		var density: float = e * (0.82 if front else 1.0)
-		_puff(c, point, Vector2(radius * 1.8, radius * 2.0), angle + age * 1.7, _tint(col, density), i, batch)
+		_puff(c, point, Vector2(radius * 1.8, radius * 2.0), angle + age * 1.7, _tint(col, density), i)
 		_puff(
 			c,
 			point + Vector2(-radius * 0.10, radius * 0.16),
 			Vector2(radius * 1.12, radius * 1.5),
 			angle - age,
 			Color(1.0, 0.84, 0.27, density * heat),
-			i + 1,
-			batch
+			i + 1
 		)
 		_glow(
 			c,
 			point + Vector2(0, radius * 0.12),
 			Vector2.ONE * radius * 0.64,
-			Color(1.0, 0.98, 0.76, density * heat * 0.9),
-			batch
+			Color(1.0, 0.98, 0.76, density * heat * 0.9)
 		)
-	batch.flush()
 	# Hot tongues stretch independently through the cooler rolling volume.
 	for tongue: int in range(8 if not reduced else 4):
 		var side: float = lerpf(-1.0, 1.0, _hash(tongue + 801))
@@ -283,11 +248,10 @@ static func _fire(
 			continue
 		var points := PackedVector2Array()
 		var pocket := Vector2(side * (0.10 + t * 0.19), -0.09 - t * 0.22 - _hash(tongue + 90) * 0.13)
-		var tongue_height: float = 0.14 + _hash(tongue + 90) * 0.12
 		for k: int in range(16):
 			var u: float = float(k) / 15.0
 			var x: float = side * u * 0.09 + sin(u * 5.0 - t * 7.0 + float(tongue)) * u * 0.065
-			var y: float = -u * tongue_height
+			var y: float = -u * (0.14 + _hash(tongue + 90) * 0.12)
 			points.append(p + (pocket + Vector2(x, y)) * s)
 		_ribbon(c, points, s * 0.054, Color(1.0, 0.38, 0.025, e * (1.0 - smoothstep(0.54, 0.92, t)) * 0.8), false)
 		_ribbon(c, points, s * 0.036, Color(1.0, 0.86, 0.36, e * (1.0 - smoothstep(0.45, 0.90, t)) * 0.95), false)

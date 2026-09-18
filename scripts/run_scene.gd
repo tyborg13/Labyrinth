@@ -1566,6 +1566,8 @@ var _committed_hand_query_generation: int = 0
 var _committed_hand_query_state: Dictionary = {}
 var _committed_hand_query_flags: Dictionary = {}
 var _committed_hand_query_display: Dictionary = {}
+var _committed_hand_query_forecast: Dictionary = {}
+var _combat_forecast_cache = preload("res://scripts/combat_forecast_cache.gd").new()
 var _committed_hand_query_diagnostics: Dictionary = {}
 
 var _fallback_preview_cache: Dictionary = {}
@@ -1617,6 +1619,8 @@ var _card_action_choice_mode: String = "play"
 var _hovered_card_index: int = -1
 var _updating_hand_interactions: bool = false
 var _hand_hover_refresh_pending: bool = false
+var _board_hover_refresh_pending: bool = false
+var _board_hover_refresh_generation: int = 0
 var _focused_intent_enemy_id: int = -1
 var _hovered_board_tile: Vector2i = Vector2i(-1, -1)
 var _board_hover_threat_active: bool = false
@@ -3738,6 +3742,8 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_board_hover_refresh_generation += 1
+	_board_hover_refresh_pending = false
 	_cancel_committed_hand_queries()
 	_set_targeting_cursor_suppressed(false)
 	_shutdown_audio()
@@ -15038,6 +15044,7 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 		_release_card_proxy(discard_proxy)
 		_finish_combat_skill_card_motion()
 		return
+	_schedule_committed_hand_queries(_combat_state)
 	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
 	var draw_transition: Dictionary = _draw_hand_transition_between_states(
 		before_state,
@@ -15085,6 +15092,7 @@ func _commit_encore(skill_id: String, discard_index: int) -> void:
 	if not _stage_combat_skill_state(next_state, skill_id):
 		_finish_combat_skill_card_motion()
 		return
+	_schedule_committed_hand_queries(_combat_state)
 	var draw_transition: Dictionary = _draw_hand_transition_between_states(before_state, next_state)
 	await _animate_draw_cards_fx(
 		draw_transition.get("draw_entries", []) as Array,
@@ -15171,6 +15179,7 @@ func _stage_combat_skill_state(next_combat_state: Dictionary, skill_id: String) 
 	return true
 
 func _finish_combat_skill_card_motion() -> void:
+	_adopt_committed_hand_queries()
 	_animation_lock = false
 	_animating_hand_card_index = -1
 	_hand_panel_signature = "<unset>"
@@ -15637,6 +15646,11 @@ func _pass_preview_summary() -> Dictionary:
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_cache_miss_key", performance_phase_started)
 	var source_state: Dictionary = _pass_preview_source_state()
 	performance_phase_started = _record_runtime_performance_phase("pass_preview_source_total", performance_phase_started)
+	if _combat_forecast_cache.matches(source_state):
+		var remembered: Dictionary = _combat_forecast_cache.summary()
+		_cache_pass_preview(cache_key, remembered)
+		_record_runtime_performance_phase("pass_preview_source_cache_hit", performance_phase_started)
+		return remembered
 	if source_state.is_empty() or not _combat_engine.is_player_turn(source_state):
 		_cache_pass_preview(cache_key, {})
 		return {}
@@ -15648,11 +15662,17 @@ func _pass_preview_summary() -> Dictionary:
 
 func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var summary: Dictionary = _pass_preview_summary_for_phase_result(source_state, phase_result)
+	_combat_forecast_cache.remember(source_state, summary)
+	_cache_pass_preview(cache_key, summary)
+	_record_runtime_performance_phase("pass_preview_summary", performance_phase_started)
+	return summary
+
+func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_result: Dictionary) -> Dictionary:
 	# The preview engine result is already an isolated snapshot and this summary
 	# only reads it. Avoid another full late-run state clone per first-time target.
 	var after_state: Dictionary = phase_result.get("state", {}) as Dictionary
 	if after_state.is_empty():
-		_cache_pass_preview(cache_key, {})
 		return {}
 	var losses: Dictionary = _pass_preview_player_damage_losses(phase_result.get("steps", []) as Array)
 	var outcome: String = _combat_engine.combat_outcome(after_state)
@@ -15692,8 +15712,6 @@ func _pass_preview_summary_from_phase_result(cache_key: String, source_state: Di
 		"umbra_unknown_before_player": umbra_unknown_before_player,
 		"outcome": outcome
 	}
-	_cache_pass_preview(cache_key, summary)
-	_record_runtime_performance_phase("pass_preview_summary", performance_phase_started)
 	return summary
 
 func _pass_preview_player_damage_losses(steps: Array) -> Dictionary:
@@ -18696,6 +18714,7 @@ func _cancel_committed_hand_queries() -> void:
 	_committed_hand_query_state = {}
 	_committed_hand_query_flags.clear()
 	_committed_hand_query_display.clear()
+	_committed_hand_query_forecast.clear()
 
 func _schedule_committed_hand_queries(source: Dictionary) -> void:
 	_cancel_committed_hand_queries()
@@ -18725,6 +18744,31 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 		if _runtime_performance_instrumentation_enabled:
 			_committed_hand_query_diagnostics["prepared_cards"] = int(_committed_hand_query_diagnostics.get("prepared_cards", 0)) + 1
 
+	# Forecast one actor per existing animation frame after the hand queries.
+	# The authoritative preview cursor preserves hidden-enemy information and
+	# initiative ordering; no UI refresh ever waits for this optional result.
+	await get_tree().process_frame
+	if generation != _committed_hand_query_generation or not is_inside_tree():
+		return
+	if not _combat_engine.is_player_turn(state):
+		_committed_hand_query_forecast = {"summary": {}}
+		return
+	var forecast_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var scheduled: Dictionary = _combat_engine.finish_player_activation(state)
+	var cursor: Dictionary = _combat_engine.begin_revealed_enemy_actions_preview(scheduled)
+	_record_runtime_performance_phase("committed_forecast_prepare", forecast_started)
+	while not bool(cursor.get("complete", false)):
+		await get_tree().process_frame
+		if generation != _committed_hand_query_generation or not is_inside_tree():
+			return
+		forecast_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
+		_record_runtime_performance_phase("committed_forecast_slice", forecast_started)
+	var phase_result: Dictionary = _combat_engine.revealed_enemy_actions_preview_result(cursor)
+	_committed_hand_query_forecast = {"summary": _pass_preview_summary_for_phase_result(state, phase_result)}
+	if _runtime_performance_instrumentation_enabled:
+		_committed_hand_query_diagnostics["prepared_forecasts"] = int(_committed_hand_query_diagnostics.get("prepared_forecasts", 0)) + 1
+
 func _adopt_committed_hand_queries() -> void:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	# Full value equality, not a hash or selected-field guess, guards hand order,
@@ -18734,6 +18778,10 @@ func _adopt_committed_hand_queries() -> void:
 			_card_playability_cache[_card_preview_cache_key(index)] = _committed_hand_query_flags[index]
 		for index: int in _committed_hand_query_display:
 			_card_widget_display_cache[_card_preview_cache_key(index, "display")] = _committed_hand_query_display[index]
+		if _committed_hand_query_forecast.has("summary"):
+			_combat_forecast_cache.remember(_committed_hand_query_state, _committed_hand_query_forecast["summary"])
+			if _runtime_performance_instrumentation_enabled:
+				_committed_hand_query_diagnostics["adopted_forecasts"] = int(_committed_hand_query_diagnostics.get("adopted_forecasts", 0)) + 1
 		_record_runtime_performance_phase("committed_hand_query_adopt", started)
 		if _runtime_performance_instrumentation_enabled:
 			_committed_hand_query_diagnostics["adopted_cards"] = int(_committed_hand_query_diagnostics.get("adopted_cards", 0)) + _committed_hand_query_flags.size()
@@ -18910,6 +18958,7 @@ func _has_any_playable_combat_card() -> bool:
 
 func _mark_combat_preview_state_changed() -> void:
 	_combat_preview_revision += 1
+	_combat_forecast_cache.clear()
 	_preview_shortcuts_content_cache.clear()
 	_preview_shortcuts_content_order.clear()
 	_boss_health_candidate_revision = -1
@@ -20982,7 +21031,6 @@ func _on_card_hover_ended(index: int) -> void:
 func _on_board_tile_hovered(tile: Vector2i) -> void:
 	if _dialogue_active or _drag_card_index >= 0:
 		return
-	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var presented_tile: Vector2i = tile
 	if (
 		_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT
@@ -20999,6 +21047,26 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CONFIRM_INTENT)
 	if _animation_lock:
 		return
+	# Input can deliver several pointer moves and a click before the next draw.
+	# Commit targeting immediately, but render only the final hover presentation.
+	# A click that starts an action supersedes that hover before it is visible.
+	if not is_inside_tree():
+		_refresh_board_hover_presentation()
+	elif not _board_hover_refresh_pending:
+		_board_hover_refresh_pending = true
+		call_deferred("_flush_board_hover_presentation", _board_hover_refresh_generation)
+
+func _flush_board_hover_presentation(generation: int) -> void:
+	if generation != _board_hover_refresh_generation or not is_inside_tree() or is_queued_for_deletion():
+		return
+	_refresh_board_hover_presentation()
+
+func _refresh_board_hover_presentation() -> void:
+	_board_hover_refresh_pending = false
+	if _dialogue_active or _animation_lock or _drag_card_index >= 0:
+		return
+	var presented_tile: Vector2i = _hovered_board_tile
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if str(_run_state.get("mode", "room")) in ["combat", "room"]:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(presented_tile)
 		if stage_refresh_needed:

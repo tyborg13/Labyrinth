@@ -13,8 +13,11 @@ var _texture: Sprite2D
 var _original_parent: Node
 var _original_index: int = -1
 var _layout: Dictionary = {}
+var _cache_material: CanvasItemMaterial
+var _capture_generation: int = 0
 
 func capture(hand_box: Control, host: Control) -> void:
+	var started: int = Time.get_ticks_usec() if host != null and host.has_method("_record_runtime_performance_phase") and bool(host.get("_runtime_performance_instrumentation_enabled")) else 0
 	if (
 		DisplayServer.get_name() == "headless"
 		or active
@@ -95,8 +98,16 @@ func capture(hand_box: Control, host: Control) -> void:
 	var pixel_origin: Vector2 = pixel_bounds.position.floor()
 	var required_cache_size := Vector2i(pixel_bounds.end.ceil() - pixel_origin)
 	var cache_transform: Transform2D = Transform2D(0.0, -pixel_origin) * pixel_transform
-	_viewport = SubViewport.new()
-	_viewport.name = "LockedHandRenderCacheViewport"
+	# Keep one disabled target attached to this scene between actions. Recreating
+	# its MSAA attachments on every click adds a renderer-side allocation stall.
+	# Exact sizes, transforms, clear/update-once, and live-animation bypass remain
+	# unchanged; a different host owns a fresh target and frees the previous one.
+	if not is_instance_valid(_viewport) or _viewport.get_parent() != host:
+		if is_instance_valid(_viewport):
+			_viewport.queue_free()
+		_viewport = SubViewport.new()
+		_viewport.name = "LockedHandRenderCacheViewport"
+		host.add_child(_viewport)
 	_viewport.transparent_bg = true
 	_viewport.msaa_2d = host.get_viewport().msaa_2d
 	_viewport.canvas_item_default_texture_filter = host.get_viewport().canvas_item_default_texture_filter
@@ -109,7 +120,6 @@ func capture(hand_box: Control, host: Control) -> void:
 	# Preserve that context even though the raster target only covers the fan.
 	_viewport.size_2d_override = Vector2i(host.get_viewport().get_visible_rect().size)
 	_viewport.global_canvas_transform = cache_transform
-	host.add_child(_viewport)
 
 	_texture = Sprite2D.new()
 	_texture.name = "LockedHandRenderCacheTexture"
@@ -117,9 +127,10 @@ func capture(hand_box: Control, host: Control) -> void:
 	_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	# Transparent viewport output is already premultiplied. Ordinary alpha
 	# blending would darken every disabled card a second time.
-	var cache_material := CanvasItemMaterial.new()
-	cache_material.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
-	_texture.material = cache_material
+	if _cache_material == null:
+		_cache_material = CanvasItemMaterial.new()
+		_cache_material.blend_mode = CanvasItemMaterial.BLEND_MODE_PREMULT_ALPHA
+	_texture.material = _cache_material
 	_texture.texture = _viewport.get_texture()
 	_placeholder.add_child(_texture)
 	_texture.transform = cache_transform.affine_inverse()
@@ -136,10 +147,14 @@ func capture(hand_box: Control, host: Control) -> void:
 	hand_box.theme = host.theme
 
 	active = true
+	_capture_generation += 1
+	var generation: int = _capture_generation
 	_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
 	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	if started > 0:
+		host.call("_record_runtime_performance_phase", "locked_hand_capture", started)
 	await RenderingServer.frame_post_draw
-	if active and is_instance_valid(_viewport):
+	if active and generation == _capture_generation and is_instance_valid(_viewport):
 		_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 
 func _has_live_presentation(node: Node) -> bool:
@@ -161,6 +176,7 @@ func restore() -> void:
 	if not active:
 		return
 	active = false
+	_capture_generation += 1
 	if _texture != null and is_instance_valid(_texture):
 		_texture.visible = false
 	if _viewport != null and is_instance_valid(_viewport):
@@ -200,9 +216,6 @@ func restore() -> void:
 			(_original_parent as Container).queue_sort()
 	if _placeholder != null and is_instance_valid(_placeholder):
 		_placeholder.queue_free()
-	if _viewport != null and is_instance_valid(_viewport):
-		_viewport.queue_free()
-	_viewport = null
 	_placeholder = null
 	_texture = null
 	_original_parent = null

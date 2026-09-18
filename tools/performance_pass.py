@@ -42,6 +42,7 @@ HEADLESS_BENCHMARKS = {
     ),
 }
 NATIVE_BENCHMARKS = {
+    "representative_combat": ("REPRESENTATIVE COMBAT RESULT:", "tests/representative_combat_performance_benchmark.gd"),
     "animation_matrix": ("ANIMATION MATRIX RESULT:", "tests/combat_animation_matrix_benchmark.gd"),
     "ui_flow": ("UI FLOW PERF RESULT:", "tests/ui_flow_performance_benchmark.gd"),
     "surface_frame": ("SURFACE FRAME PERF RESULT:", "tests/surface_frame_performance_benchmark.gd"),
@@ -333,6 +334,13 @@ for field in ("schema_version", "workload_id", "case_ids", "actor_ids", "repetit
 for case in ("early_melee", "mixed_casters", "split_family", "guardian_helpers", "dragon_support", "late_specialists"):
     for metric in ("create_usec.median", "create_usec.p95", "live_data_bytes.median"):
         COMPARISON_METRICS[f"cutout_cpu.construction.{case}.{metric}"] = "lower"
+
+
+for field in ("workload_id", "profile", "sample_boundary", "fixture", "viewport", "ui_scale", "reduced_motion", "section_instrumentation_enabled", "renderer", "rendering_method"):
+    COMPATIBILITY_FIELDS[f"representative combat {field}"] = ("benchmarks", "representative_combat", "result", field)
+for phase in ("idle", "movement_pool_action", "enemy_round_matrix.specialists") + tuple(f"action_matrix.{card}" for card in ("pale_spark", "sidestep_slash", "glowstone_ward", "gust_step", "wildfire_halo", "shadow_step")) + tuple(f"ability_action_matrix.{skill}" for skill in ("quick_wits", "encore")):
+    for metric in ("frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.p99", "frame_interval_ms.max", "frames_over_16_67_ms", "frames_over_33_33_ms", "action_completion_ms", "total_ms", "draw_calls.median", "draw_calls.max"):
+        COMPARISON_METRICS[f"representative_combat.{phase}.{metric}"] = "lower"
 
 
 def _cpu_profile_command(command: list[str], cpu_profile: str) -> list[str]:

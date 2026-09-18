@@ -4116,7 +4116,13 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_setup", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	_draw_board_surface(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_board_surface", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_path_depth_pass(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_path", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)

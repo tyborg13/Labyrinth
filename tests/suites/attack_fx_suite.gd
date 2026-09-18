@@ -257,10 +257,12 @@ static func _test_spell_ingredients_are_cached_and_deterministic(expect: Callabl
 	ElementalSpellFx.prepare()
 	var first_generation: Array[Texture2D] = _spell_ingredients()
 	var first_signatures: PackedInt64Array = _spell_ingredient_signatures(first_generation)
+	var first_atlas: Texture2D = ElementalSpellFx.SpriteBatch._atlas
+	var atlas_signature: int = hash(first_atlas.get_image().get_data())
 	for repeat: int in range(4):
 		ElementalSpellFx.prepare()
 		var reused: Array[Texture2D] = _spell_ingredients()
-		expect.call(reused == first_generation, "Repeated board-layer initialization should reuse the same spell textures")
+		expect.call(reused == first_generation and ElementalSpellFx.SpriteBatch._atlas == first_atlas, "Repeated board-layer initialization should reuse the same spell textures and atlas")
 	# Recreating ingredients should be independent of allocation order and prior use.
 	ElementalSpellFx._light = null
 	ElementalSpellFx._clouds.clear()
@@ -271,6 +273,12 @@ static func _test_spell_ingredients_are_cached_and_deterministic(expect: Callabl
 		and _spell_ingredient_signatures(regenerated) == first_signatures,
 		"A fresh spell-resource cache should produce identical seeded texture pixels"
 	)
+	expect.call(ElementalSpellFx.SpriteBatch._atlas != first_atlas and hash(ElementalSpellFx.SpriteBatch._atlas.get_image().get_data()) == atlas_signature, "Regenerated spell atlas keeps the identical ingredient pixels")
+	expect.call(ElementalSpellFx.SpriteBatch._regions.size() == regenerated.size(), "Regenerated atlas retains only the current bounded ingredient mapping")
+	for texture: Texture2D in regenerated:
+		expect.call(ElementalSpellFx.SpriteBatch._regions.has(texture.get_rid()), "Every regenerated ingredient has an atlas region")
+	for texture: Texture2D in first_generation:
+		expect.call(not ElementalSpellFx.SpriteBatch._regions.has(texture.get_rid()), "Atlas regeneration releases obsolete ingredient identities")
 	var pixel_budget: int = 0
 	for texture: Texture2D in regenerated:
 		pixel_budget += texture.get_width() * texture.get_height()

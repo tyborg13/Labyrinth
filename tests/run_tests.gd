@@ -8698,6 +8698,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(move_target.x >= 0, "Pass preview move-hover coverage should find a valid Guarded Step target")
 	if move_target.x >= 0:
 		instance.call("_on_board_tile_hovered", move_target)
+		await process_frame # Hover presentation coalesces before the next draw.
 		await process_frame
 		await process_frame
 		_assert_action_context_risk(instance, "DANGER", "warning", "selected move hover")
@@ -8730,6 +8731,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var attack_target := Vector2i(3, 4)
 	_assert((instance.get("_pending_target_tiles") as Array).has(attack_target), "Pass preview attack-hover coverage should find the adjacent enemy target")
 	instance.call("_on_board_tile_hovered", attack_target)
+	await process_frame # Hover presentation coalesces before the next draw.
 	await process_frame
 	await process_frame
 	_assert_action_context_risk(instance, "SAFE", "safe", "selected attack hover")
@@ -8738,6 +8740,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(int(attack_hover_source_state.get("player_turn_time_spent", 0)) == 2, "Attack hover source should include Quick Stab time before forecasting turn order")
 	_assert(int(((attack_hover_source_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) <= 0, "Attack hover source should include the confirmed attack effect")
 	instance.call("_on_board_tile_hovered", Vector2i(0, 0))
+	await process_frame # Hover presentation coalesces before the next draw.
 	await process_frame
 	await process_frame
 	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack hover cleared")
@@ -10006,6 +10009,7 @@ func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var enemy_tile := Vector2i(5, 5)
 	instance.call("_on_board_tile_hovered", enemy_tile)
+	await process_frame # Hover presentation coalesces before the next draw.
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var attack_tiles: Array = board_view.get("attack_tiles")
 	_assert(attack_tiles.has(enemy_tile), "Move-attack previews should let the player click a reachable enemy directly")
@@ -10067,12 +10071,14 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	var action_context: Control = instance.get("_action_step_tracker") as Control
 	_assert(_button_with_text(action_context, "Rotate") != null, "Rotatable AOE targeting should compose Rotate into the action context")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
+	await process_frame # Hover presentation coalesces before the next draw.
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 4)) and focus_tiles.has(Vector2i(6, 4)), "Default line AOE aim should show the full centered east pattern before clicking")
 	instance.call("_rotate_aoe_aim", -1)
 	instance.call("_on_board_tile_hovered", Vector2i(4, 3))
+	await process_frame # Hover presentation coalesces before the next draw.
 	presentation = board_view.get("presentation")
 	focus_tiles = presentation.get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(4, 4)) and not focus_tiles.has(Vector2i(6, 4)), "Rotating line AOE aim should update the hover pattern before target confirmation")
@@ -10132,8 +10138,10 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a target before its AOE attack commits")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	instance.call("_on_board_tile_hovered", target_tile)
+	await process_frame # Hover presentation coalesces before the next draw.
 	instance.call("_rotate_aoe_aim", -1)
 	instance.call("_on_board_tile_hovered", target_tile)
+	await process_frame # Hover presentation coalesces before the next draw.
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
 	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Rotating north should preview Squall's odd pattern around its single AOE target")
@@ -10724,6 +10732,7 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 	await instance.call("_begin_card_preview", 0, preview)
 	var target_tile := Vector2i(3, 4)
 	instance.call("_on_board_tile_hovered", target_tile)
+	await process_frame # Hover presentation coalesces before the next draw.
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	var presentation: Dictionary = board_view.get("presentation")
 	var preview_units: Array = presentation.get("preview_units", [])
@@ -10739,6 +10748,7 @@ func _test_run_scene_illusion_hover_surfaces_preview_unit() -> void:
 		_assert(preview_unit.get("pos", Vector2i.ZERO) == target_tile, "Illusion preview units should appear on the hovered valid tile")
 		_assert(int(preview_unit.get("hp", 0)) > 0, "Illusion preview units should expose the pending illusion health")
 	instance.call("_on_board_tile_hovered", Vector2i(5, 2))
+	await process_frame # Hover presentation coalesces before the next draw.
 	presentation = board_view.get("presentation")
 	var invalid_hover_has_illusion_preview: bool = false
 	for preview_unit_var: Variant in presentation.get("preview_units", []):

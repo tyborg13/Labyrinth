@@ -572,6 +572,9 @@ func _initialize() -> void:
 		"final_orphan_nodes": final_orphans,
 		"final_orphan_details": _orphan_node_details(),
 		"static_memory_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)),
+		"render_video_memory_bytes": int(Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED)),
+		"render_texture_memory_bytes": int(Performance.get_monitor(Performance.RENDER_TEXTURE_MEM_USED)),
+		"render_buffer_memory_bytes": int(Performance.get_monitor(Performance.RENDER_BUFFER_MEM_USED)),
 		"board_instrumentation": board_instrumentation,
 		"semantic_errors": _errors,
 	}

@@ -101,6 +101,18 @@ class PerformancePassTest(unittest.TestCase):
         candidate = {"benchmarks": {"ui_flow": {"result": {"interaction_semantics": {"buy": {"held_embers": 20}}}}}}
         self.assertTrue(any("interaction_semantics differs" in p for p in performance_pass._compatibility_problems(baseline, candidate)))
 
+    def test_representative_combat_requires_matching_fixture_and_mode(self):
+        import copy
+        original = {"workload_id": "representative_combat_v1", "profile": "early",
+                    "fixture": {"hand": ["pale_spark"], "enemies": [{"type": "crawler", "hp": 14}]},
+                    "section_instrumentation_enabled": False, "reduced_motion": False}
+        baseline = {"benchmarks": {"representative_combat": {"result": original}}}
+        for field, value in (("profile", "middle"), ("fixture", {"hand": [], "enemies": []}),
+                             ("section_instrumentation_enabled", True), ("reduced_motion", True)):
+            candidate = copy.deepcopy(baseline)
+            candidate["benchmarks"]["representative_combat"]["result"][field] = value
+            self.assertTrue(any(field in issue for issue in performance_pass._compatibility_problems(baseline, candidate)))
+
     def test_profile_wraps_only_child_command(self):
         from unittest.mock import patch
         command = ["python3", "tools/godot_task_runner.py", "--", "godot"]
