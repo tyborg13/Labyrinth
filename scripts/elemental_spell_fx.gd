@@ -8,6 +8,11 @@ const SpriteBatch = preload("res://scripts/elemental_spell_sprite_batch.gd")
 static var _clouds: Array[Texture2D] = []
 static var _light: Texture2D
 static var _ribbon_templates: Dictionary = {}
+# Authored particle seeds are reused by every target and frame. Float64 keeps
+# the exact procedural values; arbitrary material seeds retain the formula.
+static var _particle_hashes := PackedFloat64Array()
+static var _rock_shapes: Dictionary = {}
+const PARTICLE_HASH_LIMIT: int = 1024
 # Match Geometry2D's convex-quad triangulation and UV order exactly.
 static var _quad_indices := PackedInt32Array([3, 0, 1, 1, 2, 3])
 static var _quad_uvs := PackedVector2Array([Vector2.ZERO, Vector2.RIGHT, Vector2.ONE, Vector2.DOWN])
@@ -17,6 +22,7 @@ const TAU_GOLDEN: float = 2.39996323
 
 
 static func prepare() -> void:
+	_prepare_particle_hashes()
 	if _light != null:
 		return
 	var glow := Image.create(64, 64, false, Image.FORMAT_RGBA8)
@@ -62,7 +68,16 @@ static func envelope(t: float) -> float:
 	return smoothstep(0.0, 0.045, t) * (1.0 - smoothstep(0.54, 1.0, t))
 
 
+static func _prepare_particle_hashes() -> void:
+	if not _particle_hashes.is_empty():
+		return
+	_particle_hashes.resize(PARTICLE_HASH_LIMIT)
+	for i: int in range(PARTICLE_HASH_LIMIT):
+		_particle_hashes[i] = fposmod(sin(float(i) * 127.1 + 311.7) * 43758.5453, 1.0)
+
 static func _hash(i: int) -> float:
+	if i >= 0 and i < _particle_hashes.size():
+		return _particle_hashes[i]
 	return fposmod(sin(float(i) * 127.1 + 311.7) * 43758.5453, 1.0)
 
 
@@ -349,21 +364,38 @@ static func _rock_fragment(
 ) -> void:
 	if r <= 0.05 or col.a <= 0.001:
 		return
-	# A chipped, asymmetric outline; mild radial variation keeps every face convex.
+	# Only authored spell seeds repeat each frame. Arbitrary rubble seeds keep
+	# their original inline allocation shape instead of building temporary caches.
 	var vertex_count: int = 5 + posmod(seed, 3)
-	var stretch := Vector2(0.82 + _hash(seed + 41) * 0.28, 0.76 + _hash(seed + 73) * 0.30)
-	var shear: float = (_hash(seed + 113) - 0.5) * 0.24
 	var outline := PackedVector2Array()
-	for vertex: int in range(vertex_count):
-		var theta: float = float(vertex) * TAU / float(vertex_count)
-		theta += (_hash(seed + 97 + vertex * 17) - 0.5) * 0.24
-		var radial: float = r * (0.90 + _hash(seed + 211 + vertex * 31) * 0.20)
-		var local_point := Vector2(cos(theta) * stretch.x, sin(theta) * stretch.y) * radial
-		local_point.x += local_point.y * shear
-		outline.append(p + local_point.rotated(angle))
-	var hub_offset := Vector2(_hash(seed + 307) - 0.5, _hash(seed + 389) - 0.5) * r * 0.16
+	var hub_offset: Vector2
+	var stone_mix: float
+	if seed >= 0 and seed < 32:
+		var shape: Dictionary = _rock_shape(seed)
+		var directions: PackedVector2Array = shape["directions"]
+		var radii: PackedFloat64Array = shape["radii"]
+		var shear: float = shape["shear"]
+		for vertex: int in range(vertex_count):
+			var radial: float = r * radii[vertex]
+			var local_point: Vector2 = directions[vertex] * radial
+			local_point.x += local_point.y * shear
+			outline.append(p + local_point.rotated(angle))
+		hub_offset = shape["hub"] * r * 0.16
+		stone_mix = shape["shade"]
+	else:
+		var stretch := Vector2(0.82 + _hash(seed + 41) * 0.28, 0.76 + _hash(seed + 73) * 0.30)
+		var shear: float = (_hash(seed + 113) - 0.5) * 0.24
+		for vertex: int in range(vertex_count):
+			var theta: float = float(vertex) * TAU / float(vertex_count)
+			theta += (_hash(seed + 97 + vertex * 17) - 0.5) * 0.24
+			var radial: float = r * (0.90 + _hash(seed + 211 + vertex * 31) * 0.20)
+			var local_point := Vector2(cos(theta) * stretch.x, sin(theta) * stretch.y) * radial
+			local_point.x += local_point.y * shear
+			outline.append(p + local_point.rotated(angle))
+		hub_offset = Vector2(_hash(seed + 307) - 0.5, _hash(seed + 389) - 0.5) * r * 0.16
+		stone_mix = 0.50 + _hash(seed + 457) * 0.12
 	var hub: Vector2 = p + hub_offset.rotated(angle)
-	var stone := Color(0.24, 0.21, 0.18, col.a).lerp(col, 0.50 + _hash(seed + 457) * 0.12)
+	var stone := Color(0.24, 0.21, 0.18, col.a).lerp(col, stone_mix)
 	var light_direction := Vector2(-0.52, -0.85).normalized()
 	# Three broad matte faces tumble through a fixed upper-left light.
 	for face: int in range(3):
@@ -404,6 +436,32 @@ static func _rock_fragment(
 			hub.lerp(rim_end, 0.57)
 		])
 		c.draw_polyline(fracture, Color(0.73, 0.47, 0.22, col.a * 0.24), maxf(0.45, r * 0.027), true)
+
+
+static func _rock_shape(seed: int) -> Dictionary:
+	if _rock_shapes.has(seed):
+		return _rock_shapes[seed]
+	var vertex_count: int = 5 + posmod(seed, 3)
+	var stretch := Vector2(0.82 + _hash(seed + 41) * 0.28, 0.76 + _hash(seed + 73) * 0.30)
+	var directions := PackedVector2Array()
+	var radii := PackedFloat64Array()
+	for vertex: int in range(vertex_count):
+		var theta: float = float(vertex) * TAU / float(vertex_count)
+		theta += (_hash(seed + 97 + vertex * 17) - 0.5) * 0.24
+		directions.append(Vector2(cos(theta) * stretch.x, sin(theta) * stretch.y))
+		radii.append(0.90 + _hash(seed + 211 + vertex * 31) * 0.20)
+	var shape: Dictionary = {
+		"directions": directions,
+		"radii": radii,
+		"shear": (_hash(seed + 113) - 0.5) * 0.24,
+		"hub": Vector2(_hash(seed + 307) - 0.5, _hash(seed + 389) - 0.5),
+		"shade": 0.50 + _hash(seed + 457) * 0.12,
+	}
+	# Live spells use 0..20; other material callers can use arbitrary tile seeds.
+	# Cache only the fixed authored range to bound memory independently of rooms.
+	if seed >= 0 and seed < 32:
+		_rock_shapes[seed] = shape
+	return shape
 
 
 static func _fragment(
@@ -479,10 +537,11 @@ static func _bolt(
 	var points := PackedVector2Array()
 	var direction: Vector2 = (b - a).normalized()
 	var normal := Vector2(-direction.y, direction.x)
+	var distance: float = a.distance_to(b)
 	for k: int in range(13):
 		var u: float = float(k) / 12.0
 		var jag: float = sin(float(k) * 7.3 + float(seed) * 3.1 + t * 17.0) * sin(u * PI)
-		points.append(a.lerp(b, u) + normal * jag * a.distance_to(b) * 0.075)
+		points.append(a.lerp(b, u) + normal * jag * distance * 0.075)
 	_ribbon(c, points, width, tint)
 
 

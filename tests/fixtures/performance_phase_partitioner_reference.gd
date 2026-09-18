@@ -1,4 +1,4 @@
-class_name PerformancePhasePartitioner
+# Frozen pre-fast-path implementation at 365dc25.
 extends RefCounted
 
 const AMBIGUOUS_PHASE: String = "telemetry_ambiguous_overlap"
@@ -117,23 +117,6 @@ static func _crossed_overlap_ranges(intervals: Array[Dictionary]) -> Array[Dicti
 		var right_end: int = int(right["end_usec"])
 		return left_end > right_end if left_end != right_end else int(left["id"]) < int(right["id"])
 	)
-	# Runtime calls normally form a nested stack. Prove that common case in a
-	# linear pass before building the general crossed-overlap multiset. Equal
-	# starts are sorted outermost first above; equal ends remain nested.
-	var nesting_ends: Array[int]
-	var crosses: bool = false
-	for interval: Dictionary in by_start:
-		var start: int = interval["start_usec"]
-		var end: int = interval["end_usec"]
-		while not nesting_ends.is_empty() and nesting_ends[-1] <= start:
-			nesting_ends.pop_back()
-		if not nesting_ends.is_empty() and end > nesting_ends[-1]:
-			crosses = true
-			break
-		nesting_ends.append(end)
-	if not crosses:
-		var empty_ranges: Array[Dictionary]
-		return empty_ranges
 	var by_end: Array[Dictionary] = intervals.duplicate()
 	by_end.sort_custom(func(left: Dictionary, right: Dictionary) -> bool:
 		var left_end: int = int(left["end_usec"])

@@ -121,7 +121,12 @@ static func _card_proxy_count(instance: Node) -> int:
 	var count: int = 0
 	for child: Node in (instance.get("_card_fx_layer") as Control).get_children():
 		if child is Control and not child.is_queued_for_deletion() and bool(child.get_meta("scaled_card_proxy", false)):
-			count += 1
+			# The bounded pool may retain a card in this host. Only a hidden,
+			# processing-disabled pool entry is retired; visible or active ghosts
+			# still fail the cleanup contract and count toward motion overlap.
+			var pool: Array = instance.get("_card_proxy_pool") as Array
+			if not pool.has(child) or child.visible or child.process_mode != Node.PROCESS_MODE_DISABLED:
+				count += 1
 	return count
 
 static func _gain_label(instance: Node) -> Label:

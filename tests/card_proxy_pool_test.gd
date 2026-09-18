@@ -121,6 +121,45 @@ func _run() -> void:
 	_assert(pool.size() == 2, "The card proxy pool should never retain more than its two-instance limit")
 	_assert(overflow.is_queued_for_deletion(), "Overflow proxies should be queued for deletion instead of retained")
 
+	# The production FX host can retain inert pooled controls without a tree
+	# transition. Other hosts still park in the scene-owned hidden pool.
+	run_scene.set("_run_state", {"mode": "combat"})
+	var retained_fx: Control = run_scene.call("_take_pooled_card_proxy")
+	var fx_host: Control = run_scene.get("_card_fx_layer") as Control
+	run_scene.call("_mount_card_proxy", retained_fx, fx_host, source_rect)
+	var fx_tree_exits: Array[int] = [0]
+	retained_fx.tree_exiting.connect(func() -> void: fx_tree_exits[0] += 1)
+	run_scene.call("_release_card_proxy", retained_fx)
+	run_scene.call("_clear_idle_card_fx_layer")
+	_assert(retained_fx.get_parent() == fx_host and fx_tree_exits[0] == 0, "An inert pooled FX card stays in its stable host through incidental cleanup")
+	_assert(not retained_fx.visible and retained_fx.process_mode == Node.PROCESS_MODE_DISABLED, "Retained FX cards consume no idle drawing or processing")
+	var reused_fx: Control = run_scene.call("_spawn_card_proxy", "guarded_step", next_rect)
+	run_scene.call("_mount_card_proxy", reused_fx, fx_host, next_rect)
+	_assert(reused_fx == retained_fx and fx_tree_exits[0] == 0, "Same-host FX reuse avoids theme and tree re-entry")
+	_assert(_vector2_near(_proxy_visual_center(reused_fx), next_rect.get_center(), 0.5), "Retained FX reuse preserves the new source center")
+	run_scene.call("_release_card_proxy", reused_fx)
+	# Releasing A then B and leasing B then A must preserve new launch order,
+	# including the equal-z non-staged draw path, without either leaving the tree.
+	var ordered_a: Control = run_scene.call("_spawn_card_proxy", "quick_stab", source_rect)
+	var ordered_b: Control = run_scene.call("_spawn_card_proxy", "guarded_step", source_rect)
+	run_scene.call("_mount_card_proxy", ordered_a, fx_host, source_rect)
+	run_scene.call("_mount_card_proxy", ordered_b, fx_host, source_rect)
+	var ordered_exits: Array[int] = [0]
+	ordered_a.tree_exiting.connect(func() -> void: ordered_exits[0] += 1)
+	ordered_b.tree_exiting.connect(func() -> void: ordered_exits[0] += 1)
+	run_scene.call("_release_card_proxy", ordered_a)
+	run_scene.call("_release_card_proxy", ordered_b)
+	var launched_first: Control = run_scene.call("_spawn_card_proxy", "quick_stab", source_rect)
+	run_scene.call("_mount_card_proxy", launched_first, fx_host, source_rect)
+	var launched_second: Control = run_scene.call("_spawn_card_proxy", "guarded_step", source_rect)
+	run_scene.call("_mount_card_proxy", launched_second, fx_host, source_rect)
+	_assert(launched_first == ordered_b and launched_second == ordered_a, "The regression exercises retained LIFO reversal")
+	_assert(launched_first.z_index == launched_second.z_index and launched_first.get_index() < launched_second.get_index(), "Equal-z retained proxies preserve fresh launch painter order")
+	_assert(ordered_exits[0] == 0, "Painter-order correction must not rerun tree/theme setup")
+	run_scene.call("_release_card_proxy", pooled_a)
+	run_scene.call("_release_card_proxy", pooled_b)
+	# Leaving combat may destroy the FX host's pooled children; stale entries
+	# remain safely guarded by the same liveness check as external teardown.
 	var stale: Variant = pooled_b
 	pooled_b.free()
 	var recovered: Control = run_scene.call("_take_pooled_card_proxy")

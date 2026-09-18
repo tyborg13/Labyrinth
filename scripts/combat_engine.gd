@@ -6963,10 +6963,14 @@ func _enemy_footprint_tiles(enemy: Dictionary, origin_override: Vector2i = Vecto
 	return tiles
 
 func _enemy_distance_to_tile(enemy: Dictionary, tile: Vector2i) -> int:
-	var best_distance: int = 9999
-	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
-		best_distance = mini(best_distance, PathUtils.manhattan(enemy_tile, tile))
-	return best_distance
+	return _enemy_distance_from_anchor(enemy, enemy.get("pos", Vector2i(-1, -1)), tile)
+
+func _enemy_distance_from_anchor(enemy: Dictionary, anchor: Vector2i, tile: Vector2i) -> int:
+	# Footprints are axis-aligned rectangles. Distance to their clamped nearest
+	# tile is identical to enumerating every tile, without allocating an array.
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var closest := Vector2i(clampi(tile.x, anchor.x, anchor.x + maxi(1, footprint.x) - 1), clampi(tile.y, anchor.y, anchor.y + maxi(1, footprint.y) - 1))
+	return mini(9999, PathUtils.manhattan(closest, tile))
 
 func _enemy_distance_between(first_enemy: Dictionary, second_enemy: Dictionary) -> int:
 	var best_distance: int = 9999
@@ -6976,14 +6980,11 @@ func _enemy_distance_between(first_enemy: Dictionary, second_enemy: Dictionary) 
 	return best_distance
 
 func _closest_enemy_tile_to(enemy: Dictionary, tile: Vector2i) -> Vector2i:
-	var best_tile: Vector2i = enemy.get("pos", Vector2i.ZERO)
-	var best_distance: int = 9999
-	for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):
-		var distance: int = PathUtils.manhattan(enemy_tile, tile)
-		if distance < best_distance:
-			best_distance = distance
-			best_tile = enemy_tile
-	return best_tile
+	var anchor: Vector2i = enemy.get("pos", Vector2i(-1, -1))
+	var footprint: Vector2i = enemy.get("footprint", Vector2i.ONE)
+	var closest := Vector2i(clampi(tile.x, anchor.x, anchor.x + maxi(1, footprint.x) - 1), clampi(tile.y, anchor.y, anchor.y + maxi(1, footprint.y) - 1))
+	# Preserve the original sentinel behavior for malformed distant coordinates.
+	return closest if PathUtils.manhattan(closest, tile) < 9999 else enemy.get("pos", Vector2i.ZERO)
 
 func _enemy_can_occupy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vector2i, occupied: Dictionary, blocked_target: Vector2i = Vector2i(-999, -999)) -> bool:
 	for tile: Vector2i in _enemy_footprint_tiles(enemy, anchor):
@@ -8567,6 +8568,10 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 	open.append({"tile": start, "cost": 0, "steps": 0, "route": start_path, "open_prefix_steps": 0, "prefix_blocked": false, "regression_cost": 0, "prefix_distance_cost": 0})
 	var best_by_tile: Dictionary = {start: open[0]}
 	var closed: Dictionary = {}
+	# Reach checks only read the hypothetical actor. Own its outer dictionary
+	# once, and move that anchor without copying statuses/intent at every edge.
+	var candidate_enemy: Dictionary = enemy.duplicate(false)
+	var target_tile: Vector2i = target.get("pos", Vector2i.ZERO)
 	while not open.is_empty():
 		var best_open_index: int = _enemy_best_open_route_index(open)
 		var current: Dictionary = open[best_open_index]
@@ -8575,11 +8580,12 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 		if closed.has(current_tile):
 			continue
 		closed[current_tile] = true
-		var candidate_enemy: Dictionary = enemy.duplicate(true)
 		candidate_enemy["pos"] = current_tile
 		var anchor_details: Dictionary = _enemy_future_anchor_details(state, enemy, current_tile, planning_context)
 		if bool(anchor_details.get("dynamically_open", false)) and _enemy_action_reaches_target(state, candidate_enemy, attack_action, target):
 			return current
+		var current_target_distance: int = _enemy_distance_from_anchor(enemy, current_tile, target_tile)
+		var route: Array[Vector2i] = current["route"]
 		for direction: Vector2i in PathUtils.DIRS_4:
 			var next_tile: Vector2i = current_tile + direction
 			if closed.has(next_tile):
@@ -8590,17 +8596,11 @@ func _enemy_future_route_to_attack(state: Dictionary, enemy: Dictionary, attack_
 			var step_cost: int = _enemy_future_anchor_step_cost(state, next_anchor_details, attack_action, move_range, BoardSurfaceRules.movement_step_cost(state, enemy, current_tile, next_tile))
 			if step_cost < 0:
 				continue
-			var route: Array[Vector2i] = _vector2i_values(current.get("route", []))
 			if route.has(next_tile):
 				continue
 			var next_route: Array[Vector2i] = route.duplicate()
 			next_route.append(next_tile)
-			var current_enemy: Dictionary = enemy.duplicate(true)
-			current_enemy["pos"] = current_tile
-			var next_enemy: Dictionary = enemy.duplicate(true)
-			next_enemy["pos"] = next_tile
-			var current_target_distance: int = _enemy_distance_to_tile(current_enemy, target.get("pos", Vector2i.ZERO))
-			var next_target_distance: int = _enemy_distance_to_tile(next_enemy, target.get("pos", Vector2i.ZERO))
+			var next_target_distance: int = _enemy_distance_from_anchor(enemy, next_tile, target_tile)
 			var regression_cost: int = int(current.get("regression_cost", 0)) + maxi(0, next_target_distance - current_target_distance)
 			var next_steps: int = int(current.get("steps", 0)) + 1
 			var prefix_distance_cost: int = int(current.get("prefix_distance_cost", 0))

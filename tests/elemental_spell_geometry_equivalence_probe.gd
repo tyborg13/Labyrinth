@@ -36,6 +36,12 @@ class Effects extends Node2D:
 			fx._ribbon(self, points, 1.37, Color(0.3, 0.7, 0.9, 0.91), true)
 		fx._ribbon(self, PackedVector2Array([Vector2.ONE, Vector2.ONE]), 2.0, Color.WHITE, false)
 		fx._ribbon(self, PackedVector2Array([Vector2.ZERO, Vector2(17.0, 21.0)]), 2.0, Color(1, 1, 1, 0.002), false)
+		# Rubble uses tile-dependent seeds outside the bounded spell cache. Exercise
+		# both sides of that boundary, large/negative seeds and the small-rock path.
+		var rubble_seeds: Array[int] = [-307, -1, 0, 20, 31, 32, 101, 408, 1224, 99999]
+		for index: int in range(rubble_seeds.size()):
+			var radius: float = 2.0 if index == 0 else 11.37 + progress * 13.19
+			fx._rock_fragment(self, Vector2(900.19 + index * 91.37, 1039.23), radius, progress * TAU, Color(0.47, 0.32, 0.21, 0.89), rubble_seeds[index])
 		samples.append(Time.get_ticks_usec() - started)
 
 func _initialize() -> void:

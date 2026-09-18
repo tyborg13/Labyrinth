@@ -8847,6 +8847,10 @@ func _mount_card_proxy(proxy: Control, parent: Node, rect: Rect2) -> void:
 		old_parent.remove_child(proxy)
 	if proxy.get_parent() == null:
 		parent.add_child(proxy)
+	elif proxy.get_index() != parent.get_child_count() - 1:
+		# Match fresh add_child painter order even when a LIFO pool retains the
+		# controls in this host. Equal-z overlapping draws must keep launch order.
+		parent.move_child(proxy, -1)
 	# Apply top-level state only after the Control is inside its destination tree.
 	# This keeps drag motion independent from hand layout while avoiding the stale
 	# parent transform that pooled proxies carried when mounted before reparenting.
@@ -8973,7 +8977,9 @@ func _take_pooled_card_proxy() -> Control:
 			continue
 		var proxy: Control = entry as Control
 		var parent: Node = proxy.get_parent()
-		if parent != null:
+		# The common FX host is stable for the scene lifetime. Leave its pooled
+		# controls attached so reuse does not rerun the whole card's tree/theme work.
+		if parent != null and (parent != _card_fx_layer or str(_run_state.get("mode", "")) != "combat"):
 			parent.remove_child(proxy)
 		return proxy
 	return null
@@ -9007,12 +9013,15 @@ func _release_card_proxy(proxy) -> void:
 	proxy.modulate = Color.WHITE
 	proxy.self_modulate = Color.WHITE
 	var parent: Node = proxy.get_parent()
-	if parent != null:
-		parent.remove_child(proxy)
 	if _node_is_alive(_card_proxy_pool_host) and _card_proxy_pool.size() < CARD_PROXY_POOL_LIMIT:
-		_card_proxy_pool_host.add_child(proxy)
+		if parent != _card_fx_layer:
+			if parent != null:
+				parent.remove_child(proxy)
+			_card_proxy_pool_host.add_child(proxy)
 		_card_proxy_pool.append(proxy)
 		return
+	if parent != null:
+		parent.remove_child(proxy)
 	proxy.queue_free()
 
 func _animate_card_proxy_to_rect(proxy: Control, target_rect: Rect2, duration: float) -> void:
@@ -15167,11 +15176,13 @@ func _clear_combat_skill_card_selection() -> void:
 	if _combat_skill_card_selection_prompt != null:
 		_combat_skill_card_selection_prompt.visible = false
 
-func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String) -> void:
+func _commit_combat_skill_state(next_combat_state: Dictionary, skill_id: String, adopt_prepared_queries: bool = false) -> void:
 	if next_combat_state != _combat_state and _player_movement_selected:
 		_cancel_player_movement_selection(false)
 	if not _stage_combat_skill_state(next_combat_state, skill_id):
 		return
+	if adopt_prepared_queries:
+		_adopt_committed_hand_queries()
 	_refresh_ui()
 	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
 
@@ -17694,7 +17705,12 @@ func _clear_idle_card_fx_layer() -> void:
 	for child: Node in _card_fx_layer.get_children():
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
 			_release_card_proxy(child)
-	_clear_children_now(_card_fx_layer)
+		elif not child.is_queued_for_deletion():
+			_prepare_node_for_immediate_free(child)
+			_card_fx_layer.remove_child(child)
+			child.queue_free()
+	# Released FX proxies are hidden and processing-disabled in this stable host.
+	# Keep the existing bounded pool instead of clearing its retained children.
 
 func _finish_draw_hand_transition_for_refresh(force: bool = false) -> void:
 	if not force and _animation_lock and not _draw_hand_transition_proxies.is_empty() and str(_run_state.get("mode", "room")) == "combat":
@@ -32864,9 +32880,13 @@ func _commit_surface_skill_tile(tile: Vector2i) -> void:
 	if _combat_skill_card_selection_prompt != null:
 		_combat_skill_card_selection_prompt.visible = false
 	_animation_lock = true
+	# The future state is already known during the authored surface animation.
+	# Prepare read-only hand/forecast queries across those existing frames;
+	# commit and persistence still occur at their original post-animation point.
+	_schedule_committed_hand_queries(next)
 	await _animate_surface_change(before, next)
 	_animation_lock = false
-	_commit_combat_skill_state(next, skill_id)
+	_commit_combat_skill_state(next, skill_id, true)
 
 func _add_surface_relic_commands() -> void:
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or _pending_umbra_commit_locked:
