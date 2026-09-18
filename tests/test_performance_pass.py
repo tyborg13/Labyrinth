@@ -113,6 +113,15 @@ class PerformancePassTest(unittest.TestCase):
             candidate["benchmarks"]["representative_combat"]["result"][field] = value
             self.assertTrue(any(field in issue for issue in performance_pass._compatibility_problems(baseline, candidate)))
 
+    def test_representative_combat_requires_matching_enemy_outcomes(self):
+        import copy
+        state = {"reference_digest": 123, "reference_step_count": 12, "enemy_activations": 3}
+        baseline = {"benchmarks": {"representative_combat": {"result": {"enemy_round_matrix": {"specialists": state}}}}}
+        for field in state:
+            candidate = copy.deepcopy(baseline)
+            candidate["benchmarks"]["representative_combat"]["result"]["enemy_round_matrix"]["specialists"][field] += 1
+            self.assertTrue(any(field in issue for issue in performance_pass._compatibility_problems(baseline, candidate)))
+
     def test_profile_wraps_only_child_command(self):
         from unittest.mock import patch
         command = ["python3", "tools/godot_task_runner.py", "--", "godot"]

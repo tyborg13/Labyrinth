@@ -338,6 +338,8 @@ for case in ("early_melee", "mixed_casters", "split_family", "guardian_helpers",
 
 for field in ("workload_id", "profile", "sample_boundary", "fixture", "viewport", "ui_scale", "reduced_motion", "section_instrumentation_enabled", "renderer", "rendering_method"):
     COMPATIBILITY_FIELDS[f"representative combat {field}"] = ("benchmarks", "representative_combat", "result", field)
+for field in ("reference_digest", "reference_step_count", "enemy_activations"):
+    COMPATIBILITY_FIELDS[f"representative enemy round {field}"] = ("benchmarks", "representative_combat", "result", "enemy_round_matrix", "specialists", field)
 for phase in ("idle", "movement_pool_action", "enemy_round_matrix.specialists") + tuple(f"action_matrix.{card}" for card in ("pale_spark", "sidestep_slash", "glowstone_ward", "gust_step", "wildfire_halo", "shadow_step")) + tuple(f"ability_action_matrix.{skill}" for skill in ("quick_wits", "encore")):
     for metric in ("frame_interval_ms.median", "frame_interval_ms.p95", "frame_interval_ms.p99", "frame_interval_ms.max", "frames_over_16_67_ms", "frames_over_33_33_ms", "action_completion_ms", "total_ms", "draw_calls.median", "draw_calls.max"):
         COMPARISON_METRICS[f"representative_combat.{phase}.{metric}"] = "lower"

@@ -1732,12 +1732,17 @@ func _capture_wildfire_action_visuals(instance: Node) -> Dictionary:
 		var effect_progress: float = float(presentation.get("effect_progress", -1.0))
 		if str(effect.get("kind", "")) != "aoe" or str(effect.get("element", "")) != "fire" or bool(effect.get("preview", false)):
 			continue
-		if effect_progress < 0.55 or effect_progress > 0.85:
+		var reduced: bool = bool(presentation.get("reduced_motion", false))
+		# Reduced motion deliberately holds a static impact at 1.0. The normal
+		# moving effect must be caught during its visible middle phase instead.
+		if reduced:
+			if not is_equal_approx(effect_progress, 1.0): continue
+		elif effect_progress < 0.55 or effect_progress > 0.85:
 			continue
 		var capture_path: String = ProjectSettings.globalize_path("%s/live_fire_impact.png" % OUTPUT_DIR)
 		_expect(_root_screenshot_image().save_png(capture_path) == OK, "live fire impact screenshot must save successfully")
 		captured.append(capture_path)
-		captured_presentation = {"kind": effect.get("kind"), "element": effect.get("element"), "progress": effect_progress, "locked_hand_cache_active": instance.get("_locked_hand_cache_active") == true}
+		captured_presentation = {"kind": effect.get("kind"), "element": effect.get("element"), "progress": effect_progress, "reduced_motion": reduced, "locked_hand_cache_active": instance.get("_locked_hand_cache_active") == true}
 		break
 	_expect(not captured.is_empty(), "Wildfire visual proof must capture an actual rendered fire impact, not only its card flyout")
 	var wait_frames: int = 0
