@@ -26,6 +26,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _bind(layout, name)}
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,clampf(phase,0.0,1.0))
 	var core_offset := Vector2.ZERO
 	var gather: float = 0.0
 	var release: float = 0.0
@@ -50,3 +52,21 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		var inward: Vector2 = -_bind(layout, name).normalized()
 		pose[name]["position"] += inward * gather * 6.0 + aimed * release * 9.0
 	return pose
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward := Vector2(-1,.5) if facing == "front" else Vector2(1,-.5)
+	var fallen: bool = clip == "death"
+	# The aperture stays rigid as its connected electric branches gutter inward.
+	# The extinguishing body sinks toward its shadow before the dissolve takes it.
+	pose["core"]["position"] += Vector2(0,24) * amount if fallen else -forward * 9.0 * amount
+	for name: String in ["crown","tail","arc_left","arc_right"]:
+		pose[name]["position"] += -_bind(layout,name).normalized() * (6.0 if fallen else 4.0) * amount
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

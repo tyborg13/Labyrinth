@@ -10,6 +10,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)), "rotation": 0.0, "scale": Vector2.ONE, "skew": 0.0}
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	var rear: bool = facing == "rear"
 	if clip == "idle":
 		var bob := Vector2(0, -1.15 * (0.5 - 0.5 * cos(TAU * t)))
@@ -126,13 +128,15 @@ static func _solve_arm(pose:Dictionary,layout:Dictionary,side:String,elbow:Vecto
 	_store(pose,lower,a.affine_inverse()*b)
 	_store(pose,terminal,b.affine_inverse()*Transform2D(hand_angle,hand))
 
-static func _solve_leg(pose:Dictionary,layout:Dictionary,side:String,target:Vector2,lift:float,rear:bool)->void:
+static func _solve_leg(pose:Dictionary,layout:Dictionary,side:String,target:Vector2,lift:float,rear:bool,fold:float=0.0)->void:
 	var upper: String = "thigh_"+side
 	var lower: String = "shin_"+side
 	var foot: String = "foot_"+side
 	var hip: Vector2 = _world(pose,layout,upper).origin
 	var knee: Vector2 = _point(layout,lower)+(hip-_point(layout,upper))*0.5+(target-_point(layout,foot))*0.48
 	knee += Vector2((-0.45 if rear else 0.45)*lift,-0.3*lift)
+	if fold > 0.0:
+		knee = knee.lerp(_folded_knee(layout,upper,lower,foot,hip,target),fold)
 	var parent: Transform2D = _world(pose,layout,_parent(layout,upper))
 	var a: Transform2D = _segment(_point(layout,lower)-_point(layout,upper),knee-hip,hip)
 	var b: Transform2D = _segment(_point(layout,foot)-_point(layout,lower),target-knee,knee)
@@ -168,3 +172,42 @@ static func _curve(t:float,keys:PackedVector2Array)->float:
 			var u: float=inverse_lerp(keys[i-1].x,keys[i].x,t)
 			return lerpf(keys[i-1].y,keys[i].y,u*u*(3-2*u))
 	return keys[-1].y
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = (Vector2(1,-0.5) if facing == "rear" else Vector2(-1,0.5)).normalized()
+	var fallen: bool = clip == "death"
+	var shift: Vector2 = (forward * 7.0 + Vector2(0,34)) * amount if fallen else (-forward * 7.0 + Vector2(0,3)) * amount
+	pose["pelvis"]["position"] += shift
+	pose["head"]["rotation"] = (-0.10 if facing == "rear" else 0.10) * amount if fallen else 0.0
+	for side: String in ["r","l"]:
+		# The fingers keep their spear grip while both skeletal arms lose strength.
+		var elbow: Vector2 = _point(layout,"fore_"+side) + shift * (0.85 if fallen else 0.75)
+		var hand: Vector2 = _point(layout,"hand_"+side) + shift * (0.70 if fallen else 0.55)
+		if fallen:
+			elbow += Vector2(0,8) * amount
+			hand += Vector2(0,18 if side == "r" else 8) * amount
+		_solve_arm(pose,layout,side,elbow,hand,(-0.25 if facing == "rear" else 0.25) * amount if fallen and side == "r" else 0.0)
+		_solve_leg(pose,layout,side,_point(layout,"foot_"+side),0.0,facing == "rear",amount if fallen else 0.0)
+	return _registered(pose, layout)
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))
+
+# A deep collapse bends the bones instead of crushing their painted lengths.
+# Keep the source knee's bend side and let the two rigid-length segments fold
+# against the planted ankle. Other clips keep their accepted projected solver.
+static func _folded_knee(layout: Dictionary, upper: String, lower: String, foot: String, hip: Vector2, ankle: Vector2) -> Vector2:
+	var a: Vector2 = _point(layout,lower) - _point(layout,upper)
+	var b: Vector2 = _point(layout,foot) - _point(layout,lower)
+	var delta: Vector2 = ankle - hip
+	var distance: float = clampf(delta.length(),absf(a.length()-b.length())+0.01,a.length()+b.length()-0.01)
+	var axis: Vector2 = delta.normalized()
+	var along: float = (a.length_squared()-b.length_squared()+distance*distance)/(2.0*distance)
+	var height: float = sqrt(maxf(0.0,a.length_squared()-along*along))
+	var bend_side: float = signf((a+b).cross(a))
+	return hip + axis*along + Vector2(-axis.y,axis.x)*height*bend_side

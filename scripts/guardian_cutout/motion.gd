@@ -14,6 +14,7 @@ static func gait(character_id: String) -> Array:
 
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]: return _reaction_pose(clip,phase,layout,facing)
 	if clip not in ["rest","idle","walk"]: return _action_pose(clip,phase,layout,facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
@@ -243,7 +244,7 @@ static func _action_pose(clip: String, phase: float, layout: Dictionary, facing:
 			elif id=="wick_shade":
 				delta=Vector2(0,-19.0*prep)+forward*(-6.0*prep+(30.0 if near else 15.0)*hit)
 			else: delta=Vector2(0,-15.0*prep)+forward*18.0*hit
-			if clip=="brace": delta=Vector2(0,-10.0*prep-4.0*hit)
+			if clip=="brace" and id!="bell_tender": delta=Vector2(0,-10.0*prep-4.0*hit)
 			_solve_chain(pose,layout,names,_point(layout,hand)+body+delta,0.0,false)
 		elif kind=="wing":
 			var side: float = 1.0 if near else -1.0
@@ -257,6 +258,51 @@ static func _action_pose(clip: String, phase: float, layout: Dictionary, facing:
 		pose["blade"]["rotation"]=sign*(1.35*prep-.65*hit)
 	if pose.has("spear"):
 		pose["spear"]["rotation"]=staff_turn
+		if id=="bell_tender":
+			# The rear staff pivot is offset from the near palm. Rotate that
+			# offset too, so both grips follow the same source-space transform.
+			pose["spear"]["position"]=(_point(layout,"spear")-_point(layout,"hand_near")).rotated(staff_turn)
 	if pose.has("lantern"):
 		pose["lantern"]["rotation"]=sign*(-.22*prep+.42*hit)
+	return pose
+
+## A short recoil recovers into the same bind stance. Defeat folds the actual
+## support graph: knees for bipeds/birds, four paws for beasts, six for the mite.
+## Terminal soles, claws, hands and weapons keep a rigid painted basis.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest",0.0,layout,facing)
+	var t: float = clampf(phase,0.0,1.0)
+	var toward: float = 1.0 if facing == "rear" else -1.0
+	var family: String = str(layout.get("family","biped"))
+	var id: String = str(layout.get("character_id",""))
+	var impact: float = _curve(t,PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.44,.38),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	var depth: float = 26.0 if family == "biped" else 20.0 if family == "bird" else 18.0 if family == "quadruped" else 12.0
+	var shift := Vector2(toward*(-3.5*impact+3.0*fall),1.6*impact+depth*fall)
+	pose["pelvis"]["position"] += shift
+	# Turn around the painted torso attachment, never by translating a skull
+	# away from the neck. Wide animal torsos keep their native orientation.
+	if family == "biped":
+		pose["torso"]["rotation"] = toward*(-.045*impact+.13*fall)
+	if pose.has("head"):
+		pose["head"]["rotation"] = toward*((.06 if family == "biped" else .10)*fall-.025*impact)
+	for chain: Dictionary in layout.get("chains",[]):
+		var names: Array = chain["bones"]
+		var kind: String = str(chain["kind"])
+		if kind == "leg":
+			_solve_chain(pose,layout,names,_point(layout,str(names[2])),0.0,true)
+		elif kind == "arm":
+			var hand: String = str(names[2])
+			var target: Vector2 = _world(pose,layout,hand).origin
+			# The Tender's two grips follow the same rigid staff transform;
+			# counter-rotate both hands together to preserve their source offsets.
+			if id == "bell_tender": target = _point(layout,hand)+shift
+			_solve_chain(pose,layout,names,target,0.0,false)
+		elif kind == "wing":
+			# One restrained shoulder fold, with elbow and feather tips attached.
+			var side: float = 1.0 if str(chain["name"]) == "near" else -1.0
+			pose[str(names[0])]["rotation"] = side*(.05*impact+.11*fall)
+	if pose.has("tail"):
+		pose["tail"]["rotation"] = toward*.045*fall
 	return pose

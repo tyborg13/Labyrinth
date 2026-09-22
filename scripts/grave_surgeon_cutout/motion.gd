@@ -8,6 +8,8 @@ const IDLE_BOB: float = 1.2
 const SAW_CONTACT: float = 0.42
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)),
@@ -174,3 +176,24 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index-1].x,keys[index].x,t)
 			return lerpf(keys[index-1].y,keys[index].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+## Wrapped legs keep rigid boots planted while the knees soften and the body
+## folds forward. Tool grips remain rigid; no local limb translation opens a cuff.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest", 0.0, layout, facing)
+	var t: float = clampf(phase,0.0,1.0)
+	var rear: bool = facing == "rear"
+	var toward: float = 1.0 if rear else -1.0
+	var impact: float = _curve(t,PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.43,.38),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	pose["pelvis"]["position"] += Vector2(toward*(-4.0*impact+4.0*fall),2.0*impact+22.0*fall)
+	pose["torso"]["rotation"] = toward*(-.055*impact+.15*fall)
+	pose["hood"]["rotation"] = toward*.06*fall
+	for arm: String in ["saw","vial"]:
+		var elbow: Vector2 = _world(pose,layout,"fore_"+arm).origin
+		var wrist: Vector2 = _world(pose,layout,"wrist_"+arm).origin
+		_solve_arm(pose,layout,arm,elbow,wrist,toward*.12*fall)
+	for side: String in ["r","l"]:
+		_solve_leg(pose,layout,side,_point(layout,"foot_"+side),0.0,rear)
+	return pose

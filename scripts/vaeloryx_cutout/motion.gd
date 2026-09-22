@@ -38,6 +38,26 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		pose["tail_base"]["rotation"] = side * 0.025 * beat
 		pose["tail_mid"]["rotation"] = -side * 0.035 * beat
 		return pose
+	if clip == "hit":
+		# A suspended recoil: the whole body yields before the wings stabilize it.
+		var impact: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.36,0.60),Vector2(1,0)]))
+		pose["root"]["position"] += (-forward * 4.0 + Vector2(0, 2.0)) * impact
+		pose["neck"]["rotation"] = side * 0.055 * impact
+		pose["wing_near"]["rotation"] = 0.065 * impact
+		pose["wing_far"]["rotation"] = -0.06 * impact
+		return pose
+	if clip == "death":
+		# Flight fails first, then the long body settles and both wings fold.
+		var fall: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,0.06),Vector2(0.64,1),Vector2(1,1)]))
+		var settle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.28,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["root"]["position"] += Vector2(0, 17.0) * fall
+		pose["body"]["rotation"] = -side * 0.035 * settle
+		pose["neck"]["rotation"] = -side * 0.085 * settle
+		pose["wing_near"]["rotation"] = 0.16 * settle
+		pose["wing_far"]["rotation"] = -0.14 * settle
+		pose["arm_near"]["rotation"] = -side * 0.12 * settle
+		pose["arm_far"]["rotation"] = -side * 0.09 * settle
+		return pose
 	# The runtime maps authored 42% contact/release onto the effect's existing
 	# result boundary. Presentation never applies combat results.
 	var prepare: float = _curve(t, PackedVector2Array([Vector2(0, 0), Vector2(0.28, 1), Vector2(0.34, 1), Vector2(CONTACT, 0), Vector2(1, 0)]))

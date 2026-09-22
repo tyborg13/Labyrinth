@@ -376,6 +376,7 @@ func _initialize() -> void:
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/contextual_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/crawler_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))

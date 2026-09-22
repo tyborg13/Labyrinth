@@ -13,6 +13,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)),
 			"rotation": 0.0, "scale": Vector2.ONE, "skew": 0.0}
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	var bob := Vector2.ZERO
 	if clip == "idle":
 		# One coordinated translation. No armor/face rotation, scaling or ripple.
@@ -125,3 +127,24 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index-1].x,keys[index].x,t)
 			return lerpf(keys[index-1].y,keys[index].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = walk_cycle_info(layout,facing)["direction"]
+	var fallen: bool = clip == "death"
+	# The iron cap sinks as each tendril loses its arch, preserving the source
+	# width and connected skin instead of scaling the entire painted droplet.
+	pose["core"]["position"] += Vector2(0,15) * amount if fallen else (-forward * 5.5 + Vector2(0,2.0)) * amount
+	for tendril: String in TENDRILS:
+		var target: Vector2 = _point(layout,tendril+"_tip")
+		if fallen:
+			target += Vector2(signf(target.x-128.0)*6.0,1.5) * amount
+		_solve_tendril(pose,layout,tendril,target,0.0)
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

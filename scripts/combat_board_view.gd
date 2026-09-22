@@ -14397,7 +14397,7 @@ func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
 	# Authored collapse frames already contain the complete body motion on one
 	# consistently registered canvas. Applying the fallback squash/stretch on top
 	# would distort the pixel art and make its feet slide away from the death tile.
-	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+	if _unit_uses_cutout(unit) or _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
 		return rect
 	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
 

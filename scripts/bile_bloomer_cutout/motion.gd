@@ -19,6 +19,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	pose["hidden_calyx"]["visible"] = false
 	pose["hidden_roots"]["visible"] = clip == "walk"
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	var upper_offset := Vector2.ZERO
 	var aim: Vector2 = Vector2(1.0, -0.5) if facing == "rear" else Vector2(-1.0, 0.5)
 	if clip == "idle":
@@ -105,3 +107,33 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index - 1].x, keys[index].x, t)
 			return lerpf(keys[index - 1].y, keys[index].y, u * u * (3.0 - 2.0 * u))
 	return keys[-1].y
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = (Vector2(1,-0.5) if facing == "rear" else Vector2(-1,0.5)).normalized()
+	var fallen: bool = clip == "death"
+	var shift: Vector2 = Vector2(0,22) * amount if fallen else (-forward * 6.0 + Vector2(0,1.5)) * amount
+	var angle: float = (0.14 if facing == "rear" else -0.14) * amount if fallen else 0.0
+	# Bow the rigid mineral trunk as one piece; roots deform only at their painted
+	# stems, while the three root tips keep their original floor contacts.
+	pose["trunk"]["position"] += shift
+	pose["trunk"]["rotation"] = angle
+	var trunk_world := Transform2D(angle, _point(layout,"trunk") + shift)
+	for contact: String in ["root_l","root_c","root_r"]:
+		pose[contact]["position"] = trunk_world.affine_inverse() * _point(layout,contact)
+		pose[contact]["rotation"] = -angle
+	if fallen:
+		# Reuse the production hidden root crown that supplies exposed walk sockets.
+		pose["hidden_roots"]["visible"] = amount > 0.04
+		pose["petal_far_l"]["rotation"] = 0.055 * amount
+		pose["petal_far_r"]["rotation"] = -0.055 * amount
+		pose["petal_near_l"]["rotation"] = 0.035 * amount
+		pose["petal_near_r"]["rotation"] = -0.035 * amount
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

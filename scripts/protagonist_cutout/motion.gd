@@ -19,6 +19,9 @@ static func clip_specs() -> Dictionary:
 	return {
 		"idle": {"frames": 21, "fps": 25, "loop": true, "duration": 0.84},
 		"walk": {"frames": 24, "fps": 36, "loop": true, "duration": 2.0 / 3.0},
+		"hit": {"frames": 25, "duration": 0.36, "loop": false},
+		"block": {"frames": 25, "duration": 0.30, "loop": false},
+		"death": {"frames": 41, "duration": 0.64232, "loop": false},
 		"cast": {"frames": 48, "duration": 0.92, "loop": false},
 		"shoot": {"frames": 36, "duration": 0.44, "loop": false},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
@@ -26,6 +29,8 @@ static func clip_specs() -> Dictionary:
 
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death", "block"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose := _rest_pose(layout)
 	if pose.has("weapon_l"):
 		pose["weapon_l"]["visible"] = clip == "shoot" and phase > 0.01 and phase < 0.94
@@ -413,3 +418,30 @@ static func _hold(t: float, start: float, full: float, release: float, finish: f
 	if t <= start or t >= finish:
 		return 0.0
 	return _ease((t - start) / (full - start)) * (1.0 - _ease((t - release) / (finish - release)))
+
+## The impact folds into a supported slump; both soles remain at their native
+## anchors. Hold the final pose so the existing shadow dissolve can finish it.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = _rest_pose(layout)
+	if pose.has("weapon_l"): pose["weapon_l"]["visible"] = false
+	var t: float = clampf(phase, 0.0, 1.0)
+	if is_zero_approx(t) or (clip != "death" and is_equal_approx(t,1.0)): return pose
+	var direction: float = -1.0 if facing == "rear" else 1.0
+	var impact: float = _pulse(t, 0.0, 0.15, 1.0) if clip != "death" else _pulse(t, 0.0, 0.13, 0.48)
+	var fall: float = smoothstep(0.10, 0.78, t) if clip == "death" else 0.0
+	_offset(pose, "hips", Vector2(direction * (3.5 * impact - 5.0 * fall), 1.8 * impact + 33.0 * fall))
+	_rotate(pose, "torso", direction * (0.055 * impact - 0.25 * fall))
+	_rotate(pose, "head", direction * (-0.025 * impact - 0.08 * fall))
+	_rotate(pose, "arm_r", direction * (-0.10 * impact - 0.15 * fall))
+	_rotate(pose, "forearm_r", direction * (0.10 * impact + 0.45 * fall))
+	_rotate(pose, "arm_l", direction * (0.10 * impact + 0.16 * fall))
+	_rotate(pose, "forearm_l", -direction * 0.12 * fall)
+	if clip == "block":
+		var guard: float = _hold(t, 0.0, 0.14, 0.32, 1.0)
+		var wrist: Vector2 = _joint_position(layout, "hand_r") + Vector2(-direction * 3.0, -12.0) * guard
+		_solve_leg(pose, layout, "arm_r", "forearm_r", "hand_r", wrist, direction * 1.45 * guard, direction)
+		_rotate(pose, "forearm_l", -direction * 0.24 * guard)
+	for side: String in ["r", "l"]:
+		_solve_leg(pose, layout, "thigh_" + side, "shin_" + side, "foot_" + side,
+			_joint_position(layout, "foot_" + side), 0.0, direction)
+	return _separate_grip(pose)

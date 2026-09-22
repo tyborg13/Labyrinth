@@ -46,6 +46,18 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	elif clip == "faultline":
 		pose["torso"]["position"] += -direction * 2.5 * prep + Vector2(0, -2.5 * prep + 5.0 * hit)
 		rake_target += Vector2(0, -19.0 * prep)
+	elif clip == "hit":
+		# Rock-heavy recoil is restrained; the planted claws absorb the load.
+		var impact: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.37,0.75),Vector2(1,0)]))
+		pose["torso"]["position"] += (-direction * 2.7 + Vector2(0, 1.6)) * impact
+		pose["head"]["rotation"] = (0.025 if facing == "front" else -0.025) * impact
+	elif clip == "death":
+		# The armored trunk loses its support in one heavy, irreversible settle.
+		var buckle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.20,0.12),Vector2(0.68,1),Vector2(1,1)]))
+		var settle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.36,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["torso"]["position"] += Vector2(0, 12.0) * buckle
+		pose["neck"]["rotation"] = (-0.06 if facing == "front" else 0.06) * settle
+		pose["head"]["rotation"] = (-0.035 if facing == "front" else 0.035) * settle
 	for leg: String in LEGS:
 		var target: Vector2 = _point(layout, "claw_" + leg)
 		var lift: float = 0.0
