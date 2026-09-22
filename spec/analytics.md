@@ -564,6 +564,12 @@ and `offered_relics`. Claiming the exclusive trophy records `reward_choice` with
 `choice: claim`, `relic_id` and `guardian_id` after the saved claim boundary.
 Room completion and ownership prevent duplicate awards on replay.
 
+Treasure chest opening and relic delivery are presentation-only. Relic ownership,
+the saved `relic_claimed` boundary, and the existing guardian `reward_choice`
+event still commit synchronously before visual delivery. The chest reveal and
+the delayed map presentation add no reward or outcome events; the map opens
+after the beam, its staggered motes, and the destination settlement complete.
+
 Guardian `enemy_action_resolved` records add `guardian_mechanic`, `declared_tiles`
 and `resolved_tiles`; broken cover can shrink a previously declared quake or
 blocked lane. They also add `interrupted`; interrupted Guardian status steps

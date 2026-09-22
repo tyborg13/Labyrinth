@@ -1,0 +1,156 @@
+{
+  "kind": "rigid_hinged_prop",
+  "canvas": [
+    128,
+    160
+  ],
+  "logical_size": [
+    96,
+    96
+  ],
+  "logical_offset": [
+    16,
+    40
+  ],
+  "closed_body_polygon": [
+    [
+      0,
+      36
+    ],
+    [
+      8,
+      36
+    ],
+    [
+      28,
+      49
+    ],
+    [
+      89,
+      37
+    ],
+    [
+      96,
+      37
+    ],
+    [
+      96,
+      96
+    ],
+    [
+      0,
+      96
+    ]
+  ],
+  "generated_ownership": {
+    "lid_interior": [
+      [
+        0,
+        0
+      ],
+      [
+        1246,
+        0
+      ],
+      [
+        1246,
+        580
+      ],
+      [
+        899,
+        580
+      ],
+      [
+        862,
+        609
+      ],
+      [
+        285,
+        710
+      ],
+      [
+        0,
+        710
+      ]
+    ],
+    "cavity": [
+      [
+        280,
+        697
+      ],
+      [
+        862,
+        600
+      ],
+      [
+        1080,
+        725
+      ],
+      [
+        496,
+        844
+      ]
+    ]
+  },
+  "source_landmarks": [
+    [
+      280,
+      697
+    ],
+    [
+      862,
+      600
+    ],
+    [
+      496,
+      844
+    ]
+  ],
+  "target_landmarks": [
+    [
+      25,
+      76
+    ],
+    [
+      86,
+      66
+    ],
+    [
+      44,
+      89
+    ]
+  ],
+  "source_to_registered": [
+    [
+      0.10149662929787993,
+      -0.01988620359416371,
+      10.441627701725725
+    ],
+    [
+      -0.0019623307607083175,
+      0.09131879894090474,
+      12.900249751187722
+    ]
+  ],
+  "hinge_registered": [
+    [
+      25,
+      76
+    ],
+    [
+      86,
+      66
+    ]
+  ],
+  "source_sha256": {
+    "closed_original.png": "b17c521f4a40de780ba88c6e43f214b2924e30e0ccdccdaa807920ad8ecd0334",
+    "open_generated.png": "cdfe2f8f926ded5d6e88998b7a70fcf062c020c97256221cee0093af00777fb1"
+  },
+  "runtime_sha256": {
+    "cavity.png": "47f95472b4241feffdd84cb21b859f6d30f1ca2cb88a5d6eb81612ca0b4cf175",
+    "body.png": "e81e426afd2e3cb489fc7647a5453b9684868f4dd1b912cd9c9198987235270b",
+    "lid_interior.png": "f3214c42360b829f8a377cd9b51d6e0283fe0278c4e6c50efe7459aa02838709",
+    "lid_exterior.png": "fde4b3fabbf02abe0e7ed7818c98dd22f7f6dca63d98702e73552d1769700b2d"
+  },
+  "rest_reconstruction": "RGBA byte-identical"
+}

@@ -1,6 +1,6 @@
 extends "res://tests/ui_probe.gd"
 
-const CHOICE_OUTPUT: String = "user://probes/choice_material_v1"
+const CHOICE_OUTPUT: String = "user://probes/choice_material_v2"
 var _choice_failures: Array[String]
 
 func _initialize() -> void:
@@ -31,9 +31,16 @@ func _initialize() -> void:
 	instance.call("_load_run_state", treasure)
 	instance.call("_close_dialogue")
 	instance.call("_close_large_map")
+	for _frame: int in range(90):
+		if not bool(instance.get("_treasure_reveal_active")):
+			break
+		await create_timer(0.025).timeout
+	_expect_choice(not bool(instance.get("_treasure_reveal_active")), "Treasure reveal must complete before inspecting choices")
 	await _choice_settle()
 	await _choice_capture("01_relic_idle.png")
 	var choices: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var initial_focus: Control = _proof_viewport.gui_get_focus_owner()
+	_expect_choice(initial_focus == null or not choices.is_ancestor_of(initial_focus), "Pointer-only reveal must leave relic choices idle")
 	var relic: PanelContainer = choices.get_child(1) as PanelContainer
 	var original_rect: Rect2 = relic.get_global_rect()
 	relic.grab_focus()
@@ -49,10 +56,12 @@ func _initialize() -> void:
 	await _choice_point(Vector2(40, 40))
 
 	await _load_campfire(instance, engine, base, 0)
+	_assert_campfire_single_perimeter(instance)
 	await _choice_capture("04_campfire_locked.png")
 	choices = instance.get("_relic_choice_bar") as HBoxContainer
 	_expect_choice((choices.get_child(2) as Control).focus_mode == Control.FOCUS_NONE, "Unaffordable campfire choice must remain outside navigation")
 	await _load_campfire(instance, engine, base, 180)
+	_assert_campfire_single_perimeter(instance)
 	await _choice_capture("05_campfire_idle.png")
 	choices = instance.get("_relic_choice_bar") as HBoxContainer
 	var campfire: PanelContainer = choices.get_child(0) as PanelContainer
@@ -143,3 +152,17 @@ func _choice_capture(filename: String) -> void:
 func _expect_choice(ok: bool, message: String) -> void:
 	if not ok:
 		_choice_failures.append(message)
+
+func _assert_campfire_single_perimeter(instance: Node) -> void:
+	var choices: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	for child: Node in choices.get_children():
+		var panel: PanelContainer = child as PanelContainer
+		if panel == null:
+			continue
+		var style: StyleBoxFlat = panel.get_theme_stylebox("panel") as StyleBoxFlat
+		_expect_choice(style != null, "Campfire uses the authored frame")
+		if style != null:
+			for side: Side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+				_expect_choice(is_zero_approx(style.get_expand_margin(side)), "Campfire frame has no duplicate expanded outer panel")
+		var art: TextureRect = panel.get_node("CampfireChoiceBackgroundClip/CampfireChoiceBackground") as TextureRect
+		_expect_choice(art.texture != null and art.get_rect() == Rect2(Vector2.ZERO, panel.size), "Campfire backing art fits the single frame")

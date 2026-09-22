@@ -1302,9 +1302,9 @@ const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
 const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
 const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngineScript.CAMPFIRE_LINGER_HEAL
-const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
-const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
-const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
+const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger_v2.png"
+const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace_v2.png"
+const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength_v2.png"
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger for a moment"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace the fire's warmth"
 const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Learn a new skill"
@@ -1338,6 +1338,8 @@ const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choi
 const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
+const TREASURE_CHEST_OPEN_SECONDS: float = 0.74
+const TREASURE_CHEST_REDUCED_SECONDS: float = 0.12
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
 const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
@@ -1861,6 +1863,16 @@ var _reward_reveal_pending: bool = false
 var _reward_intro_in_progress: bool = false
 var _campfire_choice_action_pending: bool = false
 var _relic_claim_in_progress: bool = false
+var _treasure_sequence_epoch: int = 0
+var _treasure_reveal_active: bool = false
+var _treasure_reveal_key: String = ""
+var _treasure_reveal_complete_key: String = ""
+var _treasure_chest_progress: float = 0.0
+var _treasure_reveal_navigation: bool = false
+var _relic_delivery_phase: String = ""
+var _relic_delivery_id: String = ""
+var _treasure_sequence_tweens: Array[Tween]
+var _treasure_sequence_nodes: Array[Node]
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
 var _section_map_hud_button: Button
@@ -2177,6 +2189,18 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	# Track real navigation intent, not focus left behind by a prior modal.
+	if (event is InputEventKey or event is InputEventAction or InputRouterScript.is_controller_event(event)) and event.is_pressed():
+		_treasure_reveal_navigation = true
+	elif (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
+		_treasure_reveal_navigation = false
+	elif event is InputEventMouseMotion and event.relative.length_squared() > 4.0:
+		_treasure_reveal_navigation = false
+	elif event is InputEventJoypadMotion and absf(event.axis_value) > 0.35:
+		_treasure_reveal_navigation = true
+	if _treasure_presentation_busy():
+		get_viewport().set_input_as_handled()
+		return
 	if _grimoire_scrim != null and _grimoire_scrim.visible:
 		# Search receives focus even for pointer browsing. Return focus only when
 		# navigation is still in use; a mouse/touch dismissal must not latch the
@@ -3751,6 +3775,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_cancel_treasure_presentation()
 	_board_hover_refresh_generation += 1
 	_board_hover_refresh_pending = false
 	_cancel_committed_hand_queries()
@@ -11033,6 +11058,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_cancel_treasure_presentation()
+	_treasure_reveal_complete_key = ""
 	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
@@ -14866,7 +14893,7 @@ func _refresh_visibility() -> void:
 		# stale drag state must not rebuild the just-created shop/reward a second time.
 		_cancel_drag_play(false)
 		_close_pile_view()
-	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
+	if not (mode in ["combat", "reward"]) and not _relic_claim_in_progress and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
 	if mode not in ["room", "campfire", RunEngineScript.MODE_PRE_BATTLE]:
 		var read_only_skill_tree_open: bool = (
@@ -14892,6 +14919,7 @@ func _refresh_card_preview_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
 func _refresh_choice_bar() -> void:
+	_sync_treasure_room_reveal()
 	if _scavenger_shop_view != null:
 		_scavenger_shop_view.dismiss_immediately()
 	_clear_children(choice_bar)
@@ -14958,7 +14986,7 @@ func _refresh_choice_bar() -> void:
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
 				_add_reward_choice_stack()
 		"treasure":
-			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+			var pending_relics: Array = [] if _treasure_reveal_active else (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
 				relic_offer_sfx_signature = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), JSON.stringify(pending_relics)]
 				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
@@ -16605,10 +16633,6 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 	art.modulate = Color(1.0, 1.0, 1.0, 0.68 if enabled else 0.50)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.offset_left = -8.0
-	art.offset_top = -8.0
-	art.offset_right = 8.0
-	art.offset_bottom = 8.0
 	clip.add_child(art)
 
 	var wash := ColorRect.new()
@@ -16757,11 +16781,9 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	style.corner_radius_bottom_left = 8
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.52 if hovered else 0.40)
 	style.shadow_size = 22 if hovered else 16
+	# Keep the authored art, edge finish and base frame on one perimeter.
+	# Expanding this base drew an unwanted second panel outside the choice.
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	style.expand_margin_left = 8.0
-	style.expand_margin_top = 8.0
-	style.expand_margin_right = 8.0
-	style.expand_margin_bottom = 14.0
 	return style
 
 func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
@@ -17726,7 +17748,7 @@ func _card_widget_scale_for_size(card_size: Vector2) -> float:
 	return minf(card_size.x / CARD_WIDGET_BASE_SIZE.x, card_size.y / CARD_WIDGET_BASE_SIZE.y)
 
 func _clear_idle_card_fx_layer() -> void:
-	if _animation_lock or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
+	if _animation_lock or _relic_claim_in_progress or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
 		return
 	for child: Node in _card_fx_layer.get_children():
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
@@ -17916,6 +17938,13 @@ func _refresh_stage_view() -> void:
 	var stage_chrome: Dictionary = _stage_chrome_presentation()
 	for chrome_key: Variant in stage_chrome:
 		presentation[chrome_key] = stage_chrome[chrome_key]
+	# Copy only the chest descriptor: the shared chrome cache remains static.
+	if presentation.has("scene_props"):
+		var props: Array = (presentation["scene_props"] as Array).duplicate(true)
+		for prop: Dictionary in props:
+			if str(prop.get("kind", "")) == "relic_chest":
+				prop["open_progress"] = _treasure_chest_progress if str(_run_state.get("mode", "")) == "treasure" else 1.0
+		presentation["scene_props"] = props
 	presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	presentation["controller_hand_focused"] = _controller_hand_focused
 	presentation["tile_drag_aiming"] = (
@@ -21466,7 +21495,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	)
 
 func _map_shortcut_can_open() -> bool:
-	if _large_map_scrim == null or _dialogue_active or _animation_lock or _drag_card_index >= 0:
+	if _large_map_scrim == null or _dialogue_active or _animation_lock or _treasure_presentation_busy() or _drag_card_index >= 0:
 		return false
 	for blocking_control: Control in [
 		_menu_scrim,
@@ -21482,7 +21511,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
-	if _large_map_scrim == null:
+	if _large_map_scrim == null or _treasure_presentation_busy():
 		return
 	_map_opened_from_toolbar = from_toolbar
 	_controller_clear_hand_hover()
@@ -26328,7 +26357,7 @@ func _await_opening_hand_draw_layout() -> void:
 		await get_tree().process_frame
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
-	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
+	if _animation_lock or _treasure_presentation_busy() or str(_run_state.get("mode", "room")) != "room":
 		return
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 		_guided_tutorial_reject()
@@ -26571,8 +26600,103 @@ func _on_campfire_leave_pressed() -> void:
 	_persist_committed_boundary("campfire_leave")
 	_refresh_ui()
 
+# Treasure motion is presentation-only: ownership and analytics still commit
+# synchronously in _claim_relic_with_deferred, before any animated delivery.
+func _treasure_presentation_busy() -> bool:
+	return _treasure_reveal_active or _relic_claim_in_progress
+
+func _treasure_room_reveal_key() -> String:
+	if str(_run_state.get("mode", "")) != "treasure" or (_run_state.get("pending_relics", []) as Array).is_empty():
+		return ""
+	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	if str(room.get("type", "")) != "treasure":
+		return ""
+	return "%s:%s" % [str(_run_state.get("seed", 0)), str(_run_state.get("current_room", Vector2i.ZERO))]
+
+func _sync_treasure_room_reveal() -> void:
+	var key: String = _treasure_room_reveal_key()
+	if key.is_empty():
+		if _treasure_reveal_active:
+			_cancel_treasure_presentation()
+		return
+	if key == _treasure_reveal_complete_key or (_treasure_reveal_active and key == _treasure_reveal_key):
+		return
+	if _treasure_reveal_active:
+		_cancel_treasure_presentation()
+	_treasure_reveal_key = key
+	_treasure_reveal_active = true
+	_treasure_chest_progress = 0.0
+	_treasure_reveal_navigation = _controller_is_active() or _treasure_reveal_navigation
+	_close_large_map()
+	call_deferred("_play_treasure_room_reveal", _treasure_sequence_epoch, key)
+
+func _play_treasure_room_reveal(sequence_epoch: int, key: String) -> void:
+	while _animation_lock and _treasure_sequence_is_current(sequence_epoch):
+		await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch) or key != _treasure_room_reveal_key():
+		return
+	var tween := create_tween()
+	_treasure_sequence_tweens.append(tween)
+	if _reduced_motion_enabled():
+		_set_treasure_chest_progress(1.0)
+		tween.tween_interval(TREASURE_CHEST_REDUCED_SECONDS)
+	else:
+		tween.tween_interval(0.10)
+		tween.tween_method(_set_treasure_chest_progress, 0.0, 1.0, TREASURE_CHEST_OPEN_SECONDS - 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_interval(0.12)
+	if not await _await_treasure_tween(tween, sequence_epoch) or key != _treasure_room_reveal_key():
+		return
+	_treasure_chest_progress = 1.0
+	_treasure_reveal_complete_key = key
+	_treasure_reveal_active = false
+	_treasure_sequence_tweens.clear()
+	_refresh_ui()
+	if _treasure_reveal_navigation and _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0:
+		(_relic_choice_bar.get_child(0) as Control).grab_focus()
+	if _treasure_reveal_navigation:
+		call_deferred("_recover_controller_focus")
+
+func _set_treasure_chest_progress(progress: float) -> void:
+	_treasure_chest_progress = clampf(progress, 0.0, 1.0)
+	if board_view != null:
+		board_view.set_treasure_chest_open_progress(_treasure_chest_progress)
+
+func _treasure_sequence_is_current(sequence_epoch: int) -> bool:
+	return is_inside_tree() and sequence_epoch == _treasure_sequence_epoch
+
+func _await_treasure_tween(tween: Tween, sequence_epoch: int) -> bool:
+	var began_reduced: bool = _reduced_motion_enabled()
+	while tween != null and tween.is_valid() and tween.is_running():
+		await get_tree().process_frame
+		if not _treasure_sequence_is_current(sequence_epoch):
+			return false
+		if not began_reduced and _reduced_motion_enabled() and tween.is_valid():
+			tween.custom_step(10.0)
+	return _treasure_sequence_is_current(sequence_epoch)
+
+func _cancel_treasure_presentation() -> void:
+	_treasure_sequence_epoch += 1
+	for tween: Tween in _treasure_sequence_tweens:
+		if tween != null and tween.is_valid():
+			tween.kill()
+	_treasure_sequence_tweens.clear()
+	for node: Node in _treasure_sequence_nodes:
+		if _node_is_alive(node):
+			node.queue_free()
+	_treasure_sequence_nodes.clear()
+	var frame: Control = _relic_frame_for_id(_relic_delivery_id)
+	if _node_is_alive(frame):
+		frame.scale = Vector2.ONE
+		frame.modulate = Color.WHITE
+	_relic_claim_in_progress = false
+	_relic_delivery_phase = ""
+	_relic_delivery_id = ""
+	_treasure_reveal_active = false
+	_treasure_reveal_key = ""
+	_treasure_chest_progress = 0.0
+
 func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
-	if _relic_claim_in_progress:
+	if _treasure_presentation_busy():
 		return
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_reject()
@@ -26605,12 +26729,16 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	await _claim_relic_with_deferred(relic_id, "", source_rect)
 
 func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, source_rect: Rect2) -> void:
-	if _relic_claim_in_progress:
+	if _treasure_presentation_busy():
 		return
 	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 	if not pending_relics.has(relic_id):
 		return
 	_relic_claim_in_progress = true
+	var sequence_epoch: int = _treasure_sequence_epoch
+	_relic_delivery_id = relic_id
+	_relic_delivery_phase = "delivery"
+	_close_large_map()
 	var trophy: Dictionary = (_run_state.get("guardian_reward", {}) as Dictionary).duplicate(true)
 	var trophy_context: Dictionary = _analytics_context_from_states(_run_state)
 	var accent := Color(GameData.relic_accent(relic_id))
@@ -26626,8 +26754,22 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	_refresh_ui()
 	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
+	_relic_delivery_phase = "settlement"
 	await _animate_relic_acquired(relic_id)
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
+	_relic_delivery_phase = ""
+	_relic_delivery_id = ""
 	_relic_claim_in_progress = false
+	_treasure_sequence_tweens.clear()
+	_treasure_sequence_nodes.clear()
+	# The saved claim is already authoritative. Present the next decision only
+	# after delivery and its destination's final settle have both completed.
+	_maybe_present_section_map()
+	if _treasure_reveal_navigation:
+		call_deferred("_recover_controller_focus")
 
 func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
 	if _merchant_trade_animation_active:
@@ -26988,10 +27130,11 @@ func _animate_acquisition_destination_arrival(control: Control, accent: Color) -
 	control.modulate = Color.WHITE
 
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
-	if _card_fx_layer == null:
+	if _card_fx_layer == null or _reduced_motion_enabled():
 		return
+	var sequence_epoch: int = _treasure_sequence_epoch
 	await get_tree().process_frame
-	if not _node_is_alive(_card_fx_layer):
+	if not _treasure_sequence_is_current(sequence_epoch) or not _node_is_alive(_card_fx_layer):
 		return
 	var frame: Control = _relic_frame_for_id(relic_id)
 	var target: Vector2 = _relic_bar_target_global_position(frame)
@@ -27007,17 +27150,23 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
+	_treasure_sequence_nodes.append(beam)
 	var beam_tween: Tween = create_tween().set_parallel(true)
+	_treasure_sequence_tweens.append(beam_tween)
 	beam_tween.tween_property(beam, "progress", 1.0, RELIC_ACQUISITION_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(RELIC_ACQUISITION_SECONDS * 0.72)
+	var last_mote: Tween
 	for mote_index: int in range(RELIC_ACQUISITION_MOTES):
-		_spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
-	await get_tree().create_timer(RELIC_ACQUISITION_SECONDS + 0.04).timeout
-	_queue_free_node_now(beam)
-
-func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
-	if _card_fx_layer == null:
+		last_mote = _spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
+	if not await _await_treasure_tween(beam_tween, sequence_epoch):
 		return
+	_queue_free_node_now(beam)
+	# The last staggered mote arrives after the beam fade. It belongs to delivery.
+	await _await_treasure_tween(last_mote, sequence_epoch)
+
+func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> Tween:
+	if _card_fx_layer == null:
+		return null
 	var mote := RelicAcquisitionMote.new()
 	mote.name = "RelicAcquisitionMote"
 	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
@@ -27033,13 +27182,16 @@ func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, 
 	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	mote.z_index = 1601
 	_card_fx_layer.add_child(mote)
+	_treasure_sequence_nodes.append(mote)
 	var delay: float = float(mote_index) * 0.018
 	var tween: Tween = create_tween().set_parallel(true)
+	_treasure_sequence_tweens.append(tween)
 	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(mote, "scale", Vector2.ONE * 0.32, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(mote, "modulate:a", 1.0, 0.06).set_delay(delay)
 	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + RELIC_ACQUISITION_SECONDS * 0.62)
 	tween.finished.connect(_queue_free_node_now.bind(mote))
+	return tween
 
 func _relic_acquisition_source_global_position(source_rect: Rect2) -> Vector2:
 	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
@@ -27054,23 +27206,33 @@ func _relic_bar_target_global_position(frame: Control) -> Vector2:
 	return room_title.get_global_rect().get_center()
 
 func _animate_relic_acquired(relic_id: String) -> void:
+	var sequence_epoch: int = _treasure_sequence_epoch
 	await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
 	var frame: Control = _relic_frame_for_id(relic_id)
 	if frame == null:
 		return
 	frame.pivot_offset = frame.size * 0.5
-	frame.scale = Vector2(0.86, 0.86)
 	frame.modulate = Color(1.0, 0.92, 0.62, 1.0)
 	var tween := create_tween()
-	tween.set_loops(3)
-	tween.tween_property(frame, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await tween.finished
+	_treasure_sequence_tweens.append(tween)
+	if _reduced_motion_enabled():
+		tween.tween_interval(TREASURE_CHEST_REDUCED_SECONDS)
+	else:
+		frame.scale = Vector2(0.86, 0.86)
+		tween.set_loops(3)
+		tween.tween_property(frame, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if not await _await_treasure_tween(tween, sequence_epoch) or not _node_is_alive(frame):
+		return
+	_relic_delivery_phase = "settle"
 	var settle := create_tween()
+	_treasure_sequence_tweens.append(settle)
 	settle.set_parallel(true)
 	settle.tween_property(frame, "scale", Vector2.ONE, 0.10)
 	settle.tween_property(frame, "modulate", Color.WHITE, 0.10)
-	await settle.finished
+	await _await_treasure_tween(settle, sequence_epoch)
 
 func _relic_frame_for_id(relic_id: String) -> Control:
 	if _relic_icon_grid == null:
@@ -33200,7 +33362,7 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)
 
 func _maybe_present_section_map() -> void:
-	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _loadout_acquisition_in_progress or _dialogue_active:
+	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
 		return
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode not in ["room", "event"] or not _map_shortcut_can_open():

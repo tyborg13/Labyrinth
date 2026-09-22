@@ -304,6 +304,13 @@ func _capture_special_room_states(instance: Node, probe_run_engine: RunEngine) -
 	var treasure_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, treasure_coord, "treasure", Vector2i(1, 0))
 	treasure_state["pending_relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 	instance.call("_load_run_state", treasure_state)
+	# Room entry now owns a brief chest reveal before the choice surface.
+	# The focused treasure probe owns the intermediate animation frames.
+	for _step: int in range(100):
+		if not bool(instance.get("_treasure_reveal_active")):
+			break
+		await create_timer(0.025).timeout
+	assert(not bool(instance.get("_treasure_reveal_active")), "Treasure reveal must complete before the choice overview")
 	await process_frame
 	await process_frame
 	await _save_root_screenshot("user://probes/run_treasure.png")
