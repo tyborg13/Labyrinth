@@ -317,4 +317,3 @@ func _exercise_loadout_material(instance: Node, base_state: Dictionary) -> void:
 	instance.set("_run_state", clean_state)
 	instance.call("_refresh_ui")
 	await _settle()
-
