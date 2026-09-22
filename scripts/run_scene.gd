@@ -6766,6 +6766,7 @@ func _build_grimoire_overlay() -> void:
 	left_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left_page.add_theme_stylebox_override("panel", _grimoire_page_style(false))
 	book_row.add_child(left_page)
+	_ui_skin.apply_surface_finish(left_page, "paper_left")
 
 	var left_margin := MarginContainer.new()
 	left_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
@@ -6859,6 +6860,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_panel.add_theme_stylebox_override("panel", _grimoire_page_style(true))
 	book_row.add_child(_grimoire_detail_panel)
+	_ui_skin.apply_surface_finish(_grimoire_detail_panel, "paper_right")
 
 	var detail_margin := MarginContainer.new()
 	detail_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))

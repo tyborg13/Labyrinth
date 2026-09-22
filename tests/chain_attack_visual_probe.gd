@@ -67,7 +67,7 @@ func _capture(reduced: bool, trapped: bool = false) -> void:
 	var seen_ids: Array[int]
 	var trap_seen: bool = false
 	var trap_sound_seen: bool = false
-	var terrain_completed: bool = false
+	var terrain_preserved: bool = false
 	completed = false
 	_play(instance, before, result, action)
 	var deadline: int = Time.get_ticks_msec() + 5000
@@ -83,10 +83,15 @@ func _capture(reduced: bool, trapped: bool = false) -> void:
 			if not trap_effects.is_empty():
 				trap_seen = true
 				_remember(samples, "04_trap_during_chain", shown, presentation)
+			# Traps now damage only their center tile. This fixture's adjacent
+			# crate must survive both the forced trap activation and chain relay.
+			terrain_preserved = false
+			for unit: Dictionary in shown.get("terrain", []):
+				if str(unit.get("id", "")) == "chain_crate":
+					terrain_preserved = int(unit.get("hp", 0)) == 3
+			_expect(terrain_preserved, "Center-only trap damage must preserve the adjacent crate during playback")
 			for unit: Dictionary in presentation.get("terrain_destruction_units", []):
-				if float(unit.get("destruction_progress", 0.0)) >= 0.99:
-					terrain_completed = true
-					_remember(samples, "05_terrain_complete", shown, presentation)
+				_expect(str(unit.get("id", "")) != "chain_crate", "The surviving crate must never play a destruction animation")
 			for player: AudioStreamPlayer in instance.get("_sfx_players") as Array:
 				if player.playing and str(player.get_meta("sfx_id", "")).contains("fire"):
 					trap_sound_seen = true
@@ -113,7 +118,8 @@ func _capture(reduced: bool, trapped: bool = false) -> void:
 	_expect(completed, "Chain animation must complete within its bounded natural duration")
 	if trapped:
 		_expect(seen_ids == [1] and trap_seen and trap_sound_seen, "A relic chain with forced movement must retain its trap VFX and production sound")
-		_expect(terrain_completed, "Trap-destroyed terrain must reach its final frame before cleanup")
+		_expect(terrain_preserved, "Trap and chain playback must expose the intact adjacent crate")
+		_remember(samples, "05_terrain_preserved", board.get("combat_state") as Dictionary, board.get("presentation") as Dictionary)
 	else:
 		_expect(seen_ids == [1, 2], "Normal and reduced-motion playback must expose both actual hops in order")
 		_expect(samples.has("00_initial_contact") and samples.has("02_hop_contact") and samples.has("03_final_contact"), "Native live playback must produce readable first, second and third contacts")

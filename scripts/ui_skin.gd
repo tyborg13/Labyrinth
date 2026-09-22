@@ -5,6 +5,7 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ThemedButtonOrnament = preload("res://scripts/themed_button_ornament.gd")
 const ThemedInsetOrnament = preload("res://scripts/themed_inset_ornament.gd")
 const ThemedPanelOrnament = preload("res://scripts/themed_panel_ornament.gd")
+const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
 
 const TEXTURES := {
 	"panel_main": {
@@ -345,12 +346,25 @@ func apply_outer_panel_frame(panel: PanelContainer, variant: String = SURFACE_DI
 	# The raster is the sole visible outline so a second code-native border cannot
 	# peek out around its authored rails and corners.
 	_suppress_outer_panel_outline(panel)
+	apply_surface_finish(panel, variant)
 	panel.set_meta("surface_variant", variant)
 	panel.set_meta("panel_outer_frame_only", true)
 	panel.set_meta("panel_frame_scale", 0.14)
 	var ornament: Node2D = _ensure_outer_panel_ornament(panel, variant)
 	if ornament != null:
 		panel.move_child(ornament, panel.get_child_count() - 1)
+
+func apply_surface_finish(panel: PanelContainer, kind: String = SURFACE_DIALOG) -> void:
+	if panel == null:
+		return
+	var finish: Node2D = panel.get_node_or_null("SurfaceFinish") as Node2D
+	if finish == null:
+		finish = SurfaceFinish.new()
+		finish.name = "SurfaceFinish"
+		panel.add_child(finish)
+	# Node2D is outside container layout; first-child paint precedes all content.
+	panel.move_child(finish, 0)
+	finish.call("configure", panel, kind)
 
 func apply_inset_surface(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
 	if panel == null:

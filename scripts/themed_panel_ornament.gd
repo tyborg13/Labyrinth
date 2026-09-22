@@ -1,6 +1,7 @@
 extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
 
 const VARIANT_DIALOG: String = "dialog"
 const VARIANT_PARCHMENT: String = "parchment"
@@ -77,6 +78,7 @@ func _draw() -> void:
 	var inset_rect := body_rect.grow(-8.0)
 	var inset_points: PackedVector2Array = _cut_corner_points(inset_rect, maxf(4.0, cut - 5.0))
 	draw_colored_polygon(inset_points, palette["inner"])
+	SurfaceFinish.draw_dark_well(self, inset_points, inset_rect, _variant)
 	if _panel.has_meta("panel_surface_accent"):
 		var surface_accent: Color = Color(_panel.get_meta("panel_surface_accent"))
 		var accent_alpha: float = 0.78 if bool(_panel.get_meta("panel_hovered", false)) else 0.40
