@@ -1,5 +1,7 @@
 extends Node
 
+const ReactionPlayback = preload("res://scripts/cutout_reaction_playback.gd")
+
 ## A stable texture RID lets the retained board draw live bones without rebuilding
 ## its tiles for every breath. Both painted facings stay loaded between turns.
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
@@ -81,6 +83,8 @@ static func attack_trail_phase(progress: float) -> float:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	reduced_motion = reduce
 	active = enabled
+	if ReactionPlayback.present(self, motion):
+		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 	if delta != Vector2i.ZERO:
 		var direction: Dictionary = direction_for_delta(delta)
@@ -121,8 +125,8 @@ func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
 	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
-	var shown_clip: String = clip if ranged_still else "rest" if reduced_motion else clip
-	var shown_phase: float = 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
+	var shown_clip: String = "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
 	if signature == _pose_signature:
 		return
@@ -134,7 +138,7 @@ func _apply_pose() -> void:
 			continue
 		rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 		rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
-		rig.call("apply_pose", shown_clip, shown_phase)
+		ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func texture() -> Texture2D:
@@ -168,8 +172,8 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 func snapshot() -> Dictionary:
 	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
 	return {"art": "protagonist_cutout_pass9", "facing": facing, "mirrored": mirrored,
-		"clip": clip if ranged_still else "rest" if reduced_motion else clip,
-		"phase": 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
+		"clip": "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip,
+		"phase": 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
 		"hand_source": source_socket(), "muzzle_source": source_socket(true),
 		"crossbow_visible": (rigs[facing].bones["weapon_l"] as Bone2D).visible if rigs[facing].bones.has("weapon_l") else false,
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}

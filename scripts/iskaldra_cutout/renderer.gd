@@ -1,5 +1,7 @@
 extends Node
 
+const ReactionPlayback = preload("res://scripts/cutout_reaction_playback.gd")
+
 ## One persistent padded canvas per Iskaldra, shared by all retained board layers.
 const Rig = preload("res://scripts/iskaldra_cutout/rig.gd")
 const Motion = preload("res://scripts/iskaldra_cutout/motion.gd")
@@ -62,6 +64,8 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce
+	if ReactionPlayback.present(self, motion):
+		return
 	if not active:
 		# A death uses the same frozen pose and facing throughout its dissolve.
 		_apply_pose()
@@ -102,8 +106,8 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "rest" if reduced_motion else clip
-	var shown_phase: float = 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
 	var signature: Array = [facing,mirrored,shown_clip,shown_phase,travel_per_cycle]
 	if signature == _pose_signature:
 		return
@@ -117,7 +121,7 @@ func _apply_pose() -> void:
 			if shown_clip == "walk":
 				rig.call("apply_walk_pose",shown_phase,travel_per_cycle)
 			else:
-				rig.call("apply_pose",shown_clip,shown_phase)
+				ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func source_socket(released: bool = true) -> Vector2:
@@ -135,7 +139,7 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art":"iskaldra_cutout_v01","facing":facing,"mirrored":mirrored,
-		"clip":"rest" if reduced_motion else clip,
-		"phase":0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip":"death" if clip == "death" else "rest" if reduced_motion else clip,
+		"phase":1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"travel_per_cycle":travel_per_cycle,
 		"active":active,"rig_count":rigs.size(),"texture_id":texture().get_instance_id() if texture() != null else 0}

@@ -3,6 +3,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProductionRig = preload("res://scripts/crawler_cutout/rig.gd")
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
+const REVIEW_CASE: String = "res://output/contextual-animation-polish/creatures/cases/crawler/cutout.json"
 const OUTPUT: String = "user://probes/crawler_cutout_assets"
 var _errors: Array[String]
 var _records: Array[Dictionary]
@@ -12,6 +13,12 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	# Prepare the current reviewed production closure with the maintained route.
+	# Historical v01 predates the connected proximal-hip skin ownership.
+	if not FileAccess.file_exists(REVIEW_CASE):
+		push_error("Run python3 tools/prepare_contextual_creature_cases.py before this current-production pixel comparison")
+		quit(1)
+		return
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var actual: SubViewport = _viewport()
 	var accepted: SubViewport = _viewport()
@@ -23,14 +30,14 @@ func _run() -> void:
 		_check(production.load_rig(), "Production rig loads " + facing)
 		var reference := CaseRig.new()
 		accepted.add_child(reference)
-		_check(reference.configure("res://experiments/cutouts/crawler/v01/cutout.json"), "Crawler case loads")
+		_check(reference.configure(REVIEW_CASE), "Crawler case loads")
 		_check(reference.set_facing(facing), "Case facing loads")
 		for mirrored: bool in [false, true]:
 			production.position = Vector2(383,128) if mirrored else Vector2(128,128)
 			reference.position = production.position
 			production.scale = Vector2(-1,1) if mirrored else Vector2.ONE
 			reference.scale = production.scale
-			for clip: String in ["rest", "idle", "walk", "attack", "lunge", "coil"]:
+			for clip: String in ["rest", "idle", "walk", "attack", "lunge", "coil", "hit", "death"]:
 				var specification: Dictionary = reference.config["clips"].get(clip, {"frames":1,"loop":false,"duration":0.1})
 				var frames: int = int(specification["frames"])
 				var folder: String = "%s_%s_%s" % [facing, "reflected" if mirrored else "painted", clip]

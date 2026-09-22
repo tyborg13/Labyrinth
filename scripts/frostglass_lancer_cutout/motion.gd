@@ -6,6 +6,8 @@ const STRIDE: float = 70.0
 const STANCE: float = 0.62
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": point(layout,name)-point(layout,parent(layout,name)),
@@ -175,3 +177,22 @@ static func curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index-1].x,keys[index].x,t)
 			return lerpf(keys[index-1].y,keys[index].y,u*u*(3-2*u))
 	return keys[-1].y
+
+## An armored supported slump, with a relaxed spear hand. The free shoulder
+## stays at its painted attachment so the cloak's arm opening remains covered.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest",0.0,layout,facing)
+	var t: float = clampf(phase,0.0,1.0)
+	if is_zero_approx(t) or (clip != "death" and is_equal_approx(t,1.0)): return pose
+	var rear: bool = facing == "rear"
+	var toward: float = 1.0 if rear else -1.0
+	var impact: float = curve(t,PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.45,.36),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	pose["pelvis"]["position"] += Vector2(toward*(-3.0*impact+4.0*fall),2.0*impact+28.0*fall)
+	pose["torso"]["rotation"] = toward*(-.045*impact+.12*fall)
+	pose["head"]["rotation"] = toward*.07*fall
+	solve_arm(pose,layout,"r",world(pose,layout,"hand_r").origin,toward*.12*fall)
+	for side: String in ["r","l"]:
+		solve_leg(pose,layout,side,point(layout,"foot_"+side),0.0,rear)
+	return pose

@@ -22919,7 +22919,8 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 			Color("f39779"),
 			{
 				"outline_color": Color("270806"),
-				"screen_layout_id": popup_id + "/damage"
+				"screen_layout_id": popup_id + "/damage",
+				"reaction_actor_key": "player", "reaction": "hit"
 			}
 		))
 	floats.append({
@@ -25062,6 +25063,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			merged_floating_texts.append_array(timeline_entries)
 			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
 			rendered_presentation["floating_texts"] = merged_floating_texts
+	preload("res://scripts/cutout_context.gd").apply_to_presentation(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(
@@ -25280,11 +25282,13 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 					floats.append(FloatingCombatText.damage_entry(
 						step.get("to", Vector2i.ZERO),
 						"-%d" % int(step.get("hp_loss", 0)),
-						Color("f39779")
+						Color("f39779"),
+						{"reaction_actor_key": "player", "reaction": "hit"}
 					))
 				if int(step.get("block_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
+						"reaction_actor_key": "player", "reaction": "block",
 						"text": "-%d B" % int(step.get("block_loss", 0)),
 						"color": Color("90d9ff"),
 						"offset": 0.0,
@@ -25293,6 +25297,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				if int(step.get("stoneskin_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
+						"reaction_actor_key": "player", "reaction": "block",
 						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
 						"color": ElementData.accent(ElementData.EARTH),
 						"offset": 0.0,
@@ -25342,7 +25347,8 @@ func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 		var legacy_float: Dictionary = FloatingCombatText.damage_entry(
 			step.get("tile", Vector2i.ZERO),
 			"-%d" % int(step.get("amount", 0)),
-			Color("f39779")
+			Color("f39779"),
+			{"reaction_actor_key": str(step.get("actor_key", "")), "reaction": "hit"}
 		)
 		if str(step.get("label", "")) == "Bleed":
 			_decorate_bleed_damage_float(legacy_float)
@@ -25385,11 +25391,13 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			floats.append(FloatingCombatText.damage_entry(
 				tile,
 				"-%d" % int(loss.get("hp_loss", 0)),
-				Color("f39779")
+				Color("f39779"),
+				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "hit"}
 			))
 		if int(loss.get("block_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
 				"text": "-%d B" % int(loss.get("block_loss", 0)),
 				"color": Color("90d9ff"),
 				"offset": 0.0,
@@ -25398,6 +25406,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 		if int(loss.get("stoneskin_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
 				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,
@@ -26014,11 +26023,13 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 		floats.append(FloatingCombatText.damage_entry(
 			player_tile,
 			"-%d" % hp_loss,
-			Color("f39779")
+			Color("f39779"),
+			{"reaction_actor_key": "player", "reaction": "hit"}
 		))
 	if block_loss > 0:
 		floats.append({
 			"tile": player_tile,
+			"reaction_actor_key": "player", "reaction": "block",
 			"text": "-%d B" % block_loss,
 			"color": Color("90d9ff"),
 			"offset": 0.0,
@@ -26027,6 +26038,7 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 	if stoneskin_loss > 0:
 		floats.append({
 			"tile": player_tile,
+			"reaction_actor_key": "player", "reaction": "block",
 			"text": "-%d S" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
 			"offset": 0.0,
@@ -26055,11 +26067,13 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 			floats.append(FloatingCombatText.damage_entry(
 				enemy.get("pos", Vector2i.ZERO),
 				"-%d" % hp_loss,
-				Color("f39779")
+				Color("f39779"),
+				{"reaction_actor_key": _enemy_key(enemy), "reaction": "hit"}
 			))
 		if block_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
+				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
 				"offset": 0.0,
@@ -26068,6 +26082,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		if stoneskin_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
+				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
 				"text": "-%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,

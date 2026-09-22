@@ -13,6 +13,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)),
 			"rotation": 0.0, "scale": Vector2.ONE, "skew": 0.0}
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	var mass_shift := Vector2.ZERO
 	var direction: Vector2 = walk_cycle_info(layout, facing)["direction"]
 	if clip == "idle":
@@ -95,3 +97,26 @@ static func _world(pose: Dictionary, layout: Dictionary, name: String) -> Transf
 	if name.is_empty(): return Transform2D.IDENTITY
 	var local := Transform2D(0.0, Vector2(pose[name]["position"]))
 	return _world(pose, layout, _parent(layout,name)) * local
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = walk_cycle_info(layout,facing)["direction"]
+	var fallen: bool = clip == "death"
+	var shift: Vector2 = Vector2(0,22) * amount if fallen else (-forward * 6.0 + Vector2(0,3)) * amount
+	# Crust plates settle together instead of stretching; molten lobes spread
+	# through their existing continuous mesh weights beneath the heavy shell.
+	pose["mass"]["position"] += shift
+	for name: String in CONTACT_NAMES:
+		var contact: String = "contact_" + name
+		var radial := Vector2(signf(_point(layout,contact).x - 128.0),0.25)
+		var spread: Vector2 = radial * 7.0 * amount if fallen else Vector2.ZERO
+		pose[contact]["position"] += spread
+		pose["bend_"+name]["position"] += shift * 0.65 + spread * 0.35
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

@@ -14,7 +14,7 @@ func _initialize() -> void:
 	_check(pack.pck_start(args[0]) == OK, "PCK opens")
 	_pack_directory(pack,"res://scripts",["gd","gdshader"])
 	for folder: String in DirAccess.get_directories_at("res://assets/units"):
-		if folder.ends_with("_cutout"):
+		if folder.ends_with("_cutout") or folder == "guardians":
 			_pack_directory(pack,"res://assets/units".path_join(folder),["png","json","import"])
 	_check(pack.add_file("res://runtime.gd","res://tests/fixtures/enemy_cutout_roster_export_smoke.gd") == OK, "Runtime smoke script packs")
 	var scene: String = "[gd_scene load_steps=2 format=3]\n[ext_resource type=\"Script\" path=\"res://runtime.gd\" id=\"1\"]\n[node name=\"RosterExportSmoke\" type=\"Node\"]\nscript = ExtResource(\"1\")\n"

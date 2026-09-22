@@ -7,6 +7,8 @@ const CAST_RELEASE: float = 0.18
 const MELEE_CONTACT: float = 0.42
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)),
@@ -86,3 +88,20 @@ static func _world(pose: Dictionary, layout: Dictionary, name: String) -> Transf
 	var value: Dictionary = pose[name]
 	var local := Transform2D(float(value.get("rotation",0.0)), value.get("scale",Vector2.ONE), float(value.get("skew",0.0)), value["position"])
 	return _world(pose, layout, _parent(layout,name)) * local
+
+## The heavy robe settles onto its fixed hem supports. Keep each palm attached
+## through its sleeve; the catalyst follows the palm throughout the fall.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest", 0.0, layout, facing)
+	var t: float = clampf(phase, 0.0, 1.0)
+	var toward: float = 1.0 if facing == "rear" else -1.0
+	var impact: float = _curve(t,PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.45,.36),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	pose["torso"]["position"] += Vector2(toward*(-4.0*impact+4.0*fall),2.0*impact+28.0*fall)
+	pose["torso"]["rotation"] = toward*(-.04*impact+.10*fall)
+	pose["hood"]["rotation"] = toward*.06*fall
+	pose["cast_arm"]["position"] += Vector2(-toward*2.0,2.0)*impact+Vector2(0,4.0)*fall
+	pose["cast_hand"]["position"] += Vector2(0,5.0)*fall
+	pose["strike_arm"]["position"] += Vector2(0,3.0)*fall
+	return pose
