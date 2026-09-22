@@ -42,9 +42,12 @@ static func _check_routing(expect: Callable) -> void:
 	presentation = {"floating_texts":[{"kind":"damage", "tile":Vector2i(2,2), "animation_progress":.1}]}
 	Context.apply_to_presentation(state, presentation)
 	expect.call(not presentation.has("protagonist_motion") and not presentation.has("zekarion_motion"), "Terrain damage and decorative popups never infer an actor from their tile")
-	presentation = {"death_animation_units":[{"key":"enemy_7", "type":"zekarion", "death_progress":.62}], "zekarion_motion":{"enemy_7":{"clip":"attack", "phase":.4}}}
+	presentation = {"death_animation_units":[{"key":"enemy_7", "type":"zekarion", "death_animation":true, "death_progress":.62}], "zekarion_motion":{"enemy_7":{"clip":"attack", "phase":.4}}}
 	Context.apply_to_presentation(state, presentation)
 	expect.call(presentation["zekarion_motion"]["enemy_7"] == {"clip":"death", "phase":1.0}, "Death overrides actions and settles while the original dissolve is still running")
+	presentation = {"death_animation_units":[{"key":"enemy_7", "type":"zekarion", "hp":20, "death_progress":.62}]}
+	Context.apply_to_presentation(state,presentation)
+	expect.call(not presentation.has("zekarion_motion"), "Living reinforcement arrival reuses dissolve without a death pose")
 	for actor_type: String in preload("res://scripts/game_data.gd").enemies():
 		var roster_state: Dictionary = {"enemies":[{"id":7,"type":actor_type,"hp":20}]}
 		var roster_presentation: Dictionary = {"floating_texts":FloatingText.animate_entries([damage],.054,false)}

@@ -24,6 +24,7 @@ func _run() -> void:
 	await _settle()
 	_board = _instance.get("board_view") as Control
 	for lethal: bool in [false, true]:
+		print("Context gameplay: enemy lethal=",lethal)
 		await _fixture(Vector2i(4,6), Vector2i(4,4), false, "storm_claw", 9 if lethal else 60)
 		await _instance.call("_on_card_pressed",0)
 		_instance.call("_on_board_tile_hovered",Vector2i(4,5))
@@ -33,6 +34,7 @@ func _run() -> void:
 		var after: Dictionary = _instance.get("_combat_state")
 		_assert(int(after["enemies"][0]["hp"]) == (0 if lethal else 51), "Quick Stab changes the target HP exactly once")
 	for guarded: bool in [false, true]:
+		print("Context gameplay: player guarded=",guarded)
 		await _fixture(Vector2i(4,6), Vector2i(4,4), false, "storm_claw")
 		if guarded: _set_player_context(100, 999)
 		var before: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
@@ -43,6 +45,7 @@ func _run() -> void:
 		var after: Dictionary = _instance.get("_combat_state")
 		for key: String in ["player","enemies","surfaces","initiative_clock","turn_queue"]:
 			_assert(after.get(key)==expected.get(key), "Reaction preserves End Turn resolver " + key)
+	print("Context gameplay: player defeat")
 	await _fixture(Vector2i(4,6), Vector2i(4,4), false, "storm_claw")
 	_set_player_context(1, 0)
 	_instance.call("_on_pass_turn_pressed")
@@ -54,6 +57,9 @@ func _run() -> void:
 	await _fixture(Vector2i(4,6), Vector2i(4,4), true, "storm_claw")
 	_instance.call("_on_pass_turn_pressed")
 	await _observe_context("reduced_player_hit", "player", "rest", true)
+	for reduced: bool in [false, true]:
+		print("Context gameplay: reinforcement reduced=",reduced)
+		await _observe_reinforcement(reduced)
 	# Existing navigation contracts still apply at the changed scene.
 	await _fixture(Vector2i(4,6), Vector2i(4,4))
 	var router: Node = root.get_node_or_null("InputRouter")
@@ -140,3 +146,47 @@ func _observe_context(label: String, actor_key: String, expected: String, reduce
 func _context_still(label: String) -> void:
 	await RenderingServer.frame_post_draw
 	_render_viewport.get_texture().get_image().save_png(CONTEXT_OUTPUT.path_join(label+".png"))
+
+func _observe_reinforcement(reduced: bool) -> void:
+	await _fixture(Vector2i(4,6), Vector2i(4,4), reduced)
+	var final_state: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
+	var arriving: Dictionary = final_state["enemies"][1].duplicate(true)
+	var before: Dictionary = final_state.duplicate(true)
+	before["enemies"].remove_at(1)
+	before["turn_queue"] = (before["turn_queue"] as Array).filter(func(entry: Dictionary) -> bool: return int(entry.get("enemy_id",-1)) != 2)
+	var run: Dictionary = (_instance.get("_run_state") as Dictionary).duplicate(true)
+	run["combat_state"] = before.duplicate(true)
+	_instance.set("_run_state",run)
+	_instance.call("_sync_combat_state_from_run")
+	_instance.call("_refresh_ui")
+	await _settle()
+	var completion: Dictionary = {"done":false}
+	_finish_reinforcement(before, {"state":final_state,"spawned_enemies":[arriving]}, completion)
+	var label: String = "reduced_reinforcement" if reduced else "reinforcement"
+	var shown_frames: int = 0
+	var captures: Dictionary = {}
+	var clips: Dictionary = {}
+	var started: int = Time.get_ticks_usec()
+	while not completion["done"] and Time.get_ticks_usec()-started < 5000000:
+		await process_frame
+		var presentation: Dictionary = _board.get("presentation")
+		var units: Array = presentation.get("death_animation_units",[])
+		if units.is_empty(): continue
+		shown_frames += 1
+		var snapshot: Dictionary = _board.call("zekarion_animation_snapshot","enemy_2")
+		clips[str(snapshot.get("clip","missing"))] = true
+		_assert(not snapshot.is_empty() and snapshot.get("clip") != "death", "Living reinforcement never uses a terminal collapse")
+		_assert(not presentation.get("zekarion_motion",{}).has("enemy_2"), "Reinforcement keeps its original dissolve appearance")
+		var progress: float = float(units[0].get("death_progress",0))
+		for target: float in [.75,.5,.1]:
+			var key: String = str(target)
+			if progress <= target and not captures.has(key):
+				await _context_still(label+"_"+key)
+				captures[key] = true
+	_assert(completion["done"] and before == final_state, "Reinforcement animation installs the supplied resolver state exactly once")
+	_assert(shown_frames > 0, "Reinforcement proof observes its actual presentation path")
+	_context_records.append({"label":label,"clips":clips.keys(),"shown_frames":shown_frames,"captures":captures.keys()})
+
+func _finish_reinforcement(before: Dictionary, step: Dictionary, completion: Dictionary) -> void:
+	await _instance.call("_animate_reinforcement_spawn",before,step)
+	completion["done"] = true

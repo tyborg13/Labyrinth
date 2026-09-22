@@ -54,6 +54,10 @@ static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -
 	for key: String in reactions:
 		_install_motion(presentation, key, str(actors[key]), reactions[key], false)
 	for unit: Dictionary in presentation.get("death_animation_units", []):
+		# Reinforcements reuse the dissolve list in reverse, but are living
+		# arrivals. Only explicit defeat descriptors own a terminal collapse.
+		if not bool(unit.get("death_animation", false)):
+			continue
 		var key: String = str(unit.get("key", "enemy_%d" % int(unit.get("id", -1))))
 		var progress: float = float(unit.get("death_progress", 0.0))
 		_install_motion(presentation, key, str(unit.get("type", "")), {

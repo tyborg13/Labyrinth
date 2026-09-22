@@ -12,6 +12,8 @@ python3 tools/cutout_workflow.py render /tmp/contextual-humanoids/protagonist --
 python3 tools/cutout_workflow.py verify-render /tmp/contextual-humanoids/protagonist --output /tmp/contextual-humanoids-proof/protagonist
 ```
 
+For the whole prepared cohort, `render_all.py --cases /tmp/contextual-humanoids --output /tmp/contextual-humanoids-proof --task-id contextual-cutout-animation-and-joint-polish-across-roster` runs two workers, honors the shared native GUI lease, verifies each final capture and saves per-actor logs plus `results.json`. Keep production inputs frozen for the entire bound capture.
+
 The default proof covers hit/death for all 19 combat bodies, player block, all
 Acolyte cycles (the underrobe skin affects every pose), all Bell Tender cycles
 (staff contacts), and both NPCs' idle plus Graftwright's retained graft gesture.
