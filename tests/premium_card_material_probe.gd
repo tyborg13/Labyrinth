@@ -92,9 +92,9 @@ func _material_states() -> void:
 	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	gallery.add_child(background)
-	var cards: Array[CardWidget] = []
-	var ids: Array[String] = ["quick_stab", "stormstring_shot", "wildfire_halo", "guarded_step"]
-	var labels: Array[String] = ["Available", "Focused", "Unavailable", "Inspection / passive"]
+	var cards: Array[CardWidget]
+	var ids: Array = ["quick_stab", "stormstring_shot", "wildfire_halo", "guarded_step"]
+	var labels: Array = ["Available", "Focused", "Unavailable", "Inspection / passive"]
 	for index: int in range(ids.size()):
 		var label := Label.new()
 		label.text = labels[index]
@@ -202,7 +202,7 @@ func _material_states() -> void:
 	await process_frame
 
 func _content_rects(card: CardWidget) -> Array[Rect2]:
-	var result: Array[Rect2] = []
+	var result: Array[Rect2]
 	for path: String in ["Margin/VBox/TopRow/Title", "Margin/VBox/ArtBleed/ArtFrame", "Margin/VBox/DetailsPanel"]:
 		result.append((card.get_node(path) as Control).get_rect())
 	return result
