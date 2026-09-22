@@ -28740,6 +28740,8 @@ func _on_skill_learn_requested(skill_id: String) -> void:
 	if prior_notice != null:
 		_queue_free_node_now(prior_notice)
 	_refresh_skill_progression_surface(skill_id)
+	if _skill_tree_view != null:
+		_skill_tree_view.play_learned_confirmation(skill_id, _reduced_motion_enabled())
 	_skill_hud_refresh_pending = true
 
 func _refresh_skill_progression_surface(focused_id: String = "") -> void:
@@ -31063,6 +31065,11 @@ func _equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
+	# Quiet contact depth; margins, radii and state/rarity accents stay native.
+	style.border_blend = true
+	style.shadow_color = Color(0.008, 0.006, 0.009, 0.34)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0.0, 2.0)
 	return style
 
 func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
@@ -31081,6 +31088,10 @@ func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_top = 4
 	style.content_margin_right = 4
 	style.content_margin_bottom = 4
+	style.border_blend = true
+	style.shadow_color = Color(0.008, 0.006, 0.009, 0.42)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0.0, 2.0)
 	return style
 
 func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:

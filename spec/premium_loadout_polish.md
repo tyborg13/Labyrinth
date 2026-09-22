@@ -1,0 +1,13 @@
+# Loadout and merchant material finish
+
+The player is choosing equipment, attuned magic, or a merchant ware. Existing item art, exact rules, rarity/element accents, selection markers and trade actions remain primary. This pass gives the shared loadout and pre-battle wells a small contact shadow and blended metal lip, and eases the Scavenger ware's existing rim/light/press response over 120 ms. It does not change layout, content margins, radii, native hit regions, pricing, inventory logic, tooltips or character animation.
+
+`run_scene.gd` retains the existing `StyleBoxFlat` factories and callers, including stronger gold keyboard/controller focus and turquoise selected-magic states. Only material properties change. Focus continues to override the quiet contact shadow.
+
+`scavenger_ware.gd` responds to native hover, focus, button-down/up, chosen-state and visibility signals. Its 120 ms cubic response matches the shop's existing 1.045 hover-scale timing, which is unchanged. The ware itself never changes position, size or scale. Only the already-present two-pixel content depression moves. A selected ware's underline and diamond remain immediate. Reduced Motion applies the static target state immediately, with no content depression. Hidden and settled wares stop processing; no disk settings reads or idle animation are added.
+
+Purchase and sale actions, save boundaries, analytics and inventory mutations remain owned by the existing merchant flow. This presentation pass adds no outcome or reward events.
+
+Focused proof: `tests/loadout_material_polish_probe.gd`, through `tools/visual_probe_runner.py --task-id premium-visual-polish-across-effects-and-interface`, at 1920×1080 and 100% UI scale. It covers Gear and Magic idle/controller-selected states, natural pre-battle entry, merchant idle/hover/physical press/selected/controller/purchase/unaffordable/Reduced Motion, controller navigation and activation/cancel, effective style margins, the unchanged hover-scale contract, hidden/settled processing, and enabling Reduced Motion during an active response. Headless execution through `tools/godot_task_runner.py` checks the same state assertions without image capture.
+
+Rubric acceptance: comprehension, hierarchy, gameplay visibility, copy, state/consequence, interaction completeness, cohesion, accessibility and layout preserve the current design. Fresh before/after native images were inspected at 1920×1080 and 100% UI scale: 13 baseline frames and 16 final frames pass, including unobscured Gear/Magic/pre-battle surfaces and merchant press, disabled, controller and static Reduced Motion states. Focused headless assertions pass. No rubric exceptions were needed.

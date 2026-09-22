@@ -7,13 +7,13 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 
-const OUTPUT_DIR: String = "user://probes/health_bar_theme_v1"
+const OUTPUT_DIR: String = "user://probes/health_bar_theme_v2"
 const PROGRESSION_PATH: String = "user://health_bar_theme_probe_progression.json"
 const RUN_PATH: String = "user://health_bar_theme_probe_run.save"
 const SETTINGS_PATH: String = "user://health_bar_theme_probe_settings.json"
 const PROBE_SIZE: Vector2i = Vector2i(1920, 1080)
 
-var _failures: Array[String] = []
+var _failures: Array[String]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -58,6 +58,7 @@ func _initialize() -> void:
 		_assert_themed_units(instance, 5, false)
 		_assert_health_rects_do_not_overlap(instance)
 		await _save_screenshot(viewport, "%s/health_bars_dense_1920x1080.png" % OUTPUT_DIR)
+		await _capture_boss_material(instance, viewport)
 		instance.queue_free()
 		await process_frame
 	viewport.queue_free()
@@ -71,6 +72,40 @@ func _initialize() -> void:
 		push_error(failure)
 	print("HEALTH BAR THEME PROBE: FAIL (%d failures)" % _failures.size())
 	quit(1)
+
+# The shared meter also draws the wide encounter bar; verify its depleted
+# endpoint and projected-loss band in the production boss overlay.
+func _capture_boss_material(instance: Node, viewport: SubViewport) -> void:
+	var state: Dictionary = preload("res://scripts/run_engine.gd").new().create_debug_boss_run(ProgressionStore.default_data())
+	var combat: Dictionary = state.get("combat_state", {}) as Dictionary
+	var boss: Dictionary = {}
+	for enemy: Dictionary in combat.get("enemies", []):
+		if bool(preload("res://scripts/game_data.gd").enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+			boss = enemy
+			break
+	_expect(not boss.is_empty(), "Boss material proof has a real boss")
+	if boss.is_empty():
+		return
+	for enemy: Dictionary in combat.get("enemies", []):
+		if int(enemy.get("id", -1)) == int(boss.get("id", -2)):
+			enemy["hp"] = maxi(1, int(enemy.get("max_hp", 1)) / 2)
+			boss = enemy
+	instance.call("_load_run_state", state)
+	instance.call("_close_dialogue")
+	instance.call("_close_large_map")
+	await _settle()
+	_hide_log(instance)
+	var meter: SegmentedHealthBar = instance.get("_boss_health_bar") as SegmentedHealthBar
+	_expect(meter != null and meter.is_visible_in_tree(), "Boss health material is visible in the live encounter")
+	_expect(meter.value == float(boss["hp"]) and meter.max_value == float(boss["max_hp"]), "Boss material preserves exact depleted health")
+	await _save_screenshot(viewport, "%s/health_bars_boss_1920x1080.png" % OUTPUT_DIR)
+	var committed: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var projected_hp: int = maxi(0, int(boss["hp"]) - int(boss["max_hp"]) / 6)
+	instance.call("_refresh_boss_health_overlay", combat, {"damage_preview": {"enemy_%d" % int(boss["id"]): {"hp": projected_hp, "hp_loss": int(boss["hp"]) - projected_hp}}})
+	var band: ColorRect = instance.get("_boss_health_damage_preview") as ColorRect
+	_expect(band.visible and is_equal_approx(band.anchor_right, float(boss["hp"]) / float(boss["max_hp"])), "Boss projected-loss band ends at the real health endpoint")
+	_expect((instance.get("_combat_state") as Dictionary) == committed, "Boss material preview does not commit damage")
+	await _save_screenshot(viewport, "%s/health_bars_boss_preview_1920x1080.png" % OUTPUT_DIR)
 
 func _install_combat_fixture(instance: Node, dense: bool) -> void:
 	instance.call("_cancel_drag_play")

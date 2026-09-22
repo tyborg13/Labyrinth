@@ -6,6 +6,7 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const MotionSettings = preload("res://scripts/settings_store.gd")
 
 signal skill_focused(skill_id: String)
 signal learn_requested(skill_id: String)
@@ -56,6 +57,8 @@ class SkillLinkLayer:
 	extends Control
 
 	var links: Array[Dictionary]
+	var confirmation_skill_id: String = ""
+	var confirmation_strength: float = 0.0
 
 	func set_links(value: Array[Dictionary]) -> void:
 		links.clear()
@@ -85,6 +88,10 @@ class SkillLinkLayer:
 				_draw_routed_line(points, bridge_gaps, glow, width + 8.0)
 			_draw_routed_line(points, bridge_gaps, under_color, width + 3.0)
 			_draw_routed_line(points, bridge_gaps, color, width)
+			# A committed learn briefly warms only its incoming prerequisite rails.
+			# Reuse the routed geometry and bridge gaps; no moving or extra branches.
+			if str(link.get("to_id", "")) == confirmation_skill_id and confirmation_strength > 0.0:
+				_draw_routed_line(points, bridge_gaps, Color(1.0, 0.87, 0.57, confirmation_strength * 0.65), width)
 
 	func _draw_routed_line(
 		points: PackedVector2Array,
@@ -235,6 +242,8 @@ class SkillNodeFace:
 	var selected: bool = false
 	var branch_color: Color = Color("b99a6b")
 	var icon_texture: Texture2D
+	var confirmation_strength: float = 0.0
+	var _contours: Dictionary = {}
 
 	func configure(
 		next_tier: String,
@@ -276,26 +285,11 @@ class SkillNodeFace:
 			draw_arc(center, radius + 4.5, 0.0, TAU, 40, Color(0.02, 0.015, 0.02, 0.94), 6.0, true)
 			draw_arc(center, radius + 4.5, 0.0, TAU, 40, halo_color, 2.5, true)
 		_draw_node_shadow(center, radius)
-		match tier:
-			"root":
-				draw_circle(center, radius, fill, true, -1.0, true)
-				draw_arc(center, radius, 0.0, TAU, 40, state_color, outline_width, true)
-			"junction":
-				var diamond := _diamond_points(center, radius)
-				draw_colored_polygon(diamond, fill)
-				draw_polyline(_closed_points(diamond), state_color, outline_width, true)
-			"keystone":
-				var hexagon := _hexagon_points(center, radius)
-				draw_colored_polygon(hexagon, fill)
-				draw_polyline(_closed_points(hexagon), state_color, outline_width + 1.0, true)
-				draw_polyline(_closed_points(_hexagon_points(center, radius - 5.5)), branch_color.darkened(0.08), 1.5, true)
-			_:
-				var style := StyleBoxFlat.new()
-				style.bg_color = fill
-				style.border_color = state_color
-				style.set_border_width_all(int(outline_width))
-				style.set_corner_radius_all(10)
-				draw_style_box(style, Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0)))
+		_draw_material_face(center, radius, fill, state_color, outline_width)
+		if confirmation_strength > 0.0:
+			var confirmation_rim: PackedVector2Array = _closed_points(_shape_points(center, radius + 0.5))
+			draw_polyline(confirmation_rim, Color(1.0, 0.76, 0.32, confirmation_strength * 0.20), 7.0, true)
+			draw_polyline(confirmation_rim, Color(1.0, 0.94, 0.73, confirmation_strength * 0.88), 2.2, true)
 		# The icon is the medallion's identity, not a small badge inside it. Keep a
 		# narrow state-marker gutter, then let the purpose-built silhouette occupy
 		# most of the remaining face so it survives fit-to-view scaling.
@@ -307,8 +301,68 @@ class SkillNodeFace:
 		draw_circle(center + Vector2(-radius * 0.62, radius * 0.70), 2.4, branch_color, true, -1.0, true)
 		_draw_state_marker(center + Vector2(radius * 0.68, radius * 0.70), state_color)
 
+	func _draw_material_face(center: Vector2, radius: float, fill: Color, rim: Color, width: float) -> void:
+		var outline: PackedVector2Array = _shape_points(center, radius)
+		var colors := PackedColorArray()
+		# A shallow top-to-bottom wash leaves the established state hue intact.
+		var top: Color = fill.lightened(0.10 if state == "locked" else 0.18)
+		var bottom: Color = fill.darkened(0.32)
+		for point: Vector2 in outline:
+			colors.append(top.lerp(bottom, clampf((point.y - center.y + radius) / (radius * 2.0), 0.0, 1.0)))
+		draw_polygon(outline, colors)
+		draw_polyline(_closed_points(outline), rim, width, true)
+		var inset: PackedVector2Array = _shape_points(center, radius - 3.3)
+		draw_polyline(_closed_points(inset), Color(0.015, 0.012, 0.019, 0.80), 1.6, true)
+		var highlights := PackedVector2Array()
+		var lowlights := PackedVector2Array()
+		for index: int in range(inset.size()):
+			var a: Vector2 = inset[index]
+			var b: Vector2 = inset[(index + 1) % inset.size()]
+			var facing: Vector2 = ((a + b) * 0.5 - center).normalized()
+			if facing.dot(Vector2(-0.55, -0.83)) > 0.12:
+				highlights.append(a)
+				highlights.append(b)
+			else:
+				lowlights.append(a)
+				lowlights.append(b)
+		var shine: Color = rim.lightened(0.28)
+		shine.a = 0.54 if state == "locked" else 0.76
+		draw_multiline(highlights, shine, 1.1, true)
+		draw_multiline(lowlights, Color(0.0, 0.0, 0.0, 0.40), 1.2, true)
+		if tier == "keystone":
+			draw_polyline(_closed_points(_shape_points(center, radius - 5.5)), branch_color.darkened(0.08), 1.5, true)
+
 	func _draw_node_shadow(center: Vector2, radius: float) -> void:
-		draw_circle(center + Vector2(0.0, 3.0), radius + 1.5, Color(0.0, 0.0, 0.0, 0.55), true, -1.0, true)
+		# Match the actual medallion, so diamond and hexagon corners sit on the
+		# graph instead of floating above an unrelated circular disk.
+		draw_colored_polygon(_shape_points(center + Vector2(0.0, 3.0), radius + 2.5), Color(0.0, 0.0, 0.0, 0.16))
+		draw_colored_polygon(_shape_points(center + Vector2(0.0, 2.0), radius + 1.0), Color(0.0, 0.0, 0.0, 0.55))
+
+	func _shape_points(center: Vector2, radius: float) -> PackedVector2Array:
+		var key: String = "%s:%s:%s" % [tier, center, radius]
+		if _contours.has(key):
+			return _contours[key]
+		var points := PackedVector2Array()
+		match tier:
+			"junction":
+				points = _diamond_points(center, radius)
+			"keystone":
+				points = _hexagon_points(center, radius)
+			"root":
+				for index: int in range(48):
+					points.append(center + Vector2.from_angle(-PI * 0.5 + TAU * float(index) / 48.0) * radius)
+			_:
+				var corner_radius: float = minf(10.0, radius)
+				for corner: int in range(4):
+					var angle: float = float(corner) * PI * 0.5
+					var corner_center := center + Vector2(1.0 if corner in [0, 3] else -1.0, 1.0 if corner < 2 else -1.0) * (radius - corner_radius)
+					for step: int in range(9):
+						points.append(corner_center + Vector2.from_angle(angle + float(step) * PI / 16.0) * corner_radius)
+		# Resizing replaces the tiny cache rather than growing it indefinitely.
+		if _contours.size() >= 16:
+			_contours.clear()
+		_contours[key] = points
+		return points
 
 	func _draw_state_marker(center: Vector2, marker_color: Color) -> void:
 		draw_circle(center, 7.2, Color(0.025, 0.02, 0.03, 0.98), true, -1.0, true)
@@ -419,7 +473,71 @@ var _external_command_target: Control
 var _external_tab_target: Control
 var _compact_layout: bool = false
 
+const LEARN_CONFIRMATION_SECONDS: float = 0.58
+var _confirmation_skill_id: String = ""
+var _confirmation_elapsed: float = 0.0
+var _confirmation_eligible_ids: Array[String]
+var _context_configured: bool = false
+
+# Only RunScene's successful, persisted learn path invokes this; configure and
+# focus remain purely descriptive so opening a populated tree never celebrates.
+func play_learned_confirmation(skill_id: String, reduced_motion: bool = false) -> bool:
+	if not _confirmation_eligible_ids.has(skill_id) or not _owned_ids.has(skill_id):
+		return false
+	_confirmation_eligible_ids.erase(skill_id)
+	_cancel_learn_confirmation()
+	if reduced_motion or MotionSettings.applied_reduced_motion_enabled() or not is_visible_in_tree():
+		return false
+	_confirmation_skill_id = skill_id
+	_confirmation_elapsed = 0.0
+	_set_learn_confirmation_strength(0.0)
+	set_process(true)
+	return true
+
+func _process(delta: float) -> void:
+	if not is_visible_in_tree() or MotionSettings.applied_reduced_motion_enabled():
+		_cancel_learn_confirmation()
+		return
+	_confirmation_elapsed += delta
+	if _confirmation_elapsed >= LEARN_CONFIRMATION_SECONDS:
+		_cancel_learn_confirmation()
+		return
+	var progress: float = _confirmation_elapsed / LEARN_CONFIRMATION_SECONDS
+	# One soft attack and longer settling tail. Neither the icon nor its hit
+	# rectangle moves, and progression/input never wait for the finish.
+	var strength: float = sin(minf(progress / 0.22, 1.0) * PI * 0.5) * pow(1.0 - progress, 1.3)
+	_set_learn_confirmation_strength(strength)
+
+func _set_learn_confirmation_strength(strength: float) -> void:
+	var face: SkillNodeFace = _node_faces.get(_confirmation_skill_id, null) as SkillNodeFace
+	if is_instance_valid(face):
+		face.confirmation_strength = strength
+		face.queue_redraw()
+	if is_instance_valid(_link_layer):
+		_link_layer.confirmation_skill_id = _confirmation_skill_id
+		_link_layer.confirmation_strength = strength
+		_link_layer.queue_redraw()
+
+func _cancel_learn_confirmation() -> void:
+	if not _confirmation_skill_id.is_empty():
+		_set_learn_confirmation_strength(0.0)
+	_confirmation_skill_id = ""
+	_confirmation_elapsed = 0.0
+	set_process(false)
+
+func _on_confirmation_visibility_changed() -> void:
+	if not is_visible_in_tree():
+		_cancel_learn_confirmation()
+		_confirmation_eligible_ids.clear()
+
+func _exit_tree() -> void:
+	_cancel_learn_confirmation()
+	_confirmation_eligible_ids.clear()
+
+
 func _ready() -> void:
+	set_process(false)
+	visibility_changed.connect(_on_confirmation_visibility_changed)
 	size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_theme_constant_override("separation", UiTypography.PANEL_GAP)
@@ -437,6 +555,14 @@ func _ready() -> void:
 	call_deferred("_configure_focus_neighbors")
 
 func configure(context: Dictionary) -> void:
+	_cancel_learn_confirmation()
+	_confirmation_eligible_ids.clear()
+	var next_owned: Array[String] = SkillTreeLibrary.normalized_ids(context.get("owned_ids", []))
+	if _context_configured and is_visible_in_tree():
+		for skill_id: String in next_owned:
+			if not _owned_ids.has(skill_id):
+				_confirmation_eligible_ids.append(skill_id)
+	_context_configured = true
 	var previous_context: Array = [_owned_ids, _required_count, _unspent_points, _editing_enabled, _focused_id]
 	_owned_ids = SkillTreeLibrary.normalized_ids(context.get("owned_ids", []))
 	_required_count = maxi(0, int(context.get("required_count", _owned_ids.size())))
