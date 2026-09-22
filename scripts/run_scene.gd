@@ -1696,6 +1696,7 @@ var _grimoire_nav_buttons: Array[Button] = []
 var _grimoire_search_restore_selection: Dictionary = {}
 var _grimoire_search_restore_scroll: int = 0
 var _grimoire_restore_focus: Control
+var _grimoire_restore_navigation_focus: bool = true
 var _header_icon_textures: Dictionary = {}
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
@@ -2176,6 +2177,14 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _grimoire_scrim != null and _grimoire_scrim.visible:
+		# Search receives focus even for pointer browsing. Return focus only when
+		# navigation is still in use; a mouse/touch dismissal must not latch the
+		# opener's focus highlight after the pointer has moved elsewhere.
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
+			_grimoire_restore_navigation_focus = false
+		elif (event is InputEventKey or event is InputEventAction or event is InputEventJoypadButton) and event.is_pressed():
+			_grimoire_restore_navigation_focus = true
 	if _graftwright_view != null and _graftwright_view.visible:
 		if _graftwright_view.busy:
 			get_viewport().set_input_as_handled()
@@ -27192,6 +27201,7 @@ func _open_grimoire_overlay() -> void:
 	_close_large_map()
 	_close_menu_overlay()
 	_grimoire_restore_focus = get_viewport().gui_get_focus_owner()
+	_grimoire_restore_navigation_focus = true
 	_reset_grimoire_search()
 	_select_first_unread_grimoire_entry()
 	_rebuild_grimoire_overlay(true)
@@ -27216,7 +27226,7 @@ func _close_grimoire_overlay() -> void:
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
-	if _grimoire_restore_focus != null and is_instance_valid(_grimoire_restore_focus) and _grimoire_restore_focus.is_inside_tree() and _grimoire_restore_focus.is_visible_in_tree():
+	if _grimoire_restore_navigation_focus and _can_restore_gui_focus(_grimoire_restore_focus):
 		_grimoire_restore_focus.grab_focus()
 	_grimoire_restore_focus = null
 	_update_performance_telemetry_context()

@@ -54,3 +54,10 @@ The chain visual probe's old expectation that a neighboring crate would be destr
 | Visual proof | Pass | Native Metal captures with semantic assertions; before/after and final pixel inspection. |
 
 Routine proof is limited to the requested 1920×1080/UI100 target. Windows hardware and additional display configurations are outside this pass; new typed assignments follow the cross-platform GDScript policy. The unchanged full suite may emit its existing ObjectDB cleanup warning after passing.
+
+
+## Grimoire focus checkpoint
+
+The Grimoire focuses its search field for immediate typing, but closing it by pointer must not reapply native focus to the opener after the pointer has left. Track pointer/touch versus keyboard/controller dismissal while the modal is open. Pointer dismissal leaves the closed opener idle; keyboard/controller dismissal restores its navigation return point. Opening/search focus, real hover, geometry, labels and controller recovery remain unchanged.
+
+`tests/grimoire_focus_return_probe.gd` exercises native pointer Close and scrim dismissal, keyboard cancel and activation, controller cancel, controller-to-pointer handoff, and renewed hover. Run its logic headlessly and inspect its native 1920×1080/UI100 captures; existing Grimoire search proof still covers search and rebuilt-row navigation. This focused checkpoint affects state/consequence, interaction completeness, accessibility and visual proof; the existing full rubric record otherwise remains applicable.
