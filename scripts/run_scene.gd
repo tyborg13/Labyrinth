@@ -2021,6 +2021,7 @@ var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
 var _pre_battle_start_pending: bool = false
+var _pre_battle_card_art_texture_cache: Dictionary = {}
 var _controller_prompt_bar
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
@@ -5970,43 +5971,33 @@ func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_ki
 		display_name += " x%d" % card_count
 	badge.set_meta("display_name", display_name)
 	badge.set_meta("label_font_size", maxi(UiTypography.SIZE_CAPTION, font_size))
-	badge.add_child(_build_pre_battle_card_object_content(card, accent, display_name, font_size))
+	badge.add_child(_build_pre_battle_card_object_content(card, display_name, font_size))
 	return badge
 
-func _build_pre_battle_card_object_content(card: Dictionary, accent: Color, display_name: String, font_size: int) -> Control:
+func _build_pre_battle_card_object_content(card: Dictionary, display_name: String, font_size: int) -> Control:
 	var content := Control.new()
 	content.name = "PreBattleCardObjectContent"
 	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.clip_contents = true
-	var art_well := Control.new()
-	art_well.name = "PreBattleCardArtWell"
-	art_well.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art_well.clip_contents = true
-	art_well.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	art_well.offset_bottom = -28.0
-	content.add_child(art_well)
-	var backing := CardArtBadgeBacking.new()
-	backing.base_color = ElementData.card_art_background(GameData.card_element_from_def(card))
-	backing.accent = accent
-	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	backing.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	art_well.add_child(backing)
 	var art := TextureRect.new()
 	art.name = "CardBadgeArt"
-	art.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
+	art.texture = _pre_battle_card_full_bleed_texture(str(card.get("art_path", "")))
+	if art.texture != null and art.texture.has_meta("pre_battle_opaque_underpaint"):
+		var underpaint := TextureRect.new()
+		underpaint.name = "CardBadgeArtFill"
+		underpaint.texture = art.texture.get_meta("pre_battle_opaque_underpaint") as Texture2D
+		underpaint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		underpaint.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		underpaint.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		underpaint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		underpaint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		content.add_child(underpaint)
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	art_well.add_child(art)
-	var name_face := ColorRect.new()
-	name_face.name = "PreBattleCardNameFace"
-	name_face.color = Color("211d19")
-	name_face.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_face.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	name_face.offset_top = -28.0
-	content.add_child(name_face)
+	content.add_child(art)
 	var label := Label.new()
 	label.name = "CardBadgeName"
 	label.text = display_name
@@ -6017,22 +6008,83 @@ func _build_pre_battle_card_object_content(card: Dictionary, accent: Color, disp
 	label.max_lines_visible = 2
 	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
 	label.add_theme_constant_override("line_spacing", -2)
-	label.add_theme_color_override("font_color", Color("f5e5c9"))
+	label.add_theme_color_override("font_color", Color("fff2d9"))
+	label.add_theme_color_override("font_outline_color", Color("100a07"))
+	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_color_override("font_shadow_color", Color(0.015, 0.010, 0.008, 0.9))
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 1)
 	UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
 	UiTypography.set_label_size(label, maxi(UiTypography.SIZE_CAPTION, font_size))
 	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	label.offset_left = 0.0
 	label.offset_right = 0.0
-	name_face.add_child(label)
-	# Give single-line identities more art without putting any text over it.
-	content.resized.connect(func() -> void:
-		var font: Font = label.get_theme_font("font")
-		var fits_one_line: bool = font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x <= content.size.x
-		var caption_height: float = 18.0 if fits_one_line else 28.0
-		art_well.offset_bottom = -caption_height
-		name_face.offset_top = -caption_height
-	)
+	content.add_child(label)
 	return content
+
+func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
+	if _pre_battle_card_art_texture_cache.has(path):
+		return _pre_battle_card_art_texture_cache[path] as Texture2D
+	var texture: Texture2D = AssetLoader.load_texture(path)
+	_pre_battle_card_art_texture_cache[path] = texture
+	if texture == null:
+		return null
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return texture
+	if image.is_compressed():
+		if image.decompress() != OK:
+			return texture
+		AssetLoader.cache_texture_used_rect(texture, image.get_used_rect())
+	var used_rect: Rect2i = AssetLoader.texture_used_rect(texture)
+	if not used_rect.has_area():
+		return texture
+	# Card paintings have transparent, ragged brush margins even inside their
+	# alpha bounds. Find the largest opaque rectangle once per source painting;
+	# the existing aspect-cover control can then fill its whole face with art.
+	var heights := PackedInt32Array()
+	heights.resize(used_rect.size.x)
+	var best_rect := Rect2i()
+	var best_area: int = 0
+	for y: int in range(used_rect.position.y, used_rect.end.y):
+		for x: int in range(used_rect.size.x):
+			heights[x] = heights[x] + 1 if image.get_pixel(used_rect.position.x + x, y).a >= 0.98 else 0
+		var starts := PackedInt32Array()
+		var stack_heights := PackedInt32Array()
+		for x: int in range(used_rect.size.x + 1):
+			var height: int = heights[x] if x < used_rect.size.x else 0
+			var left: int = x
+			while not stack_heights.is_empty() and stack_heights[-1] > height:
+				var previous_height: int = stack_heights[-1]
+				left = starts[-1]
+				stack_heights.resize(stack_heights.size() - 1)
+				starts.resize(starts.size() - 1)
+				var area: int = (x - left) * previous_height
+				if area > best_area:
+					best_area = area
+					best_rect = Rect2i(used_rect.position.x + left, y - previous_height + 1, x - left, previous_height)
+			if stack_heights.is_empty() or stack_heights[-1] < height:
+				starts.append(left)
+				stack_heights.append(height)
+	var result: Texture2D = texture
+	if best_rect.has_area():
+		var cropped := AtlasTexture.new()
+		cropped.atlas = texture
+		cropped.region = Rect2(best_rect)
+		cropped.filter_clip = true
+		result = cropped
+		# A few paintings contain deliberate holes through the central action.
+		# Keep their complete composition above opaque paint from the same asset
+		# instead of letting a small off-centre crop become the whole identity.
+		if float(best_area) / float(used_rect.get_area()) < 0.35:
+			var foreground := AtlasTexture.new()
+			foreground.atlas = texture
+			foreground.region = Rect2(used_rect)
+			foreground.filter_clip = true
+			foreground.set_meta("pre_battle_opaque_underpaint", cropped)
+			result = foreground
+	_pre_battle_card_art_texture_cache[path] = result
+	return result
 
 func _build_pre_battle_equipment_chip(equipment_id: String) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)

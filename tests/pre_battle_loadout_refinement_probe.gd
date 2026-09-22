@@ -1,5 +1,7 @@
 extends "res://tests/pre_battle_material_polish_probe.gd"
 
+var _checked_art_textures: Dictionary = {}
+
 const LARGE_ATTUNEMENT: Array = ["pale_spark", "dull_bolt", "waning_pulse", "bone_dart", "static_lash", "threaded_path"]
 
 func _run_material_proof(settings: Dictionary) -> void:
@@ -116,6 +118,15 @@ func _check_objects(panel: Control, state: Dictionary, variant: String) -> void:
 			var label := badge.find_child("CardBadgeName", true, false) as Label
 			_expect(label != null and label.text == str(badge.get_meta("display_name", "")), "Card identity and quantity remain precise")
 			if not _before:
+				var content := badge.find_child("PreBattleCardObjectContent", true, false) as Control
+				var art := badge.find_child("CardBadgeArt", true, false) as TextureRect
+				_expect(badge.find_child("PreBattleCardNameFace", true, false) == null, "Card identity overlays artwork without a separate text backing")
+				_expect(art != null and art.get_global_rect().is_equal_approx(content.get_global_rect()), "Artwork covers the complete inside-border face")
+				_expect(art.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "Full-bleed artwork preserves aspect ratio")
+				_expect(art.texture is AtlasTexture and (art.texture as AtlasTexture).filter_clip, "Artwork crops transparent brush margins without sampling their gutters")
+				_check_opaque_art_fill(art)
+				_expect(label.get_theme_constant("outline_size") >= 2, "Names retain local contrast directly over artwork")
+				_expect(content.get_global_rect().encloses(label.get_global_rect()), "Overlay names remain inside the full artwork face")
 				_expect(label.get_theme_font_size("font_size") >= 14, "Card identity uses shared caption floor")
 				_expect(label.get_line_count() <= 2 and label.get_visible_line_count() >= label.get_line_count(), "Card names remain fully legible in two lines")
 				var font := label.get_theme_font("font")
@@ -126,6 +137,26 @@ func _check_objects(panel: Control, state: Dictionary, variant: String) -> void:
 			var card_id: String = str(card_id_var)
 			expected_counts[card_id] = int(expected_counts.get(card_id, 0)) + 1
 		_expect(represented == expected_counts, "All %s identities and multiplicities remain exact" % source_kind)
+
+func _check_opaque_art_fill(art: TextureRect) -> void:
+	var texture: Texture2D = art.texture
+	if texture.has_meta("pre_battle_opaque_underpaint"):
+		texture = texture.get_meta("pre_battle_opaque_underpaint") as Texture2D
+		var fill := art.get_parent().find_child("CardBadgeArtFill", false, false) as TextureRect
+		_expect(fill != null and fill.get_global_rect().is_equal_approx(art.get_global_rect()), "Painting with central cutouts retains opaque artwork behind its complete composition")
+	if _checked_art_textures.has(texture.get_instance_id()):
+		return
+	_checked_art_textures[texture.get_instance_id()] = true
+	var image: Image = texture.get_image()
+	var opaque: bool = true
+	for y: int in range(image.get_height()):
+		for x: int in range(image.get_width()):
+			if image.get_pixel(x, y).a < 0.98:
+				opaque = false
+				break
+		if not opaque:
+			break
+	_expect(opaque, "Whole artwork face has opaque painted coverage without gray alpha gutters")
 
 func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 	for duplicates: bool in [true, false]:
@@ -139,6 +170,16 @@ func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 		var panel := instance.get("_pre_battle_panel") as Control
 		_check_objects(panel, instance.get("_run_state") as Dictionary, "long_duplicate" if duplicates else "six_long_names")
 		await _snap("long_duplicate" if duplicates else "six_long_names")
+	var art_outliers: Dictionary = _refinement_variant(state, "large")
+	var outlier_cards: Array = ["cinderburst", "gate_gambit", "ricochet_knife", "spark_focus", "cinderline_tempo", "grave_dust_satchel"]
+	art_outliers["attuned_magic_cards"] = outlier_cards
+	art_outliers["deck_cards"] = GameData.compile_deck_cards(art_outliers["equipped_equipment"], outlier_cards, art_outliers["equipped_items"])
+	instance.call("_load_run_state", art_outliers)
+	instance.call("_close_dialogue")
+	await _settle()
+	var art_panel := instance.get("_pre_battle_panel") as Control
+	_check_objects(art_panel, instance.get("_run_state") as Dictionary, "art_outliers")
+	await _snap("art_outliers")
 	var umbra: Dictionary = engine.create_new_run(7262026, ProgressionStore.default_data())
 	umbra = _pre_battle_state_for_room(engine, umbra, _first_room_coord_with_min_enemies(engine, umbra, 5))
 	for variant: String in ["small", "normal", "large"]:
