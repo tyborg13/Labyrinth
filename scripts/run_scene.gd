@@ -23962,6 +23962,12 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						if not ground_sound["played"]:
 							_play_outcome_sounds(ground_events,OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_enemy_step(step)))
 							ground_sound["played"] = true
+						presentation = _attack_feedback_death_hold_presentation(
+							animated_state,
+							attack_feedback_state,
+							presentation,
+							_attack_terrain_destruction_progress(step, t)
+						)
 						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 								attack_destroyed_terrain,

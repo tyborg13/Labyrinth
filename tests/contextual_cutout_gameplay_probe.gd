@@ -2,6 +2,7 @@ extends "res://tests/zekarion_cutout_gameplay_probe.gd"
 
 ## Actual card/End Turn paths, with fresh complete 1080p sequences and resolver
 ## equality checks. Fixture construction is shared with the dragon action probe.
+const RunEngine = preload("res://scripts/run_engine.gd")
 const CONTEXT_OUTPUT: String = "user://probes/contextual_cutout_gameplay_v1"
 var _context_records: Array[Dictionary] = []
 
@@ -45,15 +46,28 @@ func _run() -> void:
 		var after: Dictionary = _instance.get("_combat_state")
 		for key: String in ["player","enemies","surfaces","initiative_clock","turn_queue"]:
 			_assert(after.get(key)==expected.get(key), "Reaction preserves End Turn resolver " + key)
-	print("Context gameplay: player defeat")
-	await _fixture(Vector2i(4,6), Vector2i(4,4), false, "storm_claw")
-	_set_player_context(1, 0)
-	_instance.call("_on_pass_turn_pressed")
-	await _observe_context("player_death", "player", "death")
+	for reduced: bool in [false, true]:
+		print("Context gameplay: player defeat reduced=", reduced)
+		await _fixture(Vector2i(4,6), Vector2i(4,4), reduced, "storm_claw")
+		_set_player_context(1, 0)
+		var before_run: Dictionary = (_instance.get("_run_state") as Dictionary).duplicate(true)
+		var before: Dictionary = (_instance.get("_combat_state") as Dictionary).duplicate(true)
+		var engine := CombatEngine.new()
+		var expected: Dictionary = engine.advance_to_next_player_turn_with_steps(engine.finish_player_activation(before))["state"]
+		_instance.call("_on_pass_turn_pressed")
+		await _observe_context("reduced_player_death" if reduced else "player_death", "player", "death", reduced)
+		print("Context gameplay: defeat captured reduced=", reduced)
+		# Terminal RunEngine finalization intentionally clears combat_state.
+		var expected_run: Dictionary = RunEngine.new().finish_combat(before_run, expected)
+		var after_run: Dictionary = _instance.get("_run_state")
+		for key: String in ["mode", "game_over", "combat_state", "player_hp", "run_stats", "current_room_layout"]:
+			_assert(after_run.get(key) == expected_run.get(key), "Player defeat preserves the resolved terminal " + key)
+	print("Context gameplay: reduced enemy defeat")
 	await _fixture(Vector2i(4,6), Vector2i(4,4), true, "storm_claw",9)
 	await _instance.call("_on_card_pressed",0)
 	_instance.call("_on_board_tile_clicked",Vector2i(4,5))
 	await _observe_context("reduced_enemy_death", "enemy_1", "death", true)
+	print("Context gameplay: reduced player hit")
 	await _fixture(Vector2i(4,6), Vector2i(4,4), true, "storm_claw")
 	_instance.call("_on_pass_turn_pressed")
 	await _observe_context("reduced_player_hit", "player", "rest", true)
@@ -110,6 +124,10 @@ func _observe_context(label: String, actor_key: String, expected: String, reduce
 	var samples: Array[Dictionary] = []
 	var images: Array[Image] = []
 	var targets: Dictionary = {}
+	var continuity_samples: Array[Dictionary] = []
+	var terminal_pose_seen: bool = false
+	var missing_player_frames: int = 0
+	var lethal_frames: int = 0
 	while Time.get_ticks_usec()-started < 18000000:
 		await process_frame
 		var now: int = Time.get_ticks_usec()
@@ -120,6 +138,21 @@ func _observe_context(label: String, actor_key: String, expected: String, reduce
 		if shown and reduced and expected == "death":
 			_assert(is_equal_approx(float(snapshot.get("phase",0)),1.0), "Reduced death stays on its authored final pose")
 		var presentation: Dictionary = _board.get("presentation")
+		if actor_key == "player" and expected == "death":
+			# A persistent renderer can animate while the board omits its actor.
+			# Check actual draw submissions on every frame, including the attack tail.
+			var visible: bool = false
+			var death_progress: float = -1.0
+			for unit: Dictionary in _board.call("_visible_units"):
+				if str(unit.get("key", "")) == "player":
+					visible = true
+					death_progress = float(unit.get("death_progress", -1.0))
+			var displayed_hp: int = int((_board.get("combat_state") as Dictionary).get("player", {}).get("hp", 1))
+			if displayed_hp <= 0:
+				lethal_frames += 1
+				if not terminal_pose_seen and not visible: missing_player_frames += 1
+			if death_progress >= 1.0: terminal_pose_seen = true
+			continuity_samples.append({"seconds":float(now-started)/1000000.0, "hp":displayed_hp, "visible":visible, "death_progress":death_progress})
 		if shown and expected == "death" and actor_key != "player":
 			_assert(not (_board.get("_enemy_shadow_dissolve_effects_by_key") as Dictionary).is_empty(), "Articulated death retains the original shadow dissolve")
 		if now >= next_capture:
@@ -137,11 +170,14 @@ func _observe_context(label: String, actor_key: String, expected: String, reduce
 		if finished > 0 and now-finished > 200000: break
 	_assert(clips.has(expected), label + " reaches actual " + expected + " playback")
 	_assert(not bool(_instance.get("_animation_lock")), label + " returns input control")
+	if actor_key == "player" and expected == "death":
+		_assert(lethal_frames > 0 and terminal_pose_seen, label + " observes lethal contact through the terminal death pose")
+		_assert(missing_player_frames == 0, label + " keeps the player on the board continuously until death completes (missing frames: %d)" % missing_player_frames)
 	var folder: String = CONTEXT_OUTPUT.path_join(label)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(folder))
 	for index: int in range(images.size()): images[index].save_jpg(folder.path_join("frame_%04d.jpg" % index),.92)
 	for key: String in targets: images[int(targets[key]["index"])].save_png(CONTEXT_OUTPUT.path_join(label+"_"+key+".png"))
-	_context_records.append({"label":label,"clips":clips.keys(),"frames":samples})
+	_context_records.append({"label":label,"clips":clips.keys(),"frames":samples,"continuity_frames":continuity_samples,"missing_player_frames":missing_player_frames})
 
 func _context_still(label: String) -> void:
 	await RenderingServer.frame_post_draw
