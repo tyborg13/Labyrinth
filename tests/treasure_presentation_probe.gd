@@ -192,17 +192,22 @@ func _input_handoffs(treasure: Dictionary) -> void:
 	_proof_viewport.push_input(pointer, true)
 	await _wait_reveal()
 	var focused: Control = _proof_viewport.gui_get_focus_owner()
-	_expect_treasure(focused == null or not _choices().is_ancestor_of(focused), "Pointer handoff during opening overrides stale controller mode")
+	_expect_treasure(str(router.call("modality")) == "pointer", "Pointer handoff updates the actual router modality")
+	_expect_treasure(focused == null, "Pointer handoff clears stale toolbar and choice focus")
+	_expect_treasure(not (_treasure_scene.get("_controller_prompt_bar") as Control).visible, "Pointer handoff hides controller prompts")
 	await _treasure_capture("13_pointer_handoff.png")
 	router.call("set_modality", "pointer")
 	_treasure_scene.call("_load_run_state", treasure)
 	var stick := InputEventJoypadMotion.new()
+	stick.device = 7
 	stick.axis = JOY_AXIS_LEFT_X
 	stick.axis_value = 0.75
 	_proof_viewport.push_input(stick, true)
 	await _wait_reveal()
 	focused = _proof_viewport.gui_get_focus_owner()
+	_expect_treasure(str(router.call("modality")) == "controller" and int(router.call("active_device_id")) == 7, "Stick handoff updates controller mode and active device")
 	_expect_treasure(focused != null and _choices().is_ancestor_of(focused), "Stick navigation during opening restores visible choice focus")
+	_expect_treasure((_treasure_scene.get("_controller_prompt_bar") as Control).visible, "Stick handoff shows controller prompts")
 	await _treasure_capture("14_controller_handoff.png")
 
 func _natural_room_entry(engine: RunEngine, base: Dictionary, destination: Vector2i) -> void:

@@ -2189,6 +2189,10 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _treasure_presentation_busy():
+		_record_treasure_presentation_input(event)
+		get_viewport().set_input_as_handled()
+		return
 	# Track real navigation intent, not focus left behind by a prior modal.
 	if (event is InputEventKey or event is InputEventAction or InputRouterScript.is_controller_event(event)) and event.is_pressed():
 		_treasure_reveal_navigation = true
@@ -2196,11 +2200,8 @@ func _input(event: InputEvent) -> void:
 		_treasure_reveal_navigation = false
 	elif event is InputEventMouseMotion and event.relative.length_squared() > 4.0:
 		_treasure_reveal_navigation = false
-	elif event is InputEventJoypadMotion and absf(event.axis_value) > 0.35:
+	elif event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD:
 		_treasure_reveal_navigation = true
-	if _treasure_presentation_busy():
-		get_viewport().set_input_as_handled()
-		return
 	if _grimoire_scrim != null and _grimoire_scrim.visible:
 		# Search receives focus even for pointer browsing. Return focus only when
 		# navigation is still in use; a mouse/touch dismissal must not latch the
@@ -26602,6 +26603,27 @@ func _on_campfire_leave_pressed() -> void:
 
 # Treasure motion is presentation-only: ownership and analytics still commit
 # synchronously in _claim_relic_with_deferred, before any animated delivery.
+func _record_treasure_presentation_input(event: InputEvent) -> void:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null:
+		router.call("record_input_activity", event)
+	if (event is InputEventKey or event is InputEventAction) and event.is_pressed():
+		_treasure_reveal_navigation = true
+	elif InputRouterScript.is_controller_event(event) and _controller_is_active():
+		if event.is_pressed() or (event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD):
+			_treasure_reveal_navigation = true
+	elif not _controller_is_active():
+		var pointer_activity: bool = (
+			((event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed())
+			or (event is InputEventMouseMotion and event.relative.length() >= InputRouterScript.POINTER_ACTIVITY_THRESHOLD)
+			or event is InputEventScreenDrag
+		)
+		if pointer_activity:
+			_treasure_reveal_navigation = false
+			var focused: Control = get_viewport().gui_get_focus_owner()
+			if focused != null:
+				focused.release_focus()
+
 func _treasure_presentation_busy() -> bool:
 	return _treasure_reveal_active or _relic_claim_in_progress
 
