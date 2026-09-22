@@ -737,7 +737,7 @@ func set_external_highlighted(highlighted: bool) -> void:
 		_time_badge.set_hovered(_local_hovered or _external_highlighted)
 	_update_pose()
 
-func prepare_for_pool() -> void:
+func prepare_for_pool(preserve_pointer_hover: bool = false) -> void:
 	_finish_frame_reflection()
 	if _pose_tween != null and _pose_tween.is_valid():
 		_pose_tween.kill()
@@ -745,7 +745,10 @@ func prepare_for_pool() -> void:
 	reset_ready_wave_state()
 	_left_pressed = false
 	_drag_emitted = false
-	_local_hovered = false
+	# A card that stays in the live fan keeps native pointer ownership. There
+	# may be no new mouse_entered signal to restore its local material/badge.
+	if not preserve_pointer_hover:
+		_local_hovered = false
 	_external_highlighted = false
 	_interaction_state_dirty = true
 	visible = true
@@ -754,7 +757,7 @@ func prepare_for_pool() -> void:
 	rotation = 0.0
 	modulate = Color.WHITE
 	if _time_badge != null:
-		_time_badge.set_hovered(false)
+		_time_badge.set_hovered(_local_hovered)
 	_refresh_card_material(false)
 	_refresh_motion_processing()
 
