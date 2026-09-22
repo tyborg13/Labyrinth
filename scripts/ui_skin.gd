@@ -366,6 +366,18 @@ func apply_surface_finish(panel: PanelContainer, kind: String = SURFACE_DIALOG) 
 	panel.move_child(finish, 0)
 	finish.call("configure", panel, kind)
 
+func apply_choice_finish(panel: PanelContainer, accent: Color, emphasized: bool = false, enabled: bool = true) -> void:
+	if panel == null:
+		return
+	var finish: Node2D = panel.get_node_or_null("ChoiceSurfaceFinish") as Node2D
+	if finish == null:
+		finish = SurfaceFinish.new()
+		finish.name = "ChoiceSurfaceFinish"
+		# Install after authored background layers and before content. Subsequent
+		# state refreshes keep this paint order and allocate no additional nodes.
+		panel.add_child(finish)
+	finish.call("configure_choice", panel, accent, emphasized, enabled)
+
 func apply_inset_surface(panel: PanelContainer, variant: String = SURFACE_DIALOG) -> void:
 	if panel == null:
 		return

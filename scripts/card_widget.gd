@@ -10,6 +10,32 @@ const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const SettingsStore = preload("res://scripts/settings_store.gd")
+
+const FRAME_REFLECTION_SECONDS: float = 0.28
+# The authored frame supplies both its alpha and its metal detail. Masking the
+# response to its outside edge keeps card art, parchment, and rules untouched.
+const FRAME_REFLECTION_SHADER: String = """
+shader_type canvas_item;
+render_mode unshaded;
+uniform vec2 card_size = vec2(250.0, 352.0);
+uniform float layout_scale = 1.0;
+uniform float progress = 1.0;
+varying vec2 card_point;
+void vertex() {
+	card_point = VERTEX;
+}
+void fragment() {
+	vec4 frame = texture(TEXTURE, UV);
+	vec2 edge_distance = min(card_point, card_size - card_point);
+	float edge = 1.0 - smoothstep(3.0 * layout_scale, 11.0 * layout_scale, min(edge_distance.x, edge_distance.y));
+	float metal = smoothstep(0.12, 0.57, dot(frame.rgb, vec3(0.299, 0.587, 0.114)));
+	vec2 face = card_point / max(card_size, vec2(1.0));
+	float sweep = max(0.0, 1.0 - abs(face.x + face.y * 0.24 - mix(-0.28, 1.52, progress)) / 0.25);
+	float envelope = sin(clamp(progress, 0.0, 1.0) * 3.14159265);
+	COLOR = vec4(vec3(1.0, 0.91, 0.72), frame.a * edge * metal * sweep * sweep * envelope * 0.70);
+}
+"""
 
 const DRAG_THRESHOLD: float = 10.0
 const HOVER_LIFT: float = -12.0
@@ -61,6 +87,16 @@ const FIRE_FRAME_VALUE_LIFT: float = 1.035
 static var _elemental_frame_cache: Dictionary = {}
 static var _card_frame_style_cache: Dictionary = {}
 static var _empty_panel_style: StyleBoxEmpty = null
+static var _frame_reflection_shader: Shader
+
+class CardFrameReflection:
+	extends Control
+
+	var frame: StyleBoxTexture
+
+	func _draw() -> void:
+		if frame != null:
+			draw_style_box(frame, Rect2(Vector2.ZERO, size))
 
 class AoePatternView:
 	extends Control
@@ -190,28 +226,41 @@ class TimeCostBadge:
 
 	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
 	const CLOCK_HOVER_SECONDS_PER_SECOND: float = 24.0
+	const MotionSettings = preload("res://scripts/settings_store.gd")
 
 	var value: int = 0
 	var _clock_seconds: float = 0.0
 	var _hovered: bool = false
+
+	func _ready() -> void:
+		_refresh_processing()
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_VISIBILITY_CHANGED:
+			_refresh_processing()
+
+	func _refresh_processing() -> void:
+		set_process(_hovered and is_visible_in_tree() and not MotionSettings.applied_reduced_motion_enabled())
 
 	func setup(next_value: int, next_tooltip: String) -> void:
 		value = maxi(0, next_value)
 		_clock_seconds = float(posmod(value, 12)) * 3600.0 + float(posmod(value * 5, 60)) * 60.0 + float(posmod(value * 11, 60))
 		tooltip_text = next_tooltip
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		set_process(_hovered)
+		_refresh_processing()
 		queue_redraw()
 
 	func set_hovered(hovered: bool) -> void:
 		if _hovered == hovered:
+			_refresh_processing()
 			return
 		_hovered = hovered
-		set_process(_hovered)
+		_refresh_processing()
 		queue_redraw()
 
 	func _process(delta: float) -> void:
-		if not _hovered:
+		if not _hovered or not is_visible_in_tree() or MotionSettings.applied_reduced_motion_enabled():
+			set_process(false)
 			return
 		_clock_seconds = fmod(_clock_seconds + delta * CLOCK_HOVER_SECONDS_PER_SECOND, 43200.0)
 		queue_redraw()
@@ -460,8 +509,15 @@ var _ready_wave_glow: PanelContainer
 var _summary_icon_box: VBoxContainer
 var _role_emblem: DebossedRoleEmblem
 var _time_badge: TimeCostBadge
+var _elevation_shadow: Panel
+var _elevation_shadow_style: StyleBoxFlat
+var _frame_reflection: CardFrameReflection
+var _frame_reflection_material: ShaderMaterial
+var _frame_reflection_progress: float = 1.0
+var _material_highlighted: bool = false
 
 func _ready() -> void:
+	set_process(false)
 	focus_mode = Control.FOCUS_NONE
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	set_meta("cursor_feedback_context", "action_drag")
@@ -499,6 +555,9 @@ func _ready() -> void:
 	_ensure_summary_icon_box()
 	_ensure_role_emblem()
 	_ensure_time_badge()
+	_ensure_card_material()
+	focus_entered.connect(_on_material_focus_changed)
+	focus_exited.connect(_on_material_focus_changed)
 	mouse_entered.connect(_on_local_mouse_entered)
 	mouse_exited.connect(_on_local_mouse_exited)
 	_update_layout_metrics()
@@ -506,6 +565,13 @@ func _ready() -> void:
 	_queue_title_refit()
 
 func _notification(what: int) -> void:
+	if what == NOTIFICATION_VISIBILITY_CHANGED and is_node_ready():
+		if not is_visible_in_tree():
+			_local_hovered = false
+			_settle_card_motion()
+			_material_highlighted = false
+		else:
+			_refresh_card_material(false)
 	if what == NOTIFICATION_RESIZED and is_node_ready():
 		_update_layout_metrics()
 		pivot_offset = size * 0.5
@@ -519,6 +585,7 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
+			_finish_frame_reflection()
 			_left_pressed = true
 			_drag_emitted = false
 			_press_position = event.position
@@ -651,7 +718,7 @@ func set_hover_pose(next_lift: float, next_scale: float) -> void:
 
 func can_cache_locked_appearance() -> bool:
 	# Retained hover and the time badge can still animate a disabled card.
-	if _interactive or _ready_wave_active:
+	if _interactive or _ready_wave_active or _frame_reflection_progress < 1.0:
 		return false
 	if _pose_tween != null and _pose_tween.is_running():
 		return false
@@ -665,11 +732,13 @@ func set_external_highlighted(highlighted: bool) -> void:
 	if _external_highlighted == highlighted:
 		return
 	_external_highlighted = highlighted
+	_refresh_card_material(true)
 	if _time_badge != null:
 		_time_badge.set_hovered(_local_hovered or _external_highlighted)
 	_update_pose()
 
 func prepare_for_pool() -> void:
+	_finish_frame_reflection()
 	if _pose_tween != null and _pose_tween.is_valid():
 		_pose_tween.kill()
 	_pose_tween = null
@@ -686,6 +755,8 @@ func prepare_for_pool() -> void:
 	modulate = Color.WHITE
 	if _time_badge != null:
 		_time_badge.set_hovered(false)
+	_refresh_card_material(false)
+	_refresh_motion_processing()
 
 func reset_ready_wave_state() -> void:
 	if _ready_wave_tween != null and _ready_wave_tween.is_valid():
@@ -706,6 +777,7 @@ func reset_ready_wave_state() -> void:
 		_ready_wave_glow.visible = false
 		_ready_wave_glow.modulate = Color(1.0, 1.0, 1.0, 0.0)
 		_ready_wave_glow.scale = Vector2.ONE
+	_refresh_motion_processing()
 
 static var _layout_probe_enabled: bool = false
 static var _layout_probe_frames: Dictionary = {}
@@ -791,6 +863,7 @@ func _apply_interaction_configuration(card: Dictionary = {}, refresh_frame_style
 		alpha = 0.90
 	modulate = Color(1.0, 1.0, 1.0, alpha)
 	_update_pose(true)
+	_refresh_card_material(false)
 
 func _update_layout_metrics() -> void:
 	_apply_scaled_node_metrics()
@@ -881,6 +954,9 @@ func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previ
 	add_theme_stylebox_override("pressed", pressed)
 	add_theme_stylebox_override("focus", hover)
 	add_theme_stylebox_override("disabled", disabled_style)
+	if _frame_reflection != null:
+		_frame_reflection.frame = normal
+		_frame_reflection.queue_redraw()
 	if _empty_panel_style == null:
 		_empty_panel_style = StyleBoxEmpty.new()
 	art_frame.add_theme_stylebox_override("panel", _empty_panel_style)
@@ -1607,12 +1683,14 @@ func _clear_children(node: Node) -> void:
 
 func _on_local_mouse_entered() -> void:
 	_local_hovered = true
+	_refresh_card_material(true)
 	if _time_badge != null:
 		_time_badge.set_hovered(true)
 	_update_pose()
 
 func _on_local_mouse_exited() -> void:
 	_local_hovered = false
+	_refresh_card_material(false)
 	if _time_badge != null:
 		_time_badge.set_hovered(_external_highlighted)
 	_update_pose()
@@ -1620,9 +1698,13 @@ func _on_local_mouse_exited() -> void:
 func play_ready_wave(delay_seconds: float = 0.0) -> void:
 	if not is_node_ready() or top_level or not _interactive or _dimmed or not _usable:
 		return
+	if SettingsStore.applied_reduced_motion_enabled() or not is_visible_in_tree():
+		_settle_card_motion()
+		return
 	if _ready_wave_tween != null:
 		_ready_wave_tween.kill()
 	_ready_wave_active = true
+	_refresh_motion_processing()
 	_ready_wave_progress = 0.0
 	set_meta("ready_wave_active", true)
 	_ensure_ready_wave_glow()
@@ -1644,6 +1726,7 @@ func play_ready_wave(delay_seconds: float = 0.0) -> void:
 		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "modulate:a", 0.0, READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.028, 1.028), READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_ready_wave_tween.tween_callback(_finish_ready_wave)
+	_refresh_motion_processing()
 
 func _set_ready_wave_progress(progress: float) -> void:
 	_ready_wave_progress = clampf(progress, 0.0, 1.0)
@@ -1656,6 +1739,7 @@ func _finish_ready_wave() -> void:
 	if _ready_wave_glow != null:
 		_ready_wave_glow.visible = false
 	_apply_pose_now()
+	_refresh_motion_processing()
 
 func _ensure_ready_wave_glow() -> void:
 	if _ready_wave_glow != null:
@@ -1710,12 +1794,13 @@ func _update_pose(immediate: bool = false) -> void:
 	if top_level:
 		scale = target_scale
 		return
-	if immediate or _ready_wave_active or not is_inside_tree():
+	if immediate or _ready_wave_active or not is_inside_tree() or SettingsStore.applied_reduced_motion_enabled():
 		_apply_pose_now()
 		return
 	_pose_tween = create_tween().set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_pose_tween.tween_property(self, "position:y", lift, 0.12)
 	_pose_tween.parallel().tween_property(self, "scale", target_scale, 0.12)
+	_refresh_motion_processing()
 
 func _pose_target() -> Dictionary:
 	var lift: float = 0.0
@@ -1741,3 +1826,99 @@ func _apply_pose_now() -> void:
 		return
 	position = Vector2(position.x, lift)
 	scale = target_scale
+
+# Decoration is outside the card's content/layout tree and never receives input.
+# One short response follows a new hover/focus; there is no idle shader clock.
+func _ensure_card_material() -> void:
+	_elevation_shadow = Panel.new()
+	_elevation_shadow.name = "CardElevationShadow"
+	_elevation_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_elevation_shadow.show_behind_parent = true
+	_elevation_shadow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_elevation_shadow_style = StyleBoxFlat.new()
+	_elevation_shadow_style.draw_center = false
+	_elevation_shadow.add_theme_stylebox_override("panel", _elevation_shadow_style)
+	add_child(_elevation_shadow)
+	if _frame_reflection_shader == null:
+		_frame_reflection_shader = Shader.new()
+		_frame_reflection_shader.code = FRAME_REFLECTION_SHADER
+	_frame_reflection_material = ShaderMaterial.new()
+	_frame_reflection_material.shader = _frame_reflection_shader
+	_frame_reflection = CardFrameReflection.new()
+	_frame_reflection.name = "CardFrameReflection"
+	_frame_reflection.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_frame_reflection.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_frame_reflection.material = _frame_reflection_material
+	_frame_reflection.visible = false
+	add_child(_frame_reflection)
+
+func _on_material_focus_changed() -> void:
+	_refresh_card_material(true)
+
+func _material_is_highlighted() -> bool:
+	return _usable and not _dimmed and (
+		_external_highlighted or (_interactive and (_local_hovered or has_focus()))
+	)
+
+func _refresh_card_material(allow_response: bool) -> void:
+	if _elevation_shadow == null:
+		return
+	var highlighted: bool = _material_is_highlighted()
+	var elevated: bool = highlighted or _selected or _previewed
+	var layout_scale: float = _card_layout_scale()
+	# Keep the solid shadow core beneath the authored frame; only its feather
+	# should extend beyond the card, including at inspection sizes.
+	var shadow_inset: float = 8.0 * layout_scale
+	_elevation_shadow.offset_left = shadow_inset
+	_elevation_shadow.offset_top = shadow_inset
+	_elevation_shadow.offset_right = -shadow_inset
+	_elevation_shadow.offset_bottom = -shadow_inset
+	_elevation_shadow_style.shadow_color = Color(0.0, 0.0, 0.0, 0.50 if elevated else 0.34)
+	_elevation_shadow_style.shadow_size = roundi((16.0 if elevated else 8.0) * layout_scale)
+	_elevation_shadow_style.shadow_offset = Vector2(0.0, 9.0 if elevated else 4.0) * layout_scale
+	var radius: int = roundi(14.0 * layout_scale)
+	_elevation_shadow_style.set_corner_radius_all(radius)
+	_frame_reflection_material.set_shader_parameter("card_size", size)
+	_frame_reflection_material.set_shader_parameter("layout_scale", layout_scale)
+	if highlighted and not _material_highlighted and allow_response and is_visible_in_tree() and not SettingsStore.applied_reduced_motion_enabled():
+		_frame_reflection_progress = 0.0
+		_frame_reflection_material.set_shader_parameter("progress", 0.0)
+		_frame_reflection.visible = true
+	elif not highlighted or SettingsStore.applied_reduced_motion_enabled():
+		_finish_frame_reflection()
+	_material_highlighted = highlighted
+	_refresh_motion_processing()
+
+func _finish_frame_reflection() -> void:
+	_frame_reflection_progress = 1.0
+	if _frame_reflection != null:
+		_frame_reflection.visible = false
+	_refresh_motion_processing()
+
+func _settle_card_motion() -> void:
+	_finish_frame_reflection()
+	if _pose_tween != null:
+		_pose_tween.kill()
+		_pose_tween = null
+	if _ready_wave_tween != null:
+		_ready_wave_tween.kill()
+		_ready_wave_tween = null
+	_finish_ready_wave()
+	if _time_badge != null:
+		_time_badge.set_hovered(_local_hovered or _external_highlighted)
+	_refresh_motion_processing()
+
+func _refresh_motion_processing() -> void:
+	var pose_running: bool = _pose_tween != null and _pose_tween.is_running()
+	set_process(is_visible_in_tree() and (_frame_reflection_progress < 1.0 or _ready_wave_active or pose_running))
+
+func _process(delta: float) -> void:
+	if not is_visible_in_tree() or SettingsStore.applied_reduced_motion_enabled():
+		_settle_card_motion()
+		return
+	if _frame_reflection_progress < 1.0:
+		_frame_reflection_progress = minf(1.0, _frame_reflection_progress + delta / FRAME_REFLECTION_SECONDS)
+		_frame_reflection_material.set_shader_parameter("progress", _frame_reflection_progress)
+		if _frame_reflection_progress >= 1.0:
+			_frame_reflection.visible = false
+	_refresh_motion_processing()

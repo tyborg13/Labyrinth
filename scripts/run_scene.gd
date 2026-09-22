@@ -16357,6 +16357,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
 
+	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
 
 	var margin := MarginContainer.new()
@@ -16461,12 +16462,13 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
-	panel.focus_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
-	panel.focus_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
+	panel.focus_entered.connect(_set_campfire_choice_focused.bind(panel, accent, true))
+	panel.focus_exited.connect(_set_campfire_choice_focused.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
 	_add_campfire_choice_inner_glow(panel, accent, enabled)
+	_ui_skin.apply_choice_finish(panel, accent, false, enabled)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -16709,12 +16711,25 @@ func _refresh_relic_choice_emphasis(panel: PanelContainer, relic: Dictionary) ->
 	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
 	panel.z_index = 40 if emphasized else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), emphasized))
+	_ui_skin.apply_choice_finish(panel, Color(accent), emphasized)
 
 func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
+	panel.set_meta("choice_pointer_hovered", hovered)
+	_refresh_campfire_choice_emphasis(panel, accent)
+
+func _set_campfire_choice_focused(panel: PanelContainer, accent: Color, focused: bool) -> void:
+	if panel == null:
+		return
+	panel.set_meta("choice_keyboard_focused", focused)
+	_refresh_campfire_choice_emphasis(panel, accent)
+
+func _refresh_campfire_choice_emphasis(panel: PanelContainer, accent: Color) -> void:
+	var hovered: bool = bool(panel.get_meta("choice_pointer_hovered", false)) or bool(panel.get_meta("choice_keyboard_focused", false))
 	var enabled: bool = bool(panel.get_meta("choice_enabled", true))
 	panel.z_index = 40 if hovered else 30
+	_ui_skin.apply_choice_finish(panel, accent, hovered, enabled)
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, enabled))
 	var glow: PanelContainer = panel.get_node_or_null("CampfireChoiceInnerGlow") as PanelContainer
 	if glow != null:
@@ -16728,10 +16743,10 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	else:
 		style.bg_color = Color(0.075, 0.065, 0.055, 0.96)
 		style.border_color = Color("b9664f") if hovered else Color("8f5e4d")
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 	style.content_margin_left = 0.0
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
@@ -16833,10 +16848,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
 	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 	style.content_margin_left = 0.0
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0

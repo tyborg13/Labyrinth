@@ -7320,22 +7320,44 @@ func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dict
 		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), cinder_color)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_size := Vector2(_tile_width(), _tile_height())
+	# Reuse the prepared radial light: a soft floor pool keeps the object
+	# grounded without filling its tile like a selected movement target.
+	if _pillar_torch_light_texture != null:
+		var pool_size: Vector2 = tile_size * Vector2(1.02 + pulse * 0.04, 0.76 + pulse * 0.03)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - pool_size * 0.5, pool_size), false, Color(glow_color.r, glow_color.g, glow_color.b, 0.20 + pulse * 0.07))
+		var core_size: Vector2 = tile_size * Vector2(0.52, 0.40)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - core_size * 0.5, core_size), false, Color(accent.r, accent.g, accent.b, 0.13 + pulse * 0.05))
+	# Four open corners retain the familiar tile footprint and rarity cue.
+	# Fixed gaps keep the floor visible; only the established pickup pulse moves.
+	var half_size: Vector2 = tile_size * (0.76 + pulse * 0.05) * 0.5
+	var corners := PackedVector2Array([
+		center + Vector2(0.0, -half_size.y), center + Vector2(half_size.x, 0.0),
+		center + Vector2(0.0, half_size.y), center + Vector2(-half_size.x, 0.0)
+	])
+	var rim := PackedVector2Array()
+	for index: int in range(4):
+		var corner: Vector2 = corners[index]
+		rim.append(corners[posmod(index - 1, 4)].lerp(corner, 0.64))
+		rim.append(corner)
+		rim.append(corner)
+		rim.append(corner.lerp(corners[(index + 1) % 4], 0.36))
+	var rim_width: float = maxf(1.2, _tile_width() * 0.007)
 	var accent_glow: Color = accent.lightened(0.36)
-	_draw_tile_diamond_fill(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.10 + pulse * 0.06), 0.70 + pulse * 0.05)
-	_draw_tile_ring(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.46 + pulse * 0.22), 3.0 + pulse * 1.1, 0.76 + pulse * 0.05)
-	_draw_tile_ring(tile, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.56 + pulse * 0.18), 1.6 + pulse * 0.5, 0.58 + pulse * 0.03)
+	draw_multiline(rim, Color(glow_color.r, glow_color.g, glow_color.b, 0.10 + pulse * 0.04), rim_width + 2.0, true)
+	draw_multiline(rim, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.52 + pulse * 0.16), rim_width, true)
 
 func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_color: Color, pulse: float) -> void:
-	var offset_px: float = maxf(2.4, _tile_width() * 0.022)
-	var outline_rect: Rect2 = loot_rect.grow(maxf(1.6, _tile_width() * 0.008))
-	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.34 + pulse * 0.12)
+	# A tight four-direction edge catch separates dark equipment from the room
+	# without the broad duplicate silhouettes of the former seven-copy halo.
+	var offset_px: float = maxf(1.0, _tile_width() * 0.009)
+	var outline_rect: Rect2 = loot_rect.grow(maxf(0.5, _tile_width() * 0.003))
+	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.24 + pulse * 0.06)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px, 0.0), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px, 0.0), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, -offset_px), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, offset_px), outline_rect.size), false, outline_tint)
-	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
-	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
-	draw_texture_rect(texture, loot_rect.grow(maxf(1.0, _tile_width() * 0.006)), false, Color(1.0, 0.92, 0.62, 0.14 + pulse * 0.06))
 
 func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
 	var center: Vector2 = _tile_center(tile)
