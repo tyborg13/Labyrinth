@@ -8183,8 +8183,12 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	var deck_badge_name: Label = null
 	if deck_badge != null:
 		deck_badge_name = deck_badge.find_child("CardBadgeName", true, false) as Label
-	_assert(deck_badge != null and deck_badge.custom_minimum_size.x > deck_badge.custom_minimum_size.y * 3.0, "Pre-battle deck badges should retain a wide, readable tile shape when compacted")
-	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty(), "Pre-battle deck badges should show the card name over the card art")
+	var deck_art_well: Control = deck_badge.find_child("PreBattleCardArtWell", true, false) as Control if deck_badge != null else null
+	var deck_name_face: Control = deck_badge.find_child("PreBattleCardNameFace", true, false) as Control if deck_badge != null else null
+	_assert(deck_art_well != null and deck_name_face != null and deck_art_well.get_global_rect().end.y <= deck_name_face.get_global_rect().position.y + 0.5, "Pre-battle card artwork should remain separate from its readable name face")
+	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty() and deck_badge_name.text == str(deck_badge.get_meta("display_name", "")), "Pre-battle card objects should show the exact name and duplicate quantity")
+	_assert(deck_badge_name != null and deck_badge_name.get_theme_font_size("font_size") >= UiTypography.SIZE_CAPTION, "Pre-battle card identities should retain the shared caption floor")
+	_assert(deck_name_face != null and deck_badge_name != null and deck_name_face.get_global_rect().grow(0.5).encloses(deck_badge_name.get_global_rect()) and deck_badge_name.get_visible_line_count() >= deck_badge_name.get_line_count(), "Pre-battle card names should remain fully inside their face")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
 	var inspection_sources: Array[Control] = []

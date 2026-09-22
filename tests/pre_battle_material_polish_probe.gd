@@ -49,6 +49,11 @@ func _run_material_proof(settings: Dictionary) -> void:
 		await _settle()
 		var panel := instance.get("_pre_battle_panel") as Control
 		_assert_pre_battle_body_inside_panel(panel, "%d foes" % count)
+		if not _before:
+			await _assert_frame_backing(instance)
+			var deck_scroll := panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer
+			var deck_bar := deck_scroll.get_v_scroll_bar()
+			_expect(not deck_bar.visible and deck_bar.max_value <= deck_bar.page + 1.0, "Default deck fits without scrolling with %d foes and full room header" % count)
 		var flow := panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		_expect(flow.get_child_count() == count, "Count should remain exact")
 		var scroll := panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
@@ -254,3 +259,40 @@ func _joy(button: JoyButton) -> void:
 		event.pressed = pressed
 		_viewport.push_input(event, true)
 		await process_frame
+
+func _assert_frame_backing(instance: Node) -> void:
+	var panel := instance.get("_pre_battle_panel") as PanelContainer
+	var finish := panel.get_node("SurfaceFinish") as Node2D
+	var geometry: Dictionary = finish.call("menu_face_geometry")
+	var face: Rect2 = geometry["rect"]
+	var frame := instance.get("_pre_battle_frame") as Control
+	var texture: Texture2D = frame.get("texture")
+	var source := Vector2(texture.get_width(), texture.get_height())
+	var scale: float = minf(frame.size.x / source.x, frame.size.y / source.y)
+	var rail_top: float = frame.global_position.y + 32.0 * scale
+	var rail_bottom: float = frame.global_position.y + 991.0 * scale
+	_expect(absf(panel.global_position.y + face.position.y - rail_top) < 1.0, "Backing top meets actual settled frame rail")
+	_expect(absf(panel.global_position.y + face.end.y - rail_bottom) < 1.0, "Backing bottom meets actual settled frame rail")
+	# This is the formerly bare band above the content panel, beneath the
+	# decorative top rail. Test actual rendered paint there, not just sizing.
+	_expect(face.position.y < -10.0, "Backing extends above content to the authored rail")
+	if DisplayServer.get_name() == "headless":
+		return
+	await RenderingServer.frame_post_draw
+	var painted: Image = _viewport.get_texture().get_image()
+	finish.hide()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	var unpainted: Image = _viewport.get_texture().get_image()
+	finish.show()
+	await process_frame
+	await RenderingServer.frame_post_draw
+	for x: float in [0.25, 0.75]:
+		for outside_y: float in [rail_top - 4.0, rail_bottom + 4.0]:
+			var outside := Vector2i(Vector2(panel.global_position.x + panel.size.x * x, outside_y))
+			var delta: Color = painted.get_pixelv(outside) - unpainted.get_pixelv(outside)
+			_expect(maxf(absf(delta.r), maxf(absf(delta.g), absf(delta.b))) < 0.005, "Native material stays inside the outer frame rails")
+		var point := Vector2i(panel.get_global_rect().position + Vector2(panel.size.x * x, -10.0))
+		var first: Color = painted.get_pixelv(point)
+		var second: Color = unpainted.get_pixelv(point)
+		_expect(maxf(absf(first.r - second.r), maxf(absf(first.g - second.g), absf(first.b - second.b))) > 0.01, "Native finish paints the previously bare top band")

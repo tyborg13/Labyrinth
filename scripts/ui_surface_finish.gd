@@ -5,6 +5,7 @@ extends Node2D
 # across every page and generated once; it never swims with time or focus.
 static var _paper_grain: Texture2D
 static var _menu_grain_texture: Texture2D
+const MENU_SHADER = preload("res://assets/shaders/menu_surface_finish.gdshader")
 var _menu_accent := Color("b49461")
 var _panel: PanelContainer
 var _kind: String = "dialog"
@@ -15,6 +16,7 @@ var _choice_enabled: bool = true
 func configure(panel: PanelContainer, kind: String) -> void:
 	_panel = panel
 	_kind = kind
+	material = null # Reusing the helper for parchment/choices keeps their paint unchanged.
 	if kind.begins_with("paper"):
 		_grain() # Warm while the hidden Grimoire is built, never on first open.
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -22,6 +24,8 @@ func configure(panel: PanelContainer, kind: String) -> void:
 	var redraw := Callable(self, "queue_redraw")
 	if not panel.resized.is_connected(redraw):
 		panel.resized.connect(redraw)
+	if not panel.theme_changed.is_connected(redraw):
+		panel.theme_changed.connect(redraw)
 	queue_redraw()
 
 func configure_menu(panel: PanelContainer, kind: String, accent: Color) -> void:
@@ -29,6 +33,9 @@ func configure_menu(panel: PanelContainer, kind: String, accent: Color) -> void:
 	# stays below content; neither its paint nor its grain participates in layout.
 	configure(panel, "menu_" + kind)
 	_menu_accent = accent
+	var menu_material := ShaderMaterial.new()
+	menu_material.shader = MENU_SHADER
+	material = menu_material
 	if kind != "chip":
 		_menu_grain()
 	queue_redraw()
@@ -45,7 +52,7 @@ func _draw() -> void:
 		return
 	var rect := Rect2(Vector2(5.0, 5.0), _panel.size - Vector2(10.0, 10.0))
 	if _kind.begins_with("menu_"):
-		_draw_menu(rect)
+		_draw_menu()
 	elif _kind == "choice":
 		_draw_choice(rect)
 	elif _kind.begins_with("paper"):
@@ -53,55 +60,42 @@ func _draw() -> void:
 	else:
 		draw_dark_well(self, _quad(rect), rect, _kind)
 
-func _draw_menu(rect: Rect2) -> void:
-	var outer: bool = _kind == "menu_outer"
-	var chip: bool = _kind == "menu_chip"
-	var portrait: bool = _kind == "menu_portrait"
-	var light: Color = _menu_accent.lerp(Color("f3deaf"), 0.54)
-	# Broad reflected light gives the existing dark field a crown. The lower
-	# cool falloff and soft inner edges make it read as a recessed material.
-	var crown_alpha: float = 0.15 if outer else 0.12 if chip else 0.095
-	draw_polygon(_quad(rect), PackedColorArray([
-		Color(light, crown_alpha), Color(light, crown_alpha * 0.38),
-		Color(light, 0.0), Color(light, 0.015)
-	]))
-	draw_polygon(_quad(rect), PackedColorArray([
-		Color(0.014, 0.019, 0.032, 0.0), Color(0.014, 0.019, 0.032, 0.04),
-		Color(0.006, 0.010, 0.021, 0.44 if outer else 0.30), Color(0.006, 0.010, 0.021, 0.30)
-	]))
-	if not chip:
-		draw_texture_rect(_menu_grain(), rect, true, Color(1.0, 1.0, 1.0, 0.48 if outer else 0.25))
-		var header := Rect2(rect.position, Vector2(rect.size.x, minf(90.0 if outer else 48.0, rect.size.y * 0.35)))
-		draw_polygon(_quad(header), PackedColorArray([
-			Color(light, 0.065), Color(light, 0.022), Color(light, 0.0), Color(light, 0.0)
-		]))
-	if portrait:
-		# Light behind the existing paper doll grounds it without a new graphic
-		# or any change to the actor, its animation, or the controls around it.
-		var center: Vector2 = rect.position + rect.size * Vector2(0.39, 0.57)
-		var radius: Vector2 = rect.size * Vector2(0.35, 0.43)
-		for segment: int in range(24):
-			var angle: float = TAU * float(segment) / 24.0
-			var next_angle: float = TAU * float(segment + 1) / 24.0
-			draw_polygon(PackedVector2Array([
-				center,
-				center + Vector2(cos(angle), sin(angle)) * radius,
-				center + Vector2(cos(next_angle), sin(next_angle)) * radius
-			]), PackedColorArray([Color(light, 0.085), Color(light, 0.0), Color(light, 0.0)]))
-	var edge_width: float = minf(24.0 if outer else 12.0, rect.size.x * 0.08)
-	var left := Rect2(rect.position, Vector2(edge_width, rect.size.y))
-	var right := Rect2(Vector2(rect.end.x - edge_width, rect.position.y), left.size)
-	var shadow := Color(0.003, 0.004, 0.008, 0.26)
-	var clear := Color(0.003, 0.004, 0.008, 0.0)
-	draw_polygon(_quad(left), PackedColorArray([shadow, clear, clear, shadow]))
-	draw_polygon(_quad(right), PackedColorArray([clear, shadow, shadow, clear]))
-	# Broken reflections follow the existing lip, rather than boxing the
-	# content in another complete outline. Color remains in its native rim.
-	var corner: float = 10.0 if outer else 6.0
-	var catchlight := Color(light, 0.34 if chip else 0.18)
-	draw_line(rect.position + Vector2(corner, 0.0), Vector2(rect.end.x - corner, rect.position.y), catchlight, 1.0, true)
-	draw_line(rect.position + Vector2(0.0, corner), Vector2(rect.position.x, rect.end.y - corner), Color(light, catchlight.a * 0.38), 1.0, true)
-	draw_line(Vector2(rect.position.x + corner, rect.end.y - 1.0), rect.end - Vector2(corner, 1.0), Color(0.005, 0.004, 0.008, 0.55), 2.0, true)
+func menu_face_geometry() -> Dictionary:
+	# Paint the actual native face, including asymmetric rims. Draw expansion
+	# lets authored outer frames meet their backing without changing layout.
+	var rect := Rect2(Vector2.ZERO, _panel.size)
+	var radii := PackedVector2Array([Vector2.ZERO, Vector2.ZERO, Vector2.ZERO, Vector2.ZERO])
+	var style := _panel.get_theme_stylebox("panel") as StyleBoxFlat
+	if style != null:
+		rect = rect.grow_individual(style.expand_margin_left, style.expand_margin_top, style.expand_margin_right, style.expand_margin_bottom)
+		var borders := Vector4(style.border_width_left, style.border_width_top, style.border_width_right, style.border_width_bottom)
+		var corners := Vector4(style.corner_radius_top_left, style.corner_radius_top_right, style.corner_radius_bottom_right, style.corner_radius_bottom_left)
+		var limit: float = minf(rect.size.x, rect.size.y) * 0.5
+		for index: int in range(4):
+			var radius: float = minf(corners[index], limit)
+			var horizontal: float = borders.x if index == 0 or index == 3 else borders.z
+			var vertical: float = borders.y if index < 2 else borders.w
+			radii[index] = Vector2(maxf(0.0, radius - horizontal), maxf(0.0, radius - vertical))
+		rect = rect.grow_individual(-borders.x, -borders.y, -borders.z, -borders.w)
+	return {"rect": rect, "radii": radii}
+
+func _draw_menu() -> void:
+	var geometry: Dictionary = menu_face_geometry()
+	var rect: Rect2 = geometry["rect"]
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	var radii: PackedVector2Array = geometry["radii"]
+	var finish := material as ShaderMaterial
+	finish.set_shader_parameter("face_origin", rect.position)
+	finish.set_shader_parameter("face_size", rect.size)
+	finish.set_shader_parameter("radii_x", Vector4(radii[0].x, radii[1].x, radii[2].x, radii[3].x))
+	finish.set_shader_parameter("radii_y", Vector4(radii[0].y, radii[1].y, radii[2].y, radii[3].y))
+	finish.set_shader_parameter("accent", _menu_accent.lerp(Color("f3deaf"), 0.54))
+	finish.set_shader_parameter("outer_face", _kind == "menu_outer")
+	finish.set_shader_parameter("chip_face", _kind == "menu_chip")
+	finish.set_shader_parameter("portrait_face", _kind == "menu_portrait")
+	finish.set_shader_parameter("grain", _menu_grain())
+	draw_rect(rect, Color.WHITE)
 
 static func _menu_grain() -> Texture2D:
 	if _menu_grain_texture != null:
