@@ -366,6 +366,17 @@ func apply_surface_finish(panel: PanelContainer, kind: String = SURFACE_DIALOG) 
 	panel.move_child(finish, 0)
 	finish.call("configure", panel, kind)
 
+func apply_menu_finish(panel: PanelContainer, kind: String = "outer", accent: Color = Color("b49461")) -> void:
+	if panel == null:
+		return
+	var finish: Node2D = panel.get_node_or_null("SurfaceFinish") as Node2D
+	if finish == null:
+		finish = SurfaceFinish.new()
+		finish.name = "SurfaceFinish"
+		panel.add_child(finish)
+	panel.move_child(finish, 0)
+	finish.call("configure_menu", panel, kind, accent)
+
 func apply_choice_finish(panel: PanelContainer, accent: Color, emphasized: bool = false, enabled: bool = true) -> void:
 	if panel == null:
 		return

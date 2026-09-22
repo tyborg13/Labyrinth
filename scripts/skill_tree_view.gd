@@ -858,6 +858,7 @@ func _build_graph_panel() -> Control:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _panel_style(Color("756245")))
+	_ui_skin.apply_menu_finish(panel, "section", Color("756245"))
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 12)
@@ -1043,6 +1044,7 @@ func _build_detail_panel() -> Control:
 	_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_detail_panel.clip_contents = true
 	_detail_panel.add_theme_stylebox_override("panel", _panel_style(Color("8c6f49")))
+	_ui_skin.apply_menu_finish(_detail_panel, "section", Color("8c6f49"))
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_COMPACT))

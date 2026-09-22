@@ -273,6 +273,10 @@ class PreBattleEnemyFlow:
 			var child := get_child(index) as Control
 			if child != null:
 				fit_child_in_rect(child, rects[index])
+				# Portrait brushes may bleed beyond the viewport; health must not.
+				var health := child.find_child("PreBattleEnemyHealth", true, false) as Control
+				if health != null:
+					health.position.x = maxf(8.0, 4.0 - rects[index].position.x)
 		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
 
 	func _card_rects(total: int) -> Array[Rect2]:
@@ -1939,6 +1943,8 @@ var _dialogue_choice_bar: HBoxContainer
 var _upgrade_scrim: ColorRect
 var _upgrade_center: CenterContainer
 var _upgrade_dialog: PanelContainer
+var _character_menu_arrival_tween: Tween
+var _character_menu_arrival_target: Control
 var _upgrade_embers_label: Label
 var _upgrade_card_list: VBoxContainer
 var _upgrade_element_list: VBoxContainer
@@ -2013,6 +2019,8 @@ var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
 var _pre_battle_chrome: Control
 var _pre_battle_frame: PreBattleFrame
+var _pre_battle_entry_tween: Tween
+var _pre_battle_entry_generation: int = 0
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
@@ -5000,7 +5008,7 @@ func _build_pre_battle_overlay() -> void:
 	_pre_battle_panel.name = "PreBattlePanel"
 	_pre_battle_panel.custom_minimum_size = PRE_BATTLE_DIALOG_SIZE
 	_pre_battle_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var style := _pre_battle_style(Color(0.012, 0.010, 0.011, 0.985), Color(0.0, 0.0, 0.0, 0.0), 18.0, 2)
+	var style := _pre_battle_style(Color(0.030, 0.025, 0.028, 0.99), Color(0.0, 0.0, 0.0, 0.0), 18.0, 2)
 	style.shadow_size = 30
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
 	_pre_battle_panel.add_theme_stylebox_override("panel", style)
@@ -5101,6 +5109,7 @@ func _rebuild_pre_battle_overlay() -> void:
 		return
 	var total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var phase_started: int = total_started
+	_cancel_pre_battle_entry()
 	_clear_children_now(_pre_battle_panel)
 	_apply_pre_battle_outer_frame()
 	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
@@ -5111,6 +5120,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
+	_ui_skin.apply_menu_finish(_pre_battle_panel, "outer")
 	phase_started = _record_runtime_performance_phase("pre_battle_clear_and_context", phase_started)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_CONTENT_SIDE_INSET))
@@ -5147,8 +5157,6 @@ func _rebuild_pre_battle_overlay() -> void:
 	body.add_child(_build_pre_battle_deck_section(accent))
 	_record_runtime_performance_phase("pre_battle_deck_section", phase_started)
 	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
-
-	call_deferred("_animate_pre_battle_living_parts")
 
 func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
 	var row := HBoxContainer.new()
@@ -5398,7 +5406,11 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	style.content_margin_top = 6.0
 	style.content_margin_right = 12.0
 	style.content_margin_bottom = 6.0
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0.0, 2.0)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
 	panel.add_theme_stylebox_override("panel", style)
+	_ui_skin.apply_menu_finish(panel, "chip", accent)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	panel.add_child(row)
@@ -5443,7 +5455,12 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	panel.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
+	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
+	section_style.shadow_size = 7
+	section_style.shadow_offset = Vector2(0.0, 3.0)
+	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	panel.add_theme_stylebox_override("panel", section_style)
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -5517,7 +5534,12 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	panel.custom_minimum_size = Vector2(_pre_battle_deck_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
+	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
+	section_style.shadow_size = 7
+	section_style.shadow_offset = Vector2(0.0, 3.0)
+	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	panel.add_theme_stylebox_override("panel", section_style)
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -5670,7 +5692,8 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	chip.name = "PreBattleHealthChip"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.custom_minimum_size = Vector2(0.0, 40.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.020, 0.019, 0.58), Color("72c5b3"), 6.0, 7))
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.023, 0.033, 0.032, 0.92), Color("72c5b3"), 6.0, 7))
+	_ui_skin.apply_menu_finish(chip, "chip", Color("72c5b3"))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 8)
@@ -5862,6 +5885,7 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	chip.custom_minimum_size = Vector2(88.0, 32.0)
 	chip.size = chip.custom_minimum_size
 	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.92), PRE_BATTLE_HP_BADGE_BORDER, 5.0, 7))
+	_ui_skin.apply_menu_finish(chip, "chip", PRE_BATTLE_HP_BADGE_BORDER)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 5)
@@ -6287,44 +6311,44 @@ func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Tex
 		return AssetLoader.load_texture(art_path)
 	return null
 
-func _animate_pre_battle_entry() -> void:
-	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
-		return
-	await get_tree().process_frame
-	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
-		return
-	if _reduced_motion_enabled():
+func _cancel_pre_battle_entry() -> void:
+	# Invalidates an entry still waiting for its first layout frame as well.
+	_pre_battle_entry_generation += 1
+	if _pre_battle_entry_tween != null and _pre_battle_entry_tween.is_valid():
+		_pre_battle_entry_tween.kill()
+	_pre_battle_entry_tween = null
+	if is_instance_valid(_pre_battle_scrim):
 		_pre_battle_scrim.modulate = Color.WHITE
+	if is_instance_valid(_pre_battle_panel):
 		_pre_battle_panel.scale = Vector2.ONE
+	if is_instance_valid(_pre_battle_frame):
+		_pre_battle_frame.scale = Vector2.ONE
+
+func _animate_pre_battle_entry() -> void:
+	_cancel_pre_battle_entry()
+	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible or _reduced_motion_enabled():
 		return
+	var generation: int = _pre_battle_entry_generation
 	_pre_battle_scrim.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
-	_pre_battle_panel.scale = Vector2(0.965, 0.965)
-	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(_pre_battle_scrim, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
-func _animate_pre_battle_living_parts() -> void:
-	if _reduced_motion_enabled() or _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
-		return
 	await get_tree().process_frame
-	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
+	if generation != _pre_battle_entry_generation:
 		return
-	var index: int = 0
-	for badge_node: Node in _pre_battle_panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
-		if badge_node is Control and index < PRE_BATTLE_CARD_LIMIT:
-			_animate_pre_battle_badge_lift(badge_node as Control, float(index) * 0.012)
-			index += 1
-
-func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
-	if badge == null:
+	if not _pre_battle_scrim.visible or _reduced_motion_enabled():
+		_cancel_pre_battle_entry()
 		return
-	var start_position: Vector2 = badge.position
-	badge.modulate = Color(1.0, 1.0, 1.0, 0.78)
-	badge.position = start_position + Vector2(0.0, 5.0)
-	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(badge, "position", start_position, 0.18).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(badge, "modulate:a", 1.0, 0.18).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# Both siblings share the center. Never tween positions owned by a Container.
+	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
+	_pre_battle_frame.pivot_offset = _pre_battle_frame.size * 0.5
+	_pre_battle_panel.scale = Vector2(0.992, 0.992)
+	_pre_battle_frame.scale = _pre_battle_panel.scale
+	_pre_battle_entry_tween = create_tween().set_parallel(true)
+	_pre_battle_entry_tween.tween_property(_pre_battle_scrim, "modulate:a", 1.0, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.tween_property(_pre_battle_frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.finished.connect(func() -> void:
+		if generation == _pre_battle_entry_generation:
+			_pre_battle_entry_tween = null
+	)
 
 func _build_context_choice_overlay() -> void:
 	if stage_root == null:
@@ -7982,6 +8006,7 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim = ColorRect.new()
 	_upgrade_scrim.name = "CardUpgradeScrim"
 	_upgrade_scrim.visible = false
+	_upgrade_scrim.visibility_changed.connect(_on_character_menu_visibility_changed)
 	_upgrade_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_upgrade_scrim.z_index = 1200
 	_upgrade_scrim.z_as_relative = false
@@ -8000,12 +8025,14 @@ func _build_card_upgrade_overlay() -> void:
 
 	_upgrade_dialog = PanelContainer.new()
 	_upgrade_dialog.custom_minimum_size = Vector2(1120.0, 620.0)
-	var dialog_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.98), Color("c28a53"), 16.0)
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.073, 0.069, 0.075, 0.98), Color("c28a53"), 16.0)
 	dialog_style.corner_radius_top_left = 14
 	dialog_style.corner_radius_top_right = 14
 	dialog_style.corner_radius_bottom_right = 14
 	dialog_style.corner_radius_bottom_left = 14
-	dialog_style.shadow_size = 12
+	dialog_style.shadow_size = 20
+	dialog_style.shadow_color = Color(0.005, 0.004, 0.008, 0.64)
+	dialog_style.shadow_offset = Vector2(0.0, 5.0)
 	_upgrade_dialog.add_theme_stylebox_override("panel", dialog_style)
 	_upgrade_center.add_child(_upgrade_dialog)
 
@@ -26275,6 +26302,7 @@ func _sync_pre_battle_preview_after_refresh() -> void:
 		_close_pre_battle_preview()
 
 func _close_pre_battle_preview() -> void:
+	_cancel_pre_battle_entry()
 	if _pinned_tooltip_panel != null and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) in ["enemy", "equipment", "card"]:
 		_close_pinned_tooltip()
 	if _pre_battle_scrim != null:
@@ -26295,6 +26323,7 @@ func _on_pre_battle_equip_pressed() -> void:
 		return
 	if _pinned_tooltip_panel != null:
 		_close_pinned_tooltip()
+	_cancel_pre_battle_entry()
 	_open_character_overlay("equipment")
 
 func _on_pre_battle_start_pressed() -> void:
@@ -27404,6 +27433,8 @@ func _close_settings_overlay() -> void:
 
 func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
+	if _reduced_motion_enabled():
+		_cancel_pre_battle_entry()
 	if _run_end_recap != null:
 		_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
 	if _run_end_board_reframe_active and _reduced_motion_enabled():
@@ -28176,12 +28207,43 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 		if _skill_tree_view != null:
 			_skill_tree_view.call_deferred("grab_tree_focus")
 		_schedule_controller_modal_refresh()
+		_play_character_menu_arrival(_upgrade_dialog, 0.14)
 		return
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_update_performance_telemetry_context()
 	_sync_pre_battle_overlay_layering()
 	_schedule_controller_modal_refresh()
+	_play_character_menu_arrival(_upgrade_dialog, 0.14)
+
+func _play_character_menu_arrival(target: Control, duration: float) -> void:
+	_stop_character_menu_arrival()
+	if not is_instance_valid(target) or not target.is_visible_in_tree() or _reduced_motion_enabled():
+		return
+	_character_menu_arrival_target = target
+	target.modulate.a = 0.86
+	_character_menu_arrival_tween = create_tween()
+	_character_menu_arrival_tween.tween_method(_set_character_menu_arrival_opacity, 0.86, 1.0, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_character_menu_arrival_tween.finished.connect(_stop_character_menu_arrival)
+
+func _set_character_menu_arrival_opacity(value: float) -> void:
+	# Live preference/hide handoff is checked only during the bounded tween.
+	if not is_instance_valid(_character_menu_arrival_target) or not _character_menu_arrival_target.is_visible_in_tree() or _reduced_motion_enabled():
+		_stop_character_menu_arrival()
+		return
+	_character_menu_arrival_target.modulate.a = value
+
+func _stop_character_menu_arrival() -> void:
+	if _character_menu_arrival_tween != null:
+		_character_menu_arrival_tween.kill()
+		_character_menu_arrival_tween = null
+	if is_instance_valid(_character_menu_arrival_target):
+		_character_menu_arrival_target.modulate.a = 1.0
+	_character_menu_arrival_target = null
+
+func _on_character_menu_visibility_changed() -> void:
+	if _upgrade_scrim != null and not _upgrade_scrim.is_visible_in_tree():
+		_stop_character_menu_arrival()
 
 func _open_level_up_overlay() -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
@@ -28225,6 +28287,7 @@ func _open_level_up_overlay() -> void:
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
+	_stop_character_menu_arrival()
 	if (
 		(_upgrade_scrim == null or not _upgrade_scrim.visible)
 		and _progression_overlay_mode.is_empty()
@@ -28250,6 +28313,9 @@ func _close_card_upgrade_overlay() -> void:
 	_schedule_controller_modal_refresh()
 
 func _rebuild_progression_overlay() -> void:
+	# Inventory refreshes rebuild synchronously; only explicit open/tab actions
+	# start an arrival, so committed changes never replay menu motion.
+	_stop_character_menu_arrival()
 	if _upgrade_dialog == null:
 		return
 	_clear_controller_loadout_tooltip()
@@ -28334,6 +28400,7 @@ func _rebuild_progression_overlay() -> void:
 		vbox.add_child(_build_skill_tree_overlay_body())
 	performance_phase_started = _record_runtime_performance_phase("character_body", performance_phase_started)
 	_ui_skin.apply_outer_panel_frame(_upgrade_dialog, UiSkin.SURFACE_DIALOG)
+	_ui_skin.apply_menu_finish(_upgrade_dialog, "outer")
 	# A freshly built auto-wrapping detail panel can briefly report its minimum
 	# height before receiving its final width. CenterContainer preserves that
 	# transient growth in its offsets, so refit once layout has settled.
@@ -28423,7 +28490,12 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	style.border_color = accent.darkened(0.14)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
+	style.border_blend = true
+	style.shadow_color = Color(0.005, 0.004, 0.008, 0.42)
+	style.shadow_size = 3
+	style.shadow_offset = Vector2(0.0, 2.0)
 	panel.add_theme_stylebox_override("panel", style)
+	_ui_skin.apply_menu_finish(panel, "chip", accent)
 	row.add_child(panel)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
@@ -28556,6 +28628,7 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_rebuild_progression_overlay()
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
+	_play_character_menu_arrival(_upgrade_dialog.find_child("CharacterBodyFrame", true, false) as Control, 0.12)
 
 func _controller_switch_character_tab(direction: int) -> void:
 	if _upgrade_scrim == null or not _upgrade_scrim.visible:
@@ -28987,6 +29060,7 @@ func _build_equipment_character_column() -> Control:
 	panel.custom_minimum_size = Vector2(338.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29074,6 +29148,7 @@ func _build_equipment_portrait_panel() -> Control:
 	panel.custom_minimum_size = Vector2(0.0, 124.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(_equipped_equipment_accent(), true))
+	_ui_skin.apply_menu_finish(panel, "portrait", _equipped_equipment_accent())
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_top", 8)
@@ -29191,6 +29266,7 @@ func _build_equipment_inventory_column() -> Control:
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29305,6 +29381,7 @@ func _build_magic_attuned_column() -> Control:
 	panel.custom_minimum_size = Vector2(326.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29358,6 +29435,7 @@ func _build_magic_inventory_column() -> Control:
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29421,6 +29499,7 @@ func _build_current_deck_column() -> Control:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)

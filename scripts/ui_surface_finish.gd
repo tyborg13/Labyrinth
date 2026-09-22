@@ -4,6 +4,8 @@ extends Node2D
 # No processing, input, minimum size, or layout participation. Grain is shared
 # across every page and generated once; it never swims with time or focus.
 static var _paper_grain: Texture2D
+static var _menu_grain_texture: Texture2D
+var _menu_accent := Color("b49461")
 var _panel: PanelContainer
 var _kind: String = "dialog"
 var _choice_accent := Color("c4a36b")
@@ -22,6 +24,15 @@ func configure(panel: PanelContainer, kind: String) -> void:
 		panel.resized.connect(redraw)
 	queue_redraw()
 
+func configure_menu(panel: PanelContainer, kind: String, accent: Color) -> void:
+	# Menu callers opt in after their normal frame styling. One retained finish
+	# stays below content; neither its paint nor its grain participates in layout.
+	configure(panel, "menu_" + kind)
+	_menu_accent = accent
+	if kind != "chip":
+		_menu_grain()
+	queue_redraw()
+
 func configure_choice(panel: PanelContainer, accent: Color, emphasized: bool, enabled: bool) -> void:
 	configure(panel, "choice")
 	_choice_accent = accent
@@ -33,12 +44,79 @@ func _draw() -> void:
 	if _panel == null or _panel.size.x < 24.0 or _panel.size.y < 24.0:
 		return
 	var rect := Rect2(Vector2(5.0, 5.0), _panel.size - Vector2(10.0, 10.0))
-	if _kind == "choice":
+	if _kind.begins_with("menu_"):
+		_draw_menu(rect)
+	elif _kind == "choice":
 		_draw_choice(rect)
 	elif _kind.begins_with("paper"):
 		_draw_paper(rect)
 	else:
 		draw_dark_well(self, _quad(rect), rect, _kind)
+
+func _draw_menu(rect: Rect2) -> void:
+	var outer: bool = _kind == "menu_outer"
+	var chip: bool = _kind == "menu_chip"
+	var portrait: bool = _kind == "menu_portrait"
+	var light: Color = _menu_accent.lerp(Color("f3deaf"), 0.54)
+	# Broad reflected light gives the existing dark field a crown. The lower
+	# cool falloff and soft inner edges make it read as a recessed material.
+	var crown_alpha: float = 0.15 if outer else 0.12 if chip else 0.095
+	draw_polygon(_quad(rect), PackedColorArray([
+		Color(light, crown_alpha), Color(light, crown_alpha * 0.38),
+		Color(light, 0.0), Color(light, 0.015)
+	]))
+	draw_polygon(_quad(rect), PackedColorArray([
+		Color(0.014, 0.019, 0.032, 0.0), Color(0.014, 0.019, 0.032, 0.04),
+		Color(0.006, 0.010, 0.021, 0.44 if outer else 0.30), Color(0.006, 0.010, 0.021, 0.30)
+	]))
+	if not chip:
+		draw_texture_rect(_menu_grain(), rect, true, Color(1.0, 1.0, 1.0, 0.48 if outer else 0.25))
+		var header := Rect2(rect.position, Vector2(rect.size.x, minf(90.0 if outer else 48.0, rect.size.y * 0.35)))
+		draw_polygon(_quad(header), PackedColorArray([
+			Color(light, 0.065), Color(light, 0.022), Color(light, 0.0), Color(light, 0.0)
+		]))
+	if portrait:
+		# Light behind the existing paper doll grounds it without a new graphic
+		# or any change to the actor, its animation, or the controls around it.
+		var center: Vector2 = rect.position + rect.size * Vector2(0.39, 0.57)
+		var radius: Vector2 = rect.size * Vector2(0.35, 0.43)
+		for segment: int in range(24):
+			var angle: float = TAU * float(segment) / 24.0
+			var next_angle: float = TAU * float(segment + 1) / 24.0
+			draw_polygon(PackedVector2Array([
+				center,
+				center + Vector2(cos(angle), sin(angle)) * radius,
+				center + Vector2(cos(next_angle), sin(next_angle)) * radius
+			]), PackedColorArray([Color(light, 0.085), Color(light, 0.0), Color(light, 0.0)]))
+	var edge_width: float = minf(24.0 if outer else 12.0, rect.size.x * 0.08)
+	var left := Rect2(rect.position, Vector2(edge_width, rect.size.y))
+	var right := Rect2(Vector2(rect.end.x - edge_width, rect.position.y), left.size)
+	var shadow := Color(0.003, 0.004, 0.008, 0.26)
+	var clear := Color(0.003, 0.004, 0.008, 0.0)
+	draw_polygon(_quad(left), PackedColorArray([shadow, clear, clear, shadow]))
+	draw_polygon(_quad(right), PackedColorArray([clear, shadow, shadow, clear]))
+	# Broken reflections follow the existing lip, rather than boxing the
+	# content in another complete outline. Color remains in its native rim.
+	var corner: float = 10.0 if outer else 6.0
+	var catchlight := Color(light, 0.34 if chip else 0.18)
+	draw_line(rect.position + Vector2(corner, 0.0), Vector2(rect.end.x - corner, rect.position.y), catchlight, 1.0, true)
+	draw_line(rect.position + Vector2(0.0, corner), Vector2(rect.position.x, rect.end.y - corner), Color(light, catchlight.a * 0.38), 1.0, true)
+	draw_line(Vector2(rect.position.x + corner, rect.end.y - 1.0), rect.end - Vector2(corner, 1.0), Color(0.005, 0.004, 0.008, 0.55), 2.0, true)
+
+static func _menu_grain() -> Texture2D:
+	if _menu_grain_texture != null:
+		return _menu_grain_texture
+	# Fine seeded noise avoids coherent stripes at native resolution. This
+	# private generator never consumes gameplay randomness; the cached grain
+	# never moves or rerolls on focus.
+	var grain_rng := RandomNumberGenerator.new()
+	grain_rng.seed = 1296387669
+	var pixels := Image.create(128, 128, false, Image.FORMAT_RGBA8)
+	for y: int in range(128):
+		for x: int in range(128):
+			pixels.set_pixel(x, y, Color(0.68, 0.61, 0.49, 0.030 + grain_rng.randf() * 0.055))
+	_menu_grain_texture = ImageTexture.create_from_image(pixels)
+	return _menu_grain_texture
 
 func _draw_choice(rect: Rect2) -> void:
 	# Choice plates reuse the same quiet well, with raised metal at the edge.

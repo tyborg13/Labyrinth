@@ -144,14 +144,23 @@ func _merchant_states(engine, base: Dictionary) -> void:
 	reduced_settings["reduced_motion"] = false
 	_instance.set("_settings", reduced_settings)
 	ware.set("reduced_motion", false)
+	if ware.has_method("material_snapshot"):
+		# Sample a real native press synchronously: a slow rendered frame may
+		# already settle a 120 ms transition, and focused hover need not leave.
+		var live_press := InputEventMouseButton.new()
+		live_press.position = ware.get_global_rect().get_center()
+		live_press.global_position = live_press.position
+		live_press.button_index = MOUSE_BUTTON_LEFT
+		live_press.pressed = true
+		_viewport.push_input(live_press, true)
+		_require(ware.is_pressed() and ware.is_processing(), "Native press starts a live response for the preference handoff check")
+		ware.set("reduced_motion", true)
+		_require(float((ware.call("material_snapshot") as Dictionary)["press"]) == 1.0 and not ware.is_processing(), "Switching Reduced Motion on during a response settles immediately")
+		_require((ware.get_node("CenteredOfferContent") as Control).position.y == 0.0, "Live Reduced Motion switch preserves static content placement")
+		await _mouse(live_press.position, false)
+		ware.set("reduced_motion", false)
 	_viewport.gui_release_focus()
 	await _point(Vector2(30, 30))
-	if ware.has_method("material_snapshot"):
-		_require(ware.is_processing(), "Pointer departure starts a live response for the preference handoff check")
-		ware.set("reduced_motion", true)
-		_require(float((ware.call("material_snapshot") as Dictionary)["active"]) == 0.0 and not ware.is_processing(), "Switching Reduced Motion on during a response settles immediately")
-		_require((ware.get_node("CenteredOfferContent") as Control).position.y == 0.0, "Live Reduced Motion switch preserves static content placement")
-		ware.set("reduced_motion", false)
 	await _point(ware.get_global_rect().get_center())
 	ware.hide()
 	if ware.has_method("material_snapshot"):
