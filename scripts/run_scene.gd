@@ -31,6 +31,7 @@ const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/r
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const DeferredReconciliationQueue = preload("res://scripts/deferred_reconciliation_queue.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -1549,6 +1550,11 @@ var _run_state: Dictionary = {}
 var _combat_state: Dictionary = {}
 var _committed_run_state_override: Dictionary = {}
 var _save_in_progress: bool = false
+var _skill_analytics_queue = DeferredReconciliationQueue.new()
+var _skill_analytics_requested_scope: String = ""
+var _skill_analytics_locked_scope: String = ""
+var _skill_analytics_staged_now: bool = false
+var _skill_analytics_flushing: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
 var _board_encounter_key: String = ""
@@ -3781,6 +3787,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_cancel_deferred_skill_analytics()
 	_cancel_treasure_presentation()
 	_board_hover_refresh_generation += 1
 	_board_hover_refresh_pending = false
@@ -11225,6 +11232,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_cancel_deferred_skill_analytics()
 	_cancel_treasure_presentation()
 	_treasure_reveal_complete_key = ""
 	_cancel_committed_hand_queries()
@@ -11289,6 +11297,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 		call_deferred("_continue_pending_escape_after_reward")
 
 func _start_run() -> void:
+	_cancel_deferred_skill_analytics()
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
@@ -11300,6 +11309,7 @@ func _start_run() -> void:
 	_persist_committed_boundary("run_started")
 
 func _start_debug_boss_run() -> void:
+	_cancel_deferred_skill_analytics()
 	_progression = ProgressionStore.default_data()
 	var run_state: Dictionary = _run_engine.create_debug_boss_run(_progression)
 	_load_run_state(_ensure_run_analytics_metadata(run_state))
@@ -11681,7 +11691,7 @@ func _refresh_relic_bar() -> void:
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_state", performance_phase_started)
 	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
-	_reconcile_skill_event_analytics()
+	_request_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
 	_flush_run_skill_event_analytics("hud_run_skill")
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
@@ -17275,6 +17285,14 @@ func _refresh_hand_panel() -> void:
 	# in the live fan; pooled re-entry re-runs every descendant's layout/theme work.
 	# Skill selection owns different wrappers and retains the existing pool path.
 	var retained_entries: Dictionary = _retained_hand_entries(signature_hand) if mode == "combat" and _combat_skill_card_selection_zone.is_empty() else {}
+	# Native ownership belongs to the retained widget, not its former array index.
+	var hovered_widget: CardWidget = _hand_card_control(_hovered_card_index) as CardWidget if _hovered_card_index >= 0 else null
+	if hovered_widget != null:
+		_hovered_card_index = -1
+		for retained_index: int in retained_entries:
+			if retained_entries[retained_index]["widget"] == hovered_widget:
+				_hovered_card_index = retained_index
+				break
 	var retained_slots: Dictionary = {}
 	for entry: Dictionary in retained_entries.values(): retained_slots[entry["slot"]] = true
 	_release_hand_card_slots_to_pool(retained_slots)
@@ -17298,6 +17316,7 @@ func _refresh_hand_panel() -> void:
 			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var card_id: String = str(hand[index])
 			var pool_entry: Dictionary = retained_entries.get(index, {}) as Dictionary
+			var retain_hand_transform: bool = not pool_entry.is_empty()
 			if pool_entry.is_empty(): pool_entry = _acquire_hand_card_pool_entry(card_id, card_size)
 			var widget: CardWidget = pool_entry.get("widget", null) as CardWidget
 			var card_slot: Control = pool_entry.get("slot", null) as Control
@@ -17326,10 +17345,10 @@ func _refresh_hand_panel() -> void:
 					hand_box.add_child(card_slot)
 				else:
 					# Restore the same post-pool interaction baseline without detaching.
-					widget.prepare_for_pool()
+					widget.prepare_for_pool(true)
 					card_slot.visible = true
 				hand_box.move_child(card_slot, index)
-				_configure_scaled_card_slot_geometry(card_slot, card_size)
+				_configure_scaled_card_slot_geometry(card_slot, card_size, retain_hand_transform)
 			# Apply interaction pose after the retained subtree's live geometry is
 			# restored so a selected/previewed card keeps its authored lift and scale.
 			if int(pool_entry.get("definition_signature", -1)) != definition_signature:
@@ -17521,6 +17540,10 @@ func _complete_hand_layout_pending(expected_revision: int) -> void:
 		_pass_preview_overlay.visible = _pass_preview_overlay.get_child_count() > 0
 	_layout_combat_action_dock()
 	_layout_choice_button_overlay()
+	# Moving controls alone does not refresh Godot's cached mouse owner. Re-hit
+	# test the completed layout without moving the physical pointer or activating.
+	if not _controller_is_active():
+		get_viewport().update_mouse_cursor_state()
 
 func _ensure_hand_card_pool_host() -> void:
 	if _hand_card_pool_host != null:
@@ -17613,7 +17636,7 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 		"definition_signature": -1,
 	}
 
-func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2) -> void:
+func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2, retain_hand_transform: bool = false) -> void:
 	if slot == null:
 		return
 	card_size = _normalized_card_size(card_size)
@@ -17622,14 +17645,20 @@ func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2) -> 
 	# geometry contract when a card crosses that boundary. In particular, a
 	# full-rect CardWidget can retain its previous right/bottom offsets while its
 	# slot is detached, doubling 250x352 to 500x704 on the next hand rebuild.
-	slot.anchor_left = 0.0
-	slot.anchor_top = 0.0
-	slot.anchor_right = 0.0
-	slot.anchor_bottom = 0.0
-	slot.offset_left = 0.0
-	slot.offset_top = 0.0
-	slot.rotation = 0.0
-	slot.scale = Vector2.ONE
+	# A slot already owned by the live fan keeps that container's transform until
+	# its next sort. Collapsing retained slots onto the origin temporarily stacks
+	# every card under one pointer; enabling each card then emits native hover
+	# changes and synchronously rebuilds board previews for those false targets.
+	# Pool and selection-wrapper crossings still restore the complete contract.
+	if not retain_hand_transform:
+		slot.anchor_left = 0.0
+		slot.anchor_top = 0.0
+		slot.anchor_right = 0.0
+		slot.anchor_bottom = 0.0
+		slot.offset_left = 0.0
+		slot.offset_top = 0.0
+		slot.rotation = 0.0
+		slot.scale = Vector2.ONE
 	slot.custom_minimum_size = card_size
 	slot.size = card_size
 	if slot.get_child_count() == 0 or not (slot.get_child(0) is Control):
@@ -27902,6 +27931,8 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		return {"state": state, "saved": false}
 	_save_in_progress = true
 	var mode: String = str(state.get("mode", ""))
+	if mode != "combat" and not _skill_analytics_flushing:
+		_cancel_deferred_skill_analytics()
 	var saved: bool = false
 	if mode in ["victory", "defeat"]:
 		var terminal_resume_state: Dictionary = state.duplicate(true)
@@ -27964,11 +27995,16 @@ func _save_run_progress() -> void:
 	var committed_state: Dictionary = _committed_run_state()
 	var mode: String = str(committed_state.get("mode", ""))
 	if mode in ["victory", "defeat"] or committed_state.is_empty():
+		# A failed terminal save preserves the original, unprocessed fallback.
+		# Reconciliation must not replace it with the finalized held snapshot.
+		_cancel_deferred_skill_analytics()
 		if ProgressionStore.save_data(_progression):
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
+	_reconcile_skill_event_analytics()
+	committed_state = _committed_run_state()
 	var saved_progression: Dictionary = _progression.duplicate(true)
 	var run_progression: Dictionary = (committed_state.get("progression", {}) as Dictionary).duplicate(true)
 	if not run_progression.is_empty():
@@ -27988,6 +28024,7 @@ func _on_exit_to_desktop_pressed() -> void:
 	get_tree().quit()
 
 func _on_abandon_run_pressed() -> void:
+	_cancel_deferred_skill_analytics()
 	_close_menu_overlay()
 	_reset_card_resolution()
 	_analytics_log_run_ended("abandoned")
@@ -31963,79 +32000,109 @@ func _analytics_log_skill_reset(before_progression: Dictionary, after_progressio
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
+func _skill_analytics_steps() -> Array[Callable]:
+	var steps: Array[Callable]
+	steps.append(_prepare_skill_analytics_outbox)
+	steps.append(_append_and_acknowledge_skill_analytics)
+	steps.append(_persist_skill_analytics_acknowledgment)
+	return steps
+
+func _skill_analytics_scope() -> String:
+	return "%s|%s|%s|%s|%s" % [
+		str((_run_state.get("analytics", {}) as Dictionary).get("run_id", "")),
+		str((_combat_state.get("analytics", {}) as Dictionary).get("combat_id", "")),
+		ProgressionStore._run_storage_path,
+		ProgressionStore._storage_path,
+		AnalyticsStore.storage_dir(),
+	]
+
+func _skill_analytics_ready() -> bool:
+	return (
+		is_inside_tree()
+		and str(_run_state.get("mode", "")) == "combat"
+		and _skill_analytics_requested_scope == _skill_analytics_scope()
+		and _committed_run_state_override.is_empty()
+		and (not _animation_lock or _skill_analytics_locked_scope == _skill_analytics_requested_scope)
+	)
+
+func _request_skill_event_analytics() -> void:
+	if not is_inside_tree() or str(_run_state.get("mode", "")) != "combat":
+		_reconcile_skill_event_analytics()
+		return
+	var scope: String = _skill_analytics_scope()
+	if _skill_analytics_requested_scope != scope:
+		_skill_analytics_queue.cancel()
+	_skill_analytics_requested_scope = scope
+	_skill_analytics_queue.request(_skill_analytics_steps(), _skill_analytics_ready, _skill_analytics_scope)
+
+func _cancel_deferred_skill_analytics() -> void:
+	_skill_analytics_queue.cancel()
+	_skill_analytics_requested_scope = ""
+	_skill_analytics_locked_scope = ""
+
 func _reconcile_skill_event_analytics() -> void:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var performance_phase_started: int = performance_total_started
-	var staged_now: bool = false
-	if not _combat_state.is_empty():
-		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
-		if bool(staged_result.get("changed", false)):
-			_run_state = staged_result.get("run_state", _run_state) as Dictionary
-			_combat_state = staged_result.get("combat_state", _combat_state) as Dictionary
-			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-			staged_now = bool(staged_result.get("staged", false))
-		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_stage", performance_phase_started)
-	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
-		_record_runtime_performance_phase("skill_analytics_no_pending", performance_phase_started)
-		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
+	# Explicit checkpoints cancel sleeping work before doing the ordered protocol
+	# synchronously. A late callback can never overwrite or resurrect that save.
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if _skill_analytics_flushing:
 		return
-	# Re-prove the gameplay/outbox boundary even when the event was staged by an
-	# earlier failed save. A staged cursor means copied into the snapshot, never
-	# that the snapshot reached disk or that JSONL may be appended safely.
-	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("skill_analytics_persist_outbox_failed_total", performance_phase_started)
-		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
-		return
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_outbox_total", performance_phase_started)
-	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", performance_phase_started)
-	_sync_progression_analytics_outbox_to_run()
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_sync_run", performance_phase_started)
-	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
-		_persist_committed_boundary("combat_skill_event_ack")
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_ack_total", performance_phase_started)
-	if staged_now and not reconciled_all:
-		push_warning("Combat skill analytics remain queued for a later retry.")
-	_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
+	_skill_analytics_flushing = true
+	_skill_analytics_queue.flush(_skill_analytics_steps())
+	_skill_analytics_flushing = false
+	_record_runtime_performance_phase("skill_analytics_total", started)
 
 func _reconcile_skill_event_analytics_across_frames() -> void:
-	# Turn completion already waits for forecast/playability warming before input
-	# unlocks. Use that authored wait to keep each durability stage in its own
-	# frame instead of stacking two saves, JSONL reconciliation, and outbox merging
-	# behind one animation callback.
-	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var staged_now: bool = false
+	# Player-turn warmup already owns the input lock and has adopted/released its
+	# committed snapshot. Share the same queue instead of starting a second writer.
+	var scope: String = _skill_analytics_scope()
+	_skill_analytics_locked_scope = scope
+	_request_skill_event_analytics()
+	while _skill_analytics_queue.busy() and is_inside_tree() and scope == _skill_analytics_scope():
+		await RenderingServer.frame_post_draw
+	if _skill_analytics_locked_scope == scope:
+		_skill_analytics_locked_scope = ""
+
+func _prepare_skill_analytics_outbox() -> bool:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_skill_analytics_staged_now = false
 	if not _combat_state.is_empty():
 		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
 		if bool(staged_result.get("changed", false)):
 			_run_state = staged_result.get("run_state", _run_state) as Dictionary
 			_combat_state = staged_result.get("combat_state", _combat_state) as Dictionary
 			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-			staged_now = bool(staged_result.get("staged", false))
+			_skill_analytics_staged_now = bool(staged_result.get("staged", false))
 		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
-	_record_runtime_performance_phase("player_turn_skill_analytics_stage", performance_phase_started)
+	started = _record_runtime_performance_phase("skill_analytics_stage", started)
 	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
-		return
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_failed_total", performance_phase_started)
-		return
-	_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_total", performance_phase_started)
-	await RenderingServer.frame_post_draw
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_record_runtime_performance_phase("skill_analytics_no_pending", started)
+		return false
+	# Queue acceptance is not a successful save. Failed writes retain the outbox
+	# and stop this attempt; only a later request or explicit checkpoint retries.
+	var saved: bool = _persist_committed_boundary("combat_skill_event_outbox")
+	_record_runtime_performance_phase("skill_analytics_persist_outbox_total" if saved else "skill_analytics_persist_outbox_failed_total", started)
+	return saved
+
+func _append_and_acknowledge_skill_analytics() -> bool:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	_record_runtime_performance_phase("player_turn_skill_analytics_reconcile_outbox_total", performance_phase_started)
-	await RenderingServer.frame_post_draw
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", started)
+	# Update the in-memory run in this same slice. A new action must not inherit
+	# an already-acknowledged outbox while the final disk acknowledgment waits.
 	_sync_progression_analytics_outbox_to_run()
-	_record_runtime_performance_phase("player_turn_skill_analytics_sync_run", performance_phase_started)
-	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
-		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		_persist_committed_boundary("combat_skill_event_ack")
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_ack_total", performance_phase_started)
-	if staged_now and not reconciled_all:
+	_record_runtime_performance_phase("skill_analytics_sync_run", started)
+	if _skill_analytics_staged_now and not reconciled_all:
 		push_warning("Combat skill analytics remain queued for a later retry.")
+	return reconciled_all
+
+func _persist_skill_analytics_acknowledgment() -> bool:
+	if str(_run_state.get("mode", "")) in ["victory", "defeat"]:
+		return true
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# Always use current authoritative state, never a snapshot kept over a yield.
+	var saved: bool = _persist_committed_boundary("combat_skill_event_ack")
+	_record_runtime_performance_phase("skill_analytics_persist_ack_total", started)
+	return saved
 
 func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	if combat_state.is_empty():

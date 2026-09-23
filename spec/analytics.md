@@ -409,6 +409,18 @@ persisted separately. Loading a profile or saved run retries pending entries; a
 crash after append but before acknowledgement replays the stable key as an
 idempotent no-op rather than producing a duplicate.
 
+Ordinary combat HUD refreshes schedule this three-stage protocol after a rendered
+frame instead of stacking its writes inside card completion. The stages share a
+single coalescing main-thread queue with player-turn warming. New actions pause
+and restart it against current authoritative state; explicit checkpoints flush
+it, and lifecycle/namespace changes invalidate stale requests. Per-action
+completion no longer promises that analytics reconciliation is already durable.
+Unfinished work may be lost or replayed after interruption, as authorized by the
+performance contract; accepted jobs are never reported as successful appends.
+Stable keys, local append-only JSONL, acknowledgment-on-success, terminal rewards
+and the banked/held-Ember separation remain unchanged. See
+[save persistence](save_persistence.md#ordinary-combat-analytics-scheduling).
+
 Priming and effect realization do not create a second activation event.
 Realized card, damage, defense, movement, and resource outcomes remain in their
 existing events rather than being converted into a guessed skill score.
