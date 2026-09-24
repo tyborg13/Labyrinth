@@ -41,8 +41,8 @@ tests supply the relevant inspection/proof.
 - `git diff --check` passes. No editor scan or unrelated import/UID changes.
 
 Godot tests ran through `tools/godot_task_runner.py` with isolated user data and
-Steam disabled. Some retained test runners printed non-failing ObjectDB cleanup
-warnings; the final focused music runner exits cleanly. The full suite also emits
+Steam disabled. Some runs printed intermittent, non-failing ObjectDB cleanup
+warnings, including the focused music runner. The full suite also emits
 its deliberate ambiguous-save migration warning. There were no test failures.
 
 ## Playable inspection
