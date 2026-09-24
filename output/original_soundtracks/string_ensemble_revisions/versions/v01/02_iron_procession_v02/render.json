@@ -1,0 +1,57 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "bee837cfbb3462e80c7851b8f31bb2bbb3d46af9bfdb9bfdbc4e1c2ebc7a4f86",
+    "preview.flac": "6d8fec5fe988f7c9a97cc82486b8831f46657808021accac989bb4afc059f2fd",
+    "preview.mp3": "bdbc39316c34c2c17f99e1c18bdd6c133bb052dca065d9723e89f8111bac6dd2",
+    "preview.ogg": "7e351a6d22204fe5bddc814e31d3584e1254b48293da5185afbe0e24dfcb9e73",
+    "score.json": "3abfb6706be66323371fa6c80cc98cb98d2079f14a65fe13392de1439db83057"
+  },
+  "balance": {
+    "lead_above_middle_lu": 0.6600000000000001,
+    "lead_change_lu": -3.0000000000000036,
+    "percussion_change_lu": -0.40000000000000213,
+    "prior_stem_lufs_in_matched_mix": {
+      "answer_viol": -35.69,
+      "bowed_veil": -34.769999999999996,
+      "drums": -30.209999999999997,
+      "grave_lead": -23.24,
+      "hollow_bass": -23.52,
+      "thread_pluck": -40.980000000000004
+    },
+    "revised_middle_layer_lufs_in_matched_mix": -26.900000000000002,
+    "revised_stem_lufs_in_matched_mix": {
+      "bowed_veil": -35.300000000000004,
+      "drums": -30.61,
+      "hollow_bass": -23.42,
+      "thread_pluck": -40.88,
+      "viola": -30.78,
+      "violin_1": -26.240000000000002,
+      "violin_2": -29.2
+    }
+  },
+  "duration_seconds": 54.54546875,
+  "frames": 1745455,
+  "loop_method": "circular tails/echo/filter; exact bar length; 2 ms endpoint taper",
+  "master_gain": 1.3787959529688574,
+  "note_counts": {
+    "bowed_veil": 18,
+    "drums": 63,
+    "hollow_bass": 40,
+    "thread_pluck": 74,
+    "viola": 40,
+    "violin_1": 69,
+    "violin_2": 55
+  },
+  "sample_rate": 32000,
+  "stem_calibration_gains": {
+    "bowed_veil": 1.196740531307244,
+    "drums": 0.8413951416451951,
+    "hollow_bass": 0.8912509381337456,
+    "thread_pluck": 0.8912509381337456,
+    "viola": 0.18238957023196384,
+    "violin_1": 0.21552616435661576,
+    "violin_2": 0.20989398836235254
+  },
+  "target_lufs": -20,
+  "version": "v02"
+}
