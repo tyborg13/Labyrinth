@@ -1,0 +1,149 @@
+{
+  "listening_review": "User audition pending; numeric proof does not establish perceived violin realism or musical quality.",
+  "source_hashes_checked": 17,
+  "status": "passed",
+  "tracks": {
+    "Thorns in the Dark": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1588966,
+          "duration_seconds": 49.6551875,
+          "first_frame": [
+            0.0,
+            0.0
+          ],
+          "first_last_sample_delta": [
+            0.0,
+            0.0
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.0,
+            0.0
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.03594970703125,
+            0.033935546875
+          ],
+          "peak_dbfs": -9.260506936353128,
+          "seam_to_p99_9_ratio": [
+            0.0,
+            0.0
+          ],
+          "true_peak_dbtp": -9.26
+        },
+        "mp3": {
+          "decoded_frames": 1588966,
+          "duration_seconds": 49.6551875,
+          "first_frame": [
+            -5.666593096975703e-06,
+            6.884319736855105e-05
+          ],
+          "first_last_sample_delta": [
+            7.674336302443407e-06,
+            7.395396823994815e-05
+          ],
+          "integrated_lufs": -20.26,
+          "last_frame": [
+            -1.334092939941911e-05,
+            -5.110770416649757e-06
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.03485759720206261,
+            0.032910123467445374
+          ],
+          "peak_dbfs": -9.531374159402322,
+          "true_peak_dbtp": -9.53
+        },
+        "ogg": {
+          "decoded_frames": 1588992,
+          "duration_seconds": 49.656,
+          "first_frame": [
+            0.0007366232457570732,
+            0.003291398286819458
+          ],
+          "first_last_sample_delta": [
+            0.0011138955596834421,
+            0.003738362342119217
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            -0.0003772723430301994,
+            -0.00044696408440358937
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.035818442702293396,
+            0.03381309658288956
+          ],
+          "peak_dbfs": -9.053340575915298,
+          "seam_to_p99_9_ratio": [
+            0.031098380489113817,
+            0.11055959731327715
+          ],
+          "true_peak_dbtp": -9.05
+        }
+      },
+      "balance": {
+        "lead_above_middle_lu": 0.5700000000000003,
+        "lead_change_lu": -2.8299999999999983,
+        "percussion_change_lu": -0.3500000000000014,
+        "prior_stem_lufs_in_matched_mix": {
+          "answer_viol": -35.57,
+          "bowed_veil": -34.28,
+          "drums": -31.450000000000003,
+          "hollow_bass": -23.78,
+          "shadow_lead": -23.51,
+          "thread_pluck": -35.96
+        },
+        "revised_middle_layer_lufs_in_matched_mix": -26.91,
+        "revised_stem_lufs_in_matched_mix": {
+          "bowed_veil": -35.160000000000004,
+          "drums": -31.800000000000004,
+          "hollow_bass": -23.630000000000003,
+          "thread_pluck": -35.81,
+          "viola": -30.71,
+          "violin_1": -26.34,
+          "violin_2": -29.340000000000003
+        }
+      },
+      "midi": {
+        "duration_seconds": 49.65513599999999,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 610,
+        "score_event_readback": "exact",
+        "tracks": 7
+      },
+      "structure": {
+        "max_melodic_gates": 6,
+        "melody_identity": "Exact notes/onsets/gates/velocities; one octave higher",
+        "percussion_events": "unchanged",
+        "voices": {
+          "viola": {
+            "detached_transitions": 41,
+            "gate_coverage": 0.8947916666666668,
+            "notes": 50,
+            "touching_transitions": 8,
+            "unique_pitches": 6
+          },
+          "violin_1": {
+            "detached_transitions": 65,
+            "gate_coverage": 0.7947916666666667,
+            "notes": 116,
+            "touching_transitions": 46,
+            "unique_pitches": 12
+          },
+          "violin_2": {
+            "detached_transitions": 51,
+            "gate_coverage": 0.8286458333333333,
+            "notes": 66,
+            "touching_transitions": 14,
+            "unique_pitches": 10
+          }
+        }
+      }
+    }
+  }
+}
