@@ -33,6 +33,7 @@ static func run(expect: Callable) -> void:
 	for room_type: String in Music.PLANNING_ROOMS:
 		_check(expect, "room", {"type": room_type}, {}, false, Music.TURNING_KEY_TRACK_ID)
 	_check(expect, "event", {}, {}, false, Music.TURNING_KEY_TRACK_ID)
+	_check(expect, "graftwright", {"type": "graftwright", "cleared": false}, {}, false, Music.TURNING_KEY_TRACK_ID)
 	_check(expect, "combat", {"type": "boss"}, {}, true, Music.TURNING_KEY_TRACK_ID)
 	_check(expect, "room", {"type": "start"}, {}, true, Music.TURNING_KEY_TRACK_ID)
 	_check(expect, "defeat", {"type": "boss"}, {}, true, Music.CHOPIN_DEATH_TRACK_ID)

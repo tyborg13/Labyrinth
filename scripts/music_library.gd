@@ -101,6 +101,7 @@ const MODE_TRACKS: Dictionary = {
 	"campfire": LANTERNS_TRACK_ID,
 	"escape": LANTERNS_TRACK_ID,
 	"event": TURNING_KEY_TRACK_ID,
+	"graftwright": TURNING_KEY_TRACK_ID,
 	PRE_BATTLE_MODE: TURNING_KEY_TRACK_ID
 }
 

@@ -61,6 +61,22 @@ func _run() -> void:
 	_expect(str(scene.get("_active_music_id")) == Music.THORNS_TRACK_ID, "Live guardian context should activate Thorns")
 	await create_timer(0.4).timeout
 	_expect(absf(player.stream.get_length() - 49.655) < 0.01, "Guardian should play the promoted Thorns version")
+	# The Graftwright uses its own active mode, unlike the other merchants.
+	state["mode"] = "graftwright"
+	state["rooms"] = {"0,0": {"type": "graftwright", "cleared": false}}
+	scene.set("_run_state", state)
+	scene.call("_update_music_for_context", {"type": "graftwright", "cleared": false})
+	await create_timer(0.4).timeout
+	_expect(str(scene.get("_active_music_id")) == Music.TURNING_KEY_TRACK_ID, "Active Graftwright should use planning music")
+	_expect(player.playing and absf(player.stream.get_length() - 48.0) < 0.01, "Active Graftwright should play The Turning Key")
+	var graftwright_playback: AudioStreamPlayback = player.get_stream_playback()
+	menu.visible = true
+	await process_frame
+	await process_frame
+	menu.visible = false
+	await process_frame
+	await process_frame
+	_expect(str(scene.get("_active_music_id")) == Music.TURNING_KEY_TRACK_ID and graftwright_playback == player.get_stream_playback(), "Closing a Graftwright menu should retain planning playback")
 	state["mode"] = "defeat"
 	scene.set("_run_state", state)
 	menu.visible = true

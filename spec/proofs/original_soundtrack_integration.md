@@ -29,7 +29,8 @@ tests supply the relevant inspection/proof.
   preserved Old Castle/Chopin bytes.
 - `tests/original_music_test.gd`: passes all routing cases, native looping Ogg
   loads, actual run-scene playback, map/menu/loadout/grimoire/pile overrides,
-  restoration, no restart between planning surfaces, and terminal priority.
+  restoration, active Graftwright choice-screen playback and menu restoration,
+  no restart between planning surfaces, and terminal priority.
 - `tests/combat_music_integration_test.gd`: passes live pre-battle playback and
   the retained timed combat-to-Chopin defeat transition.
 - `tests/main_menu_input_test.gd`: passes normal/reduced-motion startup and
@@ -38,6 +39,9 @@ tests supply the relevant inspection/proof.
   soundtrack routing suite and existing bus volume/reverb tests.
 - All 112 original audition package files remain byte-identical to parent
   `bd2e231223d268ccd21481f69e9768cfd8b06e2c`; no earlier package is rewritten.
+- The Graftwright inspection fixture independently reloads in its actual
+  `graftwright` mode; that route and its menu-close playback now have regression
+  coverage following peer review.
 - `git diff --check` passes. No editor scan or unrelated import/UID changes.
 
 Godot tests ran through `tools/godot_task_runner.py` with isolated user data and
