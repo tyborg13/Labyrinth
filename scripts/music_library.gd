@@ -16,8 +16,32 @@ const CHOPIN_DEATH_TRACK_ID: String = "death.chopin_op35_funeral_march"
 const ZEKARION_BOSS_TRACK_ID: String = "boss.zekarion"
 const RELIC_ROOM_TRACK_ID: String = "room.relic"
 const PRE_BATTLE_MODE: String = "pre_battle"
+const LANTERNS_TRACK_ID: String = "quiet.lanterns_below"
+const TURNING_KEY_TRACK_ID: String = "planning.the_turning_key"
+const ASHEN_PURSUIT_TRACK_ID: String = "combat.ashen_pursuit"
+const THORNS_TRACK_ID: String = "combat.thorns_in_the_dark"
 
 const TRACKS: Dictionary = {
+	LANTERNS_TRACK_ID: {
+		"path": "res://assets/audio/music/lanterns_below_v02.ogg",
+		"volume_db": -7.0,
+		"loop": true
+	},
+	TURNING_KEY_TRACK_ID: {
+		"path": "res://assets/audio/music/the_turning_key_v02.ogg",
+		"volume_db": -7.0,
+		"loop": true
+	},
+	ASHEN_PURSUIT_TRACK_ID: {
+		"path": "res://assets/audio/music/ashen_pursuit_v03.ogg",
+		"volume_db": -5.5,
+		"loop": true
+	},
+	THORNS_TRACK_ID: {
+		"path": "res://assets/audio/music/thorns_in_the_dark_v02.ogg",
+		"volume_db": -5.5,
+		"loop": true
+	},
 	GENERIC_COMBAT_TRACK_ID: {
 		"path": "res://assets/audio/music/generic_combat.wav",
 		"volume_db": -12.0
@@ -67,32 +91,21 @@ const TRACKS: Dictionary = {
 	}
 }
 
-const ROOM_TYPE_TRACKS: Dictionary = {
-	"combat": SCHUBERT_COMBAT_TRACK_ID,
-	"boss": GENERIC_COMBAT_TRACK_ID,
-	"treasure": RELIC_ROOM_TRACK_ID,
-	"scavenger": RELIC_ROOM_TRACK_ID
-}
-
-const BOSS_TRACKS: Dictionary = {
-	"zekarion": ZEKARION_BOSS_TRACK_ID
-}
-
-const ELEMENT_TRACKS: Dictionary = {
-	ElementData.FIRE: FIRE_COMBAT_TRACK_ID,
-	ElementData.ICE: ICE_COMBAT_TRACK_ID,
-	ElementData.LIGHTNING: LIGHTNING_COMBAT_TRACK_ID,
-	ElementData.AIR: AIR_COMBAT_TRACK_ID,
-	ElementData.EARTH: EARTH_COMBAT_TRACK_ID
-}
+# Planning overrides are scoped to the run scene; the main menu requests Old Castle directly.
+const PLANNING_ROOMS: Array = ["blacksmith", "arcanist", "scavenger", "graftwright"]
 const MODE_TRACKS: Dictionary = {
 	"defeat": CHOPIN_DEATH_TRACK_ID,
-	"reward": RELIC_ROOM_TRACK_ID,
-	"treasure": RELIC_ROOM_TRACK_ID
+	"victory": LANTERNS_TRACK_ID,
+	"reward": LANTERNS_TRACK_ID,
+	"treasure": LANTERNS_TRACK_ID,
+	"campfire": LANTERNS_TRACK_ID,
+	"escape": LANTERNS_TRACK_ID,
+	"event": TURNING_KEY_TRACK_ID,
+	PRE_BATTLE_MODE: TURNING_KEY_TRACK_ID
 }
 
-static func entry_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}) -> Dictionary:
-	var track_id: String = _track_id_for_context(mode, room, combat_state)
+static func entry_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}, planning_open: bool = false) -> Dictionary:
+	var track_id: String = _track_id_for_context(mode, room, combat_state, planning_open)
 	if track_id.is_empty():
 		return {}
 	return entry(track_id)
@@ -104,60 +117,31 @@ static func entry(track_id: String) -> Dictionary:
 	result["id"] = track_id
 	return result
 
-static func _track_id_for_context(mode: String, room: Dictionary, combat_state: Dictionary = {}) -> String:
+static func _track_id_for_context(mode: String, room: Dictionary, combat_state: Dictionary, planning_open: bool) -> String:
+	# Terminal outcomes outrank a menu/map left open during the transition.
+	if mode in ["defeat", "victory"]:
+		return str(MODE_TRACKS[mode])
+	if planning_open:
+		return TURNING_KEY_TRACK_ID
 	if MODE_TRACKS.has(mode):
-		return str(MODE_TRACKS.get(mode, ""))
-	if mode == PRE_BATTLE_MODE:
-		var preview_room_type: String = str(room.get("type", combat_state.get("room_type", "")))
-		if preview_room_type == "combat" and _boss_track_id(room, combat_state).is_empty():
-			return SCHUBERT_COMBAT_TRACK_ID
-		return ""
+		return str(MODE_TRACKS[mode])
+	if mode == "combat":
+		return THORNS_TRACK_ID if _is_intense_fight(room, combat_state) else ASHEN_PURSUIT_TRACK_ID
 	if mode == "room":
-		var resting_room_type: String = str(room.get("type", ""))
-		if bool(room.get("cleared", false)) and resting_room_type in ["combat", "boss"]:
-			return RELIC_ROOM_TRACK_ID
-		if resting_room_type == "combat":
-			return SCHUBERT_COMBAT_TRACK_ID
-		var resting_element_track_id: String = _element_track_id(resting_room_type, str(room.get("element", "")))
-		if not resting_element_track_id.is_empty():
-			return resting_element_track_id
-		if ROOM_TYPE_TRACKS.has(resting_room_type):
-			return str(ROOM_TYPE_TRACKS.get(resting_room_type, ""))
-		return ""
-	if mode != "combat":
-		return ""
-	var room_type: String = str(room.get("type", combat_state.get("room_type", "")))
-	var element_id: String = str(room.get("element", combat_state.get("room_element", "")))
-	var boss_track_id: String = _boss_track_id(room, combat_state)
-	if not boss_track_id.is_empty():
-		return boss_track_id
-	if room_type == "combat":
-		return SCHUBERT_COMBAT_TRACK_ID
-	var element_track_id: String = _element_track_id(room_type, element_id)
-	if not element_track_id.is_empty():
-		return element_track_id
-	return str(ROOM_TYPE_TRACKS.get(room_type, ROOM_TYPE_TRACKS.get("combat", "")))
-
-static func _element_track_id(room_type: String, element_id: String) -> String:
-	var elemental_key: String = "%s:%s" % [room_type, element_id]
-	if ELEMENT_TRACKS.has(elemental_key):
-		return str(ELEMENT_TRACKS.get(elemental_key, ""))
-	if room_type == "combat" and ELEMENT_TRACKS.has(element_id):
-		return str(ELEMENT_TRACKS.get(element_id, ""))
+		var room_type: String = str(room.get("type", ""))
+		if room_type in PLANNING_ROOMS:
+			return TURNING_KEY_TRACK_ID
+		if room_type in ["combat", "guardian", "boss"] and not bool(room.get("cleared", false)):
+			return TURNING_KEY_TRACK_ID
+		return LANTERNS_TRACK_ID
 	return ""
 
-static func _boss_track_id(room: Dictionary, combat_state: Dictionary) -> String:
-	if str(room.get("type", combat_state.get("room_type", ""))) == "boss":
-		var room_boss_id: String = str(room.get("boss_id", combat_state.get("boss_id", "")))
-		if BOSS_TRACKS.has(room_boss_id):
-			return str(BOSS_TRACKS.get(room_boss_id, ""))
+static func _is_intense_fight(room: Dictionary, combat_state: Dictionary) -> bool:
+	if str(room.get("type", "")) in ["guardian", "boss"] or str(combat_state.get("room_type", "")) in ["guardian", "boss"]:
+		return true
 	for enemy_var: Variant in combat_state.get("enemies", []):
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = enemy_var
-		var enemy_type: String = str(enemy.get("type", ""))
-		if bool(GameData.enemy_def(enemy_type).get("boss_bar", false)):
-			if BOSS_TRACKS.has(enemy_type):
-				return str(BOSS_TRACKS.get(enemy_type, ""))
-			return str(ROOM_TYPE_TRACKS.get("boss", ""))
-	return ""
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			var enemy: Dictionary = enemy_var
+			if bool(GameData.enemy_def(str(enemy.get("type", ""))).get("boss_bar", false)):
+				return true
+	return false

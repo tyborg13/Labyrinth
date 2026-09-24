@@ -1923,6 +1923,7 @@ var _music_tween: Tween
 var _active_music_id: String = ""
 var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
+var _music_context_refresh_queued: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_cancel_rect: Rect2 = Rect2()
@@ -4147,6 +4148,8 @@ func _build_overlay_ui() -> void:
 	_build_skill_status_popover()
 	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
+	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
+		surface.visibility_changed.connect(_queue_music_context_refresh)
 
 func _build_card_focus_tooltip_stack() -> void:
 	_card_focus_tooltip_stack = CardFocusTooltipStack.new()
@@ -24921,8 +24924,36 @@ func start_initial_music_after_loading(fade_seconds: float) -> void:
 	_music_tween = create_tween().set_ignore_time_scale(true)
 	_music_tween.tween_property(_music_player, "volume_linear", target_volume, fade_seconds)
 
+func _queue_music_context_refresh() -> void:
+	# Coalesce closing one menu and opening another so the shared cue keeps playing.
+	if _music_context_refresh_queued or _run_state.is_empty():
+		return
+	_music_context_refresh_queued = true
+	call_deferred("_refresh_music_after_overlay_change")
+
+func _refresh_music_after_overlay_change() -> void:
+	_music_context_refresh_queued = false
+	if not is_inside_tree() or _run_state.is_empty():
+		return
+	_update_music_for_context(_run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)))
+
 func _update_music_for_context(room: Dictionary) -> void:
-	_play_music(MusicLibrary.entry_for_context(str(_run_state.get("mode", "room")), room, _combat_state))
+	# A deferred menu callback must not replace the reserved death cue mid-animation.
+	if _animation_lock and _active_music_id == MusicLibrary.CHOPIN_DEATH_TRACK_ID:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	if str(_committed_run_state_override.get("mode", "")) == "defeat":
+		mode = "defeat"
+	var planning_open: bool = false
+	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
+		if _visible_control(surface):
+			planning_open = true
+			break
+	var entry: Dictionary = MusicLibrary.entry_for_context(mode, room, _combat_state, planning_open)
+	if not _initial_music_deferred and _music_player != null and _music_player.playing and not entry.is_empty():
+		_transition_music(entry, 0.25, 0.65)
+	else:
+		_play_music(entry)
 
 func _play_music(entry: Dictionary) -> void:
 	var track_id: String = str(entry.get("id", ""))
