@@ -1,0 +1,313 @@
+{
+  "listening_review": "User audition pending; technical and score checks do not establish aesthetic quality.",
+  "source_hashes_checked": 14,
+  "status": "passed",
+  "tracks": {
+    "Iron Procession": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1745455,
+          "duration_seconds": 54.54546875,
+          "first_frame": [
+            0.031646728515625,
+            0.02410888671875
+          ],
+          "first_last_sample_delta": [
+            0.000885009765625,
+            0.0009765625
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.03253173828125,
+            0.02508544921875
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.016265869140625,
+            0.0174560546875
+          ],
+          "peak_dbfs": -7.069068190745442,
+          "seam_to_p99_9_ratio": [
+            0.054409005628517824,
+            0.055944055944055944
+          ],
+          "true_peak_dbtp": -7.07
+        },
+        "mp3": {
+          "decoded_frames": 1745455,
+          "duration_seconds": 54.54546875,
+          "first_frame": [
+            0.031241601333022118,
+            0.023784585297107697
+          ],
+          "first_last_sample_delta": [
+            0.0006803348660469055,
+            0.00017550960183143616
+          ],
+          "integrated_lufs": -20.26,
+          "last_frame": [
+            0.030561266466975212,
+            0.02360907569527626
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.01577288843691349,
+            0.01694304496049881
+          ],
+          "peak_dbfs": -7.332750039825614,
+          "true_peak_dbtp": -7.33
+        },
+        "ogg": {
+          "decoded_frames": 1745472,
+          "duration_seconds": 54.546,
+          "first_frame": [
+            0.018496951088309288,
+            0.013633059337735176
+          ],
+          "first_last_sample_delta": [
+            0.018903372809290886,
+            0.013625063933432102
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            -0.0004064223321620375,
+            7.995437954377849e-06
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.01627209037542343,
+            0.017503932118415833
+          ],
+          "peak_dbfs": -6.9848781135866,
+          "seam_to_p99_9_ratio": [
+            1.1617052494891262,
+            0.7784001812425457
+          ],
+          "true_peak_dbtp": -6.98
+        }
+      },
+      "midi": {
+        "duration_seconds": 54.54544,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 287,
+        "score_event_readback": "exact",
+        "tracks": 6
+      },
+      "musical_structure": {
+        "detached_transitions": 52,
+        "held_notes_at_least_1_5_beats": 8,
+        "lead_gate_coverage_fraction": 0.805,
+        "lead_notes": 69,
+        "maximum_internal_lead_gap_seconds": 0.5113636363636364,
+        "maximum_simultaneous_melodic_gates": 5,
+        "parts": 6,
+        "short_notes_under_0_7_beats": 11,
+        "touching_transitions": 13
+      }
+    },
+    "The Hollow Gate": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1706667,
+          "duration_seconds": 53.33334375,
+          "first_frame": [
+            -0.0072021484375,
+            -0.003997802734375
+          ],
+          "first_last_sample_delta": [
+            0.003173828125,
+            0.002685546875
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            -0.0040283203125,
+            -0.001312255859375
+          ],
+          "loudness_range_lu": 1.7,
+          "p99_9_adjacent_sample_delta": [
+            0.013427734375,
+            0.014373779296875
+          ],
+          "peak_dbfs": -8.118777654595714,
+          "seam_to_p99_9_ratio": [
+            0.23636363636363636,
+            0.18683651804670912
+          ],
+          "true_peak_dbtp": -8.12
+        },
+        "mp3": {
+          "decoded_frames": 1706667,
+          "duration_seconds": 53.33334375,
+          "first_frame": [
+            -0.007002586033195257,
+            -0.003997658845037222
+          ],
+          "first_last_sample_delta": [
+            0.0033026766031980515,
+            0.002794787520542741
+          ],
+          "integrated_lufs": -20.27,
+          "last_frame": [
+            -0.0036999094299972057,
+            -0.001202871324494481
+          ],
+          "loudness_range_lu": 1.7,
+          "p99_9_adjacent_sample_delta": [
+            0.013012683019042015,
+            0.013939919881522655
+          ],
+          "peak_dbfs": -8.384294440793123,
+          "true_peak_dbtp": -8.38
+        },
+        "ogg": {
+          "decoded_frames": 1706688,
+          "duration_seconds": 53.334,
+          "first_frame": [
+            -0.005320098716765642,
+            -0.0011736024171113968
+          ],
+          "first_last_sample_delta": [
+            0.004518319386988878,
+            0.0011489434400573373
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            -0.0008017795043997467,
+            -2.4659013433847576e-05
+          ],
+          "loudness_range_lu": 1.7,
+          "p99_9_adjacent_sample_delta": [
+            0.013451621867716312,
+            0.014398995786905289
+          ],
+          "peak_dbfs": -8.015650067158434,
+          "seam_to_p99_9_ratio": [
+            0.33589402314621825,
+            0.0797933034401057
+          ],
+          "true_peak_dbtp": -8.02
+        }
+      },
+      "midi": {
+        "duration_seconds": 53.333312,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 239,
+        "score_event_readback": "exact",
+        "tracks": 6
+      },
+      "musical_structure": {
+        "detached_transitions": 42,
+        "held_notes_at_least_1_5_beats": 7,
+        "lead_gate_coverage_fraction": 0.7796875,
+        "lead_notes": 55,
+        "maximum_internal_lead_gap_seconds": 0.625,
+        "maximum_simultaneous_melodic_gates": 6,
+        "parts": 6,
+        "short_notes_under_0_7_beats": 7,
+        "touching_transitions": 12
+      }
+    },
+    "Thorns in the Dark": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1588966,
+          "duration_seconds": 49.6551875,
+          "first_frame": [
+            0.04296875,
+            0.026153564453125
+          ],
+          "first_last_sample_delta": [
+            0.00079345703125,
+            0.00042724609375
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.04217529296875,
+            0.025726318359375
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.0164794921875,
+            0.017486572265625
+          ],
+          "peak_dbfs": -7.728742836673659,
+          "seam_to_p99_9_ratio": [
+            0.04814814814814815,
+            0.02443280977312391
+          ],
+          "true_peak_dbtp": -7.72
+        },
+        "mp3": {
+          "decoded_frames": 1588966,
+          "duration_seconds": 49.6551875,
+          "first_frame": [
+            0.0413375198841095,
+            0.02600332349538803
+          ],
+          "first_last_sample_delta": [
+            0.0018040239810943604,
+            0.001797134056687355
+          ],
+          "integrated_lufs": -20.27,
+          "last_frame": [
+            0.03953349590301514,
+            0.024206189438700676
+          ],
+          "loudness_range_lu": 1.1,
+          "p99_9_adjacent_sample_delta": [
+            0.01599053665995598,
+            0.01697278767824173
+          ],
+          "peak_dbfs": -7.9913595317017805,
+          "true_peak_dbtp": -7.99
+        },
+        "ogg": {
+          "decoded_frames": 1588992,
+          "duration_seconds": 49.656,
+          "first_frame": [
+            0.02458854578435421,
+            0.013898249715566635
+          ],
+          "first_last_sample_delta": [
+            0.024594876915216446,
+            0.013649632222950459
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            -6.330755695671542e-06,
+            0.0002486173470970243
+          ],
+          "loudness_range_lu": 1.2,
+          "p99_9_adjacent_sample_delta": [
+            0.01650911569595337,
+            0.017566177994012833
+          ],
+          "peak_dbfs": -7.682986344049775,
+          "seam_to_p99_9_ratio": [
+            1.4897755499554115,
+            0.7770405279738558
+          ],
+          "true_peak_dbtp": -7.68
+        }
+      },
+      "midi": {
+        "duration_seconds": 49.65513599999999,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 521,
+        "score_event_readback": "exact",
+        "tracks": 6
+      },
+      "musical_structure": {
+        "detached_transitions": 65,
+        "held_notes_at_least_1_5_beats": 4,
+        "lead_gate_coverage_fraction": 0.7947916666666667,
+        "lead_notes": 116,
+        "maximum_internal_lead_gap_seconds": 0.46551724137931033,
+        "maximum_simultaneous_melodic_gates": 6,
+        "parts": 6,
+        "short_notes_under_0_7_beats": 64,
+        "touching_transitions": 46
+      }
+    }
+  }
+}
