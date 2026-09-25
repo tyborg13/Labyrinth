@@ -16,7 +16,11 @@ during promotion. Earlier audition source/approval snapshots remain immutable.
 | Defeat | Existing Chopin Funeral March v05, unchanged |
 
 The selection is context-based: full in-run planning surfaces temporarily use
-The Turning Key and closing them restores the underlying room/combat cue. A HUD
+The Turning Key and closing them restores the underlying room/combat cue once
+the destination is settled. Automatic travel, reward/relic delivery, and scene
+bridges retain the current playback through their complete animation; an
+automatically opening map owns the destination cue. Deliberate navigation has
+no minimum-duration delay. A HUD
 minimap or small tooltip does not change music. Terminal defeat/victory outrank
 open menus. All bosses use Thorns for now, including Zekarion. Merchant choice
 screens use planning music; incidental room dialogue keeps its room's cue.

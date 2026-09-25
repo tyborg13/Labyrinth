@@ -3798,6 +3798,8 @@ func _exit_tree() -> void:
 	_finalize_performance_telemetry_scene("scene_exit")
 
 func _shutdown_audio() -> void:
+	_music_context_refresh_queued = false
+	_cancel_music_context_settle_wait()
 	_stop_music_tween()
 	_active_music_id = ""
 	if _music_player != null:
@@ -11356,7 +11358,8 @@ func _refresh_ui(
 		display_room["type"] = str(_combat_state.get("room_type", display_room.get("type", "combat")))
 		display_room["element"] = str(_combat_state.get("room_element", display_room.get("element", ElementData.NONE)))
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_metadata", performance_phase_started)
-	_update_music_for_context(display_room)
+	# Resolve music after this refresh has reconciled all automatic overlays.
+	_queue_music_context_refresh()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_music", performance_phase_started)
 	var room_element: String = str(display_room.get("element", ElementData.NONE))
 	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
@@ -24932,10 +24935,39 @@ func _queue_music_context_refresh() -> void:
 	call_deferred("_refresh_music_after_overlay_change")
 
 func _refresh_music_after_overlay_change() -> void:
+	if not _music_context_refresh_queued:
+		return
 	_music_context_refresh_queued = false
 	if not is_inside_tree() or _run_state.is_empty():
 		return
 	_update_music_for_context(_run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)))
+
+func _retry_music_after_context_settles() -> void:
+	# Reward reveals and other animation endings need not rebuild the UI.
+	# Listen only while pending; RunScene's own _process is normally disabled.
+	if _music_context_is_transient():
+		return
+	_cancel_music_context_settle_wait()
+	_queue_music_context_refresh()
+
+func _cancel_music_context_settle_wait() -> void:
+	if is_inside_tree() and get_tree().process_frame.is_connected(_retry_music_after_context_settles):
+		get_tree().process_frame.disconnect(_retry_music_after_context_settles)
+
+func _music_context_is_transient() -> bool:
+	# Keep the current playback throughout automatic bridges, however long they
+	# take. Do not debounce deliberate navigation or impose a minimum track length.
+	return (
+		_animation_lock
+		or _frame_sliced_ui_refresh_active
+		or _loadout_acquisition_in_progress
+		or _treasure_presentation_busy()
+		or _escape_transition_in_progress
+		or _pre_battle_start_pending
+		or _reward_intro_in_progress
+		or _reward_intro_suppressed
+		or str(_run_state.get("mode", "")) == RunEngineScript.MODE_ESCAPE
+	)
 
 func _update_music_for_context(room: Dictionary) -> void:
 	# A deferred menu callback must not replace the reserved death cue mid-animation.
@@ -24944,7 +24976,14 @@ func _update_music_for_context(room: Dictionary) -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
 	if str(_committed_run_state_override.get("mode", "")) == "defeat":
 		mode = "defeat"
-	var planning_open: bool = false
+	if mode not in ["defeat", "victory"] and _music_context_is_transient():
+		if not get_tree().process_frame.is_connected(_retry_music_after_context_settles):
+			get_tree().process_frame.connect(_retry_music_after_context_settles)
+		return
+	_cancel_music_context_settle_wait()
+	# A section map may already be due but still queued behind this callback.
+	# Its decision surface owns the cue, never the board revealed in between.
+	var planning_open: bool = _section_map_should_present()
 	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
 		if _visible_control(surface):
 			planning_open = true
@@ -33731,18 +33770,21 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 		_surface_analytics_revisions[combat_id] = last_sequence
 	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)
 
-func _maybe_present_section_map() -> void:
+func _section_map_should_present() -> bool:
 	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
-		return
+		return false
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode not in ["room", "event"] or not _map_shortcut_can_open():
-		return
+		return false
 	if mode == "room" and not _current_room_merchant_kind().is_empty() and _merchant_shop_open:
-		return
+		return false
 	var moment: String = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), mode]
-	if moment == _section_map_presented_key:
+	return moment != _section_map_presented_key
+
+func _maybe_present_section_map() -> void:
+	if not _section_map_should_present():
 		return
-	_section_map_presented_key = moment
+	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
 	_open_large_map()
 
 func _on_section_map_scout(coord: Vector2i) -> void:
