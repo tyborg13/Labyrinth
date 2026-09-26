@@ -37,3 +37,45 @@ The removed bitmap families were the three `button_wood_gold_*` planks and the e
 - `tests/settings_probe.gd`: centered Settings controls at 100% and 125% in both menu and run contexts.
 - Existing `ui_probe`, contextual tutorial, pre-battle, map, reward, and run-end probes provide representative screen coverage.
 - `tests/run_tests.gd` covers variant construction, native proportions, style states, centered margins, and preservation of focus traversal properties.
+
+## Hover and navigation sound
+
+Shared `UiSkin` buttons and the Graftwright/Scavenger native choices use the
+approved Ember Hearth focus cue: the same 120 ms cloth tick at -17 dB, routed
+through the dry UI SFX bus and the player's SFX/master controls. The existing
+Hearth choices keep their reveal-aware feedback. Cards in combat, passive
+inspection/tooltip surfaces, and board tiles do not acquire button sounds.
+
+`UiButtonFeedback` binds once per button. Pointer hover and keyboard/controller
+focus form one highlight, so clicking an already hovered control or restyling it
+does not replay the cue. Hidden and disabled controls remain silent. The shared
+cursor feedback owner limits focus playback to one voice with an 80 ms minimum
+interval and keeps it separate from action-confirmation audio. Binding does not
+change any focus mode, neighbor, action, or input-device behavior.
+
+Design statement: This extends the established action-button feedback across
+title/confirmation, Settings, in-run commands and merchant choices. The player's
+current action and its existing visual hierarchy remain unchanged; the sound
+confirms reaching an available control via pointer or navigation. No copy, icon,
+layout or motion changes are introduced. Proof uses focused input/audio checks
+and fresh menu, Settings and in-run screenshots at 1920×1080 / 100% UI scale,
+plus the full runtime regression suite and a verified pre-choice Hearth save.
+
+Hover-feedback proof routes:
+
+- `tests/ui_button_feedback_test.gd` and its full-suite entry exercise pointer,
+  native keyboard/controller navigation, click deduplication, restyling,
+  disabled/hidden controls, fast crossings, merchant families, scene disposal,
+  the exact shared waveform/gain and player SFX mute.
+- `tests/ui_hover_sfx_probe.gd` with `tests/ui_hover_sfx_probe_contract.json`
+  captures five native 1920×1080 / 100% frames: title hover, Settings keyboard
+  focus, title controller focus, Hearth header hover and the open in-run menu.
+  The probe also asserts cue counts, native activation and pointer handoff.
+
+Rubric record for this audio-only extension: immediate comprehension, visual
+hierarchy, gameplay visibility, precise copy, state/consequence, interaction
+completeness, visual cohesion, accessibility, layout resilience and visual proof
+are **Pass**. Existing visible states remain intact; audio is supplementary and
+respects SFX/master settings. The five real-renderer frames were inspected at
+native resolution. There are no new icons, text, motion, layouts or input paths.
+Physical controller hardware and Windows exports remain outside this proof.

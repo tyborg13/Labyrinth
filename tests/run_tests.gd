@@ -394,6 +394,7 @@ func _initialize() -> void:
 	await preload("res://tests/suites/veilbound_acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/vyraketh_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/zekarion_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/ui_button_feedback_suite.gd").run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))

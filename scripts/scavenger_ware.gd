@@ -1,11 +1,14 @@
 extends Button
+
 ## A ware is an object on a shelf, with its own small contact shadow and light.
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const Materials = preload("res://scripts/scavenger_materials.gd")
 var chosen: bool = false
 var pack: bool = false
 var reduced_motion: bool = false
 
 func _ready() -> void:
+	ButtonFeedback.bind_button(self)
 	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		add_theme_stylebox_override(state_name, StyleBoxEmpty.new())
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
