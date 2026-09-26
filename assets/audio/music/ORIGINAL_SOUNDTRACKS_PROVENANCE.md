@@ -8,7 +8,7 @@ during promotion. Earlier audition source/approval snapshots remain immutable.
 
 | Scene | Music |
 | --- | --- |
-| Opening room, campfire, treasure, cleared rooms, rewards, escape transition, victory | Lanterns Below v02 |
+| Opening room, campfire, treasure, cleared rooms, rewards, victory | Lanterns Below v02 |
 | Pre-battle, map/events, pause/settings, character/loadout, grimoire, card piles, merchant rooms | The Turning Key v02 |
 | Standard combat, including elemental encounters | Ashen Pursuit v03 (violin ensemble) |
 | Guardians/mini-bosses, bosses, boss-bar enemies within combat encounters | Thorns in the Dark v02 (violin ensemble) |
@@ -20,8 +20,8 @@ The Turning Key and closing them restores the underlying room/combat cue once
 the destination is settled. Automatic travel, reward/relic delivery, and scene
 bridges retain the current playback through their complete animation; an
 automatically opening map owns the destination cue. Deliberate navigation has
-no minimum-duration delay. A HUD
-minimap or small tooltip does not change music. Terminal defeat/victory outrank
+no minimum-duration delay. Escape transitions retain the preceding cue until
+the next scene settles. A HUD minimap or small tooltip does not change music. Terminal defeat/victory outrank
 open menus. All bosses use Thorns for now, including Zekarion. Merchant choice
 screens use planning music; incidental room dialogue keeps its room's cue.
 
