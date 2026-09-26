@@ -108,6 +108,7 @@ func _run() -> void:
 				var global_rect: Rect2 = board.get_global_transform_with_canvas() * rect
 				expect(not boss_rect.intersects(global_rect), "Expanded enemy intent clears the boss health bar")
 				expect(global_rect.end.y < float(scene.call("_hand_visual_top")), "Expanded enemy intent clears the card hand")
+	await _grimoire_rules(engine)
 	await _contact_sheet()
 	print("DRAGON REWARD PROOF: ", "PASS" if failed == 0 else "FAIL")
 	canvas.queue_free()
@@ -133,6 +134,28 @@ func _capture(label: String) -> void:
 	var path: String = "%s/%s.png" % [OUTPUT, label]
 	expect(image.save_png(path) == OK, "PNG saved")
 	print(ProjectSettings.globalize_path(path))
+
+func _grimoire_rules(engine: RefCounted) -> void:
+	var grimoire = preload("res://scripts/grimoire_library.gd")
+	var entries: Array[String] = ["combat:hollow_gale", "enemy:vaeloryx", "combat:boss_eclipse"]
+	var state: Dictionary = engine.create_new_run(2926, Store.default_data())
+	state[grimoire.UNLOCKED_KEY] = entries.duplicate()
+	state[grimoire.UNREAD_KEY] = []
+	state["progression"][grimoire.UNLOCKED_KEY] = entries.duplicate()
+	state["progression"][grimoire.UNREAD_KEY] = []
+	await _load(state)
+	scene.call("_close_large_map")
+	scene.call("_open_grimoire_overlay")
+	for entry_id: String in entries:
+		scene.call("_on_grimoire_entry_pressed", entry_id)
+		await process_frame
+		await process_frame
+		var title: Label = scene.get("_grimoire_detail_title")
+		var body: RichTextLabel = scene.get("_grimoire_detail_body")
+		expect(title.text == str(grimoire.entry_def(entry_id)["title"]), "Requested dragon rules page is displayed")
+		expect(body.is_visible_in_tree() and body.get_content_height() <= body.size.y + 1, "Dragon rules text is visible without clipping")
+		await _capture("grimoire_%s" % entry_id.replace(":", "_"))
+	scene.call("_close_grimoire_overlay")
 
 func _contact_sheet() -> void:
 	var overlay := ColorRect.new()

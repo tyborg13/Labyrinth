@@ -745,3 +745,17 @@ and displacement. No further Tharokh timing or damage change is justified.
 - Superseded diagnostic/render attempts are archived locally under
   `/private/tmp/dragon-revision-scratch-20260926/`; failed iterations are not
   counted as accepted proof. Their findings remain in this log.
+
+
+### Final peer-review rules copy follow-up
+
+Final review caught two old Gale Grimoire entries describing an arena-wide hit
+and an Eclipse entry that omitted the snuffed-brazier timing. The Gale pages
+now explain the fixed-direction fan and safe flank. Eclipse explicitly snuffs
+the marked brazier before the hit and names the surviving refuge or own Light
+as protection. This is a rules-copy correction; encounter mechanics are unchanged.
+
+The existing reward renderer probe now also opens these three actual Grimoire
+pages. `output/dragon-revision/rewards-07.json` passes all16 captures at
+1920×1080,100% UI, Metal/Mobile. All three changed Grimoire pages were inspected:
+correct titles and icons, readable complete paragraphs, no clipped rules.

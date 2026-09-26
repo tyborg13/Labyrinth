@@ -657,7 +657,7 @@
       "title": "The Hollow Gale",
       "icon": "gale_force",
       "body": [
-        "Vaeloryx’s Hollow Gale damages the player and pushes them away from the dragon across the arena."
+        "Hollow Gale damages actors in a fan and pushes them away from Vaeloryx. Its direction is fixed when the intent appears; move beyond the marked fan to avoid the hit and Push."
       ]
     },
     {
@@ -676,8 +676,8 @@
       "title": "The Last Eclipse",
       "icon": "umbra_eclipse",
       "body": [
-        "Noctyrax temporarily forces the arena to Eclipse and immediately harms actors standing without Radiance.",
-        "Its Veilbound Acolytes vanish in the dark. Placed light, personal vision, truesight, and Umbra dispelling expose the battlefield and protect the player."
+        "Noctyrax snuffs the marked brazier before forcing Eclipse and immediately harming actors standing without Radiance.",
+        "Reach the surviving brazier’s lit refuge or create your own Light before the hit. Watch which brazier is marked each cycle. Its Veilbound Acolytes vanish in the dark; Radiance and truesight reveal their positions."
       ]
     },
     {
@@ -717,7 +717,7 @@
       "title": "Vaeloryx, the Hollow Gale",
       "body": [
         "Air dragon boss that weaponizes forced movement.",
-        "Its opening gale sweeps the full arena and can drive the player through hazards."
+        "Its opening gale holds the direction shown in its intent. Move to a safe flank outside the fan, and watch where later pushes and pulls would send you."
       ]
     },
     {
