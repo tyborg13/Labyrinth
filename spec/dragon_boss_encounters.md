@@ -1,9 +1,9 @@
 # Dragon encounter and reward revision
 
-Content revision: `dragon_milestones_v1`, 2026-09-26. Live validation remains
-in progress. Goal: all six dragons should demand meaningful
-position, tempo, defense, attack, and health decisions, and each victory should
-feel like a valuable milestone. Iterate using the actual rendered game.
+Content revision: `dragon_milestones_v1`, 2026-09-26. All six revised dragons
+have completed native-game encounter studies; see the iteration record for
+results and limitations. Encounters demand position, tempo, defense, attack,
+and health decisions, and each victory grants a visible milestone reward.
 
 ## Acceptance and design
 
