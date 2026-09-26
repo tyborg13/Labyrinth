@@ -45,7 +45,11 @@ queued automatic presentation, so the visible quiet board receives Lanterns.
 Existing `tests/original_music_test.gd`, `tests/combat_music_integration_test.gd`,
 and `tests/main_menu_input_test.gd` pass. The latter verifies New/Continue/Replace
 and normal/reduced-motion handoffs, with no overlap of main-menu and room music.
-Some runs emit the existing non-failing ObjectDB cleanup warning.
+Some runs emit the existing non-failing ObjectDB cleanup warning. A concurrent
+main-menu rerun passed every music handoff but missed the unrelated seal fade
+lower timing bound (346 ms versus 350 ms). Rerunning it alone passed, including
+a 388 ms seal fade; no startup code or assertion was changed. Isolated rerun log:
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790429102318878000-42324/godot.log`.
 
 Full regression command (task-local HOME and Steam disabled):
 
@@ -53,7 +57,7 @@ Full regression command (task-local HOME and Steam disabled):
 cd /Users/borgerding/workspace/Labyrinth.worktrees/keep-music-continuous-across-automatic-scene-bridges && python3 tools/godot_task_runner.py --task-id keep-music-continuous-across-automatic-scene-bridges --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-Full-suite log for the reviewed runtime:
+The final full Godot suite passed (`TEST RESULT: PASS`, exit 0). Log for the reviewed runtime:
 `/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790428857215207000-41949/godot.log`.
 The suite exercises its deliberate ambiguous-save migration warning.
 Focused final log:
