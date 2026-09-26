@@ -17,6 +17,7 @@ func _run() -> void:
 	for reduced: bool in [false, true]:
 		await _test_map_travel(scene, reduced)
 	await _test_automatic_map(scene)
+	await _test_manual_map_after_blocked_automatic_open(scene)
 	await _test_bridge_lifetime(scene)
 	await _test_escape_terminal_and_shutdown(scene)
 	scene.call("_shutdown_audio")
@@ -88,6 +89,23 @@ func _test_automatic_map(scene: Node) -> void:
 	scene.call("_close_large_map")
 	await create_timer(0.4).timeout
 	_expect(str(scene.get("_active_music_id")) == Music.LANTERNS_TRACK_ID, "Manual map close should promptly restore a stable quiet room")
+
+func _test_manual_map_after_blocked_automatic_open(scene: Node) -> void:
+	# The opening conversation blocks the queued automatic map. Once it ends,
+	# manually opening the map must not imply another auto-open is still pending.
+	var state: Dictionary = Run.new().create_new_run(82271, Progression.default_data())
+	scene.call("_load_run_state", state)
+	await create_timer(0.2).timeout
+	_expect(bool(scene.get("_dialogue_active")), "Opening conversation should block automatic map presentation")
+	_expect(str(scene.get("_section_map_presented_key")).is_empty(), "Blocked auto-map must not count as presented")
+	scene.call("_close_dialogue")
+	scene.call("_open_large_map")
+	await create_timer(0.4).timeout
+	_expect(str(scene.get("_active_music_id")) == Music.TURNING_KEY_TRACK_ID, "Manually opened map should play its planning cue")
+	scene.call("_close_large_map")
+	await create_timer(0.4).timeout
+	_expect(not (scene.get("_large_map_scrim") as Control).visible, "Manual map closure should leave the board visible")
+	_expect(str(scene.get("_active_music_id")) == Music.LANTERNS_TRACK_ID, "A previously blocked auto-map must not keep planning music on the visible board")
 
 func _test_bridge_lifetime(scene: Node) -> void:
 	var state: Dictionary = {"mode": "room", "current_room": Vector2i.ZERO, "rooms": {"0,0": {"type": "empty", "cleared": true}}}

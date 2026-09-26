@@ -9,7 +9,8 @@ change music promptly.
 RunScene resolves music after UI refreshes settle. Automatic animations, travel,
 reward reveals/delivery, relic acquisition, escape states and sliced UI rebuilding
 retain the current playback until their destination is ready. A map that is about
-to open automatically shares the same eligibility predicate with music routing,
+to open automatically must have a queued presentation and pass the same
+eligibility predicate used by music routing,
 so its underlying board cannot claim a temporary quiet cue. A frame signal
 listener exists only while a request waits; it retries using the latest scene
 state and disconnects on settlement or audio shutdown. No minimum track duration
@@ -36,6 +37,10 @@ selection, AudioStreamPlayback identity and advancing playback position through
 map travel, automatic map presentation, stable combat entry, manual map closure,
 2.2-second animation holds, acquisition/relic/sliced-refresh holds, retry without
 a new UI refresh, escape, terminal priority and cancellation at audio shutdown.
+Peer review also reproduced a stale map prediction after opening dialogue had
+blocked an automatic presentation. The added regression waits for that blocked
+callback, then manually opens/closes the map. Prediction now requires a genuinely
+queued automatic presentation, so the visible quiet board receives Lanterns.
 
 Existing `tests/original_music_test.gd`, `tests/combat_music_integration_test.gd`,
 and `tests/main_menu_input_test.gd` pass. The latter verifies New/Continue/Replace
@@ -48,11 +53,11 @@ Full regression command (task-local HOME and Steam disabled):
 cd /Users/borgerding/workspace/Labyrinth.worktrees/keep-music-continuous-across-automatic-scene-bridges && python3 tools/godot_task_runner.py --task-id keep-music-continuous-across-automatic-scene-bridges --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The full Godot suite passes (`TEST RESULT: PASS`, exit 0). Full-suite log for this runtime:
-`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790345670527170000-5996/godot.log`.
+Full-suite log for the reviewed runtime:
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790428857215207000-41949/godot.log`.
 The suite exercises its deliberate ambiguous-save migration warning.
 Focused final log:
-`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790345719550443000-6017/godot.log`.
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790428855037058000-41927/godot.log`.
 `git diff --check` passes; no editor scan or import metadata changes.
 
 ## Inspection

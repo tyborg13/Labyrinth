@@ -1884,6 +1884,7 @@ var _run_end_recap: RunEndRecapOverlay
 var _section_map_hud_button: Button
 var _map_opened_from_toolbar: bool = false
 var _section_map_presented_key: String = ""
+var _section_map_presentation_queued: bool = false
 var _map_analytics_revision: int = 0
 var _map_analytics_run_id: String = ""
 var _large_map_scrim: ColorRect
@@ -15049,7 +15050,7 @@ func _refresh_visibility() -> void:
 		_section_map_hud_button.visible = section_map and not terminal_recap_visible
 	_layout_mini_map_overlay()
 	if section_map:
-		call_deferred("_maybe_present_section_map")
+		_queue_section_map_presentation()
 	room_title.visible = not terminal_recap_visible
 	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
@@ -24981,9 +24982,9 @@ func _update_music_for_context(room: Dictionary) -> void:
 			get_tree().process_frame.connect(_retry_music_after_context_settles)
 		return
 	_cancel_music_context_settle_wait()
-	# A section map may already be due but still queued behind this callback.
-	# Its decision surface owns the cue, never the board revealed in between.
-	var planning_open: bool = _section_map_should_present()
+	# Predict only an actual queued auto-open. Eligibility alone also remains
+	# true after dialogue blocks an earlier callback and the user closes a map.
+	var planning_open: bool = _section_map_presentation_queued and _section_map_should_present()
 	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
 		if _visible_control(surface):
 			planning_open = true
@@ -33769,6 +33770,16 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 	if not pending.is_empty() and _analytics_store.write_events(pending):
 		_surface_analytics_revisions[combat_id] = last_sequence
 	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)
+
+func _queue_section_map_presentation() -> void:
+	if _section_map_presentation_queued:
+		return
+	_section_map_presentation_queued = true
+	call_deferred("_present_queued_section_map")
+
+func _present_queued_section_map() -> void:
+	_section_map_presentation_queued = false
+	_maybe_present_section_map()
 
 func _section_map_should_present() -> bool:
 	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
