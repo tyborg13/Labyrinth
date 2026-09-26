@@ -1,0 +1,34 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [],
+      "namespace": "dragon-boss-encounters-milestone-rew-1790456517510066000-66049-skill_ui_test-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "/Applications/Godot.app/Contents/MacOS/Godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/skill_ui_test.gd"
+  ],
+  "expected_sizes": [],
+  "images": [],
+  "namespace": "dragon-boss-encounters-milestone-rew-1790456517510066000-66049-skill_ui_test-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/skill_ui_test.gd"
+}

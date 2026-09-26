@@ -148,7 +148,10 @@ static func _test_crownfire_shared_denial(combat: Combat, expect: Callable) -> v
 
 static func _test_iskaldra_two_step_freeze(combat: Combat, expect: Callable) -> void:
 	var state: Dictionary = _state(combat, "iskaldra")
-	var attack: Dictionary = _intent(combat, "iskaldra", "whiteout_lance")["actions"][0]
+	state["player"]["pos"] = Vector2i(3, 3) # One of the two painted edge cells.
+	var intent: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, state, 0, _intent(combat, "iskaldra", "whiteout_lance"))
+	state["enemies"][0]["intent"] = intent
+	var attack: Dictionary = intent["actions"][0]
 	state = combat._resolve_enemy_action(state, 0, attack)
 	expect.call(not bool(state["player"].get("chilled", false)) and int(state["player"].get("freeze", 0)) == 0, "Iskaldra's first Ice painter cannot skip the shared setup rule")
 	state = combat._resolve_player_start_of_turn(state)

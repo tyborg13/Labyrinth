@@ -207,24 +207,31 @@ Encounter calibration is also important:
   `0/0/1/1/2/2`. This keeps late fights viable without returning to multi-card
   health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
-  His Tempest Breath is intentionally capped at ranged `3` after a one-tile
-  advance so corner repositioning can produce real safe tiles in open boss
-  rooms.
+  Tempest Breath holds a three-tile cardinal lane without advancing, while
+  advancing Storm Claw changes close-range pressure. Previewed marks and
+  conduction create route choices; movement safety depends on the current
+  conductor component, not only the printed target lane.
 - Large enemies use actor-level direct targeting: if any visible footprint tile
   satisfies an attack's range and line-of-sight rules, the full footprint
   accepts the click and resolves against the same actor. This is input
   affordance rather than extra targets or extra hits, so it does not change the
   generic single-target damage coefficient.
-- Every dragon has an authored pressure axis in addition to ordinary intents:
-  Zekarion summons wisps; Tharokh raises attackable Worldspines before rupturing
-  them; Vyraketh plants attackable cinder marks before a forced detonation;
-  Vaeloryx combines arena-wide damage with forced movement; Iskaldra gains
-  hit-count frost crystal armor; and Noctyrax's Eclipse damages actors outside
-  Radiance. Their health, damaging actions, support amounts, and mechanic
-  payloads scale from the global boss depth on the same completed-sequence
-  curve as normal encounters. These mechanics increase encounter-dependent
-  value for area damage, movement, multi-hit sequencing, and Radiance without
-  changing their generic card coefficients.
+- Dragons cycle distinct pressure rather than rolling unrelated attacks.
+  Vyraketh plants shared Fire that can be moved/consumed before a fixed burst;
+  Tharokh caps attackable Worldspines while preserving two routes for a 2×2 body;
+  Vaeloryx holds directional fans/lanes, dives, then retreats; Iskaldra alternates
+  capped hit-count armor, Ice lanes, a physical sweep and a close pursuit;
+  Zekarion combines fixed marks, conduction, a charge and capped summons;
+  Noctyrax alternates attack geometry with lit refuges and an Eclipse that
+  punishes darkness. Held directions survive player movement; charges reanchor
+  their pattern at the actual destination and evaluate the entire footprint's
+  hazards. Base cycle-average initiative delays, before depth/status modifiers,
+  are 18/20/17.5/19/19.5/19.75 for Fire/Earth/Air/Ice/Lightning/Shadow.
+  See [the encounter contract](dragon_boss_encounters.md) for cycle payloads.
+  These mechanics change the encounter-specific value of positioning, control,
+  secondary hits, surfaces, and Light. They do not change intrinsic card
+  coefficients: the scorer assumes no boss trophy, prepared board, progression
+  skill, or Defiance. Live tests separately track acquired trophies and levels.
 - Rooms reserve a small halo around the player's entry tile, then seed enemies
   with weighted randomness across the room. Placement softly discourages
   adjacent pileups and same-corner clusters, but no longer pushes enemies to

@@ -3,7 +3,7 @@ class_name GameData
 
 const ElementData = preload("res://scripts/element_data.gd")
 
-const BALANCE_REVISION: String = "short_reach_v1"
+const BALANCE_REVISION: String = "dragon_milestones_v1"
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"

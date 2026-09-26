@@ -10,7 +10,7 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Default path: `user://analytics/events-YYYY-MM-DD.jsonl`
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
-- `balance_revision`: loaded content revision (`short_reach_v1` for the reach rebalance).
+- `balance_revision`: loaded content revision (`dragon_milestones_v1` for dragon encounters, trophies, and milestones).
 - `balance_transition`: empty for fresh encounters; resumed older combats record
   `{from, to, saved_intents_preserved: true}`. Already committed intents and paid
   checkpoints retain their saved payload until the next ordinary selection.
@@ -56,6 +56,7 @@ available:
 - `combat_ended`
 - `reward_offered`
 - `reward_choice`
+- `reward_claimed`
 - `card_drawn`
 - `card_became_playable`
 - `card_played`
@@ -67,6 +68,7 @@ available:
 - `progression_skill_learned`
 - `progression_skill_reset`
 - `progression_moltshard_gained`
+- `progression_moltshard_exchange`
 - `skill_triggered`
 - `equipment_equipped`
 - `equipment_grafted`
@@ -299,9 +301,29 @@ equipment, magic, item, reward-card, and deck state. Scavenger purchase and sale
 receipts animate only after that committed event/save; presentation overlap,
 reduced motion, or leaving the shop never repeats or defers the transaction.
 
-Intermediate dragon victories emit `combat_ended` and return the run to room
-mode without `reward_offered` or `run_ended`; only defeat and the depth-24
-Noctyrax victory emit `run_ended`.
+Every dragon victory emits `combat_ended` and pauses in reward mode. Its
+`reward_offered` uses `reward_kind: dragon_milestone` and additive `boss_id`,
+`milestone_id`, `awarded_relic`, `next_descent`, `moltshards`, `healed_amount`, and
+`ember_amount` fields. The amount includes actual room earnings plus the boss
+bonus; health and Shards report the actual credited amounts. The first dragon
+of a run awards one Shard; later gates report zero additional Shards.
+
+Continue emits `reward_claimed` with `reward_kind: dragon_milestone`, the same
+`milestone_id`, `boss_id`, `relic_id`, and `next_descent`. The claim receipt is
+queued before the save that removes the milestone, using
+`reward_claimed|<milestone_id>`. Intermediate gates retain the receipt in the
+saved run until append and acknowledgment succeed. Final-boss settlement merges
+it into the profile before clearing the run. Both recovery paths replay safely
+without duplicating rewards, banking held Embers early, or losing an event in
+the save/append gap. Intermediate Continue returns to room mode; Noctyrax's
+Complete Descent then records victory and `run_ended`.
+
+Dragon `enemy_action_resolved` payloads include `boss_mechanic`,
+`committed_direction`, `action_direction`, `declared_tiles`, and `resolved_tiles`
+for the held fan, line, crescent, and fixed strike patterns. Movement paths and
+interruption flags distinguish a denied charge from a missed swing. Noctyrax's
+brazier changes share the resolved action stream, so refuge loss/restoration and
+Eclipse damage can be compared with the player's actual lighting choices.
 
 `defiance_triggered` records each spent extra-life charge from the committed
 combat checkpoint. Its payload contains the lethal `cause`, actual
@@ -354,7 +376,9 @@ this zero-held case represents a settled snapshot. Later UI refresh, Grimoire
 persistence, and terminal retry must preserve that bank and the original recap
 amount without adding it again. This does not add or repeat analytics events.
 
-`progression_level_up` fires when Draw Strength commits at a campfire. Its
+`progression_level_up` fires when Draw Strength commits at a campfire or at the
+opening Emaciated Man. Its `source` distinguishes `campfire` and
+`emaciated_man`; `transaction_id` identifies the durable wallet receipt. Its
 payload records `level_before`, `level_after`, the unchanged post-purchase
 `skill_ids`, `unspent_skill_points_before`,
 `unspent_skill_points_after`, ember `cost`, `held_embers_after`, and
@@ -374,7 +398,8 @@ accepted and saved. Its payload records `skill_ids_before`, the empty
 `moltshards_after`, and `room`. Opening or canceling the confirmation emits
 no reset event and spends no resource.
 
-`progression_moltshard_gained` records an earned skill-reset resource. Its payload
+`progression_moltshard_gained` records a resource usable for a skill reset or an
+opening Ember exchange. Its payload
 contains `amount`, `source`, `moltshards_before`, and
 `moltshards_after`. The first boss victory of a run uses
 `source: "first_boss_victory"`; later boss victories in that run produce no
@@ -386,6 +411,15 @@ entry is acknowledged only after append succeeds; loading a profile or saved
 run retries pending entries, and append-before-ack replay is a no-op rather than
 a duplicate. Analytics acknowledgement must never copy held run Embers into the
 banked profile.
+
+`progression_moltshard_exchange` records a committed opening trade. It includes
+`source: emaciated_man`, `transaction_id`, `moltshards_before`,
+`moltshards_after`, `embers_gained`, and `held_embers_after`. One Shard grants 250
+held Embers. Wallet transactions save their receipt and analytics outbox in the
+profile first; the run then applies the latest receipt once. A crash between
+those saves recovers the exact credit/debit, without replacing subsequent run
+earnings. Level-up and exchange context describe the resulting run, including
+post-transaction progression, Shards, and Defiance, without stale combat state.
 
 `skill_triggered` records each automatic, manual, contextual, or passive skill
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,

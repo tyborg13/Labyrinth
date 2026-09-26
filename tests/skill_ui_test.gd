@@ -1,5 +1,7 @@
 extends SceneTree
 
+# Run with a real renderer: realized skill analytics drain across rendered frames.
+
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -399,6 +401,9 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	await process_frame
 	await process_frame
 	var loaded_combat_run: Dictionary = instance.get("_run_state") as Dictionary
+	# Later UI-only fixture variants must retain the loaded combat identity and
+	# durable analytics cursors instead of restoring the pre-load engine state.
+	combat_state = (instance.get("_combat_state") as Dictionary).duplicate(true)
 	var run_engine := RunEngine.new()
 	var loaded_skill_ids: Array[String] = run_engine.run_skill_ids(loaded_combat_run)
 	_expect(loaded_skill_ids.has("quick_wits") and loaded_skill_ids.has("discerning_eye"), "Loaded combat should retain both learned abilities: %s" % [loaded_skill_ids])
@@ -702,15 +707,18 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var resolved_escape: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0)
 	instance.call("_commit_combat_skill_state", resolved_escape, "rehearsed_escape")
 	await process_frame
+	await _wait_for_skill_analytics(instance)
 	_expect(_skill_trigger_event_count("rehearsed_escape") == escape_trigger_count + 1, "Preserving an Exhaust card should emit exactly one realized skill trigger")
 	var resolved_item: Dictionary = combat_engine.finish_player_card(instance.get("_combat_state") as Dictionary, 0, 1, {"play_mode": "play"})
 	instance.call("_commit_combat_skill_state", resolved_item, "makeshift_tool")
 	await process_frame
+	await _wait_for_skill_analytics(instance)
 	_expect(_skill_trigger_event_count("makeshift_tool") == makeshift_trigger_count + 1, "Preserving an item should emit exactly one realized skill trigger")
 	var resolved_guard: Dictionary = combat_engine.finish_player_activation(instance.get("_combat_state") as Dictionary)
 	instance.call("_commit_combat_skill_state", resolved_guard, "carry_the_guard")
 	await process_frame
 	_expect(combat_engine.skill_was_used(instance.get("_combat_state") as Dictionary, "carry_the_guard"), "Carry the Guard should spend when the armed conversion resolves")
+	await _wait_for_skill_analytics(instance)
 	_expect(_skill_trigger_event_count("carry_the_guard") == carry_trigger_count + 1, "Carry the Guard should emit exactly one realized skill trigger at activation end")
 	instance.set("_combat_state", original_combat_state)
 	instance.set("_run_state", original_run_state)
@@ -760,6 +768,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 	var painted: Dictionary = instance.get("_combat_state") as Dictionary
 	_expect(BoardSurfaceRules.element_at(painted, ground_origin) == "ice" and BoardSurfaceRules.has_rubble(painted, ground_origin), "Prismatic Instinct should commit the chosen ground and preserve the other layer")
 	_expect(not bool((painted.get("player", {}) as Dictionary).get("chilled", false)), "Painting Ice beneath a stationary actor must not activate Chill")
+	await _wait_for_skill_analytics(instance)
 	_expect(combat_engine.skill_was_used(painted, "prismatic_instinct") and _skill_trigger_event_count("prismatic_instinct") == prismatic_trigger_count + 1, "One ground commit should spend the ability and emit one realized trigger")
 	_expect(int(painted.get("initiative_clock", 0)) == clock_before and int(painted.get("cards_played_this_turn", 0)) == plays_before, "Board abilities must not spend card plays or Time")
 
@@ -782,6 +791,7 @@ func _test_combat_skill_surfaces(instance: Node, base_run_state: Dictionary, pro
 		await instance.call("_commit_surface_skill_tile", ground_destination)
 		var relocated: Dictionary = instance.get("_combat_state") as Dictionary
 		_expect(BoardSurfaceRules.element_at(relocated, ground_origin).is_empty() and BoardSurfaceRules.has_rubble(relocated, ground_origin) and BoardSurfaceRules.element_at(relocated, ground_destination) == "ice", "Confluence should relocate only the selected layer to the committed tile")
+		await _wait_for_skill_analytics(instance)
 		_expect(combat_engine.skill_was_used(relocated, "confluence") and _skill_trigger_event_count("confluence") == confluence_trigger_count + 1, "Confluence should consume one use and emit one realized trigger")
 		_expect(int(relocated.get("initiative_clock", 0)) == clock_before and int(relocated.get("cards_played_this_turn", 0)) == plays_before, "Relocation should preserve card plays and Time")
 
@@ -1106,7 +1116,7 @@ func _test_debug_boss_progression_is_sandboxed(instance: Node) -> void:
 	victorious_combat["enemies"] = []
 	instance.set("_progression", debug_progression)
 	var finished_debug_run: Dictionary = instance.call("_run_state_for_combat_checkpoint", debug_run, victorious_combat) as Dictionary
-	_expect(str(finished_debug_run.get("mode", "")) == "victory", "Debug boss fixture should reach victory for persistence coverage")
+	_expect(RunEngine.new().is_dragon_reward(finished_debug_run), "Debug boss fixture should reach its victory reward for persistence coverage")
 	var reloaded_profile: Dictionary = ProgressionStore.load_data()
 	_expect(int(reloaded_profile.get("level", 0)) == int(saved_progression.get("level", -1)), "Debug boss victory must not replace the real profile level")
 	_expect(ProgressionStore.selected_skill_ids(reloaded_profile) == ProgressionStore.selected_skill_ids(saved_progression), "Debug boss victory must not replace the real learned skills")
@@ -1156,6 +1166,15 @@ func _encoded_legacy_id(values: Array) -> String:
 	for value: Variant in values:
 		bytes.append(int(value))
 	return bytes.get_string_from_ascii()
+
+func _wait_for_skill_analytics(instance: Node) -> void:
+	# Assertions observe the durable result, not the first frame of its queue.
+	# Keep this bounded so a stuck queue fails instead of hanging the suite.
+	for _frame: int in range(30):
+		if not instance.get("_skill_analytics_queue").busy():
+			return
+		await process_frame
+	_expect(not instance.get("_skill_analytics_queue").busy(), "Skill analytics should drain across rendered frames")
 
 func _skill_trigger_event_count(skill_id: String) -> int:
 	var count: int = 0

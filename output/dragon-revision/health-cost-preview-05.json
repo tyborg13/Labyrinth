@@ -1,0 +1,161 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 25.707920705466794,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 40.88667303851049,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/chilled_fatigue.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.616585210370374,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 40.83059138358691,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/defiance_payment.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 25.52224579641914,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 40.67610969922664,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/lethal_payment.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 25.70260861672915,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 40.86064336519057,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/ordinary_fatigue.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 23.246880595535924,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.43358476974232,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/umbra_chilled_fatigue.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.078425340078915,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 39.27735273181054,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/umbra_defiance_payment.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/health_cost_preview_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 25.707920705466794,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 40.88667303851049,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/chilled_fatigue.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.616585210370374,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 40.83059138358691,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/defiance_payment.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 25.52224579641914,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 40.67610969922664,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/lethal_payment.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 25.70260861672915,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 40.86064336519057,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/ordinary_fatigue.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 23.246880595535924,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.43358476974232,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/umbra_chilled_fatigue.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.078425340078915,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 39.27735273181054,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1/probes/card_health_cost/umbra_defiance_payment.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-boss-encounters-milestone-rew-1790459662585244000-68327-health_cost_preview_prob-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/health_cost_preview_probe.gd"
+}

@@ -975,10 +975,8 @@ func _prepare_new_game() -> void:
 	var scene_tree: SceneTree = get_tree() if is_inside_tree() else null
 	if scene_tree != null and scene_tree.root.has_meta("labyrinth_resume_saved_run"):
 		scene_tree.root.remove_meta("labyrinth_resume_saved_run")
-	if ProgressionStore.has_saved_run():
-		_progression = ProgressionStore.set_embers(ProgressionStore.load_data(), 0)
-		ProgressionStore.save_data(_progression)
-	ProgressionStore.clear_saved_run()
+	# RunScene writes the replacement before consuming gifts or removing the old
+	# save. Keeping it here also preserves recovery when the new save fails.
 	_saved_run_preview = {}
 
 func _on_continue_button_pressed() -> void:

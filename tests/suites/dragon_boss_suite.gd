@@ -137,11 +137,11 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	for terrain_var: Variant in earth_after.get("terrain", []):
 		if typeof(terrain_var) == TYPE_DICTIONARY and str((terrain_var as Dictionary).get("kind", "")) == "dragon_spire":
 			earth_spires += 1
-	expect.call(earth_spires >= 3, "Tharokh should open by raising several attackable Worldspines")
+	expect.call(earth_spires == 2, "Tharokh opens with two attackable Worldspines while retaining movement lanes")
 
 	var fire_after: Dictionary = _resolve_opening("vyraketh")
 	var cinder_tiles: Array[Vector2i] = Surface.tiles(fire_after, "fire")
-	expect.call(cinder_tiles.size() >= 4, "Vyraketh opens by creating ordinary persistent Fire")
+	expect.call(cinder_tiles.size() == 3, "Vyraketh opens with a bounded three-cell barrier of ordinary persistent Fire")
 	expect.call((fire_after.get("traps", []) as Array).all(func(trap: Variant) -> bool: return str((trap as Dictionary).get("boss_hazard_kind", "")) != "cinder_mark"), "Kindle Ground does not create legacy owner traps")
 	var fire_boss: Dictionary = _boss_from_state(fire_after)
 	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "crownfire", "Kindle Ground still schedules Crownfire next")
@@ -156,8 +156,8 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	var air_hp_before: int = int((air_before.get("player", {}) as Dictionary).get("hp", 0))
 	var air_pos_before: Vector2i = (air_before.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var air_after: Dictionary = _resolve_boss_turn(air_before)
-	expect.call(int((air_after.get("player", {}) as Dictionary).get("hp", 0)) < air_hp_before, "Vaeloryx's Hollow Gale should damage the whole arena")
-	expect.call((air_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) != air_pos_before, "Vaeloryx's Hollow Gale should forcibly reposition the player")
+	expect.call(int((air_after.get("player", {}) as Dictionary).get("hp", 0)) < air_hp_before, "Vaeloryx's Hollow Gale should damage a player who stays in its declared fan")
+	expect.call((air_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == air_pos_before, "The entry wall should arrest Gale instead of redirecting its fixed push sideways")
 
 	var ice_after: Dictionary = _resolve_opening("iskaldra")
 	expect.call(int(_boss_from_state(ice_after).get("frost_armor", 0)) == 1, "Iskaldra opens with one armor layer before any Ice fuel bonus")
@@ -309,7 +309,7 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 			"treasure":
 				state = engine.claim_relic(state, str((state.get("pending_relics", []) as Array)[0]) if not (state.get("guardian_reward", {}) as Dictionary).is_empty() else "")
 			"reward":
-				state = engine.claim_card_reward(state, "")
+				state = engine.continue_dragon_reward(state) if engine.is_dragon_reward(state) else engine.claim_card_reward(state, "")
 			"escape":
 				state = engine.continue_pending_escape(state)
 			"pre_battle":
@@ -353,12 +353,16 @@ static func _test_depth_twenty_four_victory_is_terminal(expect: Callable) -> voi
 	var depth_twenty_state: Dictionary = _run_state_at_boss(engine, progression, 20)
 	var depth_twenty_combat: Dictionary = _defeated_boss_combat(depth_twenty_state.get("combat_state", {}) as Dictionary)
 	var after_twenty: Dictionary = engine.finish_combat(depth_twenty_state, depth_twenty_combat)
+	expect.call(engine.is_dragon_reward(after_twenty), "The fifth dragon should hold its milestone before onward travel")
+	after_twenty = engine.continue_dragon_reward(after_twenty)
 	expect.call(str(after_twenty.get("mode", "")) == "room" and not bool(after_twenty.get("victory", false)), "The fifth elemental dragon should open the final section instead of ending the run")
 
 	var final_state: Dictionary = _run_state_at_boss(engine, progression, 24)
 	var final_combat: Dictionary = final_state.get("combat_state", {}) as Dictionary
 	expect.call(str(final_combat.get("boss_id", "")) == "noctyrax", "Depth 24 combat should instantiate Noctyrax")
 	var final_result: Dictionary = engine.finish_combat(final_state, _defeated_boss_combat(final_combat))
+	expect.call(engine.is_dragon_reward(final_result) and not bool(final_result.get("victory", false)), "Noctyrax must hold its resumable reward before terminal victory")
+	final_result = engine.continue_dragon_reward(final_result)
 	expect.call(bool(final_result.get("victory", false)), "Defeating Noctyrax should win the run")
 	expect.call(str(final_result.get("mode", "")) == "victory" and not bool(final_result.get("game_over", false)), "The depth-24 win should enter the polished victory flow")
 

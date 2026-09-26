@@ -1,0 +1,101 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.92779999999996,
+          "luma_mean": 22.3519091861718,
+          "luma_min": 0.0,
+          "luma_range": 254.92779999999996,
+          "luma_stdev": 36.70472125934778,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/banked_only.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.92779999999996,
+          "luma_mean": 21.715148770165413,
+          "luma_min": 0.0,
+          "luma_range": 254.92779999999996,
+          "luma_stdev": 34.76099880466353,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/banked_spent.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.349046844349616,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 36.722030494591806,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/ordinary_and_banked.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/banked_play_meter_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.92779999999996,
+      "luma_mean": 22.3519091861718,
+      "luma_min": 0.0,
+      "luma_range": 254.92779999999996,
+      "luma_stdev": 36.70472125934778,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/banked_only.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.92779999999996,
+      "luma_mean": 21.715148770165413,
+      "luma_min": 0.0,
+      "luma_range": 254.92779999999996,
+      "luma_stdev": 34.76099880466353,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/banked_spent.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.349046844349616,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 36.722030494591806,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1/probes/banked_play_meter/ordinary_and_banked.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-boss-encounters-milestone-rew-1790462017856064000-69041-banked_play_meter_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/banked_play_meter_probe.gd"
+}

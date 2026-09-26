@@ -1,0 +1,29 @@
+{
+  "fixture_args": [
+    "--scenario",
+    "dragon",
+    "--dragon-id",
+    "vyraketh",
+    "--dragon-depth",
+    "4",
+    "--summary",
+    "Vyraketh second live revision: close Kindle L, fixed cycle, held Maw and fan; realistic first-gate build"
+  ],
+  "generated_at_utc": "2026-09-26T16:42:37Z",
+  "generator_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vyraketh-revision-02 --godot-home-root /private/tmp/labyrinth-godot-home -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/inspection_fixture.gd -- --scenario dragon --dragon-id vyraketh --dragon-depth 4 --summary 'Vyraketh second live revision: close Kindle L, fixed cycle, held Maw and fan; realistic first-gate build'",
+  "launch_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vyraketh-revision-02 --godot /Applications/Godot.app/Contents/MacOS/Godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange/output/dragon-revision/revision-vyraketh-02.json --launch --scenario dragon --dragon-id vyraketh --dragon-depth 4 --summary 'Vyraketh second live revision: close Kindle L, fixed cycle, held Maw and fan; realistic first-gate build'",
+  "project": "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "run_id": "dragon-vyraketh-revision-02",
+  "scenario": "dragon",
+  "schema_version": 2,
+  "summary": "Vyraketh second live revision: close Kindle L, fixed cycle, held Maw and fan; realistic first-gate build",
+  "task_id": "dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "verification": {
+    "godot": "/Applications/Godot.app/Contents/MacOS/Godot",
+    "godot_home_root": "/private/tmp/labyrinth-godot-home",
+    "runner": "tools/godot_task_runner.py",
+    "script": "tools/inspection_fixture_verify.gd"
+  },
+  "verified": true,
+  "verifier_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vyraketh-revision-02 --godot-home-root /private/tmp/labyrinth-godot-home -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/inspection_fixture_verify.gd"
+}

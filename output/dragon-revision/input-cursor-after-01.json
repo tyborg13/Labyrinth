@@ -1,0 +1,61 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 19.94880677396821,
+          "luma_min": 19.058999999999997,
+          "luma_range": 235.94099999999997,
+          "luma_stdev": 12.017006161682511,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1/probes/board_cursor_input/board_cursor_input.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "/Applications/Godot.app/Contents/MacOS/Godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/board_cursor_input_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 19.94880677396821,
+      "luma_min": 19.058999999999997,
+      "luma_range": 235.94099999999997,
+      "luma_stdev": 12.017006161682511,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1/probes/board_cursor_input/board_cursor_input.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-boss-encounters-milestone-rew-1790443356590337000-58013-board_cursor_input_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/board_cursor_input_probe.gd"
+}

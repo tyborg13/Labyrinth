@@ -15,7 +15,7 @@ const DEFAULT_SEED: int = 7262026
 const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
-const VALID_SCENARIOS: Array = ["guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
+const VALID_SCENARIOS: Array = ["dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -53,6 +53,7 @@ func _initialize() -> void:
 	if scenario == "guided_tutorial" and not GuidedCombatScenario.is_authored(run_state.get("combat_state", {}) as Dictionary):
 		_fail("Guided tutorial fixture did not reach the authored pre-action combat state.")
 		return
+	if scenario == "dragon": progression = run_state["progression"]
 	run_state["inspection_fixture"] = _fixture_metadata(scenario, user_namespace, run_state)
 	if not str(_options.get("notice", "")).is_empty():
 		run_state["notice"] = str(_options.get("notice", ""))
@@ -84,6 +85,10 @@ func _initialize() -> void:
 func _parse_args() -> Dictionary:
 	var parsed: Dictionary = {
 		"scenario": "combat",
+		"dragon_id": "vyraketh",
+		"dragon_depth": 4,
+		"dragon_case": "encounter",
+		"dragon_build": "balanced",
 		"guardian_id": "ashen_reaver",
 		"guardian_case": "encounter",
 		"seed": DEFAULT_SEED,
@@ -140,6 +145,12 @@ func _parse_args() -> Dictionary:
 			"--scenario":
 				index += 1
 				parsed["scenario"] = _required_arg(args, index, arg)
+			"--dragon-id", "--dragon-case", "--dragon-build":
+				index += 1
+				parsed[arg.trim_prefix("--").replace("-", "_")] = _required_arg(args, index, arg)
+			"--dragon-depth":
+				index += 1
+				parsed["dragon_depth"] = int(_required_arg(args, index, arg))
 			"--guardian-id":
 				index += 1
 				parsed["guardian_id"] = _required_arg(args, index, arg)
@@ -158,9 +169,11 @@ func _parse_args() -> Dictionary:
 			"--level":
 				index += 1
 				parsed["level"] = int(_required_arg(args, index, arg))
+				parsed["level_provided"] = true
 			"--skills":
 				index += 1
 				parsed["skills"] = _required_arg(args, index, arg)
+				parsed["skills_provided"] = true
 			"--moltshards":
 				index += 1
 				parsed["moltshards"] = int(_required_arg(args, index, arg))
@@ -306,6 +319,9 @@ func _print_help() -> void:
 	print("Room options:")
 	print("  --reward-cards card_a,card_b --relic-choices relic_a,relic_b --room-coord x,y")
 	print("  --route-depth N (start scenario only; traverses a real route, 1-%d)" % MAX_ROUTE_DEPTH)
+	print("Dragon options: --scenario dragon --dragon-id vyraketh --dragon-depth 4")
+	print("  --dragon-case encounter|pre_battle|reward --dragon-build balanced|skirmisher")
+	print("  Uses a seeded natural arena, plausible acquired loadout, normal stats and shuffled deck.")
 	print("Pre-battle options:")
 	print("  --min-enemies N")
 	print("Safety:")
@@ -313,6 +329,11 @@ func _print_help() -> void:
 
 func _build_progression() -> Dictionary:
 	var progression: Dictionary = ProgressionStore.default_data()
+	if str(_options.get("scenario", "")) == "dragon" and not bool(_options.get("level_provided", false)) and not bool(_options.get("skills_provided", false)):
+		var dragon_fixture = preload("res://tools/dragon_boss_inspection.gd")
+		var depth: int = int(_options.get("dragon_depth", 4))
+		_options["level"] = dragon_fixture.default_level(depth)
+		_options["skills"] = ",".join(dragon_fixture.default_skills(depth))
 	progression["embers"] = maxi(0, int(_options.get("embers", 0)))
 	progression["level"] = clampi(int(_options.get("level", 1)), 1, GameData.max_progression_level())
 	var requested_skills: Array[String] = _string_list(str(_options.get("skills", "")))
@@ -337,7 +358,7 @@ func _build_progression() -> Dictionary:
 		progression = ProgressionStore.prepare_for_new_run(progression)
 		progression = ProgressionStore.record_first_umbra_reach(progression, int(progression.get("run_counter", 1)))
 		progression = ProgressionStore.prepare_for_new_run(progression)
-	elif str(_options.get("scenario", "")) == "guardian":
+	elif str(_options.get("scenario", "")) in ["guardian", "dragon"]:
 		progression = preload("res://scripts/contextual_combat_tutorial.gd").dismiss_tutorial(progression)
 	elif str(_options.get("scenario", "")) == "guided_tutorial":
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
@@ -347,6 +368,15 @@ func _build_progression() -> Dictionary:
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:
 	match scenario:
+		"dragon":
+			var fixture = preload("res://tools/dragon_boss_inspection.gd")
+			var error: String = fixture.validate(_options)
+			if not error.is_empty():
+				_fail(error)
+				return {}
+			var seed: int = fixture.seed_for_options(_options)
+			var dragon_state: Dictionary = fixture.build(_run_engine, _combat_engine, _apply_loadout(_run_engine.create_new_run(seed, progression)), _options)
+			return _apply_combat_overrides(dragon_state) if str(dragon_state.get("mode", "")) == "combat" else _apply_room_overrides(dragon_state)
 		"guardian":
 			var id: String = str(_options.get("guardian_id", "ashen_reaver"))
 			var study: String = str(_options.get("guardian_case", "encounter"))

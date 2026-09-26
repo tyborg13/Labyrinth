@@ -21,6 +21,10 @@ const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
 const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
 const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
 const PROGRESSION_ANALYTICS_OUTBOX_KEY: String = "progression_analytics_outbox"
+const MOLT_EXCHANGE_EMBERS: int = 250
+const RUN_WALLET_RECEIPTS_KEY: String = "run_wallet_receipts"
+const STARTING_RELIC_GIFTS_KEY: String = "starting_relic_gifts"
+const STARTING_RELIC_GIFT_AWARDS_KEY: String = "starting_relic_gift_awards"
 const DEFIANCE_LEVEL_INTERVAL: int = 4
 const RUN_RESULT_STAT_IDS := [
 	"enemies_killed",
@@ -728,6 +732,82 @@ static func set_embers(data: Dictionary, amount: int) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	next_data["embers"] = maxi(0, amount)
 	return next_data
+
+# A profile-first wallet commit includes the run balance and sequence. Recovery
+# applies that receipt once, even when the newer profile did not change level.
+# Level purchases use the same sequence as exchanges so an older credit can
+# never overwrite a later debit after interruption.
+static func latest_run_wallet_receipt(data: Dictionary, run_id: String) -> Dictionary:
+	var result: Dictionary = {}
+	for raw: Variant in data.get(RUN_WALLET_RECEIPTS_KEY, []):
+		if typeof(raw) != TYPE_DICTIONARY: continue
+		var receipt: Dictionary = raw
+		if str(receipt.get("run_id", "")) == run_id and int(receipt.get("sequence", 0)) > int(result.get("sequence", 0)):
+			result = receipt.duplicate(true)
+	return result
+
+static func transact_run_wallet(data: Dictionary, run_id: String, sequence: int, kind: String, source: String) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	if run_id.is_empty() or sequence <= 0: return next
+	var previous: Dictionary = latest_run_wallet_receipt(next, run_id)
+	if sequence <= int(previous.get("sequence", 0)): return next
+	var before_revision: int = int(next.get("progression_revision", 0))
+	match kind:
+		"moltshard_exchange":
+			if moltshard_count(next) < 1: return next
+			next["moltshards"] = moltshard_count(next) - 1
+			next["embers"] = int(next.get("embers", 0)) + MOLT_EXCHANGE_EMBERS
+			next["progression_revision"] = before_revision + 1
+		"level_up":
+			if not can_level_up(next): return next
+			next = purchase_level(next)
+		_:
+			return next
+	var receipts: Array = []
+	for raw: Variant in next.get(RUN_WALLET_RECEIPTS_KEY, []):
+		if typeof(raw) == TYPE_DICTIONARY and str(raw.get("run_id", "")) != run_id:
+			receipts.append(raw.duplicate(true))
+	receipts.append({"id":"%s:wallet:%d" % [run_id, sequence], "run_id":run_id, "sequence":sequence, "kind":kind, "source":source, "balance":int(next["embers"]), "revision":int(next["progression_revision"])})
+	if receipts.size() > RUN_RESULT_LEDGER_LIMIT: receipts = receipts.slice(receipts.size() - RUN_RESULT_LEDGER_LIMIT)
+	next[RUN_WALLET_RECEIPTS_KEY] = receipts
+	return next
+
+static func pending_starting_relic_gifts(data: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
+	for raw: Variant in data.get(STARTING_RELIC_GIFTS_KEY, []):
+		if typeof(raw) != TYPE_DICTIONARY: continue
+		var id: String = str(raw.get("id", ""))
+		var relic_id: String = str(raw.get("relic_id", ""))
+		if not id.is_empty() and not GameData.relic_def(relic_id).is_empty():
+			result.append({"id":id, "relic_id":relic_id})
+	return result
+
+static func award_starting_relic_gift(data: Dictionary, award_id: String, relic_id: String) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	var awards: Array = _normalized_string_array(next.get(STARTING_RELIC_GIFT_AWARDS_KEY, []))
+	if award_id.is_empty() or awards.has(award_id) or GameData.relic_def(relic_id).is_empty(): return next
+	awards.append(award_id)
+	if awards.size() > MOLTSHARD_AWARD_LEDGER_LIMIT: awards = awards.slice(awards.size() - MOLTSHARD_AWARD_LEDGER_LIMIT)
+	next[STARTING_RELIC_GIFT_AWARDS_KEY] = awards
+	var gifts: Array[Dictionary] = pending_starting_relic_gifts(next)
+	gifts.append({"id":award_id, "relic_id":relic_id})
+	next[STARTING_RELIC_GIFTS_KEY] = gifts
+	next["progression_revision"] = int(next.get("progression_revision", 0)) + 1
+	return next
+
+static func acknowledge_starting_relic_gifts(data: Dictionary, gift_ids: Array) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	var remaining: Array[Dictionary] = []
+	var removed: bool = false
+	for gift: Dictionary in pending_starting_relic_gifts(next):
+		if gift_ids.has(str(gift["id"])):
+			removed = true
+		else:
+			remaining.append(gift)
+	if removed:
+		next[STARTING_RELIC_GIFTS_KEY] = remaining
+		next["progression_revision"] = int(next.get("progression_revision", 0)) + 1
+	return next
 
 static func next_level_cost(data: Dictionary) -> int:
 	var normalized: Dictionary = _normalized_data(data.duplicate(true))

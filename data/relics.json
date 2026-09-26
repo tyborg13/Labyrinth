@@ -2002,5 +2002,207 @@
         "amount": 1
       }
     ]
+  },
+  "crowncoal_heart": {
+    "name": "Crowncoal Heart",
+    "rarity": "legendary",
+    "description": "Once per turn, a single-target attack hitting an enemy on ground with no elemental surface leaves @icon(surface_fire) there. Your first @icon(detonate) consuming 2 or more @icon(surface_fire) tiles each turn grants @icon(stoneskin) 6 after the blast.",
+    "icon_path": "res://assets/art/relics/crowncoal_heart.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "fire",
+      "detonate",
+      "stoneskin"
+    ],
+    "exclusive_boss": "vyraketh",
+    "effects": [
+      {
+        "type": "direct_attack_surface",
+        "surface": "fire",
+        "once": "turn"
+      },
+      {
+        "type": "surface_consumption_reward",
+        "surface": "fire",
+        "reason": "detonate",
+        "action_types": [
+          "detonate"
+        ],
+        "threshold": 2,
+        "once": "turn",
+        "rewards": [
+          {
+            "type": "stoneskin",
+            "amount": 6
+          }
+        ]
+      }
+    ]
+  },
+  "worldheart": {
+    "name": "Worldheart",
+    "rarity": "legendary",
+    "description": "At turn end, convert up to 6 remaining @icon(block) into @icon(stoneskin). Whenever you gain @icon(stoneskin), deal half that amount, rounded down, to adjacent enemies (maximum 4).",
+    "icon_path": "res://assets/art/relics/worldheart.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "block",
+      "stoneskin",
+      "melee"
+    ],
+    "exclusive_boss": "tharokh",
+    "effects": [
+      {
+        "type": "end_turn_block_to_stoneskin",
+        "max_block": 6
+      },
+      {
+        "type": "stoneskin_thorns",
+        "scale_from_gain": true,
+        "divisor": 2,
+        "max_value": 4
+      }
+    ]
+  },
+  "unbound_pinion": {
+    "name": "Unbound Pinion",
+    "rarity": "legendary",
+    "description": "The first card action each turn that @icon(push) or @icon(pull) an enemy at least 2 tiles refills your @icon(move) and grants @icon(draw) 1.",
+    "icon_path": "res://assets/art/relics/unbound_pinion.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "push",
+      "pull",
+      "move"
+    ],
+    "exclusive_boss": "vaeloryx",
+    "effects": [
+      {
+        "type": "displacement_reward",
+        "threshold": 2,
+        "once": "turn",
+        "rewards": [
+          {
+            "type": "restore_movement"
+          },
+          {
+            "type": "draw",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "winters_hour": {
+    "name": "Winter's Hour",
+    "rarity": "legendary",
+    "description": "The first time you newly @icon(freeze) an enemy each turn, gain @icon(draw) 2 and @icon(card_play) 1.",
+    "icon_path": "res://assets/art/relics/winters_hour.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "freeze",
+      "draw",
+      "card_play"
+    ],
+    "exclusive_boss": "iskaldra",
+    "effects": [
+      {
+        "type": "status_count_reward",
+        "status": "freeze",
+        "threshold": 1,
+        "count_scope": "turn",
+        "once": "turn",
+        "rewards": [
+          {
+            "type": "draw",
+            "amount": 2
+          },
+          {
+            "type": "card_play",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "stormroad_coil": {
+    "name": "Stormroad Coil",
+    "rarity": "legendary",
+    "description": "Your first @icon(move) or @icon(blink) each turn leaves @icon(surface_electrified) at its origin. Your first Lightning action conducting through at least 2 distinct surface tiles each turn grants @icon(draw) 1 and @icon(card_play) 1.",
+    "icon_path": "res://assets/art/relics/stormroad_coil.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "lightning",
+      "move",
+      "conduction"
+    ],
+    "exclusive_boss": "zekarion",
+    "effects": [
+      {
+        "type": "resolved_action_surface",
+        "surface": "electrified",
+        "position_mode": "origin",
+        "once": "turn"
+      },
+      {
+        "type": "surface_conduction_reward",
+        "requires_element": "lightning",
+        "threshold": 2,
+        "once": "turn",
+        "rewards": [
+          {
+            "type": "draw",
+            "amount": 1
+          },
+          {
+            "type": "card_play",
+            "amount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "eclipse_mantle": {
+    "name": "Eclipse Mantle",
+    "rarity": "legendary",
+    "description": "Your first @icon(blink) each turn leaves @icon(illusion) 2 at its origin. Your @icon(illusion) radiate @icon(illuminate) 2 while they last.",
+    "icon_path": "res://assets/art/relics/eclipse_mantle.png",
+    "accent": "#d9862f",
+    "design_version": 3,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "blink",
+      "illusion",
+      "radiance"
+    ],
+    "exclusive_boss": "noctyrax",
+    "effects": [
+      {
+        "type": "blink_origin_illusion",
+        "health": 2,
+        "once": "turn"
+      },
+      {
+        "type": "illusion_light_aura",
+        "radius": 2,
+        "tethered": true
+      }
+    ]
   }
 }

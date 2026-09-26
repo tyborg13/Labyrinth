@@ -358,6 +358,27 @@ static func _event_rewards(engine: RefCounted, before: Dictionary, state: Dictio
 					if str(event.get("kind", "")) == "surface_conducted":
 						conducted[event.get("tile", INVALID)] = true
 				matched = conducted.size() >= int(entry.get("threshold", 2))
+			"displacement_reward":
+				if int(action.get("push", 0)) <= 0 and int(action.get("pull", 0)) <= 0 and str(action.get("type", "")) not in ["push", "pull"]:
+					continue
+				for enemy: Dictionary in before.get("enemies", []):
+					if int(enemy.get("hp", 0)) <= 0: continue
+					var after: Dictionary = enemy_by_id(state, int(enemy.get("id", -1)))
+					if after.is_empty(): continue
+					var start: Vector2i = enemy.get("pos", INVALID)
+					var end: Vector2i = after.get("pos", INVALID)
+					if absi(end.x - start.x) + absi(end.y - start.y) >= int(entry.get("threshold", 2)):
+						matched = true
+						position = end
+						break
+			"surface_consumption_reward":
+				var action_types: Array = entry.get("action_types", []) as Array
+				if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))): continue
+				var consumed: Dictionary = {}
+				for event: Dictionary in events:
+					if str(event.get("kind", "")) == "surface_removed" and str(event.get("surface", "")) == str(entry.get("surface", "fire")) and str(event.get("reason", "")) == str(entry.get("reason", "detonate")):
+						consumed[event.get("tile", INVALID)] = true
+				matched = consumed.size() >= int(entry.get("threshold", 2))
 			"layered_surface_consumption_reward":
 				var consumed: Dictionary = {}
 				for event: Dictionary in events:

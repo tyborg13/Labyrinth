@@ -1,0 +1,128 @@
+{
+  "depths_per_sequence": 4,
+  "sequences_per_run": 6,
+  "randomized_elemental_bosses": 5,
+  "final_boss_depth": 24,
+  "boss_encounter_roles": {
+    "zekarion": "fixed marks, held conducting lane, advancing claw and capped wisps",
+    "tharokh": "capped attackable Worldspines, open approach routes and delayed rupture",
+    "vyraketh": "shared Fire setup and deniable telegraphed detonation",
+    "vaeloryx": "held directional displacement, advancing dive and retreat",
+    "iskaldra": "capped hit-count armor, held Ice lane, physical sweep and pursuit",
+    "noctyrax": "Eclipse outside lit refuges, held attacks and alternating brazier snuff"
+  },
+  "guardian_encounters": {
+    "map": "one optional named Guardian in each section, replacing a middle-group combat; 66 rooms and 40 fight opportunities remain",
+    "roster": "one 36\u201344 HP bespoke leader plus one or two 4\u20136 HP helpers; all have 1x1 footprints",
+    "clock": "Roc and Cantor initiative 20 plus Time 4\u20137; their helpers initiative 19 plus Time 4; other Guardians retain initiative 9\u201312 and helpers 8\u201310; ordinary Wisp remains 7 plus 4",
+    "telegraphs": "authored directional patterns hold orientation and relative approach; displacement and surviving interrupted approaches reanchor their footprint; ordinary attacks use live targets; skipped slots advance",
+    "cohort_pressure": "helpers advance on each intent and prefer complementary safe flanks; one missing roster helper can be announced per Guardian activation, at most two alive; summons avoid the acting Guardian destination and its attack tiles, prefer valid reservations, and relocate occupied reservations within summon range",
+    "ground_pressure": "Reaver marks up to nine Fire tiles and adds Fire after empty sword strikes; Cantor and Tender extend a shared conductive network; Craghide outcrops threaten radius two",
+    "scaling": "ordinary local HP factors and completed-section HP/damage/support curves; no generic leader multiplier",
+    "rewards": "six exclusive run-long trophies; original non-summoned helpers grant one player-card defeat play; all summoned replacements and original Wisps/Shades grant none; helpers grant zero Embers",
+    "geometry": "shared outcrops block movement and attack sight; Craghide cannot disconnect floor routes; player outcrops may block routes and normal obstacle-clearing AI applies",
+    "ground_targeting": "surface-producing attacks admit legal empty floor; a preceding attack can share Fire ground with previous-target Detonate; damage still requires an occupant and no extra fuel is assumed",
+    "card_score_policy": "optional encounter cohort and owned-relic synergies are excluded from intrinsic printed-card scores",
+    "trophy_curves": {
+      "ashen_brand": "D * (1 + .25 * (maximum overlapping crosses - 1)), round once halves up; one hit per actor",
+      "resonant_clapper": "D * (1 + .25 * enemy hop), round once halves up; native heads start at zero and empty relays/conduction do not advance it",
+      "winters_spur": "one base Move per straight Ice segment; corners and leaving Ice restart cost, Rubble surcharge remains",
+      "galehook_talon": "up to N * F enemy-steps for N contiguous collinear enemies and printed force F; blocked/contact-interrupted groups stop together",
+      "cragbound_gauntlet": "ranged Earth spells create one 3-HP outcrop at an empty chosen center; no separate Move or Stoneskin cost; occupied targets stay ordinary spell hits",
+      "procession_lantern": "existing Illusion movement consumes the same independent Move as the hero; no added HP, vision, or card target"
+    }
+  },
+  "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
+  "enemy_tactical_ai": {
+    "roles": {
+      "frontliner": "close distance and convert reachable attacks",
+      "artillery": "hold useful range and establish legal shots",
+      "skirmisher": "kite at close range and advance only to establish pressure",
+      "protector": "guard exposed allies or advance to screen the back line",
+      "controller": "establish range for control and pressure actions",
+      "support": "heal or guard relevant allies and avoid unnecessary melee pursuit"
+    },
+    "selection": "reject tactically dead intents, then retain seeded weighted variation among near-best legal choices",
+    "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
+    "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients"
+  },
+  "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
+  "player_flow": {
+    "base_initiative": 9,
+    "cards_per_turn": 2,
+    "draw_per_turn": 2,
+    "independent_movement_per_turn": 2,
+    "movement_timing": "may be split before, between, or after printed card plays without spending a play or initiative Time",
+    "movement_score_policy": "turn-shared positioning context; do not add it to every card's intrinsic reach or movement value",
+    "max_hand_size": 7
+  },
+  "combat_objectives": {
+    "first_combat": "kill_all",
+    "later_combat_weights_percent": {
+      "kill_all": 50,
+      "kill_leader": 25,
+      "survive": 0,
+      "reach_exit": 25
+    },
+    "boss_objective": "kill_leader_with_authored_boss_stats",
+    "survival_target_clock_by_local_depth": [
+      42,
+      46,
+      50
+    ],
+    "survival_reinforcement_interval": 16,
+    "reach_exit_extra_enemies_by_local_depth": [
+      1,
+      2,
+      2
+    ],
+    "reach_exit_terrain_bonus": 3,
+    "score_policy": "keep intrinsic coefficients neutral; compare movement, control, AOE, and execute results by objective_type analytics cohort"
+  },
+  "qualitative_progression": {
+    "score_profile": "no_skills",
+    "cohort_field": "progression_skills",
+    "coefficient_policy": "exclude skill effects from intrinsic printed-card scores",
+    "defiance": {
+      "level_interval": 4,
+      "max_charges": 5,
+      "restore_fraction": 0.25,
+      "score_policy": "exclude Defiance from intrinsic printed-card scores"
+    }
+  },
+  "board_surfaces": {
+    "rules_version": 5,
+    "balance_revision": "dragon_milestones_v1",
+    "shared_hazards": true,
+    "fire_entry_damage": 2,
+    "fire_start_damage": 3,
+    "chill_timing": "actual entry or eligible actor activation start",
+    "freeze_cost": "consume all Ice under the successfully Frozen actor",
+    "rubble_exit_cost": 2,
+    "chilled_direct_damage_bonus": 2,
+    "frozen_direct_damage_multiplier": 3,
+    "lightning": "reusable cardinal connected-ground conduction; Chain retains printed jump reach; Stormcoal Fire is consumed",
+    "trap_shape": "center-only direct damage; cardinal wake",
+    "score_policy": "bounded expected contact and useful geometry, with setup availability and fuel opportunity cost"
+  },
+  "sequence_scaling": {
+    "enemy_hp_multiplier_per_completed_sequence": 0.08,
+    "enemy_hp_flat_per_completed_sequence": 0,
+    "enemy_damage_bonus_by_sequence": [
+      0,
+      1,
+      1,
+      2,
+      2,
+      3
+    ],
+    "enemy_support_bonus_by_sequence": [
+      0,
+      0,
+      1,
+      1,
+      2,
+      2
+    ]
+  }
+}

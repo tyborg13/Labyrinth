@@ -956,12 +956,13 @@
         "id": "stonewake",
         "name": "Stonewake",
         "time": 4,
-        "weight": 2,
+        "weight": 1,
         "actions": [
           {
             "type": "raise_terrain",
-            "count": 3,
-            "health": 5,
+            "count": 2,
+            "health": 4,
+            "maximum": 2,
             "surface_on_destroy": "rubble"
           }
         ]
@@ -970,18 +971,23 @@
         "id": "worldspine_claw",
         "name": "Worldspine Claw",
         "time": 5,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
             "type": "move_toward",
             "range": 2
           },
           {
-            "type": "melee",
-            "damage": 15,
+            "type": "aoe",
+            "damage": 12,
             "range": 1,
-            "sunder": 2,
-            "element": "earth"
+            "element": "earth",
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "sunder": 1
           }
         ]
       },
@@ -989,35 +995,38 @@
         "id": "faultline",
         "name": "Faultline",
         "time": 6,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
             "type": "terrain_burst",
-            "damage": 10,
-            "radius": 1,
+            "damage": 8,
+            "radius": 2,
             "element": "earth"
           }
         ]
       },
       {
-        "id": "bedrock_aegis",
-        "name": "Bedrock Aegis",
+        "id": "bedrock_breath",
+        "name": "Bedrock Breath",
         "time": 5,
-        "weight": 2,
+        "weight": 1,
         "actions": [
           {
-            "type": "stoneskin",
-            "amount": 6
-          },
-          {
-            "type": "raise_terrain",
-            "count": 2,
-            "health": 5,
-            "surface_on_destroy": "rubble"
+            "type": "aoe",
+            "damage": 10,
+            "range": 4,
+            "element": "earth",
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
+            ]
           }
         ]
       }
-    ]
+    ],
+    "dragon_cycle": true,
+    "opening_delay": 12
   },
   "vyraketh": {
     "name": "Vyraketh, the Cinder Crown",
@@ -1053,7 +1062,7 @@
         "actions": [
           {
             "type": "cinder_marks",
-            "count": 5,
+            "count": 3,
             "surface": "fire"
           }
         ]
@@ -1082,10 +1091,14 @@
             "range": 2
           },
           {
-            "type": "melee",
-            "damage": 15,
-            "range": 1,
-            "surface": "fire",
+            "type": "aoe",
+            "damage": 12,
+            "range": 2,
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ],
             "element": "fire"
           }
         ]
@@ -1099,36 +1112,18 @@
           {
             "type": "aoe",
             "damage": 8,
-            "range": 4,
-            "pattern": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                -1,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                0,
-                -1
-              ]
+            "range": 3,
+            "committed_shape": "fan",
+            "pattern_footprint": [
+              2,
+              2
             ],
-            "rotate": false,
-            "surface": "fire",
             "element": "fire"
           }
         ]
       }
-    ]
+    ],
+    "dragon_cycle": true
   },
   "vaeloryx": {
     "name": "Vaeloryx, the Hollow Gale",
@@ -1163,13 +1158,19 @@
         "id": "hollow_gale",
         "name": "Hollow Gale",
         "time": 6,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
-            "type": "gale_force",
-            "damage": 8,
-            "amount": 3,
-            "element": "air"
+            "type": "aoe",
+            "damage": 6,
+            "range": 3,
+            "element": "air",
+            "committed_shape": "fan",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "push": 2
           }
         ]
       },
@@ -1177,14 +1178,19 @@
         "id": "skyhook",
         "name": "Skyhook",
         "time": 5,
-        "weight": 3,
+        "weight": 1,
         "actions": [
           {
-            "type": "pull",
-            "damage": 9,
-            "range": 5,
-            "amount": 3,
-            "element": "air"
+            "type": "aoe",
+            "damage": 6,
+            "range": 4,
+            "element": "air",
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "pull": 2
           }
         ]
       },
@@ -1192,38 +1198,44 @@
         "id": "razor_dive",
         "name": "Razor Dive",
         "time": 5,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
             "type": "move_toward",
             "range": 3
           },
           {
-            "type": "melee",
-            "damage": 14,
+            "type": "aoe",
+            "damage": 10,
             "range": 1,
-            "bleed": 2,
-            "element": "air"
+            "element": "air",
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "bleed": 1
           }
         ]
       },
       {
         "id": "eye_of_storm",
         "name": "Eye of the Storm",
-        "time": 4,
-        "weight": 2,
+        "time": 6,
+        "weight": 1,
         "actions": [
           {
             "type": "move_away",
-            "range": 2
+            "range": 3
           },
           {
             "type": "block",
-            "amount": 6
+            "amount": 4
           }
         ]
       }
-    ]
+    ],
+    "dragon_cycle": true
   },
   "iskaldra": {
     "name": "Iskaldra, the Rime Tyrant",
@@ -1263,7 +1275,7 @@
           {
             "type": "frost_armor",
             "amount": 1,
-            "maximum": 3
+            "maximum": 2
           }
         ],
         "surface_fuel": {
@@ -1278,35 +1290,23 @@
         }
       },
       {
-        "id": "rime_talon",
-        "name": "Rime Talon",
-        "time": 5,
-        "weight": 4,
-        "actions": [
-          {
-            "type": "move_toward",
-            "range": 2
-          },
-          {
-            "type": "melee",
-            "damage": 12,
-            "range": 1,
-            "element": "ice"
-          }
-        ]
-      },
-      {
         "id": "whiteout_lance",
         "name": "Whiteout Lance",
         "time": 5,
-        "weight": 3,
+        "weight": 1,
         "actions": [
           {
-            "type": "ranged",
-            "damage": 8,
-            "range": 5,
+            "type": "aoe",
+            "damage": 6,
+            "range": 4,
             "element": "ice",
-            "surface": "ice"
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "surface": "ice",
+            "surface_tiles_limit": 2
           }
         ]
       },
@@ -1314,69 +1314,41 @@
         "id": "shatterstorm",
         "name": "Shatterstorm",
         "time": 6,
-        "weight": 3,
+        "weight": 1,
         "actions": [
           {
             "type": "aoe",
             "damage": 7,
-            "range": 0,
-            "pattern": [
-              [
-                0,
-                -2
-              ],
-              [
-                -1,
-                -1
-              ],
-              [
-                0,
-                -1
-              ],
-              [
-                1,
-                -1
-              ],
-              [
-                -2,
-                0
-              ],
-              [
-                -1,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                2,
-                0
-              ],
-              [
-                -1,
-                1
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                0,
-                2
-              ]
-            ],
-            "rotate": false,
-            "element": "ice",
-            "surface": "ice"
+            "range": 1,
+            "element": "none",
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ]
+          }
+        ]
+      },
+      {
+        "id": "rime_talon",
+        "name": "Rime Talon",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 10,
+            "range": 1,
+            "element": "ice"
           }
         ]
       }
-    ]
+    ],
+    "dragon_cycle": true
   },
   "noctyrax": {
     "name": "Noctyrax, the Last Eclipse",
@@ -1408,13 +1380,14 @@
         "id": "last_eclipse",
         "name": "Last Eclipse",
         "time": 6,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
             "type": "umbra_eclipse",
             "duration": 2,
-            "damage": 10,
-            "element": "shadow"
+            "damage": 8,
+            "element": "shadow",
+            "snuff_brazier": true
           }
         ]
       },
@@ -1422,18 +1395,23 @@
         "id": "void_claw",
         "name": "Void Claw",
         "time": 5,
-        "weight": 4,
+        "weight": 1,
         "actions": [
           {
             "type": "move_toward",
             "range": 2
           },
           {
-            "type": "melee",
-            "damage": 18,
+            "type": "aoe",
+            "damage": 12,
             "range": 1,
-            "expose": 2,
-            "element": "shadow"
+            "element": "shadow",
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "expose": 1
           }
         ]
       },
@@ -1441,14 +1419,19 @@
         "id": "starless_breath",
         "name": "Starless Breath",
         "time": 6,
-        "weight": 3,
+        "weight": 1,
         "actions": [
           {
-            "type": "ranged",
-            "damage": 12,
-            "range": 4,
-            "pierce": true,
-            "element": "shadow"
+            "type": "aoe",
+            "damage": 8,
+            "range": 3,
+            "element": "shadow",
+            "committed_shape": "fan",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "pierce": true
           }
         ]
       },
@@ -1456,53 +1439,25 @@
         "id": "night_coil",
         "name": "Night Coil",
         "time": 6,
-        "weight": 2,
+        "weight": 1,
         "actions": [
           {
             "type": "aoe",
-            "damage": 10,
-            "range": 0,
-            "pull": 1,
-            "pattern": [
-              [
-                0,
-                -1
-              ],
-              [
-                1,
-                -1
-              ],
-              [
-                2,
-                0
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                -1,
-                1
-              ],
-              [
-                -2,
-                0
-              ],
-              [
-                -1,
-                -1
-              ]
+            "damage": 6,
+            "range": 3,
+            "element": "shadow",
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
             ],
-            "rotate": false,
-            "element": "shadow"
+            "pull": 1
           }
-        ]
+        ],
+        "restore_braziers": true
       }
-    ]
+    ],
+    "dragon_cycle": true
   },
   "zekarion": {
     "name": "Zekarion, the Raging Tempest",
@@ -1528,19 +1483,15 @@
     ],
     "intents": [
       {
-        "id": "storm_claw",
-        "name": "Storm Claw",
-        "time": 5,
-        "weight": 3,
+        "id": "skybreak",
+        "name": "Skybreak",
+        "time": 6,
+        "weight": 1,
         "actions": [
           {
-            "type": "move_toward",
-            "range": 2
-          },
-          {
-            "type": "melee",
-            "damage": 15,
-            "range": 1,
+            "type": "lightning_strikes",
+            "damage": 6,
+            "count": 3,
             "surface": "electrified",
             "element": "lightning"
           }
@@ -1550,18 +1501,19 @@
         "id": "tempest_breath",
         "name": "Tempest Breath",
         "time": 5,
-        "weight": 3,
+        "weight": 1,
         "actions": [
           {
-            "type": "move_toward",
-            "range": 1
-          },
-          {
-            "type": "ranged",
-            "damage": 9,
+            "type": "aoe",
+            "damage": 7,
             "range": 3,
-            "chain": 2,
             "element": "lightning",
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "chain": 2,
             "surface_bonus": {
               "surface": "electrified",
               "subject": "conducted",
@@ -1571,17 +1523,27 @@
         ]
       },
       {
-        "id": "skybreak",
-        "name": "Skybreak",
-        "time": 6,
-        "weight": 2,
+        "id": "storm_claw",
+        "name": "Storm Claw",
+        "time": 5,
+        "weight": 1,
         "actions": [
           {
-            "type": "lightning_strikes",
-            "damage": 9,
-            "count": 6,
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "aoe",
+            "damage": 10,
+            "range": 1,
+            "element": "lightning",
+            "committed_shape": "crescent",
+            "pattern_footprint": [
+              2,
+              2
+            ],
             "surface": "electrified",
-            "element": "lightning"
+            "surface_tiles_limit": 1
           }
         ]
       },
@@ -1589,17 +1551,23 @@
         "id": "call_wisps",
         "name": "Call Wisps",
         "time": 6,
-        "weight": 0,
+        "weight": 1,
         "actions": [
+          {
+            "type": "block",
+            "amount": 4
+          },
           {
             "type": "summon_minions",
             "minion_type": "lightning_wisp",
-            "count": 2
+            "count": 1,
+            "summon_cap": 2
           }
         ]
       }
     ],
-    "element": "lightning"
+    "element": "lightning",
+    "dragon_cycle": true
   },
   "veilbound_acolyte": {
     "name": "Veilbound Acolyte",
@@ -1814,7 +1782,7 @@
       },
       {
         "id": "executioners_fall",
-        "name": "Executioner’s Fall",
+        "name": "Executioner\u2019s Fall",
         "time": 7,
         "weight": 1,
         "actions": [

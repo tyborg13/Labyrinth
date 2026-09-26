@@ -1,0 +1,29 @@
+{
+  "fixture_args": [
+    "--scenario",
+    "dragon",
+    "--dragon-id",
+    "tharokh",
+    "--dragon-depth",
+    "4",
+    "--summary",
+    "Tharokh revised committed cycle, two capped Worldspines, realistic first-gate balanced build"
+  ],
+  "generated_at_utc": "2026-09-26T17:44:40Z",
+  "generator_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-tharokh-revision-01 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture.gd -- --scenario dragon --dragon-id tharokh --dragon-depth 4 --summary 'Tharokh revised committed cycle, two capped Worldspines, realistic first-gate balanced build'",
+  "launch_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-tharokh-revision-01 --godot godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange/output/dragon-revision/revision-tharokh-01.json --launch --scenario dragon --dragon-id tharokh --dragon-depth 4 --summary 'Tharokh revised committed cycle, two capped Worldspines, realistic first-gate balanced build'",
+  "project": "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "run_id": "dragon-tharokh-revision-01",
+  "scenario": "dragon",
+  "schema_version": 2,
+  "summary": "Tharokh revised committed cycle, two capped Worldspines, realistic first-gate balanced build",
+  "task_id": "dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "verification": {
+    "godot": "godot",
+    "godot_home_root": "/private/tmp/labyrinth-godot-home",
+    "runner": "tools/godot_task_runner.py",
+    "script": "tools/inspection_fixture_verify.gd"
+  },
+  "verified": true,
+  "verifier_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-tharokh-revision-01 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture_verify.gd"
+}

@@ -18,7 +18,12 @@ func _dialogue_for_npc(npc: Dictionary, room: Dictionary, run_state: Dictionary,
 	var npc_id: String = str(npc.get("id", ""))
 	match npc_id:
 		"emaciated_man":
-			return _emaciated_man_dialogue(npc, room, run_state, progression)
+			var dialogue: Dictionary = _emaciated_man_dialogue(npc, room, run_state, progression)
+			var service: Dictionary = emaciated_service_dialogue(progression)
+			if bool(run_state.get("emaciated_service_seen", false)) and not bool(dialogue.get("marks_umbra_warning_seen", false)):
+				return service
+			(dialogue["lines"] as Array).append(service["lines"][0])
+			return dialogue
 		"scavenger":
 			return _default_npc_dialogue(npc, room, run_state, progression)
 		_:
@@ -102,3 +107,21 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dicti
 		"accent": str(npc_def.get("accent", npc.get("accent", "#b8aa90"))),
 		"lines": lines
 	}
+
+# Offers remain available while the player is at the entrance. Costs and disabled
+# reasons use the same profile wallet as the actual transaction.
+func emaciated_service_dialogue(progression: Dictionary, notice: String = "") -> Dictionary:
+	var shards: int = ProgressionStore.moltshard_count(progression)
+	var cost: int = ProgressionStore.next_level_cost(progression)
+	var maximum: bool = ProgressionStore.is_max_level(progression)
+	var summary: String = "%d %s · %d Embers · Level %d" % [shards, "Moltshard" if shards == 1 else "Moltshards", int(progression.get("embers", 0)), int(progression.get("level", 1))]
+	var speech: String = "A dragon's cast-off scale still holds power. I can turn it to Embers... or help you grow stronger."
+	if not notice.is_empty(): speech = notice
+	return {"id":"emaciated_services", "npc_id":"emaciated_man", "speaker":"Emaciated Man", "accent":"#b8aa90", "lines":[{
+		"speaker":"Emaciated Man", "service":true, "text":"%s\n%s" % [speech, summary],
+		"options":[
+			{"label":"Trade 1 Shard → %d Embers" % ProgressionStore.MOLT_EXCHANGE_EMBERS, "action":"exchange_moltshard", "disabled":shards < 1, "tooltip":"Exchange one Moltshard for %d Embers." % ProgressionStore.MOLT_EXCHANGE_EMBERS if shards > 0 else "You need 1 Moltshard. The first dragon defeated each run grants one."},
+			{"label":"Maximum Level" if maximum else "Level Up · %d Embers" % cost, "action":"emaciated_level_up", "disabled":not ProgressionStore.can_level_up(progression), "tooltip":"Maximum level reached." if maximum else "Spend %d Embers to gain a level and a skill point." % cost},
+			{"label":"Leave", "action":"close"}
+		]
+	}]}

@@ -177,6 +177,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"objective": objective,
 		"theme": TILE_STONE
 	}
+	if room_type == "boss": DragonBossLibrary.configure_layout(layout)
 	if room_type == "guardian":
 		preload("res://scripts/guardian_library.gd").configure_layout(layout)
 		if room_element == "air":

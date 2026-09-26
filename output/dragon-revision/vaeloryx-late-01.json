@@ -1,0 +1,31 @@
+{
+  "fixture_args": [
+    "--scenario",
+    "dragon",
+    "--dragon-id",
+    "vaeloryx",
+    "--dragon-depth",
+    "16",
+    "--dragon-build",
+    "skirmisher",
+    "--summary",
+    "Depth 16 fresh-profile cohort: level 3, two skills, acquired common/rare gear, three prior seeded dragon trophies, normal shuffle, 20/24 HP; no automatic light relic."
+  ],
+  "generated_at_utc": "2026-09-26T19:04:22Z",
+  "generator_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vaeloryx-late-01 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture.gd -- --scenario dragon --dragon-id vaeloryx --dragon-depth 16 --dragon-build skirmisher --summary 'Depth 16 fresh-profile cohort: level 3, two skills, acquired common/rare gear, three prior seeded dragon trophies, normal shuffle, 20/24 HP; no automatic light relic.'",
+  "launch_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vaeloryx-late-01 --godot godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange/output/dragon-revision/vaeloryx-late-01.json --launch --scenario dragon --dragon-id vaeloryx --dragon-depth 16 --dragon-build skirmisher --summary 'Depth 16 fresh-profile cohort: level 3, two skills, acquired common/rare gear, three prior seeded dragon trophies, normal shuffle, 20/24 HP; no automatic light relic.'",
+  "project": "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "run_id": "dragon-vaeloryx-late-01",
+  "scenario": "dragon",
+  "schema_version": 2,
+  "summary": "Depth 16 fresh-profile cohort: level 3, two skills, acquired common/rare gear, three prior seeded dragon trophies, normal shuffle, 20/24 HP; no automatic light relic.",
+  "task_id": "dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "verification": {
+    "godot": "godot",
+    "godot_home_root": "/private/tmp/labyrinth-godot-home",
+    "runner": "tools/godot_task_runner.py",
+    "script": "tools/inspection_fixture_verify.gd"
+  },
+  "verified": true,
+  "verifier_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-vaeloryx-late-01 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture_verify.gd"
+}

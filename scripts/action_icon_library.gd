@@ -830,7 +830,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
-			if str(action.get("guardian_shape", "")).is_empty(): tokens.append(_aoe_pattern_token(action))
+			if str(action.get("committed_shape", action.get("guardian_shape", ""))).is_empty(): tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 		"push":
 			_append_optional_hit_token(tokens, action, options)
@@ -896,13 +896,13 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "dispel_umbra", "amount", int(action.get("amount", 1))))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Random lightning strikes."))
+			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Strikes the marked tiles. The marks stay fixed." if action.has("declared_tiles") else "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
 			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
 			var count: int = int(action.get("count", 1))
 			var summon_text: String = "Calls %s." % minion_name
-			if action.has("guardian_cap"): summon_text += " Up to %d living." % int(action["guardian_cap"])
+			if action.has("guardian_cap") or action.has("summon_cap"): summon_text += " Up to %d living." % int(action.get("summon_cap", action.get("guardian_cap", 0)))
 			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
 			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
 		"raise_terrain":
@@ -913,13 +913,13 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if str(action.get("guardian_kind", "")) == "crag_outcrop":
 				tokens.append(text_token("All outcrops · within %d" % int(action.get("range",1)), "warning", "Surviving outcrops rupture every floor tile within the shown distance."))
 			else:
-				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures nearby tiles, then breaks."))
+				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures tiles within %d, then breaks. The dragon can be hit too." % int(action.get("radius",1))))
 		"cinder_marks":
 			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates Fire on the marked tiles."))
-			_append_damage_token(tokens, "ranged", action, options)
+			if int(action.get("damage", 0)) > 0: _append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
-			tokens.append(token_for("detonate_cinders", null, "warning", "Consumes Fire to damage targets on it and its four neighboring tiles."))
+			tokens.append(_token_for_action_field(action, "detonate_cinders", "damage", int(action.get("damage", 0)), "warning", "Consumes Fire. Each affected actor, including the dragon, takes damage once on the Fire or its four neighboring tiles."))
 		"gale_force":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", "Pushes the player away from the dragon through arena hazards."))
@@ -933,6 +933,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
 		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
+		elif action.has("surface_tiles_limit"): tokens.append(text_token("%d nearest tile%s" % [int(action["surface_tiles_limit"]), "" if int(action["surface_tiles_limit"]) == 1 else "s"], "neutral", "Places ground on the nearest affected tiles, beginning at the dragon."))
 		if action.has("surface_pattern") and not _same_pattern(action.get("surface_pattern", []), action.get("pattern", [])):
 			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0))}))
 	if action_type in ["move", "move_toward", "move_away", "blink", "melee", "ranged", "aoe", "push", "pull"]:
@@ -1131,7 +1132,20 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 
 static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 	var row: Array = []
-	var shape: String = str(action.get("guardian_shape",""))
+	var shape: String = str(action.get("committed_shape", action.get("guardian_shape", "")))
+	if action.has("pattern_footprint") and not shape.is_empty():
+		var pattern: Array = []
+		var reach: int = int(action.get("range", 1))
+		for distance: int in range(1, reach + 1):
+			var flank: int = distance - 1 if shape == "fan" else 1 if shape == "crescent" else int(action.get("pattern_flank", 0))
+			for lane: int in range(-flank, 2 + flank): pattern.append([lane, -distance])
+		if shape == "crescent":
+			for row_index: int in [0, 1]:
+				pattern.append([-1, row_index])
+				pattern.append([2, row_index])
+		row.append(_aoe_pattern_token({"pattern": pattern, "range": 0}))
+		row.append(text_token("Fixed direction", "warning", "The shown approach and direction stay fixed. Displacing the dragon shifts the pattern with it."))
+		return row
 	match shape:
 		"line", "broken_line", "sweep":
 			var pattern: Array = []
@@ -1154,5 +1168,5 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 			row.append(surface_token(str(action[field])))
 			row.append(text_token("Trail" if field=="trail_surface" else "At lane end"))
 	if bool(action.get("snuff_brazier",false)):
-		row.append(text_token("One brazier dark", "warning", "Lasts until Last Procession, including a skipped turn."))
+		row.append(text_token("Marked brazier goes dark", "warning", "The marked refuge goes dark before damage. Braziers relight after Night Coil." if str(action.get("type","")) == "umbra_eclipse" else "Lasts until Last Procession, including a skipped turn."))
 	return row

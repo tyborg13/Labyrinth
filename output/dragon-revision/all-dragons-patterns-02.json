@@ -1,0 +1,523 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 246.0,
+          "luma_mean": 31.93034085336331,
+          "luma_min": 0.0,
+          "luma_range": 246.0,
+          "luma_stdev": 46.872626181120296,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_0_crystal_mantle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.2848,
+          "luma_mean": 32.39635576557448,
+          "luma_min": 0.0,
+          "luma_range": 253.2848,
+          "luma_stdev": 47.72486170744675,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_1_whiteout_lance.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.99999999999997,
+          "luma_mean": 32.37563545950048,
+          "luma_min": 0.0,
+          "luma_range": 250.99999999999997,
+          "luma_stdev": 47.54703119500103,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_2_shatterstorm.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 32.4963700490289,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 47.41180808505068,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_3_rime_talon.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 32.061783478323996,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.363717836415695,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_0_last_eclipse.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 28.810986641881254,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 45.19049963550826,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_1_void_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 28.952157382944097,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 45.60715220272347,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_2_starless_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.21259999999998,
+          "luma_mean": 29.023228005373603,
+          "luma_min": 0.0,
+          "luma_range": 254.21259999999998,
+          "luma_stdev": 45.879600712031255,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_3_night_coil.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 30.694987128276747,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 44.99551717849985,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_0_stonewake.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.99999999999997,
+          "luma_mean": 31.578654871870288,
+          "luma_min": 0.0,
+          "luma_range": 250.99999999999997,
+          "luma_stdev": 47.20972300873998,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_1_worldspine_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 31.344948813660977,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 46.72745109262478,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_2_faultline.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.0,
+          "luma_mean": 30.873983391326263,
+          "luma_min": 0.0,
+          "luma_range": 248.0,
+          "luma_stdev": 45.544235590506666,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_3_bedrock_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.71119999999996,
+          "luma_mean": 32.746268779652496,
+          "luma_min": 0.0,
+          "luma_range": 254.71119999999996,
+          "luma_stdev": 49.25847015049922,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_0_hollow_gale.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 32.60431959426819,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 49.04514326403479,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_1_skyhook.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 33.4591406872763,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 49.52758025927084,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_2_razor_dive.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 34.37716742723151,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 50.24490512223184,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_3_eye_of_storm.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.0,
+          "luma_mean": 30.80125035589462,
+          "luma_min": 0.0,
+          "luma_range": 248.0,
+          "luma_stdev": 45.059847899395,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_0_kindle_ground.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.0,
+          "luma_mean": 30.89735515263619,
+          "luma_min": 0.0,
+          "luma_range": 248.0,
+          "luma_stdev": 45.130301869557705,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_1_crownfire.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.015478068643535,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.58693844716451,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_2_cinder_maw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 30.84331766449951,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.336340112746605,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_3_cinderfall.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.18249577664667,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.388890347506546,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_0_skybreak.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.78339999999997,
+          "luma_mean": 33.52762150031006,
+          "luma_min": 0.0,
+          "luma_range": 254.78339999999997,
+          "luma_stdev": 49.13730891041224,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_1_tempest_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.4048978052769,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.93658728371685,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_2_storm_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 33.25555378835176,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.70414064522323,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_3_call_wisps.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--audio-driver",
+    "Dummy",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_revision_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 246.0,
+      "luma_mean": 31.93034085336331,
+      "luma_min": 0.0,
+      "luma_range": 246.0,
+      "luma_stdev": 46.872626181120296,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_0_crystal_mantle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.2848,
+      "luma_mean": 32.39635576557448,
+      "luma_min": 0.0,
+      "luma_range": 253.2848,
+      "luma_stdev": 47.72486170744675,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_1_whiteout_lance.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.99999999999997,
+      "luma_mean": 32.37563545950048,
+      "luma_min": 0.0,
+      "luma_range": 250.99999999999997,
+      "luma_stdev": 47.54703119500103,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_2_shatterstorm.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 32.4963700490289,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 47.41180808505068,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/iskaldra_3_rime_talon.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 32.061783478323996,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.363717836415695,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_0_last_eclipse.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 28.810986641881254,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 45.19049963550826,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_1_void_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 28.952157382944097,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 45.60715220272347,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_2_starless_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.21259999999998,
+      "luma_mean": 29.023228005373603,
+      "luma_min": 0.0,
+      "luma_range": 254.21259999999998,
+      "luma_stdev": 45.879600712031255,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/noctyrax_3_night_coil.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 30.694987128276747,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 44.99551717849985,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_0_stonewake.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.99999999999997,
+      "luma_mean": 31.578654871870288,
+      "luma_min": 0.0,
+      "luma_range": 250.99999999999997,
+      "luma_stdev": 47.20972300873998,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_1_worldspine_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 31.344948813660977,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 46.72745109262478,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_2_faultline.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.0,
+      "luma_mean": 30.873983391326263,
+      "luma_min": 0.0,
+      "luma_range": 248.0,
+      "luma_stdev": 45.544235590506666,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/tharokh_3_bedrock_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.71119999999996,
+      "luma_mean": 32.746268779652496,
+      "luma_min": 0.0,
+      "luma_range": 254.71119999999996,
+      "luma_stdev": 49.25847015049922,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_0_hollow_gale.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 32.60431959426819,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 49.04514326403479,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_1_skyhook.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 33.4591406872763,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 49.52758025927084,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_2_razor_dive.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 34.37716742723151,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 50.24490512223184,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vaeloryx_3_eye_of_storm.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.0,
+      "luma_mean": 30.80125035589462,
+      "luma_min": 0.0,
+      "luma_range": 248.0,
+      "luma_stdev": 45.059847899395,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_0_kindle_ground.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.0,
+      "luma_mean": 30.89735515263619,
+      "luma_min": 0.0,
+      "luma_range": 248.0,
+      "luma_stdev": 45.130301869557705,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_1_crownfire.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.015478068643535,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.58693844716451,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_2_cinder_maw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 30.84331766449951,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.336340112746605,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/vyraketh_3_cinderfall.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.18249577664667,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.388890347506546,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_0_skybreak.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.78339999999997,
+      "luma_mean": 33.52762150031006,
+      "luma_min": 0.0,
+      "luma_range": 254.78339999999997,
+      "luma_stdev": 49.13730891041224,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_1_tempest_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.4048978052769,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.93658728371685,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_2_storm_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 33.25555378835176,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.70414064522323,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/Library/Application Support/Escape the Umbra Visual Probe dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1/probes/dragon_revision/zekarion_3_call_wisps.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-boss-encounters-milestone-rew-1790446347452619000-60229-dragon_revision_probe-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_revision_probe.gd"
+}

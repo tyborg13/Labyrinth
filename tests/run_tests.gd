@@ -4819,7 +4819,7 @@ func _test_zekarion_tempest_breath_leaves_corner_safety() -> void:
 	]
 	var tempest_breath: Dictionary = _enemy_intent_by_id("zekarion", "tempest_breath")
 	_set_enemy_intent(state, 0, tempest_breath)
-	var breath_action: Dictionary = ((tempest_breath.get("actions", []) as Array)[1] as Dictionary)
+	var breath_action: Dictionary = ((tempest_breath.get("actions", []) as Array)[0] as Dictionary)
 	_assert(int(breath_action.get("range", 0)) == 3, "Zekarion's Tempest Breath should leave more room-scale counterplay")
 	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
 	_assert(not (threat.get("attack", []) as Array).has(Vector2i(1, 1)), "Tempest Breath threat preview should leave the opposite corner safe")
@@ -4841,6 +4841,7 @@ func _test_zekarion_summons_wisps_when_alone() -> void:
 		var enemy: Dictionary = enemies[index]
 		if str(enemy.get("type", "")) == "zekarion":
 			enemy["intent"] = {"id": "debug_wait", "name": "Wait", "actions": []}
+			enemy["dragon_cycle"] = 2 # Call Wisps follows the third declared slot.
 			enemies[index] = enemy
 		if str(enemy.get("type", "")) == "lightning_wisp":
 			enemy["hp"] = 0
@@ -4859,7 +4860,7 @@ func _test_zekarion_summons_wisps_when_alone() -> void:
 		var enemy: Dictionary = enemy_var
 		if str(enemy.get("type", "")) == "zekarion":
 			scheduled_summon = str((enemy.get("intent", {}) as Dictionary).get("id", "")) == "call_wisps"
-	_assert(scheduled_summon, "Zekarion should choose Call Wisps as his next intent when no wisps remain")
+	_assert(scheduled_summon, "Zekarion should reach Call Wisps at its declared cycle slot")
 	var summon_phase: Dictionary = combat.resolve_enemy_phase_with_steps(next_state)
 	var summoned_state: Dictionary = summon_phase.get("state", {})
 	live_wisps = 0
@@ -4867,7 +4868,7 @@ func _test_zekarion_summons_wisps_when_alone() -> void:
 		var enemy: Dictionary = enemy_var
 		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
 			live_wisps += 1
-	_assert(live_wisps == 2, "Zekarion should summon two wisps when his scheduled summon turn executes")
+	_assert(live_wisps == 1, "Zekarion should summon one wisp when his scheduled summon turn executes")
 
 func _test_summoned_wisps_receive_preview_intents() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -7678,7 +7679,9 @@ func _test_intermediate_boss_opens_next_sequence() -> void:
 	run_state["player_max_hp"] = 36
 	var combat_state: Dictionary = _defeated_zekarion_combat_state(4, boss_coord)
 	run_state = run_engine.finish_combat(run_state, combat_state)
-	_assert(str(run_state.get("mode", "")) == "room", "Defeating a non-final sequence boss should return to room mode")
+	_assert(run_engine.is_dragon_reward(run_state), "An intermediate dragon holds its reward milestone")
+	run_state = run_engine.continue_dragon_reward(run_state)
+	_assert(str(run_state.get("mode", "")) == "room", "Continuing an intermediate milestone returns to the room")
 	_assert(not bool(run_state.get("victory", false)), "The first sequence boss should not end the expanded run")
 	_assert(int(run_state.get("player_hp", 0)) == 18, "Defeating an intermediate boss should restore 25% of maximum health")
 	var has_next_sequence_move: bool = false
@@ -7723,7 +7726,9 @@ func _test_boss_victory_restores_player_health() -> void:
 		enemies[index] = enemy
 	combat_state["enemies"] = enemies
 	run_state = run_engine.finish_combat(run_state, combat_state)
-	_assert(str(run_state.get("mode", "")) == "victory", "Defeating Noctyrax at depth 24 should end the run in victory")
+	_assert(run_engine.is_dragon_reward(run_state), "Noctyrax holds its reward milestone before the recap")
+	run_state = run_engine.continue_dragon_reward(run_state)
+	_assert(str(run_state.get("mode", "")) == "victory", "Continuing Noctyrax's milestone ends the run in victory")
 	_assert(int(run_state.get("player_hp", 0)) == 18, "Defeating Noctyrax should apply the same 25% boss-victory recovery")
 
 func _test_progression_save_and_purchase(default_progression: Dictionary) -> void:
@@ -7774,17 +7779,17 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var progression: Dictionary = ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data())
 	var dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {}, progression)
 	var lines: Array = dialogue.get("lines", [])
-	_assert(lines.size() == 3, "Resting at a fire should no longer unlock a card-upgrade dialogue branch")
+	_assert(lines.size() == 4, "Resting at a fire should no longer unlock a card-upgrade dialogue branch")
 	_assert(not bool(dialogue.get("marks_fire_rest_seen", false)), "Fire rests should not create a one-time card-upgrade dialogue marker")
 	var options: Array = (lines[lines.size() - 1] as Dictionary).get("options", [])
-	_assert(options.is_empty(), "The Emaciated Man should no longer offer permanent card upgrade options")
+	_assert(not options.any(func(option: Dictionary) -> bool: return str(option.get("action", "")) == "open_card_upgrades"), "The Emaciated Man should no longer offer permanent card upgrade options")
 	progression = ProgressionStore.mark_fire_rest_dialogue_seen(progression)
 	dialogue = dialogue_engine.build_room_dialogue(room, {}, progression)
 	lines = dialogue.get("lines", [])
-	_assert(lines.size() == 3, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
+	_assert(lines.size() == 4, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
 	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
-	_assert(options.is_empty(), "Legacy unlocked progression should not keep the old touch option alive")
+	_assert(not options.any(func(option: Dictionary) -> bool: return str(option.get("action", "")) == "open_card_upgrades"), "Legacy unlocked progression should not keep the old touch option alive")
 	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
 	var first_run_index: int = int(first_run_progression.get("run_counter", 0))
 	first_run_progression = ProgressionStore.record_first_umbra_reach(first_run_progression, first_run_index)
@@ -7798,7 +7803,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index}, next_run_progression)
 	var warning_lines: Array = warning_dialogue.get("lines", [])
 	_assert(bool(warning_dialogue.get("marks_umbra_warning_seen", false)), "The one-time Umbra warning should mark itself consumed after dialogue closes")
-	_assert(warning_lines.size() == 3, "The Emaciated Man's Umbra warning should contain the requested three lines")
+	_assert(warning_lines.size() == 4, "The Emaciated Man's Umbra warning should preserve its three lines before the service offer")
 	_assert(str((warning_lines[0] as Dictionary).get("text", "")) == "You reached his shadow. It will only get stronger the further you stray from this place.", "The Umbra warning should preserve its opening line")
 	_assert(str((warning_lines[0] as Dictionary).get("bbcode", "")).contains("[i]his[/i] shadow"), "The Umbra warning should italicize his in the first line")
 	_assert(str((warning_lines[1] as Dictionary).get("bbcode", "")).contains("[i]his[/i] power"), "The Umbra warning should italicize his in the second line")
@@ -10340,8 +10345,8 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 		await process_frame
 	_assert(int(instance.get("_hand_layout_pending_revision")) != int(instance.get("_hand_layout_revision")), "Card-play dock coverage should wait for the bounded asynchronous hand-layout fit")
 	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
-	_assert(count_label != null and count_label.text == "2 card plays", "The large card-play count should reserve its number for ordinary plays")
-	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "+1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
+	_assert(count_label != null and count_label.text == "3 card plays", "The large card-play count should include the banked play available this turn")
+	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
 	_assert(count_label != null and count_label.position.y >= 3.0 and count_label.size.y <= 26.0, "Banked-play state should intentionally split the plaque into count and banked rows")
 	var play_meter: Control = instance.get("_play_meter") as Control
 	_assert(play_meter != null and play_meter.visible, "Wide banked-play copy should retain the visible card-play dock")
@@ -10349,7 +10354,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	combat_state["cards_played_this_turn"] = 2
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_card_play_meter")
-	_assert(count_label != null and count_label.text == "0 card plays" and banked_label != null and banked_label.text == "NEXT • NO TIME", "The banked badge should identify when the no-Time play is next")
+	_assert(count_label != null and count_label.text == "1 card play" and banked_label != null and banked_label.text == "1 BANKED • NO TIME", "A currently usable banked play must not look like an exhausted turn")
 	combat_state["cards_played_this_turn"] = 0
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_begin_card_play_meter_spend_preview")
@@ -11320,7 +11325,10 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	_assert(text_label != null and text_label.text == "Maybe this time's the one. Then again...probably not.", "The final NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
-	_assert(not bool(instance.get("_dialogue_active")), "Advancing after the last NPC line should close the dialogue overlay")
+	instance.call("_complete_current_dialogue_line")
+	_assert(bool(instance.get("_dialogue_active")) and bool(instance.call("_has_current_dialogue_options")), "The opening speech ends with the entrance service")
+	instance.call("_on_dialogue_option_pressed", {"action":"close"})
+	_assert(not bool(instance.get("_dialogue_active")), "Leave closes the entrance service")
 	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
 	first_run_progression = ProgressionStore.record_first_umbra_reach(first_run_progression, int(first_run_progression.get("run_counter", 0)))
 	var next_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(first_run_progression)
@@ -11336,7 +11344,10 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	for _line_index: int in range(3):
 		instance.call("_complete_current_dialogue_line")
 		instance.call("_advance_dialogue")
-	_assert(not bool(instance.get("_dialogue_active")), "Advancing through the Umbra warning should close the dialogue overlay")
+	instance.call("_complete_current_dialogue_line")
+	_assert(bool(instance.call("_has_current_dialogue_options")), "The Umbra warning ends with the entrance service")
+	instance.call("_on_dialogue_option_pressed", {"action":"close"})
+	_assert(not bool(instance.get("_dialogue_active")), "Leave closes the warning's service offer")
 	var consumed_progression: Dictionary = instance.get("_progression") as Dictionary
 	_assert(bool(consumed_progression.get(ProgressionStore.UMBRA_WARNING_SEEN_KEY, false)), "Closing the Umbra warning should persist its one-time seen marker")
 	instance.queue_free()
@@ -11783,6 +11794,9 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear back to Skills should keep the visible character dialog size stable")
 	_assert(character_dialog.find_child("CharacterSkillTree", true, false) != null, "Returning to Skills should rebuild the skill tree")
 	instance.call("_close_card_upgrade_overlay")
+	var campfire_state: Dictionary = instance.get("_run_state")
+	campfire_state["mode"] = "campfire"
+	instance.set("_run_state", campfire_state)
 	instance.call("_open_level_up_overlay")
 	var upgrade_dialog: PanelContainer = instance.get("_upgrade_dialog")
 	if upgrade_dialog != null:

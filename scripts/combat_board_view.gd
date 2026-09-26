@@ -3155,7 +3155,7 @@ func _queue_presentation_change_redraws(
 				effects_changed = true
 			"death_site_embers":
 				_queue_render_layer_redraw(_ground_render_layer)
-			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
 				impact_floor_changed = true
@@ -4125,6 +4125,7 @@ func _draw_scene_tile_render_layer() -> void:
 		_record_render_section_time("scene_tile_path", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
 	_draw_enemy_threat_depth_pass(_render_layer_tile)
+	_draw_noctyrax_refuge_tile(_render_layer_tile)
 	if detailed_sections:
 		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
@@ -4171,6 +4172,7 @@ func _draw_hud_render_layer() -> void:
 		return
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_noctyrax_brazier_markers()
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	# Damage-preview text and the lost-HP band must composite after the health
@@ -4778,6 +4780,69 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		_register_tooltip(marker_rect, tooltip)
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
+
+# Eclipse removes one light before testing safety. Put that future change above
+# the actors, so a currently burning but doomed brazier cannot look safe.
+func _noctyrax_brazier_markers() -> Array[Dictionary]:
+	var boss: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
+			boss = enemy
+			break
+	var result: Array[Dictionary] = []
+	if boss.is_empty():
+		return result
+	var snuffed_id: int = -1
+	for action: Dictionary in (boss.get("intent", {}) as Dictionary).get("actions", []):
+		if str(action.get("type", "")) == "umbra_eclipse":
+			snuffed_id = int(action.get("brazier_id", -1))
+	var font: Font = get_theme_default_font()
+	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
+		var tile: Vector2i = brazier["pos"]
+		var threatened: bool = int(brazier["id"]) == snuffed_id
+		var lit: bool = bool(brazier.get("lit", true))
+		var label: String = "Will go dark" if threatened else ("Light 2 · stays lit" if lit and snuffed_id >= 0 else ("Light 2" if lit else "Unlit"))
+		var width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20).x + 16.0
+		var center: Vector2 = _tile_center(tile)
+		var rect := Rect2(center + Vector2(-width * 0.5, -_tile_height() * 1.6 - 30.0), Vector2(width, 30.0))
+		result.append({"tile": tile, "rect": rect, "label": label, "threatened": threatened, "lit": lit, "eclipse": snuffed_id >= 0})
+	return result
+
+func _draw_noctyrax_refuge_tile(tile: Vector2i) -> void:
+	var snuffed_id: int = -1
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) != "noctyrax" or int(enemy.get("hp", 0)) <= 0: continue
+		for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []):
+			if str(action.get("type", "")) == "umbra_eclipse": snuffed_id = int(action.get("brazier_id", -1))
+	if snuffed_id < 0: return
+	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
+		if not bool(brazier.get("lit", true)) or int(brazier.get("id", -1)) == snuffed_id: continue
+		var center: Vector2i = brazier["pos"]
+		if absi(tile.x - center.x) + absi(tile.y - center.y) > 2: continue
+		if not preload("res://scripts/path_utils.gd").is_passable(combat_state.get("grid", []), tile): continue
+		var polygon: PackedVector2Array = _tile_polygon(tile)
+		var directions: Array[Vector2i] = [Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT]
+		for index: int in range(4):
+			var neighbor: Vector2i = tile + directions[index]
+			if absi(neighbor.x - center.x) + absi(neighbor.y - center.y) <= 2: continue
+			draw_line(polygon[index], polygon[(index + 1) % 4], Color(1.0, 0.83, 0.38, 0.88), 2.0, true)
+
+func _draw_noctyrax_brazier_markers() -> void:
+	var font: Font = get_theme_default_font()
+	for marker: Dictionary in _noctyrax_brazier_markers():
+		var tile: Vector2i = marker["tile"]
+		var rect: Rect2 = marker["rect"]
+		var threatened: bool = marker["threatened"]
+		var color := Color("ffb096") if threatened else Color("ffe4a0")
+		if not bool(marker["lit"]):
+			color = Color("bbb4cd")
+		var tether_top := Vector2(rect.get_center().x, rect.end.y)
+		draw_line(tether_top, _tile_center(tile), Color(0.02, 0.015, 0.025, 0.95), 5.0, true)
+		draw_line(tether_top, _tile_center(tile), color, 2.0, true)
+		draw_rect(rect, Color(0.055, 0.035, 0.065, 0.94))
+		draw_rect(rect, color, false, 1.0)
+		_draw_outlined_string(font, rect.position + Vector2(8.0, 22.0), marker["label"], rect.size.x - 16.0, 20, color, Color.BLACK)
+		_register_tooltip(rect, "This brazier goes dark before Last Eclipse deals damage. Use the other refuge or create your own Light." if threatened else "Light radius 2 protects against Last Eclipse. Other attacks can still hit. Both braziers relight after Night Coil.")
 
 func _tethered_light_tooltip(source: Dictionary) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
@@ -6422,6 +6487,7 @@ func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Arr
 		_draw_board_surface(tile)
 		_draw_path_depth_pass(tile)
 		_draw_enemy_threat_depth_pass(tile)
+		_draw_noctyrax_refuge_tile(tile)
 		_draw_scene_props_for_tile(tile, obstruction_entries)
 		_draw_tile_props(grid, tile, obstruction_entries)
 		_draw_unit_bodies_for_tile(tile, units_to_draw)
@@ -6518,8 +6584,9 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 			RelicChestProp.draw(self, texture, draw_rect, float(prop.get("open_progress", 0.0)), tint)
 		else:
 			_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
-		if str(prop.get("kind","")).begins_with("watch_brazier"):
-			_register_tooltip(draw_rect,"Watch Brazier · Light radius 2" if str(prop["kind"])=="watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession.")
+		if str(prop.get("kind", "")).begins_with("watch_brazier"):
+			var relight_name: String = "Night Coil" if not _noctyrax_brazier_markers().is_empty() else "Last Procession"
+			_register_tooltip(draw_rect, "Watch Brazier · Light radius 2" if str(prop["kind"]) == "watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after %s." % relight_name)
 		if str(prop.get("kind",""))=="watch_brazier_lit":
 			var reduced: bool = bool(presentation.get("reduced_motion",false))
 			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
@@ -8135,6 +8202,7 @@ func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
 		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),
 		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
 		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
+		"hud_obstacle_global_rects": presentation.get("hud_obstacle_global_rects", []),
 		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
 		"unit_world_positions": presentation.get("unit_world_positions", {})
 	}
@@ -8847,6 +8915,11 @@ func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border
 
 func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
+		rects.append(inverse * rect)
+	for marker: Dictionary in _noctyrax_brazier_markers():
+		rects.append(marker["rect"])
 	for unit: Dictionary in units_to_draw:
 		if _unit_is_preview_echo(unit):
 			continue
@@ -8937,13 +9010,30 @@ func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array
 	]:
 		if not y_offsets.has(y_offset):
 			y_offsets.append(y_offset)
+	# Include exact clear positions around fixed overlays, including the boss bar.
+	# Small actors near the top can need more clearance than a regular nudge.
+	for obstacle: Rect2 in external_obstacles:
+		if obstacle.end.x < bounds.position.x + x_offset or obstacle.position.x > bounds.end.x + x_offset:
+			continue
+		for offset: float in [obstacle.end.y + 8.0 - bounds.position.y, obstacle.position.y - 8.0 - bounds.end.y]:
+			var candidate: float = clampf(offset, min_y_offset, max_y_offset)
+			if not y_offsets.has(candidate):
+				y_offsets.append(candidate)
+	var x_offsets: Array[float] = [x_offset]
+	# Boss-room overlays reserve the header and hand. If their remaining vertical
+	# band cannot fit all intents, allow a modest sideways shift too.
+	if not (presentation.get("hud_obstacle_global_rects", []) as Array).is_empty():
+		for shift: float in [-120.0, 120.0, -240.0, 240.0, -360.0, 360.0]:
+			var candidate: float = clampf(bounds.position.x + shift, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x)) - bounds.position.x
+			if not x_offsets.has(candidate): x_offsets.append(candidate)
 	var best: Dictionary = {}
-	for y_offset: float in y_offsets:
-		var offset := Vector2(x_offset, y_offset)
-		var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
-		var score: float = _enemy_hud_layout_score_for_offset(shifted_rects, external_obstacles, viewport_bounds, Vector2.ZERO)
-		if best.is_empty() or score < float(best.get("score", INF)):
-			best = {"score": score, "side": "right", "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
+	for candidate_x: float in x_offsets:
+		for y_offset: float in y_offsets:
+			var offset := Vector2(candidate_x, y_offset)
+			var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
+			var score: float = _enemy_hud_layout_score(shifted_rects, external_obstacles, viewport_bounds, offset)
+			if best.is_empty() or score < float(best.get("score", INF)):
+				best = {"score": score, "side": "right", "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
 	if best.is_empty():
 		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
 	return best
@@ -9136,13 +9226,16 @@ func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2
 	return best_offset
 
 func _enemy_hud_viewport_bounds() -> Rect2:
-	return Rect2(
-		Vector2(ENEMY_HUD_VIEWPORT_MARGIN, ENEMY_HUD_VIEWPORT_MARGIN),
-		Vector2(
-			maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0),
-			maxf(1.0, size.y - ENEMY_HUD_VIEWPORT_MARGIN * 2.0)
-		)
-	)
+	var top: float = ENEMY_HUD_VIEWPORT_MARGIN
+	var bottom: float = size.y - ENEMY_HUD_VIEWPORT_MARGIN
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
+		var local: Rect2 = inverse * rect
+		if local.get_center().y < size.y * 0.5:
+			top = maxf(top, local.end.y + 8.0)
+		else:
+			bottom = minf(bottom, local.position.y - 8.0)
+	return Rect2(Vector2(ENEMY_HUD_VIEWPORT_MARGIN, top), Vector2(maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0), maxf(1.0, bottom - top)))
 
 func _enemy_hud_actor_clear_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	# HUD placement must not depend on whichever idle-animation frame happens to
@@ -15403,8 +15496,9 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
+	if bool(intent.get("restore_braziers", false)):
+		rows.append([ActionIcons.text_token("Braziers relight afterward", "light", "Both fixed Light refuges return after this intent resolves, including a skipped turn.")])
 	return rows
-
 
 
 func _intent_display_name(intent: Dictionary) -> String:
@@ -15685,17 +15779,32 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	)
 	_register_tooltip(badge_rect, tooltip)
 
+var _cursor_shape_update_queued: bool = false
+
 func _update_cursor_shape() -> void:
-	if _navigation_pan_active:
-		mouse_default_cursor_shape = Control.CURSOR_DRAG
+	# Card mouse-enter refreshes the board during the press's hover dispatch.
+	# Godot 4.6.1 cursor assignment pushes a nested internal MouseMotion into
+	# the root Window; a STOP Control then marks the outer press handled before
+	# Node._input or CardWidget can see it. Keep previews immediate, but settle
+	# the cursor after dispatch. Recompute then so queued refreshes cannot go stale.
+	# https://github.com/godotengine/godot/blob/4.6.1-stable/scene/main/window.cpp#L817-L831
+	if _cursor_shape_update_queued:
 		return
+	_cursor_shape_update_queued = true
+	call_deferred("_apply_cursor_shape")
+
+func _apply_cursor_shape() -> void:
+	_cursor_shape_update_queued = false
+	var desired: int = Control.CURSOR_MOVE
 	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)
-	if is_hot:
-		mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	if _navigation_pan_active:
+		desired = Control.CURSOR_DRAG
+	elif is_hot:
+		desired = Control.CURSOR_POINTING_HAND
 	elif _tile_drag_aiming_active():
-		mouse_default_cursor_shape = Control.CURSOR_DRAG
-	else:
-		mouse_default_cursor_shape = Control.CURSOR_MOVE
+		desired = Control.CURSOR_DRAG
+	if mouse_default_cursor_shape != desired:
+		mouse_default_cursor_shape = desired
 
 func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
 	var offsets: Array[Vector2i]

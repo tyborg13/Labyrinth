@@ -1642,6 +1642,8 @@ var _surface_preview_cache_key: String = ""
 var _surface_preview_cache: Dictionary = {}
 var _surface_resolution_cache_key: String = ""
 var _surface_resolution_cache: Dictionary = {}
+var _pending_card_forecast_cache: Dictionary = {}
+var _pending_card_known_forecast_cache: Dictionary = {}
 var _pending_actions: Array = []
 var _pending_action_index: int = 0
 var _pending_action_can_skip: bool = false
@@ -2005,6 +2007,7 @@ var _item_drag_release_in_progress: bool = false
 var _item_drag_last_mouse_position: Vector2 = Vector2(-1.0, -1.0)
 var _item_inventory_drop_panel: Control
 var _item_swap_animation_active: bool = false
+var _return_to_emaciated_service: bool = false
 var _dialogue_active: bool = false
 var _dialogue_script: Dictionary = {}
 var _dialogue_line_index: int = -1
@@ -2246,9 +2249,13 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 	if _dialogue_active:
-		if event.is_action_pressed("ui_accept") or event.is_action_pressed("ui_cancel"):
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_close_dialogue()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("ui_accept") and not _has_current_dialogue_options():
 			_advance_dialogue()
 			get_viewport().set_input_as_handled()
+		# Option-line accept/navigation belongs to the focused native buttons.
 		return
 	if _scavenger_shop_view != null and _scavenger_shop_view.visible and event.is_action_pressed("ui_cancel"):
 		_on_merchant_hide_pressed()
@@ -2990,7 +2997,7 @@ func _controller_board_candidates() -> Array[Dictionary]:
 
 func _controller_navigation_candidates() -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = _controller_board_candidates()
-	for command_host: Control in [_action_context_command_bar, _choice_button_overlay, _surface_skill_choice_row]:
+	for command_host: Control in [_action_context_command_bar, _choice_button_overlay, _surface_skill_choice_row, choice_bar]:
 		if command_host == null or not command_host.is_visible_in_tree(): continue
 		for child: Node in command_host.get_children():
 			if child is Button:
@@ -3014,6 +3021,9 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 	if _exit_destinations_by_tile.has(tile):
 		kind = "door"
 		detail = "Travel through this door"
+	elif _run_engine.can_use_emaciated_services(_run_state) and tile == _emaciated_service_tile():
+		kind = "npc"
+		detail = "Speak to the Emaciated Man"
 	elif _state_has_visible_enemy_at_tile(_combat_state, tile):
 		kind = "enemy"
 		if _focused_intent_enemy_id >= 0 and _focused_enemy_intent_tile(_combat_state)==tile:
@@ -3220,6 +3230,10 @@ func _controller_board_tiles() -> Array[Vector2i]:
 		for tile_var: Variant in _exit_destinations_by_tile.keys():
 			if tile_var is Vector2i and rendered_doors.has(tile_var):
 				result.append(tile_var as Vector2i)
+		if _run_engine.can_use_emaciated_services(_run_state):
+			for npc: Dictionary in (_run_state.get("current_room_layout", {}) as Dictionary).get("npcs", []):
+				if str(npc.get("id", "")) == "emaciated_man" and rendered_doors.has(npc.get("pos", INVALID_TARGET_TILE)):
+					result.append(npc["pos"])
 		return result
 	for tile_var: Variant in board_view.call("controller_navigable_tiles", false):
 		if tile_var is Vector2i:
@@ -3271,6 +3285,10 @@ func _controller_activate_current() -> void:
 			var door_tile: Vector2i = _controller_focus_candidate.get("tile", INVALID_TARGET_TILE)
 			if door_tile != INVALID_TARGET_TILE and _exit_destinations_by_tile.has(door_tile):
 				await _on_board_tile_clicked(door_tile)
+		elif candidate_kind == "npc" and _run_engine.can_use_emaciated_services(_run_state):
+			var npc_tile: Vector2i = _controller_focus_candidate.get("tile", INVALID_TARGET_TILE)
+			if npc_tile != INVALID_TARGET_TILE and npc_tile == _emaciated_service_tile():
+				await _on_board_tile_clicked(npc_tile)
 		return
 	if _controller_region == "hand":
 		var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
@@ -8456,7 +8474,16 @@ func _advance_dialogue() -> void:
 func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	if not _dialogue_active or not _dialogue_text_complete:
 		return
+	if bool(option.get("disabled", false)): return
 	var action: String = str(option.get("action", ""))
+	if action == "exchange_moltshard":
+		_exchange_moltshard_at_entrance()
+		return
+	if action == "emaciated_level_up":
+		if not _run_engine.can_use_emaciated_services(_run_state): return
+		_close_dialogue()
+		_open_level_up_overlay("emaciated_man")
+		return
 	if action == "open_card_upgrades":
 		_close_dialogue()
 		_open_card_upgrade_overlay()
@@ -8471,6 +8498,9 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	if _dialogue_active and bool(_current_dialogue_line().get("service", false)):
+		_run_state["emaciated_service_seen"] = true
+		_persist_committed_boundary("emaciated_services_seen")
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
 	_maybe_mark_fire_rest_dialogue_seen()
 	_maybe_mark_umbra_warning_seen()
@@ -8561,12 +8591,18 @@ func _update_dialogue_footer() -> void:
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
 		var button := Button.new()
 		button.text = str(option.get("label", "Continue"))
+		button.disabled = bool(option.get("disabled", false))
+		button.tooltip_text = str(option.get("tooltip", ""))
 		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
 		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, DIALOGUE_OPTION_BUTTON_MIN_WIDTH)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
+	for child: Node in _dialogue_choice_bar.get_children():
+		if child is Button and not child.disabled and not child.is_queued_for_deletion():
+			child.call_deferred("grab_focus")
+			break
 
 func _dialogue_hint_text() -> String:
 	var lines: Array = _dialogue_script.get("lines", [])
@@ -11235,6 +11271,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_return_to_emaciated_service = false
+	_acknowledge_saved_starting_relic_gift(next_run_state)
 	_cancel_deferred_skill_analytics()
 	_cancel_treasure_presentation()
 	_treasure_reveal_complete_key = ""
@@ -11299,14 +11337,47 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	elif str(_run_state.get("mode", "room")) == RunEngineScript.MODE_ESCAPE:
 		call_deferred("_continue_pending_escape_after_reward")
 
+func _acknowledge_saved_starting_relic_gift(state: Dictionary) -> bool:
+	if bool(state.get("debug_boss_run", false)): return true
+	var ids: Array = state.get("starting_relic_gift_ids", []) as Array
+	if ids.is_empty(): return true
+	# Only a durable run may consume a gift. Creation saves the new run first;
+	# loading retries acknowledgment after any interrupted profile write.
+	var saved: Dictionary = ProgressionStore.load_saved_run()
+	if RunEngineScript.run_result_id(saved) != RunEngineScript.run_result_id(state) or (saved.get("starting_relic_gift_ids", []) as Array) != ids: return false
+	var profile: Dictionary = ProgressionStore.load_data()
+	var acknowledged: Dictionary = ProgressionStore.acknowledge_starting_relic_gifts(profile, ids)
+	if acknowledged == profile: return true
+	# Keep the consumed receipt in the active run even when the profile write
+	# fails. Subsequent checkpoints and terminal saves carry it forward, so a
+	# completed gift-bearing run cannot accidentally make the gift pending again.
+	_progression = acknowledged
+	return ProgressionStore.save_data(acknowledged)
+
 func _start_run() -> void:
 	_cancel_deferred_skill_analytics()
-	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
-	ProgressionStore.save_data(_progression)
-	ProgressionStore.clear_saved_run()
+	var previous: Dictionary = ProgressionStore.load_saved_run()
+	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
+		_load_run_state(previous)
+		_run_state["notice"] = "Could not save the previous run's relic gift. Try again."
+		_refresh_ui()
+		return
+	var starting_profile: Dictionary = ProgressionStore.load_data()
+	if not previous.is_empty(): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
+	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
 	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
 	new_run_state = _ensure_run_analytics_metadata(new_run_state)
+	# Never erase the previous run before its replacement is durable. A gift is
+	# stamped into this save before its pending profile entry is acknowledged.
+	if not ProgressionStore.save_data(_progression) or not ProgressionStore.save_run_state(new_run_state):
+		if not previous.is_empty():
+			_load_run_state(previous)
+			_run_state["notice"] = "The new run could not be saved. Your previous run is available."
+			_refresh_ui()
+		else:
+			push_error("Failed to save the new run.")
+		return
 	_load_run_state(new_run_state)
 	_analytics_log_run_started()
 	_persist_committed_boundary("run_started")
@@ -13937,24 +14008,21 @@ func _refresh_card_play_meter() -> void:
 	var ordinary_left: int = int(budget.get("ordinary_remaining", 0))
 	var banked_left: int = int(budget.get("banked_remaining", 0))
 	var cards_left: int = int(budget.get("total_remaining", ordinary_left + banked_left))
-	_play_meter_count.text = "%d card %s" % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
+	_play_meter_count.text = "%d card %s" % [cards_left, "play" if cards_left == 1 else "plays"]
 	# The default plaque is a single centered line. It only becomes a two-line
 	# layout when the banked-play state is actually present.
 	_play_meter_count.position = Vector2(50.0, 4.0) if banked_left > 0 else Vector2(50.0, 0.0)
 	_play_meter_count.size = Vector2(166.0, 25.0) if banked_left > 0 else Vector2(166.0, 58.0)
-	_play_meter.tooltip_text = "%d ordinary card %s remaining." % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
+	_play_meter.tooltip_text = "%d total card plays remain this turn: %d ordinary, %d banked." % [cards_left, ordinary_left, banked_left]
 	if _play_meter_banked_badge != null and _play_meter_banked_label != null:
 		_play_meter_banked_badge.visible = banked_left > 0
 		if banked_left > 0:
 			var borrowed_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
 			var no_time: bool = _combat_engine.has_skill(_combat_state, borrowed_id) and not _combat_engine.skill_was_used(_combat_state, borrowed_id)
-			_play_meter_banked_label.text = ("NEXT" if ordinary_left == 0 else "+%d BANKED" % banked_left) + (" • NO TIME" if no_time else "")
-			if no_time and ordinary_left == 0:
-				_play_meter.tooltip_text = "Your next card spends the banked play and adds no Time."
-			elif no_time:
-				_play_meter.tooltip_text = "%d ordinary %s remain first. The card that reaches the banked play adds no Time." % [ordinary_left, "play" if ordinary_left == 1 else "plays"]
-			else:
-				_play_meter.tooltip_text = "%d banked %s remain after your ordinary plays." % [banked_left, "play" if banked_left == 1 else "plays"]
+			_play_meter_banked_label.text = ("%d BANKED" % banked_left) + (" • NO TIME" if no_time else "")
+			_play_meter.tooltip_text += " Ordinary plays are spent first."
+			if no_time:
+				_play_meter.tooltip_text += " The banked play adds no Time."
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
 	_sync_hand_side_widths()
@@ -15061,7 +15129,7 @@ func _refresh_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 	if mode != "combat" and _choice_button_overlay != null:
 		_choice_button_overlay.visible = false
-	if _context_choice_overlay != null and mode != "campfire":
+	if _context_choice_overlay != null and mode != "campfire" and not _run_engine.can_use_emaciated_services(_run_state):
 		_context_choice_overlay.visible = false
 	stats_label.visible = mode not in ["victory", "defeat"]
 	loadout_button.visible = mode not in ["victory", "defeat"]
@@ -15138,6 +15206,8 @@ func _refresh_choice_bar() -> void:
 					_scavenger_shop_view.present()
 				else:
 					_add_merchant_return_to_shop_button()
+			elif _run_engine.can_use_emaciated_services(_run_state):
+				_add_context_choice_button("Speak to the Emaciated Man", _show_emaciated_services, "Trade Moltshards for Embers or purchase levels.")
 		"campfire":
 			_add_campfire_choice(
 				"linger",
@@ -15163,8 +15233,12 @@ func _refresh_choice_bar() -> void:
 			)
 		"reward":
 			if not _reward_intro_suppressed and _reward_choices_available():
-				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
-				_add_reward_choice_stack()
+				if _run_engine.is_dragon_reward(_run_state):
+					_set_relic_choice_title("DRAGON VANQUISHED")
+					_add_dragon_reward_stack()
+				else:
+					_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
+					_add_reward_choice_stack()
 		"treasure":
 			var pending_relics: Array = [] if _treasure_reveal_active else (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
@@ -15422,8 +15496,13 @@ func _finish_combat_skill_card_motion() -> void:
 	_refresh_ui()
 	call_deferred("_grab_preferred_gui_focus", _skill_sigil)
 
+func _pending_card_defiance_spent() -> int:
+	if _animation_lock or not _pending_card_requires_confirmation(): return 0
+	return maxi(0, int(_combat_state.get("defiance_remaining", 0)) - int(_pending_card_known_forecast_state().get("defiance_remaining", 0)))
+
 func _add_pass_preview_chip() -> void:
 	var summary: Dictionary = _pass_preview_summary()
+	var card_defiance_spent: int = _pending_card_defiance_spent()
 	if summary.is_empty():
 		return
 	# This is one actual button: its art, labels, and forecast are visual children
@@ -15439,6 +15518,8 @@ func _add_pass_preview_chip() -> void:
 	chip.disabled = not _pass_preview_action_available()
 	chip.focus_mode = Control.FOCUS_NONE if chip.disabled else Control.FOCUS_ALL
 	var tooltip_text: String = _pass_preview_tooltip(summary)
+	if card_defiance_spent > 0:
+		tooltip_text = "Playing this card spends %d Defiance.\n%s" % [card_defiance_spent, tooltip_text]
 	chip.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE if not tooltip_text.is_empty() else Control.CURSOR_ARROW
 	chip.tooltip_text = tooltip_text
 	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
@@ -15479,7 +15560,9 @@ func _add_pass_preview_chip() -> void:
 	content.add_child(focus_edge)
 	var action_label := Label.new()
 	action_label.name = "PassActionLabel"
-	action_label.text = "PASS"
+	# Targetless confirmations hide the action tracker. The disabled Pass face
+	# makes this card's lethal payment visible beside the separate turn-end risk.
+	action_label.text = "CARD COST\nDEFIANCE -%d" % card_defiance_spent if card_defiance_spent > 0 else "PASS"
 	action_label.position = Vector2(18.0, 15.0)
 	action_label.size = Vector2(234.0, 50.0)
 	action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -15533,7 +15616,8 @@ func _add_pass_preview_chip() -> void:
 	forecast_line.position = Vector2.ZERO
 	forecast_line.size = damage_row.size
 	var danger_state: bool = (
-		bool(summary.get("defeat", false))
+		card_defiance_spent > 0
+		or bool(summary.get("defeat", false))
 		or bool(summary.get("unrevealed_before_player", false))
 		or bool(summary.get("umbra_unknown_before_player", false))
 	)
@@ -15732,7 +15816,7 @@ func _pass_preview_source_state() -> Dictionary:
 			var safe_hovered_state: Dictionary = _visibility_safe_preview_display_state(hovered_state)
 			_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
 			return safe_hovered_state
-		var safe_preview_state: Dictionary = _visibility_safe_preview_display_state(_preview_combat_state)
+		var safe_preview_state: Dictionary = _visibility_safe_preview_display_state(_pending_card_forecast_state(), true)
 		_record_runtime_performance_phase("pass_preview_source_visibility", performance_phase_started)
 		return safe_preview_state
 	if not _combat_state.is_empty():
@@ -15860,18 +15944,37 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 		{"play_mode": "play"}
 	)
 
-func _pass_preview_state_after_pending_preview(preview: Dictionary) -> Dictionary:
-	var resolved_state: Dictionary = preview.get("state", {}) as Dictionary
-	if resolved_state.is_empty():
-		return {}
-	if bool(preview.get("complete", false)):
-		return _combat_engine.finish_player_card(
-			resolved_state,
+func _pending_card_forecast_state() -> Dictionary:
+	# Completed targetless effects still await confirmation. Forecast their final
+	# payment and play hooks on a separate copy; committing must use the unpaid
+	# action snapshot so health, Time, and card plays are charged exactly once.
+	if _animation_lock or not _pending_card_requires_confirmation():
+		return _preview_combat_state
+	if _pending_card_forecast_cache.is_empty():
+		_pending_card_forecast_cache = _combat_engine.finish_player_card(
+			_preview_combat_state,
 			_selected_card_index,
-			_combat_engine.card_plays_spent_for_actions(preview.get("actions", []) as Array),
+			_combat_engine.card_plays_spent_for_actions(_pending_actions),
 			{"play_mode": "play"}
 		)
-	return resolved_state
+	return _pending_card_forecast_cache
+
+func _pending_card_known_forecast_state() -> Dictionary:
+	if _animation_lock or not _pending_card_requires_confirmation() or not _unconfirmed_preview_must_preserve_umbra_information():
+		return _pending_card_forecast_state()
+	if _pending_card_known_forecast_cache.is_empty():
+		# Filter hidden causes before replaying the targetless actions, not just
+		# after them: a concealed target may otherwise trigger healing or a trap.
+		var known: Dictionary = _surface_preview_information_state(_combat_state)
+		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "play")
+		var preview: Dictionary = _card_preview_from_state(_card_id_for_hand_index(_selected_card_index), prepared, _pending_actions, 0)
+		_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
+			preview.get("state", prepared) as Dictionary,
+			_selected_card_index,
+			_combat_engine.card_plays_spent_for_actions(_pending_actions),
+			{"play_mode": "play"}
+		)
+	return _pending_card_known_forecast_cache
 
 func _pass_preview_summary() -> Dictionary:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -16252,7 +16355,7 @@ func _run_end_death_site_normalized() -> Vector2:
 
 func _reward_choices_available() -> bool:
 	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
-	return (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
+	return _run_engine.is_dragon_reward(_run_state) or (reward_state.get("cards", []) as Array).size() > 0 or int(reward_state.get("heal_amount", 0)) > 0
 
 func _reward_intro_pending() -> bool:
 	if str(_run_state.get("mode", "room")) != "reward":
@@ -16325,6 +16428,120 @@ func _finish_reward_intro() -> void:
 	reward_state["intro_pending"] = false
 	_run_state["pending_reward"] = reward_state
 	_persist_committed_boundary("reward_intro_complete")
+
+func _add_dragon_reward_stack() -> void:
+	if _relic_choice_bar == null: return
+	var reward: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	var relic_id: String = str(reward.get("relic_id", ""))
+	var relic: Dictionary = GameData.relic_def(relic_id)
+	var next_descent: bool = bool(reward.get("next_descent", false))
+	var stack := VBoxContainer.new()
+	stack.name = "RewardSecondaryActions"
+	stack.custom_minimum_size.x = 590.0
+	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	stack.add_theme_constant_override("separation", 16)
+	_relic_choice_bar.add_child(stack)
+	var panel := PanelContainer.new()
+	panel.name = "DragonMilestoneReward"
+	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(GameData.relic_accent(relic_id)), false))
+	stack.add_child(panel)
+	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
+	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
+	var margin := MarginContainer.new()
+	margin.z_index = 2
+	for side: String in ["left", "right", "top", "bottom"]: margin.add_theme_constant_override("margin_%s" % side, 24)
+	panel.add_child(margin)
+	var content := VBoxContainer.new()
+	content.add_theme_constant_override("separation", 12)
+	margin.add_child(content)
+	var dragon_name: String = str(GameData.enemy_def(str(reward.get("boss_id", ""))).get("name", "Dragon"))
+	_dragon_reward_label(content, "DragonRewardDefeated", "%s defeated" % dragon_name, UiTypography.SIZE_BODY_LARGE, Color("f6e4bc"))
+	var icon := TextureRect.new()
+	icon.name = "DragonRewardArtwork"
+	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.custom_minimum_size = Vector2(96, 96)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.add_child(icon)
+	_dragon_reward_label(content, "DragonRewardRelic", str(relic.get("name", relic_id)), 30, Color("fff1d5"))
+	_dragon_reward_label(content, "DragonRewardDestination", "FOR YOUR NEXT RUN" if next_descent else "LEGENDARY RELIC ACQUIRED", UiTypography.SIZE_CAPTION, Color("efb35f"))
+	var rules := RichTextLabel.new()
+	rules.name = "DragonRewardRules"
+	rules.fit_content = true
+	rules.scroll_active = false
+	rules.custom_minimum_size.x = 542.0
+	rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
+	rules.add_theme_color_override("default_color", Color("dec9a7"))
+	InlineIconText.apply_to(rules, str(relic.get("description", "")))
+	content.add_child(rules)
+	if next_descent:
+		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	content.add_child(HSeparator.new())
+	_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward.get("ember_amount", 0)), int(reward.get("healed_amount", 0))], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
+	_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward.get("moltshards", 0)) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
+	stack.add_child(button)
+	if _controller_is_active(): button.call_deferred("grab_focus")
+	if _reward_reveal_pending: PostCombatRewardSequence.prepare_secondary_actions(stack)
+
+func _dragon_reward_label(host: Control, node_name: String, text: String, font_size: int, color: Color) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(label, font_size)
+	label.add_theme_color_override("font_color", color)
+	host.add_child(label)
+	return label
+
+func _on_dragon_reward_continue() -> void:
+	if _animation_lock or not _run_engine.is_dragon_reward(_run_state): return
+	if _commit_dragon_reward_continue() and str(_run_state.get("mode", "")) == "victory":
+		_analytics_log_run_ended("victory")
+	_refresh_ui()
+
+func _stage_dragon_reward_claim(next_state: Dictionary, reward: Dictionary) -> Dictionary:
+	var next: Dictionary = next_state.duplicate(true)
+	var milestone_id: String = str(reward.get("milestone_id", ""))
+	next["progression"] = ProgressionStore.queue_progression_analytics_event(
+		next.get("progression", _progression) as Dictionary,
+		"reward_claimed", "reward_claimed|%s" % milestone_id,
+		_analytics_context_from_states(next),
+		{
+			"reward_kind": "dragon_milestone", "milestone_id": milestone_id,
+			"boss_id": reward.get("boss_id", ""), "relic_id": reward.get("relic_id", ""),
+			"next_descent": reward.get("next_descent", false),
+		}
+	)
+	return next
+
+func _commit_dragon_reward_continue() -> bool:
+	if not _run_engine.is_dragon_reward(_run_state): return false
+	var reward: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var next: Dictionary = _run_engine.continue_dragon_reward(_run_state)
+	if _is_debug_boss_run():
+		_run_state = next
+		return true
+	# Save the claim receipt in the same boundary that removes the milestone.
+	# The terminal path carries this outbox into the profile before clearing the
+	# run; interrupted appends and acknowledgments replay by milestone ID.
+	next = _stage_dragon_reward_claim(next, reward)
+	var result: Dictionary = _persist_run_state_snapshot(next, false, "dragon_reward_continued")
+	if not bool(result.get("saved", false)):
+		_run_state["notice"] = "Could not save. Your rewards are still here; try Continue again."
+		return false
+	_run_state = result.get("state", next) as Dictionary
+	_sync_progression_from_run()
+	_reconcile_progression_analytics_outbox()
+	_sync_progression_analytics_outbox_to_run()
+	if str(_run_state.get("mode", "")) != "victory":
+		_persist_committed_boundary("dragon_reward_claim_ack")
+	return true
 
 func _add_reward_choice_stack() -> void:
 	if _relic_choice_bar == null:
@@ -18001,6 +18218,7 @@ func _refresh_stage_view() -> void:
 	var run_mode: String = str(_run_state.get("mode", "room"))
 	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
+	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18028,7 +18246,7 @@ func _refresh_stage_view() -> void:
 		if not _preview_combat_state.is_empty():
 			var cumulative_damage_preview: Dictionary = _sanitize_damage_preview_for_umbra_information(
 				_combat_state,
-				_damage_preview_between_states(_combat_state, _preview_combat_state)
+				_damage_preview_between_states(_combat_state, _pending_card_known_forecast_state())
 			)
 			if not cumulative_damage_preview.is_empty():
 				presentation["damage_preview"] = cumulative_damage_preview
@@ -18598,7 +18816,7 @@ func _board_display_state() -> Dictionary:
 			if cache_key != _board_preview_display_cache_key:
 				_board_preview_display_cache_key = cache_key
 				_board_preview_display_cache = _visibility_safe_preview_display_state(
-					_combat_preview_display_state(_preview_combat_state)
+					_combat_preview_display_state(_pending_card_forecast_state()), true
 				)
 			return _board_preview_display_cache
 		if not _combat_state.is_empty():
@@ -18712,7 +18930,7 @@ func _board_visibility_state(display_state: Dictionary) -> Dictionary:
 		return _combat_state
 	return display_state
 
-func _visibility_safe_preview_display_state(preview_state: Dictionary) -> Dictionary:
+func _visibility_safe_preview_display_state(preview_state: Dictionary, completed_card_durability: bool = false) -> Dictionary:
 	if not _unconfirmed_preview_must_preserve_umbra_information():
 		return preview_state
 	var safe_state: Dictionary = preview_state.duplicate(false)
@@ -18726,6 +18944,13 @@ func _visibility_safe_preview_display_state(preview_state: Dictionary) -> Dictio
 			safe_state[key] = (committed_value as Array).duplicate(true)
 		else:
 			safe_state[key] = committed_value
+	if completed_card_durability and _pending_card_requires_confirmation():
+		# Keep committed sight and the full actor queue, while showing only card
+		# consequences that can be derived without hidden traps or enemies.
+		var known: Dictionary = _pending_card_known_forecast_state()
+		for key: String in ["hp", "block", "stoneskin"]:
+			safe_state["player"][key] = known["player"].get(key, 0)
+		safe_state["defiance_remaining"] = known.get("defiance_remaining", 0)
 	return safe_state
 
 func _unconfirmed_preview_must_preserve_umbra_information() -> bool:
@@ -19256,6 +19481,8 @@ func _mark_preview_selection_changed() -> void:
 	_invalidate_preview_derived_caches()
 
 func _invalidate_preview_derived_caches() -> void:
+	_pending_card_forecast_cache.clear()
+	_pending_card_known_forecast_cache.clear()
 	_pass_preview_warm_generation += 1
 	_pass_preview_warm_active = false
 	_pass_preview_warm_key = ""
@@ -21460,6 +21687,11 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		_guided_tutorial_reject()
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
+	if mode == "room" and _run_engine.can_use_emaciated_services(_run_state):
+		for npc: Dictionary in (_run_state.get("current_room_layout", {}) as Dictionary).get("npcs", []):
+			if str(npc.get("id", "")) == "emaciated_man" and npc.get("pos", INVALID_TARGET_TILE) == tile:
+				_show_emaciated_services()
+				return
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
 		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
 		return
@@ -24052,7 +24284,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					if bool(brazier.get("lit",true)) and dark_tiles.has(brazier["pos"]):
 						relit_texts.append({"tile":brazier["pos"],"text":"Relit","color":Color("ffe394")})
 				if not relit_texts.is_empty():
-					_set_action_banner("Last Procession · Braziers relit")
+					_set_action_banner("Braziers relit")
 					await _animate_floating_text_presentation(animated_state,{"floating_texts":relit_texts})
 				_render_board_state(animated_state, {})
 			"move":
@@ -25313,6 +25545,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or _post_combat_board_state_is_visible() else "room"
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
+	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
@@ -25505,6 +25738,8 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			_remove_triggered_traps(animated_state, step.get("triggered_traps", []))
 			if step.has("umbra_after"):
 				animated_state["umbra"] = (step.get("umbra_after", {}) as Dictionary).duplicate(true)
+			if step.has("guardian_braziers_after"):
+				animated_state["guardian_braziers"] = (step["guardian_braziers_after"] as Array).duplicate(true)
 			if step.has("enemy_after"):
 				_set_enemy_snapshot_by_key(animated_state, str(step.get("actor_key", "")), step.get("enemy_after", {}) as Dictionary)
 
@@ -26122,6 +26357,18 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
+
+func _board_hud_obstacles(display_state: Dictionary) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty():
+		_layout_boss_health_overlay_content()
+		rects.append(_boss_health_overlay.get_global_rect().grow(10.0))
+		if hand_scroll != null and hand_scroll.is_visible_in_tree():
+			var hand_rect: Rect2 = hand_scroll.get_global_rect()
+			hand_rect.position.y = _hand_visual_top() - 12.0
+			hand_rect.size.y = get_viewport_rect().end.y - hand_rect.position.y
+			rects.append(hand_rect)
+	return rects
 
 func _board_status_safe_global_rect() -> Rect2:
 	# CombatBoard deliberately borrows 56px beneath the header. Keep the compact
@@ -27515,6 +27762,10 @@ func _relic_frame_for_id(relic_id: String) -> Control:
 
 func _on_back_to_menu_pressed() -> void:
 	if not _is_debug_boss_run():
+		if not ProgressionStore.save_data(_progression):
+			_run_state["notice"] = "Could not save. Try again before leaving."
+			_refresh_ui()
+			return
 		ProgressionStore.clear_saved_run()
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -27522,7 +27773,6 @@ func _on_restart_pressed() -> void:
 	if _is_debug_boss_run():
 		_start_debug_boss_run()
 		return
-	ProgressionStore.clear_saved_run()
 	_start_run()
 
 func _on_menu_button_pressed() -> void:
@@ -28067,7 +28317,10 @@ func _on_abandon_run_pressed() -> void:
 			_run_state.get("current_room", Vector2i.ZERO),
 			int(_run_state.get("run_index", 0))
 		)
-		ProgressionStore.save_data(_progression)
+		if not ProgressionStore.save_data(_progression):
+			_run_state["notice"] = "Could not save the completed run. Try again."
+			_refresh_ui()
+			return
 		ProgressionStore.clear_saved_run()
 	_change_scene_to_file("res://scenes/main_menu.tscn")
 
@@ -28452,17 +28705,69 @@ func _on_character_menu_visibility_changed() -> void:
 	if _upgrade_scrim != null and not _upgrade_scrim.is_visible_in_tree():
 		_stop_character_menu_arrival()
 
-func _open_level_up_overlay() -> void:
-	if _upgrade_scrim == null or not _can_level_at_campfire():
+func _resume_emaciated_services() -> void:
+	if not _return_to_emaciated_service: return
+	_return_to_emaciated_service = false
+	_show_emaciated_services()
+
+func _emaciated_service_tile() -> Vector2i:
+	for npc: Dictionary in (_run_state.get("current_room_layout", {}) as Dictionary).get("npcs", []):
+		if str(npc.get("id", "")) == "emaciated_man": return npc.get("pos", INVALID_TARGET_TILE)
+	return INVALID_TARGET_TILE
+
+func _show_emaciated_services(notice: String = "") -> void:
+	if not _run_engine.can_use_emaciated_services(_run_state): return
+	_sync_progression_from_run()
+	_start_dialogue(_dialogue_engine.emaciated_service_dialogue(_progression, notice))
+	_complete_current_dialogue_line()
+
+func _exchange_moltshard_at_entrance() -> void:
+	if not _run_engine.can_use_emaciated_services(_run_state): return
+	_sync_progression_from_run()
+	var before: Dictionary = _progression.duplicate(true)
+	var candidate: Dictionary = ProgressionStore.transact_run_wallet(before, RunEngineScript.run_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "moltshard_exchange", "emaciated_man")
+	if candidate == before:
+		_show_emaciated_services("Bring me a Moltshard from a dragon, and I can trade it for Embers.")
+		return
+	candidate = _queue_wallet_transaction_analytics(before, candidate)
+	if not ProgressionStore.save_data(candidate):
+		_show_emaciated_services("The trade could not be saved. Nothing was spent; try again.")
+		return
+	_progression = candidate
+	_run_state = _run_engine.apply_run_wallet_receipt(_run_state, candidate)
+	_persist_committed_boundary("moltshard_exchange")
+	_reconcile_progression_analytics_outbox()
+	_refresh_ui()
+	_show_emaciated_services("One Moltshard traded for %d Embers. Spend them wisely." % ProgressionStore.MOLT_EXCHANGE_EMBERS)
+
+func _queue_wallet_transaction_analytics(before: Dictionary, after: Dictionary) -> Dictionary:
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(after, RunEngineScript.run_result_id(_run_state))
+	var kind: String = str(receipt.get("kind", ""))
+	var payload: Dictionary = {"source":receipt.get("source", ""), "transaction_id":receipt.get("id", ""), "held_embers_before":int(before.get("embers", 0)), "held_embers_after":int(after.get("embers", 0)), "room":_run_state.get("current_room", Vector2i.ZERO)}
+	if kind == "level_up":
+		payload.merge({"level_before":int(before.get("level", 1)), "level_after":int(after.get("level", 1)), "cost":ProgressionStore.next_level_cost(before), "skill_ids":ProgressionStore.selected_skill_ids(after), "unspent_skill_points_before":ProgressionStore.unspent_skill_points(before), "unspent_skill_points_after":ProgressionStore.unspent_skill_points(after)})
+	else:
+		payload.merge({"moltshards_before":ProgressionStore.moltshard_count(before), "moltshards_after":ProgressionStore.moltshard_count(after), "embers_gained":ProgressionStore.MOLT_EXCHANGE_EMBERS})
+	# The durable event describes the committed result, including newly gained
+	# Defiance. These purchases occur outside combat; an old combat snapshot must
+	# not override the receipt's progression or run resources.
+	var resulting_run: Dictionary = _run_engine.apply_run_wallet_receipt(_run_state, after)
+	return ProgressionStore.queue_progression_analytics_event(after, "progression_%s" % kind, str(receipt.get("id", "")), _analytics_context_from_states(resulting_run), payload)
+
+func _open_level_up_overlay(source: String = "campfire") -> void:
+	var at_source: bool = _run_engine.can_use_emaciated_services(_run_state) if source == "emaciated_man" else str(_run_state.get("mode", "")) == "campfire"
+	if _upgrade_scrim == null or not at_source or not _can_level_at_campfire():
 		return
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_menu_overlay()
 	var before_progression: Dictionary = _progression.duplicate(true)
-	var candidate: Dictionary = ProgressionStore.purchase_level(_progression)
+	var candidate: Dictionary = ProgressionStore.transact_run_wallet(_progression, RunEngineScript.run_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "level_up", source)
 	if candidate == before_progression:
 		return
+	candidate = _queue_wallet_transaction_analytics(before_progression, candidate)
 	if not ProgressionStore.save_data(candidate):
+		_return_to_emaciated_service = source == "emaciated_man"
 		_progression_overlay_mode = "skills"
 		_progression_overlay_notice = "The level could not be saved. No embers were spent; try again."
 		_progression_overlay_notice_is_error = true
@@ -28472,10 +28777,10 @@ func _open_level_up_overlay() -> void:
 		_sync_pre_battle_overlay_layering()
 		return
 	_progression = candidate
-	_run_state = _run_engine.apply_progression_update(_run_state, _progression, false)
-	_run_state = _run_engine.leave_campfire(_run_state, 0)
+	_run_state = _run_engine.apply_run_wallet_receipt(_run_state, _progression)
+	_return_to_emaciated_service = source == "emaciated_man"
 	_persist_committed_boundary("level_up")
-	_analytics_log_level_up(before_progression, _progression)
+	_reconcile_progression_analytics_outbox()
 	_refresh_ui()
 	_progression_overlay_mode = "skills"
 	var defiance_gained: int = (
@@ -28494,6 +28799,8 @@ func _open_level_up_overlay() -> void:
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
+	if _return_to_emaciated_service:
+		call_deferred("_resume_emaciated_services")
 	_stop_character_menu_arrival()
 	if (
 		(_upgrade_scrim == null or not _upgrade_scrim.visible)
@@ -28649,6 +28956,7 @@ func _layout_progression_dialog() -> void:
 
 func _on_progression_overlay_close_pressed() -> void:
 	_close_card_upgrade_overlay()
+	_resume_emaciated_services()
 
 func _build_progression_resource_summary() -> Control:
 	var row := HBoxContainer.new()
@@ -32503,7 +32811,13 @@ func _analytics_log_reward_offered(combat_state: Dictionary, reason: String) -> 
 	var reward_state: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
 	_analytics_store.write_event("reward_offered", _analytics_context_from_states(_run_state, combat_state), {
 		"reason": reason,
-		"reward_kind": "guardian_trophy" if not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty() else "combat",
+		"reward_kind": "dragon_milestone" if _run_engine.is_dragon_reward(_run_state) else ("guardian_trophy" if not (_run_state.get("guardian_reward", {}) as Dictionary).is_empty() else "combat"),
+		"boss_id": reward_state.get("boss_id", ""),
+		"milestone_id": reward_state.get("milestone_id", ""),
+		"awarded_relic": reward_state.get("relic_id", ""),
+		"next_descent": bool(reward_state.get("next_descent", false)),
+		"moltshards": int(reward_state.get("moltshards", 0)),
+		"healed_amount": int(reward_state.get("healed_amount", 0)),
 		"offered_relics": (_run_state.get("pending_relics", []) as Array).duplicate(),
 		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
 		"heal_amount": int(reward_state.get("heal_amount", 0)),
@@ -33055,6 +33369,8 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 				"guardian_mechanic": bool(step.get("guardian_mechanic", false)),
 				"interrupted": bool(step.get("interrupted",false)),
 				"declared_tiles": step.get("declared_tiles", []),
+				"committed_direction": bool(step.get("committed_direction", false)),
+				"action_direction": step.get("action_direction", Vector2i.ZERO),
 				"resolved_tiles": step.get("tiles", []),
 				"enemy_type": str(step.get("enemy_type", "")),
 				"ai_role": str(step.get("ai_role", "")),
@@ -33348,7 +33664,11 @@ func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progre
 		return state
 	var result_stats: Dictionary = RunEndRecapOverlay.result_stats(state)
 	var result_id: String = RunEngineScript.run_result_id(state)
-	var recorded: Dictionary = ProgressionStore.record_run_result(progression, result_id, result_stats)
+	# Terminal commits may carry newly staged receipts absent from the scene's
+	# profile (for example the final dragon claim). Keep the profile authoritative
+	# for currency and progression, and merge only those durable event receipts.
+	var candidate: Dictionary = ProgressionStore.merge_progression_analytics_outbox(progression, state.get("progression", {}) as Dictionary)
+	var recorded: Dictionary = ProgressionStore.record_run_result(candidate, result_id, result_stats)
 	var next_progression: Dictionary = (recorded.get("data", progression) as Dictionary).duplicate(true)
 	var result: Dictionary = (recorded.get("result", {}) as Dictionary).duplicate(true)
 	state["progression"] = next_progression

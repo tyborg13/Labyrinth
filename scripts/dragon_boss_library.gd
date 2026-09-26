@@ -41,12 +41,25 @@ const BOSS_ROOM_NAMES := {
 	SHADOW_BOSS_ID: "The Last Eclipse"
 }
 
+const BOSS_RELICS := {
+	FIRE_BOSS_ID: "crowncoal_heart",
+	EARTH_BOSS_ID: "worldheart",
+	AIR_BOSS_ID: "unbound_pinion",
+	ICE_BOSS_ID: "winters_hour",
+	LIGHTNING_BOSS_ID: "stormroad_coil",
+	SHADOW_BOSS_ID: "eclipse_mantle"
+}
+
+static func relic_for_boss(boss_id: String) -> String:
+	return str(BOSS_RELICS.get(boss_id, ""))
+
 const OPENING_INTENT_IDS := {
 	EARTH_BOSS_ID: "stonewake",
 	FIRE_BOSS_ID: "kindle_ground",
 	AIR_BOSS_ID: "hollow_gale",
 	ICE_BOSS_ID: "crystal_mantle",
-	SHADOW_BOSS_ID: "last_eclipse"
+	SHADOW_BOSS_ID: "last_eclipse",
+	LIGHTNING_BOSS_ID: "skybreak"
 }
 
 static func elemental_boss_order(run_seed: int) -> Array[String]:
@@ -85,3 +98,32 @@ static func _boss_order_seed(run_seed: int) -> int:
 	var value: int = int((run_seed * 1664525 + 1013904223 + 2405) & 0x7fffffff)
 	value = int((value ^ (value >> 13)) & 0x7fffffff)
 	return maxi(1, value)
+
+static func configure_layout(layout: Dictionary) -> void:
+	if str(layout.get("boss_id", "")) != SHADOW_BOSS_ID: return
+	var orientation = preload("res://scripts/guardian_library.gd")
+	var refuges: Array[Vector2i] = [orientation.oriented_tile(layout, Vector2i(2,5)), orientation.oriented_tile(layout, Vector2i(6,3))]
+	layout["guardian_braziers"] = []
+	for index: int in range(refuges.size()):
+		layout["guardian_braziers"].append({"id":index + 1, "pos":refuges[index], "lit":true})
+	for key: String in ["terrain", "traps"]:
+		layout[key] = (layout.get(key, []) as Array).filter(func(item: Dictionary) -> bool: return not refuges.has(item.get("pos", Vector2i(-1,-1))))
+	# Keep the production attendants and every loot reward. Relocate only loot
+	# obscured by a brazier, reserving the dragon's whole footprint.
+	var occupied: Dictionary = {layout["player_start"]:true}
+	for key: String in ["terrain", "traps", "guardian_braziers", "loot"]:
+		for item: Dictionary in layout.get(key, []): occupied[item["pos"]] = true
+	for enemy: Dictionary in layout["enemies"]:
+		for tile: Vector2i in preload("res://scripts/board_surface_rules.gd").footprint_tiles(enemy): occupied[tile] = true
+	for loot: Dictionary in layout.get("loot", []):
+		if not refuges.has(loot["pos"]): continue
+		var placed: bool = false
+		for y: int in range(1,8):
+			for x: int in range(1,8):
+				var tile := Vector2i(x,y)
+				if occupied.has(tile) or not preload("res://scripts/path_utils.gd").is_passable(layout["grid"],tile): continue
+				loot["pos"] = tile
+				occupied[tile] = true
+				placed = true
+				break
+			if placed: break

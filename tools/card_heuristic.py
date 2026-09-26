@@ -70,9 +70,13 @@ Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
-sequences. Zekarion's 2x2
-footprint makes printed reach feel larger, so Tempest Breath is capped at range
-3 after its one-tile advance to preserve safe boss-room repositioning. Large
+sequences. Zekarion's 2x2 footprint makes printed reach feel larger; Tempest
+Breath holds a three-tile cardinal lane without advancing. Storm Claw supplies
+close pursuit, while fixed marks and conduction make route geometry relevant.
+Dragon cycles hold directional geometry and cap terrain/armor/summons; Vyraketh
+uses shared Fire, Tharokh Worldspines, Vaeloryx directional displacement,
+Iskaldra armor/Ice, and Noctyrax lit refuges. These are encounter assumptions,
+not intrinsic card coefficients or guaranteed trophy/prepared-board uptime. Large
 enemies use actor-level targeting: one legal visible footprint tile makes the
 whole footprint clickable, but the action still counts as one target and one
 hit for scoring.
@@ -121,6 +125,7 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
+BALANCE_REVISION = "dragon_milestones_v1"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 
@@ -163,12 +168,12 @@ SOURCE_FILTERS = (
 )
 
 BOSS_ENCOUNTER_ROLES = {
-    "zekarion": "summoned lightning wisps",
-    "tharokh": "attackable Worldspines and delayed rupture",
+    "zekarion": "fixed marks, held conducting lane, advancing claw and capped wisps",
+    "tharokh": "capped attackable Worldspines, open approach routes and delayed rupture",
     "vyraketh": "shared Fire setup and deniable telegraphed detonation",
-    "vaeloryx": "arena-wide damage and forced movement",
-    "iskaldra": "hit-count frost crystal armor",
-    "noctyrax": "Eclipse damage against actors outside Radiance",
+    "vaeloryx": "held directional displacement, advancing dive and retreat",
+    "iskaldra": "capped hit-count armor, held Ice lane, physical sweep and pursuit",
+    "noctyrax": "Eclipse outside lit refuges, held attacks and alternating brazier snuff",
 }
 
 ENEMY_TACTICAL_ROLES = {
@@ -253,7 +258,7 @@ def encounter_assumptions() -> dict[str, Any]:
         },
         "board_surfaces": {
             "rules_version": 5,
-            "balance_revision": "short_reach_v1",
+            "balance_revision": BALANCE_REVISION,
             "shared_hazards": True,
             "fire_entry_damage": 2,
             "fire_start_damage": 3,
@@ -892,7 +897,7 @@ def scored_rows(
                 "consume_on_play": bool(card.get("consume_on_play", False)),
                 "health_cost": int(card.get("health_cost", 0)),
                 "rules_version": 5,
-                "balance_revision": "short_reach_v1",
+                "balance_revision": BALANCE_REVISION,
                 "retired": bool(card.get("retired", False)),
                 "time": int(card.get("time", weights.baseline_card_time)),
                 "description": card.get("description", ""),

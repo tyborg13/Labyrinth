@@ -169,6 +169,11 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": normalized_progression
 	}
+	var gifts: Array[Dictionary] = ProgressionStore.pending_starting_relic_gifts(normalized_progression)
+	if not gifts.is_empty():
+		var gift: Dictionary = gifts.front()
+		run_state["relics"].append(str(gift["relic_id"]))
+		run_state["starting_relic_gift_ids"] = [str(gift["id"])]
 	if section_maps:
 		SectionMapGraph.initialize(run_state)
 		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
@@ -1100,7 +1105,7 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	var outcome: String = _combat_engine.combat_outcome(combat_state)
 	var finished_room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
-	if outcome == "victory" and str(finished_room.get("type", "")) == "guardian" and bool(finished_room.get("cleared", false)):
+	if outcome == "victory" and str(finished_room.get("type", "")) in ["guardian", "boss"] and bool(finished_room.get("cleared", false)):
 		return run_state.duplicate(true)
 	var pending_escape: Dictionary = _pending_escape_for_combat_victory(combat_state, outcome)
 	var resolved_combat_state: Dictionary = combat_state.duplicate(true)
@@ -1156,40 +1161,37 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var total_embers: int = int(combat_state.get("room_embers", 0)) + ember_bonus
 	next_state = add_held_embers(next_state, total_embers)
 	if str(room.get("type", "")) == "boss":
+		var boss_id: String = str(room.get("boss_id", combat_state.get("boss_id", "")))
+		var milestone_id: String = "%s:dragon:%s" % [run_result_id(next_state), room_key]
 		var boss_skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
-		var awarded_moltshard: bool = false
-		if not bool(boss_skill_state.get("moltshard_awarded", false)):
-			var progression_before_award: Dictionary = next_state.get("progression", {}) as Dictionary
-			var award_id: String = "%s:first_boss_moltshard" % run_result_id(next_state)
-			var progression_after_award: Dictionary = ProgressionStore.add_moltshard_for_award(progression_before_award, award_id)
-			awarded_moltshard = ProgressionStore.moltshard_count(progression_after_award) > ProgressionStore.moltshard_count(progression_before_award)
-			next_state["progression"] = progression_after_award
+		var awarded_moltshard: bool = not bool(boss_skill_state.get("moltshard_awarded", false))
+		if awarded_moltshard:
+			next_state["progression"] = ProgressionStore.add_moltshard_for_award(next_state.get("progression", {}) as Dictionary, "%s:first_boss_moltshard" % run_result_id(next_state))
 			boss_skill_state["moltshard_awarded"] = true
 			next_state[SKILL_STATE_KEY] = boss_skill_state
 		var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
-		var boss_heal: int = ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION)
-		next_state["player_hp"] = mini(
-			boss_max_hp,
-			int(next_state.get("player_hp", 1)) + boss_heal
-		)
+		var hp_before: int = int(next_state.get("player_hp", 1))
+		next_state["player_hp"] = mini(boss_max_hp, hp_before + ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION))
 		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
-		next_state["pending_reward"] = {}
-		if _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false)):
-			next_state["victory"] = true
-			next_state["mode"] = "victory"
-			if awarded_moltshard:
-				next_state["notice"] = "Moltshard acquired."
-		else:
-			next_state["victory"] = false
-			next_state["mode"] = "room"
-			next_state["notice"] = (
-				"Moltshard acquired. The labyrinth opens outward."
-				if awarded_moltshard
-				else "The labyrinth opens outward."
-			)
-		if not missed_equipment.is_empty():
-			var boss_notice: String = str(next_state.get("notice", ""))
-			next_state["notice"] = "%s\n%s" % [boss_notice, MISSED_EQUIPMENT_NOTICE] if not boss_notice.is_empty() else MISSED_EQUIPMENT_NOTICE
+		var relic_id: String = DragonBossLibrary.relic_for_boss(boss_id)
+		var final_boss: bool = _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false))
+		var next_descent: bool = boss_id == DragonBossLibrary.SHADOW_BOSS_ID
+		if not relic_id.is_empty():
+			if next_descent:
+				next_state["progression"] = ProgressionStore.award_starting_relic_gift(next_state.get("progression", {}) as Dictionary, milestone_id, relic_id)
+			elif not (next_state.get("relics", []) as Array).has(relic_id):
+				next_state["relics"].append(relic_id)
+		next_state["pending_reward"] = {
+			"kind":"dragon", "milestone_id":milestone_id, "boss_id":boss_id,
+			"relic_id":relic_id, "next_descent":next_descent, "final_boss":final_boss,
+			"ember_amount":total_embers + BOSS_VICTORY_EMBERS,
+			"healed_amount":int(next_state["player_hp"]) - hp_before,
+			"moltshards":1 if awarded_moltshard else 0,
+			"board_state":resolved_combat_state.duplicate(true), "intro_pending":true
+		}
+		next_state["victory"] = false
+		next_state["mode"] = "reward"
+		next_state["notice"] = MISSED_EQUIPMENT_NOTICE if not missed_equipment.is_empty() else ""
 		return next_state
 	if str(room.get("type", "")) == "guardian":
 		var trophy: String = str(preload("res://scripts/guardian_library.gd").for_boss(str(room.get("boss_id", ""))).get("relic", ""))
@@ -1311,7 +1313,23 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 	_sync_current_layout_doors(next_state, previous_coord)
 	return next_state
 
+func is_dragon_reward(run_state: Dictionary) -> bool:
+	return str(run_state.get("mode", "")) == "reward" and str((run_state.get("pending_reward", {}) as Dictionary).get("kind", "")) == "dragon"
+
+func continue_dragon_reward(run_state: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	if not is_dragon_reward(next_state): return next_state
+	var reward: Dictionary = next_state.get("pending_reward", {}) as Dictionary
+	var final_boss: bool = bool(reward.get("final_boss", false))
+	next_state["last_dragon_milestone"] = str(reward.get("milestone_id", ""))
+	next_state["pending_reward"] = {}
+	next_state["mode"] = "victory" if final_boss else "room"
+	next_state["victory"] = final_boss
+	if not final_boss: next_state["notice"] = "The labyrinth opens outward."
+	return next_state
+
 func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
+	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
 	if not card_id.is_empty():
 		var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
@@ -1694,6 +1712,7 @@ func reserve_merchant_offer(run_state: Dictionary, item_id: String) -> Dictionar
 	return next_state
 
 func reroll_card_reward(run_state: Dictionary) -> Dictionary:
+	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
 	if str(next_state.get("mode", "room")) != "reward" or not run_skill_is_ready(next_state, "discerning_eye"):
 		return next_state
@@ -1712,6 +1731,7 @@ func reroll_card_reward(run_state: Dictionary) -> Dictionary:
 	return next_state
 
 func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") -> Dictionary:
+	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
 	var pending_reward: Dictionary = next_state.get("pending_reward", {}) as Dictionary
 	var offered_cards: Array = pending_reward.get("cards", []) as Array
@@ -1917,21 +1937,41 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 		next_state[COMBAT_CONTINUATION_KEY] = checkpoints
 	return next_state
 
+func can_use_emaciated_services(run_state: Dictionary) -> bool:
+	if str(run_state.get("mode", "")) != "room": return false
+	var room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
+	if str(room.get("type", "")) != "start": return false
+	for npc: Dictionary in room.get("npcs", []):
+		if str(npc.get("id", "")) == "emaciated_man": return true
+	return false
+
+func apply_run_wallet_receipt(run_state: Dictionary, profile: Dictionary) -> Dictionary:
+	var next_state: Dictionary = run_state.duplicate(true)
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, run_result_id(next_state))
+	if receipt.is_empty() or int(receipt.get("sequence", 0)) <= int(next_state.get("wallet_transaction_sequence", 0)):
+		return next_state
+	# Read the committed transaction balance, not unrelated later profile Embers.
+	next_state = apply_progression_update(next_state, profile)
+	next_state = set_held_embers(next_state, int(receipt.get("balance", 0)))
+	next_state["wallet_transaction_sequence"] = int(receipt["sequence"])
+	if str(receipt.get("kind", "")) == "level_up" and str(receipt.get("source", "")) == "campfire" and str(next_state.get("mode", "")) == "campfire":
+		next_state = leave_campfire(next_state, 0)
+	return next_state
+
 func reconcile_progression_revision(run_state: Dictionary, profile_progression: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	var embedded: Dictionary = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
 	var profile: Dictionary = ProgressionStore.normalized_data(profile_progression)
+	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(profile, run_result_id(next_state))
 	if int(profile.get("progression_revision", 0)) > int(embedded.get("progression_revision", 0)):
-		var level_advanced: bool = int(profile.get("level", 1)) > int(embedded.get("level", 1))
-		next_state = apply_progression_update(next_state, profile, not level_advanced)
-		# Level-up commits are profile-first. If the run checkpoint was interrupted,
-		# consume the stale campfire choice without granting its heal as well.
-		if level_advanced and str(next_state.get("mode", "room")) == "campfire":
+		var legacy_level_advanced: bool = receipt.is_empty() and int(profile.get("level", 1)) > int(embedded.get("level", 1))
+		next_state = apply_progression_update(next_state, profile, not legacy_level_advanced)
+		if legacy_level_advanced and str(next_state.get("mode", "room")) == "campfire":
 			next_state = leave_campfire(next_state, 0)
 	else:
 		next_state["progression"] = embedded
 		next_state = _repair_skill_dependent_state(next_state)
-	return next_state
+	return apply_run_wallet_receipt(next_state, profile)
 
 func room_neighbors_with_metadata(run_state: Dictionary) -> Array[Dictionary]:
 	var results: Array[Dictionary] = []
@@ -2893,7 +2933,7 @@ func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[St
 	var owned: Array = run_state.get("relics", []).duplicate()
 	var available: Array[String] = []
 	for relic_id: String in GameData.relic_ids():
-		if bool(GameData.relic_def(relic_id).get("exclusive_guardian", false)): continue
+		if bool(GameData.relic_def(relic_id).get("exclusive_guardian", false)) or not str(GameData.relic_def(relic_id).get("exclusive_boss", "")).is_empty(): continue
 		if not owned.has(relic_id):
 			available.append(relic_id)
 	available.sort()

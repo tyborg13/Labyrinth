@@ -346,7 +346,7 @@ static func _test_first_boss_moltshard_is_idempotent(expect: Callable) -> void:
 	var first_progression: Dictionary = rewarded.get("progression", {}) as Dictionary
 	expect.call(ProgressionStore.moltshard_count(first_progression) == 1, "The first boss victory should award one Moltshard")
 	expect.call((rewarded.get("item_inventory", []) as Array).is_empty(), "A Moltshard should remain progression currency rather than entering run inventory")
-	expect.call(str(rewarded.get("notice", "")).contains("Moltshard acquired"), "The boss reward should tell the player that a Moltshard was acquired")
+	expect.call(int((rewarded.get("pending_reward", {}) as Dictionary).get("moltshards", 0)) == 1, "The boss reward should tell the player that a Moltshard was acquired")
 	var first_revision: int = int(first_progression.get("progression_revision", 0))
 	var repeated: Dictionary = engine.finish_combat(rewarded, boss_result)
 	var repeated_progression: Dictionary = repeated.get("progression", {}) as Dictionary
@@ -376,7 +376,7 @@ static func _test_boss_notice_keeps_moltshard_and_missed_equipment(expect: Calla
 	var boss_result: Dictionary = _combat_result(FIRST_BOSS_ROOM, "boss", true, [_equipment_loot("stitcher_apron", Vector2i(4, 4))])
 	var rewarded: Dictionary = engine.finish_combat(state, boss_result)
 	var notice: String = str(rewarded.get("notice", ""))
-	expect.call(notice.contains("Moltshard acquired"), "A boss notice should retain Moltshard acquisition feedback when equipment was missed")
+	expect.call(int((rewarded.get("pending_reward", {}) as Dictionary).get("moltshards", 0)) == 1, "A boss notice should retain Moltshard acquisition feedback when equipment was missed")
 	expect.call(notice.contains(RunEngineScript.MISSED_EQUIPMENT_NOTICE), "A boss notice should also retain the missed-equipment warning")
 
 static func _test_reset_preserves_spent_state_and_earned_pending(expect: Callable) -> void:

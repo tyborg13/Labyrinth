@@ -1,0 +1,31 @@
+{
+  "fixture_args": [
+    "--scenario",
+    "dragon",
+    "--dragon-id",
+    "zekarion",
+    "--dragon-depth",
+    "20",
+    "--dragon-build",
+    "balanced",
+    "--summary",
+    "Native late Zekarion study: fresh-profile level 4 acquired balanced cohort, 20/24 HP, prior seeded trophies, normal shuffle; inspect Wisp pressure and conductor choices."
+  ],
+  "generated_at_utc": "2026-09-26T21:02:36Z",
+  "generator_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-zekarion-late-01 --godot-home-root /private/tmp/labyrinth-godot-home -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/inspection_fixture.gd -- --scenario dragon --dragon-id zekarion --dragon-depth 20 --dragon-build balanced --summary 'Native late Zekarion study: fresh-profile level 4 acquired balanced cohort, 20/24 HP, prior seeded trophies, normal shuffle; inspect Wisp pressure and conductor choices.'",
+  "launch_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-zekarion-late-01 --godot /Applications/Godot.app/Contents/MacOS/Godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange/output/dragon-revision/zekarion-late-01.json --launch --scenario dragon --dragon-id zekarion --dragon-depth 20 --dragon-build balanced --summary 'Native late Zekarion study: fresh-profile level 4 acquired balanced cohort, 20/24 HP, prior seeded trophies, normal shuffle; inspect Wisp pressure and conductor choices.'",
+  "project": "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "run_id": "dragon-zekarion-late-01",
+  "scenario": "dragon",
+  "schema_version": 2,
+  "summary": "Native late Zekarion study: fresh-profile level 4 acquired balanced cohort, 20/24 HP, prior seeded trophies, normal shuffle; inspect Wisp pressure and conductor choices.",
+  "task_id": "dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+  "verification": {
+    "godot": "/Applications/Godot.app/Contents/MacOS/Godot",
+    "godot_home_root": "/private/tmp/labyrinth-godot-home",
+    "runner": "tools/godot_task_runner.py",
+    "script": "tools/inspection_fixture_verify.gd"
+  },
+  "verified": true,
+  "verifier_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-zekarion-late-01 --godot-home-root /private/tmp/labyrinth-godot-home -- /Applications/Godot.app/Contents/MacOS/Godot --headless --path . --script tools/inspection_fixture_verify.gd"
+}

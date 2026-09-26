@@ -198,9 +198,10 @@ never changes remaining enemy HP, heals a character, grants a card play, replays
 an action or restores a spent item. Players can replay the tutorial from the
 normal tutorial controls.
 
-## Reach balance compatibility
+## Content balance compatibility
 
-`short_reach_v1` loads current card definitions immediately, but preserves every
+The `short_reach_v1` and `dragon_milestones_v1` transitions load current card
+definitions immediately, but preserve every
 already revealed enemy intent and paid continuation checkpoint verbatim. That
 includes authored tutorial overrides and paid surface bonuses. New enemy intent
 selections read the current data normally. Loading never rerolls the visible
