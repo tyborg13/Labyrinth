@@ -316,7 +316,7 @@ saved run until append and acknowledgment succeed. Final-boss settlement merges
 it into the profile before clearing the run. Both recovery paths replay safely
 without duplicating rewards, banking held Embers early, or losing an event in
 the save/append gap. Intermediate Continue returns to room mode; Noctyrax's
-Complete Descent then records victory and `run_ended`.
+Complete Ascent then records victory and `run_ended`.
 
 Dragon `enemy_action_resolved` payloads include `boss_mechanic`,
 `committed_direction`, `action_direction`, `declared_tiles`, and `resolved_tiles`
