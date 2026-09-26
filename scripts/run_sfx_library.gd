@@ -19,25 +19,25 @@ const SFX: Dictionary = {
 	HEARTH_ARRIVAL_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_arrival.wav",
 		"trimmed_duration": 0.68,
-		"volume_db": -16.0,
+		"volume_db": -14.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	HEARTH_FOCUS_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_focus.wav",
 		"trimmed_duration": 0.12,
-		"volume_db": -23.0,
+		"volume_db": -17.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	HEARTH_SELECT_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_select.wav",
 		"trimmed_duration": 0.26,
-		"volume_db": -14.0,
+		"volume_db": -12.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	HEARTH_RECOVER_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_recover.wav",
 		"trimmed_duration": 0.95,
-		"volume_db": -12.0,
+		"volume_db": -10.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	HEARTH_STRENGTH_ID: {
@@ -49,7 +49,7 @@ const SFX: Dictionary = {
 	HEARTH_DEPART_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_depart.wav",
 		"trimmed_duration": 1.0,
-		"volume_db": -12.0,
+		"volume_db": -14.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 
