@@ -44,6 +44,11 @@ func _ready() -> void:
 	_refresh_connected_family()
 
 func _input(event: InputEvent) -> void:
+	record_input_activity(event)
+
+# Modal presentation gates may consume an event before the autoload receives it.
+# Recording activity updates device/prompts only; it never dispatches an action.
+func record_input_activity(event: InputEvent) -> void:
 	# GUI probes share the host's real input stream. A forced test state must stay
 	# deterministic until the probe explicitly authors its next modality.
 	if not _forced_modality_for_test.is_empty():

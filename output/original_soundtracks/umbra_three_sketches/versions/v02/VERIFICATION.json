@@ -1,0 +1,280 @@
+{
+  "listening_review": "Not performed by this verifier; user taste audition is pending.",
+  "source_hashes_checked": 16,
+  "status": "passed",
+  "tracks": {
+    "Ashen Pursuit": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            0.021270751953125,
+            0.015228271484375
+          ],
+          "first_last_sample_delta": [
+            0.00054931640625,
+            0.000213623046875
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.021820068359375,
+            0.01544189453125
+          ],
+          "loudness_range_lu": 2.0,
+          "p99_9_adjacent_sample_delta": [
+            0.013641357421875,
+            0.0142822265625
+          ],
+          "peak_dbfs": -7.0088631078270005,
+          "seam_to_p99_9_ratio": [
+            0.040268456375838924,
+            0.014957264957264958
+          ],
+          "true_peak_dbtp": -7.01
+        },
+        "mp3": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            0.02098388597369194,
+            0.01503633614629507
+          ],
+          "first_last_sample_delta": [
+            0.000498943030834198,
+            0.0005291970446705818
+          ],
+          "integrated_lufs": -20.26,
+          "last_frame": [
+            0.020484942942857742,
+            0.014507139101624489
+          ],
+          "loudness_range_lu": 2.0,
+          "p99_9_adjacent_sample_delta": [
+            0.013246223330497742,
+            0.0138445645570755
+          ],
+          "peak_dbfs": -7.273514039435163,
+          "true_peak_dbtp": -7.27
+        },
+        "ogg": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            0.0127870487049222,
+            0.010356736369431019
+          ],
+          "first_last_sample_delta": [
+            0.0015905071049928665,
+            0.00039001554250717163
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            0.014377555809915066,
+            0.009966720826923847
+          ],
+          "loudness_range_lu": 2.1,
+          "p99_9_adjacent_sample_delta": [
+            0.013681353069841862,
+            0.0143037810921669
+          ],
+          "peak_dbfs": -7.00234168132464,
+          "seam_to_p99_9_ratio": [
+            0.11625364076736386,
+            0.027266604542819355
+          ],
+          "true_peak_dbtp": -7.0
+        }
+      },
+      "midi": {
+        "duration_seconds": 57.6,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 317,
+        "score_event_readback": "exact",
+        "tracks": 6
+      }
+    },
+    "Lanterns Below": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1706667,
+          "duration_seconds": 53.33334375,
+          "first_frame": [
+            -0.02850341796875,
+            -0.021240234375
+          ],
+          "first_last_sample_delta": [
+            0.0018310546875,
+            0.001190185546875
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            -0.02667236328125,
+            -0.020050048828125
+          ],
+          "loudness_range_lu": 2.0,
+          "p99_9_adjacent_sample_delta": [
+            0.059185028076171875,
+            0.045482635498046875
+          ],
+          "peak_dbfs": -7.80913829867646,
+          "seam_to_p99_9_ratio": [
+            0.030937802126973897,
+            0.026167910760714584
+          ],
+          "true_peak_dbtp": -7.81
+        },
+        "mp3": {
+          "decoded_frames": 1706667,
+          "duration_seconds": 53.33334375,
+          "first_frame": [
+            -0.02664596401154995,
+            -0.020350750535726547
+          ],
+          "first_last_sample_delta": [
+            0.0015408620238304138,
+            0.001436842605471611
+          ],
+          "integrated_lufs": -20.27,
+          "last_frame": [
+            -0.025105101987719536,
+            -0.018913907930254936
+          ],
+          "loudness_range_lu": 1.9,
+          "p99_9_adjacent_sample_delta": [
+            0.05743425339460373,
+            0.044147856533527374
+          ],
+          "peak_dbfs": -8.073933003697277,
+          "true_peak_dbtp": -8.07
+        },
+        "ogg": {
+          "decoded_frames": 1706688,
+          "duration_seconds": 53.334,
+          "first_frame": [
+            -0.017576701939105988,
+            -0.01577429100871086
+          ],
+          "first_last_sample_delta": [
+            0.017701406031847,
+            0.015742413699626923
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.0001247049222001806,
+            -3.187808397342451e-05
+          ],
+          "loudness_range_lu": 2.0,
+          "p99_9_adjacent_sample_delta": [
+            0.05914624407887459,
+            0.04559057205915451
+          ],
+          "peak_dbfs": -7.76282837882184,
+          "seam_to_p99_9_ratio": [
+            0.29928199681185597,
+            0.3452997623982626
+          ],
+          "true_peak_dbtp": -7.76
+        }
+      },
+      "midi": {
+        "duration_seconds": 53.333312,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 128,
+        "score_event_readback": "exact",
+        "tracks": 5
+      }
+    },
+    "The Turning Key": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1536000,
+          "duration_seconds": 48.0,
+          "first_frame": [
+            -0.016754150390625,
+            -0.008636474609375
+          ],
+          "first_last_sample_delta": [
+            0.001617431640625,
+            0.001251220703125
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            -0.01513671875,
+            -0.00738525390625
+          ],
+          "loudness_range_lu": 0.9,
+          "p99_9_adjacent_sample_delta": [
+            0.0142822265625,
+            0.015106201171875
+          ],
+          "peak_dbfs": -9.069399757696788,
+          "seam_to_p99_9_ratio": [
+            0.11324786324786325,
+            0.08282828282828283
+          ],
+          "true_peak_dbtp": -9.06
+        },
+        "mp3": {
+          "decoded_frames": 1536000,
+          "duration_seconds": 48.0,
+          "first_frame": [
+            -0.015306834131479263,
+            -0.008182210847735405
+          ],
+          "first_last_sample_delta": [
+            0.0009138286113739014,
+            0.0011056950315833092
+          ],
+          "integrated_lufs": -20.27,
+          "last_frame": [
+            -0.014393005520105362,
+            -0.007076515816152096
+          ],
+          "loudness_range_lu": 1.0,
+          "p99_9_adjacent_sample_delta": [
+            0.013855524361133575,
+            0.014661163091659546
+          ],
+          "peak_dbfs": -9.333260403477116,
+          "true_peak_dbtp": -9.33
+        },
+        "ogg": {
+          "decoded_frames": 1536000,
+          "duration_seconds": 48.0,
+          "first_frame": [
+            -0.008755892515182495,
+            -0.004311250057071447
+          ],
+          "first_last_sample_delta": [
+            0.00016653072088956833,
+            0.0009387081954628229
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            -0.008589361794292927,
+            -0.0033725418616086245
+          ],
+          "loudness_range_lu": 0.9,
+          "p99_9_adjacent_sample_delta": [
+            0.01431046798825264,
+            0.015137746930122375
+          ],
+          "peak_dbfs": -9.034174881147187,
+          "seam_to_p99_9_ratio": [
+            0.01163698636734118,
+            0.06201109054048866
+          ],
+          "true_peak_dbtp": -9.03
+        }
+      },
+      "midi": {
+        "duration_seconds": 48.0,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 233,
+        "score_event_readback": "exact",
+        "tracks": 6
+      }
+    }
+  }
+}

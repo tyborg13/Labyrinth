@@ -1,5 +1,7 @@
 extends Node2D
 
+const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
+
 # Compact, code-native companion to the authored corner-and-rail frame kit.
 # It is intentionally reserved for subordinate facts, rows, tooltips, and HUD
 # widgets where full corner art would become noisy. The silhouette, cast
@@ -72,6 +74,7 @@ func _draw() -> void:
 	elif hovered:
 		inner = inner.lightened(0.045)
 	draw_colored_polygon(inset_points, inner)
+	SurfaceFinish.draw_dark_well(self, inset_points, inset_rect, _variant)
 
 	var state_alpha: float = 0.86 if selected else (0.72 if hovered else 0.34)
 	if disabled:

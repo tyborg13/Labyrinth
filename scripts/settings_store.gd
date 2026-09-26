@@ -50,6 +50,9 @@ const MINIMUM_WINDOWED_SIZE := Vector2i(960, 540)
 const WINDOW_SCREEN_MARGIN := Vector2i(64, 64)
 
 static var _storage_path: String = DEFAULT_STORAGE_PATH
+# Runtime preference belongs to apply_settings, not disk persistence. Shared
+# decorative controls can check it without polling user:// during rendering.
+static var _applied_reduced_motion: bool = false
 
 static func set_storage_path(path: String) -> void:
 	_storage_path = path if not path.is_empty() else DEFAULT_STORAGE_PATH
@@ -124,6 +127,7 @@ static func restore_defaults(window: Window = null) -> Dictionary:
 
 static func apply_settings(settings: Dictionary, window: Window = null, apply_display_mode: bool = true) -> Dictionary:
 	var normalized: Dictionary = normalize_settings(settings)
+	_applied_reduced_motion = bool(normalized["reduced_motion"])
 	apply_audio_settings(normalized)
 	if window != null:
 		window.content_scale_factor = float(normalized["ui_scale"])
@@ -168,6 +172,9 @@ static func dialogue_characters_per_second(settings: Dictionary) -> float:
 
 static func dialogue_is_instant(settings: Dictionary) -> bool:
 	return str(normalize_settings(settings)["dialogue_speed"]) == DIALOGUE_INSTANT
+
+static func applied_reduced_motion_enabled() -> bool:
+	return _applied_reduced_motion
 
 static func reduced_motion_enabled(settings: Dictionary) -> bool:
 	return bool(normalize_settings(settings)["reduced_motion"])

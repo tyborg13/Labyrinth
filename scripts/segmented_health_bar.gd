@@ -76,15 +76,19 @@ static func draw_bar(
 	if canvas == null or rect.size.x <= 0.0 or rect.size.y <= 0.0:
 		return
 	var ratio: float = clamp(bar_value / maxf(bar_max_value, 1.0), 0.0, 1.0)
-	canvas.draw_rect(rect, bar_background_color, true)
+	# The well and fill share the authored bounds: depth must never suggest
+	# extra health or change where a projected-damage band starts.
+	_draw_vertical_shade(canvas, rect, bar_background_color.darkened(0.24), bar_background_color)
 	if ratio > 0.0:
-		var fill_rect: Rect2 = Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y))
-		canvas.draw_rect(fill_rect, bar_fill_color, true)
-		canvas.draw_rect(
-			Rect2(fill_rect.position, Vector2(fill_rect.size.x, minf(fill_rect.size.y, 2.0))),
-			bar_fill_highlight_color,
-			true
-		)
+		var fill_rect := Rect2(rect.position, Vector2(rect.size.x * ratio, rect.size.y))
+		var shoulder: float = fill_rect.size.y * 0.35
+		var lit_color: Color = bar_fill_color.lerp(bar_fill_highlight_color, 0.56)
+		_draw_vertical_shade(canvas, Rect2(fill_rect.position, Vector2(fill_rect.size.x, shoulder)), bar_fill_color, lit_color)
+		_draw_vertical_shade(canvas, Rect2(fill_rect.position + Vector2(0.0, shoulder), Vector2(fill_rect.size.x, fill_rect.size.y - shoulder)), lit_color, bar_fill_color.darkened(0.32))
+		canvas.draw_rect(Rect2(fill_rect.position, Vector2(fill_rect.size.x, minf(fill_rect.size.y, 1.0))), bar_fill_highlight_color, true)
+		if ratio < 1.0:
+			var cap_width: float = minf(1.0, fill_rect.size.x)
+			canvas.draw_rect(Rect2(Vector2(fill_rect.end.x - cap_width, fill_rect.position.y), Vector2(cap_width, fill_rect.size.y)), bar_fill_highlight_color.lerp(bar_fill_color, 0.38), true)
 	var safe_segments: int = maxi(1, bar_segment_count)
 	for idx: int in range(1, safe_segments):
 		var separator_x: float = rect.position.x + rect.size.x * float(idx) / float(safe_segments)
@@ -97,3 +101,11 @@ static func draw_bar(
 			true
 		)
 	canvas.draw_rect(rect, bar_border_color, false, bar_border_width)
+
+# A pair of vertically shaded faces gives the small meter an inset, enamel
+# finish without textures, animation, extra nodes or new layout.
+static func _draw_vertical_shade(canvas: CanvasItem, rect: Rect2, top: Color, bottom: Color) -> void:
+	canvas.draw_polygon(
+		PackedVector2Array([rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]),
+		PackedColorArray([top, top, bottom, bottom])
+	)

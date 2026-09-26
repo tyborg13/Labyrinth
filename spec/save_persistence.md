@@ -85,6 +85,34 @@ and never replaces that unprocessed terminal snapshot with the finalized display
 Campfire Embrace likewise clears the run only after the bank/rest profile write
 succeeds; a failed write leaves the previous resumable run unchanged.
 
+## Ordinary combat analytics scheduling
+
+The September 2026 completion-stall pass permits unfinished action/analytics work
+to be lost on interruption. The current implementation uses that permission
+conservatively: coherent action checkpoints still use the transactional save
+path, while HUD-triggered combat analytics reconciliation is queued after the
+completion frame. Its outbox save, JSONL/profile acknowledgment, and final run
+acknowledgment execute as three ordered main-thread slices separated by rendered
+frames. This is asynchronous scheduling, not an OS worker thread.
+
+Repeated HUD requests coalesce. Each slice runs only against stable authoritative
+combat state; a new action's held presentation pauses the queue and restarts the
+protocol from current state. Player-turn warming shares this owner while it holds
+its existing input lock. The queue never retains a mutable run snapshot over a
+yield. Acknowledgment is copied into in-memory run progression in the same slice
+as profile acknowledgment, before another action can inherit the old outbox.
+
+In ordinary combat, explicit Save & Quit/window close flush the ordered protocol
+synchronously before saving the latest held/current checkpoint. Terminal saves
+cancel the queue and retry the profile checkpoint without replacing an earlier
+unprocessed recovery snapshot. Load, new-run/debug-run, abandonment,
+scene exit and non-combat persistence invalidate sleeping callbacks. A changed
+storage namespace cannot make an old request write to a new destination. Failed
+save/append attempts stop until a later request or explicit flush; enqueueing
+never means written, and append failure never advances an acknowledgment.
+An interruption may leave the last complete checkpoint or a pending replayable
+outbox. Terminal banking and profile-before-run-clear rules remain unchanged.
+
 ## State intentionally excluded
 
 The save never includes hover state, card drag state, a selected but uncommitted

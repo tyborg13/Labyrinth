@@ -2,6 +2,9 @@ extends SceneTree
 
 # Fixed-clock comparison against the exact pre-optimization renderer. Covers
 # every element, all three spell phases, depth passes, motion modes and scales.
+# The 2026-09-22 authored floor responses have their own production-board proof
+# in elemental_spell_effects_probe.gd; this optimization regression compares
+# their unchanged floor-light primitive, not the retired three-arc art design.
 const Fx = preload("res://scripts/elemental_spell_fx.gd")
 const Reference = preload("res://tests/fixtures/elemental_spell_fx_reference.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -20,7 +23,7 @@ class Effects extends Node2D:
 			var x: float = 195.13 + column * 380.27
 			var size: float = 117.73 if column % 2 == 0 else 176.27
 			var at := Vector2(x, 264.37)
-			fx.ground(self, element, at, size, progress, 0.85)
+			fx.floor_light(self, element, at, size, fx.envelope(progress) * 0.85)
 			fx.impact(self, element, at, size, progress, 0.85, reduced, false)
 			fx.impact(self, element, at, size, progress, 0.85, reduced, true)
 			at = Vector2(x, 563.41)

@@ -12,6 +12,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout,name)), "rotation": 0.0, "scale": Vector2.ONE, "skew": 0.0}
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	var rear: bool = facing == "rear"
 	var forward: Vector2 = Vector2(1,-0.5).normalized() if rear else Vector2(-1,0.5).normalized()
 	if clip == "idle":
@@ -127,3 +129,25 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float=inverse_lerp(keys[i-1].x,keys[i].x,t)
 			return lerpf(keys[i-1].y,keys[i].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = (Vector2(1,-0.5) if facing == "rear" else Vector2(-1,0.5)).normalized()
+	var fallen: bool = clip == "death"
+	# Four supports splay under the low hunch; claws and toes retain rigid paint.
+	pose["body"]["position"] += (forward * 8.0 + Vector2(0,27)) * amount if fallen else (-forward * 7.0 + Vector2(0,2.5)) * amount
+	pose["body"]["rotation"] = (0.10 if facing == "rear" else -0.10) * amount if fallen else 0.0
+	# The head stays registered to the pitching hunch instead of hinging off its neck.
+	for terminal: String in ["claw_near","claw_far","foot_near","foot_far"]:
+		var target: Vector2 = _point(layout, terminal)
+		if fallen:
+			target += Vector2(4.0 if terminal.ends_with("near") else -4.0, 0) * amount
+		_solve_limb(pose, layout, terminal, target, 0.0, 0.0)
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

@@ -32,11 +32,13 @@ func _initialize() -> void:
 	ProgressionStore.clear_saved_run()
 	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "travel")
 	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "impact")
-	await _capture_card("molten_reach", AttackFxLibrary.STYLE_FIREBALL, false)
-	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, false)
-	# Lightning's authored animation is only 0.345 seconds. Capture travel and
-	# impact from independent casts so screenshot readback cannot consume the
-	# second proof state.
+	# Capture short authored animations from independent casts so screenshot
+	# readback cannot consume the later impact proof state. Keep the original
+	# progress thresholds and semantic assertions for both casts.
+	await _capture_card("molten_reach", AttackFxLibrary.STYLE_FIREBALL, false, "travel")
+	await _capture_card("molten_reach", AttackFxLibrary.STYLE_FIREBALL, false, "impact")
+	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, false, "travel")
+	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, false, "impact")
 	await _capture_card("thunderline", AttackFxLibrary.STYLE_LIGHTNING_BOLT, false, "travel")
 	await _capture_card("thunderline", AttackFxLibrary.STYLE_LIGHTNING_BOLT, false, "impact")
 	await _capture_card("rime_shard", AttackFxLibrary.STYLE_ICE_SHARDS, true)

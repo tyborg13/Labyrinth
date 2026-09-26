@@ -60,6 +60,21 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		pose["wing_near"]["rotation"] = sign_x*(0.12*prep-0.13*release)
 		pose["wing_far"]["rotation"] = -sign_x*(0.10*prep-0.11*release)
 		pose["tail_mid"]["rotation"] = sign_x*0.06*prep
+	elif clip == "hit":
+		var impact: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.35,0.70),Vector2(1,0)]))
+		pose["body"]["position"] += Vector2(-sign_x * 4.0, 1.8) * impact
+		pose["neck"]["rotation"] = -sign_x * 0.065 * impact
+		pose["wing_near"]["rotation"] = sign_x * 0.055 * impact
+		pose["wing_far"]["rotation"] = -sign_x * 0.045 * impact
+	elif clip == "death":
+		# The chest gives way, followed by a drooping neck and closing wings.
+		var buckle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.64,1),Vector2(1,1)]))
+		var settle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.30,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["body"]["position"] += Vector2(sign_x * 2.0, 14.0) * buckle
+		pose["neck"]["rotation"] = sign_x * 0.18 * settle
+		pose["head"]["rotation"] = sign_x * 0.045 * settle
+		pose["wing_near"]["rotation"] = sign_x * 0.13 * settle
+		pose["wing_far"]["rotation"] = -sign_x * 0.11 * settle
 	for side: String in LIMBS:
 		var target: Vector2 = _point(layout,"claw_"+side)
 		var lift: float = 0.0

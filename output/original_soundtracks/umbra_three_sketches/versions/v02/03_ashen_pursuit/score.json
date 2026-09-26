@@ -1,0 +1,2396 @@
+{
+  "bars": 24,
+  "based_on": "versions/v01/03_ashen_pursuit/score.json",
+  "beats_per_bar": 4,
+  "bpm": 100,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "Dm"
+    },
+    {
+      "bar": 2,
+      "chord": "Dm"
+    },
+    {
+      "bar": 3,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 4,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 5,
+      "chord": "Gm"
+    },
+    {
+      "bar": 6,
+      "chord": "Gm"
+    },
+    {
+      "bar": 7,
+      "chord": "A7"
+    },
+    {
+      "bar": 8,
+      "chord": "A7"
+    },
+    {
+      "bar": 9,
+      "chord": "Gm(add9)"
+    },
+    {
+      "bar": 10,
+      "chord": "Gm(add9)"
+    },
+    {
+      "bar": 11,
+      "chord": "Ebmaj7"
+    },
+    {
+      "bar": 12,
+      "chord": "Ebmaj7"
+    },
+    {
+      "bar": 13,
+      "chord": "Gm"
+    },
+    {
+      "bar": 14,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 15,
+      "chord": "A7"
+    },
+    {
+      "bar": 16,
+      "chord": "A7"
+    },
+    {
+      "bar": 17,
+      "chord": "Dm"
+    },
+    {
+      "bar": 18,
+      "chord": "Dm"
+    },
+    {
+      "bar": 19,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 20,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 21,
+      "chord": "Gm"
+    },
+    {
+      "bar": 22,
+      "chord": "Bbmaj7"
+    },
+    {
+      "bar": 23,
+      "chord": "A7"
+    },
+    {
+      "bar": 24,
+      "chord": "A7"
+    }
+  ],
+  "key": "D minor",
+  "mood": "Dark chamber pursuit; a low bowed lead, deliberate war drums, and a minor middle.",
+  "notes": [
+    {
+      "beat": 0,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 0,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 0,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 0,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 80
+    },
+    {
+      "beat": 0,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 80
+    },
+    {
+      "beat": 0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 1,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 1.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 74
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 55
+    },
+    {
+      "beat": 2,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 2,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 2.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 3,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 3.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 77
+    },
+    {
+      "beat": 4,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 4,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 4,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 80
+    },
+    {
+      "beat": 4,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 5.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 5.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 55
+    },
+    {
+      "beat": 6,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 6,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 6.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 6.5,
+      "duration": 1.25,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 74
+    },
+    {
+      "beat": 7.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 7.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 8,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 8,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 8,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 8,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 8,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 8,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 9,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 62,
+      "velocity": 77
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 9.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 10,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 10,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 10.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 11,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 80
+    },
+    {
+      "beat": 11.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 11.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 77
+    },
+    {
+      "beat": 12,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 12,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 80
+    },
+    {
+      "beat": 12,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 12,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 13.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 14,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 14,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 77
+    },
+    {
+      "beat": 14,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 14.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 14.75,
+      "duration": 1.0,
+      "instrument": "answer_viol",
+      "pitch": 62,
+      "velocity": 51
+    },
+    {
+      "beat": 15.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 15,
+      "duration": 0.75,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 15.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 16,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 16,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 58,
+      "velocity": 64
+    },
+    {
+      "beat": 16,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 16,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 80
+    },
+    {
+      "beat": 16,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 80
+    },
+    {
+      "beat": 16,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 17,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 62,
+      "velocity": 77
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 17.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 58,
+      "velocity": 74
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 55
+    },
+    {
+      "beat": 18,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 18,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 68
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 19,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 80
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 51
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 77
+    },
+    {
+      "beat": 20,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 20,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 20,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 80
+    },
+    {
+      "beat": 20,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 21.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 77
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 55
+    },
+    {
+      "beat": 22,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 22,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 68
+    },
+    {
+      "beat": 22.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 22.5,
+      "duration": 1.25,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 74
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 51
+    },
+    {
+      "beat": 24,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 24,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 61,
+      "velocity": 64
+    },
+    {
+      "beat": 24,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 24,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 24,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 24,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 25,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 25.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 74
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 26,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 26,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 27,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 49,
+      "velocity": 77
+    },
+    {
+      "beat": 28,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 28,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 28,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 28,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 30,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 30,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 77
+    },
+    {
+      "beat": 30,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 30.75,
+      "duration": 1.0,
+      "instrument": "answer_viol",
+      "pitch": 61,
+      "velocity": 51
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 31,
+      "duration": 0.75,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.24,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 32,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 58,
+      "velocity": 57
+    },
+    {
+      "beat": 32,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 57
+    },
+    {
+      "beat": 32,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 52
+    },
+    {
+      "beat": 32,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 62,
+      "velocity": 68
+    },
+    {
+      "beat": 32,
+      "duration": 3.7,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 65
+    },
+    {
+      "beat": 32,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 43
+    },
+    {
+      "beat": 34,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 58,
+      "velocity": 65
+    },
+    {
+      "beat": 34.5,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 43
+    },
+    {
+      "beat": 36,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 52
+    },
+    {
+      "beat": 36,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 68
+    },
+    {
+      "beat": 36,
+      "duration": 3.7,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 65
+    },
+    {
+      "beat": 36,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 43
+    },
+    {
+      "beat": 38,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 65
+    },
+    {
+      "beat": 38.5,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 43
+    },
+    {
+      "beat": 40,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 57
+    },
+    {
+      "beat": 40,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 57
+    },
+    {
+      "beat": 40,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 52
+    },
+    {
+      "beat": 40,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 68
+    },
+    {
+      "beat": 40,
+      "duration": 3.7,
+      "instrument": "hollow_bass",
+      "pitch": 39,
+      "velocity": 65
+    },
+    {
+      "beat": 40,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 51,
+      "velocity": 43
+    },
+    {
+      "beat": 42,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 65
+    },
+    {
+      "beat": 42.5,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 43
+    },
+    {
+      "beat": 44,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 52
+    },
+    {
+      "beat": 44,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 51,
+      "velocity": 68
+    },
+    {
+      "beat": 44,
+      "duration": 3.7,
+      "instrument": "hollow_bass",
+      "pitch": 39,
+      "velocity": 65
+    },
+    {
+      "beat": 44,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 51,
+      "velocity": 43
+    },
+    {
+      "beat": 46,
+      "duration": 1.75,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 65
+    },
+    {
+      "beat": 46.5,
+      "duration": 1.4,
+      "instrument": "answer_viol",
+      "pitch": 58,
+      "velocity": 51
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 43
+    },
+    {
+      "beat": 48,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 48,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 58,
+      "velocity": 64
+    },
+    {
+      "beat": 48,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 48,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 80
+    },
+    {
+      "beat": 48,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 80
+    },
+    {
+      "beat": 48,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 49.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 55
+    },
+    {
+      "beat": 50,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 50,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 68
+    },
+    {
+      "beat": 50.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 50.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 58,
+      "velocity": 74
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 51
+    },
+    {
+      "beat": 52,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 52,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 52,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 52,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 80
+    },
+    {
+      "beat": 52,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 52,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 53.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 77
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 54,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 54,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 54.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 54.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 74
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 56,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 56,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 61,
+      "velocity": 64
+    },
+    {
+      "beat": 56,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 56,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 56,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 56,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 57,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 77
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 57.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 58,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 58,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 58.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 59,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 61,
+      "velocity": 80
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 59,
+      "velocity": 77
+    },
+    {
+      "beat": 60,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 60,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 80
+    },
+    {
+      "beat": 60,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 60,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 62,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 62,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 77
+    },
+    {
+      "beat": 62,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 62.75,
+      "duration": 1.0,
+      "instrument": "answer_viol",
+      "pitch": 61,
+      "velocity": 51
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 63,
+      "duration": 0.75,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 74
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.24,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 64,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 64,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 64,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 64,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 80
+    },
+    {
+      "beat": 64,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 80
+    },
+    {
+      "beat": 64,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 65,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 65.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 74
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 55
+    },
+    {
+      "beat": 66,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 66,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 67,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 77
+    },
+    {
+      "beat": 68,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 68,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 68,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 80
+    },
+    {
+      "beat": 68,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 69.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 55
+    },
+    {
+      "beat": 70,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 70,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 70.5,
+      "duration": 1.25,
+      "instrument": "grave_lead",
+      "pitch": 62,
+      "velocity": 74
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 72,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 72,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 72,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 72,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 72,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 72,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 73,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 62,
+      "velocity": 77
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 73.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 74,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 74,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 75,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 80
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 77
+    },
+    {
+      "beat": 76,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 76,
+      "duration": 2,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 80
+    },
+    {
+      "beat": 76,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 76,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 78,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 78,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 77
+    },
+    {
+      "beat": 78,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 78.75,
+      "duration": 1.0,
+      "instrument": "answer_viol",
+      "pitch": 62,
+      "velocity": 51
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 79,
+      "duration": 0.75,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 80,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 80,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 58,
+      "velocity": 64
+    },
+    {
+      "beat": 80,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 80,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 80
+    },
+    {
+      "beat": 80,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 80
+    },
+    {
+      "beat": 80,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 81.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 58,
+      "velocity": 77
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 55
+    },
+    {
+      "beat": 82,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 82,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 68
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 82.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 74
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 51
+    },
+    {
+      "beat": 84,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 53,
+      "velocity": 64
+    },
+    {
+      "beat": 84,
+      "duration": 3.88,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 64
+    },
+    {
+      "beat": 84,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 84,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 84,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 80
+    },
+    {
+      "beat": 84,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 51
+    },
+    {
+      "beat": 85.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 77
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 55
+    },
+    {
+      "beat": 86,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 86,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 41,
+      "velocity": 68
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 51
+    },
+    {
+      "beat": 86.5,
+      "duration": 1.25,
+      "instrument": "grave_lead",
+      "pitch": 50,
+      "velocity": 74
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 88,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 55,
+      "velocity": 64
+    },
+    {
+      "beat": 88,
+      "duration": 7.88,
+      "instrument": "bowed_veil",
+      "pitch": 61,
+      "velocity": 64
+    },
+    {
+      "beat": 88,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 88,
+      "duration": 1,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 88,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 88,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 89,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 57,
+      "velocity": 77
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 89.5,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 55,
+      "velocity": 74
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 90,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 90,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 91,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.5,
+      "instrument": "grave_lead",
+      "pitch": 49,
+      "velocity": 77
+    },
+    {
+      "beat": 92,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 92,
+      "duration": 1.5,
+      "instrument": "grave_lead",
+      "pitch": 52,
+      "velocity": 80
+    },
+    {
+      "beat": 92,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 80
+    },
+    {
+      "beat": 92,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 51
+    },
+    {
+      "beat": 93.5,
+      "duration": 1.0,
+      "instrument": "grave_lead",
+      "pitch": 49,
+      "velocity": 77
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.38,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 55
+    },
+    {
+      "beat": 94,
+      "duration": 0.32,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 73
+    },
+    {
+      "beat": 94,
+      "duration": 1.72,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 51
+    },
+    {
+      "beat": 94.5,
+      "duration": 1.25,
+      "instrument": "grave_lead",
+      "pitch": 45,
+      "velocity": 74
+    },
+    {
+      "beat": 94.75,
+      "duration": 1.0,
+      "instrument": "answer_viol",
+      "pitch": 61,
+      "velocity": 51
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.26,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 47
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.38,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 51
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.24,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    }
+  ],
+  "patches": {
+    "answer_viol": {
+      "attack_seconds": 0.12,
+      "bank_id": "hollow_viola",
+      "gain": 0.09,
+      "legato": true,
+      "lowpass_hz": 1150,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.25,
+      "vibrato_cents": 2.2,
+      "wet": 0.29
+    },
+    "bowed_veil": {
+      "gain": 0.07,
+      "lowpass_hz": 1500,
+      "pan": -0.2,
+      "program": 48,
+      "wet": 0.28
+    },
+    "drums": {
+      "gain": 0.26,
+      "lowpass_hz": 1100,
+      "pan": 0.0,
+      "program": 0,
+      "wet": 0.11
+    },
+    "grave_lead": {
+      "attack_seconds": 0.085,
+      "bank_id": "grave_cello",
+      "gain": 0.285,
+      "legato": true,
+      "lowpass_hz": 1150,
+      "pan": 0.06,
+      "program": 42,
+      "release_seconds": 0.19,
+      "vibrato_cents": 3.6,
+      "wet": 0.25
+    },
+    "hollow_bass": {
+      "gain": 0.245,
+      "pan": 0.0,
+      "program": 38,
+      "wet": 0.025
+    },
+    "thread_pluck": {
+      "gain": 0.06,
+      "lowpass_hz": 950,
+      "pan": 0.3,
+      "program": 10,
+      "wet": 0.24
+    }
+  },
+  "revision": [
+    "Tenor cello lead replaces the high reed, with continuous bow through each phrase.",
+    "100 BPM; bass octave hops and bright ticks/backbeat removed in favor of low drum/tom weight.",
+    "G minor and borrowed E-flat replace the major-key middle; sparse viol answers mark returns."
+  ],
+  "schema_version": 1,
+  "sections": [
+    "1-8: low bowed pursuit",
+    "9-12: G-minor/E-flat suspended breath",
+    "13-16: rebuild",
+    "17-24: connected return and dominant turnaround"
+  ],
+  "slug": "03_ashen_pursuit",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Ashen Pursuit",
+  "version": "v02"
+}

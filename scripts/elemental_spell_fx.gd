@@ -209,16 +209,85 @@ static func ground(
 	alpha: float
 ) -> void:
 	var e: float = envelope(t) * alpha
-	var col := color_for(element)
 	floor_light(c, element, p, size, e)
-	# Broken pressure fronts skim the isometric floor; gaps prevent a target reticle.
-	for arc: int in range(3):
-		var radius: float = size * (0.08 + pow(t, 0.56) * 0.75)
+	if e <= 0.001:
+		return
+	# Brief material responses anchor each impact to the floor. Their supplied
+	# phase is frozen by reduced-motion callers, and every mark retires with the
+	# spell envelope; none can be mistaken for a persistent gameplay surface.
+	match element:
+		"earth":
+			_ground_chips(c, p, size, t, e)
+		"ice":
+			_ground_frost(c, p, size, t, e)
+		"lightning":
+			_ground_charge(c, p, size, t, e)
+		_:
+			_ground_pressure(c, element, p, size, t, e)
+
+
+static func _ground_chips(c: CanvasItem, p: Vector2, s: float, t: float, alpha: float) -> void:
+	for i: int in range(7):
+		var angle: float = float(i) * TAU_GOLDEN + 0.2
+		var radius: float = s * (0.11 + 0.46 * pow(t, 0.52)) * (0.7 + _hash(i + 241) * 0.3)
+		var floor_point := p + Vector2(cos(angle), sin(angle) * 0.34) * radius
+		var hop: float = sin(clampf(t / 0.72, 0.0, 1.0) * PI) * s * 0.035
+		var chip_size: float = s * (0.012 + _hash(i + 317) * 0.011)
+		_glow(c, floor_point + Vector2(1, 1), Vector2(chip_size * 3.8, chip_size * 1.4), Color(0.08, 0.06, 0.05, alpha * 0.42))
+		_rock_fragment(c, floor_point - Vector2(0, hop), chip_size, angle + t * 0.4, Color(0.72, 0.57, 0.38, alpha * 0.88), i + 21)
+
+
+static func _ground_frost(c: CanvasItem, p: Vector2, s: float, t: float, alpha: float) -> void:
+	var growth: float = 0.35 + 0.65 * smoothstep(0.0, 0.45, t)
+	for i: int in range(6):
+		var angle: float = float(i) * TAU_GOLDEN + 0.6
+		var direction := Vector2(cos(angle), sin(angle) * 0.34)
+		var cross := Vector2(-sin(angle), cos(angle) * 0.34)
+		var reach: float = s * (0.37 + _hash(i + 457) * 0.22) * growth
+		var start: Vector2 = p + direction * s * 0.12
+		var elbow: Vector2 = p + direction * reach * 0.62 + cross * s * 0.025
+		var end: Vector2 = p + direction * reach
+		var crack := PackedVector2Array([start, elbow, end])
+		_ribbon(c, crack, s * 0.016, Color(0.48, 0.83, 0.96, alpha * 0.40))
+		var branch_end: Vector2 = elbow + direction * reach * 0.16 + cross * reach * 0.20
+		c.draw_line(elbow, branch_end, Color(0.75, 0.94, 1.0, alpha * 0.50), maxf(0.65, s * 0.003), true)
+		var glint: float = pow(maxf(0.0, sin(t * PI)), 2.0) * alpha
+		_glow(c, elbow, Vector2(s * 0.055, s * 0.023), Color(0.85, 0.97, 1.0, glint * 0.56))
+
+
+static func _ground_charge(c: CanvasItem, p: Vector2, s: float, t: float, alpha: float) -> void:
+	for i: int in range(5):
+		var angle: float = float(i) * TAU_GOLDEN + 0.3
+		var direction := Vector2(cos(angle), sin(angle) * 0.34)
+		var cross := Vector2(-sin(angle), cos(angle) * 0.34)
+		var reach: float = s * (0.24 + t * 0.31) * (0.74 + _hash(i + 341) * 0.26)
+		var points := PackedVector2Array()
+		for k: int in range(6):
+			var u: float = float(k) / 5.0
+			var jag: float = (_hash(i * 13 + k + 621) - 0.5) * s * 0.075 * sin(u * PI)
+			points.append(p + direction * (s * 0.07 + reach * u) + cross * jag)
+		_ribbon(c, points, s * 0.018, Color(0.67, 0.58, 1.0, alpha * (1.0 - t) * 0.78))
+
+
+static func _ground_pressure(c: CanvasItem, element: String, p: Vector2, s: float, t: float, alpha: float) -> void:
+	var col := color_for(element)
+	var fire: bool = element == "fire"
+	# Broken low pressure fronts preserve the tile and never form a target ring.
+	for arc: int in range(2 if fire else 3):
+		var radius: float = s * (0.08 + pow(t, 0.56) * (0.64 if fire else 0.75))
 		var points := PackedVector2Array()
 		for k: int in range(13):
-			var angle: float = float(arc) * TAU / 3.0 + float(k) / 12.0 * 1.18 + 0.22
+			var angle: float = float(arc) * TAU / 3.0 + float(k) / 12.0 * 1.12 + 0.22 + (0.0 if fire else t * 0.28)
 			points.append(p + Vector2(cos(angle), sin(angle) * 0.34) * radius)
-		_ribbon(c, points, size * 0.020, _tint(col, e * (1.0 - t) * 0.56), false)
+		_ribbon(c, points, s * (0.014 if fire else 0.020), _tint(col, alpha * (1.0 - t) * 0.52), false)
+	for i: int in range(6):
+		var angle: float = float(i) * TAU_GOLDEN + 0.5
+		var direction := Vector2(cos(angle), sin(angle) * 0.34)
+		var distance: float = s * (0.15 + t * 0.48) * (0.75 + _hash(i + 561) * 0.25)
+		var point: Vector2 = p + direction * distance - Vector2(0.0, sin(t * PI) * s * (0.020 if fire else 0.009))
+		var mote_alpha: float = alpha * (0.85 if fire else 0.38)
+		_glow(c, point, Vector2.ONE * s * (0.046 if fire else 0.025), _tint(col, mote_alpha * 0.35))
+		c.draw_line(point - direction * s * (0.028 if fire else 0.018), point, _tint(col.lightened(0.6), mote_alpha), maxf(0.65, s * 0.004), true)
 
 
 static func impact(

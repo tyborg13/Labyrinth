@@ -1,0 +1,34 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "71363cbe8c5eadfc059a8c249fb3175217b65ddce94bbc5cc957c41892a062fb",
+    "preview.flac": "23352112c3a5cc01105fd58288b5c09da532297e47c2b1a806caf96aa5eda1b2",
+    "preview.mp3": "5598a5aa52c6dd37e338ddd49f9db478e1eed00f559d89c08488c9ccd23efaed",
+    "preview.ogg": "53b97f57ecef7634dd8aed56c1abcb328d4a4c7bc595e09f3bf7f753e8d09226",
+    "score.json": "cab9ddad102be5981641b5725a16daa0b468175dbd08d9c3eb5c0c597982ee8c"
+  },
+  "duration_seconds": 57.6,
+  "frames": 1843200,
+  "lead_articulation": "continuous sample position and bow envelope within connected note groups",
+  "loop_method": "periodic phrase/release overlap-add, circular tone filters and echo; exact bar length",
+  "master_gain": 0.5949767567589802,
+  "note_counts": {
+    "answer_viol": 6,
+    "bowed_veil": 28,
+    "drums": 67,
+    "grave_lead": 84,
+    "hollow_bass": 64,
+    "thread_pluck": 68
+  },
+  "pre_master_stem_rms": {
+    "answer_viol": 0.0025249387283232234,
+    "bowed_veil": 0.01429215584051982,
+    "drums": 0.01706635153647501,
+    "grave_lead": 0.0467163795042079,
+    "hollow_bass": 0.057801868109990516,
+    "thread_pluck": 0.0032086522171632134
+  },
+  "sample_peak_dbfs": -7.008774732166,
+  "sample_rate": 32000,
+  "target_lufs": -20,
+  "version": "v02"
+}

@@ -1,5 +1,7 @@
 extends Node
 
+const ReactionPlayback = preload("res://scripts/cutout_reaction_playback.gd")
+
 ## Persistent canvas and loaded views for one Bone Harrier. Shared by retained board layers.
 const Rig = preload("res://scripts/harrier_cutout/rig.gd")
 const EnemyFacing = preload("res://scripts/enemy_cutout_facing.gd")
@@ -82,6 +84,8 @@ func source_release_socket(delta: Vector2i) -> Vector2:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce
+	if ReactionPlayback.present(self, motion):
+		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 	if delta != Vector2i.ZERO:
 		var direction: Dictionary = direction_for_delta(delta)
@@ -122,8 +126,8 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var shown_clip: String = "rest" if reduced_motion else clip
-	var shown_phase: float = 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else clip
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
 	if signature == _pose_signature:
 		return
@@ -134,7 +138,7 @@ func _apply_pose() -> void:
 		if rig.visible:
 			rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 			rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
-			rig.call("apply_pose", shown_clip, shown_phase)
+			ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func texture() -> Texture2D:
@@ -142,7 +146,7 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art": "harrier_cutout_v02", "facing": facing, "mirrored": mirrored,
-		"clip": "rest" if reduced_motion else clip,
-		"phase": 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip": "death" if clip == "death" else "rest" if reduced_motion else clip,
+		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"active": active, "rig_count": rigs.size(),
 		"texture_id": texture().get_instance_id() if texture() != null else 0}

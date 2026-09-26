@@ -1,0 +1,285 @@
+{
+  "listening_review": "User audition pending; numeric proof does not establish perceived violin realism or musical quality.",
+  "source_hashes_checked": 17,
+  "status": "passed",
+  "tracks": {
+    "Ashen Pursuit": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            0.0,
+            0.0
+          ],
+          "first_last_sample_delta": [
+            0.0,
+            0.0
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.0,
+            0.0
+          ],
+          "loudness_range_lu": 1.7,
+          "p99_9_adjacent_sample_delta": [
+            0.036773681640625,
+            0.03472900390625
+          ],
+          "peak_dbfs": -8.845633453892328,
+          "seam_to_p99_9_ratio": [
+            0.0,
+            0.0
+          ],
+          "true_peak_dbtp": -8.84
+        },
+        "mp3": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            -5.737160336138913e-06,
+            8.401586819672957e-05
+          ],
+          "first_last_sample_delta": [
+            1.035450623021461e-06,
+            9.109272650675848e-05
+          ],
+          "integrated_lufs": -20.27,
+          "last_frame": [
+            -4.701709713117452e-06,
+            -7.076860583765665e-06
+          ],
+          "loudness_range_lu": 1.6,
+          "p99_9_adjacent_sample_delta": [
+            0.035670723766088486,
+            0.03370790183544159
+          ],
+          "peak_dbfs": -9.1079807839817,
+          "true_peak_dbtp": -9.11
+        },
+        "ogg": {
+          "decoded_frames": 1843200,
+          "duration_seconds": 57.6,
+          "first_frame": [
+            -0.0011541874846443534,
+            -0.004300089552998543
+          ],
+          "first_last_sample_delta": [
+            0.0013718355912715197,
+            0.004773327615112066
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.00021764809207525104,
+            0.00047323820763267577
+          ],
+          "loudness_range_lu": 1.6,
+          "p99_9_adjacent_sample_delta": [
+            0.036664821207523346,
+            0.034666627645492554
+          ],
+          "peak_dbfs": -8.860177723839469,
+          "seam_to_p99_9_ratio": [
+            0.03741558109630245,
+            0.13769229773155356
+          ],
+          "true_peak_dbtp": -8.86
+        }
+      },
+      "balance": {
+        "lead_above_middle_lu": 0.7100000000000009,
+        "lead_change_lu": -2.8299999999999983,
+        "percussion_change_lu": -0.3099999999999987,
+        "prior_stem_lufs_in_matched_mix": {
+          "answer_viol": -38.89,
+          "bowed_veil": -33.27,
+          "drums": -30.82,
+          "grave_lead": -23.07,
+          "hollow_bass": -23.59,
+          "thread_pluck": -45.18
+        },
+        "revised_middle_layer_lufs_in_matched_mix": -26.61,
+        "revised_stem_lufs_in_matched_mix": {
+          "bowed_veil": -34.16,
+          "drums": -31.13,
+          "hollow_bass": -23.4,
+          "thread_pluck": -44.980000000000004,
+          "viola": -30.49,
+          "violin_1": -25.9,
+          "violin_2": -28.889999999999997
+        }
+      },
+      "midi": {
+        "duration_seconds": 57.6,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 413,
+        "score_event_readback": "exact",
+        "tracks": 7
+      },
+      "structure": {
+        "max_melodic_gates": 6,
+        "melody_identity": "Exact notes/onsets/gates/velocities; one octave higher",
+        "percussion_events": "unchanged",
+        "voices": {
+          "viola": {
+            "detached_transitions": 44,
+            "gate_coverage": 0.8901041666666667,
+            "notes": 51,
+            "touching_transitions": 6
+          },
+          "violin_1": {
+            "detached_transitions": 9,
+            "gate_coverage": 0.9739583333333334,
+            "notes": 84,
+            "touching_transitions": 74
+          },
+          "violin_2": {
+            "detached_transitions": 50,
+            "gate_coverage": 0.8156249999999999,
+            "notes": 65,
+            "touching_transitions": 14
+          }
+        }
+      }
+    },
+    "Iron Procession": {
+      "audio": {
+        "flac": {
+          "decoded_frames": 1745455,
+          "duration_seconds": 54.54546875,
+          "first_frame": [
+            0.0,
+            0.0
+          ],
+          "first_last_sample_delta": [
+            0.0,
+            0.0
+          ],
+          "integrated_lufs": -20.0,
+          "last_frame": [
+            0.0,
+            0.0
+          ],
+          "loudness_range_lu": 1.1,
+          "p99_9_adjacent_sample_delta": [
+            0.038482666015625,
+            0.035186767578125
+          ],
+          "peak_dbfs": -9.00487613810812,
+          "seam_to_p99_9_ratio": [
+            0.0,
+            0.0
+          ],
+          "true_peak_dbtp": -9.0
+        },
+        "mp3": {
+          "decoded_frames": 1745455,
+          "duration_seconds": 54.54546875,
+          "first_frame": [
+            6.978762394282967e-05,
+            0.00011967897444264963
+          ],
+          "first_last_sample_delta": [
+            6.30040667601861e-05,
+            0.00012179203622508794
+          ],
+          "integrated_lufs": -20.26,
+          "last_frame": [
+            6.783559911127668e-06,
+            -2.113064965669764e-06
+          ],
+          "loudness_range_lu": 1.1,
+          "p99_9_adjacent_sample_delta": [
+            0.03733005002140999,
+            0.034140847623348236
+          ],
+          "peak_dbfs": -9.270943375308722,
+          "true_peak_dbtp": -9.27
+        },
+        "ogg": {
+          "decoded_frames": 1745472,
+          "duration_seconds": 54.546,
+          "first_frame": [
+            0.001464029774069786,
+            0.0021897954866290092
+          ],
+          "first_last_sample_delta": [
+            0.0017541812267154455,
+            0.00210363557562232
+          ],
+          "integrated_lufs": -19.99,
+          "last_frame": [
+            -0.00029015151085332036,
+            8.615980914328247e-05
+          ],
+          "loudness_range_lu": 1.1,
+          "p99_9_adjacent_sample_delta": [
+            0.03836793825030327,
+            0.03514613211154938
+          ],
+          "peak_dbfs": -8.929845776366731,
+          "seam_to_p99_9_ratio": [
+            0.0457199762799759,
+            0.05985397109831736
+          ],
+          "true_peak_dbtp": -8.93
+        }
+      },
+      "balance": {
+        "lead_above_middle_lu": 0.6600000000000001,
+        "lead_change_lu": -3.0000000000000036,
+        "percussion_change_lu": -0.40000000000000213,
+        "prior_stem_lufs_in_matched_mix": {
+          "answer_viol": -35.69,
+          "bowed_veil": -34.769999999999996,
+          "drums": -30.209999999999997,
+          "grave_lead": -23.24,
+          "hollow_bass": -23.52,
+          "thread_pluck": -40.980000000000004
+        },
+        "revised_middle_layer_lufs_in_matched_mix": -26.900000000000002,
+        "revised_stem_lufs_in_matched_mix": {
+          "bowed_veil": -35.300000000000004,
+          "drums": -30.61,
+          "hollow_bass": -23.42,
+          "thread_pluck": -40.88,
+          "viola": -30.78,
+          "violin_1": -26.240000000000002,
+          "violin_2": -29.2
+        }
+      },
+      "midi": {
+        "duration_seconds": 54.54544,
+        "hanging_or_overlapping_same_pitch_notes": 0,
+        "notes": 359,
+        "score_event_readback": "exact",
+        "tracks": 7
+      },
+      "structure": {
+        "max_melodic_gates": 6,
+        "melody_identity": "Exact notes/onsets/gates/velocities; one octave higher",
+        "percussion_events": "unchanged",
+        "voices": {
+          "viola": {
+            "detached_transitions": 32,
+            "gate_coverage": 0.9,
+            "notes": 40,
+            "touching_transitions": 7
+          },
+          "violin_1": {
+            "detached_transitions": 52,
+            "gate_coverage": 0.805,
+            "notes": 69,
+            "touching_transitions": 13
+          },
+          "violin_2": {
+            "detached_transitions": 43,
+            "gate_coverage": 0.804375,
+            "notes": 55,
+            "touching_transitions": 11
+          }
+        }
+      }
+    }
+  }
+}

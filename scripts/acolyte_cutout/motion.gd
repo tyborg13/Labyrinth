@@ -8,6 +8,8 @@ const RELEASE: float = 0.18
 const CONTACT: float = 0.66
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": point(layout, name) - point(layout, parent(layout, name)),
@@ -72,3 +74,19 @@ static func curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[index-1].x, keys[index].x, t)
 			return lerpf(keys[index-1].y, keys[index].y, u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+## The robe keeps its two hem anchors while the torso settles between them.
+## A rigid hood nod and relaxed palms read as collapse without opening a neck seam.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest", 0.0, layout, facing)
+	var t: float = clampf(phase, 0.0, 1.0)
+	var toward: float = 1.0 if facing == "rear" else -1.0
+	var impact: float = curve(t, PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.44,.38),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	pose["torso"]["position"] += Vector2(toward*(-4.0*impact+5.0*fall), 2.0*impact+29.0*fall)
+	pose["torso"]["rotation"] = toward*(-.04*impact+.10*fall)
+	pose["hood"]["rotation"] = toward*.07*fall
+	pose["cast_hand"]["position"] += Vector2(-toward*3.0,5.0)*impact+Vector2(toward*2.0,10.0)*fall
+	pose["rest_hand"]["position"] += Vector2(0,4.0)*fall
+	return pose

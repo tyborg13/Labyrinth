@@ -7,6 +7,7 @@ const SettingsStore = preload("res://scripts/settings_store.gd")
 var _failures: Array[String] = []
 
 func _initialize() -> void:
+	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	call_deferred("_run")
 
 func _run() -> void:
@@ -22,7 +23,7 @@ func _run() -> void:
 		"type": "boss",
 		"boss_id": "zekarion"
 	})
-	_assert(str(boss_entry.get("id", "")) == MusicLibrary.ZEKARION_BOSS_TRACK_ID, "Boss combat should keep its existing route before terminal defeat")
+	_assert(str(boss_entry.get("id", "")) == MusicLibrary.THORNS_TRACK_ID, "Boss combat should use Thorns before terminal defeat")
 	var death_entry: Dictionary = MusicLibrary.entry_for_context("defeat", {
 		"type": "boss",
 		"boss_id": "zekarion"
@@ -39,16 +40,16 @@ func _run() -> void:
 	instance.call("_play_music", entry)
 	await process_frame
 	var player: AudioStreamPlayer = instance.get("_music_player") as AudioStreamPlayer
-	_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Live run scene should activate the Schubert track in ordinary pre-battle")
+	_assert(str(instance.get("_active_music_id")) == MusicLibrary.TURNING_KEY_TRACK_ID, "Live run scene should activate the Turning Key track in ordinary pre-battle")
 	_assert(player != null, "Live run scene should create a music player")
 	if player != null:
-		_assert(player.bus == SettingsStore.MUSIC_BUS, "Schubert playback should use the Music bus")
-		_assert(player.playing, "Schubert playback should start in the live run scene")
-		_assert(player.stream is AudioStreamOggVorbis, "Live Schubert playback should use the imported Ogg stream")
+		_assert(player.bus == SettingsStore.MUSIC_BUS, "Turning Key playback should use the Music bus")
+		_assert(player.playing, "Turning Key playback should start in the live run scene")
+		_assert(player.stream is AudioStreamOggVorbis, "Live Turning Key playback should use the imported Ogg stream")
 		if player.stream is AudioStreamOggVorbis:
 			var ogg_stream: AudioStreamOggVorbis = player.stream as AudioStreamOggVorbis
-			_assert(ogg_stream.loop, "Live Schubert Ogg stream should loop natively")
-			_assert(ogg_stream.get_length() > 268.0 and ogg_stream.get_length() < 269.0, "Live Schubert Ogg should retain the verified 4:29 duration")
+			_assert(ogg_stream.loop, "Live Turning Key Ogg stream should loop natively")
+			_assert(ogg_stream.get_length() > 47.9 and ogg_stream.get_length() < 48.1, "Live Turning Key Ogg should retain the verified 48-second duration")
 		var combat_stream: AudioStream = player.stream
 		player.volume_db = -5.5
 		var player_death_units: Array[Dictionary] = []
@@ -57,10 +58,10 @@ func _run() -> void:
 		enemy_death_units.append({"role": "enemy"})
 		instance.set("_committed_run_state_override", {"mode": "combat"})
 		instance.call("_start_terminal_defeat_music_if_needed", player_death_units)
-		_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Nonterminal player defeat should not replace combat music")
+		_assert(str(instance.get("_active_music_id")) == MusicLibrary.TURNING_KEY_TRACK_ID, "Nonterminal player defeat should not replace combat music")
 		instance.set("_committed_run_state_override", {"mode": "defeat"})
 		instance.call("_start_terminal_defeat_music_if_needed", enemy_death_units)
-		_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Enemy defeat should not start death music in a terminal state")
+		_assert(str(instance.get("_active_music_id")) == MusicLibrary.TURNING_KEY_TRACK_ID, "Enemy defeat should not start death music in a terminal state")
 		instance.set("_committed_run_state_override", {})
 		instance.set("_run_state", {
 			"mode": "combat",
@@ -93,7 +94,7 @@ func _run() -> void:
 		_assert(absf(player.volume_db - -7.0) < 0.15, "The death track should complete its gentle fade-in at the configured level")
 		instance.call("_play_music", entry)
 		await process_frame
-		_assert(str(instance.get("_active_music_id")) == MusicLibrary.SCHUBERT_COMBAT_TRACK_ID, "Leaving defeat mode should replace death music with the next context route")
+		_assert(str(instance.get("_active_music_id")) == MusicLibrary.TURNING_KEY_TRACK_ID, "Leaving defeat mode should replace death music with the next context route")
 		instance.call("_shutdown_audio")
 		_assert(not player.playing and player.stream == null, "Leaving the run scene should stop and release death music")
 	instance.queue_free()

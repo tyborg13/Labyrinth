@@ -1,0 +1,1188 @@
+{
+  "acolyte": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.8,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 36,
+        "duration": 0.48,
+        "loop": true,
+        "preview_cycles": 2,
+        "travel": "motion"
+      },
+      "dust_bolt": {
+        "frames": 40,
+        "duration": 1.2,
+        "loop": false
+      },
+      "siphon": {
+        "frames": 40,
+        "duration": 1.2,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "hood",
+      "cast_hand",
+      "rest_hand",
+      "hem_l",
+      "hem_r"
+    ],
+    "contact_feet": [
+      "hem_l",
+      "hem_r"
+    ]
+  },
+  "ash_hound": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.3,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far"
+    ]
+  },
+  "ashen_reaver": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head",
+      "blade",
+      "hand_near",
+      "hand_far"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "bell_tender": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.3,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head",
+      "spear",
+      "hand_near",
+      "hand_far"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "chainbound_gaoler": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 48,
+        "duration": 0.64,
+        "loop": true,
+        "preview_cycles": 3,
+        "travel": "motion"
+      },
+      "chain_reel": {
+        "frames": 31,
+        "duration": 0.24,
+        "loop": false
+      },
+      "manacle_pin": {
+        "frames": 39,
+        "duration": 0.57,
+        "loop": false
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.24,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "head",
+      "hand_hook",
+      "hand_fist",
+      "hook",
+      "foot_hook",
+      "foot_fist"
+    ],
+    "contact_feet": [
+      "foot_hook",
+      "foot_fist"
+    ],
+    "draw_order_parts": {
+      "front": [
+        "Skin_leg_hook",
+        "Skin_leg_fist",
+        "Skin_thigh_hook_under",
+        "Skin_thigh_fist_under",
+        "foot_hook",
+        "foot_fist",
+        "hand_fist"
+      ],
+      "rear": [
+        "Skin_leg_hook",
+        "Skin_leg_fist",
+        "Skin_thigh_hook_under",
+        "Skin_thigh_fist_under",
+        "foot_hook",
+        "foot_fist",
+        "hand_fist"
+      ]
+    }
+  },
+  "craghide": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far"
+    ]
+  },
+  "frostglass_lancer": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.8,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 32,
+        "duration": 0.4,
+        "loop": true,
+        "preview_cycles": 2,
+        "travel": "motion"
+      },
+      "thrust": {
+        "frames": 36,
+        "duration": 0.7,
+        "loop": false,
+        "phase_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.285,
+            0.32
+          ],
+          [
+            0.38,
+            0.5
+          ],
+          [
+            0.5784,
+            0.65
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "cast": {
+        "frames": 40,
+        "duration": 0.88,
+        "loop": false,
+        "phase_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.31818181818181823,
+            0.32
+          ],
+          [
+            0.4409090909090909,
+            0.5
+          ],
+          [
+            0.7681818181818182,
+            0.65
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "pin": {
+        "frames": 40,
+        "duration": 0.892,
+        "loop": false,
+        "phase_curve": [
+          [
+            0,
+            0
+          ],
+          [
+            0.24663677130044842,
+            0.32
+          ],
+          [
+            0.3183856502242153,
+            0.5
+          ],
+          [
+            0.4977578475336323,
+            0.65
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "head",
+      "hand_r",
+      "hand_l",
+      "lance",
+      "foot_r",
+      "foot_l"
+    ],
+    "contact_feet": [
+      "foot_r",
+      "foot_l"
+    ],
+    "draw_order_parts": {
+      "front": [
+        "Skin_thigh_cover_r",
+        "Skin_leg_r",
+        "foot_r",
+        "Skin_thigh_cover_l",
+        "Skin_leg_l",
+        "foot_l"
+      ],
+      "rear": [
+        "Skin_thigh_cover_r",
+        "Skin_leg_r",
+        "foot_r",
+        "Skin_thigh_cover_l",
+        "Skin_leg_l",
+        "foot_l"
+      ]
+    }
+  },
+  "gallows_roc": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "graftwright": {
+    "clips": {
+      "idle": {
+        "frames": 48,
+        "duration": 2.4,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "graft": {
+        "frames": 72,
+        "duration": 2.96,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "head",
+      "needle_hand",
+      "lantern"
+    ],
+    "contact_feet": [],
+    "draw_order_parts": {
+      "front": [
+        "Skin_needle_hand"
+      ]
+    }
+  },
+  "grave_surgeon": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.8,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 32,
+        "duration": 0.45,
+        "loop": true,
+        "preview_cycles": 2,
+        "travel": "motion"
+      },
+      "attack": {
+        "frames": 40,
+        "duration": 0.7,
+        "loop": false
+      },
+      "treat": {
+        "frames": 24,
+        "duration": 0.48,
+        "loop": false
+      },
+      "ward": {
+        "frames": 24,
+        "duration": 0.48,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "hood",
+      "wrist_saw",
+      "saw",
+      "wrist_vial",
+      "vial",
+      "foot_r",
+      "foot_l"
+    ],
+    "contact_feet": [
+      "foot_r",
+      "foot_l"
+    ],
+    "draw_order_parts": {
+      "front": [
+        "Skin_leg_r",
+        "Skin_thigh_fill_r",
+        "foot_r",
+        "Skin_leg_l",
+        "Skin_thigh_fill_l",
+        "foot_l"
+      ],
+      "rear": [
+        "Skin_leg_r",
+        "Skin_thigh_fill_r",
+        "foot_r",
+        "Skin_leg_l",
+        "Skin_thigh_fill_l",
+        "foot_l"
+      ]
+    }
+  },
+  "last_lamplighter": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head",
+      "lantern",
+      "hand_near",
+      "hand_far"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "protagonist": {
+    "clips": {
+      "idle": {
+        "frames": 21,
+        "duration": 0.84,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 18,
+        "duration": 0.3,
+        "loop": true,
+        "preview_cycles": 3,
+        "travel": "motion"
+      },
+      "attack": {
+        "frames": 30,
+        "duration": 0.5,
+        "loop": false,
+        "phase_curve": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            0.34,
+            0.27
+          ],
+          [
+            0.36,
+            0.31
+          ],
+          [
+            0.42,
+            0.44
+          ],
+          [
+            0.6,
+            0.6
+          ],
+          [
+            1.0,
+            1.0
+          ]
+        ]
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      },
+      "cast": {
+        "frames": 48,
+        "duration": 0.92,
+        "loop": false
+      },
+      "shoot": {
+        "frames": 36,
+        "duration": 0.44,
+        "loop": false
+      },
+      "block": {
+        "frames": 25,
+        "duration": 0.3,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_r",
+      "foot_l"
+    ],
+    "contact_feet": [
+      "foot_r",
+      "foot_l"
+    ]
+  },
+  "rime_spitter": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.3,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far"
+    ]
+  },
+  "rime_whelp": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.3,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far"
+    ]
+  },
+  "rimejaw": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_fore_near",
+      "foot_fore_far",
+      "foot_hind_near",
+      "foot_hind_far"
+    ]
+  },
+  "roc_fledgling": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.28,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "scavenger": {
+    "clips": {
+      "idle": {
+        "frames": 60,
+        "duration": 1.8,
+        "loop": true,
+        "preview_cycles": 2
+      }
+    },
+    "rigid_bones": [
+      "root",
+      "head",
+      "grip_hand",
+      "hanging_hand",
+      "lantern",
+      "pack"
+    ],
+    "contact_feet": []
+  },
+  "stoneback_mite": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.28,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_front_near",
+      "foot_front_far",
+      "foot_middle_near",
+      "foot_hind_near",
+      "foot_hind_far",
+      "foot_middle_far"
+    ],
+    "contact_feet": [
+      "foot_front_near",
+      "foot_front_far",
+      "foot_middle_near",
+      "foot_hind_near",
+      "foot_hind_far",
+      "foot_middle_far"
+    ]
+  },
+  "storm_cantor": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.32,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head",
+      "spear",
+      "hand_near",
+      "hand_far"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  },
+  "veilbound_acolyte": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.8,
+        "loop": true,
+        "preview_cycles": 2
+      },
+      "walk": {
+        "frames": 32,
+        "duration": 0.48,
+        "loop": true,
+        "preview_cycles": 2,
+        "travel": "motion"
+      },
+      "cast": {
+        "frames": 32,
+        "duration": 0.9,
+        "loop": false
+      },
+      "attack": {
+        "frames": 32,
+        "duration": 0.6,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "hood",
+      "cast_hand",
+      "strike_hand",
+      "orb",
+      "support_l",
+      "support_r"
+    ],
+    "contact_feet": [
+      "support_l",
+      "support_r"
+    ]
+  },
+  "wick_shade": {
+    "clips": {
+      "idle": {
+        "frames": 24,
+        "duration": 1.6,
+        "loop": true
+      },
+      "walk": {
+        "frames": 31,
+        "duration": 0.3,
+        "loop": true,
+        "travel": "motion"
+      },
+      "strike": {
+        "frames": 31,
+        "duration": 0.6,
+        "loop": false
+      },
+      "cast": {
+        "frames": 31,
+        "duration": 0.8,
+        "loop": false
+      },
+      "brace": {
+        "frames": 31,
+        "duration": 0.6666666666666666,
+        "loop": false
+      },
+      "hit": {
+        "frames": 25,
+        "duration": 0.36,
+        "loop": false
+      },
+      "death": {
+        "frames": 41,
+        "duration": 0.64232,
+        "loop": false
+      }
+    },
+    "rigid_bones": [
+      "foot_near",
+      "foot_far",
+      "head",
+      "hand_near",
+      "hand_far"
+    ],
+    "contact_feet": [
+      "foot_near",
+      "foot_far"
+    ]
+  }
+}

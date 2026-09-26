@@ -63,6 +63,23 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 				pose["jaw"]["rotation"] = -sx*0.25*release
 				pose["wing_near"]["rotation"] = -0.24*charge
 				pose["wing_far"]["rotation"] = 0.23*charge
+	elif clip == "hit":
+		# A fast shoulder recoil transfers into the planted foreclaws, then releases.
+		var impact: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.34,0.72),Vector2(1,0)]))
+		pose["torso"]["position"] += Vector2(sx * 3.8, 1.5) * impact
+		pose["neck"]["rotation"] = sx * 0.07 * impact
+		pose["wing_near"]["rotation"] = 0.055 * impact
+		pose["wing_far"]["rotation"] = -0.045 * impact
+	elif clip == "death":
+		# The forequarters buckle while all four claws keep their ground contacts.
+		# The final bowed neck is held for the existing shadow dissolve.
+		var buckle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.64,1),Vector2(1,1)]))
+		var settle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.30,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["torso"]["position"] += Vector2(-sx * 3.0, 15.0) * buckle
+		pose["neck"]["rotation"] = -sx * (0.13 * buckle + 0.09 * settle)
+		pose["head"]["rotation"] = -sx * 0.045 * settle
+		pose["wing_near"]["rotation"] = 0.15 * settle
+		pose["wing_far"]["rotation"] = -0.11 * settle
 	for foot: String in FEET:
 		var target: Vector2 = claw_target if foot == "claw_near" else _point(layout, foot)
 		var lift: float = 0.0

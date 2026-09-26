@@ -379,6 +379,7 @@ const CAMPFIRE_EMBER_MOTE_COUNT: int = 46
 const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.30
 const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
 const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
+const RelicChestProp = preload("res://scripts/relic_chest_prop.gd")
 const RELIC_CHEST_WIDTH_SCALE: float = 0.68
 const RELIC_CHEST_BASELINE_SCALE: float = 0.44
 const SCAVENGER_STALL_PATH: String = "res://assets/art/tiles/scavenger_stall.png"
@@ -6482,6 +6483,24 @@ func death_site_embers_snapshot() -> Dictionary:
 		"texture": texture,
 	}
 
+# A single rigid prop can move without resubmitting the room or rebuilding
+# the board's presentation indexes. Retained tile layers share these descriptors.
+func set_treasure_chest_open_progress(progress: float) -> void:
+	for entry: Variant in presentation.get("scene_props", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = entry
+		if str(prop.get("kind", "")) != "relic_chest":
+			continue
+		prop["open_progress"] = clampf(progress, 0.0, 1.0)
+		var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		# An unchanged full submission can replace presentation while retaining
+		# its equivalent tile index. Update that retained descriptor as well.
+		for cached: Dictionary in _scene_props_by_tile.get(tile, []):
+			if str(cached.get("kind", "")) == "relic_chest":
+				cached["open_progress"] = clampf(progress, 0.0, 1.0)
+		_queue_scene_render_layer_for_tile(tile)
+
 func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
 	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
 		if typeof(prop_var) != TYPE_DICTIONARY:
@@ -6495,7 +6514,10 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		if str(prop.get("kind", "")) == "campfire_bonfire":
 			_draw_campfire_prop_glow(tile, draw_rect)
 		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
-		_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
+		if str(prop.get("kind", "")) == "relic_chest":
+			RelicChestProp.draw(self, texture, draw_rect, float(prop.get("open_progress", 0.0)), tint)
+		else:
+			_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
 		if str(prop.get("kind","")).begins_with("watch_brazier"):
 			_register_tooltip(draw_rect,"Watch Brazier · Light radius 2" if str(prop["kind"])=="watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession.")
 		if str(prop.get("kind",""))=="watch_brazier_lit":
@@ -7320,22 +7342,57 @@ func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dict
 		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), cinder_color)
 
 func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_size := Vector2(_tile_width(), _tile_height())
+	# Reuse the prepared radial light: a soft floor pool keeps the object
+	# grounded without filling its tile like a selected movement target.
+	if _pillar_torch_light_texture != null:
+		var pool_size: Vector2 = tile_size * Vector2(1.02 + pulse * 0.04, 0.76 + pulse * 0.03)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - pool_size * 0.5, pool_size), false, Color(glow_color.r, glow_color.g, glow_color.b, 0.20 + pulse * 0.07))
+		var core_size: Vector2 = tile_size * Vector2(0.52, 0.40)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - core_size * 0.5, core_size), false, Color(accent.r, accent.g, accent.b, 0.13 + pulse * 0.05))
+	# A low open-topped light barrier reads above the floor in both dark and
+	# torch-lit rooms. The object draws afterward, keeping its silhouette clear.
+	# Height stays fixed; the existing pickup pulse is the only motion source.
+	var half_size: Vector2 = tile_size * (0.76 + pulse * 0.05) * 0.5
+	var corners := PackedVector2Array([
+		center + Vector2(0.0, -half_size.y), center + Vector2(half_size.x, 0.0),
+		center + Vector2(0.0, half_size.y), center + Vector2(-half_size.x, 0.0)
+	])
+	var rise := Vector2(0.0, -tile_size.y * 0.22)
+	var rim := PackedVector2Array()
+	var uprights := PackedVector2Array()
 	var accent_glow: Color = accent.lightened(0.36)
-	_draw_tile_diamond_fill(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.10 + pulse * 0.06), 0.70 + pulse * 0.05)
-	_draw_tile_ring(tile, Color(glow_color.r, glow_color.g, glow_color.b, 0.46 + pulse * 0.22), 3.0 + pulse * 1.1, 0.76 + pulse * 0.05)
-	_draw_tile_ring(tile, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.56 + pulse * 0.18), 1.6 + pulse * 0.5, 0.58 + pulse * 0.03)
+	for index: int in range(4):
+		var corner: Vector2 = corners[index]
+		var next_corner: Vector2 = corners[(index + 1) % 4]
+		var front_side: bool = index == 1 or index == 2
+		var wall_alpha: float = (0.23 if front_side else 0.14) + pulse * 0.05
+		draw_polygon(PackedVector2Array([corner, next_corner, next_corner + rise, corner + rise]), PackedColorArray([
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.025),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.025),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, wall_alpha),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, wall_alpha)
+		]))
+		rim.append(corner + rise)
+		uprights.append(corner)
+		uprights.append(corner + rise)
+	rim.append(corners[0] + rise)
+	var rim_width: float = maxf(1.2, tile_size.x * 0.007)
+	draw_multiline(uprights, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.23 + pulse * 0.07), rim_width, true)
+	draw_polyline(rim, Color(glow_color.r, glow_color.g, glow_color.b, 0.14 + pulse * 0.04), rim_width + 4.0, true)
+	draw_polyline(rim, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.68 + pulse * 0.16), rim_width, true)
 
 func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_color: Color, pulse: float) -> void:
-	var offset_px: float = maxf(2.4, _tile_width() * 0.022)
-	var outline_rect: Rect2 = loot_rect.grow(maxf(1.6, _tile_width() * 0.008))
-	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.34 + pulse * 0.12)
+	# A tight four-direction edge catch separates dark equipment from the room
+	# without the broad duplicate silhouettes of the former seven-copy halo.
+	var offset_px: float = maxf(1.0, _tile_width() * 0.009)
+	var outline_rect: Rect2 = loot_rect.grow(maxf(0.5, _tile_width() * 0.003))
+	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.24 + pulse * 0.06)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px, 0.0), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px, 0.0), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, -offset_px), outline_rect.size), false, outline_tint)
 	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, offset_px), outline_rect.size), false, outline_tint)
-	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
-	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px * 0.72, -offset_px * 0.72), outline_rect.size), false, Color(glow_color.r, glow_color.g, glow_color.b, outline_tint.a * 0.60))
-	draw_texture_rect(texture, loot_rect.grow(maxf(1.0, _tile_width() * 0.006)), false, Color(1.0, 0.92, 0.62, 0.14 + pulse * 0.06))
 
 func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
 	var center: Vector2 = _tile_center(tile)
@@ -14340,7 +14397,7 @@ func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
 	# Authored collapse frames already contain the complete body motion on one
 	# consistently registered canvas. Applying the fallback squash/stretch on top
 	# would distort the pixel art and make its feet slide away from the death tile.
-	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+	if _unit_uses_cutout(unit) or _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
 		return rect
 	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
 

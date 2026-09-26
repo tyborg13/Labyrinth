@@ -7,6 +7,8 @@ const TRAVEL: float = 255.0 * 0.559016994375 / (1.03 * 0.9)
 const STRIDE: float = TRAVEL * STANCE
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["hit", "death"]:
+		return _reaction_pose(clip, phase, layout, facing)
 	var pose: Dictionary = {}
 	for name: String in layout["joints"]:
 		pose[name] = {"position": _point(layout, name) - _point(layout, _parent(layout, name)), "rotation": 0.0, "scale": Vector2.ONE, "skew": 0.0}
@@ -214,3 +216,22 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float=inverse_lerp(keys[i-1].x,keys[i].x,t)
 			return lerpf(keys[i-1].y,keys[i].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+## Weight gives way at the knees before the torso bows. The hooked hand and
+## belt retain their own endpoints so the joining restraint chain stays attached.
+static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var pose: Dictionary = sample_pose("rest",0.0,layout,facing)
+	var t: float = clampf(phase,0.0,1.0)
+	var rear: bool = facing == "rear"
+	var toward: float = 1.0 if rear else -1.0
+	var impact: float = _curve(t,PackedVector2Array([Vector2(0,0),Vector2(.15,1),Vector2(.45,.4),Vector2(1,0)]))
+	var fall: float = smoothstep(.12,.78,t) if clip == "death" else 0.0
+	if clip == "death": impact *= 1.0-smoothstep(.15,.48,t)
+	pose["pelvis"]["position"] += Vector2(toward*(-3.5*impact+5.0*fall),2.0*impact+25.0*fall)
+	pose["torso"]["rotation"] = toward*(-.04*impact+.12*fall)
+	pose["head"]["rotation"] = toward*.07*fall
+	for side: String in ["hook","fist"]:
+		_solve_arm(pose,layout,side,_world(pose,layout,"hand_"+side).origin,0.0)
+		_solve_leg(pose,layout,side,_point(layout,"foot_"+side),0.0,rear)
+	_solve_drape(pose,layout)
+	return pose

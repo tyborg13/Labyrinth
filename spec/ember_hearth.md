@@ -132,3 +132,23 @@ they are technical evidence, not a substitute for user listening. Standalone
 previews retain relative game levels and add an explicitly labeled 12 dB
 preview-only boost. Live subjective fit remains for user audition. Existing
 non-failing legacy-save/ObjectDB warnings and prior platform limitations remain.
+
+### Integration with current master — 2026-09-26
+
+The hearth retains the current `campfire_choice_*_v2.png` art and shared choice
+surface finish. Pointer and keyboard focus feed the same emphasis state, so
+leaving a focused panel with the pointer keeps both the material treatment and
+sound deduplication correct. Arrival and outcome feedback keep their existing
+input gates alongside treasure presentation and deferred analytics cleanup.
+The shared hover binding also remains on Scavenger wares alongside their newer
+bounded material response; neither system owns or replaces the other's input.
+
+Integration proof is retained under
+`output/ember-hearth-integration-2026-09-26` in the primary checkout.
+
+The full suite, Hearth lifecycle, shared hover/focus, treasure and merchant
+interaction checks, and the three current music checks pass. Fresh renderer
+proof covers 13 Hearth lifecycle frames, five shared-UI input states and nine
+choice-material states at 1920x1080/100%; all 27 were inspected. The materials
+probe now waits for arrival and result completion before measuring settled
+bounds, preserving its native input and unchanged-hit-target assertions.

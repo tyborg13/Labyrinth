@@ -1,0 +1,84 @@
+{
+  "scope": "specific revision checks, not subjective listening judgment",
+  "status": "passed",
+  "tracks": {
+    "Ashen Pursuit": {
+      "v01_lead": {
+        "gaps_at_least_quarter_second": 32,
+        "maximum_internal_gate_gap_seconds": 0.5555555555555556,
+        "mean_internal_gate_gap_seconds": 0.2638211382113821,
+        "median_midi_pitch": 67.0,
+        "note_count": 83,
+        "note_gate_coverage_fraction": 0.5860416666666667
+      },
+      "v01_mix_spectrum": {
+        "power_fraction_above_1500_hz": 0.0007211157595587322,
+        "power_weighted_centroid_hz": 212.12595397956565
+      },
+      "v02_lead": {
+        "gaps_at_least_quarter_second": 0,
+        "maximum_internal_gate_gap_seconds": 0.15,
+        "mean_internal_gate_gap_seconds": 0.016265060240963854,
+        "median_midi_pitch": 55.0,
+        "note_count": 84,
+        "note_gate_coverage_fraction": 0.9739583333333334
+      },
+      "v02_mix_spectrum": {
+        "power_fraction_above_1500_hz": 1.282003569509227e-05,
+        "power_weighted_centroid_hz": 164.30482089696682
+      }
+    },
+    "Lanterns Below": {
+      "v01_lead": {
+        "gaps_at_least_quarter_second": 35,
+        "maximum_internal_gate_gap_seconds": 1.6666666666666667,
+        "mean_internal_gate_gap_seconds": 0.5394144144144144,
+        "median_midi_pitch": 72.0,
+        "note_count": 38,
+        "note_gate_coverage_fraction": 0.59765625
+      },
+      "v01_mix_spectrum": {
+        "power_fraction_above_1500_hz": 0.0063128898553322516,
+        "power_weighted_centroid_hz": 254.88296049198644
+      },
+      "v02_lead": {
+        "gaps_at_least_quarter_second": 35,
+        "maximum_internal_gate_gap_seconds": 1.6666666666666667,
+        "mean_internal_gate_gap_seconds": 0.5394144144144144,
+        "median_midi_pitch": 72.0,
+        "note_count": 38,
+        "note_gate_coverage_fraction": 0.59765625
+      },
+      "v02_mix_spectrum": {
+        "power_fraction_above_1500_hz": 0.00620586574839264,
+        "power_weighted_centroid_hz": 254.89461774104868
+      }
+    },
+    "The Turning Key": {
+      "v01_lead": {
+        "gaps_at_least_quarter_second": 32,
+        "maximum_internal_gate_gap_seconds": 1.125,
+        "mean_internal_gate_gap_seconds": 0.45000000000000007,
+        "median_midi_pitch": 67.0,
+        "note_count": 42,
+        "note_gate_coverage_fraction": 0.58828125
+      },
+      "v01_mix_spectrum": {
+        "power_fraction_above_1500_hz": 0.0007236381377198253,
+        "power_weighted_centroid_hz": 234.11359178782547
+      },
+      "v02_lead": {
+        "gaps_at_least_quarter_second": 3,
+        "maximum_internal_gate_gap_seconds": 0.29999999999999993,
+        "mean_internal_gate_gap_seconds": 0.021951219512195117,
+        "median_midi_pitch": 55.0,
+        "note_count": 42,
+        "note_gate_coverage_fraction": 0.975
+      },
+      "v02_mix_spectrum": {
+        "power_fraction_above_1500_hz": 4.796031512576129e-05,
+        "power_weighted_centroid_hz": 188.17642908099404
+      }
+    }
+  }
+}

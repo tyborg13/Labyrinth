@@ -48,6 +48,17 @@ func _initialize() -> void:
 	await _capture_zoom(viewport, board, state, float(navigation.get("min_zoom", 0.0)), "min", "01_zoom_min.png")
 	await _capture_zoom(viewport, board, state, float(navigation.get("zoom", 0.0)), "default", "02_zoom_default.png")
 	await _capture_zoom(viewport, board, state, float(navigation.get("max_zoom", 0.0)), "max", "03_zoom_max.png")
+	# The unlit stone floor and nearby torch fixture exercise the beacon against
+	# both dark and bright production materials at the same native viewport.
+	await _capture_reduced_beacon(viewport, board, state, float(navigation.get("zoom", 1.0)), "04_dark_reduced.png")
+	var lit_state: Dictionary = state.duplicate(true)
+	(lit_state["grid"][2] as Array)[4] = "pillar"
+	board.call("set_combat_state", lit_state)
+	set_meta("zoom_geometry", {})
+	await _capture_zoom(viewport, board, lit_state, float(navigation.get("min_zoom", 0.0)), "min", "01_zoom_min.png", "bright_")
+	await _capture_zoom(viewport, board, lit_state, float(navigation.get("zoom", 0.0)), "default", "02_zoom_default.png", "bright_")
+	await _capture_zoom(viewport, board, lit_state, float(navigation.get("max_zoom", 0.0)), "max", "03_zoom_max.png", "bright_")
+	await _capture_reduced_beacon(viewport, board, lit_state, float(navigation.get("zoom", 1.0)), "bright_04_reduced.png")
 	if _errors.is_empty():
 		print("EQUIPMENT PICKUP VISIBILITY PROBE: PASS")
 		print(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -58,7 +69,7 @@ func _initialize() -> void:
 	print("EQUIPMENT PICKUP VISIBILITY PROBE: FAIL (%d errors)" % _errors.size())
 	quit(1)
 
-func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoom: float, zoom_slot: String, file_name: String) -> void:
+func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoom: float, zoom_slot: String, file_name: String, prefix: String = "") -> void:
 	board.call("set_navigation_zoom", zoom, board.size * 0.5)
 	board.queue_redraw()
 	for _frame: int in range(3):
@@ -91,13 +102,22 @@ func _capture_zoom(viewport: SubViewport, board: Control, state: Dictionary, zoo
 	set_meta("zoom_geometry", snapshots)
 	if snapshots.size() == 3:
 		_verify_zoom_geometry(snapshots)
-	await _save_viewport_screenshot(viewport, "%s/%s" % [OUTPUT_DIR, file_name])
+	await _save_viewport_screenshot(viewport, "%s/%s%s" % [OUTPUT_DIR, prefix, file_name])
 	await _save_geometry_overlay(
 		viewport,
 		geometry,
 		zoom,
-		"%s/%s" % [OUTPUT_DIR, str(GEOMETRY_OUTPUT_FILES.get(zoom_slot, "%s_geometry.png" % zoom_slot))]
+		"%s/%s%s" % [OUTPUT_DIR, prefix, str(GEOMETRY_OUTPUT_FILES.get(zoom_slot, "%s_geometry.png" % zoom_slot))]
 	)
+
+func _capture_reduced_beacon(viewport: SubViewport, board: Control, state: Dictionary, zoom: float, file_name: String) -> void:
+	board.call("set_navigation_zoom", zoom, board.size * 0.5)
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": true})
+	for _frame: int in range(3):
+		await process_frame
+	for loot: Dictionary in state.get("loot", []):
+		_expect(is_equal_approx(float(board.call("_equipment_pickup_pulse", loot["pos"], loot)), 0.5), "Reduced Motion keeps the raised pickup barrier stationary")
+	await _save_viewport_screenshot(viewport, "%s/%s" % [OUTPUT_DIR, file_name])
 
 func _save_geometry_overlay(viewport: SubViewport, geometry: Dictionary, zoom: float, output_path: String) -> void:
 	var overlay := Control.new()
@@ -264,6 +284,7 @@ func _probe_grid() -> Array:
 	]
 
 func _save_viewport_screenshot(viewport: SubViewport, output_path: String) -> void:
+	await RenderingServer.frame_post_draw
 	var image: Image = viewport.get_texture().get_image()
 	_expect(image != null and image.get_size() == VIEWPORT_SIZE, "%s should capture at the focused 1920x1080 proof size" % output_path)
 	if image != null:

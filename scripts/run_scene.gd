@@ -31,6 +31,7 @@ const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/r
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const DeferredReconciliationQueue = preload("res://scripts/deferred_reconciliation_queue.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
@@ -274,6 +275,10 @@ class PreBattleEnemyFlow:
 			var child := get_child(index) as Control
 			if child != null:
 				fit_child_in_rect(child, rects[index])
+				# Portrait brushes may bleed beyond the viewport; health must not.
+				var health := child.find_child("PreBattleEnemyHealth", true, false) as Control
+				if health != null:
+					health.position.x = maxf(8.0, 4.0 - rects[index].position.x)
 		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
 
 	func _card_rects(total: int) -> Array[Rect2]:
@@ -1303,9 +1308,9 @@ const CAMPFIRE_ACTION_OVERLAY_SIZE: Vector2 = Vector2(468.0, 88.0)
 const NON_COMBAT_BOARD_OPTION_CLEARANCE: float = 72.0
 const NON_COMBAT_BOARD_SCREEN_BOTTOM_CLEARANCE: float = 120.0
 const CAMPFIRE_LINGER_HEAL_AMOUNT: int = RunEngineScript.CAMPFIRE_LINGER_HEAL
-const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger.png"
-const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace.png"
-const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength.png"
+const CAMPFIRE_CHOICE_LINGER_ICON_PATH: String = "res://assets/art/ui/campfire_choice_linger_v2.png"
+const CAMPFIRE_CHOICE_EMBRACE_ICON_PATH: String = "res://assets/art/ui/campfire_choice_embrace_v2.png"
+const CAMPFIRE_CHOICE_STRENGTH_ICON_PATH: String = "res://assets/art/ui/campfire_choice_strength_v2.png"
 const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace"
 const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw Strength"
@@ -1340,6 +1345,8 @@ const RELIC_CHOICE_RUNE_HALO_PATH: String = "res://assets/art/effects/relic_choi
 const RELIC_CHOICE_GLINT_PATH: String = "res://assets/art/effects/relic_choice_glint.png"
 const RELIC_ACQUISITION_BEAM_PATH: String = "res://assets/art/effects/relic_acquisition_beam.png"
 const RELIC_ACQUISITION_MOTE_PATH: String = "res://assets/art/effects/relic_acquisition_mote.png"
+const TREASURE_CHEST_OPEN_SECONDS: float = 0.74
+const TREASURE_CHEST_REDUCED_SECONDS: float = 0.12
 const RELIC_ACQUISITION_SECONDS: float = 0.38
 const RELIC_ACQUISITION_MOTES: int = 8
 const LOADOUT_ACQUISITION_FLAIR_SECONDS: float = 0.48
@@ -1450,10 +1457,6 @@ const PRE_BATTLE_ROOM_CHIP_MIN_WIDTH: float = 320.0
 const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
 const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
 const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 188.0)
-const PRE_BATTLE_EQUIPMENT_ICON_SIZE: Vector2 = Vector2(46.0, 46.0)
-const PRE_BATTLE_CARD_BADGE_COMPACT_SIZE: Vector2 = Vector2(120.0, 33.0)
-const PRE_BATTLE_CARD_BADGE_DENSE_SIZE: Vector2 = Vector2(120.0, 34.0)
-const PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD: int = 9
 const PRE_BATTLE_CARD_LIMIT: int = 18
 const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
 const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v15.png"
@@ -1549,6 +1552,11 @@ var _run_state: Dictionary = {}
 var _combat_state: Dictionary = {}
 var _committed_run_state_override: Dictionary = {}
 var _save_in_progress: bool = false
+var _skill_analytics_queue = DeferredReconciliationQueue.new()
+var _skill_analytics_requested_scope: String = ""
+var _skill_analytics_locked_scope: String = ""
+var _skill_analytics_staged_now: bool = false
+var _skill_analytics_flushing: bool = false
 var _preview_combat_state: Dictionary = {}
 var _combat_preview_revision: int = 0
 var _board_encounter_key: String = ""
@@ -1698,6 +1706,7 @@ var _grimoire_nav_buttons: Array[Button] = []
 var _grimoire_search_restore_selection: Dictionary = {}
 var _grimoire_search_restore_scroll: int = 0
 var _grimoire_restore_focus: Control
+var _grimoire_restore_navigation_focus: bool = true
 var _header_icon_textures: Dictionary = {}
 var _pile_scrim: ColorRect
 var _pile_dialog: PanelContainer
@@ -1864,11 +1873,22 @@ var _campfire_choice_action_pending: bool = false
 var _campfire_embrace_committed: bool = false
 var _campfire_presentation := EmberHearthPresentation.new()
 var _relic_claim_in_progress: bool = false
+var _treasure_sequence_epoch: int = 0
+var _treasure_reveal_active: bool = false
+var _treasure_reveal_key: String = ""
+var _treasure_reveal_complete_key: String = ""
+var _treasure_chest_progress: float = 0.0
+var _treasure_reveal_navigation: bool = false
+var _relic_delivery_phase: String = ""
+var _relic_delivery_id: String = ""
+var _treasure_sequence_tweens: Array[Tween]
+var _treasure_sequence_nodes: Array[Node]
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
 var _section_map_hud_button: Button
 var _map_opened_from_toolbar: bool = false
 var _section_map_presented_key: String = ""
+var _section_map_presentation_queued: bool = false
 var _map_analytics_revision: int = 0
 var _map_analytics_run_id: String = ""
 var _large_map_scrim: ColorRect
@@ -1908,6 +1928,7 @@ var _music_tween: Tween
 var _active_music_id: String = ""
 var _active_ambient_sfx_id: String = ""
 var _initial_music_deferred: bool = false
+var _music_context_refresh_queued: bool = false
 var _settings: Dictionary = {}
 var _drag_card_source_rect: Rect2 = Rect2()
 var _drag_card_cancel_rect: Rect2 = Rect2()
@@ -1930,6 +1951,8 @@ var _dialogue_choice_bar: HBoxContainer
 var _upgrade_scrim: ColorRect
 var _upgrade_center: CenterContainer
 var _upgrade_dialog: PanelContainer
+var _character_menu_arrival_tween: Tween
+var _character_menu_arrival_target: Control
 var _upgrade_embers_label: Label
 var _upgrade_card_list: VBoxContainer
 var _upgrade_element_list: VBoxContainer
@@ -2004,10 +2027,13 @@ var _pre_battle_scrim: ColorRect
 var _pre_battle_panel: PanelContainer
 var _pre_battle_chrome: Control
 var _pre_battle_frame: PreBattleFrame
+var _pre_battle_entry_tween: Tween
+var _pre_battle_entry_generation: int = 0
 var _pre_battle_destination: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_door_tile: Vector2i = INVALID_TARGET_TILE
 var _pre_battle_preview_run_state: Dictionary = {}
 var _pre_battle_start_pending: bool = false
+var _pre_battle_card_art_texture_cache: Dictionary = {}
 var _controller_prompt_bar
 var _controller_region: String = "hand"
 var _controller_hand_index: int = -1
@@ -2183,6 +2209,27 @@ func _input(event: InputEvent) -> void:
 	if _campfire_choice_action_pending:
 		get_viewport().set_input_as_handled()
 		return
+	if _treasure_presentation_busy():
+		_record_treasure_presentation_input(event)
+		get_viewport().set_input_as_handled()
+		return
+	# Track real navigation intent, not focus left behind by a prior modal.
+	if (event is InputEventKey or event is InputEventAction or InputRouterScript.is_controller_event(event)) and event.is_pressed():
+		_treasure_reveal_navigation = true
+	elif (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
+		_treasure_reveal_navigation = false
+	elif event is InputEventMouseMotion and event.relative.length_squared() > 4.0:
+		_treasure_reveal_navigation = false
+	elif event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD:
+		_treasure_reveal_navigation = true
+	if _grimoire_scrim != null and _grimoire_scrim.visible:
+		# Search receives focus even for pointer browsing. Return focus only when
+		# navigation is still in use; a mouse/touch dismissal must not latch the
+		# opener's focus highlight after the pointer has moved elsewhere.
+		if (event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed():
+			_grimoire_restore_navigation_focus = false
+		elif (event is InputEventKey or event is InputEventAction or event is InputEventJoypadButton) and event.is_pressed():
+			_grimoire_restore_navigation_focus = true
 	if _graftwright_view != null and _graftwright_view.visible:
 		if _graftwright_view.busy:
 			get_viewport().set_input_as_handled()
@@ -3752,6 +3799,8 @@ func _notification(what: int) -> void:
 
 func _exit_tree() -> void:
 	_campfire_presentation.reset()
+	_cancel_deferred_skill_analytics()
+	_cancel_treasure_presentation()
 	_board_hover_refresh_generation += 1
 	_board_hover_refresh_pending = false
 	_cancel_committed_hand_queries()
@@ -3760,6 +3809,8 @@ func _exit_tree() -> void:
 	_finalize_performance_telemetry_scene("scene_exit")
 
 func _shutdown_audio() -> void:
+	_music_context_refresh_queued = false
+	_cancel_music_context_settle_wait()
 	_stop_music_tween()
 	_active_music_id = ""
 	if _music_player != null:
@@ -4110,6 +4161,8 @@ func _build_overlay_ui() -> void:
 	_build_skill_status_popover()
 	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
+	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
+		surface.visibility_changed.connect(_queue_music_context_refresh)
 
 func _build_card_focus_tooltip_stack() -> void:
 	_card_focus_tooltip_stack = CardFocusTooltipStack.new()
@@ -4973,9 +5026,11 @@ func _build_pre_battle_overlay() -> void:
 
 	_pre_battle_panel = PanelContainer.new()
 	_pre_battle_panel.name = "PreBattlePanel"
+	# Content can settle above the requested minimum after the container sort.
+	_pre_battle_panel.resized.connect(func() -> void: call_deferred("_layout_pre_battle_chrome"))
 	_pre_battle_panel.custom_minimum_size = PRE_BATTLE_DIALOG_SIZE
 	_pre_battle_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	var style := _pre_battle_style(Color(0.012, 0.010, 0.011, 0.985), Color(0.0, 0.0, 0.0, 0.0), 18.0, 2)
+	var style := _pre_battle_style(Color(0.030, 0.025, 0.028, 0.99), Color(0.0, 0.0, 0.0, 0.0), 18.0, 2)
 	style.shadow_size = 30
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.62)
 	_pre_battle_panel.add_theme_stylebox_override("panel", style)
@@ -5029,6 +5084,23 @@ func _layout_pre_battle_chrome() -> void:
 			frame_size.x = frame_size.y * source_ratio
 	_pre_battle_frame.custom_minimum_size = frame_size
 	_pre_battle_frame.size = frame_size
+	# The authored rail sits inside the texture canvas. Match the backing to
+	# those measured source pixels, without moving content or stretching art.
+	# v8 is 1525x1031; the rail centers are x34/1486 and y32/991.
+	if _pre_battle_frame.texture != null:
+		var source_size := Vector2(_pre_battle_frame.texture.get_width(), _pre_battle_frame.texture.get_height())
+		var frame_scale: float = minf(frame_size.x / source_size.x, frame_size.y / source_size.y)
+		var backing := Rect2((_pre_battle_panel.size - frame_size) * 0.5 + Vector2(34.0, 32.0) * frame_scale, Vector2(1452.0, 959.0) * frame_scale)
+		var style := _pre_battle_panel.get_theme_stylebox("panel") as StyleBoxFlat
+		if style != null:
+			style.expand_margin_left = -backing.position.x
+			style.expand_margin_top = -backing.position.y
+			style.expand_margin_right = backing.end.x - _pre_battle_panel.size.x
+			style.expand_margin_bottom = backing.end.y - _pre_battle_panel.size.y
+			_pre_battle_panel.queue_redraw()
+			var finish := _pre_battle_panel.get_node_or_null("SurfaceFinish")
+			if finish != null:
+				finish.queue_redraw()
 	_pre_battle_frame.queue_redraw()
 	if _pre_battle_frame.get_parent() is Container:
 		(_pre_battle_frame.get_parent() as Container).queue_sort()
@@ -5076,6 +5148,7 @@ func _rebuild_pre_battle_overlay() -> void:
 		return
 	var total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var phase_started: int = total_started
+	_cancel_pre_battle_entry()
 	_clear_children_now(_pre_battle_panel)
 	_apply_pre_battle_outer_frame()
 	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
@@ -5086,6 +5159,7 @@ func _rebuild_pre_battle_overlay() -> void:
 	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
+	_ui_skin.apply_menu_finish(_pre_battle_panel, "outer")
 	phase_started = _record_runtime_performance_phase("pre_battle_clear_and_context", phase_started)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_CONTENT_SIDE_INSET))
@@ -5122,8 +5196,6 @@ func _rebuild_pre_battle_overlay() -> void:
 	body.add_child(_build_pre_battle_deck_section(accent))
 	_record_runtime_performance_phase("pre_battle_deck_section", phase_started)
 	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
-
-	call_deferred("_animate_pre_battle_living_parts")
 
 func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
 	var row := HBoxContainer.new()
@@ -5373,7 +5445,11 @@ func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, r
 	style.content_margin_top = 6.0
 	style.content_margin_right = 12.0
 	style.content_margin_bottom = 6.0
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0.0, 2.0)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
 	panel.add_theme_stylebox_override("panel", style)
+	_ui_skin.apply_menu_finish(panel, "chip", accent)
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	panel.add_child(row)
@@ -5418,7 +5494,12 @@ func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) ->
 	panel.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
+	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
+	section_style.shadow_size = 7
+	section_style.shadow_offset = Vector2(0.0, 3.0)
+	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	panel.add_theme_stylebox_override("panel", section_style)
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -5492,17 +5573,22 @@ func _build_pre_battle_deck_section(accent: Color) -> Control:
 	panel.custom_minimum_size = Vector2(_pre_battle_deck_column_width(), 0.0)
 	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.014, 0.014, 0.92), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8))
+	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
+	section_style.shadow_size = 7
+	section_style.shadow_offset = Vector2(0.0, 3.0)
+	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
+	panel.add_theme_stylebox_override("panel", section_style)
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
+	margin.add_theme_constant_override("margin_top", 8)
 	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 14)
+	margin.add_theme_constant_override("margin_bottom", 8)
 	panel.add_child(margin)
 	var vbox := VBoxContainer.new()
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	vbox.add_theme_constant_override("separation", 4)
 	margin.add_child(vbox)
 	vbox.add_child(_build_pre_battle_player_strip(accent))
 	var active_deck: Array = (_run_state.get("deck_cards", []) as Array).duplicate()
@@ -5542,15 +5628,35 @@ func _build_pre_battle_player_strip(accent: Color) -> Control:
 	var vbox := VBoxContainer.new()
 	vbox.name = "PreBattlePlayerStrip"
 	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_TIGHT)
+	vbox.add_theme_constant_override("separation", 3)
 
 	var top_row := HBoxContainer.new()
 	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	top_row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	vbox.add_child(top_row)
-	top_row.add_child(_build_pre_battle_hp_chip(accent))
-
-	vbox.add_child(_pre_battle_loadout_label("Equipment", "Hover or click to inspect"))
+	var identity := VBoxContainer.new()
+	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	identity.add_theme_constant_override("separation", 0)
+	top_row.add_child(identity)
+	var heading := Label.new()
+	heading.text = "Equipment"
+	UiTypography.apply_label_role(heading, UiTypography.ROLE_BODY)
+	heading.add_theme_color_override("font_color", Color("f0c978"))
+	identity.add_child(heading)
+	var hint := Label.new()
+	hint.text = "Hover or click to inspect"
+	UiTypography.apply_label_role(hint, UiTypography.ROLE_CAPTION)
+	hint.add_theme_color_override("font_color", Color("a99a83"))
+	identity.add_child(hint)
+	var health := _build_pre_battle_hp_chip(accent)
+	health.size_flags_horizontal = Control.SIZE_SHRINK_END
+	health.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	health.custom_minimum_size = Vector2(112.0, 32.0)
+	var health_style: StyleBoxFlat = (health.get_theme_stylebox("panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
+	health_style.content_margin_top = 2.0
+	health_style.content_margin_bottom = 2.0
+	health.add_theme_stylebox_override("panel", health_style)
+	top_row.add_child(health)
 
 	var equipment_row := HFlowContainer.new()
 	equipment_row.name = "PreBattleEquipmentRow"
@@ -5582,7 +5688,7 @@ func _build_pre_battle_player_strip(accent: Color) -> Control:
 			"PreBattleAttunedBadge",
 			"attuned",
 			int(group.get("count", 1)),
-			badge_layout.get("badge_size", PRE_BATTLE_CARD_BADGE_COMPACT_SIZE) as Vector2,
+			badge_layout.get("badge_size", EQUIPMENT_DECK_BADGE_SIZE) as Vector2,
 			int(badge_layout.get("font_size", UiTypography.SIZE_CAPTION))
 		))
 	return vbox
@@ -5605,21 +5711,23 @@ func _pre_battle_card_groups(card_ids: Array) -> Array:
 	return groups
 
 func _pre_battle_card_badge_layout(source_kind: String, group_count: int) -> Dictionary:
-	var viewport_height: float = get_viewport_rect().size.y
-	var compact_height: bool = viewport_height <= 740.0
-	var dense: bool = source_kind == "attuned" or group_count >= PRE_BATTLE_CARD_BADGE_DENSE_THRESHOLD
-	if not dense:
-		return {
-			"badge_size": EQUIPMENT_DECK_BADGE_SIZE,
-			"font_size": UiTypography.SIZE_CAPTION,
-			"h_gap": 7,
-			"v_gap": 7,
-		}
+	# Keep caption-floor words intact and the complete standard deck visible.
+	# The additional Umbra header is presentation chrome, not a reason to hide cards.
+	var content_width: float = _pre_battle_deck_column_width() - 30.0
+	var columns: int = 4 if source_kind == "deck" and group_count > 15 else 3
+	var gap: int = 4 if columns == 4 else 6
+	var width: float = floorf((content_width - float(columns - 1) * gap) / float(columns))
+	var height: float = 50.0 if group_count <= 15 else 42.0
+	var combat: Dictionary = _pre_battle_preview_run_state.get("combat_state", {}) as Dictionary
+	if source_kind == "attuned":
+		height = 54.0
+	elif _pre_battle_has_active_umbra(combat):
+		height -= 4.0
 	return {
-		"badge_size": PRE_BATTLE_CARD_BADGE_COMPACT_SIZE if compact_height else PRE_BATTLE_CARD_BADGE_DENSE_SIZE,
-		"font_size": 12,
-		"h_gap": 5,
-		"v_gap": 1 if compact_height else 2,
+		"badge_size": Vector2(width, height),
+		"font_size": UiTypography.SIZE_CAPTION,
+		"h_gap": gap,
+		"v_gap": 4 if group_count <= 16 else 2,
 	}
 
 func _pre_battle_loadout_label(text: String, detail: String) -> Control:
@@ -5635,7 +5743,7 @@ func _pre_battle_loadout_label(text: String, detail: String) -> Control:
 	row.add_child(label)
 	var detail_label := Label.new()
 	detail_label.text = detail
-	UiTypography.set_label_size(detail_label, 10)
+	UiTypography.apply_label_role(detail_label, UiTypography.ROLE_CAPTION)
 	detail_label.add_theme_color_override("font_color", Color("a99a83"))
 	row.add_child(detail_label)
 	return row
@@ -5645,7 +5753,8 @@ func _build_pre_battle_hp_chip(accent: Color) -> Control:
 	chip.name = "PreBattleHealthChip"
 	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	chip.custom_minimum_size = Vector2(0.0, 40.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.018, 0.020, 0.019, 0.58), Color("72c5b3"), 6.0, 7))
+	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.023, 0.033, 0.032, 0.92), Color("72c5b3"), 6.0, 7))
+	_ui_skin.apply_menu_finish(chip, "chip", Color("72c5b3"))
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 8)
@@ -5837,6 +5946,7 @@ func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Contr
 	chip.custom_minimum_size = Vector2(88.0, 32.0)
 	chip.size = chip.custom_minimum_size
 	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.92), PRE_BATTLE_HP_BADGE_BORDER, 5.0, 7))
+	_ui_skin.apply_menu_finish(chip, "chip", PRE_BATTLE_HP_BADGE_BORDER)
 	var row := HBoxContainer.new()
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 5)
@@ -5874,33 +5984,130 @@ func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_ki
 	badge.tooltip_text = "card:%s" % card_id
 	badge.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	badge.clip_contents = true
-	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
+	var style: StyleBoxFlat = _equipment_panel_style(accent, false)
+	style.set_corner_radius_all(3)
+	style.set_content_margin_all(2.0)
+	style.border_color = accent.darkened(0.25) if source_kind == "attuned" else Color("786449")
+	badge.add_theme_stylebox_override("panel", style)
 	var display_name: String = str(card.get("name", card_id))
 	if card_count > 1:
 		display_name += " x%d" % card_count
 	badge.set_meta("display_name", display_name)
-	var content: Control = _build_card_art_badge_content(card, accent, display_name)
-	var name_label: Label = content.find_child("CardBadgeName", true, false) as Label
-	if name_label != null:
-		var fitted_font_size: int = _pre_battle_badge_font_size(display_name, badge_size.x, font_size)
-		UiTypography.set_label_size(name_label, fitted_font_size)
-		badge.set_meta("label_font_size", fitted_font_size)
-		name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		name_label.max_lines_visible = 2
-		name_label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
-		name_label.add_theme_constant_override("line_spacing", -3)
-		name_label.offset_left = 4.0
-		name_label.offset_right = -4.0
-	badge.add_child(content)
+	badge.set_meta("label_font_size", maxi(UiTypography.SIZE_CAPTION, font_size))
+	badge.add_child(_build_pre_battle_card_object_content(card, display_name, font_size))
 	return badge
 
-func _pre_battle_badge_font_size(display_name: String, badge_width: float, preferred_size: int) -> int:
-	var font: Font = UiTypography.body_font()
-	var fitted_size: int = preferred_size
-	var available_width: float = maxf(24.0, badge_width - 18.0)
-	while font != null and fitted_size > 10 and font.get_string_size(display_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, fitted_size).x > available_width:
-		fitted_size -= 1
-	return fitted_size
+func _build_pre_battle_card_object_content(card: Dictionary, display_name: String, font_size: int) -> Control:
+	var content := Control.new()
+	content.name = "PreBattleCardObjectContent"
+	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	content.clip_contents = true
+	var art := TextureRect.new()
+	art.name = "CardBadgeArt"
+	art.texture = _pre_battle_card_full_bleed_texture(str(card.get("art_path", "")))
+	if art.texture != null and art.texture.has_meta("pre_battle_opaque_underpaint"):
+		var underpaint := TextureRect.new()
+		underpaint.name = "CardBadgeArtFill"
+		underpaint.texture = art.texture.get_meta("pre_battle_opaque_underpaint") as Texture2D
+		underpaint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		underpaint.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		underpaint.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		underpaint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		underpaint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		content.add_child(underpaint)
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	content.add_child(art)
+	var label := Label.new()
+	label.name = "CardBadgeName"
+	label.text = display_name
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.max_lines_visible = 2
+	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
+	label.add_theme_constant_override("line_spacing", -2)
+	label.add_theme_color_override("font_color", Color("fff2d9"))
+	label.add_theme_color_override("font_outline_color", Color("100a07"))
+	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_color_override("font_shadow_color", Color(0.015, 0.010, 0.008, 0.9))
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 1)
+	UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
+	UiTypography.set_label_size(label, maxi(UiTypography.SIZE_CAPTION, font_size))
+	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 0.0
+	label.offset_right = 0.0
+	content.add_child(label)
+	return content
+
+func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
+	if _pre_battle_card_art_texture_cache.has(path):
+		return _pre_battle_card_art_texture_cache[path] as Texture2D
+	var texture: Texture2D = AssetLoader.load_texture(path)
+	_pre_battle_card_art_texture_cache[path] = texture
+	if texture == null:
+		return null
+	var image: Image = texture.get_image()
+	if image == null or image.is_empty():
+		return texture
+	if image.is_compressed():
+		if image.decompress() != OK:
+			return texture
+		AssetLoader.cache_texture_used_rect(texture, image.get_used_rect())
+	var used_rect: Rect2i = AssetLoader.texture_used_rect(texture)
+	if not used_rect.has_area():
+		return texture
+	# Card paintings have transparent, ragged brush margins even inside their
+	# alpha bounds. Find the largest opaque rectangle once per source painting;
+	# the existing aspect-cover control can then fill its whole face with art.
+	var heights := PackedInt32Array()
+	heights.resize(used_rect.size.x)
+	var best_rect := Rect2i()
+	var best_area: int = 0
+	for y: int in range(used_rect.position.y, used_rect.end.y):
+		for x: int in range(used_rect.size.x):
+			heights[x] = heights[x] + 1 if image.get_pixel(used_rect.position.x + x, y).a >= 0.98 else 0
+		var starts := PackedInt32Array()
+		var stack_heights := PackedInt32Array()
+		for x: int in range(used_rect.size.x + 1):
+			var height: int = heights[x] if x < used_rect.size.x else 0
+			var left: int = x
+			while not stack_heights.is_empty() and stack_heights[-1] > height:
+				var previous_height: int = stack_heights[-1]
+				left = starts[-1]
+				stack_heights.resize(stack_heights.size() - 1)
+				starts.resize(starts.size() - 1)
+				var area: int = (x - left) * previous_height
+				if area > best_area:
+					best_area = area
+					best_rect = Rect2i(used_rect.position.x + left, y - previous_height + 1, x - left, previous_height)
+			if stack_heights.is_empty() or stack_heights[-1] < height:
+				starts.append(left)
+				stack_heights.append(height)
+	var result: Texture2D = texture
+	if best_rect.has_area():
+		var cropped := AtlasTexture.new()
+		cropped.atlas = texture
+		cropped.region = Rect2(best_rect)
+		cropped.filter_clip = true
+		result = cropped
+		# A few paintings contain deliberate holes through the central action.
+		# Keep their complete composition above opaque paint from the same asset
+		# instead of letting a small off-centre crop become the whole identity.
+		if float(best_area) / float(used_rect.get_area()) < 0.35:
+			var foreground := AtlasTexture.new()
+			foreground.atlas = texture
+			foreground.region = Rect2(used_rect)
+			foreground.filter_clip = true
+			foreground.set_meta("pre_battle_opaque_underpaint", cropped)
+			result = foreground
+	_pre_battle_card_art_texture_cache[path] = result
+	return result
 
 func _build_pre_battle_equipment_chip(equipment_id: String) -> Control:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
@@ -5911,10 +6118,14 @@ func _build_pre_battle_equipment_chip(equipment_id: String) -> Control:
 	chip.set_meta("equipment_id", equipment_id)
 	chip.tooltip_text = "equipment:%s" % equipment_id
 	chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	chip.custom_minimum_size = PRE_BATTLE_EQUIPMENT_ICON_SIZE
+	chip.custom_minimum_size = Vector2(54.0, 54.0)
 	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.add_theme_stylebox_override("panel", _equipment_icon_style(Color(GameData.equipment_accent(equipment_id))))
+	var accent := Color(GameData.equipment_accent(equipment_id))
+	var style: StyleBoxFlat = _equipment_icon_style(accent)
+	style.set_content_margin_all(4.0)
+	chip.add_theme_stylebox_override("panel", style)
+	_ui_skin.apply_menu_finish(chip, "chip", accent)
 	var icon := TextureRect.new()
 	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -6262,44 +6473,44 @@ func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Tex
 		return AssetLoader.load_texture(art_path)
 	return null
 
-func _animate_pre_battle_entry() -> void:
-	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
-		return
-	await get_tree().process_frame
-	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible:
-		return
-	if _reduced_motion_enabled():
+func _cancel_pre_battle_entry() -> void:
+	# Invalidates an entry still waiting for its first layout frame as well.
+	_pre_battle_entry_generation += 1
+	if _pre_battle_entry_tween != null and _pre_battle_entry_tween.is_valid():
+		_pre_battle_entry_tween.kill()
+	_pre_battle_entry_tween = null
+	if is_instance_valid(_pre_battle_scrim):
 		_pre_battle_scrim.modulate = Color.WHITE
+	if is_instance_valid(_pre_battle_panel):
 		_pre_battle_panel.scale = Vector2.ONE
+	if is_instance_valid(_pre_battle_frame):
+		_pre_battle_frame.scale = Vector2.ONE
+
+func _animate_pre_battle_entry() -> void:
+	_cancel_pre_battle_entry()
+	if _pre_battle_scrim == null or _pre_battle_panel == null or not _pre_battle_scrim.visible or _reduced_motion_enabled():
 		return
+	var generation: int = _pre_battle_entry_generation
 	_pre_battle_scrim.modulate = Color(1.0, 1.0, 1.0, 0.0)
-	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
-	_pre_battle_panel.scale = Vector2(0.965, 0.965)
-	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(_pre_battle_scrim, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.24).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-
-func _animate_pre_battle_living_parts() -> void:
-	if _reduced_motion_enabled() or _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
-		return
 	await get_tree().process_frame
-	if _pre_battle_panel == null or not _node_is_alive(_pre_battle_panel):
+	if generation != _pre_battle_entry_generation:
 		return
-	var index: int = 0
-	for badge_node: Node in _pre_battle_panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
-		if badge_node is Control and index < PRE_BATTLE_CARD_LIMIT:
-			_animate_pre_battle_badge_lift(badge_node as Control, float(index) * 0.012)
-			index += 1
-
-func _animate_pre_battle_badge_lift(badge: Control, delay: float) -> void:
-	if badge == null:
+	if not _pre_battle_scrim.visible or _reduced_motion_enabled():
+		_cancel_pre_battle_entry()
 		return
-	var start_position: Vector2 = badge.position
-	badge.modulate = Color(1.0, 1.0, 1.0, 0.78)
-	badge.position = start_position + Vector2(0.0, 5.0)
-	var tween: Tween = create_tween().set_parallel(true)
-	tween.tween_property(badge, "position", start_position, 0.18).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	tween.tween_property(badge, "modulate:a", 1.0, 0.18).set_delay(delay).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# Both siblings share the center. Never tween positions owned by a Container.
+	_pre_battle_panel.pivot_offset = _pre_battle_panel.size * 0.5
+	_pre_battle_frame.pivot_offset = _pre_battle_frame.size * 0.5
+	_pre_battle_panel.scale = Vector2(0.992, 0.992)
+	_pre_battle_frame.scale = _pre_battle_panel.scale
+	_pre_battle_entry_tween = create_tween().set_parallel(true)
+	_pre_battle_entry_tween.tween_property(_pre_battle_scrim, "modulate:a", 1.0, 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.tween_property(_pre_battle_panel, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.tween_property(_pre_battle_frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_pre_battle_entry_tween.finished.connect(func() -> void:
+		if generation == _pre_battle_entry_generation:
+			_pre_battle_entry_tween = null
+	)
 
 func _build_context_choice_overlay() -> void:
 	if stage_root == null:
@@ -6776,6 +6987,7 @@ func _build_grimoire_overlay() -> void:
 	left_page.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	left_page.add_theme_stylebox_override("panel", _grimoire_page_style(false))
 	book_row.add_child(left_page)
+	_ui_skin.apply_surface_finish(left_page, "paper_left")
 
 	var left_margin := MarginContainer.new()
 	left_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
@@ -6869,6 +7081,7 @@ func _build_grimoire_overlay() -> void:
 	_grimoire_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_grimoire_detail_panel.add_theme_stylebox_override("panel", _grimoire_page_style(true))
 	book_row.add_child(_grimoire_detail_panel)
+	_ui_skin.apply_surface_finish(_grimoire_detail_panel, "paper_right")
 
 	var detail_margin := MarginContainer.new()
 	detail_margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
@@ -7955,6 +8168,7 @@ func _build_card_upgrade_overlay() -> void:
 	_upgrade_scrim = ColorRect.new()
 	_upgrade_scrim.name = "CardUpgradeScrim"
 	_upgrade_scrim.visible = false
+	_upgrade_scrim.visibility_changed.connect(_on_character_menu_visibility_changed)
 	_upgrade_scrim.mouse_filter = Control.MOUSE_FILTER_STOP
 	_upgrade_scrim.z_index = 1200
 	_upgrade_scrim.z_as_relative = false
@@ -7973,12 +8187,14 @@ func _build_card_upgrade_overlay() -> void:
 
 	_upgrade_dialog = PanelContainer.new()
 	_upgrade_dialog.custom_minimum_size = Vector2(1120.0, 620.0)
-	var dialog_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.98), Color("c28a53"), 16.0)
+	var dialog_style := _ui_skin.make_plain_card_style(Color(0.073, 0.069, 0.075, 0.98), Color("c28a53"), 16.0)
 	dialog_style.corner_radius_top_left = 14
 	dialog_style.corner_radius_top_right = 14
 	dialog_style.corner_radius_bottom_right = 14
 	dialog_style.corner_radius_bottom_left = 14
-	dialog_style.shadow_size = 12
+	dialog_style.shadow_size = 20
+	dialog_style.shadow_color = Color(0.005, 0.004, 0.008, 0.64)
+	dialog_style.shadow_offset = Vector2(0.0, 5.0)
 	_upgrade_dialog.add_theme_stylebox_override("panel", dialog_style)
 	_upgrade_center.add_child(_upgrade_dialog)
 
@@ -11037,6 +11253,9 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 		_animation_lock = false
 	_set_campfire_choice_action_pending(false)
 	_campfire_embrace_committed = false
+	_cancel_deferred_skill_analytics()
+	_cancel_treasure_presentation()
+	_treasure_reveal_complete_key = ""
 	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
@@ -11099,6 +11318,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 		call_deferred("_continue_pending_escape_after_reward")
 
 func _start_run() -> void:
+	_cancel_deferred_skill_analytics()
 	_progression = ProgressionStore.prepare_for_new_run(ProgressionStore.load_data())
 	ProgressionStore.save_data(_progression)
 	ProgressionStore.clear_saved_run()
@@ -11110,6 +11330,7 @@ func _start_run() -> void:
 	_persist_committed_boundary("run_started")
 
 func _start_debug_boss_run() -> void:
+	_cancel_deferred_skill_analytics()
 	_progression = ProgressionStore.default_data()
 	var run_state: Dictionary = _run_engine.create_debug_boss_run(_progression)
 	_load_run_state(_ensure_run_analytics_metadata(run_state))
@@ -11153,7 +11374,8 @@ func _refresh_ui(
 		display_room["type"] = str(_combat_state.get("room_type", display_room.get("type", "combat")))
 		display_room["element"] = str(_combat_state.get("room_element", display_room.get("element", ElementData.NONE)))
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_metadata", performance_phase_started)
-	_update_music_for_context(display_room)
+	# Resolve music after this refresh has reconciled all automatic overlays.
+	_queue_music_context_refresh()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_music", performance_phase_started)
 	var room_element: String = str(display_room.get("element", ElementData.NONE))
 	var title_color: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("f0e6d2")
@@ -11491,7 +11713,7 @@ func _refresh_relic_bar() -> void:
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_state", performance_phase_started)
 	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
-	_reconcile_skill_event_analytics()
+	_request_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
 	_flush_run_skill_event_analytics("hud_run_skill")
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
@@ -14843,7 +15065,7 @@ func _refresh_visibility() -> void:
 		_section_map_hud_button.visible = section_map and not terminal_recap_visible
 	_layout_mini_map_overlay()
 	if section_map:
-		call_deferred("_maybe_present_section_map")
+		_queue_section_map_presentation()
 	room_title.visible = not terminal_recap_visible
 	room_subtitle.visible = not terminal_recap_visible
 	# Combat history remains available to the existing systems, but it no longer
@@ -14870,7 +15092,7 @@ func _refresh_visibility() -> void:
 		# stale drag state must not rebuild the just-created shop/reward a second time.
 		_cancel_drag_play(false)
 		_close_pile_view()
-	if not (mode in ["combat", "reward"]) and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
+	if not (mode in ["combat", "reward"]) and not _relic_claim_in_progress and _card_fx_layer != null and _card_fx_layer.get_child_count() > 0:
 		_clear_children_now(_card_fx_layer)
 	if mode not in ["room", "campfire", RunEngineScript.MODE_PRE_BATTLE]:
 		var read_only_skill_tree_open: bool = (
@@ -14896,6 +15118,7 @@ func _refresh_card_preview_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
 func _refresh_choice_bar() -> void:
+	_sync_treasure_room_reveal()
 	if _scavenger_shop_view != null:
 		_scavenger_shop_view.dismiss_immediately()
 	_clear_children(choice_bar)
@@ -14962,7 +15185,7 @@ func _refresh_choice_bar() -> void:
 				_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
 				_add_reward_choice_stack()
 		"treasure":
-			var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
+			var pending_relics: Array = [] if _treasure_reveal_active else (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
 				relic_offer_sfx_signature = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), JSON.stringify(pending_relics)]
 				_set_relic_choice_title(RELIC_CHOICE_TITLE_TEXT)
@@ -16364,6 +16587,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
 
+	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
 
 	var margin := MarginContainer.new()
@@ -16469,12 +16693,13 @@ func _add_campfire_choice(choice_id: String, title: String, detail: String, icon
 	panel.gui_input.connect(_on_campfire_choice_gui_input.bind(choice_id, panel, accent))
 	panel.mouse_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true))
 	panel.mouse_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false))
-	panel.focus_entered.connect(_set_campfire_choice_hovered.bind(panel, accent, true, "focus"))
-	panel.focus_exited.connect(_set_campfire_choice_hovered.bind(panel, accent, false, "focus"))
+	panel.focus_entered.connect(_set_campfire_choice_focused.bind(panel, accent, true))
+	panel.focus_exited.connect(_set_campfire_choice_focused.bind(panel, accent, false))
 	_relic_choice_bar.add_child(panel)
 
 	_add_campfire_choice_background(panel, icon_path, enabled)
 	_add_campfire_choice_inner_glow(panel, accent, enabled)
+	_ui_skin.apply_choice_finish(panel, accent, false, enabled)
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -16611,10 +16836,6 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 	art.modulate = Color(1.0, 1.0, 1.0, 0.68 if enabled else 0.50)
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.offset_left = -8.0
-	art.offset_top = -8.0
-	art.offset_right = 8.0
-	art.offset_bottom = 8.0
 	clip.add_child(art)
 
 	var wash := ColorRect.new()
@@ -16720,16 +16941,27 @@ func _refresh_relic_choice_emphasis(panel: PanelContainer, relic: Dictionary) ->
 	var accent: String = str(relic.get("accent", GameData.relic_rarity_accent(str(relic.get("rarity", "common")))))
 	panel.z_index = 40 if emphasized else 30
 	panel.add_theme_stylebox_override("panel", _relic_choice_style(Color(accent), emphasized))
+	_ui_skin.apply_choice_finish(panel, Color(accent), emphasized)
 
-func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool, source: String = "pointer") -> void:
+func _set_campfire_choice_hovered(panel: PanelContainer, accent: Color, hovered: bool) -> void:
 	if panel == null:
 		return
-	panel.set_meta("hearth_" + source, hovered)
-	hovered = bool(panel.get_meta("hearth_pointer", false)) or bool(panel.get_meta("hearth_focus", false))
+	panel.set_meta("choice_pointer_hovered", hovered)
+	_refresh_campfire_choice_emphasis(panel, accent)
+
+func _set_campfire_choice_focused(panel: PanelContainer, accent: Color, focused: bool) -> void:
+	if panel == null:
+		return
+	panel.set_meta("choice_keyboard_focused", focused)
+	_refresh_campfire_choice_emphasis(panel, accent)
+
+func _refresh_campfire_choice_emphasis(panel: PanelContainer, accent: Color) -> void:
+	var hovered: bool = bool(panel.get_meta("choice_pointer_hovered", false)) or bool(panel.get_meta("choice_keyboard_focused", false))
 	var enabled: bool = bool(panel.get_meta("choice_enabled", true))
 	if enabled and not _campfire_choice_action_pending:
 		_campfire_presentation.emphasize(self, panel, hovered, _play_sfx)
 	panel.z_index = 40 if hovered else 30
+	_ui_skin.apply_choice_finish(panel, accent, hovered, enabled)
 	panel.add_theme_stylebox_override("panel", _campfire_choice_style(accent, hovered, enabled))
 	var glow: PanelContainer = panel.get_node_or_null("CampfireChoiceInnerGlow") as PanelContainer
 	if glow != null:
@@ -16743,10 +16975,10 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	else:
 		style.bg_color = Color(0.075, 0.065, 0.055, 0.96)
 		style.border_color = Color("b9664f") if hovered else Color("8f5e4d")
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 	style.content_margin_left = 0.0
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
@@ -16757,11 +16989,9 @@ func _campfire_choice_style(accent: Color, hovered: bool, enabled: bool) -> Styl
 	style.corner_radius_bottom_left = 8
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.52 if hovered else 0.40)
 	style.shadow_size = 22 if hovered else 16
+	# Keep the authored art, edge finish and base frame on one perimeter.
+	# Expanding this base drew an unwanted second panel outside the choice.
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
-	style.expand_margin_left = 8.0
-	style.expand_margin_top = 8.0
-	style.expand_margin_right = 8.0
-	style.expand_margin_bottom = 14.0
 	return style
 
 func _campfire_choice_inner_glow_style(accent: Color, hovered: bool, enabled: bool) -> StyleBoxFlat:
@@ -16848,10 +17078,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
 	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
-	style.border_width_left = 3
-	style.border_width_top = 3
-	style.border_width_right = 3
-	style.border_width_bottom = 3
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 	style.content_margin_left = 0.0
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
@@ -17100,6 +17330,14 @@ func _refresh_hand_panel() -> void:
 	# in the live fan; pooled re-entry re-runs every descendant's layout/theme work.
 	# Skill selection owns different wrappers and retains the existing pool path.
 	var retained_entries: Dictionary = _retained_hand_entries(signature_hand) if mode == "combat" and _combat_skill_card_selection_zone.is_empty() else {}
+	# Native ownership belongs to the retained widget, not its former array index.
+	var hovered_widget: CardWidget = _hand_card_control(_hovered_card_index) as CardWidget if _hovered_card_index >= 0 else null
+	if hovered_widget != null:
+		_hovered_card_index = -1
+		for retained_index: int in retained_entries:
+			if retained_entries[retained_index]["widget"] == hovered_widget:
+				_hovered_card_index = retained_index
+				break
 	var retained_slots: Dictionary = {}
 	for entry: Dictionary in retained_entries.values(): retained_slots[entry["slot"]] = true
 	_release_hand_card_slots_to_pool(retained_slots)
@@ -17123,6 +17361,7 @@ func _refresh_hand_panel() -> void:
 			var valid_skill_target: bool = selecting_skill_card and _combat_skill_card_selection_indices.has(index)
 			var card_id: String = str(hand[index])
 			var pool_entry: Dictionary = retained_entries.get(index, {}) as Dictionary
+			var retain_hand_transform: bool = not pool_entry.is_empty()
 			if pool_entry.is_empty(): pool_entry = _acquire_hand_card_pool_entry(card_id, card_size)
 			var widget: CardWidget = pool_entry.get("widget", null) as CardWidget
 			var card_slot: Control = pool_entry.get("slot", null) as Control
@@ -17151,10 +17390,10 @@ func _refresh_hand_panel() -> void:
 					hand_box.add_child(card_slot)
 				else:
 					# Restore the same post-pool interaction baseline without detaching.
-					widget.prepare_for_pool()
+					widget.prepare_for_pool(true)
 					card_slot.visible = true
 				hand_box.move_child(card_slot, index)
-				_configure_scaled_card_slot_geometry(card_slot, card_size)
+				_configure_scaled_card_slot_geometry(card_slot, card_size, retain_hand_transform)
 			# Apply interaction pose after the retained subtree's live geometry is
 			# restored so a selected/previewed card keeps its authored lift and scale.
 			if int(pool_entry.get("definition_signature", -1)) != definition_signature:
@@ -17346,6 +17585,10 @@ func _complete_hand_layout_pending(expected_revision: int) -> void:
 		_pass_preview_overlay.visible = _pass_preview_overlay.get_child_count() > 0
 	_layout_combat_action_dock()
 	_layout_choice_button_overlay()
+	# Moving controls alone does not refresh Godot's cached mouse owner. Re-hit
+	# test the completed layout without moving the physical pointer or activating.
+	if not _controller_is_active():
+		get_viewport().update_mouse_cursor_state()
 
 func _ensure_hand_card_pool_host() -> void:
 	if _hand_card_pool_host != null:
@@ -17438,7 +17681,7 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 		"definition_signature": -1,
 	}
 
-func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2) -> void:
+func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2, retain_hand_transform: bool = false) -> void:
 	if slot == null:
 		return
 	card_size = _normalized_card_size(card_size)
@@ -17447,14 +17690,20 @@ func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2) -> 
 	# geometry contract when a card crosses that boundary. In particular, a
 	# full-rect CardWidget can retain its previous right/bottom offsets while its
 	# slot is detached, doubling 250x352 to 500x704 on the next hand rebuild.
-	slot.anchor_left = 0.0
-	slot.anchor_top = 0.0
-	slot.anchor_right = 0.0
-	slot.anchor_bottom = 0.0
-	slot.offset_left = 0.0
-	slot.offset_top = 0.0
-	slot.rotation = 0.0
-	slot.scale = Vector2.ONE
+	# A slot already owned by the live fan keeps that container's transform until
+	# its next sort. Collapsing retained slots onto the origin temporarily stacks
+	# every card under one pointer; enabling each card then emits native hover
+	# changes and synchronously rebuilds board previews for those false targets.
+	# Pool and selection-wrapper crossings still restore the complete contract.
+	if not retain_hand_transform:
+		slot.anchor_left = 0.0
+		slot.anchor_top = 0.0
+		slot.anchor_right = 0.0
+		slot.anchor_bottom = 0.0
+		slot.offset_left = 0.0
+		slot.offset_top = 0.0
+		slot.rotation = 0.0
+		slot.scale = Vector2.ONE
 	slot.custom_minimum_size = card_size
 	slot.size = card_size
 	if slot.get_child_count() == 0 or not (slot.get_child(0) is Control):
@@ -17740,7 +17989,7 @@ func _card_widget_scale_for_size(card_size: Vector2) -> float:
 	return minf(card_size.x / CARD_WIDGET_BASE_SIZE.x, card_size.y / CARD_WIDGET_BASE_SIZE.y)
 
 func _clear_idle_card_fx_layer() -> void:
-	if _animation_lock or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
+	if _animation_lock or _relic_claim_in_progress or _card_fx_layer == null or _card_fx_layer.get_child_count() <= 0:
 		return
 	for child: Node in _card_fx_layer.get_children():
 		if child is Control and bool(child.get_meta("scaled_card_proxy", false)):
@@ -17930,6 +18179,13 @@ func _refresh_stage_view() -> void:
 	var stage_chrome: Dictionary = _stage_chrome_presentation()
 	for chrome_key: Variant in stage_chrome:
 		presentation[chrome_key] = stage_chrome[chrome_key]
+	# Copy only the chest descriptor: the shared chrome cache remains static.
+	if presentation.has("scene_props"):
+		var props: Array = (presentation["scene_props"] as Array).duplicate(true)
+		for prop: Dictionary in props:
+			if str(prop.get("kind", "")) == "relic_chest":
+				prop["open_progress"] = _treasure_chest_progress if str(_run_state.get("mode", "")) == "treasure" else 1.0
+		presentation["scene_props"] = props
 	presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	presentation["controller_hand_focused"] = _controller_hand_focused
 	presentation["tile_drag_aiming"] = (
@@ -21480,7 +21736,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	)
 
 func _map_shortcut_can_open() -> bool:
-	if _large_map_scrim == null or _dialogue_active or _animation_lock or _drag_card_index >= 0:
+	if _large_map_scrim == null or _dialogue_active or _animation_lock or _treasure_presentation_busy() or _drag_card_index >= 0:
 		return false
 	for blocking_control: Control in [
 		_menu_scrim,
@@ -21496,7 +21752,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
-	if _large_map_scrim == null:
+	if _large_map_scrim == null or _treasure_presentation_busy():
 		return
 	_map_opened_from_toolbar = from_toolbar
 	_controller_clear_hand_hover()
@@ -22959,7 +23215,8 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 			Color("f39779"),
 			{
 				"outline_color": Color("270806"),
-				"screen_layout_id": popup_id + "/damage"
+				"screen_layout_id": popup_id + "/damage",
+				"reaction_actor_key": "player", "reaction": "hit"
 			}
 		))
 	floats.append({
@@ -24001,6 +24258,12 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						if not ground_sound["played"]:
 							_play_outcome_sounds(ground_events,OutcomeFeedback.sound_element(AttackSfxLibrary.entry_for_enemy_step(step)))
 							ground_sound["played"] = true
+						presentation = _attack_feedback_death_hold_presentation(
+							animated_state,
+							attack_feedback_state,
+							presentation,
+							_attack_terrain_destruction_progress(step, t)
+						)
 						if not trap_detonation_follows and not attack_destroyed_terrain.is_empty():
 							presentation["terrain_destruction_units"] = _terrain_destruction_units_at_progress(
 								attack_destroyed_terrain,
@@ -24703,8 +24966,72 @@ func start_initial_music_after_loading(fade_seconds: float) -> void:
 	_music_tween = create_tween().set_ignore_time_scale(true)
 	_music_tween.tween_property(_music_player, "volume_linear", target_volume, fade_seconds)
 
+func _queue_music_context_refresh() -> void:
+	# Coalesce closing one menu and opening another so the shared cue keeps playing.
+	if _music_context_refresh_queued or _run_state.is_empty():
+		return
+	_music_context_refresh_queued = true
+	call_deferred("_refresh_music_after_overlay_change")
+
+func _refresh_music_after_overlay_change() -> void:
+	if not _music_context_refresh_queued:
+		return
+	_music_context_refresh_queued = false
+	if not is_inside_tree() or _run_state.is_empty():
+		return
+	_update_music_for_context(_run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)))
+
+func _retry_music_after_context_settles() -> void:
+	# Reward reveals and other animation endings need not rebuild the UI.
+	# Listen only while pending; RunScene's own _process is normally disabled.
+	if _music_context_is_transient():
+		return
+	_cancel_music_context_settle_wait()
+	_queue_music_context_refresh()
+
+func _cancel_music_context_settle_wait() -> void:
+	if is_inside_tree() and get_tree().process_frame.is_connected(_retry_music_after_context_settles):
+		get_tree().process_frame.disconnect(_retry_music_after_context_settles)
+
+func _music_context_is_transient() -> bool:
+	# Keep the current playback throughout automatic bridges, however long they
+	# take. Do not debounce deliberate navigation or impose a minimum track length.
+	return (
+		_animation_lock
+		or _frame_sliced_ui_refresh_active
+		or _loadout_acquisition_in_progress
+		or _treasure_presentation_busy()
+		or _escape_transition_in_progress
+		or _pre_battle_start_pending
+		or _reward_intro_in_progress
+		or _reward_intro_suppressed
+		or str(_run_state.get("mode", "")) == RunEngineScript.MODE_ESCAPE
+	)
+
 func _update_music_for_context(room: Dictionary) -> void:
-	_play_music(MusicLibrary.entry_for_context(str(_run_state.get("mode", "room")), room, _combat_state))
+	# A deferred menu callback must not replace the reserved death cue mid-animation.
+	if _animation_lock and _active_music_id == MusicLibrary.CHOPIN_DEATH_TRACK_ID:
+		return
+	var mode: String = str(_run_state.get("mode", "room"))
+	if str(_committed_run_state_override.get("mode", "")) == "defeat":
+		mode = "defeat"
+	if mode not in ["defeat", "victory"] and _music_context_is_transient():
+		if not get_tree().process_frame.is_connected(_retry_music_after_context_settles):
+			get_tree().process_frame.connect(_retry_music_after_context_settles)
+		return
+	_cancel_music_context_settle_wait()
+	# Predict only an actual queued auto-open. Eligibility alone also remains
+	# true after dialogue blocks an earlier callback and the user closes a map.
+	var planning_open: bool = _section_map_presentation_queued and _section_map_should_present()
+	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
+		if _visible_control(surface):
+			planning_open = true
+			break
+	var entry: Dictionary = MusicLibrary.entry_for_context(mode, room, _combat_state, planning_open)
+	if not _initial_music_deferred and _music_player != null and _music_player.playing and not entry.is_empty():
+		_transition_music(entry, 0.25, 0.65)
+	else:
+		_play_music(entry)
 
 func _play_music(entry: Dictionary) -> void:
 	var track_id: String = str(entry.get("id", ""))
@@ -25102,6 +25429,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			merged_floating_texts.append_array(timeline_entries)
 			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
 			rendered_presentation["floating_texts"] = merged_floating_texts
+	preload("res://scripts/cutout_context.gd").apply_to_presentation(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(
@@ -25320,11 +25648,13 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 					floats.append(FloatingCombatText.damage_entry(
 						step.get("to", Vector2i.ZERO),
 						"-%d" % int(step.get("hp_loss", 0)),
-						Color("f39779")
+						Color("f39779"),
+						{"reaction_actor_key": "player", "reaction": "hit"}
 					))
 				if int(step.get("block_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
+						"reaction_actor_key": "player", "reaction": "block",
 						"text": "-%d B" % int(step.get("block_loss", 0)),
 						"color": Color("90d9ff"),
 						"offset": 0.0,
@@ -25333,6 +25663,7 @@ func _floating_texts_for_step(step: Dictionary) -> Array[Dictionary]:
 				if int(step.get("stoneskin_loss", 0)) > 0:
 					floats.append({
 						"tile": step.get("to", Vector2i.ZERO),
+						"reaction_actor_key": "player", "reaction": "block",
 						"text": "-%d S" % int(step.get("stoneskin_loss", 0)),
 						"color": ElementData.accent(ElementData.EARTH),
 						"offset": 0.0,
@@ -25382,7 +25713,8 @@ func _status_damage_floating_texts(step: Dictionary) -> Array[Dictionary]:
 		var legacy_float: Dictionary = FloatingCombatText.damage_entry(
 			step.get("tile", Vector2i.ZERO),
 			"-%d" % int(step.get("amount", 0)),
-			Color("f39779")
+			Color("f39779"),
+			{"reaction_actor_key": str(step.get("actor_key", "")), "reaction": "hit"}
 		)
 		if str(step.get("label", "")) == "Bleed":
 			_decorate_bleed_damage_float(legacy_float)
@@ -25425,11 +25757,13 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 			floats.append(FloatingCombatText.damage_entry(
 				tile,
 				"-%d" % int(loss.get("hp_loss", 0)),
-				Color("f39779")
+				Color("f39779"),
+				{"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "hit"}
 			))
 		if int(loss.get("block_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
 				"text": "-%d B" % int(loss.get("block_loss", 0)),
 				"color": Color("90d9ff"),
 				"offset": 0.0,
@@ -25438,6 +25772,7 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 		if int(loss.get("stoneskin_loss", 0)) > 0:
 			floats.append({
 				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player" if str(loss.get("kind", "")) == "player" else "")), "reaction": "block",
 				"text": "-%d S" % int(loss.get("stoneskin_loss", 0)),
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,
@@ -26054,11 +26389,13 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 		floats.append(FloatingCombatText.damage_entry(
 			player_tile,
 			"-%d" % hp_loss,
-			Color("f39779")
+			Color("f39779"),
+			{"reaction_actor_key": "player", "reaction": "hit"}
 		))
 	if block_loss > 0:
 		floats.append({
 			"tile": player_tile,
+			"reaction_actor_key": "player", "reaction": "block",
 			"text": "-%d B" % block_loss,
 			"color": Color("90d9ff"),
 			"offset": 0.0,
@@ -26067,6 +26404,7 @@ func _player_loss_floating_texts(before_state: Dictionary, after_state: Dictiona
 	if stoneskin_loss > 0:
 		floats.append({
 			"tile": player_tile,
+			"reaction_actor_key": "player", "reaction": "block",
 			"text": "-%d S" % stoneskin_loss,
 			"color": ElementData.accent(ElementData.EARTH),
 			"offset": 0.0,
@@ -26095,11 +26433,13 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 			floats.append(FloatingCombatText.damage_entry(
 				enemy.get("pos", Vector2i.ZERO),
 				"-%d" % hp_loss,
-				Color("f39779")
+				Color("f39779"),
+				{"reaction_actor_key": _enemy_key(enemy), "reaction": "hit"}
 			))
 		if block_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
+				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
 				"text": "-%d B" % block_loss,
 				"color": Color("90d9ff"),
 				"offset": 0.0,
@@ -26108,6 +26448,7 @@ func _player_damage_floating_texts(before_state: Dictionary, after_state: Dictio
 		if stoneskin_loss > 0:
 			floats.append({
 				"tile": enemy.get("pos", Vector2i.ZERO),
+				"reaction_actor_key": _enemy_key(enemy), "reaction": "block",
 				"text": "-%d S" % stoneskin_loss,
 				"color": ElementData.accent(ElementData.EARTH),
 				"offset": 0.0,
@@ -26238,6 +26579,7 @@ func _sync_pre_battle_preview_after_refresh() -> void:
 		_close_pre_battle_preview()
 
 func _close_pre_battle_preview() -> void:
+	_cancel_pre_battle_entry()
 	if _pinned_tooltip_panel != null and str(_pinned_tooltip_panel.get_meta("inspection_kind", "")) in ["enemy", "equipment", "card"]:
 		_close_pinned_tooltip()
 	if _pre_battle_scrim != null:
@@ -26258,6 +26600,7 @@ func _on_pre_battle_equip_pressed() -> void:
 		return
 	if _pinned_tooltip_panel != null:
 		_close_pinned_tooltip()
+	_cancel_pre_battle_entry()
 	_open_character_overlay("equipment")
 
 func _on_pre_battle_start_pressed() -> void:
@@ -26342,7 +26685,7 @@ func _await_opening_hand_draw_layout() -> void:
 		await get_tree().process_frame
 
 func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_TARGET_TILE, skip_pre_battle: bool = false) -> void:
-	if _animation_lock or str(_run_state.get("mode", "room")) != "room":
+	if _animation_lock or _treasure_presentation_busy() or str(_run_state.get("mode", "room")) != "room":
 		return
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_PATH:
 		_guided_tutorial_reject()
@@ -26591,8 +26934,124 @@ func _on_campfire_leave_pressed() -> void:
 	_persist_committed_boundary("campfire_leave")
 	_refresh_ui()
 
+# Treasure motion is presentation-only: ownership and analytics still commit
+# synchronously in _claim_relic_with_deferred, before any animated delivery.
+func _record_treasure_presentation_input(event: InputEvent) -> void:
+	var router: Node = get_node_or_null("/root/InputRouter")
+	if router != null:
+		router.call("record_input_activity", event)
+	if (event is InputEventKey or event is InputEventAction) and event.is_pressed():
+		_treasure_reveal_navigation = true
+	elif InputRouterScript.is_controller_event(event) and _controller_is_active():
+		if event.is_pressed() or (event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouterScript.JOYSTICK_ACTIVITY_THRESHOLD):
+			_treasure_reveal_navigation = true
+	elif not _controller_is_active():
+		var pointer_activity: bool = (
+			((event is InputEventMouseButton or event is InputEventScreenTouch) and event.is_pressed())
+			or (event is InputEventMouseMotion and event.relative.length() >= InputRouterScript.POINTER_ACTIVITY_THRESHOLD)
+			or event is InputEventScreenDrag
+		)
+		if pointer_activity:
+			_treasure_reveal_navigation = false
+			var focused: Control = get_viewport().gui_get_focus_owner()
+			if focused != null:
+				focused.release_focus()
+
+func _treasure_presentation_busy() -> bool:
+	return _treasure_reveal_active or _relic_claim_in_progress
+
+func _treasure_room_reveal_key() -> String:
+	if str(_run_state.get("mode", "")) != "treasure" or (_run_state.get("pending_relics", []) as Array).is_empty():
+		return ""
+	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	if str(room.get("type", "")) != "treasure":
+		return ""
+	return "%s:%s" % [str(_run_state.get("seed", 0)), str(_run_state.get("current_room", Vector2i.ZERO))]
+
+func _sync_treasure_room_reveal() -> void:
+	var key: String = _treasure_room_reveal_key()
+	if key.is_empty():
+		if _treasure_reveal_active:
+			_cancel_treasure_presentation()
+		return
+	if key == _treasure_reveal_complete_key or (_treasure_reveal_active and key == _treasure_reveal_key):
+		return
+	if _treasure_reveal_active:
+		_cancel_treasure_presentation()
+	_treasure_reveal_key = key
+	_treasure_reveal_active = true
+	_treasure_chest_progress = 0.0
+	_treasure_reveal_navigation = _controller_is_active() or _treasure_reveal_navigation
+	_close_large_map()
+	call_deferred("_play_treasure_room_reveal", _treasure_sequence_epoch, key)
+
+func _play_treasure_room_reveal(sequence_epoch: int, key: String) -> void:
+	while _animation_lock and _treasure_sequence_is_current(sequence_epoch):
+		await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch) or key != _treasure_room_reveal_key():
+		return
+	var tween := create_tween()
+	_treasure_sequence_tweens.append(tween)
+	if _reduced_motion_enabled():
+		_set_treasure_chest_progress(1.0)
+		tween.tween_interval(TREASURE_CHEST_REDUCED_SECONDS)
+	else:
+		tween.tween_interval(0.10)
+		tween.tween_method(_set_treasure_chest_progress, 0.0, 1.0, TREASURE_CHEST_OPEN_SECONDS - 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_interval(0.12)
+	if not await _await_treasure_tween(tween, sequence_epoch) or key != _treasure_room_reveal_key():
+		return
+	_treasure_chest_progress = 1.0
+	_treasure_reveal_complete_key = key
+	_treasure_reveal_active = false
+	_treasure_sequence_tweens.clear()
+	_refresh_ui()
+	if _treasure_reveal_navigation and _relic_choice_bar != null and _relic_choice_bar.get_child_count() > 0:
+		(_relic_choice_bar.get_child(0) as Control).grab_focus()
+	if _treasure_reveal_navigation:
+		call_deferred("_recover_controller_focus")
+
+func _set_treasure_chest_progress(progress: float) -> void:
+	_treasure_chest_progress = clampf(progress, 0.0, 1.0)
+	if board_view != null:
+		board_view.set_treasure_chest_open_progress(_treasure_chest_progress)
+
+func _treasure_sequence_is_current(sequence_epoch: int) -> bool:
+	return is_inside_tree() and sequence_epoch == _treasure_sequence_epoch
+
+func _await_treasure_tween(tween: Tween, sequence_epoch: int) -> bool:
+	var began_reduced: bool = _reduced_motion_enabled()
+	while tween != null and tween.is_valid() and tween.is_running():
+		await get_tree().process_frame
+		if not _treasure_sequence_is_current(sequence_epoch):
+			return false
+		if not began_reduced and _reduced_motion_enabled() and tween.is_valid():
+			tween.custom_step(10.0)
+	return _treasure_sequence_is_current(sequence_epoch)
+
+func _cancel_treasure_presentation() -> void:
+	_treasure_sequence_epoch += 1
+	for tween: Tween in _treasure_sequence_tweens:
+		if tween != null and tween.is_valid():
+			tween.kill()
+	_treasure_sequence_tweens.clear()
+	for node: Node in _treasure_sequence_nodes:
+		if _node_is_alive(node):
+			node.queue_free()
+	_treasure_sequence_nodes.clear()
+	var frame: Control = _relic_frame_for_id(_relic_delivery_id)
+	if _node_is_alive(frame):
+		frame.scale = Vector2.ONE
+		frame.modulate = Color.WHITE
+	_relic_claim_in_progress = false
+	_relic_delivery_phase = ""
+	_relic_delivery_id = ""
+	_treasure_reveal_active = false
+	_treasure_reveal_key = ""
+	_treasure_chest_progress = 0.0
+
 func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
-	if _relic_claim_in_progress:
+	if _treasure_presentation_busy():
 		return
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_reject()
@@ -26625,12 +27084,16 @@ func _on_relic_pressed(relic_id: String, source_rect: Rect2 = Rect2()) -> void:
 	await _claim_relic_with_deferred(relic_id, "", source_rect)
 
 func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, source_rect: Rect2) -> void:
-	if _relic_claim_in_progress:
+	if _treasure_presentation_busy():
 		return
 	var pending_relics: Array = (_run_state.get("pending_relics", []) as Array).duplicate()
 	if not pending_relics.has(relic_id):
 		return
 	_relic_claim_in_progress = true
+	var sequence_epoch: int = _treasure_sequence_epoch
+	_relic_delivery_id = relic_id
+	_relic_delivery_phase = "delivery"
+	_close_large_map()
 	var trophy: Dictionary = (_run_state.get("guardian_reward", {}) as Dictionary).duplicate(true)
 	var trophy_context: Dictionary = _analytics_context_from_states(_run_state)
 	var accent := Color(GameData.relic_accent(relic_id))
@@ -26646,8 +27109,22 @@ func _claim_relic_with_deferred(relic_id: String, deferred_relic_id: String, sou
 	_refresh_ui()
 	_play_reward_collect_sfx()
 	await _animate_relic_acquisition_flourish(relic_id, source_rect, accent)
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
+	_relic_delivery_phase = "settlement"
 	await _animate_relic_acquired(relic_id)
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
+	_relic_delivery_phase = ""
+	_relic_delivery_id = ""
 	_relic_claim_in_progress = false
+	_treasure_sequence_tweens.clear()
+	_treasure_sequence_nodes.clear()
+	# The saved claim is already authoritative. Present the next decision only
+	# after delivery and its destination's final settle have both completed.
+	_maybe_present_section_map()
+	if _treasure_reveal_navigation:
+		call_deferred("_recover_controller_focus")
 
 func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row: Control = null) -> void:
 	if _merchant_trade_animation_active:
@@ -27008,10 +27485,11 @@ func _animate_acquisition_destination_arrival(control: Control, accent: Color) -
 	control.modulate = Color.WHITE
 
 func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
-	if _card_fx_layer == null:
+	if _card_fx_layer == null or _reduced_motion_enabled():
 		return
+	var sequence_epoch: int = _treasure_sequence_epoch
 	await get_tree().process_frame
-	if not _node_is_alive(_card_fx_layer):
+	if not _treasure_sequence_is_current(sequence_epoch) or not _node_is_alive(_card_fx_layer):
 		return
 	var frame: Control = _relic_frame_for_id(relic_id)
 	var target: Vector2 = _relic_bar_target_global_position(frame)
@@ -27027,17 +27505,23 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	beam.modulate = Color(1.0, 1.0, 1.0, 0.70)
 	beam.z_index = 1600
 	_card_fx_layer.add_child(beam)
+	_treasure_sequence_nodes.append(beam)
 	var beam_tween: Tween = create_tween().set_parallel(true)
+	_treasure_sequence_tweens.append(beam_tween)
 	beam_tween.tween_property(beam, "progress", 1.0, RELIC_ACQUISITION_SECONDS).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	beam_tween.tween_property(beam, "modulate:a", 0.0, 0.16).set_delay(RELIC_ACQUISITION_SECONDS * 0.72)
+	var last_mote: Tween
 	for mote_index: int in range(RELIC_ACQUISITION_MOTES):
-		_spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
-	await get_tree().create_timer(RELIC_ACQUISITION_SECONDS + 0.04).timeout
-	_queue_free_node_now(beam)
-
-func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> void:
-	if _card_fx_layer == null:
+		last_mote = _spawn_relic_acquisition_mote(local_start, local_target, accent, mote_index)
+	if not await _await_treasure_tween(beam_tween, sequence_epoch):
 		return
+	_queue_free_node_now(beam)
+	# The last staggered mote arrives after the beam fade. It belongs to delivery.
+	await _await_treasure_tween(last_mote, sequence_epoch)
+
+func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, accent: Color, mote_index: int) -> Tween:
+	if _card_fx_layer == null:
+		return null
 	var mote := RelicAcquisitionMote.new()
 	mote.name = "RelicAcquisitionMote"
 	mote.texture = AssetLoader.load_texture(RELIC_ACQUISITION_MOTE_PATH)
@@ -27053,13 +27537,16 @@ func _spawn_relic_acquisition_mote(local_start: Vector2, local_target: Vector2, 
 	mote.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	mote.z_index = 1601
 	_card_fx_layer.add_child(mote)
+	_treasure_sequence_nodes.append(mote)
 	var delay: float = float(mote_index) * 0.018
 	var tween: Tween = create_tween().set_parallel(true)
+	_treasure_sequence_tweens.append(tween)
 	tween.tween_property(mote, "position", local_target + end_jitter - mote.size * 0.5, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	tween.tween_property(mote, "scale", Vector2.ONE * 0.32, RELIC_ACQUISITION_SECONDS * 0.84).set_delay(delay).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	tween.tween_property(mote, "modulate:a", 1.0, 0.06).set_delay(delay)
 	tween.tween_property(mote, "modulate:a", 0.0, 0.12).set_delay(delay + RELIC_ACQUISITION_SECONDS * 0.62)
 	tween.finished.connect(_queue_free_node_now.bind(mote))
+	return tween
 
 func _relic_acquisition_source_global_position(source_rect: Rect2) -> Vector2:
 	if source_rect.size.x > 0.0 and source_rect.size.y > 0.0:
@@ -27074,23 +27561,33 @@ func _relic_bar_target_global_position(frame: Control) -> Vector2:
 	return room_title.get_global_rect().get_center()
 
 func _animate_relic_acquired(relic_id: String) -> void:
+	var sequence_epoch: int = _treasure_sequence_epoch
 	await get_tree().process_frame
+	if not _treasure_sequence_is_current(sequence_epoch):
+		return
 	var frame: Control = _relic_frame_for_id(relic_id)
 	if frame == null:
 		return
 	frame.pivot_offset = frame.size * 0.5
-	frame.scale = Vector2(0.86, 0.86)
 	frame.modulate = Color(1.0, 0.92, 0.62, 1.0)
 	var tween := create_tween()
-	tween.set_loops(3)
-	tween.tween_property(frame, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	tween.tween_property(frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await tween.finished
+	_treasure_sequence_tweens.append(tween)
+	if _reduced_motion_enabled():
+		tween.tween_interval(TREASURE_CHEST_REDUCED_SECONDS)
+	else:
+		frame.scale = Vector2(0.86, 0.86)
+		tween.set_loops(3)
+		tween.tween_property(frame, "scale", Vector2(1.18, 1.18), 0.16).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		tween.tween_property(frame, "scale", Vector2.ONE, 0.20).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	if not await _await_treasure_tween(tween, sequence_epoch) or not _node_is_alive(frame):
+		return
+	_relic_delivery_phase = "settle"
 	var settle := create_tween()
+	_treasure_sequence_tweens.append(settle)
 	settle.set_parallel(true)
 	settle.tween_property(frame, "scale", Vector2.ONE, 0.10)
 	settle.tween_property(frame, "modulate", Color.WHITE, 0.10)
-	await settle.finished
+	await _await_treasure_tween(settle, sequence_epoch)
 
 func _relic_frame_for_id(relic_id: String) -> Control:
 	if _relic_icon_grid == null:
@@ -27219,6 +27716,8 @@ func _close_settings_overlay() -> void:
 
 func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
+	if _reduced_motion_enabled():
+		_cancel_pre_battle_entry()
 	if _run_end_recap != null:
 		_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
 	if _run_end_board_reframe_active and _reduced_motion_enabled():
@@ -27236,6 +27735,7 @@ func _open_grimoire_overlay() -> void:
 	_close_large_map()
 	_close_menu_overlay()
 	_grimoire_restore_focus = get_viewport().gui_get_focus_owner()
+	_grimoire_restore_navigation_focus = true
 	_reset_grimoire_search()
 	_select_first_unread_grimoire_entry()
 	_rebuild_grimoire_overlay(true)
@@ -27260,7 +27760,7 @@ func _close_grimoire_overlay() -> void:
 	_refresh_grimoire_badge()
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
-	if _grimoire_restore_focus != null and is_instance_valid(_grimoire_restore_focus) and _grimoire_restore_focus.is_inside_tree() and _grimoire_restore_focus.is_visible_in_tree():
+	if _grimoire_restore_navigation_focus and _can_restore_gui_focus(_grimoire_restore_focus):
 		_grimoire_restore_focus.grab_focus()
 	_grimoire_restore_focus = null
 	_update_performance_telemetry_context()
@@ -27546,6 +28046,8 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		return {"state": state, "saved": false}
 	_save_in_progress = true
 	var mode: String = str(state.get("mode", ""))
+	if mode != "combat" and not _skill_analytics_flushing:
+		_cancel_deferred_skill_analytics()
 	var saved: bool = false
 	if mode in ["victory", "defeat"]:
 		var terminal_resume_state: Dictionary = state.duplicate(true)
@@ -27609,11 +28111,16 @@ func _save_run_progress() -> void:
 	var committed_state: Dictionary = _committed_run_state()
 	var mode: String = str(committed_state.get("mode", ""))
 	if mode in ["victory", "defeat"] or committed_state.is_empty():
+		# A failed terminal save preserves the original, unprocessed fallback.
+		# Reconciliation must not replace it with the finalized held snapshot.
+		_cancel_deferred_skill_analytics()
 		if ProgressionStore.save_data(_progression):
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
+	_reconcile_skill_event_analytics()
+	committed_state = _committed_run_state()
 	var saved_progression: Dictionary = _progression.duplicate(true)
 	var run_progression: Dictionary = (committed_state.get("progression", {}) as Dictionary).duplicate(true)
 	if not run_progression.is_empty():
@@ -27633,6 +28140,7 @@ func _on_exit_to_desktop_pressed() -> void:
 	get_tree().quit()
 
 func _on_abandon_run_pressed() -> void:
+	_cancel_deferred_skill_analytics()
 	_close_menu_overlay()
 	_reset_card_resolution()
 	_analytics_log_run_ended("abandoned")
@@ -27991,12 +28499,43 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 		if _skill_tree_view != null:
 			_skill_tree_view.call_deferred("grab_tree_focus")
 		_schedule_controller_modal_refresh()
+		_play_character_menu_arrival(_upgrade_dialog, 0.14)
 		return
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
 	_update_performance_telemetry_context()
 	_sync_pre_battle_overlay_layering()
 	_schedule_controller_modal_refresh()
+	_play_character_menu_arrival(_upgrade_dialog, 0.14)
+
+func _play_character_menu_arrival(target: Control, duration: float) -> void:
+	_stop_character_menu_arrival()
+	if not is_instance_valid(target) or not target.is_visible_in_tree() or _reduced_motion_enabled():
+		return
+	_character_menu_arrival_target = target
+	target.modulate.a = 0.86
+	_character_menu_arrival_tween = create_tween()
+	_character_menu_arrival_tween.tween_method(_set_character_menu_arrival_opacity, 0.86, 1.0, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_character_menu_arrival_tween.finished.connect(_stop_character_menu_arrival)
+
+func _set_character_menu_arrival_opacity(value: float) -> void:
+	# Live preference/hide handoff is checked only during the bounded tween.
+	if not is_instance_valid(_character_menu_arrival_target) or not _character_menu_arrival_target.is_visible_in_tree() or _reduced_motion_enabled():
+		_stop_character_menu_arrival()
+		return
+	_character_menu_arrival_target.modulate.a = value
+
+func _stop_character_menu_arrival() -> void:
+	if _character_menu_arrival_tween != null:
+		_character_menu_arrival_tween.kill()
+		_character_menu_arrival_tween = null
+	if is_instance_valid(_character_menu_arrival_target):
+		_character_menu_arrival_target.modulate.a = 1.0
+	_character_menu_arrival_target = null
+
+func _on_character_menu_visibility_changed() -> void:
+	if _upgrade_scrim != null and not _upgrade_scrim.is_visible_in_tree():
+		_stop_character_menu_arrival()
 
 func _open_level_up_overlay(present_feedback: bool = false) -> void:
 	if _upgrade_scrim == null or not _can_level_at_campfire():
@@ -28047,6 +28586,7 @@ func _open_level_up_overlay(present_feedback: bool = false) -> void:
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
+	_stop_character_menu_arrival()
 	if (
 		(_upgrade_scrim == null or not _upgrade_scrim.visible)
 		and _progression_overlay_mode.is_empty()
@@ -28075,6 +28615,9 @@ func _close_card_upgrade_overlay() -> void:
 		call_deferred("_maybe_present_section_map")
 
 func _rebuild_progression_overlay() -> void:
+	# Inventory refreshes rebuild synchronously; only explicit open/tab actions
+	# start an arrival, so committed changes never replay menu motion.
+	_stop_character_menu_arrival()
 	if _upgrade_dialog == null:
 		return
 	_clear_controller_loadout_tooltip()
@@ -28159,6 +28702,7 @@ func _rebuild_progression_overlay() -> void:
 		vbox.add_child(_build_skill_tree_overlay_body())
 	performance_phase_started = _record_runtime_performance_phase("character_body", performance_phase_started)
 	_ui_skin.apply_outer_panel_frame(_upgrade_dialog, UiSkin.SURFACE_DIALOG)
+	_ui_skin.apply_menu_finish(_upgrade_dialog, "outer")
 	# A freshly built auto-wrapping detail panel can briefly report its minimum
 	# height before receiving its final width. CenterContainer preserves that
 	# transient growth in its offsets, so refit once layout has settled.
@@ -28248,7 +28792,12 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	style.border_color = accent.darkened(0.14)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
+	style.border_blend = true
+	style.shadow_color = Color(0.005, 0.004, 0.008, 0.42)
+	style.shadow_size = 3
+	style.shadow_offset = Vector2(0.0, 2.0)
 	panel.add_theme_stylebox_override("panel", style)
+	_ui_skin.apply_menu_finish(panel, "chip", accent)
 	row.add_child(panel)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)
@@ -28381,6 +28930,7 @@ func _switch_character_overlay_mode(mode: String) -> void:
 	_rebuild_progression_overlay()
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
+	_play_character_menu_arrival(_upgrade_dialog.find_child("CharacterBodyFrame", true, false) as Control, 0.12)
 
 func _controller_switch_character_tab(direction: int) -> void:
 	if _upgrade_scrim == null or not _upgrade_scrim.visible:
@@ -28586,6 +29136,8 @@ func _on_skill_learn_requested(skill_id: String) -> void:
 	if prior_notice != null:
 		_queue_free_node_now(prior_notice)
 	_refresh_skill_progression_surface(skill_id)
+	if _skill_tree_view != null:
+		_skill_tree_view.play_learned_confirmation(skill_id, _reduced_motion_enabled())
 	_skill_hud_refresh_pending = true
 
 func _refresh_skill_progression_surface(focused_id: String = "") -> void:
@@ -28810,6 +29362,7 @@ func _build_equipment_character_column() -> Control:
 	panel.custom_minimum_size = Vector2(338.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -28897,6 +29450,7 @@ func _build_equipment_portrait_panel() -> Control:
 	panel.custom_minimum_size = Vector2(0.0, 124.0)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(_equipped_equipment_accent(), true))
+	_ui_skin.apply_menu_finish(panel, "portrait", _equipped_equipment_accent())
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 8)
 	margin.add_theme_constant_override("margin_top", 8)
@@ -29014,6 +29568,7 @@ func _build_equipment_inventory_column() -> Control:
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29128,6 +29683,7 @@ func _build_magic_attuned_column() -> Control:
 	panel.custom_minimum_size = Vector2(326.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29181,6 +29737,7 @@ func _build_magic_inventory_column() -> Control:
 	panel.custom_minimum_size = Vector2(374.0, 0.0)
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -29244,6 +29801,7 @@ func _build_current_deck_column() -> Control:
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
+	_ui_skin.apply_menu_finish(panel, "section")
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
 	margin.add_theme_constant_override("margin_top", 12)
@@ -30909,6 +31467,11 @@ func _equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat
 	style.corner_radius_top_right = 8
 	style.corner_radius_bottom_right = 8
 	style.corner_radius_bottom_left = 8
+	# Quiet contact depth; margins, radii and state/rarity accents stay native.
+	style.border_blend = true
+	style.shadow_color = Color(0.008, 0.006, 0.009, 0.34)
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0.0, 2.0)
 	return style
 
 func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
@@ -30927,6 +31490,10 @@ func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_top = 4
 	style.content_margin_right = 4
 	style.content_margin_bottom = 4
+	style.border_blend = true
+	style.shadow_color = Color(0.008, 0.006, 0.009, 0.42)
+	style.shadow_size = 4
+	style.shadow_offset = Vector2(0.0, 2.0)
 	return style
 
 func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
@@ -31559,79 +32126,109 @@ func _analytics_log_skill_reset(before_progression: Dictionary, after_progressio
 		"room": _run_state.get("current_room", Vector2i.ZERO)
 	})
 
+func _skill_analytics_steps() -> Array[Callable]:
+	var steps: Array[Callable]
+	steps.append(_prepare_skill_analytics_outbox)
+	steps.append(_append_and_acknowledge_skill_analytics)
+	steps.append(_persist_skill_analytics_acknowledgment)
+	return steps
+
+func _skill_analytics_scope() -> String:
+	return "%s|%s|%s|%s|%s" % [
+		str((_run_state.get("analytics", {}) as Dictionary).get("run_id", "")),
+		str((_combat_state.get("analytics", {}) as Dictionary).get("combat_id", "")),
+		ProgressionStore._run_storage_path,
+		ProgressionStore._storage_path,
+		AnalyticsStore.storage_dir(),
+	]
+
+func _skill_analytics_ready() -> bool:
+	return (
+		is_inside_tree()
+		and str(_run_state.get("mode", "")) == "combat"
+		and _skill_analytics_requested_scope == _skill_analytics_scope()
+		and _committed_run_state_override.is_empty()
+		and (not _animation_lock or _skill_analytics_locked_scope == _skill_analytics_requested_scope)
+	)
+
+func _request_skill_event_analytics() -> void:
+	if not is_inside_tree() or str(_run_state.get("mode", "")) != "combat":
+		_reconcile_skill_event_analytics()
+		return
+	var scope: String = _skill_analytics_scope()
+	if _skill_analytics_requested_scope != scope:
+		_skill_analytics_queue.cancel()
+	_skill_analytics_requested_scope = scope
+	_skill_analytics_queue.request(_skill_analytics_steps(), _skill_analytics_ready, _skill_analytics_scope)
+
+func _cancel_deferred_skill_analytics() -> void:
+	_skill_analytics_queue.cancel()
+	_skill_analytics_requested_scope = ""
+	_skill_analytics_locked_scope = ""
+
 func _reconcile_skill_event_analytics() -> void:
-	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var performance_phase_started: int = performance_total_started
-	var staged_now: bool = false
-	if not _combat_state.is_empty():
-		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
-		if bool(staged_result.get("changed", false)):
-			_run_state = staged_result.get("run_state", _run_state) as Dictionary
-			_combat_state = staged_result.get("combat_state", _combat_state) as Dictionary
-			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-			staged_now = bool(staged_result.get("staged", false))
-		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_stage", performance_phase_started)
-	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
-		_record_runtime_performance_phase("skill_analytics_no_pending", performance_phase_started)
-		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
+	# Explicit checkpoints cancel sleeping work before doing the ordered protocol
+	# synchronously. A late callback can never overwrite or resurrect that save.
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	if _skill_analytics_flushing:
 		return
-	# Re-prove the gameplay/outbox boundary even when the event was staged by an
-	# earlier failed save. A staged cursor means copied into the snapshot, never
-	# that the snapshot reached disk or that JSONL may be appended safely.
-	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("skill_analytics_persist_outbox_failed_total", performance_phase_started)
-		_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
-		return
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_outbox_total", performance_phase_started)
-	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", performance_phase_started)
-	_sync_progression_analytics_outbox_to_run()
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_sync_run", performance_phase_started)
-	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
-		_persist_committed_boundary("combat_skill_event_ack")
-	performance_phase_started = _record_runtime_performance_phase("skill_analytics_persist_ack_total", performance_phase_started)
-	if staged_now and not reconciled_all:
-		push_warning("Combat skill analytics remain queued for a later retry.")
-	_record_runtime_performance_phase("skill_analytics_total", performance_total_started)
+	_skill_analytics_flushing = true
+	_skill_analytics_queue.flush(_skill_analytics_steps())
+	_skill_analytics_flushing = false
+	_record_runtime_performance_phase("skill_analytics_total", started)
 
 func _reconcile_skill_event_analytics_across_frames() -> void:
-	# Turn completion already waits for forecast/playability warming before input
-	# unlocks. Use that authored wait to keep each durability stage in its own
-	# frame instead of stacking two saves, JSONL reconciliation, and outbox merging
-	# behind one animation callback.
-	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var staged_now: bool = false
+	# Player-turn warmup already owns the input lock and has adopted/released its
+	# committed snapshot. Share the same queue instead of starting a second writer.
+	var scope: String = _skill_analytics_scope()
+	_skill_analytics_locked_scope = scope
+	_request_skill_event_analytics()
+	while _skill_analytics_queue.busy() and is_inside_tree() and scope == _skill_analytics_scope():
+		await RenderingServer.frame_post_draw
+	if _skill_analytics_locked_scope == scope:
+		_skill_analytics_locked_scope = ""
+
+func _prepare_skill_analytics_outbox() -> bool:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_skill_analytics_staged_now = false
 	if not _combat_state.is_empty():
 		var staged_result: Dictionary = _stage_combat_skill_event_analytics_for_state(_run_state, _combat_state)
 		if bool(staged_result.get("changed", false)):
 			_run_state = staged_result.get("run_state", _run_state) as Dictionary
 			_combat_state = staged_result.get("combat_state", _combat_state) as Dictionary
 			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)
-			staged_now = bool(staged_result.get("staged", false))
+			_skill_analytics_staged_now = bool(staged_result.get("staged", false))
 		_analytics_skill_event_revision = _combat_skill_event_staged_revision(_combat_state)
-	_record_runtime_performance_phase("player_turn_skill_analytics_stage", performance_phase_started)
+	started = _record_runtime_performance_phase("skill_analytics_stage", started)
 	if _is_debug_boss_run() or not _has_pending_combat_skill_event_analytics():
-		return
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	if not _persist_committed_boundary("combat_skill_event_outbox"):
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_failed_total", performance_phase_started)
-		return
-	_record_runtime_performance_phase("player_turn_skill_analytics_persist_outbox_total", performance_phase_started)
-	await RenderingServer.frame_post_draw
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_record_runtime_performance_phase("skill_analytics_no_pending", started)
+		return false
+	# Queue acceptance is not a successful save. Failed writes retain the outbox
+	# and stop this attempt; only a later request or explicit checkpoint retries.
+	var saved: bool = _persist_committed_boundary("combat_skill_event_outbox")
+	_record_runtime_performance_phase("skill_analytics_persist_outbox_total" if saved else "skill_analytics_persist_outbox_failed_total", started)
+	return saved
+
+func _append_and_acknowledge_skill_analytics() -> bool:
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var reconciled_all: bool = _reconcile_progression_analytics_outbox()
-	_record_runtime_performance_phase("player_turn_skill_analytics_reconcile_outbox_total", performance_phase_started)
-	await RenderingServer.frame_post_draw
-	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	started = _record_runtime_performance_phase("skill_analytics_reconcile_outbox_total", started)
+	# Update the in-memory run in this same slice. A new action must not inherit
+	# an already-acknowledged outbox while the final disk acknowledgment waits.
 	_sync_progression_analytics_outbox_to_run()
-	_record_runtime_performance_phase("player_turn_skill_analytics_sync_run", performance_phase_started)
-	if str(_run_state.get("mode", "")) not in ["victory", "defeat"]:
-		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		_persist_committed_boundary("combat_skill_event_ack")
-		_record_runtime_performance_phase("player_turn_skill_analytics_persist_ack_total", performance_phase_started)
-	if staged_now and not reconciled_all:
+	_record_runtime_performance_phase("skill_analytics_sync_run", started)
+	if _skill_analytics_staged_now and not reconciled_all:
 		push_warning("Combat skill analytics remain queued for a later retry.")
+	return reconciled_all
+
+func _persist_skill_analytics_acknowledgment() -> bool:
+	if str(_run_state.get("mode", "")) in ["victory", "defeat"]:
+		return true
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# Always use current authoritative state, never a snapshot kept over a yield.
+	var saved: bool = _persist_committed_boundary("combat_skill_event_ack")
+	_record_runtime_performance_phase("skill_analytics_persist_ack_total", started)
+	return saved
 
 func _stage_combat_skill_event_analytics_for_state(run_state: Dictionary, combat_state: Dictionary) -> Dictionary:
 	if combat_state.is_empty():
@@ -33229,18 +33826,31 @@ func _analytics_flush_surface_events(combat: Dictionary, run: Dictionary = {}) -
 		_surface_analytics_revisions[combat_id] = last_sequence
 	_record_runtime_performance_phase("surface_analytics_flush_total", flush_started)
 
-func _maybe_present_section_map() -> void:
-	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _loadout_acquisition_in_progress or _dialogue_active:
+func _queue_section_map_presentation() -> void:
+	if _section_map_presentation_queued:
 		return
+	_section_map_presentation_queued = true
+	call_deferred("_present_queued_section_map")
+
+func _present_queued_section_map() -> void:
+	_section_map_presentation_queued = false
+	_maybe_present_section_map()
+
+func _section_map_should_present() -> bool:
+	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
+		return false
 	var mode: String = str(_run_state.get("mode", ""))
 	if mode not in ["room", "event"] or not _map_shortcut_can_open():
-		return
+		return false
 	if mode == "room" and not _current_room_merchant_kind().is_empty() and _merchant_shop_open:
-		return
+		return false
 	var moment: String = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), mode]
-	if moment == _section_map_presented_key:
+	return moment != _section_map_presented_key
+
+func _maybe_present_section_map() -> void:
+	if not _section_map_should_present():
 		return
-	_section_map_presented_key = moment
+	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
 	_open_large_map()
 
 func _on_section_map_scout(coord: Vector2i) -> void:

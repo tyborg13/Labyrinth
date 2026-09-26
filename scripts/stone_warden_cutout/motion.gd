@@ -13,6 +13,8 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var rear: bool = facing == "rear"
 	var direction: float = -1.0 if rear else 1.0
 	var t: float = clampf(phase, 0.0, 1.0)
+	if clip in ["hit", "death"]:
+		return _contextual_pose(pose,layout,facing,clip,t)
 	if clip == "idle":
 		# Keep the accepted bob as one rigid upper-body translation.
 		# Counter-translate the thighs so idle never deforms the plated legs.
@@ -152,3 +154,27 @@ static func _curve(t: float, keys: PackedVector2Array) -> float:
 			var u: float = inverse_lerp(keys[i-1].x,keys[i].x,t)
 			return lerpf(keys[i-1].y,keys[i].y,u*u*(3.0-2.0*u))
 	return keys[-1].y
+
+static func _contextual_pose(pose: Dictionary, layout: Dictionary, facing: String, clip: String, t: float) -> Dictionary:
+	var amount: float = _reaction_amount(clip, t)
+	var forward: Vector2 = (Vector2(1,-0.5) if facing == "rear" else Vector2(-1,0.5)).normalized()
+	var sign: float = -1.0 if facing == "rear" else 1.0
+	var fallen: bool = clip == "death"
+	# Heavy knees give way while the rigid boots keep their ground registration.
+	pose["pelvis"]["position"] += (forward * 5.0 + Vector2(0,29)) * amount if fallen else (-forward * 4.0 + Vector2(0,1.5)) * amount
+	pose["head"]["rotation"] = sign * (0.11 if fallen else -0.035) * amount
+	pose["upper_r"]["rotation"] = sign * (0.21 if fallen else -0.08) * amount
+	pose["fore_r"]["rotation"] = sign * (0.15 if fallen else 0.09) * amount
+	pose["weapon_r"]["rotation"] = -sign * (0.24 if fallen else 0.025) * amount
+	pose["upper_l"]["rotation"] = sign * (0.045 if fallen else -0.04) * amount
+	pose["tabard"]["rotation"] = sign * 0.055 * amount if fallen else 0.0
+	for side: String in ["r","l"]:
+		_solve_projected_leg(pose,layout,side,_point(layout,"foot_"+side),0.0,facing == "rear")
+	return pose
+
+# The recoil peaks at impact and fully recovers. Defeat settles before its final
+# sample, so the board can hold this pose throughout the existing shadow dissolve.
+static func _reaction_amount(clip: String, t: float) -> float:
+	if clip == "death":
+		return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.66,0.96),Vector2(0.84,1),Vector2(1,1)]))
+	return _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.48,0.28),Vector2(0.76,-0.08),Vector2(1,0)]))

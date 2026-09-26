@@ -66,6 +66,21 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 				pose["jaw"]["rotation"] = -sign * (0.10 * gather + 0.30 * release)
 		pose["neck"]["position"] += neck_move * 0.40
 		pose["head"]["position"] += neck_move * 0.60
+	elif clip == "hit":
+		var impact: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.35,0.65),Vector2(1,0)]))
+		pose["body"]["position"] += (-lane * 4.0 + Vector2(0, 1.5)) * impact
+		pose["neck"]["position"] += -lane * 1.4 * impact
+		pose["wing_near"]["rotation"] = sign * 0.045 * impact
+		pose["wing_far"]["rotation"] = -sign * 0.045 * impact
+	elif clip == "death":
+		# A low four-legged collapse: chest sinks before the long neck gives way.
+		var buckle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.14),Vector2(0.65,1),Vector2(1,1)]))
+		var settle: float = _curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.28,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["body"]["position"] += Vector2(0, 12.0) * buckle
+		pose["neck"]["position"] += (lane * 2.0 + Vector2(0, 4.0)) * settle
+		pose["head"]["position"] += Vector2(0, 4.0) * settle
+		pose["wing_near"]["rotation"] = sign * 0.10 * settle
+		pose["wing_far"]["rotation"] = -sign * 0.10 * settle
 	else:
 		return pose
 	for limb: String in LIMBS:

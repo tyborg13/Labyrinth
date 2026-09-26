@@ -415,6 +415,18 @@ persisted separately. Loading a profile or saved run retries pending entries; a
 crash after append but before acknowledgement replays the stable key as an
 idempotent no-op rather than producing a duplicate.
 
+Ordinary combat HUD refreshes schedule this three-stage protocol after a rendered
+frame instead of stacking its writes inside card completion. The stages share a
+single coalescing main-thread queue with player-turn warming. New actions pause
+and restart it against current authoritative state; explicit checkpoints flush
+it, and lifecycle/namespace changes invalidate stale requests. Per-action
+completion no longer promises that analytics reconciliation is already durable.
+Unfinished work may be lost or replayed after interruption, as authorized by the
+performance contract; accepted jobs are never reported as successful appends.
+Stable keys, local append-only JSONL, acknowledgment-on-success, terminal rewards
+and the banked/held-Ember separation remain unchanged. See
+[save persistence](save_persistence.md#ordinary-combat-analytics-scheduling).
+
 Priming and effect realization do not create a second activation event.
 Realized card, damage, defense, movement, and resource outcomes remain in their
 existing events rather than being converted into a guessed skill score.
@@ -569,6 +581,12 @@ A guardian victory records `reward_offered` with `reward_kind: guardian_trophy`
 and `offered_relics`. Claiming the exclusive trophy records `reward_choice` with
 `choice: claim`, `relic_id` and `guardian_id` after the saved claim boundary.
 Room completion and ownership prevent duplicate awards on replay.
+
+Treasure chest opening and relic delivery are presentation-only. Relic ownership,
+the saved `relic_claimed` boundary, and the existing guardian `reward_choice`
+event still commit synchronously before visual delivery. The chest reveal and
+the delayed map presentation add no reward or outcome events; the map opens
+after the beam, its staggered motes, and the destination settlement complete.
 
 Guardian `enemy_action_resolved` records add `guardian_mechanic`, `declared_tiles`
 and `resolved_tiles`; broken cover can shrink a previously declared quake or

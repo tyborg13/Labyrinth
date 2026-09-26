@@ -2,6 +2,8 @@ extends SceneTree
 
 const AttackFxSuite = preload("res://tests/suites/attack_fx_suite.gd")
 const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
+const ChainFx = preload("res://scripts/chain_attack_fx.gd")
+const ChainSuite = preload("res://tests/suites/chain_attack_suite.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 
 var _failures: Array[String] = []
@@ -20,9 +22,14 @@ class DrawExercise extends Node2D:
 			var element: String = elements[index]
 			var p := Vector2(200.0 + float(index) * 280.0, 300.0)
 			var target: Vector2 = p + Vector2(150.0, 60.0)
+			ElementalSpellFx.ground(self, element, p, 150.0, progress, 1.0)
+			ElementalSpellFx.ground(self, element, p, 150.0, progress, 0.0)
 			ElementalSpellFx.release(self, element, p, p + Vector2(0.0, 20.0), 100.0, progress, 1.0)
 			ElementalSpellFx.travel(self, element, p, target, p, target, 100.0, progress, 1.0)
 			ElementalSpellFx.travel(self, element, p, p, p, p, 100.0, progress, 1.0)
+			for reduced: bool in [false, true]:
+				ChainFx.draw_hop(self, p, target, 100.0, progress, reduced)
+				ChainFx.draw_hop(self, p, p, 100.0, progress, reduced)
 			for front: bool in [false, true]:
 				ElementalSpellFx.impact(self, element, p, 150.0, progress, 1.0, false, front)
 				ElementalSpellFx.impact(self, element, p, 150.0, progress, 1.0, true, front)
@@ -35,6 +42,7 @@ func _initialize() -> void:
 
 func _run() -> void:
 	AttackFxSuite.run(Callable(self, "_expect"))
+	ChainSuite.run(Callable(self, "_expect"))
 	var exercise := DrawExercise.new()
 	root.add_child(exercise)
 	var ingredients: Array[Texture2D] = AttackFxSuite._spell_ingredients()

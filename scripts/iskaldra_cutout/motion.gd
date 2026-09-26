@@ -56,6 +56,25 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		var guard: float = curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.30,1),Vector2(0.62,1),Vector2(1,0)]))
 		_wings(pose, facing, 0.055 * guard)
 		pose["torso"]["position"] += Vector2(0, 1.0 * guard)
+	elif clip == "hit":
+		var impact: float = curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.15,1),Vector2(0.34,0.66),Vector2(1,0)]))
+		pose["pelvis"]["position"] += (-direction * 3.5 + Vector2(0, 1.5)) * impact
+		pose["head"]["rotation"] = sign * 0.055 * impact
+		_wings(pose, facing, 0.04 * impact)
+		for side: String in ["near", "far"]:
+			_solve_hind_leg(pose, layout, side, point(layout, "foot_" + side), 0.0, rear)
+	elif clip == "death":
+		# The hind legs fold under the crystal body; the rigid wing panels lower.
+		var buckle: float = curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.18,0.12),Vector2(0.65,1),Vector2(1,1)]))
+		var settle: float = curve(t, PackedVector2Array([Vector2(0,0),Vector2(0.30,0),Vector2(0.86,1),Vector2(1,1)]))
+		pose["pelvis"]["position"] += Vector2(0, 10.0) * buckle
+		pose["torso"]["position"] += Vector2(0, 3.0) * settle
+		pose["head"]["rotation"] = -sign * 0.11 * settle
+		_wings(pose, facing, 0.12 * settle)
+		pose["arm_near"]["rotation"] = -sign * 0.08 * settle
+		pose["arm_far"]["rotation"] = sign * 0.06 * settle
+		for side: String in ["near", "far"]:
+			_solve_hind_leg(pose, layout, side, point(layout, "foot_" + side), 0.0, rear)
 	return pose
 
 static func _wings(pose: Dictionary, facing: String, fold: float) -> void:

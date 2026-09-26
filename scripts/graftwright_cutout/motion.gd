@@ -1,6 +1,6 @@
 extends RefCounted
-## A single breathing beat; local offsets separate the head and occupied hand
-## without a traveling cloth wave or whole-paint translation.
+## A single coordinated breathing beat over the fixed bench and lower body.
+## Head, lantern and occupied hand inherit it without separate undulation.
 static func sample_pose(clip: String, phase: float, layout: Dictionary, _facing: String) -> Dictionary:
 	if clip == "graft": return _graft_pose(phase, layout)
 	if clip != "idle": return {}
@@ -13,11 +13,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, _facing:
 		if joint["parent"] != null:
 			var parent: Array = layout["joints"][joint["parent"]]["position"]
 			point -= Vector2(parent[0], parent[1])
-		match name:
-			"chest": point.y -= 1.4 * breath
-			"head": point.y -= 0.9 * breath
-			"needle_hand": point.y -= 1.2 * (1.0 - cos(beat - 0.28)) * 0.5
-			"lantern": point.y -= 0.24 * (1.0 - cos(beat - 0.14)) * 0.5
+		if name == "chest": point.y -= 1.4 * breath
 		pose[name] = {"position": point}
 	return pose
 

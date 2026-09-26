@@ -1,0 +1,58 @@
+{
+  "approval": "Use Lanterns Below for quiet scenes, The Turning Key for menus/pre-battle/map, latest Ashen Pursuit for normal fights and latest Thorns in the Dark for stronger fights; retain Old Castle main menu and Chopin defeat.",
+  "approved_by": "project owner in conversation",
+  "date": "2026-09-24",
+  "source_kind": "original_authored_symbolic_composition",
+  "status": "approved_for_game_integration",
+  "tracks": [
+    {
+      "asset": "assets/audio/music/lanterns_below_v02.ogg",
+      "duration_seconds": 53.33334375,
+      "flac_sha256": "1bed79da61fe101bd804d861b282b1b240c3b71fe039909d344468d68af6cd33",
+      "id": "quiet.lanterns_below",
+      "midi_sha256": "20561fd30fb670d9536e6f68cd06534cbfba203ee0455b810eeb19cdd1f0a459",
+      "ogg_sha256": "b6c64aa9debaa5dfc430055841b6b2e449c86ebeb5629565341960518e7123c3",
+      "source": "output/original_soundtracks/umbra_three_sketches/versions/v02/01_lanterns_below",
+      "source_manifest": "output/original_soundtracks/umbra_three_sketches/versions/v02/SOURCES.json",
+      "title": "Lanterns Below",
+      "version": "v02"
+    },
+    {
+      "asset": "assets/audio/music/the_turning_key_v02.ogg",
+      "duration_seconds": 48.0,
+      "flac_sha256": "de7667c657fc3a769b7d95ddf5461c41f4308d9946d6b9ef52010fa018029918",
+      "id": "planning.the_turning_key",
+      "midi_sha256": "0d19b522a5c9421e3f7cbbd86c4d0f5e32f004235efcd6585dc42388a7bda7d8",
+      "ogg_sha256": "56611ac7b9baff486df502dd1642b81cf6dd2725d946ecfeb44a0756c49ab388",
+      "source": "output/original_soundtracks/umbra_three_sketches/versions/v02/02_the_turning_key",
+      "source_manifest": "output/original_soundtracks/umbra_three_sketches/versions/v02/SOURCES.json",
+      "title": "The Turning Key",
+      "version": "v02"
+    },
+    {
+      "asset": "assets/audio/music/ashen_pursuit_v03.ogg",
+      "duration_seconds": 57.6,
+      "flac_sha256": "8c446801bdd05f2b2cf37fb75cb9b85ebc380689429aff3f2f0d1e26211ebdd8",
+      "id": "combat.ashen_pursuit",
+      "midi_sha256": "8cd477efdd53d2820d6041f9a626e9e6eca7fe58f06edd143cd8a74d19e17a67",
+      "ogg_sha256": "5f640b8d20e92a83b19351bedcb506d551fb57fbac956242467981d501c105df",
+      "source": "output/original_soundtracks/string_ensemble_revisions/versions/v01/01_ashen_pursuit_v03",
+      "source_manifest": "output/original_soundtracks/string_ensemble_revisions/versions/v01/SOURCES.json",
+      "title": "Ashen Pursuit",
+      "version": "v03"
+    },
+    {
+      "asset": "assets/audio/music/thorns_in_the_dark_v02.ogg",
+      "duration_seconds": 49.6551875,
+      "flac_sha256": "ba85a03c3dcf6c89f1fc15d9b8d431489611c9dfac58c52d7f52182521e9b49b",
+      "id": "combat.thorns_in_the_dark",
+      "midi_sha256": "70512a878d4335c858c816d915ec989b3e7318adcdf1d6dc3d213bb6e7389c2f",
+      "ogg_sha256": "64bda32447ba12cadce8404c3e81648c073a8295fefc82ddaaabe667e0507c81",
+      "source": "output/original_soundtracks/thorns_string_revision/versions/v02/01_thorns_in_the_dark_v02",
+      "source_manifest": "output/original_soundtracks/thorns_string_revision/versions/v02/SOURCES.json",
+      "title": "Thorns in the Dark",
+      "version": "v02"
+    }
+  ],
+  "vorbis_encoder": "FFmpeg native Vorbis 8.1.1; exact audition bytes, no re-encoding"
+}

@@ -1,0 +1,30 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "3be0807066bc958389ce9b21bc9c98702b5e7d1411f27d5fbbcb81f6d2008aa2",
+    "preview.flac": "014c11de88631d2adcabc70bd48f0aadf7ed08d90450cced103c3bd249c0f6d9",
+    "preview.mp3": "90f9133ab53c7ba2172fc64cc0bd7b42eaefe8185310dc07ba8f8690f711b30e",
+    "preview.ogg": "97575d8792dd608bcb6f4d0b1bf5a787303408a6b9b7497bb07c4b3cd7e6036e",
+    "score.json": "10108aa3a0927e1f853fa6989f15e4b70c5a6352886edf11dc51287371fde744"
+  },
+  "duration_seconds": 53.33334375,
+  "frames": 1706667,
+  "loop_method": "periodic note-release overlap-add and circular dark echo; no time shortening",
+  "master_gain": 0.5489085556070447,
+  "note_counts": {
+    "bowed_veil": 18,
+    "hollow_bass": 16,
+    "lantern_mallet": 38,
+    "reed": 7,
+    "thread_pluck": 48
+  },
+  "pre_master_stem_rms": {
+    "bowed_veil": 0.017704432694786654,
+    "hollow_bass": 0.051239025272816194,
+    "lantern_mallet": 0.03816093749951158,
+    "reed": 0.013868822746953944,
+    "thread_pluck": 0.0052210375593031025
+  },
+  "sample_peak_dbfs": -7.708774732166001,
+  "sample_rate": 32000,
+  "target_lufs": -20
+}

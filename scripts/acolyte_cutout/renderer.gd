@@ -1,5 +1,7 @@
 extends Node
 
+const ReactionPlayback = preload("res://scripts/cutout_reaction_playback.gd")
+
 ## One persistent canvas per Acolyte, shared by all retained board layers.
 const Rig = preload("res://scripts/acolyte_cutout/rig.gd")
 const EnemyFacing = preload("res://scripts/enemy_cutout_facing.gd")
@@ -70,8 +72,8 @@ static func attack_pose_phase(progress: float, release: float, contact: float) -
 
 func source_socket(released: bool = false) -> Vector2:
 	var layout: Dictionary = (rigs[facing] as Node).get("layout")
-	var shown_phase: float = Motion.RELEASE if released else phase
-	var shown_clip: String = "rest" if reduced_motion else action if released or clip == "attack" else "idle"
+	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else Motion.RELEASE if released else phase
+	var shown_clip: String = "death" if clip == "death" else "rest" if reduced_motion else action if released or clip == "attack" else "idle"
 	if shown_clip == "idle":
 		shown_phase = _idle_seconds / IDLE_CYCLE_SECONDS
 	var pose: Dictionary = Motion.sample_pose(shown_clip, shown_phase, layout, facing)
@@ -85,6 +87,8 @@ func source_socket(released: bool = false) -> Vector2:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce
+	if ReactionPlayback.present(self, motion):
+		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 	if delta != Vector2i.ZERO:
 		var direction: Dictionary = direction_for_delta(delta)
@@ -136,7 +140,7 @@ func _apply_pose() -> void:
 		if rig.visible:
 			rig.position = Vector2(383, 128) if mirrored else SOURCE_OFFSET
 			rig.scale = Vector2(-1, 1) if mirrored else Vector2.ONE
-			rig.call("apply_pose", shown_clip, shown_phase)
+			ReactionPlayback.apply_pose(rig, shown_clip, shown_phase, reduced_motion)
 	viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func texture() -> Texture2D:
@@ -144,7 +148,7 @@ func texture() -> Texture2D:
 
 func snapshot() -> Dictionary:
 	return {"art": "acolyte_cutout_v01", "facing": facing, "mirrored": mirrored,
-		"clip": "rest" if reduced_motion else clip,
-		"phase": 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
+		"clip": "death" if clip == "death" else "rest" if reduced_motion else clip,
+		"phase": 1.0 if clip == "death" and reduced_motion else 0.0 if reduced_motion else _idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase,
 		"action": action, "active": active, "rig_count": rigs.size(),
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
