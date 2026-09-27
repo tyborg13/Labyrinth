@@ -59,15 +59,8 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func action_for_effect(effect: Dictionary, actor: Dictionary) -> String:
-	if str(actor.get("type", "")) != "vaeloryx":
-		return ""
-	if str(effect.get("action_type", "")) == "gale_force":
-		return "gale"
-	match str(effect.get("kind", "")):
-		"melee": return "dive"
-		"pull": return "pull"
-		"block": return "guard"
-	return ""
+	if str(actor.get("type", "")) != "vaeloryx": return ""
+	return preload("res://scripts/dragon_presentation.gd").clip(effect, actor)
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
 	return action_for_effect(effect, actor) in ["dive", "gale", "pull"]
@@ -76,13 +69,7 @@ static func attack_frame_count(effect: Dictionary, actor: Dictionary) -> int:
 	return DIVE_FRAMES if action_for_effect(effect, actor) == "dive" else WIND_FRAMES
 
 static func effect_direction(effect: Dictionary, actor: Dictionary, player_tile: Vector2i) -> Vector2i:
-	# A 2x2 actor faces from its occupied center. Doubled tile coordinates keep
-	# the shared integer-facing policy exact without rounding the half tile.
-	var origin: Vector2i = actor.get("pos", effect.get("from", Vector2i.ZERO))
-	var target: Vector2i = effect.get("player_from", effect.get("to", player_tile))
-	if str(effect.get("kind", "")) == "block":
-		target = player_tile
-	return target * 2 - (origin * 2 + Vector2i.ONE)
+	return preload("res://scripts/dragon_presentation.gd").direction(effect, actor, player_tile)
 
 static func attack_pose_phase(progress: float, contact: float) -> float:
 	var t: float = clampf(progress, 0.0, 1.0)
@@ -123,7 +110,7 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		clip = str(motion.get("action", "dive"))
 		if clip not in ["dive", "gale", "pull", "guard"]:
 			clip = "idle"
-		elif clip != "guard":
+		elif clip != "guard" and not bool(motion.get("authored_phase",false)):
 			phase = attack_pose_phase(phase, float(motion.get("contact", 0.42)))
 	else:
 		clip = "idle"

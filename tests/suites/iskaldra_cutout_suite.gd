@@ -115,10 +115,14 @@ static func _verify_motion(renderer: Node, expect: Callable) -> void:
 			for name: String in layout["joints"]:
 				var actual: Transform2D = Cutout.Motion.world(pose,layout,name)
 				var neutral: Transform2D = Cutout.Motion.world(rest,layout,name)
-				expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Idle never rotates, scales or shears any surface")
-				var planted: bool = name == "root" or name == "tail" or name.begins_with("hip_") or name.begins_with("knee_") or name.begins_with("foot_")
-				var expected: Vector2 = Vector2.ZERO if planted else offset
-				expect.call((actual.origin-neutral.origin).distance_to(expected) < 0.0001, "Hind legs/tail stay fixed under the coordinated upper-body bob")
+				expect.call(actual.is_finite(), "Idle support transforms remain finite")
+				if name.begins_with("foot_") or name == "root":
+					expect.call(actual.is_equal_approx(neutral), "Idle claws stay rigid and planted")
+				elif name.begins_with("hip_"):
+					expect.call((actual.origin-neutral.origin).distance_to(offset) < 0.0001, "Hip roots stay attached to the breathing pelvis")
+				elif not name.begins_with("knee_"):
+					expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Non-support surfaces keep a rigid idle basis")
+					expect.call((actual.origin-neutral.origin).distance_to(offset) < 0.0001, "Torso and tail use the same breathing phase")
 			var walk: Dictionary = Cutout.Motion.sample_pose("walk",t,layout,facing)
 			for foot: String in ["foot_near","foot_far"]:
 				var support: Dictionary = Cutout.Motion.walk_foot_state(t,foot,layout,facing)

@@ -1,0 +1,18 @@
+{
+  "front": {
+    "exact_rgba_reconstruction": true,
+    "unassigned_pixels": 0,
+    "original_parts": 14,
+    "source_sha256": "be22b565551314d9d80fd46358801c735b35f16d7af0b1196b8a03f9c4a1a26e",
+    "coordinates": "all cells retain identical 255px registration, no part-specific fitting",
+    "concealed_body_recipe": "recipes/front_hidden_coverage.json"
+  },
+  "rear": {
+    "exact_rgba_reconstruction": true,
+    "unassigned_pixels": 0,
+    "original_parts": 14,
+    "source_sha256": "8ce706393df96a46aeb12092379ed51155d6a711bd5636199dfa2110005c76cc",
+    "coordinates": "all cells retain identical 255px registration, no part-specific fitting",
+    "concealed_body_recipe": "recipes/rear_hidden_coverage.json"
+  }
+}

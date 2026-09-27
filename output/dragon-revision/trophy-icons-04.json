@@ -1,0 +1,241 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 21.916866751026735,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 30.526246340636924,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_first_leg.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.1364,
+          "luma_mean": 23.432647726191107,
+          "luma_min": 0.0,
+          "luma_range": 251.1364,
+          "luma_stdev": 34.72693203904419,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_reduced_motion_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 21.24022219234411,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 31.810699347484103,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_reduced_motion_settled.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 24.922626906039245,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 37.10824061361282,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_rules.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 21.91220696377587,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 30.502868415350378,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_second_leg.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.99999999999997,
+          "luma_mean": 25.03194367683939,
+          "luma_min": 0.0,
+          "luma_range": 248.99999999999997,
+          "luma_stdev": 36.01580823229469,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_target_preview.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 24.63709671385348,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 36.07267091352254,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_banked_exact_costs.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.92780000000002,
+          "luma_mean": 26.576446381680086,
+          "luma_min": 0.0,
+          "luma_range": 253.92780000000002,
+          "luma_stdev": 38.5627288180501,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_empty.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.0,
+          "luma_mean": 24.83707722634931,
+          "luma_min": 0.0,
+          "luma_range": 254.0,
+          "luma_stdev": 37.185440712326105,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_rules.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.82599999999996,
+          "luma_mean": 21.88970129310232,
+          "luma_min": 0.0,
+          "luma_range": 250.82599999999996,
+          "luma_stdev": 30.38992280083564,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_spent_relay_settled.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_trophy_feedback_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 21.916866751026735,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 30.526246340636924,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_first_leg.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.1364,
+      "luma_mean": 23.432647726191107,
+      "luma_min": 0.0,
+      "luma_range": 251.1364,
+      "luma_stdev": 34.72693203904419,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_reduced_motion_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 21.24022219234411,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 31.810699347484103,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_reduced_motion_settled.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 24.922626906039245,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 37.10824061361282,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_rules.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 21.91220696377587,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 30.502868415350378,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_second_leg.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.99999999999997,
+      "luma_mean": 25.03194367683939,
+      "luma_min": 0.0,
+      "luma_range": 248.99999999999997,
+      "luma_stdev": 36.01580823229469,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/coil_target_preview.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 24.63709671385348,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 36.07267091352254,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_banked_exact_costs.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.92780000000002,
+      "luma_mean": 26.576446381680086,
+      "luma_min": 0.0,
+      "luma_range": 253.92780000000002,
+      "luma_stdev": 38.5627288180501,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_empty.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.0,
+      "luma_mean": 24.83707722634931,
+      "luma_min": 0.0,
+      "luma_range": 254.0,
+      "luma_stdev": 37.185440712326105,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_rules.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.82599999999996,
+      "luma_mean": 21.88970129310232,
+      "luma_min": 0.0,
+      "luma_range": 250.82599999999996,
+      "luma_stdev": 30.38992280083564,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/Library/Application Support/Escape the Umbra Visual Probe dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1/probes/dragon_trophy_feedback_v3/hourglass_spent_relay_settled.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-trophy-icons-04-1790536501586954000-33378-dragon_trophy_feedback_p-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_trophy_feedback_probe.gd"
+}

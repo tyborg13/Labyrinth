@@ -621,7 +621,8 @@
       "enemy_id": "zekarion",
       "title": "Zekarion, the Raging Tempest",
       "body": [
-        "Storm dragon whose Lightning attacks create and use Electrified tiles. Tempest Breath inflicts Shock when conducted through Electrified."
+        "Storm dragon supported by up to two Lightning Wisps. Skybreak and Storm Lash leave Electrified ground.",
+        "Overload announces every current Electrified tile, then strikes and consumes the charges still there. Move away or replace a charge to avoid it; newly painted tiles wait for a later Overload."
       ]
     },
     {
@@ -645,10 +646,11 @@
     {
       "id": "combat:cinder_marks",
       "section": "combat",
-      "title": "Kindle Ground and Crownfire",
+      "title": "Meteorfall and Crownfire",
       "icon": "detonate",
       "body": [
-        "Kindle Ground creates Fire and marks it for the next Crownfire. Crownfire detonates any Fire remaining on the marked tiles."
+        "Meteorfall strikes marked cells and leaves Fire. That Fire remains dangerous during Cinder Breath.",
+        "Crownfire detonates Fire still present on the Meteorfall cells. Replace or consume it to deny the blast, or keep the dragon beside its own Fire."
       ]
     },
     {
@@ -657,17 +659,19 @@
       "title": "The Hollow Gale",
       "icon": "gale_force",
       "body": [
-        "Hollow Gale damages actors in a fan and pushes them away from Vaeloryx. Its direction is fixed when the intent appears; move beyond the marked fan to avoid the hit and Push."
+        "Hollow Gale hits every tile beside Vaeloryx and pushes struck actors away. Move beyond the marked perimeter to avoid it.",
+        "Eye of the Storm threatens a ring after the dragon retreats. The close eye and tiles beyond the outer edge are safe."
       ]
     },
     {
       "id": "combat:crystal_armor",
       "section": "combat",
-      "title": "Crystal Armor",
+      "title": "Crystal Mantle",
       "icon": "frost_armor",
       "body": [
-        "Each damaging hit breaks one Crystal Armor layer instead of damaging health. Separate hits can clear it before a heavy strike.",
-        "Iskaldra can consume selected Ice beneath itself to build additional armor. Remove that visible fuel before its turn to deny the bonus."
+        "Each damaging hit breaks one Crystal Mantle layer instead of damaging health. Separate cheap hits can clear the layers before a heavy strike.",
+        "Each remaining layer extends Shatterstorm by one tile. Break layers during its warning to shrink the danger; the burst consumes the layers that remain.",
+        "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus."
       ]
     },
     {
@@ -676,8 +680,9 @@
       "title": "The Last Eclipse",
       "icon": "umbra_eclipse",
       "body": [
-        "Noctyrax snuffs the marked brazier before forcing Eclipse and immediately harming actors standing without Radiance.",
-        "Reach the surviving brazier’s lit refuge or create your own Light before the hit. Watch which brazier is marked each cycle. Its Veilbound Acolytes vanish in the dark; Radiance and truesight reveal their positions."
+        "Night Coil extinguishes a marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto an unlit brazier to relight it.",
+        "Eclipse harms actors outside current Light. Relight a refuge or create Light before it resolves; the refuge stays lit until a later Night Coil.",
+        "Noctyrax replaces defeated Acolytes, up to two alive. They hide in Umbra; Light and truesight reveal them."
       ]
     },
     {
@@ -706,8 +711,8 @@
       "enemy_id": "vyraketh",
       "title": "Vyraketh, the Cinder Crown",
       "body": [
-        "Fire dragon that covers selected tiles with Fire, then follows Kindle Ground with Crownfire.",
-        "Replace or consume marked Fire before Crownfire, or clear its blast area. Ordinary Fire remains a shared hazard until removed."
+        "Fire dragon that scatters damaging Meteorfall marks, then breathes across the arena while their Fire remains.",
+        "Crownfire detonates the surviving marked Fire and can hit the dragon too. Its later bite pursues you."
       ]
     },
     {
@@ -716,8 +721,8 @@
       "enemy_id": "vaeloryx",
       "title": "Vaeloryx, the Hollow Gale",
       "body": [
-        "Air dragon boss that weaponizes forced movement.",
-        "Its opening gale holds the direction shown in its intent. Move to a safe flank outside the fan, and watch where later pushes and pulls would send you."
+        "Air dragon that pulls you into reach, dives along a declared route and pushes nearby actors away.",
+        "Its retreating storm has a safe close eye. Decide whether to follow it into that eye or spend movement escaping the outer edge."
       ]
     },
     {
@@ -726,8 +731,8 @@
       "enemy_id": "iskaldra",
       "title": "Iskaldra, the Rime Tyrant",
       "body": [
-        "Ice dragon protected by hit-counted Crystal Armor. Ice beneath the dragon can fuel additional armor.",
-        "Break armor with separate hits and deny its visible Ice fuel. Its Ice attacks require active Chilled to Freeze, following the same terrain timing as yours."
+        "Ice dragon protected by visible Crystal Mantle layers. Ice under its body can fuel an extra layer.",
+        "Its lance paints a whole Ice lane, and Shatterstorm reaches farther with each remaining layer. Cheap hits shrink the warning; the burst spends the layers."
       ]
     },
     {
@@ -737,7 +742,7 @@
       "title": "Noctyrax, the Last Eclipse",
       "body": [
         "Shadow dragon and final boss of the twenty-fourth depth.",
-        "Its Last Eclipse hides two Veilbound Acolytes and punishes unlit positions; preserved Radiance creates the intended counterplay."
+        "Night Coil extinguishes a brazier before Eclipse. Enter its tile to relight a refuge, or create your own Light while fighting the dragon and its replacement Acolytes."
       ]
     },
     {

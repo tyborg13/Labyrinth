@@ -182,6 +182,6 @@ static func _test_normal_room_entry(expect: Callable) -> void:
 		expect.call(scene.call("_board_encounter_types") == expected, "Initial framing captures the actual prepared room roster and spawn closure")
 		var has_boss: bool = expected.has("zekarion")
 		saw_boss = saw_boss or has_boss
-		expect.call(is_equal_approx((scene.call("_board_fit_rect") as Rect2).position.y, 122.0 if has_boss else 62.0), "Normal boss entry reserves its header while ordinary room entry keeps the compact header")
+		expect.call(is_equal_approx((scene.call("_board_fit_rect") as Rect2).position.y, 156.0 if has_boss else 62.0), "Normal boss entry reserves the name, health and status header while ordinary room entry keeps the compact header")
 		scene.free()
 	expect.call(saw_boss, "The generated boss entry includes Zekarion and its wisps")

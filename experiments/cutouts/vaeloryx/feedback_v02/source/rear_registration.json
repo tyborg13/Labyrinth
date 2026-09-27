@@ -1,0 +1,18 @@
+{
+  "source_bbox_alpha_gt_32": [
+    78,
+    66,
+    1222,
+    1197
+  ],
+  "target_size": [
+    216,
+    214
+  ],
+  "offset": [
+    19,
+    20
+  ],
+  "uniform_scale": 0.1892130857648099,
+  "source_landmarks": "Both wing roots on shoulder girdle beside neck at upper back; head now clearly separated from near wing."
+}

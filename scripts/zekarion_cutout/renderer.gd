@@ -58,10 +58,10 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
-	return str(actor.get("type", "")) == "zekarion" and str(effect.get("kind", "")) in ["melee", "ranged", "lightning_strikes", "summon"]
+	return str(actor.get("type", "")) == "zekarion" and not preload("res://scripts/dragon_presentation.gd").clip(effect, actor).is_empty()
 
 static func action_for_effect(effect: Dictionary) -> String:
-	return {"melee":"claw", "ranged":"breath", "lightning_strikes":"charge", "summon":"call"}.get(str(effect.get("kind", "")), "claw")
+	return preload("res://scripts/dragon_presentation.gd").clip(effect, {"type":"zekarion"})
 
 static func action_frames(effect: Dictionary) -> int:
 	return {"claw":54, "breath":78, "charge":66, "call":66}[action_for_effect(effect)]
@@ -116,7 +116,7 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 			clip = "idle"
 		else:
 			action = str(motion.get("action", "claw"))
-			phase = attack_pose_phase(phase, float(motion.get("contact", 0.42)), action)
+			if not bool(motion.get("authored_phase",false)): phase = attack_pose_phase(phase, float(motion.get("contact", 0.42)), action)
 	else:
 		clip = "idle"
 	if clip == "idle" and previous_clip != "idle":

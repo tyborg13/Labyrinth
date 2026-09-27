@@ -9,7 +9,8 @@ const Terrain = preload("res://scripts/combat_terrain_rules.gd")
 const INVALID := Vector2i(-1,-1)
 const Library = preload("res://scripts/guardian_library.gd")
 const Patterns = preload("res://scripts/committed_pattern_shapes.gd")
-const DIRECTIONAL_SHAPES: Array[String] = ["line", "broken_line", "sweep", "crescent", "fan"]
+const DIRECTIONAL_SHAPES = ["line", "broken_line", "sweep", "crescent", "fan"]
+const GEOMETRIC_SHAPES = ["line", "broken_line", "sweep", "crescent", "fan", "ring", "swept_path"]
 
 static func shape(action: Dictionary) -> String:
 	return str(action.get("committed_shape", action.get("guardian_shape", "")))
@@ -99,8 +100,13 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 		if not authored_action(action): continue
 		var affected: Array[Vector2i] = []
 		var shape_id: String = shape(action)
-		if shape_id in DIRECTIONAL_SHAPES:
-			affected = shape_tiles(engine,state,origin,direction,action)
+		if shape_id in GEOMETRIC_SHAPES:
+			var geometry: Dictionary = action.duplicate(true)
+			geometry["_resolved_path"] = plan.get("path",[origin])
+			geometry = status_range(enemy,geometry)
+			affected = shape_tiles(engine,state,origin,direction,geometry)
+		elif shape_id == "surface_snapshot":
+			affected = Surfaces.tiles(state,str(action.get("snapshot_surface","electrified")))
 		elif shape_id == "connector":
 			affected = connector_tiles(engine,state,origin,target,action)
 		elif type in ["raise_terrain","summon_minions"]:
@@ -129,9 +135,10 @@ static func commit(engine: RefCounted, state: Dictionary, index: int, intent: Di
 		action["declared_origin"] = origin
 		action["declared_direction"] = direction
 		if action.has("committed_shape"):
-			if int(action.get("push",0)) > 0: action["force_direction"] = direction
-			elif int(action.get("pull",0)) > 0: action["force_direction"] = -direction
-		if bool(action.get("snuff_brazier",false)):
+			if shape_id in DIRECTIONAL_SHAPES:
+				if int(action.get("push",0)) > 0: action["force_direction"] = direction
+				elif int(action.get("pull",0)) > 0: action["force_direction"] = -direction
+		if type == "summon_minions" and bool(action.get("snuff_brazier",false)):
 			var braziers: Array = state.get("guardian_braziers",[])
 			if not braziers.is_empty():
 				var brazier: Dictionary = braziers[posmod(int(enemy.get("guardian_cycle",0))/3,braziers.size())]
@@ -202,7 +209,9 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 	if not attack_disabled and survives:
 		for action: Dictionary in intent.get("actions",[]):
 			if not handles(action) or str(action.get("type","")) == "summon_minions": continue
-			var impact: Array[Vector2i] = live_tiles(engine,preview_state,preview_enemy,action)
+			var geometry: Dictionary = action.duplicate(true)
+			geometry["_resolved_path"] = plan.get("path",[preview_enemy["pos"]])
+			var impact: Array[Vector2i] = live_tiles(engine,preview_state,preview_enemy,geometry)
 			for tile: Vector2i in impact:
 				if not projected.has(tile): projected.append(tile)
 			if (engine._action_element(action) == "lightning" or int(action.get("chain",0)) > 0) and not impact.is_empty():
@@ -213,7 +222,7 @@ static func current_plan(engine: RefCounted, state: Dictionary, enemy: Dictionar
 					if not projected.has(hit["to"]): projected.append(hit["to"])
 		for action: Dictionary in intent.get("actions",[]):
 			if str(action.get("type", "")) == "summon_minions":
-				for tile: Vector2i in available_summon_tiles(engine,preview_state,preview_enemy,action):
+				for tile: Vector2i in (engine._summon_tiles_for_enemy(preview_state,preview_enemy,engine._available_summon_count(preview_state,action)) if action.has("summon_cap") else available_summon_tiles(engine,preview_state,preview_enemy,action)):
 					if not summons.has(tile): summons.append(tile)
 	plan["projected_attack"] = projected
 	plan["projected_attack_target"] = projected[0] if not projected.is_empty() else INVALID
@@ -256,6 +265,9 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 	var enemy: Dictionary = state["enemies"][index]
 	var type: String = str(action.get("type",""))
 	var declared: Array[Vector2i] = live_tiles(engine,state,enemy,action)
+	if shape(action) == "ring":
+		action = action.duplicate(true)
+		action["radial_force"] = true
 	if type == "surface":
 		for tile: Vector2i in declared: Surfaces.place(state,tile,str(action.get("surface","")),engine._surface_source(state,action))
 	elif type == "raise_terrain":
@@ -291,8 +303,26 @@ static func resolve(engine: RefCounted, state: Dictionary, index: int, action: D
 		state = engine._trigger_enemy_bleed_for_resolved_action(state,index,action,bleed_steps)
 		if engine._enemy_cannot_continue_after_bleed(state,index): return state
 		if not declared.is_empty():
+			if bool(action.get("replace_previous_trail",false)):
+				for tile: Vector2i in tiles(enemy.get("authored_trail",[])):
+					var owner: Dictionary = Surfaces.surface_at(state,tile).get("elemental_source",{})
+					if str(owner.get("actor_kind","")) == "enemy" and int(owner.get("actor_id",-1)) == int(enemy["id"]):
+						Surfaces.remove(state,tile,str(action.get("surface","")),"replaced_trail")
 			state = engine._resolve_board_attack(state,action,declared[0],"enemy",int(enemy["id"]),{},declared)
+			if bool(action.get("replace_previous_trail",false)): state["enemies"][index]["authored_trail"] = declared.duplicate()
+			if action.has("consume_surface"):
+				for tile: Vector2i in declared: Surfaces.remove(state,tile,str(action["consume_surface"]),"overload")
 			if action.has("terminal_surface"): Surfaces.place(state,declared[-1],str(action["terminal_surface"]),engine._surface_source(state,action))
+		if action.has("consume_status"):
+			var status: String = str(action["consume_status"])
+			var layers: int = int(state["enemies"][index].get(status,0))
+			state["enemies"][index][status] = 0
+			Surfaces.record_event(state,{"kind":"dragon_status_consumed","enemy_id":enemy["id"],"status":status,"amount":layers,"source":engine._surface_source(state,action)})
+		if bool(action.get("snuff_brazier",false)):
+			for brazier: Dictionary in state.get("guardian_braziers",[]):
+				if int(brazier["id"]) == int(action.get("brazier_id",-1)):
+					brazier["lit"] = false
+					Surfaces.record_event(state,{"kind":"dragon_light_snuffed","brazier_id":brazier["id"],"tile":brazier["pos"],"source":engine._surface_source(state,action)})
 		if int(action.get("self_expose",0))>0 and int(state["enemies"][index].get("hp",0))>0:
 			state["enemies"][index]["expose"] = maxi(int(state["enemies"][index].get("expose",0)),int(action["self_expose"]))
 	return state
@@ -307,8 +337,10 @@ static func live_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary,
 		for tile: Vector2i in declared:
 			if Surfaces.is_conductive(state,tile) and Paths.manhattan(origin,tile)<=int(action.get("range",3)) and engine.combat_line_of_sight(state,origin,tile): valid.append(tile)
 		return valid
-	if shape_id in DIRECTIONAL_SHAPES:
-		return shape_tiles(engine,state,origin,action.get("declared_direction",Vector2i.ZERO),action)
+	if shape_id == "surface_snapshot":
+		return tiles(declared.filter(func(tile: Vector2i)->bool: return Surfaces.has_surface(state,tile,str(action.get("snapshot_surface","electrified")))))
+	if shape_id in GEOMETRIC_SHAPES:
+		return shape_tiles(engine,state,origin,action.get("declared_direction",Vector2i.ZERO),status_range(enemy,action))
 	if str(action.get("type","")) == "summon_minions": return declared
 	var result: Array[Vector2i] = []
 	var displacement: Vector2i = origin-action.get("declared_origin",origin)
@@ -342,13 +374,13 @@ static func animation_step(engine: RefCounted, before: Dictionary, after: Dictio
 		label=("Snuff · " if action.has("brazier_id") else "Summon · ")+helper_name if not spawned.is_empty() else "Snuff · spawn blocked" if action.has("brazier_id") else "Summon blocked"
 	var dragon: bool = preload("res://scripts/dragon_boss_library.gd").is_dragon_boss_id(str(enemy["type"]))
 	return {"kind":kind,"action_type":type,"enemy_type":enemy["type"],"guardian_mechanic":not dragon,"boss_mechanic":dragon,"committed_direction":shape(action) in DIRECTIONAL_SHAPES,"declared_tiles":action.get("declared_tiles", []).duplicate(),"actor_key":engine._enemy_key(enemy),"actor_name":engine._enemy_display_name(enemy),
-		"intent_id":str(intent.get("id","")),"label":label,
+		"intent_id":str(intent.get("id","")),"label":label,"committed_shape":shape(action),"minimum_range":int(action.get("minimum_range",1)),
 		"interrupted":interrupted,"action_direction":action.get("declared_direction",Vector2i.ZERO),
 		"player_from":before["player"]["pos"],"player_to":after["player"]["pos"],
 		"status_text":engine._player_status_step_text(before["player"],after["player"],action),
 		"from":enemy["pos"],"to":target,"tile":enemy["pos"],"center":target,"tiles":affected,
 		"element":str(action.get("element",preload("res://scripts/game_data.gd").enemy_def(str(enemy["type"])).get("element","none"))),
-		"range":int(action.get("range",0)),"amount":engine._target_loss_amount(losses),"target_losses":losses,"terrain_losses":terrain_losses,
+		"range":int(status_range(enemy,action).get("range",0)),"amount":engine._target_loss_amount(losses),"target_losses":losses,"terrain_losses":terrain_losses,
 		"impact_actor_keys":engine._target_loss_keys(losses),"triggered_traps":engine._triggered_traps_between(before,after),
 		"guardian_board_after":board_snapshot(after),"surface":str(action.get("surface","rubble")),
 		"spawned_enemies":spawned}
@@ -422,7 +454,15 @@ static func with_reinforcements(state: Dictionary, enemy: Dictionary, intent: Di
 	result["actions"].append({"type":"summon_minions","minion_type":id,"count":1,"range":3,"guardian_cap":cap,"guardian_reinforcement":true})
 	return result
 
+static func status_range(enemy: Dictionary, action: Dictionary) -> Dictionary:
+	if not action.has("range_status"): return action
+	var adjusted: Dictionary = action.duplicate(true)
+	adjusted["range"] = mini(int(action.get("maximum_range",99)),int(action.get("range",1))+int(enemy.get(str(action["range_status"]),0)))
+	return adjusted
+
 static func shape_tiles(engine: RefCounted, state: Dictionary, origin: Vector2i, direction: Vector2i, action: Dictionary) -> Array[Vector2i]:
+	if shape(action) == "ring": return Patterns.radial_shape(engine,state,origin,action)
+	if shape(action) == "swept_path": return Patterns.swept_shape(engine,state,origin,action)
 	if action.has("pattern_footprint"):
 		return Patterns.footprint_shape(engine, state, origin, direction, action)
 	var result: Array[Vector2i] = []
@@ -442,9 +482,12 @@ static func shape_tiles(engine: RefCounted, state: Dictionary, origin: Vector2i,
 static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, intent: Dictionary, fallback: Dictionary) -> Dictionary:
 	var pattern: Dictionary = {}
 	var move_range: int = 0
+	var retreat: bool = false
 	for action: Dictionary in intent.get("actions",[]):
-		if shape(action) in DIRECTIONAL_SHAPES and pattern.is_empty(): pattern=action
-		if str(action.get("type",""))=="move_toward": move_range=int(action.get("range",0))
+		if shape(action) in GEOMETRIC_SHAPES and pattern.is_empty(): pattern=action
+		if str(action.get("type","")) in ["move_toward","move_away"]:
+			move_range=int(action.get("range",0))
+			retreat=str(action["type"])=="move_away"
 	if pattern.is_empty(): return fallback
 	var enemy: Dictionary = state["enemies"][index]
 	var target: Dictionary = engine._closest_enemy_target(state,enemy)
@@ -456,7 +499,9 @@ static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, 
 		if not bool(arrival.get("survives",true)) or arrival.get("destination",record["tile"])!=record["tile"]: continue
 		var origin: Vector2i = record["tile"]
 		for direction: Vector2i in Paths.DIRS_4:
-			var shape: Array[Vector2i] = shape_tiles(engine,state,origin,direction,pattern)
+			var geometry: Dictionary = status_range(enemy,pattern)
+			geometry["_resolved_path"] = record["path"]
+			var shape: Array[Vector2i] = shape_tiles(engine,state,origin,direction,geometry)
 			var nearest: int = 99
 			var score: int = -int(record.get("trap_cost",0))*60-int(record.get("steps",0))*3
 			for tile: Vector2i in shape:
@@ -467,7 +512,8 @@ static func pattern_approach(engine: RefCounted, state: Dictionary, index: int, 
 				if str(pattern.get("type",""))=="surface" and not Surfaces.has_surface(state,tile,str(pattern.get("surface",""))): score+=3
 				for ally: Dictionary in state["enemies"]:
 					if int(ally.get("hp",0))>0 and int(ally["id"])!=int(enemy["id"]) and ally["pos"]==tile: score-=30
-			score-=nearest*20+Paths.manhattan(origin,target_tile)
+			score-=nearest*20
+			score+=(1 if retreat else -1)*Paths.manhattan(origin,target_tile)*4
 			if score<=best_score: continue
 			best_score=score
 			best["path"]=tiles(record["path"])

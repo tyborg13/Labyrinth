@@ -1402,7 +1402,7 @@ const TURN_ORDER_NORMAL_RAIL_TOP_CLEARANCE: float = 44.0
 const BOSS_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/boss_umbral_dragon_frame_v1.png"
 const BOSS_HEALTH_OVERLAY_PREFERRED_WIDTH: float = 780.0
 const BOSS_HEALTH_OVERLAY_MIN_WIDTH: float = 700.0
-const BOSS_HEALTH_OVERLAY_HEIGHT: float = 100.0
+const BOSS_HEALTH_OVERLAY_HEIGHT: float = 134.0
 const BOSS_HEALTH_OVERLAY_TOP: float = 18.0
 const BOSS_HEALTH_FRAME_TOP: float = 10.0
 const BOSS_HEALTH_FRAME_NATIVE_SIZE: Vector2 = Vector2(780.0, 90.0)
@@ -1842,6 +1842,8 @@ var _boss_health_host: Control
 var _boss_health_bar: SegmentedHealthBar
 var _boss_health_damage_preview: ColorRect
 var _boss_health_hp_label: Label
+var _boss_status_row: HBoxContainer
+var _boss_status_cells: Dictionary = {}
 var _turn_order_animating: bool = false
 var _turn_order_hovered_enemy_key: String = ""
 var _show_all_enemy_intents: bool = false
@@ -2997,7 +2999,7 @@ func _controller_board_candidates() -> Array[Dictionary]:
 
 func _controller_navigation_candidates() -> Array[Dictionary]:
 	var candidates: Array[Dictionary] = _controller_board_candidates()
-	for command_host: Control in [_action_context_command_bar, _choice_button_overlay, _surface_skill_choice_row, choice_bar]:
+	for command_host: Control in [_action_context_command_bar, _choice_button_overlay, _surface_skill_choice_row, _context_choice_bar, choice_bar]:
 		if command_host == null or not command_host.is_visible_in_tree(): continue
 		for child: Node in command_host.get_children():
 			if child is Button:
@@ -3021,7 +3023,7 @@ func _controller_candidate_for_tile(tile: Vector2i) -> Dictionary:
 	if _exit_destinations_by_tile.has(tile):
 		kind = "door"
 		detail = "Travel through this door"
-	elif _run_engine.can_use_emaciated_services(_run_state) and tile == _emaciated_service_tile():
+	elif _run_engine.can_speak_to_emaciated_man(_run_state) and tile == _emaciated_service_tile():
 		kind = "npc"
 		detail = "Speak to the Emaciated Man"
 	elif _state_has_visible_enemy_at_tile(_combat_state, tile):
@@ -3230,7 +3232,7 @@ func _controller_board_tiles() -> Array[Vector2i]:
 		for tile_var: Variant in _exit_destinations_by_tile.keys():
 			if tile_var is Vector2i and rendered_doors.has(tile_var):
 				result.append(tile_var as Vector2i)
-		if _run_engine.can_use_emaciated_services(_run_state):
+		if _run_engine.can_speak_to_emaciated_man(_run_state):
 			for npc: Dictionary in (_run_state.get("current_room_layout", {}) as Dictionary).get("npcs", []):
 				if str(npc.get("id", "")) == "emaciated_man" and rendered_doors.has(npc.get("pos", INVALID_TARGET_TILE)):
 					result.append(npc["pos"])
@@ -3285,7 +3287,7 @@ func _controller_activate_current() -> void:
 			var door_tile: Vector2i = _controller_focus_candidate.get("tile", INVALID_TARGET_TILE)
 			if door_tile != INVALID_TARGET_TILE and _exit_destinations_by_tile.has(door_tile):
 				await _on_board_tile_clicked(door_tile)
-		elif candidate_kind == "npc" and _run_engine.can_use_emaciated_services(_run_state):
+		elif candidate_kind == "npc" and _run_engine.can_speak_to_emaciated_man(_run_state):
 			var npc_tile: Vector2i = _controller_focus_candidate.get("tile", INVALID_TARGET_TILE)
 			if npc_tile != INVALID_TARGET_TILE and npc_tile == _emaciated_service_tile():
 				await _on_board_tile_clicked(npc_tile)
@@ -3683,6 +3685,11 @@ func _refresh_controller_prompts() -> void:
 		if not _current_room_merchant_kind().is_empty() and not _merchant_shop_open:
 			prompts.insert(2, {"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Shop"})
 		var focused_control: Control = _controller_focus_candidate.get("control", null) as Control
+		if str(_controller_focus_candidate.get("kind", "")) == "npc":
+			prompts[0]["label"] = "Speak"
+		elif focused_control != null and _context_choice_bar != null and _context_choice_bar.is_ancestor_of(focused_control):
+			prompts[0]["label"] = "Choose"
+			prompts[1]["label"] = "Navigate"
 		if focused_control != null and _controller_header_focus_controls().has(focused_control):
 			prompts[0]["label"] = "Inspect" if str(_controller_focus_candidate.get("kind", "")) == "relic" else "Open"
 			prompts[1]["label"] = "Navigate"
@@ -6182,7 +6189,7 @@ func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
 				"gale_force":
 					tag = "Arena Gale"
 				"frost_armor":
-					tag = "Crystal Armor"
+					tag = "Crystal Mantle"
 				"umbra_eclipse":
 					tag = "Eclipse"
 				"split":
@@ -8412,11 +8419,12 @@ func _start_dialogue(dialogue: Dictionary) -> void:
 	_close_card_upgrade_overlay()
 	_dialogue_script = dialogue.duplicate(true)
 	_dialogue_active = true
-	_dialogue_suppresses_choices = not _current_room_merchant_kind().is_empty()
+	_dialogue_suppresses_choices = not _current_room_merchant_kind().is_empty() or str(dialogue.get("npc_id", "")) == "emaciated_man"
 	_dialogue_overlay.visible = true
 	if _dialogue_suppresses_choices:
 		_refresh_choice_bar()
 	_show_dialogue_line(0)
+	if is_inside_tree(): _refresh_stage_view()
 
 func _show_dialogue_line(index: int) -> void:
 	var lines: Array = _dialogue_script.get("lines", [])
@@ -8498,9 +8506,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
-	if _dialogue_active and bool(_current_dialogue_line().get("service", false)):
-		_run_state["emaciated_service_seen"] = true
-		_persist_committed_boundary("emaciated_services_seen")
+	_maybe_mark_emaciated_awakening_seen()
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
 	_maybe_mark_fire_rest_dialogue_seen()
 	_maybe_mark_umbra_warning_seen()
@@ -8518,6 +8524,20 @@ func _close_dialogue() -> void:
 		_dialogue_overlay.visible = false
 	if should_restore_choices and is_inside_tree() and not _run_state.is_empty():
 		_refresh_choice_bar()
+		_refresh_stage_view()
+
+func _maybe_mark_emaciated_awakening_seen() -> void:
+	if not _dialogue_active or not bool(_dialogue_script.get("marks_emaciated_awakening_seen", false)):
+		return
+	# Closing another overlay or interrupting an unfinished introduction is not
+	# acknowledgment. The player can hear it again until the final line is read.
+	if not _dialogue_text_complete or _dialogue_line_index != (_dialogue_script.get("lines", []) as Array).size() - 1:
+		return
+	var candidate: Dictionary = ProgressionStore.mark_emaciated_awakening_seen(_progression)
+	if not ProgressionStore.save_data(candidate): return
+	_progression = candidate
+	_run_state["progression"] = candidate.duplicate(true)
+	_persist_committed_boundary("emaciated_awakening_seen")
 
 func _maybe_mark_fire_rest_dialogue_seen() -> void:
 	if _dialogue_script.is_empty() or not bool(_dialogue_script.get("marks_fire_rest_seen", false)):
@@ -10896,9 +10916,13 @@ func _layout_boss_health_overlay_content() -> void:
 		clampf((viewport_size.x - overlay_size.x) * 0.5, 32.0, maxf(32.0, viewport_size.x - overlay_size.x - 32.0)),
 		BOSS_HEALTH_OVERLAY_TOP
 	)
+	_layout_action_banner()
 	if _boss_health_name != null:
 		_boss_health_name.position = Vector2(18.0, 0.0)
 		_boss_health_name.size = Vector2(maxf(1.0, overlay_size.x - 36.0), 36.0)
+	if _boss_status_row != null:
+		_boss_status_row.position = Vector2(0.0,98.0)
+		_boss_status_row.size = Vector2(overlay_width,32.0)
 	var frame_scale: float = minf(1.0, overlay_size.x / BOSS_HEALTH_FRAME_NATIVE_SIZE.x)
 	var frame_size: Vector2 = BOSS_HEALTH_FRAME_NATIVE_SIZE * frame_scale
 	var frame_position := Vector2((overlay_size.x - frame_size.x) * 0.5, BOSS_HEALTH_FRAME_TOP)
@@ -11774,6 +11798,7 @@ func _refresh_relic_bar() -> void:
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
 	var signature: String = str(hash([
 		relic_ids,
+		_combat_state.get("relic_time_reserve", {}),
 		skill_ids,
 		skill_sigil_presentation,
 		defiance_capacity,
@@ -11793,7 +11818,7 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	var icon_signature: int = hash(relic_ids)
+	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {})])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
 		_clear_children(_relic_icon_grid)
@@ -11863,6 +11888,23 @@ func _refresh_relic_bar() -> void:
 				fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
 				fallback.add_theme_constant_override("outline_size", 1)
 				margin.add_child(fallback)
+			for effect: Dictionary in relic.get("effects", []):
+				if str(effect.get("type", "")) != "element_time_reserve": continue
+				var capacity: int = int(effect.get("capacity",3))
+				var held: int = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state,relic_id,capacity)
+				frame.tooltip_text += "\nStored Time: %d / %d" % [held,capacity]
+				var counter := Label.new()
+				counter.name = "RelicTimeReserve"
+				counter.text = str(held)
+				counter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+				counter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+				counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				UiTypography.set_label_size(counter,UiTypography.SIZE_BODY)
+				counter.add_theme_color_override("font_color",Color("c3f5ff"))
+				counter.add_theme_color_override("font_outline_color",Color("14101b"))
+				counter.add_theme_constant_override("outline_size",7)
+				frame.add_child(counter)
 			_relic_icon_grid.add_child(frame)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
 	# The hidden popover refreshes itself on open. Rebuilding its full palette on
@@ -12879,6 +12921,33 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_name.add_theme_color_override("font_outline_color", Color("140b08"))
 	_boss_health_name.add_theme_constant_override("outline_size", 3)
 	_boss_health_overlay.add_child(_boss_health_name)
+	_boss_status_row = HBoxContainer.new()
+	_boss_status_row.name = "BossStatusRow"
+	_boss_status_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	_boss_status_row.add_theme_constant_override("separation",18)
+	_boss_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_boss_health_overlay.add_child(_boss_status_row)
+	for status: String in ["frost_armor","block","stoneskin","chilled","freeze","shock","bleed","expose","immobilize"]:
+		var cell := HBoxContainer.new()
+		cell.name = status.capitalize().replace(" ","")
+		cell.add_theme_constant_override("separation",5)
+		cell.visible = false
+		_boss_status_row.add_child(cell)
+		var icon := TextureRect.new()
+		icon.texture = ActionIcons.icon_texture(status)
+		icon.custom_minimum_size = Vector2(28,28)
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cell.add_child(icon)
+		var label := Label.new()
+		UiTypography.set_label_size(label,22)
+		label.add_theme_color_override("font_color",Color("dbedff"))
+		label.add_theme_color_override("font_outline_color",Color("100c18"))
+		label.add_theme_constant_override("outline_size",3)
+		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		cell.add_child(label)
+		_boss_status_cells[status] = {"cell":cell,"label":label}
 	_boss_health_frame = TextureRect.new()
 	_boss_health_frame.name = "BossHealthDragonFrame"
 	_boss_health_frame.position = Vector2(0.0, BOSS_HEALTH_FRAME_TOP)
@@ -13090,12 +13159,13 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 	var boss: Dictionary = _boss_unit_for_health_overlay(display_state)
 	var visible: bool = not boss.is_empty()
 	var preview: Dictionary = _boss_damage_preview_for_overlay(boss, source_presentation) if visible else {}
-	var signature: String = "%d|%d|%d|%d|%d" % [
+	var signature: String = "%d|%d|%d|%d|%d|%d" % [
 		_combat_preview_revision,
 		int(boss.get("id", -1)),
 		int(boss.get("hp", 0)),
 		int(boss.get("max_hp", 0)),
 		hash(preview),
+		hash(_boss_status_values(boss)),
 	]
 	if signature == _boss_health_overlay_signature:
 		return
@@ -13127,6 +13197,7 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 	var preview_hp: int = clampi(int(preview.get("hp", hp)), 0, max_hp)
 	if _boss_health_name != null:
 		_boss_health_name.text = boss_name
+	_refresh_boss_status_row(boss)
 	if _boss_health_bar != null:
 		_boss_health_bar.set_health(float(hp), float(max_hp))
 		_boss_health_bar.set_segment_count(_boss_health_segment_count(max_hp))
@@ -13141,6 +13212,20 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 		_boss_health_damage_preview.offset_right = 0.0
 		_boss_health_damage_preview.visible = preview_hp < hp
 	_layout_boss_health_overlay()
+
+func _boss_status_values(boss: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for key: String in _boss_status_cells: result[key] = boss.get(key,0)
+	return result
+
+func _refresh_boss_status_row(boss: Dictionary) -> void:
+	var names: Dictionary = {"frost_armor":"Mantle","block":"Block","stoneskin":"Guard","chilled":"Chilled","freeze":"Freeze","shock":"Shock","bleed":"Bleed","expose":"Expose","immobilize":"Rooted"}
+	for key: String in _boss_status_cells:
+		var entry: Dictionary = _boss_status_cells[key]
+		var count: int = int(boss.get(key,0))
+		(entry["cell"] as Control).visible = count > 0
+		(entry["label"] as Label).text = str(names[key]) if key in ["chilled","immobilize"] else "%s %d" % [names[key],count]
+		(entry["cell"] as Control).tooltip_text = "Crystal Mantle: each direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it." if key == "frost_armor" else str(names[key])
 
 func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
 	if _boss_health_candidate_revision != _combat_preview_revision:
@@ -14983,7 +15068,7 @@ func _action_step_action_name(action: Dictionary) -> String:
 		"gale_force":
 			return "Hollow Gale"
 		"frost_armor":
-			return "Crystal Armor"
+			return "Crystal Mantle"
 		"umbra_eclipse":
 			return "Last Eclipse"
 	var icon_key: String = _action_step_icon_key(action)
@@ -15129,7 +15214,7 @@ func _refresh_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 	if mode != "combat" and _choice_button_overlay != null:
 		_choice_button_overlay.visible = false
-	if _context_choice_overlay != null and mode != "campfire" and not _run_engine.can_use_emaciated_services(_run_state):
+	if _context_choice_overlay != null and mode != "campfire" and not _run_engine.can_speak_to_emaciated_man(_run_state):
 		_context_choice_overlay.visible = false
 	stats_label.visible = mode not in ["victory", "defeat"]
 	loadout_button.visible = mode not in ["victory", "defeat"]
@@ -15167,6 +15252,7 @@ func _refresh_card_preview_visibility() -> void:
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
 func _refresh_choice_bar() -> void:
+	board_view.set_tooltips_enabled(str(_run_state.get("mode", "room")) != "reward")
 	_sync_treasure_room_reveal()
 	if _scavenger_shop_view != null:
 		_scavenger_shop_view.dismiss_immediately()
@@ -15206,8 +15292,10 @@ func _refresh_choice_bar() -> void:
 					_scavenger_shop_view.present()
 				else:
 					_add_merchant_return_to_shop_button()
-			elif _run_engine.can_use_emaciated_services(_run_state):
-				_add_context_choice_button("Speak to the Emaciated Man", _show_emaciated_services, "Trade Moltshards for Embers or purchase levels.")
+			elif _run_engine.can_speak_to_emaciated_man(_run_state):
+				_add_context_choice_button("Speak", _speak_to_emaciated_man, "Speak to the Emaciated Man.")
+				if _run_engine.can_use_emaciated_services(_run_state):
+					_add_context_choice_button("Awaken Power", _show_emaciated_services, "Trade Moltshards for Embers or purchase levels.")
 		"campfire":
 			_add_campfire_choice(
 				"linger",
@@ -16215,6 +16303,9 @@ func _add_context_choice_button(text: String, callback: Callable, tooltip: Strin
 
 func _clear_context_choice_overlay() -> void:
 	if _context_choice_bar != null:
+		var focused: Variant = _controller_focus_candidate.get("control", null)
+		if is_instance_valid(focused) and focused is Control and _context_choice_bar.is_ancestor_of(focused):
+			_controller_focus_candidate.clear()
 		_clear_children_now(_context_choice_bar)
 	if _context_choice_overlay != null:
 		_context_choice_overlay.visible = false
@@ -16366,6 +16457,7 @@ func _reward_intro_pending() -> bool:
 func _play_post_combat_victory(board_state: Dictionary) -> void:
 	if board_state.is_empty() or _post_combat_victory_overlay == null:
 		return
+	board_view.set_tooltips_enabled(false)
 	_render_board_state(board_state, {})
 	# Let the musical resolution ring through reward selection. Input follows
 	# the visible victory beat instead of waiting for the audio reverb tail.
@@ -16500,10 +16592,53 @@ func _dragon_reward_label(host: Control, node_name: String, text: String, font_s
 	return label
 
 func _on_dragon_reward_continue() -> void:
-	if _animation_lock or not _run_engine.is_dragon_reward(_run_state): return
-	if _commit_dragon_reward_continue() and str(_run_state.get("mode", "")) == "victory":
-		_analytics_log_run_ended("victory")
+	if _animation_lock or _treasure_presentation_busy() or not _run_engine.is_dragon_reward(_run_state): return
+	var reward: Dictionary = (_run_state.get("pending_reward", {}) as Dictionary).duplicate(true)
+	var relic_id: String = str(reward.get("relic_id", ""))
+	var artwork: Control = find_child("DragonRewardArtwork", true, false) as Control
+	var source_rect: Rect2 = artwork.get_global_rect() if artwork != null else Rect2()
+	var gift_destination: Control = find_child("DragonRewardDestination", true, false) as Control if bool(reward.get("next_descent", false)) else null
+	_relic_claim_in_progress = true
+	if not _commit_dragon_reward_continue():
+		_relic_claim_in_progress = false
+		_refresh_ui()
+		return
+	var sequence_epoch: int = _treasure_sequence_epoch
+	_relic_delivery_id = relic_id
+	_relic_delivery_phase = "delivery"
+	_play_reward_collect_sfx()
+	# Ownership and the claim receipt are already saved. Keep the reward visible
+	# while the same beam/motes used by relic rooms deliver it to its destination.
+	await _animate_relic_acquisition_flourish(relic_id, source_rect, Color(GameData.relic_accent(relic_id)), gift_destination)
+	if not _treasure_sequence_is_current(sequence_epoch): return
+	_relic_delivery_phase = "settlement"
+	await _animate_relic_acquired(relic_id)
+	if not _treasure_sequence_is_current(sequence_epoch): return
+	var reward_host: Control = _relic_choice_host
+	if reward_host != null and reward_host.visible:
+		var fade: Tween = create_tween()
+		_treasure_sequence_tweens.append(fade)
+		fade.tween_property(reward_host, "modulate:a", 0.0, 0.12 if _reduced_motion_enabled() else 0.24)
+		if not await _await_treasure_tween(fade, sequence_epoch): return
+	if str(_run_state.get("mode", "")) == "victory": _analytics_log_run_ended("victory")
 	_refresh_ui()
+	if reward_host != null: reward_host.modulate = Color.WHITE
+	_relic_claim_in_progress = false
+	_relic_delivery_phase = "map_transition"
+	_maybe_present_section_map()
+	if _large_map_scrim != null and _large_map_scrim.visible:
+		_relic_claim_in_progress = true
+		_large_map_scrim.modulate.a = 0.0
+		var map_fade: Tween = create_tween()
+		_treasure_sequence_tweens.append(map_fade)
+		map_fade.tween_property(_large_map_scrim, "modulate:a", 1.0, 0.12 if _reduced_motion_enabled() else 0.32).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		if not await _await_treasure_tween(map_fade, sequence_epoch): return
+	_relic_delivery_phase = ""
+	_relic_delivery_id = ""
+	_relic_claim_in_progress = false
+	_treasure_sequence_tweens.clear()
+	_treasure_sequence_nodes.clear()
+	call_deferred("_recover_controller_focus")
 
 func _stage_dragon_reward_claim(next_state: Dictionary, reward: Dictionary) -> Dictionary:
 	var next: Dictionary = next_state.duplicate(true)
@@ -21687,10 +21822,10 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		_guided_tutorial_reject()
 		return
 	var mode: String = str(_run_state.get("mode", "room"))
-	if mode == "room" and _run_engine.can_use_emaciated_services(_run_state):
+	if mode == "room" and _run_engine.can_speak_to_emaciated_man(_run_state):
 		for npc: Dictionary in (_run_state.get("current_room_layout", {}) as Dictionary).get("npcs", []):
 			if str(npc.get("id", "")) == "emaciated_man" and npc.get("pos", INVALID_TARGET_TILE) == tile:
-				_show_emaciated_services()
+				_speak_to_emaciated_man()
 				return
 	if mode == "room" and _exit_destinations_by_tile.has(tile):
 		await _on_map_view_room_selected(_exit_destinations_by_tile[tile], tile)
@@ -23169,6 +23304,9 @@ func _terrain_destruction_units_for_traps(source_units: Array, animated_traps: A
 	return animated_terrain
 
 func _attack_terrain_destruction_progress(effect: Dictionary, effect_progress: float) -> float:
+	if not preload("res://scripts/dragon_presentation.gd").profile(effect).is_empty():
+		var dragon_contact: float = _attack_feedback_start_progress(effect)
+		return clampf((effect_progress-dragon_contact)/maxf(.001,1.0-dragon_contact),0.0,1.0)
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	if style != AttackFxLibrary.STYLE_DEFAULT:
 		return AttackFxLibrary.impact_progress_for_style(style, effect_progress)
@@ -23176,6 +23314,8 @@ func _attack_terrain_destruction_progress(effect: Dictionary, effect_progress: f
 	return clampf((effect_progress - contact_progress) / maxf(0.001, 1.0 - contact_progress), 0.0, 1.0)
 
 func _attack_feedback_start_progress(effect: Dictionary) -> float:
+	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return preload("res://scripts/dragon_presentation.gd").CONTACT
+	if str(preload("res://scripts/dragon_presentation.gd").profile(effect).get("geometry","")) == "physical": return 0.42
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	if style != AttackFxLibrary.STYLE_DEFAULT:
 		return AttackFxLibrary.travel_end_progress(style)
@@ -23855,6 +23995,10 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
 				effect["ground_burst"] = true
 				effect["burst_tiles"] = focus_tiles.duplicate()
+			if not chain_hits.is_empty() and bool((chain_hits[0] as Dictionary).get("range_relay", false)):
+				effect["to"] = chain_hits[0]["to"]
+				effect["center"] = chain_hits[0]["to"]
+				effect["tiles"] = []
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await preload("res://scripts/protagonist_cutout/ranged_action.gd").prepare(self, before_state, effect, base_presentation)
 			var primary_sound: Dictionary = AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action)
@@ -24245,7 +24389,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 	if steps.is_empty():
 		return
 	for step_var: Variant in steps:
-		var step: Dictionary = step_var
+		var step: Dictionary = (step_var as Dictionary).duplicate(false)
+		var dragon_actor: Dictionary = _animation_actor_unit(animated_state,str(step.get("actor_key","")))
+		if str(dragon_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
+			step["enemy_type"] = dragon_actor["type"]
+			if not step.has("intent_id"): step["intent_id"] = dragon_actor.get("intent",{}).get("id","")
 		if str(step.get("kind", "")) == "commit":
 			continue
 		if bool(step.get("hidden_by_umbra", false)):
@@ -24263,17 +24411,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("intent_name", ""))])
 				var intent_presentation: Dictionary = {"focus_actor_keys":[step_actor_key], "focus_actor_color":PLAYER_ATTACK_FOCUS,
 					"focus_tiles":[step_actor_tile], "focus_color":Color(0.95,0.62,0.37,0.18)}
-				var intent_actor: Dictionary = _animation_actor_unit(animated_state, step_actor_key)
-				if str(intent_actor.get("type", "")) == "vyraketh" and str(intent_actor.get("intent", {}).get("id", "")) == "kindle_ground" and not _reduced_motion_enabled():
-					await _play_timed_animation_frames(12, 1.0/60.0, func(frame: int) -> void:
-						var kindle_presentation: Dictionary = intent_presentation.duplicate(false)
-						kindle_presentation["vyraketh_motion"] = {step_actor_key:{"clip":"attack", "action":"kindle", "authored_phase":true,
-							"phase":0.55*float(frame)/12.0, "direction":(animated_state["player"]["pos"] as Vector2i)-(intent_actor["pos"] as Vector2i)}}
-						_render_board_state(animated_state, kindle_presentation, true)
-					)
-				else:
-					_render_board_state(animated_state, intent_presentation)
-					await get_tree().create_timer(0.20).timeout
+				_render_board_state(animated_state, intent_presentation)
+				await get_tree().create_timer(0.20).timeout
 			"intent_refresh":
 				var dark_tiles: Array[Vector2i]
 				for brazier: Dictionary in animated_state.get("guardian_braziers",[]):
@@ -24295,8 +24434,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					_apply_animation_step(animated_state,step)
 					_render_board_state(animated_state,{})
 					continue
-				if ZekarionCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)):
-					await ZekarionAction.play_summon(self, animated_state, step)
+				if not preload("res://scripts/dragon_presentation.gd").profile(step).is_empty():
+					await _animate_dragon_utility(animated_state,step)
 			"surface":
 				if step.has("guardian_board_after"):
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
@@ -24310,8 +24449,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"block", "heal", "stoneskin", "status", "status_damage":
 				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
-				if TharokhCutout.action_clip(step, _animation_actor_unit(animated_state, step_actor_key)) == "brace":
-					await _animate_tharokh_ground_call(animated_state, step)
+				if str(preload("res://scripts/dragon_presentation.gd").profile(step).get("geometry","")) == "utility":
+					await _animate_dragon_utility(animated_state, step)
 					continue
 				var before_status_step_state: Dictionary = animated_state.duplicate(true)
 				_apply_animation_step(animated_state, step)
@@ -24344,7 +24483,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var harrier_attack: bool = HarrierCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				if harrier_attack:
 					await HarrierAction.prepare(self, animated_state, step)
-				await IskaldraAction.prepare(self, animated_state, step)
+				if not preload("res://scripts/dragon_presentation.gd").area_fx(step): await IskaldraAction.prepare(self, animated_state, step)
 				if not LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)) or str(step.get("kind", "")) != "ranged":
 					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
@@ -24394,6 +24533,9 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					attack_frame_count = 1 if _reduced_motion_enabled() else GuardianCutout.action_frames(step,_animation_actor_unit(animated_state,step_actor_key))
 					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else GuardianCutout.ATTACK_FRAME_SECONDS
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
+				if preload("res://scripts/dragon_presentation.gd").area_fx(step):
+					attack_frame_count = 1 if _reduced_motion_enabled() else 66
+					attack_frame_seconds = 0.22 if _reduced_motion_enabled() else 1.0/60.0
 				var attack_floating_texts: Array[Dictionary] = _dictionary_array([])
 				if not trap_detonation_follows:
 					attack_floating_texts = _floating_texts_for_step(step)
@@ -24510,34 +24652,32 @@ func _tharokh_action_direction(effect: Dictionary, actor: Dictionary) -> Vector2
 	var target: Vector2i = effect.get("to", origin)
 	return target * 2 - (origin * 2 + Vector2i.ONE)
 
-func _animate_tharokh_ground_call(animated_state: Dictionary, step: Dictionary) -> void:
-	var actor_key: String = str(step.get("actor_key", ""))
-	var actor: Dictionary = _animation_actor_unit(animated_state, actor_key)
-	var player_tile: Vector2i = (animated_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	var direction: Vector2i = player_tile * 2 - ((actor.get("pos", Vector2i.ZERO) as Vector2i) * 2 + Vector2i.ONE)
+func _animate_dragon_utility(animated_state: Dictionary, step: Dictionary) -> void:
+	var actor_key: String = str(step.get("actor_key",""))
 	var after: Dictionary = animated_state.duplicate(true)
-	_apply_animation_step(after, step)
-	_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", ""))])
+	_apply_animation_step(after,step)
+	var events: Array[Dictionary] = OutcomeFeedback.prepare(step.get("surface_events",[]))
 	var reduced: bool = _reduced_motion_enabled()
 	var count: int = 1 if reduced else 48
-	var seconds: float = 0.0 if reduced else 1.0 / 60.0
-	# The resolver's immutable status/terrain snapshot is displayed at release.
-	# Only this existing animation step is applied; no combat action is rerun.
-	await _play_timed_animation_frames(count, seconds, func(frame: int) -> void:
-		var progress: float = float(frame) / float(count)
-		var released: bool = progress >= 0.55
-		var presentation: Dictionary = _enemy_phase_status_presentation(step)
-		presentation["tharokh_motion"] = {actor_key: {"clip": "attack", "action": "brace", "phase": progress, "direction": direction}}
-		presentation["effect_progress"] = progress
+	var contact: float = preload("res://scripts/dragon_presentation.gd").CONTACT
+	var feedback: Dictionary = {"released":false}
+	_set_action_banner("%s: %s" % [str(step.get("actor_name","Enemy")),str(step.get("label",""))])
+	await _play_timed_animation_frames(count,0.22 if reduced else 1.0/60.0,func(frame: int) -> void:
+		var progress: float = float(frame)/float(count)
+		var released: bool = reduced or progress >= contact
+		var shown: Dictionary = {"effect":step,"effect_progress":progress,"focus_actor_keys":[actor_key]}
 		if released:
-			presentation["floating_texts"] = FloatingCombatText.animate_entries(_floating_texts_for_step(step), (progress - 0.55) * 0.8, reduced)
-		else:
-			presentation.erase("effect")
-			presentation.erase("floating_texts")
-		_render_board_state(after if released else animated_state, presentation, true)
+			if not bool(feedback["released"]):
+				feedback["released"] = true
+				_play_outcome_sounds(events)
+			shown["surface_feedback_events"] = events
+			shown["surface_feedback_progress"] = .38 if reduced else clampf((progress-contact)/(1.0-contact),0.0,1.0)
+			shown["floating_texts"] = FloatingCombatText.animate_entries(_floating_texts_for_step(step),maxf(0.0,progress-contact)*.8,reduced)
+		_render_board_state(after if released else animated_state,shown,true)
 	)
-	_apply_animation_step(animated_state, step)
-	await _animate_floating_text_presentation(animated_state, _enemy_phase_status_presentation(step), 0.36 if not reduced else 0.0)
+	_apply_animation_step(animated_state,step)
+	await _animate_floating_text_presentation(animated_state,{"floating_texts":_floating_texts_for_step(step)},.38 if not reduced else 0.0)
+
 
 func _animate_reinforcement_spawn(animated_state: Dictionary, step: Dictionary) -> void:
 	var final_state: Dictionary = (step.get("state", {}) as Dictionary).duplicate(true)
@@ -25343,6 +25483,13 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	_apply_guardian_props(display_state, rendered_presentation)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
+	if not cutout_effect.is_empty():
+		var source_actor: Dictionary = _animation_actor_unit(display_state,str(cutout_effect.get("actor_key","")))
+		if str(source_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
+			cutout_effect = cutout_effect.duplicate(false)
+			cutout_effect["enemy_type"] = source_actor["type"]
+			if not cutout_effect.has("intent_id"): cutout_effect["intent_id"] = source_actor.get("intent",{}).get("id","")
+			rendered_presentation["effect"] = cutout_effect
 	var effect_actor_key: String = str(cutout_effect.get("actor_key", ""))
 	if not effect_actor_key.is_empty() and BileBloomerCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var bloomer_motions: Dictionary = (presentation.get("bile_bloomer_motion", {}) as Dictionary).duplicate(false)
@@ -25537,6 +25684,20 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		dragon_effect["zekarion_cutout"] = true
 		dragon_effect["zekarion_claw"] = str(cutout_effect.get("kind","")) == "melee"
 		rendered_presentation["effect"] = dragon_effect
+	var dragon_actor: Dictionary = _animation_actor_unit(display_state,effect_actor_key) if not effect_actor_key.is_empty() else {}
+	var dragon_profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(cutout_effect,dragon_actor)
+	if not dragon_profile.is_empty():
+		var motion_key: String = str(dragon_profile["enemy"])+"_motion"
+		var motions: Dictionary = (rendered_presentation.get(motion_key,{}) as Dictionary).duplicate(false)
+		var motion: Dictionary = (motions.get(effect_actor_key,{}) as Dictionary).duplicate(false)
+		motion["direction"] = preload("res://scripts/dragon_presentation.gd").direction(cutout_effect,dragon_actor,display_state.get("player",{}).get("pos",Vector2i.ZERO))
+		if str(dragon_profile["geometry"]) != "physical":
+			motion["clip"] = str(dragon_profile["clip"]) if str(dragon_profile["enemy"]) == "noctyrax" else "attack"
+			motion["action"] = dragon_profile["clip"]
+			motion["phase"] = preload("res://scripts/dragon_presentation.gd").pose_phase(cutout_effect,float(presentation.get("effect_progress",1.0)))
+			motion["authored_phase"] = true
+		motions[effect_actor_key] = motion
+		rendered_presentation[motion_key] = motions
 	if bool(cutout_effect.get("protagonist_melee", false)):
 		rendered_presentation["protagonist_motion"] = _protagonist_attack_motion(cutout_effect, float(presentation.get("effect_progress", 1.0)))
 	elif not str(cutout_effect.get("protagonist_ranged", "")).is_empty():
@@ -25684,6 +25845,9 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 			if not snapshot.is_empty():
 				animated_state.clear()
 				animated_state.merge(snapshot.duplicate(true), true)
+		"summon":
+			# The helper applies the immutable resolved spawn list idempotently.
+			ZekarionAction.append_resolved_summons(animated_state,step)
 		"intent_refresh":
 			_set_enemy_intent_by_key(
 				animated_state,
@@ -26357,12 +26521,27 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
+	_layout_action_banner()
+
+func _layout_action_banner() -> void:
+	if action_banner == null:
+		return
+	var top: float = 8.0
+	if _boss_health_overlay != null and _boss_health_overlay.visible:
+		# The persistent status row now occupies the old action-label band.
+		# Reserve the whole boss overlay even when it has no active statuses,
+		# so acquiring or consuming a layer never moves this transient label.
+		top = maxf(top, _boss_health_overlay.get_global_rect().end.y + 4.0 - (action_banner.get_parent() as Control).global_position.y)
+	action_banner.offset_top = top
+	action_banner.offset_bottom = top + 30.0
 
 func _board_hud_obstacles(display_state: Dictionary) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty():
 		_layout_boss_health_overlay_content()
 		rects.append(_boss_health_overlay.get_global_rect().grow(10.0))
+		if action_banner != null and action_banner.visible:
+			rects.append(action_banner.get_global_rect().grow(4.0))
 		if hand_scroll != null and hand_scroll.is_visible_in_tree():
 			var hand_rect: Rect2 = hand_scroll.get_global_rect()
 			hand_rect.position.y = _hand_visual_top() - 12.0
@@ -26403,7 +26582,7 @@ func _board_framing_safe_global_rect() -> Rect2:
 	)
 
 func _board_status_label(preview: Dictionary) -> String:
-	if _surface_aim.active(): return ""
+	if _dialogue_active or _surface_aim.active(): return ""
 	if _surface_relic_origin_pending: return "Worldroot · choose an origin"
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
@@ -26466,6 +26645,11 @@ func _player_action_label(card_id: String, _action: Dictionary, _state: Dictiona
 
 func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	for event: Dictionary in _surface_events_between(before_state,after_state):
+		if str(event.get("kind","")) != "crystal_mantle_broken": continue
+		var remaining: int = int(event.get("layers_remaining",0))
+		floats.append({"tile":event.get("tile",Vector2i.ZERO),"text":"Mantle %d → %d" % [remaining+1,remaining],"color":Color("b9f3ff"),"offset":-24.0})
+		floats.append({"tile":event.get("tile",Vector2i.ZERO),"text":"%d prevented" % int(event.get("prevented_damage",0)),"color":Color("d6edff"),"offset":8.0})
 	floats.append_array(_player_loss_floating_texts(before_state, after_state))
 	floats.append_array(_floating_texts_for_terrain_losses(_terrain_target_losses_between(before_state, after_state)))
 	return floats
@@ -27193,6 +27377,8 @@ func _await_treasure_tween(tween: Tween, sequence_epoch: int) -> bool:
 	return _treasure_sequence_is_current(sequence_epoch)
 
 func _cancel_treasure_presentation() -> void:
+	if _large_map_scrim != null: _large_map_scrim.modulate = Color.WHITE
+	if _relic_choice_host != null: _relic_choice_host.modulate = Color.WHITE
 	_treasure_sequence_epoch += 1
 	for tween: Tween in _treasure_sequence_tweens:
 		if tween != null and tween.is_valid():
@@ -27647,7 +27833,7 @@ func _animate_acquisition_destination_arrival(control: Control, accent: Color) -
 	control.scale = Vector2.ONE
 	control.modulate = Color.WHITE
 
-func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color) -> void:
+func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, accent: Color, destination: Control = null) -> void:
 	if _card_fx_layer == null or _reduced_motion_enabled():
 		return
 	var sequence_epoch: int = _treasure_sequence_epoch
@@ -27655,7 +27841,7 @@ func _animate_relic_acquisition_flourish(relic_id: String, source_rect: Rect2, a
 	if not _treasure_sequence_is_current(sequence_epoch) or not _node_is_alive(_card_fx_layer):
 		return
 	var frame: Control = _relic_frame_for_id(relic_id)
-	var target: Vector2 = _relic_bar_target_global_position(frame)
+	var target: Vector2 = destination.get_global_rect().get_center() if destination != null else _relic_bar_target_global_position(frame)
 	var source: Vector2 = _relic_acquisition_source_global_position(source_rect)
 	var local_start: Vector2 = source - _card_fx_layer.global_position
 	var local_target: Vector2 = target - _card_fx_layer.global_position
@@ -28715,9 +28901,17 @@ func _emaciated_service_tile() -> Vector2i:
 		if str(npc.get("id", "")) == "emaciated_man": return npc.get("pos", INVALID_TARGET_TILE)
 	return INVALID_TARGET_TILE
 
+func _speak_to_emaciated_man() -> void:
+	if not _run_engine.can_speak_to_emaciated_man(_run_state): return
+	_sync_progression_from_run()
+	_close_large_map()
+	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	_start_dialogue(_dialogue_engine.build_room_dialogue(room, _run_state, _progression))
+
 func _show_emaciated_services(notice: String = "") -> void:
 	if not _run_engine.can_use_emaciated_services(_run_state): return
 	_sync_progression_from_run()
+	_close_large_map()
 	_start_dialogue(_dialogue_engine.emaciated_service_dialogue(_progression, notice))
 	_complete_current_dialogue_line()
 
@@ -28737,6 +28931,9 @@ func _exchange_moltshard_at_entrance() -> void:
 	_run_state = _run_engine.apply_run_wallet_receipt(_run_state, candidate)
 	_persist_committed_boundary("moltshard_exchange")
 	_reconcile_progression_analytics_outbox()
+	# UI refresh reads the embedded run; persist its acknowledged outbox first.
+	_sync_progression_analytics_outbox_to_run()
+	_persist_committed_boundary("moltshard_exchange_ack")
 	_refresh_ui()
 	_show_emaciated_services("One Moltshard traded for %d Embers. Spend them wisely." % ProgressionStore.MOLT_EXCHANGE_EMBERS)
 
@@ -28781,6 +28978,8 @@ func _open_level_up_overlay(source: String = "campfire") -> void:
 	_return_to_emaciated_service = source == "emaciated_man"
 	_persist_committed_boundary("level_up")
 	_reconcile_progression_analytics_outbox()
+	_sync_progression_analytics_outbox_to_run()
+	_persist_committed_boundary("level_up_ack")
 	_refresh_ui()
 	_progression_overlay_mode = "skills"
 	var defiance_gained: int = (

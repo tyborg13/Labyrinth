@@ -1,0 +1,173 @@
+{
+  "character": "tharokh",
+  "paint_changed": false,
+  "motion_changed": false,
+  "facings": {
+    "front": {
+      "source_layout": "layouts/front_skinned.json",
+      "limbs": {
+        "fore_far": {
+          "claw_paint_pixels": 1257,
+          "reweighted_vertices": 216
+        },
+        "fore_near": {
+          "claw_paint_pixels": 1233,
+          "reweighted_vertices": 171
+        },
+        "hind_far": {
+          "claw_paint_pixels": 121,
+          "reweighted_vertices": 109
+        },
+        "hind_near": {
+          "claw_paint_pixels": 579,
+          "reweighted_vertices": 171
+        }
+      },
+      "neck": {
+        "body_border_pixels": 79,
+        "head_border_pixels": 128,
+        "vertices": 3424
+      },
+      "ownership_islands": [
+        {
+          "source_part": "wing_far",
+          "bounds": [
+            100,
+            32,
+            100,
+            36
+          ],
+          "pixels": 5,
+          "owner": "head"
+        },
+        {
+          "source_part": "wing_far",
+          "bounds": [
+            102,
+            37,
+            111,
+            44
+          ],
+          "pixels": 23,
+          "owner": "head"
+        },
+        {
+          "source_part": "wing_far",
+          "bounds": [
+            112,
+            45,
+            119,
+            53
+          ],
+          "pixels": 48,
+          "owner": "head"
+        },
+        {
+          "source_part": "claw_fore_far",
+          "bounds": [
+            84,
+            192,
+            94,
+            199
+          ],
+          "pixels": 32,
+          "owner": "tail"
+        },
+        {
+          "source_part": "claw_hind_far",
+          "bounds": [
+            94,
+            193,
+            97,
+            193
+          ],
+          "pixels": 4,
+          "owner": "tail"
+        },
+        {
+          "source_part": "tail",
+          "bounds": [
+            53,
+            198,
+            57,
+            202
+          ],
+          "pixels": 15,
+          "owner": "claw_fore_far"
+        }
+      ]
+    },
+    "rear": {
+      "source_layout": "layouts/rear_skinned.json",
+      "limbs": {
+        "fore_far": {
+          "claw_paint_pixels": 587,
+          "reweighted_vertices": 146
+        },
+        "fore_near": {
+          "claw_paint_pixels": 834,
+          "reweighted_vertices": 240
+        },
+        "hind_far": {
+          "claw_paint_pixels": 319,
+          "reweighted_vertices": 136
+        },
+        "hind_near": {
+          "claw_paint_pixels": 821,
+          "reweighted_vertices": 313
+        }
+      },
+      "neck": {
+        "body_border_pixels": 88,
+        "head_border_pixels": 49,
+        "vertices": 1400
+      },
+      "ownership_islands": [
+        {
+          "source_part": "fore_near",
+          "bounds": [
+            162,
+            158,
+            168,
+            169
+          ],
+          "pixels": 36,
+          "owner": "hind_near"
+        },
+        {
+          "source_part": "torso",
+          "bounds": [
+            111,
+            175,
+            119,
+            188
+          ],
+          "pixels": 85,
+          "owner": "claw_fore_far"
+        },
+        {
+          "source_part": "torso",
+          "bounds": [
+            115,
+            166,
+            122,
+            173
+          ],
+          "pixels": 24,
+          "owner": "fore_far"
+        },
+        {
+          "source_part": "torso",
+          "bounds": [
+            127,
+            184,
+            131,
+            187
+          ],
+          "pixels": 10,
+          "owner": "hind_near"
+        }
+      ]
+    }
+  }
+}

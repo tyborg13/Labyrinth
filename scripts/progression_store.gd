@@ -18,6 +18,7 @@ const RUN_RESULT_LEDGER_KEY: String = "completed_run_results"
 const RUN_RESULT_LEDGER_LIMIT: int = 32
 const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
 const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
+const EMACIATED_AWAKENING_SEEN_KEY: String = "emaciated_awakening_seen"
 const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
 const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
 const PROGRESSION_ANALYTICS_OUTBOX_KEY: String = "progression_analytics_outbox"
@@ -68,6 +69,7 @@ static func default_data() -> Dictionary:
 		"fire_rest_dialogue_seen": false,
 		UMBRA_WARNING_AVAILABLE_RUN_KEY: 0,
 		UMBRA_WARNING_SEEN_KEY: false,
+		EMACIATED_AWAKENING_SEEN_KEY: false,
 		"run_counter": 0,
 		ContextualCombatTutorial.PROGRESSION_KEY: ContextualCombatTutorial.default_state(),
 		"recovery_marker": {},
@@ -176,6 +178,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 		data["fire_rest_dialogue_seen"] = false
 	data[UMBRA_WARNING_AVAILABLE_RUN_KEY] = maxi(0, int(data.get(UMBRA_WARNING_AVAILABLE_RUN_KEY, 0)))
 	data[UMBRA_WARNING_SEEN_KEY] = bool(data.get(UMBRA_WARNING_SEEN_KEY, false))
+	data[EMACIATED_AWAKENING_SEEN_KEY] = bool(data.get(EMACIATED_AWAKENING_SEEN_KEY, false))
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
 	data[RUN_BESTS_KEY] = _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
@@ -1040,6 +1043,22 @@ static func mark_fire_rest_dialogue_seen(data: Dictionary) -> Dictionary:
 	next_data["pending_fire_rest_dialogue"] = false
 	next_data["fire_rest_dialogue_seen"] = true
 	return next_data
+
+# The first-dragon receipt persists even after the Shard is spent. Legacy
+# profiles with Shards or a recorded boss best receive the introduction too.
+static func emaciated_awakening_is_due(data: Dictionary) -> bool:
+	if emaciated_services_unlocked(data): return false
+	return not (data.get(MOLTSHARD_AWARD_IDS_KEY, []) as Array).is_empty() or moltshard_count(data) > 0 or int((data.get(RUN_BESTS_KEY, {}) as Dictionary).get("bosses_defeated", 0)) > 0
+
+static func emaciated_services_unlocked(data: Dictionary) -> bool:
+	return bool(data.get(EMACIATED_AWAKENING_SEEN_KEY, false))
+
+static func mark_emaciated_awakening_seen(data: Dictionary) -> Dictionary:
+	var next: Dictionary = _normalized_data(data.duplicate(true))
+	if not emaciated_awakening_is_due(next): return next
+	next[EMACIATED_AWAKENING_SEEN_KEY] = true
+	next["progression_revision"] = int(next.get("progression_revision", 0)) + 1
+	return next
 
 static func record_first_umbra_reach(data: Dictionary, current_run_index: int) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))

@@ -58,16 +58,8 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func action_for_effect(effect: Dictionary, actor: Dictionary) -> String:
-	if str(actor.get("type", "")) != "vyraketh":
-		return ""
-	var action_type: String = str(effect.get("action_type", ""))
-	if str(effect.get("kind", "")) == "status" and action_type == "cinder_marks":
-		return "kindle"
-	if str(effect.get("kind", "")) == "melee":
-		return "maw"
-	if str(effect.get("kind", "")) == "aoe":
-		return "crownfire" if action_type == "detonate_cinders" else "cinderfall"
-	return ""
+	if str(actor.get("type", "")) != "vyraketh": return ""
+	return preload("res://scripts/dragon_presentation.gd").clip(effect, actor)
 
 static func attack_frame_count(effect: Dictionary, actor: Dictionary) -> int:
 	return maxi(1, roundi(float(ACTION_SECONDS.get(action_for_effect(effect, actor), 0.85)) / ATTACK_FRAME_SECONDS))

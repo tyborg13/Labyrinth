@@ -1820,20 +1820,21 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Pull 2 at range 2 for 3 damage, then Move 1.",
+    "description": "Move 1, then Pull 2 at range 2 for 3 damage.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/gust_step.png",
     "actions": [
+      {
+        "type": "move",
+        "range": 1
+      },
       {
         "type": "pull",
         "damage": 3,
         "range": 2,
         "amount": 2,
-        "element": "air"
-      },
-      {
-        "type": "move",
-        "range": 1
+        "element": "air",
+        "required": true
       }
     ]
   },

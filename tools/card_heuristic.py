@@ -70,9 +70,10 @@ Bleed pressure only opens on resolved move or attack actions, not skipped or
 blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
-sequences. Zekarion's 2x2 footprint makes printed reach feel larger; Tempest
-Breath holds a three-tile cardinal lane without advancing. Storm Claw supplies
-close pursuit, while fixed marks and conduction make route geometry relevant.
+sequences. Zekarion's 2x2 footprint makes printed reach feel larger; Overload
+snapshots the announced Electrified cells and resolves without conduction.
+Storm Claw supplies close pursuit, while other lightning attacks can conduct
+through connected surfaces, making each intent's geometry and rules relevant.
 Dragon cycles hold directional geometry and cap terrain/armor/summons; Vyraketh
 uses shared Fire, Tharokh Worldspines, Vaeloryx directional displacement,
 Iskaldra armor/Ice, and Noctyrax lit refuges. These are encounter assumptions,
@@ -125,7 +126,7 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BALANCE_REVISION = "dragon_milestones_v1"
+BALANCE_REVISION = "dragon_feedback_v2"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 
@@ -168,12 +169,12 @@ SOURCE_FILTERS = (
 )
 
 BOSS_ENCOUNTER_ROLES = {
-    "zekarion": "fixed marks, held conducting lane, advancing claw and capped wisps",
-    "tharokh": "capped attackable Worldspines, open approach routes and delayed rupture",
-    "vyraketh": "shared Fire setup and deniable telegraphed detonation",
-    "vaeloryx": "held directional displacement, advancing dive and retreat",
-    "iskaldra": "capped hit-count armor, held Ice lane, physical sweep and pursuit",
-    "noctyrax": "Eclipse outside lit refuges, held attacks and alternating brazier snuff",
+    "zekarion": "capped Wisps, moving ranged pressure, declared global charge Overload",
+    "tharokh": "four spread destructible spires, secondary Stonewake bite, Bedrock Rubble before delayed Faultline rupture",
+    "vyraketh": "damaging scattered Fire, breath across persistent hazards, deniable self-damaging detonation",
+    "vaeloryx": "live ranged pull, held swept Dive, close radial push and a retreating storm ring with safe eye",
+    "iskaldra": "Mantle plus close pressure, full bounded Ice trail, pursuit and armor-dependent burst radius",
+    "noctyrax": "snuff before Eclipse warning, player-relit refuges, live pursuit and capped replacement Acolytes",
 }
 
 ENEMY_TACTICAL_ROLES = {
@@ -217,6 +218,18 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "dragon_feedback_rules": {
+            "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
+            "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
+            "summon_reaction": "newly summoned helpers cannot activate before the next already-scheduled player activation",
+            "ice_lance": "Whiteout coats its whole two-wide held lane; route and Chill pressure persist",
+            "braziers": "Night Coil snuffs before Eclipse warning; player arrival relights and immediately removes Eclipse danger; never automatic cleanup",
+            "pressure": "base HP unchanged; Fire has five damaging marks, Earth four spread spires; armor shrinks Ice burst; Air uses swept/radial geometry; Lightning snapshots charges and consumes only announced cells",
+            "earth_cycle": "Stonewake, Claw, Bedrock Breath, Faultline; spires remain during the lane and its Rubble persists into the rupture warning; unchanged damage and durability",
+            "earth_approach": "with no living spines and body distance at least 3, reserve one legal diagonal approach flank, then use unchanged separation scoring; close placement and route/body-exit safeguards unchanged; excluded from intrinsic card scores",
+            "worldheart": "at most 2 leftover Block becomes Stoneskin per turn; half-gain adjacent pulse remains capped at 4",
+            "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
+        },
         "guardian_encounters": GUARDIAN_ASSUMPTIONS,
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {

@@ -1,5 +1,7 @@
 # Vaeloryx editable cutout and combat presentation
 
+The 2026-09-27 playtest revision is authored in `experiments/cutouts/vaeloryx/feedback_v02`, copied from the current production baseline. Current idle/art changes and their verification status are recorded in [the feedback cutout notes](../playtest/dragon_cutout_feedback_notes.md). Older `v01` evidence below describes the original integration; do not replay those historical builders over the current rig. Current encounter mechanics are specified in [dragon boss encounters](dragon_boss_encounters.md).
+
 Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
@@ -33,10 +35,8 @@ registered once to the 255px canvas; individual visible parts are never resized.
 
 Fifteen bones represent the root, body, neck/head, two wings, two forelimbs with
 separate rigid claws, the tucked hindlimb/claws and the long curled tail chain.
-The cranial surface is substantially occluded by wings in both accepted views;
-ownership records this uncertainty. The rig uses the production Skeleton2D mesh
-loader. Idle is a coordinated 2.4px hover over two seconds, with no local basis
-change. A traveling wing cycle accompanies 96:48 source pixels in 0.8 seconds.
+The front cranial surface remains partly occluded by its accepted wings. The revised rear drawing exposes a separate head and places both wing roots at the shoulder girdle beside the neck; its new generation request, registration, ownership and skin recipe live in `feedback_v02/source`. The rig uses the production Skeleton2D mesh
+loader. Idle uses one coordinated two-second breathing phase: the body rises 2.4px, the head rises slightly farther, while wing tips, claws and tail move less through connected joint skins. Every local basis remains rigid; the painting no longer translates as one piece. A traveling wing cycle accompanies 96:48 source pixels in 0.70 seconds.
 The creature is airborne; no planted-foot claim is made.
 
 Razor Dive prepares above and behind the target direction, sweeps its claws

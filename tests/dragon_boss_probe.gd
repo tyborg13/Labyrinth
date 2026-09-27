@@ -278,8 +278,14 @@ func _assert_loaded_boss(instance: Node, boss_id: String, after_gimmick: bool) -
 		_fail("%s should not retain the obsolete turn-clock boss widget" % boss_id)
 	if boss_overlay == null or not boss_overlay.visible:
 		_fail("%s should show the dedicated top-center boss health overlay" % boss_id)
-	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or boss_overlay.size.y > 110.0:
-		_fail("%s boss health overlay should stay wide and shallow (found %s)" % [boss_id, boss_overlay.size])
+	elif boss_overlay.size.x < 700.0 or boss_overlay.size.x > 820.0 or not is_equal_approx(boss_overlay.size.y, 134.0):
+		_fail("%s boss health overlay should retain its authored width and 134px status budget (found %s)" % [boss_id, boss_overlay.size])
+	if boss_overlay != null:
+		var status_row: Control = instance.get("_boss_status_row") as Control
+		if status_row == null or not is_equal_approx(status_row.size.y, 32.0) or not boss_overlay.get_global_rect().encloses(status_row.get_global_rect()):
+			_fail("%s boss header should contain its full 32px status row" % boss_id)
+		if (instance.call("_board_fit_rect") as Rect2).position.y < boss_overlay.get_global_rect().end.y + 4.0:
+			_fail("%s board framing should clear the complete status-bearing header" % boss_id)
 	if boss_overlay != null and boss_overlay.get_node_or_null("BossHealthLinework") != null:
 		_fail("%s top-center name and HP should not retain an enclosing background box" % boss_id)
 	if boss_frame == null or boss_frame.texture == null:

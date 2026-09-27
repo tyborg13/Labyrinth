@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "character_id": "noctyrax",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 32,
+      "duration": 2.4,
+      "loop": true,
+      "preview_cycles": 2
+    },
+    "walk": {
+      "frames": 40,
+      "duration": 0.68,
+      "loop": true,
+      "preview_cycles": 2,
+      "travel": "motion"
+    },
+    "claw": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.42,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "breath": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          0.55
+        ],
+        [
+          0.52,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "coil": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.3,
+          0.55
+        ],
+        [
+          0.52,
+          0.65
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "eclipse": {
+      "frames": 40,
+      "duration": 1.1,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.52,
+          0.55
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far",
+    "wing_near",
+    "wing_far"
+  ],
+  "contact_feet": [
+    "claw_fore_near",
+    "claw_fore_far",
+    "claw_hind_near",
+    "claw_hind_far"
+  ],
+  "sources": [
+    "source/production_motion.gd"
+  ],
+  "source_baseline": {
+    "kind": "current_enemy_production",
+    "commit": "44e856d0432aa9b299060022c30d22bbe125d098",
+    "production_files": {
+      "assets/units/noctyrax_cutout/front/tail.png": "1f4cd93ee9ad1997e4ac254f0a8c6c987cbc603bce2d38e5b80d1875a61870fc",
+      "assets/units/noctyrax_cutout/front/claw_fore_near.png": "2474d3d230154f55a91620ef7c58211a562848be3107d5cfef375bc424859de1",
+      "assets/units/noctyrax_cutout/front/claw_fore_far.png": "f233c91b8663bf22c8b9eef37ba31a1a8f4647dbf4db5ef11145ba74f6448b44",
+      "assets/units/noctyrax_cutout/front/claw_hind_near.png": "fa55a07411ee003c4de91d9d2e3ec527049e5f4285e171731a5fa1656739a9ad",
+      "assets/units/noctyrax_cutout/front/claw_hind_far.png": "8ab15c34af596328489bb2b0cda9fb44d5d76543c5819d3500287995c945423b",
+      "assets/units/noctyrax_cutout/front/fore_near.png": "de1543d18ed74037a436f73e866d3fb78a0d4c3ce56d865b8abdedf1f8f08a60",
+      "assets/units/noctyrax_cutout/front/fore_far.png": "d1600566df5a3dab76c0072f7c0a59fc7e58460609e537b6d1bb1bd6866a608f",
+      "assets/units/noctyrax_cutout/front/hind_near.png": "52dbb49044b2d105acfdaaa128fe4d8c31e21ecf6e8e82adeb56eb0a8cec5de8",
+      "assets/units/noctyrax_cutout/front/hind_far.png": "c18367de93310db53db2959d671b7d195f5e9cfc9a6510006c0379998a9d4551",
+      "assets/units/noctyrax_cutout/front/head.png": "fb71d8375e94cbad731115464dcdc95ef8b301a7cbe7d9750d22dffa39f03e51",
+      "assets/units/noctyrax_cutout/front/wing_far.png": "42b432bd17f501c6fa5205592f3a11f90c8b19a90bbcfcec5ac4124b8c3b7735",
+      "assets/units/noctyrax_cutout/front/wing_near.png": "b8c433e5dd6eb55b6d508102fd3bbd87444ee9260408b4f8128bca7cd6c32b5a",
+      "assets/units/noctyrax_cutout/front/neck.png": "ae0b9abfd9139f37e1d32b68431a8849611814da36153160db88f116b7e9b6e9",
+      "assets/units/noctyrax_cutout/front/torso.png": "564b86cc3dcfb11030c64f4846d8652be3625588b4fa0a49ff8175c15e9d5899",
+      "assets/units/noctyrax_cutout/front/hidden_fore_near.png": "33a198d15d0381373897054b01015fb27d81a7ed08c90fca1fefc48c9e2e9589",
+      "assets/units/noctyrax_cutout/front/hidden_wing_near.png": "8db83760a9eacfe8362b949cc54872de81aa73c34dfef2e426340221361dce5c",
+      "assets/units/noctyrax_cutout/front/hidden_wing_near_base.png": "c3fec66f05e73f5e92d618d8809bcf59c84e8c32da7b3276d1438acbcfcfbe10",
+      "assets/units/noctyrax_cutout/front/rest.png": "051b1f38746ebc2421ab5131a4b8da8be8cb5ee372ad3987e24b21f2675fdda0",
+      "assets/units/noctyrax_cutout/rear/tail.png": "8530a1edce0667fc846901280d55bffab3b1e0f883d3dfe6e59fb24159551f19",
+      "assets/units/noctyrax_cutout/rear/claw_fore_near.png": "4056dc369173244966d695969d66c570c4bbe1d7b4422b27536b0fd9afe3350f",
+      "assets/units/noctyrax_cutout/rear/claw_hind_near.png": "4178df94299baa9a7c8c3205675fb656c4586158f5b231ede3c25f0abcd8a576",
+      "assets/units/noctyrax_cutout/rear/claw_hind_far.png": "0d7d8c24a1d5b33df6505fcba1e18fcfaceafc02ce5d0b52af85f57d226aab0c",
+      "assets/units/noctyrax_cutout/rear/fore_near.png": "8a9bc08728869a078a5486dad585d82fc168c84c746a630f93f837301d1886f5",
+      "assets/units/noctyrax_cutout/rear/hind_near.png": "700f8a2a8dd4a82da8afa41e53bbef44b19ab44dd155c221b2b3797a55a2b82f",
+      "assets/units/noctyrax_cutout/rear/hind_far.png": "12bcff30291b0b3bb6ae1d5bca4dd6bc7534ece6572c77d841f628b990782759",
+      "assets/units/noctyrax_cutout/rear/head.png": "58bb1659a0a317303bebf6c4eed18cf067dbcea83789dd28fd7282c94e20b464",
+      "assets/units/noctyrax_cutout/rear/wing_near.png": "546f68f349d310c26624fb97453b89adbfed779fdebd3e7b2e5796d6d3415e45",
+      "assets/units/noctyrax_cutout/rear/wing_far.png": "736339c361a66750699b68b4dc398bd9a3deb9b13e26500e2e23fd8b338795c7",
+      "assets/units/noctyrax_cutout/rear/neck.png": "f091c45842b2566a794c1b1dbd8e2f8c400a5293f03c9f0a4ae67043425ab9de",
+      "assets/units/noctyrax_cutout/rear/torso.png": "2c0a76d178620818429ad815f104f5d5b2f0d8d829cc90b782383dc5bc984d4e",
+      "assets/units/noctyrax_cutout/rear/hidden_fore_near.png": "db207797a16e7089a1a41416a7afc7c8b4e3edc49f089ae109aa127026312cd4",
+      "assets/units/noctyrax_cutout/rear/hidden_wing_near.png": "7647ba3c444017334dd371df32e09bde869b7c78602daf5c0ea32f35ab172a98",
+      "assets/units/noctyrax_cutout/rear/hidden_wing_far.png": "92aea975b9a898dab2c13047ad5b269a53bcbd7b0552524a40af48cbae30d9e8",
+      "assets/units/noctyrax_cutout/rear/fore_far.png": "361241cbf9f02363752e9f251ff81223b0dae156c02bcd9291ddb00a86c782b9",
+      "assets/units/noctyrax_cutout/rear/claw_fore_far.png": "e1b746949cdccf3f3d9dbbb69233c28f3ecb9eb12e6592a34526534a2e695a65",
+      "assets/units/noctyrax_cutout/rear/rest.png": "d714843283d655d7e608749d370cebc1291a991b638bd86c0ed4b6779f14c4c5"
+    },
+    "playback_timing": "Idle/walk timing from current production renderer. Area/support action timing and authored-phase curves match DragonPresentation and RunScene (1.1s area, .8s utility); physical contact remains .42. Noctyrax eclipse shows its 1.1s area use; summon uses the same pose curve over .8s in gameplay."
+  }
+}

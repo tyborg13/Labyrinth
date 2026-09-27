@@ -4,11 +4,35 @@ Current travel cadence, floor registration and room fitting are specified in [Ac
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
-Tharokh, the Worldspine (`tharokh`) retains the existing earth boss rules: 64 HP,
-base initiative 15, 80 embers, a 2×2 footprint and the dedicated boss bar. Its
-terrain-denial role, pathing, attack ranges, statuses, rewards and spawn pools
-are unchanged. This is presentation work; it changes no balance assumptions,
-icon identity or analytics event/result boundary.
+## Dragon feedback revision, 2026-09-27
+
+The current motion case is `experiments/cutouts/tharokh/feedback_breath_v02`,
+forked from the accepted art and current production sampler. Bedrock Breath now
+has a dedicated clip: four planted claws support a chest load and neck/head
+extension. Its complete declared lane receives Earth impact feedback and Rubble
+from the resolved step. Stonewake first uses the existing grounded brace to grow
+Worldspines, then presents its separate close attack. Faultline stamps before
+the resolved spires break. Worldspine Claw retains the physical rake.
+
+The shared dragon profile selects semantic actions even when a committed attack
+uses the generic `aoe` step type or hits no actors. Utility gestures last 0.8
+seconds; nonphysical area actions last 1.1 seconds. Their immutable result
+appears at 0.52. Breath releases from the animated mouth at 0.30, while physical
+claws retain 0.42 contact. Reduced motion uses a still rig and complete-area
+impact. Worldspines use the existing Crag Outcrop mineral material and fracture
+language, with a taller central spine, through `dragon_board_props.gd`.
+
+Current rules and rewards are in [Dragon boss encounters](dragon_boss_encounters.md).
+Fresh presentation proof and its limitations are recorded in
+[the feedback notes](../playtest/dragon_presentation_feedback_notes.md).
+
+## Original integration record
+
+The art history, timings and proof below describe the original integration.
+Their encounter numbers and action names are historical; the revision above
+and the encounter specification own the current contract. The original art
+integration preserved 64 HP, base initiative 15, 80 embers, a 2×2 footprint and
+the dedicated boss bar without changing its then-current resolver rules.
 
 ## Art and editable anatomy
 

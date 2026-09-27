@@ -615,6 +615,7 @@ var _submitted_shadow_meshes: Array[ArrayMesh]
 var _door_opening_frames: Array[Texture2D] = []
 var _door_opening_flipped_frames: Array[Texture2D] = []
 var _tooltip_regions: Array[Dictionary] = []
+var _tooltips_enabled: bool = true
 var equipment_tooltip_builder: Callable
 var item_tooltip_builder: Callable
 var _idle_frames_by_type: Dictionary = {}
@@ -1534,7 +1535,7 @@ func _sync_noctyrax_renderers() -> void:
 			add_child(renderer)
 			_noctyrax_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
-			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
 		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
 	for actor_key: String in _noctyrax_renderers.keys():
@@ -1644,7 +1645,7 @@ func _sync_vyraketh_renderers() -> void:
 			add_child(renderer)
 			_vyraketh_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
-			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
 		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
 	for actor_key: String in _vyraketh_renderers.keys():
@@ -3842,7 +3843,23 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	_update_cursor_shape()
 	navigation_changed.emit()
 
+func set_tooltips_enabled(enabled: bool) -> void:
+	if _tooltips_enabled == enabled:
+		return
+	_tooltips_enabled = enabled
+	tooltip_text = " " if enabled else ""
+	if enabled:
+		return
+	# Tooltips are separate popup windows, so covering the board does not dismiss
+	# one under a stationary pointer. Retire only popups owned by this board.
+	for child: Node in get_children():
+		if child is Window and str(child.get("theme_type_variation")) == "TooltipPanel":
+			(child as Window).hide()
+			child.queue_free()
+
 func _get_tooltip(at_position: Vector2) -> String:
+	if not _tooltips_enabled:
+		return ""
 	# Equipment floats and bobs independently of its tile layer. Resolve its live
 	# draw rect directly so pointer inspection is reliable even between retained
 	# scene-layer redraws or near the edge of the sprite's glow.
@@ -4781,40 +4798,78 @@ func _draw_umbra_light_source_markers(time_seconds: float) -> void:
 		_begin_umbra_shape_batch()
 	_flush_umbra_shape_batch()
 
-# Eclipse removes one light before testing safety. Put that future change above
-# the actors, so a currently burning but doomed brazier cannot look safe.
+# Night Coil announces a snuff before the next Eclipse. Keep current Light and
+# the future loss distinct, with a visible movement action on every dark refuge.
 func _noctyrax_brazier_markers() -> Array[Dictionary]:
 	var boss: Dictionary = {}
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
 			boss = enemy
 			break
-	var result: Array[Dictionary] = []
+	var result: Array[Dictionary]
 	if boss.is_empty():
 		return result
 	var snuffed_id: int = -1
-	for action: Dictionary in (boss.get("intent", {}) as Dictionary).get("actions", []):
-		if str(action.get("type", "")) == "umbra_eclipse":
+	var intent: Dictionary = boss.get("intent", {})
+	var snuff_rule: Dictionary = {}
+	for action: Dictionary in intent.get("actions", []):
+		if bool(action.get("snuff_brazier",false)):
 			snuffed_id = int(action.get("brazier_id", -1))
+			snuff_rule = action
+	var snuffs_before_hit: bool = str(snuff_rule.get("type",""))=="umbra_eclipse"
+	var restores_afterward: bool = bool(intent.get("restore_braziers",false))
 	var font: Font = get_theme_default_font()
 	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
 		var tile: Vector2i = brazier["pos"]
 		var threatened: bool = int(brazier["id"]) == snuffed_id
 		var lit: bool = bool(brazier.get("lit", true))
-		var label: String = "Will go dark" if threatened else ("Light 2 · stays lit" if lit and snuffed_id >= 0 else ("Light 2" if lit else "Unlit"))
-		var width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20).x + 16.0
+		var label: String = "Snuff incoming" if threatened else "Light · Radius 2" if lit else "Unlit brazier"
+		var detail: String = "Relight after Night Coil" if threatened else "Refuge from Eclipse" if lit else "Step here to relight"
+		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Light radius 2 protects against Last Eclipse. Other attacks can still hit." if lit else "Step onto this brazier's tile to relight it and restore Light radius 2."
+		if threatened and snuffs_before_hit:
+			label = "Dark before Eclipse"
+			detail = "Use another Light"
+		elif not lit and restores_afterward:
+			detail = "Relights after Night Coil"
+			tooltip = "This brazier relights after Night Coil resolves, including a skipped turn. Step onto it to restore Light sooner."
+		var width: float = maxf(font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,20).x,font.get_string_size(detail,HORIZONTAL_ALIGNMENT_LEFT,-1,18).x)+56.0
 		var center: Vector2 = _tile_center(tile)
-		var rect := Rect2(center + Vector2(-width * 0.5, -_tile_height() * 1.6 - 30.0), Vector2(width, 30.0))
-		result.append({"tile": tile, "rect": rect, "label": label, "threatened": threatened, "lit": lit, "eclipse": snuffed_id >= 0})
+		var rect: Rect2 = _noctyrax_brazier_marker_rect(center,width,result)
+		result.append({"tile":tile,"rect":rect,"label":label,"detail":detail,"tooltip":tooltip,"threatened":threatened,"lit":lit,"eclipse":str(intent.get("id",""))=="last_eclipse"})
 	return result
+
+func _noctyrax_brazier_marker_rect(center: Vector2, width: float, placed: Array[Dictionary]) -> Rect2:
+	var base := Rect2(center+Vector2(-width*.5,-_tile_height()*1.6-54.0),Vector2(width,54))
+	var obstacles: Array[Rect2]
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects",[]): obstacles.append(inverse*global_rect)
+	for unit: Dictionary in _visible_units():
+		if _unit_is_preview_echo(unit): continue
+		obstacles.append(_unit_draw_rect(unit).grow(8))
+		obstacles.append_array(_health_bar_collision_rects(unit,_unit_health_bar_rect(unit,_unit_center(unit))))
+	for marker: Dictionary in placed: obstacles.append((marker["rect"] as Rect2).grow(8))
+	var bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var best: Rect2 = base
+	var score: float = INF
+	for x: float in [0.0,-width*.7,width*.7,-width*1.15,width*1.15]:
+		for y: float in [0.0,-70.0,70.0,-140.0,140.0,210.0]:
+			var offset := Vector2(x,y)
+			var candidate := Rect2(base.position+offset,base.size)
+			var candidate_score: float = _enemy_hud_layout_score([candidate],obstacles,bounds,offset)
+			if candidate_score < score:
+				score = candidate_score
+				best = candidate
+	return best
 
 func _draw_noctyrax_refuge_tile(tile: Vector2i) -> void:
 	var snuffed_id: int = -1
+	var has_noctyrax: bool = false
 	for enemy: Dictionary in combat_state.get("enemies", []):
 		if str(enemy.get("type", "")) != "noctyrax" or int(enemy.get("hp", 0)) <= 0: continue
+		has_noctyrax = true
 		for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []):
-			if str(action.get("type", "")) == "umbra_eclipse": snuffed_id = int(action.get("brazier_id", -1))
-	if snuffed_id < 0: return
+			if bool(action.get("snuff_brazier",false)): snuffed_id = int(action.get("brazier_id",-1))
+	if not has_noctyrax: return
 	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
 		if not bool(brazier.get("lit", true)) or int(brazier.get("id", -1)) == snuffed_id: continue
 		var center: Vector2i = brazier["pos"]
@@ -4839,10 +4894,15 @@ func _draw_noctyrax_brazier_markers() -> void:
 		var tether_top := Vector2(rect.get_center().x, rect.end.y)
 		draw_line(tether_top, _tile_center(tile), Color(0.02, 0.015, 0.025, 0.95), 5.0, true)
 		draw_line(tether_top, _tile_center(tile), color, 2.0, true)
-		draw_rect(rect, Color(0.055, 0.035, 0.065, 0.94))
-		draw_rect(rect, color, false, 1.0)
-		_draw_outlined_string(font, rect.position + Vector2(8.0, 22.0), marker["label"], rect.size.x - 16.0, 20, color, Color.BLACK)
-		_register_tooltip(rect, "This brazier goes dark before Last Eclipse deals damage. Use the other refuge or create your own Light." if threatened else "Light radius 2 protects against Last Eclipse. Other attacks can still hit. Both braziers relight after Night Coil.")
+		var plate := PackedVector2Array([rect.position+Vector2(8,0),Vector2(rect.end.x-8,rect.position.y),Vector2(rect.end.x,rect.position.y+8),rect.end-Vector2(0,8),rect.end-Vector2(8,0),Vector2(rect.position.x+8,rect.end.y),Vector2(rect.position.x,rect.end.y-8),rect.position+Vector2(0,8)])
+		draw_colored_polygon(plate,Color(.035,.025,.055,.88))
+		var rim: PackedVector2Array = plate.duplicate()
+		rim.append(plate[0])
+		draw_polyline(rim,Color(color,.55),1.3,true)
+		_draw_keyword_icon("light",Rect2(rect.position+Vector2(9,11),Vector2(32,32)),"Light radius 2",color if bool(marker["lit"]) else Color(.45,.42,.50),false)
+		_draw_outlined_string(font,rect.position+Vector2(47,23),marker["label"],rect.size.x-54,20,color,Color.BLACK)
+		_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
+		_register_tooltip(rect,marker["tooltip"])
 
 func _tethered_light_tooltip(source: Dictionary) -> String:
 	var radius: int = maxi(1, int(source.get("radius", 1)))
@@ -6585,8 +6645,10 @@ func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = [])
 		else:
 			_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
 		if str(prop.get("kind", "")).begins_with("watch_brazier"):
-			var relight_name: String = "Night Coil" if not _noctyrax_brazier_markers().is_empty() else "Last Procession"
-			_register_tooltip(draw_rect, "Watch Brazier · Light radius 2" if str(prop["kind"]) == "watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after %s." % relight_name)
+			var hint: String = "Watch Brazier · Light radius 2" if str(prop["kind"]) == "watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession."
+			for marker: Dictionary in _noctyrax_brazier_markers():
+				if marker["tile"]==tile: hint="Watch Brazier\n"+str(marker["tooltip"]); break
+			_register_tooltip(draw_rect,hint)
 		if str(prop.get("kind",""))=="watch_brazier_lit":
 			var reduced: bool = bool(presentation.get("reduced_motion",false))
 			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
@@ -7552,10 +7614,11 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	if terrain_kind == "crag_outcrop":
+	if terrain_kind in ["crag_outcrop","dragon_spire"]:
 		tint.a = maxf(tint.a,0.58)
 		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
-		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
 	_draw_terrain_health_bar(terrain, terrain_rect)
@@ -7572,16 +7635,20 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
-	if terrain_kind == "crag_outcrop": tint.a = maxf(tint.a,0.58)
+	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a,0.58)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
 	if progress < 0.84:
 		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
-	if terrain_kind == "crag_outcrop":
+	if terrain_kind == "dragon_spire":
+		preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
+	elif terrain_kind == "crag_outcrop":
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "dragon_spire":
+		return Rect2(_tile_center(tile)-Vector2(_tile_width()*.41,_tile_width()*.92),Vector2(_tile_width()*.82,_tile_width()*1.07))
 	if terrain_kind == "crag_outcrop":
 		return Rect2(_tile_center(tile)-Vector2(_tile_width()*0.42,_tile_width()*0.75),Vector2(_tile_width()*0.84,_tile_width()*0.90))
 	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
@@ -8741,6 +8808,10 @@ func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: f
 	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, width, font_size, fill)
 
 func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font, embossed: bool = false) -> void:
+	# Patterns can be taller than icons. Measure and center the entire row using
+	# the same bounds used by collision placement; never draw above the row.
+	var row_height: float = _token_row_height(tokens, icon_size)
+	origin.y += (row_height - icon_size) * 0.5
 	var cursor_x: float = origin.x
 	for token_var: Variant in tokens:
 		if typeof(token_var) != TYPE_DICTIONARY:
@@ -9057,10 +9128,18 @@ func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_nam
 		var row_width: float = ceilf(_token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font)) + 8.0
 		var stagger: float = float(line_index) * INTENT_CONTOUR_LINE_STAGGER
 		var row_x: float = actor_rect.end.x - 2.0 + stagger if side == "right" else actor_rect.position.x - row_width + 2.0 - stagger
-		rects.append(Rect2(Vector2(row_x, line_y), Vector2(row_width, INTENT_CONTOUR_ROW_HEIGHT)))
-		line_y += INTENT_CONTOUR_ROW_HEIGHT
+		var row_height: float = maxf(INTENT_CONTOUR_ROW_HEIGHT, ceilf(_token_row_height(row_var as Array, INTENT_POPUP_ICON_SIZE)) + 6.0)
+		rects.append(Rect2(Vector2(row_x, line_y), Vector2(row_width, row_height)))
+		line_y += row_height
 		line_index += 1
 	return rects
+
+func _token_row_height(tokens: Array, icon_size: float) -> float:
+	var height: float = icon_size
+	for token: Dictionary in tokens:
+		if str(token.get("kind", "")) == "aoe_pattern":
+			height = maxf(height, _aoe_token_size(token, icon_size).y)
+	return height
 
 func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rect2) -> Array:
 	var placement_obstacles: Array = occupied_rects.duplicate()
@@ -9795,7 +9874,12 @@ func _impact_element_seed(element_id: String) -> int:
 		_:
 			return 7
 
+func _dragon_full_area_fx(effect: Dictionary) -> bool:
+	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
+	return preload("res://scripts/dragon_presentation.gd").area_fx(effect) or (str(profile.get("geometry","")) == "physical" and str(effect.get("kind","")) == "aoe")
+
 func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
+	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return true
 	return (
 		str(effect.get("kind", "")) in ["ranged", "aoe"]
 		and AttackFxLibrary.uses_authored_elemental_attack(effect)
@@ -9818,6 +9902,12 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 		_elemental_append_unique_depth_tile(tiles, (trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
 	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
+		return tiles
+	if _dragon_full_area_fx(effect):
+		for tile: Vector2i in preload("res://scripts/dragon_presentation.gd").tiles(effect):
+			if _board_tile_is_visible_to_player(tile): _elemental_append_unique_depth_tile(tiles,tile)
+		var origin: Vector2i = effect.get("from",Vector2i(-1,-1))
+		if _board_tile_is_visible_to_player(origin): _elemental_append_unique_depth_tile(tiles,origin)
 		return tiles
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
 	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
@@ -9894,6 +9984,9 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	if not _effect_uses_elemental_scene_depth(effect):
 		return
+	if _dragon_full_area_fx(effect):
+		_draw_dragon_area_depth(effect,tile,progress,foreground_pass)
+		return
 	var style: String = AttackFxLibrary.style_for_effect(effect)
 	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
 	if not depth_tiles.has(tile):
@@ -9918,6 +10011,61 @@ func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> 
 	if style != AttackFxLibrary.STYLE_EARTH_SPIKES and tile != current_depth_tile:
 		return
 	_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+
+func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float, foreground: bool) -> void:
+	if not _board_tile_is_visible_to_player(tile): return
+	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
+	var targets: Array[Vector2i] = preload("res://scripts/dragon_presentation.gd").tiles(effect)
+	var origin: Vector2i = effect.get("from", Vector2i(-1,-1))
+	var source_visible: bool = not bool(effect.get("umbra_action_clipped",false)) and _board_tile_is_visible_to_player(origin)
+	var ground: Vector2 = _tile_center(origin)
+	var source: Vector2 = _dragon_spell_source(str(effect.get("actor_key","")),ground-Vector2(0,_tile_width()*.4))
+	var reduced: bool = bool(presentation.get("reduced_motion",false))
+	if str(profile.get("geometry","")) == "physical":
+		if foreground and targets.has(tile) and (reduced or (progress >= .30 and progress <= .72)):
+			_draw_melee_slash_effect(ground,_tile_center(tile),.40 if reduced else clampf((progress-.30)/.42,0.0,1.0))
+		return
+	if tile == origin and source_visible and not foreground and not reduced:
+		preload("res://scripts/dragon_spell_presentation.gd").draw_source(self,str(profile["element"]),source,ground,_tile_width(),progress)
+	if not targets.has(tile): return
+	# Only the outer edge emits long trails; every declared cell gets its own
+	# impact. This makes a fan read as a filled area instead of dozens of bolts.
+	var endpoint: bool = true
+	var ray: Vector2 = (Vector2(tile)-Vector2(origin)).normalized()
+	var distance: float = Vector2(tile).distance_squared_to(Vector2(origin))
+	for other: Vector2i in targets:
+		if Vector2(other).distance_squared_to(Vector2(origin)) > distance and ray.dot((Vector2(other)-Vector2(origin)).normalized()) > .94:
+			endpoint = false
+			break
+	preload("res://scripts/dragon_spell_presentation.gd").draw_target(self,profile,source,ground,_tile_center(tile),_tile_width(),progress,reduced,foreground,endpoint,source_visible,tile.x*101+tile.y*307)
+
+func _dragon_spell_source(actor_key: String, fallback: Vector2) -> Vector2:
+	var renderer: Node
+	for registry: Dictionary in [_vyraketh_renderers,_tharokh_renderers,_vaeloryx_renderers,_iskaldra_renderers,_zekarion_renderers,_noctyrax_renderers]:
+		if registry.has(actor_key): renderer = registry[actor_key]; break
+	if not is_instance_valid(renderer): return fallback
+	var rigs: Dictionary = renderer.get("rigs")
+	var facing: String = str(renderer.get("facing"))
+	var rig: Node2D = rigs.get(facing) as Node2D
+	if not is_instance_valid(rig): return fallback
+	var bones: Dictionary = rig.get("bones")
+	var head: Node2D = bones.get("head") as Node2D
+	if not is_instance_valid(head): return fallback
+	var layout: Dictionary = rig.get("layout")
+	var landmarks: Dictionary = layout.get("landmarks",{})
+	var muzzle: Vector2 = Vector2(18,-3) if facing == "rear" else Vector2(-24,17)
+	for landmark: String in ["muzzle","maw"]:
+		if landmarks.has(landmark):
+			var point: Array = landmarks[landmark]
+			var bind: Array = layout["joints"]["head"]["position"]
+			muzzle = Vector2(float(point[0])-float(bind[0]),float(point[1])-float(bind[1]))
+			break
+	var canvas_point: Vector2 = head.global_transform * muzzle
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key","")) == actor_key:
+			var body: Rect2 = _unit_draw_rect(unit)
+			return body.position + (canvas_point-Vector2(128,128)) * body.size / Vector2(255,255)
+	return fallback
 
 func _draw_trap_elemental_depth_effect(trap: Dictionary, progress: float, foreground_pass: bool) -> void:
 	var element_id: String = str(trap.get("element", ElementData.NONE))
@@ -9972,6 +10120,7 @@ func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
+	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return
 	if bool(effect.get("umbra_action_clipped", false)):
 		var original_target: Vector2i = effect.get("umbra_original_to", effect.get("to", Vector2i(-1, -1)))
 		if not _board_tile_is_visible_to_player(original_target):
@@ -10039,6 +10188,7 @@ func _draw_effect_overlay() -> void:
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
+	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
 	_draw_bile_bloomer_fragments(effect, progress)
 	var kind: String = str(effect.get("kind", ""))
 	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
@@ -15485,6 +15635,9 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
+		if action.has("range_status"):
+			action = action.duplicate(false)
+			action["range"] = mini(int(action.get("maximum_range",99)),int(action.get("range",1))+int(unit.get(str(action["range_status"]),0)))
 		var row: Array = ActionIcons.tokens_for_action(action)
 		var support_token: Dictionary = _support_target_token_for_action(unit, action)
 		if not support_token.is_empty():
@@ -15709,11 +15862,11 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		})
 	if int(unit.get("frost_armor", 0)) > 0:
 		badges.append({
-			"icon": "freeze",
+			"icon": "frost_armor",
 			"count": int(unit.get("frost_armor", 0)),
 			"fill": Color("274864"),
 			"border": Color("b9f3ff"),
-			"tooltip": "Crystal Armor\nEach damaging hit breaks one layer instead of dealing damage."
+			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
 		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({

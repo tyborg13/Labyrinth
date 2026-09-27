@@ -28,6 +28,12 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 			"element": "lightning", "chain_index": index, "branches": hit.get("branches", []), "path": hit.get("path", []),
 			"relay": str(hit.get("kind", "")) == "relay",
 		}
+		if bool(hit.get("relay_delivery",false)):
+			effect["kind"] = "ranged"
+			effect["action_type"] = "ranged"
+			effect["element"] = initial_effect.get("element", "lightning")
+			effect["range"] = initial_effect.get("range",1)
+			effect["center"] = hit.get("to")
 		var frame_count: int = AttackFx.animation_frame_count(effect, 12, reduced_motion) if index == 0 else 12
 		var frame_seconds: float = AttackFx.animation_frame_seconds(effect, 0.03, reduced_motion) if index == 0 else (0.12 if str(hit.get("kind", "")) == "relay" else HOP_SECONDS) / float(frame_count)
 		var contact: float = float(host.call("_attack_feedback_start_progress", effect)) if index == 0 else HOP_CONTACT

@@ -1,5 +1,7 @@
 # Iskaldra editable cutout and combat presentation
 
+The 2026-09-27 playtest revision is authored in `experiments/cutouts/iskaldra/feedback_v02`, copied from the current production baseline. Current idle/art changes and their verification status are recorded in [the feedback cutout notes](../playtest/dragon_cutout_feedback_notes.md). Older `v01` evidence below describes the original integration; do not replay those historical builders over the current rig. Current encounter mechanics are specified in [dragon boss encounters](dragon_boss_encounters.md).
+
 Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
@@ -38,8 +40,7 @@ actor through whole gait cycles for every resolved segment. Each stride is
 calibrated to that segment’s exact source-pixel distance, while both feet retain
 their complete authored rest offsets. The entry and final poses therefore join
 the accepted resting stance without a foot jump. Supporting soles cancel actual
-root travel, including the first and final translation. The idle is a 1.7-pixel coordinated upper-body bob with stationary
-hind legs and tail and unchanged bone bases.
+root travel, including the first and final translation. The idle is a 1.7-pixel coordinated pelvis/torso/tail bob. Hind-leg roots follow the pelvis, shared proximal weights blend into it, and the existing support solver keeps both terminal paws rigid and planted. Freezing entire hind legs previously exposed their cut against the rising pelvis.
 
 ## Runtime and timing
 

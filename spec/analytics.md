@@ -10,7 +10,7 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Default path: `user://analytics/events-YYYY-MM-DD.jsonl`
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
-- `balance_revision`: loaded content revision (`dragon_milestones_v1` for dragon encounters, trophies, and milestones).
+- `balance_revision`: loaded content revision (`dragon_feedback_v2` for revised dragon pressure, trophies, and milestones).
 - `balance_transition`: empty for fresh encounters; resumed older combats record
   `{from, to, saved_intents_preserved: true}`. Already committed intents and paid
   checkpoints retain their saved payload until the next ordinary selection.
@@ -420,6 +420,9 @@ profile first; the run then applies the latest receipt once. A crash between
 those saves recovers the exact credit/debit, without replacing subsequent run
 earnings. Level-up and exchange context describe the resulting run, including
 post-transaction progression, Shards, and Defiance, without stale combat state.
+Acknowledgment clears the active and embedded-run outboxes together, and a
+second run checkpoint saves that result before UI refresh. A failed profile
+acknowledgment retains the entry; replay deduplicates its transaction key.
 
 `skill_triggered` records each automatic, manual, contextual, or passive skill
 activation. Its payload contains `skill_id`, `activation`, `trigger_revision`,
@@ -636,3 +639,47 @@ Native Chain trace hits add `enemy_hop`, unmodified `base_damage`, and
 Preview copies do not append analytics. No changes to historical JSONL are required.
 
 Guardian light restoration surface events retain `guardian_light_restored` and add `tiles` (only newly relit braziers) plus `trigger_intent` (`last_procession`). The matching intent refresh carries the completed Guardian board snapshot so restoration and departed Shades are presented at the actual boundary. Input recovered from a non-tutorial save does not emit tutorial milestone events.
+
+### Dragon feedback events
+
+The existing append-only `surface_event` stream includes additive
+`crystal_mantle_broken` records with enemy `id`, `tile`, `prevented_damage`,
+`layers_remaining` and causal `source`; `dragon_light_restored` with `brazier_id`,
+`tile`, `trigger: player_arrival` and player source; and `enemy_summon_scheduled`
+with enemy `id`, `enemy_type`, `activation_time` and `reaction_window: true`.
+These use the ordinary sequence cursor and preview-copy exclusion. They allow
+layer negation, player recovery of Light and summon reaction time to be inspected
+without attributing blocked damage as health loss or replaying UI animations.
+
+### Dragon reward presentation and awakening service
+
+Dragon Continue still commits the existing `reward_claimed` outbox receipt before
+relic delivery, HUD settlement, or the map transition. These presentation phases
+do not emit additional acquisition/claim events. The Emaciated Man's one-time
+awakening dialogue and separate Awaken Power entry do not spend resources; the
+existing profile-first `progression_moltshard_exchange` and
+`progression_level_up` events remain the only wallet mutation records.
+
+
+### Dragon trophy Time and ranged relay events
+
+The existing append-only `surface_event` stream now admits
+`relic_time_reserve`: `relic_id`, `card_id`, `gained`, `spent`, `remaining`,
+`card_time_paid` and player/relic `source`. This records only actual changes to
+the stored Time balance at the card completion boundary. A free Borrowed Time
+card does not consume the reserve. The ordinary card-play event still records
+the actual paid Time; no synthetic play is emitted.
+
+`relic_ranged_relay` records `relic_id`, `from`, `relay`, `target`, normal `range`,
+and the original card `source`. A direct shot emits no relay event. This event
+describes range extension only; ordinary hit, defeat, and surface-conduction
+events retain their own damage and causal source. Both records use the existing
+combat sequence/idempotency cursor, with no analytics emitted by forecast copies
+or by presentation. Historical JSONL remains readable.
+
+Dragon feedback pressure uses additive surface events: `dragon_status_consumed`
+records the enemy, consumed status, amount and source after Shatterstorm;
+`surface_removed` with reason `overload` identifies announced charges spent, and
+`replaced_trail` identifies the prior owned Ice lane retiring. Night Coil emits
+`dragon_light_snuffed` before the next Eclipse warning. Existing damage and
+surface events continue to flow through append-only local JSONL instrumentation.

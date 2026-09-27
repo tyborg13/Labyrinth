@@ -57,13 +57,8 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func clip_for_effect(effect: Dictionary) -> String:
-	if str(effect.get("action_type", "")) == "umbra_eclipse":
-		return "eclipse"
-	match str(effect.get("kind", "")):
-		"melee": return "claw"
-		"ranged": return "breath"
-		"aoe": return "coil"
-	return "idle"
+	var result: String = preload("res://scripts/dragon_presentation.gd").clip(effect, {"type":"noctyrax"})
+	return "idle" if result.is_empty() else result
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
 	return str(actor.get("type", "")) == "noctyrax" and clip_for_effect(effect) != "idle"
@@ -125,7 +120,7 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		if phase >= 1.0:
 			clip = "idle"
 		else:
-			phase = breath_pose_phase(phase) if clip == "breath" else attack_pose_phase(phase, float(motion.get("contact", 0.42)))
+			if not bool(motion.get("authored_phase",false)): phase = breath_pose_phase(phase) if clip == "breath" else attack_pose_phase(phase, float(motion.get("contact", 0.42)))
 	else:
 		clip = "idle"
 	if clip == "idle" and previous_clip != "idle":

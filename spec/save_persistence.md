@@ -210,3 +210,45 @@ intent, replays a paid action, or resets HP, piles, clocks, surfaces or ownershi
 active combat and stored continuation states, once and idempotently. Gameplay
 analytics exposes that marker so a transitional combat is not mistaken for a
 fresh, homogeneous balance sample. New combats are stamped at creation.
+
+## Emaciated Man awakening
+
+The first-dragon Moltshard receipt makes the awakening introduction available on
+the next encounter with the Emaciated Man, even if the Shard has been spent.
+Legacy Shard holders and profiles with a recorded boss defeat also qualify.
+Only completing the introduction's last narrative line sets
+`emaciated_awakening_seen`; that profile-first write increments the progression
+revision, then mirrors into the active run. An interrupted or failed write leaves
+the introduction available. The acknowledgment permanently exposes the separate
+Awaken Power room action; ordinary Speak never appends the wallet service.
+
+Shard exchange and level-up persist their wallet receipt before appending its
+analytics event. Successful acknowledgment is copied into the embedded run and
+saved before UI refresh reads progression from that run. Failed acknowledgment
+keeps the keyed entry pending for replay without repeating the purchase.
+
+Dragon Continue saves the claim before the ordinary relic acquisition animation.
+Delivery, HUD settlement, reward fade and map fade are transient presentation;
+resume reads the saved room/terminal boundary and never grants the reward twice.
+
+
+### Dragon trophy combat state
+
+`combat_state.relic_time_reserve` is a relic-id-to-integer map, bounded by each
+owned `element_time_reserve` effect's capacity (currently 3). An absent map is an
+empty reserve. The first-Ice trigger lives in existing `turn_flags` under
+`time_reserve:<relic_id>`, so a saved mid-activation combat cannot bank twice;
+ordinary activation preparation resets that trigger while retaining the reserve.
+Card completion updates Time paid, reserve and trigger in the same saved combat
+checkpoint. A new combat starts without a reserve.
+
+Stormroad relay routes are derived deterministically from the current saved
+board and ownership. Only the committed action's ordinary surface-event receipt
+persists; transient preview/animation traces grant no damage or extra reward
+when a save is resumed.
+
+Saved first-revision Noctyrax warnings retain their announced one-turn behavior:
+an Eclipse carrying `snuff_brazier` still previews/resolves that snuff, and a Night
+Coil carrying `restore_braziers` relights after that saved turn. Newly declared
+intents use Night Coil's snuff and player-arrival relighting with no automatic
+reset. Guardian Last Procession's separate cleanup remains unchanged.

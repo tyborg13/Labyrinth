@@ -1,0 +1,103 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 248.99999999999997,
+          "luma_mean": 30.314075996514575,
+          "luma_min": 0.0,
+          "luma_range": 248.99999999999997,
+          "luma_stdev": 47.101058146685354,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_current_coil.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 27.91734208319797,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 44.91264835802341,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_legacy_coil.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.0,
+          "luma_mean": 30.32937942897267,
+          "luma_min": 0.0,
+          "luma_range": 248.0,
+          "luma_stdev": 47.090021727695934,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_legacy_eclipse.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_presentation_feedback_probe.gd",
+    "--",
+    "--legacy-refuge-addendum"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 248.99999999999997,
+      "luma_mean": 30.314075996514575,
+      "luma_min": 0.0,
+      "luma_range": 248.99999999999997,
+      "luma_stdev": 47.101058146685354,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_current_coil.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 27.91734208319797,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 44.91264835802341,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_legacy_coil.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.0,
+      "luma_mean": 30.32937942897267,
+      "luma_min": 0.0,
+      "luma_range": 248.0,
+      "luma_stdev": 47.090021727695934,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1/probes/dragon_presentation_feedback/noctyrax_refuge_legacy_eclipse.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-legacy-refuge-01-1790529514092096000-25114-dragon_presentation_feed-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_presentation_feedback_probe.gd"
+}

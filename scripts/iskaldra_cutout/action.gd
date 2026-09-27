@@ -6,26 +6,14 @@ const Fx = preload("res://scripts/attack_fx_library.gd")
 const PREPARE_SECONDS: Dictionary = {"talon":0.32,"lance":0.24,"storm":0.36}
 
 static func clip_for_effect(effect: Dictionary, actor: Dictionary) -> String:
-	if str(actor.get("type","")) != "iskaldra":
-		return ""
-	match str(effect.get("kind","")):
-		"melee": return "talon"
-		"ranged": return "lance"
-		"aoe": return "storm"
-		"status": return "mantle" if str(effect.get("action_type","")) == "frost_armor" else ""
-	return ""
+	if str(actor.get("type", "")) != "iskaldra": return ""
+	return preload("res://scripts/dragon_presentation.gd").clip(effect, actor)
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
 	return clip_for_effect(effect,actor) in ["talon","lance","storm"]
 
 static func direction(effect: Dictionary, actor: Dictionary, player_tile: Vector2i) -> Vector2i:
-	var origin: Vector2i = actor.get("pos",effect.get("from",Vector2i.ZERO))
-	var target: Vector2i = effect.get("to",player_tile)
-	if str(effect.get("kind","")) in ["aoe","status"] and int(effect.get("range",0)) <= 0:
-		target = player_tile
-	# Doubled coordinates preserve the half-tile center of the 2x2 boss.
-	var footprint: Vector2i = actor.get("footprint",Vector2i(2,2))
-	return target * 2 - (origin * 2 + footprint - Vector2i.ONE)
+	return preload("res://scripts/dragon_presentation.gd").direction(effect, actor, player_tile)
 
 static func motion_for_effect(effect: Dictionary, actor: Dictionary, progress: float, player_tile: Vector2i) -> Dictionary:
 	var action: String = clip_for_effect(effect,actor)

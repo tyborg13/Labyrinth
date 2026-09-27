@@ -137,27 +137,32 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	for terrain_var: Variant in earth_after.get("terrain", []):
 		if typeof(terrain_var) == TYPE_DICTIONARY and str((terrain_var as Dictionary).get("kind", "")) == "dragon_spire":
 			earth_spires += 1
-	expect.call(earth_spires == 2, "Tharokh opens with two attackable Worldspines while retaining movement lanes")
+	expect.call(earth_spires == 4, "Tharokh opens with four attackable Worldspines while retaining movement lanes")
 
 	var fire_after: Dictionary = _resolve_opening("vyraketh")
 	var cinder_tiles: Array[Vector2i] = Surface.tiles(fire_after, "fire")
-	expect.call(cinder_tiles.size() == 3, "Vyraketh opens with a bounded three-cell barrier of ordinary persistent Fire")
+	expect.call(cinder_tiles.size() == 5, "Vyraketh opens with five scattered cells of ordinary persistent Fire")
 	expect.call((fire_after.get("traps", []) as Array).all(func(trap: Variant) -> bool: return str((trap as Dictionary).get("boss_hazard_kind", "")) != "cinder_mark"), "Kindle Ground does not create legacy owner traps")
 	var fire_boss: Dictionary = _boss_from_state(fire_after)
-	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "crownfire", "Kindle Ground still schedules Crownfire next")
+	expect.call(str((fire_boss.get("intent", {}) as Dictionary).get("id", "")) == "cinderfall", "Meteorfall schedules its breath while Fire remains")
+	fire_after = _resolve_boss_turn(fire_after)
 	if not cinder_tiles.is_empty():
 		var denied: Vector2i = cinder_tiles[0]
 		Surface.place(fire_after, denied, "ice")
 		fire_after = _resolve_boss_turn(fire_after)
 		expect.call(Surface.has_surface(fire_after, denied, "ice"), "Replacing marked Fire denies that Crownfire fuel without consuming replacement Ice")
-		expect.call(Surface.tiles(fire_after, "fire").is_empty(), "Crownfire consumes remaining selected Fire")
+		for tile: Vector2i in cinder_tiles:
+			if tile == denied: continue
+			# A nearby Fire trap can repaint a consumed tile during this blast.
+			var spent: Array = (fire_after.get("surface_events",[]) as Array).filter(func(event: Dictionary)->bool: return event.get("kind","")=="surface_removed" and event.get("reason","")=="detonate" and event.get("tile",Vector2i(-1,-1))==tile)
+			expect.call(not spent.is_empty(), "Crownfire consumes each selected Fire before any triggered trap repaints ground")
 
 	var air_before: Dictionary = _boss_combat_state("vaeloryx")
 	var air_hp_before: int = int((air_before.get("player", {}) as Dictionary).get("hp", 0))
 	var air_pos_before: Vector2i = (air_before.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var air_after: Dictionary = _resolve_boss_turn(air_before)
-	expect.call(int((air_after.get("player", {}) as Dictionary).get("hp", 0)) < air_hp_before, "Vaeloryx's Hollow Gale should damage a player who stays in its declared fan")
-	expect.call((air_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) == air_pos_before, "The entry wall should arrest Gale instead of redirecting its fixed push sideways")
+	expect.call(int((air_after.get("player", {}) as Dictionary).get("hp", 0)) < air_hp_before, "Vaeloryx's opening Skyhook must threaten the player after approach")
+	expect.call((air_after.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO) != air_pos_before, "Skyhook should draw its target away from the entry wall")
 
 	var ice_after: Dictionary = _resolve_opening("iskaldra")
 	expect.call(int(_boss_from_state(ice_after).get("frost_armor", 0)) == 1, "Iskaldra opens with one armor layer before any Ice fuel bonus")
@@ -166,8 +171,10 @@ static func _test_opening_gimmicks_resolve(expect: Callable) -> void:
 	var shadow_hp_before: int = int((shadow_before.get("player", {}) as Dictionary).get("hp", 0))
 	expect.call(CombatEngine.new().is_enemy_visible_to_player(shadow_before, _boss_from_state(shadow_before)), "Noctyrax should remain revealed through Heart Umbra")
 	var shadow_after: Dictionary = _resolve_boss_turn(shadow_before)
+	expect.call(str(_boss_from_state(shadow_after)["intent"]["id"]) == "last_eclipse", "Night Coil must announce Eclipse after snuffing its refuge")
+	shadow_after = _resolve_boss_turn(shadow_after)
 	var shadow_umbra: Dictionary = shadow_after.get("umbra", {}) as Dictionary
-	expect.call(int(shadow_umbra.get("boss_eclipse_activations", 0)) == 2, "Noctyrax should open with a two-activation Eclipse")
+	expect.call(int(shadow_umbra.get("boss_eclipse_activations", 0)) == 2, "Noctyrax should apply a two-activation Eclipse after Night Coil")
 	expect.call(int((shadow_after.get("player", {}) as Dictionary).get("hp", 0)) < shadow_hp_before, "The Last Eclipse should punish actors outside Radiance")
 	expect.call(CombatEngine.new().is_enemy_visible_to_player(shadow_after, _boss_from_state(shadow_after)), "Noctyrax should remain revealed during Eclipse")
 
@@ -190,7 +197,7 @@ static func _test_noctyrax_minions_make_eclipse_visibility_matter(expect: Callab
 	var scaled_damage: int = _maximum_intent_damage(combat.call("_scaled_enemy_intents", minion_def.get("intents", []) as Array, 24) as Array)
 	expect.call(scaled_damage > base_damage, "Veilbound Acolyte damage should inherit depth-24 sequence scaling")
 
-	var after: Dictionary = _resolve_boss_turn(before)
+	var after: Dictionary = _resolve_boss_turn(_resolve_boss_turn(before))
 	var hidden_minions: int = 0
 	for enemy_var: Variant in after.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:

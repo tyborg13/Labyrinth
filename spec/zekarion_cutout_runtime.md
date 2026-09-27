@@ -1,5 +1,7 @@
 # Zekarion cutout in gameplay
 
+The 2026-09-27 playtest revision is authored in `experiments/cutouts/zekarion/feedback_v02`, copied from the current production baseline. Current idle/art changes and their verification status are recorded in [the feedback cutout notes](../playtest/dragon_cutout_feedback_notes.md). Older `v01` evidence below describes the original integration; do not replay those historical builders over the current rig. Current encounter mechanics are specified in [dragon boss encounters](dragon_boss_encounters.md).
+
 Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
@@ -30,7 +32,7 @@ All source coordinates use the game's 2:1 floor projection. The logical body is 
 
 | Clip | Duration | Pose and playback contract |
 | --- | --- | --- |
-| Idle | 1.80 s | One 1.2px coordinated torso/neck/head/wing bob; legs, feet, tail and every rigid bone basis remain fixed. No chain of small independent idle rotations. |
+| Idle | 1.80 s | One 1.2px coordinated trunk, neck, head, wing and tail bob. Hind-leg roots follow the trunk; all four support solvers keep terminal claws rigid and planted. Proximal hind-leg paint blends into the torso. No independently phased rotations. |
 | Walk | 0.96 s | Diagonal support pairs, 44px stride, 64% stance and 7px swing lift. Distance drives both board traversal and cycle phase; source travel per cycle is 68.75px. |
 | Storm Claw | 0.90 s | Lift and draw back the near foreclaw, sweep through contact, recover. The slash starts with the sweep; normalized damage boundary stays 0.42. |
 | Tempest Breath | 1.30 s | Brace, coil/aim the neck and open the maw. Lightning launches from the posed maw at 4/30 effect progress and reaches the existing result boundary at 8/30. |

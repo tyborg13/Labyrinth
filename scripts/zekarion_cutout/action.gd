@@ -4,11 +4,8 @@ extends RefCounted
 const Cutout = preload("res://scripts/zekarion_cutout/renderer.gd")
 
 static func motion_for_effect(effect: Dictionary, progress: float, actor: Dictionary, player: Dictionary, contact: float) -> Dictionary:
-	var origin: Vector2i = actor.get("pos",Vector2i.ZERO)
-	var target: Vector2i = effect.get("to",player.get("pos",origin))
-	# The boss occupies 2x2; face from its footprint center, not its top corner.
 	return {"clip":"attack", "action":Cutout.action_for_effect(effect), "phase":progress,
-		"contact":contact,"direction":target*2-origin*2-Vector2i.ONE}
+		"contact":contact,"direction":preload("res://scripts/dragon_presentation.gd").direction(effect,actor,player.get("pos",Vector2i.ZERO))}
 
 static func append_resolved_summons(display_state: Dictionary, step: Dictionary) -> void:
 	var enemies: Array = (display_state.get("enemies",[]) as Array).duplicate(true)

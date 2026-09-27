@@ -58,16 +58,11 @@ static func direction_for_delta(delta: Vector2i) -> Dictionary:
 	return EnemyFacing.direction_for_delta(delta)
 
 static func action_clip(effect: Dictionary, actor: Dictionary) -> String:
-	if str(actor.get("type", "")) != "tharokh":
-		return ""
-	if str(effect.get("action_type", "")) == "terrain_burst":
-		return "faultline"
-	if str(effect.get("action_type", "")) == "raise_terrain":
-		return "brace"
-	return "claw" if str(effect.get("kind", "")) == "melee" else ""
+	if str(actor.get("type", "")) != "tharokh": return ""
+	return preload("res://scripts/dragon_presentation.gd").clip(effect, actor)
 
 static func uses_attack(effect: Dictionary, actor: Dictionary) -> bool:
-	return action_clip(effect, actor) in ["claw", "faultline"]
+	return action_clip(effect, actor) in ["claw", "faultline", "breath"]
 
 static func attack_frames(effect: Dictionary) -> int:
 	return 66 if str(effect.get("action_type", "")) == "terrain_burst" else ATTACK_FRAMES
@@ -116,11 +111,11 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	phase = float(motion.get("phase", 0.0))
 	if clip == "walk":
 		phase = fposmod(phase, 1.0)
-	elif clip in ["claw", "faultline"]:
+	elif clip in ["claw", "faultline", "breath"]:
 		if phase >= 1.0:
 			clip = "idle"
 		else:
-			phase = attack_pose_phase(phase, float(motion.get("contact", 0.42)))
+			if not bool(motion.get("authored_phase",false)): phase = attack_pose_phase(phase, float(motion.get("contact", 0.42)))
 	elif clip == "brace":
 		if phase >= 1.0:
 			clip = "idle"

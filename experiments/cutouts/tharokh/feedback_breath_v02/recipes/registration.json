@@ -1,0 +1,41 @@
+{
+  "front": {
+    "source": "source/front_original.png",
+    "operation": "unchanged",
+    "canvas": [
+      255,
+      255
+    ]
+  },
+  "rear": {
+    "source": "source/rear_generated.png",
+    "source_size": [
+      1254,
+      1254
+    ],
+    "alpha_crop": [
+      0,
+      17,
+      1240,
+      1254
+    ],
+    "fit_limit": [
+      235,
+      235
+    ],
+    "registered_size": [
+      235,
+      234
+    ],
+    "offset": [
+      10,
+      10
+    ],
+    "resampling": "Lanczos",
+    "canvas": [
+      255,
+      255
+    ],
+    "alpha_note": "Generated rear contains alpha 252 across most interior paint. Preserve it; concealed patches use alpha >=250 ownership mask, front uses exactly opaque 255."
+  }
+}

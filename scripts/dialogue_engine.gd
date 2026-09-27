@@ -18,12 +18,7 @@ func _dialogue_for_npc(npc: Dictionary, room: Dictionary, run_state: Dictionary,
 	var npc_id: String = str(npc.get("id", ""))
 	match npc_id:
 		"emaciated_man":
-			var dialogue: Dictionary = _emaciated_man_dialogue(npc, room, run_state, progression)
-			var service: Dictionary = emaciated_service_dialogue(progression)
-			if bool(run_state.get("emaciated_service_seen", false)) and not bool(dialogue.get("marks_umbra_warning_seen", false)):
-				return service
-			(dialogue["lines"] as Array).append(service["lines"][0])
-			return dialogue
+			return _emaciated_man_dialogue(npc, room, run_state, progression)
 		"scavenger":
 			return _default_npc_dialogue(npc, room, run_state, progression)
 		_:
@@ -62,6 +57,16 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dicti
 	var npc_def: Dictionary = GameData.npc_def(npc_id)
 	var speaker: String = str(npc_def.get("name", npc.get("name", "Emaciated Man")))
 	var run_index: int = int(run_state.get("run_index", progression.get("run_counter", 0)))
+	if ProgressionStore.emaciated_awakening_is_due(progression):
+		return {
+			"id": "emaciated_awakening", "npc_id": npc_id, "speaker": speaker,
+			"accent": str(npc_def.get("accent", "#b8aa90")), "marks_emaciated_awakening_seen": true,
+			"lines": [
+				{"speaker": speaker, "text": "A dragon has fallen. I felt it... and so did the Shard you carried away."},
+				{"speaker": speaker, "text": "That cast-off scale remembers the fire that made it. Let me wake it, and its power will kindle Embers of your own."},
+				{"speaker": speaker, "text": "When you are ready, ask me to awaken your power. I can trade your Moltshards for Embers, then use those Embers to strengthen you."}
+			]
+		}
 	if ProgressionStore.umbra_warning_is_due(progression, run_index):
 		return {
 			"id": "room_%d_%d_%s_umbra_warning" % [int(room.get("coord", Vector2i.ZERO).x), int(room.get("coord", Vector2i.ZERO).y), npc_id],
@@ -115,7 +120,7 @@ func emaciated_service_dialogue(progression: Dictionary, notice: String = "") ->
 	var cost: int = ProgressionStore.next_level_cost(progression)
 	var maximum: bool = ProgressionStore.is_max_level(progression)
 	var summary: String = "%d %s · %d Embers · Level %d" % [shards, "Moltshard" if shards == 1 else "Moltshards", int(progression.get("embers", 0)), int(progression.get("level", 1))]
-	var speech: String = "A dragon's cast-off scale still holds power. I can turn it to Embers... or help you grow stronger."
+	var speech: String = "Awaken Power"
 	if not notice.is_empty(): speech = notice
 	return {"id":"emaciated_services", "npc_id":"emaciated_man", "speaker":"Emaciated Man", "accent":"#b8aa90", "lines":[{
 		"speaker":"Emaciated Man", "service":true, "text":"%s\n%s" % [speech, summary],

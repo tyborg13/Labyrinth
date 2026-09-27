@@ -207,10 +207,10 @@ Encounter calibration is also important:
   `0/0/1/1/2/2`. This keeps late fights viable without returning to multi-card
   health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
-  Tempest Breath holds a three-tile cardinal lane without advancing, while
-  advancing Storm Claw changes close-range pressure. Previewed marks and
-  conduction create route choices; movement safety depends on the current
-  conductor component, not only the printed target lane.
+  Overload snapshots the announced Electrified cells and resolves without
+  conduction, while advancing Storm Claw changes close-range pressure. Other
+  lightning attacks can conduct through connected surfaces, so movement safety
+  depends on each intent's announced geometry and conduction rules.
 - Large enemies use actor-level direct targeting: if any visible footprint tile
   satisfies an attack's range and line-of-sight rules, the full footprint
   accepts the click and resolves against the same actor. This is input
@@ -669,3 +669,57 @@ The scorer already values painted ground by ranged placement access separately
 from occupant damage and inherits the initiating attack's reach for Detonate;
 these coefficients remain unchanged. No additional Fire, forced contact or
 owned Gauntlet is assumed in intrinsic card scores.
+
+### Dragon feedback revision (`dragon_feedback_v2`)
+
+Base dragon HP and initiatives remain unchanged for the pressure prototype.
+Meteorfall adds five damaging marks and keeps Fire across the breath; Earth spreads
+four attackable spires and adds a small bite to setup. Bedrock Breath paints Rubble
+before Faultline consumes the spires, retaining terrain pressure across the first
+lane escape and rupture warning without changing either attack's numbers.
+At body distance three or more, its first spine prefers one legal diagonal
+approach flank before the unchanged spread score selects the other marks. The
+close-cycle placement, safety filters, four-HP clearing cost and reaction time
+remain unchanged. This affects whether an incidental boss Sweep clears the
+approach, not the intrinsic value assigned to that card.
+Mantle adds a physical pulse,
+and its remaining layers increase Shatterstorm's radius until cheap hits remove
+them. Air replaces repeated crescents with a swept dive and a safe-eye storm ring.
+Overload consumes only announced charges, while Noctyrax gives an actual relight
+window before Eclipse and replaces defeated Acolytes. These affect encounter
+pressure rather than intrinsic card scores and require fresh native-play studies.
+
+Whiteout Lance paints its entire two-wide lane, increasing persistent route/Chill
+pressure without changing direct damage. Newly summoned helpers act after the
+next queued player activation even if the summoner acts during a long card delay.
+Noctyrax braziers require player arrival to relight and do not reset automatically.
+Worldheart converts at most 2 leftover Block per turn (previously 6): enough to
+retain a small defensive investment and generate a 1-damage adjacent pulse,
+without making an ordinary Block card a full persistent heal. Its other Stoneskin
+pulse remains half the actual gain, rounded down, capped at 4.
+
+Gust Step now Moves 1 before its 3-damage, range-2 Pull 2. It uses the normal single
+enemy movement/attack shortcut or deliberate movement-only ground selection. This
+trades post-pull escape for approach reach; Time remains 4. Printed score before
+reordering was 2.61; after is 2.71, still ordinary common-card strength. Prepared-terrain and trophy value remain encounter-specific
+manual assessments, excluded from intrinsic card coefficients.
+
+
+### Dragon trophy Time and relay context
+
+Winter's Hourglass banks 3 Time after the first Ice card of an activation, capped
+at 3. Subsequent non-Ice cards spend only the reserve needed to lower their paid
+Time to a minimum of 1; unused reserve persists within combat. This yields at
+most 3 Time saved per activation after the initial bank, needs mixed-element
+sequencing, and provides no extra plays, damage, or Ice-card discount. A free
+Borrowed Time play preserves the reserve. The owned trophy is excluded from
+intrinsic printed-card scores, as are other conditional relic synergies.
+
+Stormroad Coil extends a single-target ranged attack through one visible
+Electrified tile. Both legs obey printed range and ordinary line of sight; the
+target is visible, direct legal contact is preferred, and the route is stable.
+Its geometric upper bound is twice printed range, with no damage multiplier or
+unbounded relay network. Intrinsic Chain/conduction may still resolve normally
+from the selected target. This is conditional reach context, not a global range
+coefficient. The scorer exposes both contracts in `dragon_feedback_rules` under
+`--show-assumptions`; ordinary card scores remain unchanged.

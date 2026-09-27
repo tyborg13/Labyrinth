@@ -225,8 +225,8 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/gale_force.png" % ICON_ROOT
 	},
 	"frost_armor": {
-		"label": "Crystal Armor",
-		"description": "Forms armor whose layers break one hit at a time.",
+		"label": "Crystal Mantle",
+		"description": "Each layer prevents one direct damaging hit, then breaks.",
 		"path": "%s/frost_armor.png" % ICON_ROOT
 	},
 	"guard_ally": {
@@ -924,7 +924,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", "Pushes the player away from the dragon through arena hazards."))
 		"frost_armor":
-			tokens.append(_token_for_action_field(action, "freeze", "amount", int(action.get("amount", 0)), "neutral", "Forms crystal armor. Each damaging hit breaks one layer instead of dealing damage."))
+			tokens.append(_token_for_action_field(action,"frost_armor","amount",int(action.get("amount",0)),"neutral","Forms Crystal Mantle. Each direct damaging hit breaks one layer and prevents its damage; ground and damage over time bypass it."))
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
@@ -1133,11 +1133,28 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 	var row: Array = []
 	var shape: String = str(action.get("committed_shape", action.get("guardian_shape", "")))
+	if shape == "ring":
+		var low: int = int(action.get("minimum_range",1))
+		var high: int = int(action.get("range",1))
+		row.append(text_token("Ring %d–%d" % [low,high] if low != high else "Ring %d" % high,"warning","Distance is measured from the nearest occupied dragon tile."))
+		if low > 1: row.append(text_token("· Safe within %d" % (low-1),"neutral","The storm leaves the inner area clear. Other attacks can still hit."))
+		elif action.has("range_status"): row.append(text_token("· Mantle fuels range","warning","Each remaining Mantle layer adds 1 range, up to 3. Break layers before Shatterstorm to shrink its threat; it consumes all remaining layers."))
+		_append_brazier_rule(row,action)
+		return row
+	if shape == "swept_path":
+		row.append(text_token("Along approach +%d" % int(action.get("range",1)),"warning","Hits the shown approach path and every tile within this distance of the dragon's swept body, including where it started. The approach direction stays fixed."))
+		_append_brazier_rule(row,action)
+		return row
+	if shape == "surface_snapshot":
+		row.append(surface_token(str(action.get("snapshot_surface","electrified"))))
+		row.append(text_token("Marked tiles · consumed","warning","Hits only the ground marked when this intent was announced, then removes those charges. Later Electrified tiles are not added."))
+		_append_brazier_rule(row,action)
+		return row
 	if action.has("pattern_footprint") and not shape.is_empty():
 		var pattern: Array = []
 		var reach: int = int(action.get("range", 1))
 		for distance: int in range(1, reach + 1):
-			var flank: int = distance - 1 if shape == "fan" else 1 if shape == "crescent" else int(action.get("pattern_flank", 0))
+			var flank: int = maxi(distance - 1, int(action.get("pattern_min_flank",0))) if shape == "fan" else 1 if shape == "crescent" else int(action.get("pattern_flank", 0))
 			for lane: int in range(-flank, 2 + flank): pattern.append([lane, -distance])
 		if shape == "crescent":
 			for row_index: int in [0, 1]:
@@ -1145,6 +1162,7 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 				pattern.append([2, row_index])
 		row.append(_aoe_pattern_token({"pattern": pattern, "range": 0}))
 		row.append(text_token("Fixed direction", "warning", "The shown approach and direction stay fixed. Displacing the dragon shifts the pattern with it."))
+		_append_brazier_rule(row,action)
 		return row
 	match shape:
 		"line", "broken_line", "sweep":
@@ -1167,6 +1185,19 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		if action.has(field):
 			row.append(surface_token(str(action[field])))
 			row.append(text_token("Trail" if field=="trail_surface" else "At lane end"))
-	if bool(action.get("snuff_brazier",false)):
-		row.append(text_token("Marked brazier goes dark", "warning", "The marked refuge goes dark before damage. Braziers relight after Night Coil." if str(action.get("type","")) == "umbra_eclipse" else "Lasts until Last Procession, including a skipped turn."))
+	_append_brazier_rule(row,action)
 	return row
+
+static func _append_brazier_rule(row: Array, action: Dictionary) -> void:
+	if bool(action.get("snuff_brazier",false)):
+		var label: String = "Snuff before hit" if str(action.get("type",""))=="umbra_eclipse" else "Snuff refuge"
+		row.append(text_token(label if row.is_empty() else "· "+label,"warning",brazier_rule_tooltip(action)))
+
+static func brazier_rule_tooltip(action: Dictionary) -> String:
+	# Saved first-revision Eclipse still snuffs immediately before its damage.
+	# Dispatch on the verb so it cannot inherit the Guardian's recovery rule.
+	if str(action.get("type",""))=="umbra_eclipse":
+		return "The marked brazier goes dark before this Eclipse hits. Use another Light source for protection."
+	if action.has("committed_shape"):
+		return "Night Coil extinguishes the marked brazier. Step onto its tile afterward to relight it before Eclipse."
+	return "Lasts until Last Procession, including a skipped turn."

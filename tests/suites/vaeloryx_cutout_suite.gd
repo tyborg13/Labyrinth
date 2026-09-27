@@ -139,7 +139,13 @@ static func _verify_motion(renderer: Node, expect: Callable) -> void:
 				var actual: Transform2D = _world(pose, layout, name)
 				var neutral: Transform2D = _world(rest, layout, name)
 				expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Idle does not ripple any wing/body/claw basis")
-				expect.call((actual.origin - neutral.origin).is_equal_approx(offset), "Every idle part shares one coherent hover translation")
+				expect.call(absf(actual.origin.x-neutral.origin.x) < 0.001 and actual.origin.distance_to(neutral.origin) <= 3.01, "Idle articulation stays bounded and vertical")
+			var body_offset: Vector2 = _world(pose,layout,"body").origin-_world(rest,layout,"body").origin
+			expect.call(body_offset.is_equal_approx(offset), "Body retains its coordinated hover amplitude")
+			if index == 12:
+				var head_offset: Vector2 = _world(pose,layout,"head").origin-_world(rest,layout,"head").origin
+				var tail_offset: Vector2 = _world(pose,layout,"tail_tip").origin-_world(rest,layout,"tail_tip").origin
+				expect.call(head_offset.y < body_offset.y and tail_offset.y > body_offset.y, "Head and tail articulate rather than translating the whole painting")
 		for clip: String in ["walk", "dive", "gale", "pull", "guard"]:
 			for index: int in range(49):
 				var pose: Dictionary = Cutout.Motion.sample_pose(clip, float(index) / 48.0, layout, facing)

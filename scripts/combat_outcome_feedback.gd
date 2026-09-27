@@ -7,6 +7,7 @@ const INVALID := Vector2i(-1,-1)
 
 static func element(event: Dictionary) -> String:
 	match str(event.get("kind", "")):
+		"crystal_mantle_broken": return "ice"
 		"terrain_created": return "earth"
 		"surface_conducted": return "lightning"
 		"surface_created", "surface_replaced", "surface_damage", "status_applied":
@@ -22,7 +23,9 @@ static func prepare(events: Array, primary: Dictionary = {}) -> Array[Dictionary
 	# The primary projectile/area renderer places its elemental core at `to`.
 	# Conduction and painted area cells beyond that center need their own impact.
 	var primary_tiles: Array = []
-	if Fx.uses_authored_elemental_attack(primary) and primary.has("to"): primary_tiles.append(primary["to"])
+	if preload("res://scripts/dragon_presentation.gd").area_fx(primary):
+		primary_tiles.append_array(preload("res://scripts/dragon_presentation.gd").tiles(primary))
+	elif Fx.uses_authored_elemental_attack(primary) and primary.has("to"): primary_tiles.append(primary["to"])
 	for original: Dictionary in events:
 		var event: Dictionary = original.duplicate(true)
 		var id: String = element(event)

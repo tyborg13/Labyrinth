@@ -55,7 +55,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var recovered: Dictionary = board.lightning_wisp_animation_snapshot("enemy_1")
 	expect.call(recovered["clip"] == "idle" and recovered["facing"] == "front" and recovered["mirrored"], "A completed attack immediately resumes player-facing idle")
 	var renderer: Node = (board.get("_lightning_wisp_renderers") as Dictionary)["enemy_1"]
-	_verify_rigid_idle(renderer, expect)
+	_verify_articulated_idle(renderer, expect)
 	renderer.call("present", {"clip": "walk", "phase": 2.25}, false)
 	expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), 0.25), "Distance-driven walking wraps across complete cycles")
 	renderer.call("present", {"clip": "attack", "phase": .42}, false)
@@ -130,7 +130,7 @@ static func fixture_state() -> Dictionary:
 			{"id": 2, "type": "lightning_wisp", "pos": Vector2i(5, 5), "hp": 6, "max_hp": 6},
 			{"id": 3, "type": "crawler", "pos": Vector2i(6, 6), "hp": 9, "max_hp": 9}]}
 
-static func _verify_rigid_idle(renderer: Node, expect: Callable) -> void:
+static func _verify_articulated_idle(renderer: Node, expect: Callable) -> void:
 	for facing: String in ["front", "rear"]:
 		var rig: Node2D = (renderer.get("rigs") as Dictionary)[facing]
 		rig.call("apply_pose", "rest", 0.0)
@@ -146,8 +146,12 @@ static func _verify_rigid_idle(renderer: Node, expect: Callable) -> void:
 				var actual: Transform2D = (rig.bones[name] as Node2D).global_transform
 				var neutral: Transform2D = rest[name]
 				expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Hover preserves every bone basis without surface ripple: " + facing + "/" + name)
-				var offset: Vector2 = Vector2.ZERO if name == "root" else core_offset
-				expect.call((actual.origin - neutral.origin).distance_to(offset) < .0001, "The complete electrical envelope hovers as one body: " + facing + "/" + name)
+				if name == "root":
+					expect.call(actual.is_equal_approx(neutral), "Hover keeps its board anchor fixed")
+				else:
+					expect.call(actual.origin.distance_to(neutral.origin) <= 3.81, "Every branch has a restrained shared-phase idle displacement")
+					if index == 12 and name != "core":
+						expect.call((actual.origin-neutral.origin).distance_to(core_offset) > 0.5, "Electrical branches articulate independently of the core translation")
 		expect.call(absf(lowest + 2.4) < .0001, "The coherent hover has 2.4 source-pixel amplitude")
 		rig.call("apply_pose", "attack", .42)
 		var offset: Vector2 = (rig.bones["core"] as Node2D).position - Cutout.Motion._bind(rig.layout, "core")

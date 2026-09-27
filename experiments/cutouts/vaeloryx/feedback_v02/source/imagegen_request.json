@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "transparent reference edit",
+  "reference_images": [
+    "assets/units/vaeloryx_cutout/front/rest.png",
+    "assets/units/vaeloryx_cutout/rear/rest.png"
+  ],
+  "selected": "source/rear_corrected_generated.png",
+  "rejected": "source/rear_shoulders_generated.png",
+  "rejection_reason": "First edit retained the obscured head and visually ambiguous upper wing attachment.",
+  "prompt": "Create a corrected REAR three-quarter view of this specific wind dragon game cutout, facing upper-right away from camera. Image 1 is the accepted front character identity and proportions; Image 2 is the flawed rear painting to replace. Anatomical correction required: TWO bat wings must originate at the SAME shoulder girdle on the upper back, one on each side of the spine, immediately BEHIND the two forearms. Both wings have visible short upper-arm roots flowing upward into raised wing wrists. The old left wing appears to grow from the waist, and the right wing obscures/merges with the neck and head: correct both. The small narrow dragon HEAD AND SNOUT should be clearly visible at upper right, separated from the near wing's edge, with long elegant feathered neck leading down into the shoulder girdle. Both wings remain large swept upright teal membranes with ivory filigree, but leave visual breathing room around the head. Retain this slender serpentine teal-and-ivory wind dragon's long curled feathery tail, dangling foreclaws and small rear leg, elegant curved silhouette, fine painterly outlined sprite technique, cream highlights. The viewer sees the back of the torso and neck; no front belly/chest presentation. Whole dragon must fit square transparent canvas, no ground, no cast shadow, no checkerboard, no text. A coherent whole creature, not a parts sheet.",
+  "rejected_prompt": "Use case: precise-object-edit. Asset: rear three-quarter view cutout of the teal and ivory serpentine wind dragon Vaeloryx, from the attached art. Correct only the wing attachment anatomy: both wings must visibly emerge from the upper back/shoulder girdle beside the base of the neck, ABOVE the forearms, with short muscular wing upper-arms leading up/out toward the raised wing wrists. The current image's left wing seems to grow from the lower waist; repair that. Retain the same head looking up-right, curled long teal feathered tail, exact framing, limb placement, ivory filigree membranes, colors, fine hand-painted game sprite style, and the two wings' outer silhouette as much as possible. Clearly distinct wing shoulder joints with hidden overlapping tissue suitable for skeletal cutout animation. Do not move head or tail, do not add legs, do not add props, do not add shadows. Full dragon centered on actual transparent background; no checkerboard, text, or panel labels. Single coherent finished rear view, not a parts atlas.",
+  "sha256": {
+    "source/rear_corrected_generated.png": "6b1b7aafb273d572679680e5a510e9e917e993af5a1e93094f505aacff7b179f",
+    "source/rear_shoulders_generated.png": "d4d6d9d0989400e76aebb098cf9db6fc0d888a8b4174f703ca80674429656d7d",
+    "source/rear_corrected_registered.png": "6474f940e16b072ae201e1726f1d8d03272ba5f080aa26818693f059aab6ce18",
+    "source/rear_ownership.json": "675411cd98ab021115304b3abc1657472907da782b00391b31d46ec5f1168580",
+    "source/rear_skin_recipe.json": "757061c20358550fe946bbef929614cd0a4453552c2b1092e3df643867637d10"
+  }
+}

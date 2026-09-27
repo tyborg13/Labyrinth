@@ -1144,7 +1144,10 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	_ensure_time_badge()
 	var time_cost: int = maxi(1, int(card.get("time", 5)))
 	_time_badge.visible = time_cost > 0
-	_time_badge.setup(time_cost, "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost])
+	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
+	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",time_cost)) - time_cost)
+	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
+	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 
 func _position_time_badge() -> void:

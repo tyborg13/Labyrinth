@@ -109,10 +109,12 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(board.tharokh_animation_snapshot("enemy_2")["texture_id"] == second["texture_id"], "Removing one actor preserves the other's renderer")
 	var definition: Dictionary = GameData.enemy_def("tharokh")
 	expect.call(int(definition["max_hp"]) == 64 and int(definition["base_initiative"]) == 15 and int(definition["reward_embers"]) == 80, "Production presentation preserves Tharokh combat data")
-	expect.call(not Cutout.uses_attack({"kind": "ranged"}, {"type": "tharokh"}) and not Cutout.uses_attack({"kind": "melee"}, {"type": "crawler"}), "Routing excludes unrelated attacks and enemy types")
+	expect.call(Cutout.uses_attack({"kind": "ranged", "intent_id": "bedrock_breath"}, {"type": "tharokh"}) and Cutout.action_clip({"kind": "ranged", "intent_id": "bedrock_breath"}, {"type": "tharokh"}) == "breath", "Tharokh routes a direct Bedrock Breath into its mouth gesture")
+	expect.call(not Cutout.uses_attack({"kind": "intent"}, {"type": "tharokh"}) and not Cutout.uses_attack({"kind": "melee"}, {"type": "crawler"}), "Tharokh routing excludes non-actions and unrelated enemy types")
 	expect.call(int(definition["footprint"][0]) == 2 and int(definition["footprint"][1]) == 2 and bool(definition["boss_bar"]), "The boss retains its 2x2 footprint and boss bar")
 	expect.call(Cutout.action_clip({"kind": "status", "action_type": "raise_terrain"}, {"type": "tharokh"}) == "brace", "Stonewake/Aegis terrain raising selects a grounded brace")
 	expect.call(Cutout.action_clip({"kind": "aoe", "action_type": "terrain_burst"}, {"type": "tharokh"}) == "faultline", "Faultline retains its terrain area family and stamp")
+	expect.call(Cutout.action_clip({"kind": "aoe", "action_type": "aoe", "intent_id":"bedrock_breath"}, {"type": "tharokh"}) == "breath", "A committed Bedrock Breath retains its mouth gesture despite generic AoE transport")
 	expect.call(Cutout.action_clip({"kind": "stoneskin"}, {"type": "tharokh"}).is_empty(), "Non-attack armor gain keeps its normal status presentation")
 	board.queue_free()
 	await tree.process_frame
@@ -168,11 +170,11 @@ static func _verify_dragon_contacts(renderer: Node, expect: Callable) -> void:
 				expect.call(transform.origin.distance_to(state["target"]) < 0.0001, "Projected dragon foot reaches its grounded/swing target")
 				expect.call(absf(transform.x.length()-1.0) < 0.0001 and absf(transform.y.length()-1.0) < 0.0001 and absf(transform.x.dot(transform.y)) < 0.0001, "Crawl preserves rigid claw width and basis")
 			expect.call(support_count >= 3, "The massive dragon always has at least three crawl contacts")
-		for clip: String in ["claw", "brace", "faultline"]:
+		for clip: String in ["claw", "brace", "faultline", "breath"]:
 			for phase: float in [0.0, 0.32, 0.42, 0.55, 0.65, 1.0]:
 				var pose: Dictionary = Cutout.Motion.sample_pose(clip, phase, layout, facing)
 				for leg: String in Cutout.Motion.LEGS:
-					if leg == "fore_near" and clip != "brace":
+					if leg == "fore_near" and clip in ["claw", "faultline"]:
 						continue
 					var foot: String = "claw_" + leg
 					expect.call(Cutout.Motion._world(pose, layout, foot).origin.distance_to(Cutout.Motion._point(layout, foot)) < 0.0001, "Attack weight shift preserves supporting claw contacts")

@@ -1,0 +1,31 @@
+{
+  "attempts": [
+    {
+      "accepted": false,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "Godot exited with code 1",
+      "images": [
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_escaped_intent.png",
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_miss_aoe_impact.png",
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_miss_aoe_prepare.png",
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_miss_aoe_release.png",
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_miss_reduced.png",
+        "/private/tmp/labyrinth-godot-home/dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/Library/Application Support/Escape the Umbra Visual Probe dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1/probes/dragon_presentation_feedback/vyraketh_fan_shoulders_intent.png"
+      ],
+      "namespace": "dragon-presentation-fan-01-1790526454724219000-22350-dragon_presentation_feed-1",
+      "returncode": 1
+    }
+  ],
+  "error": "Godot exited with code 1",
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [],
+  "ok": false,
+  "proof_contract": "",
+  "script": "tests/dragon_presentation_feedback_probe.gd"
+}

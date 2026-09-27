@@ -49,10 +49,11 @@ func _run() -> void:
 		expect(button != null and button.is_visible_in_tree(), "Continue is visible")
 		if button != null:
 			button.pressed.emit()
-			await process_frame
+			while bool(scene.get("_relic_claim_in_progress")): await process_frame
 			expect(str((scene.get("_run_state") as Dictionary).get("mode", "")) == ("victory" if id == "noctyrax" else "room"), "Continue reaches intended destination")
 	var profile: Dictionary = Store.default_data()
 	profile["moltshards"] = 2
+	profile[Store.EMACIATED_AWAKENING_SEEN_KEY] = true
 	profile["embers"] = 100
 	profile["run_counter"] = 9
 	profile["contextual_combat_tutorial"] = {"completed":true, "dismissed":true}
@@ -82,14 +83,14 @@ func _run() -> void:
 	await _capture("entrance_service_reopen")
 	expect(not (scene.get("_large_map_scrim") as Control).visible, "Reopen proof shows the entrance after closing its map")
 	var service_choices: Control = scene.get("_context_choice_bar")
-	expect(service_choices.is_visible_in_tree() and service_choices.get_child_count() == 1, "Entrance has one visible Speak action")
+	expect(service_choices.is_visible_in_tree() and service_choices.get_child_count() == 2, "Entrance separates Speak from Awaken Power")
 	var npc_tile: Vector2i = scene.call("_emaciated_service_tile")
 	var npc_candidate: Dictionary = scene.call("_controller_candidate_for_tile", npc_tile)
 	expect(str(npc_candidate.get("kind", "")) == "npc" and (scene.call("_controller_board_tiles") as Array).has(npc_tile), "Controller can navigate to the entrance service NPC")
 	scene.set("_controller_focus_candidate", npc_candidate)
 	scene.call("_controller_activate_current")
 	await process_frame
-	expect(bool(scene.get("_dialogue_active")), "Controller activation reopens the service")
+	expect(bool(scene.get("_dialogue_active")), "Controller activation speaks to the NPC")
 	scene.call("_close_dialogue")
 	# Fresh live-HUD proofs for the two layering fixes.
 	for id: String in ["zekarion", "noctyrax"]:

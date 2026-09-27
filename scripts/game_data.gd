@@ -1,9 +1,11 @@
 extends RefCounted
 class_name GameData
 
+const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
+
 const ElementData = preload("res://scripts/element_data.gd")
 
-const BALANCE_REVISION: String = "dragon_milestones_v1"
+const BALANCE_REVISION: String = "dragon_feedback_v2"
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
@@ -130,6 +132,7 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	var card: Dictionary = _raw_card_def(card_id)
 	card = _scale_card_fixed_point(card)
 	card = _apply_relic_card_effects(card, progression.get("relics", []))
+	card = DragonTrophyRules.card_with_time_reserve(card, progression, relic_effects_for_ids(progression.get("relics", [])))
 	card = _tag_card_actions_for_combat(card)
 	return card
 

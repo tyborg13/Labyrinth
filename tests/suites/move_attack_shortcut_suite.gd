@@ -24,6 +24,7 @@ static func run(expect: Callable) -> void:
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await _test_live_single_click_sequence(tree, expect, "gust_step", "clear", Vector2i(5, 4), "Gust Step must move and pull from one selected enemy without a second target or direction click")
 	await _test_live_single_click_sequence(tree, expect, "slipstream_cut", "clear", Vector2i(5, 4), "Move-melee-push shortcuts should choose their previewed default push direction without another click")
 	await _test_live_single_click_sequence(tree, expect, "sidestep_slash", "heart", Vector2i(4, 4), "Visible move-melee targets should retain one-click shortcuts under Umbra")
 
@@ -80,9 +81,9 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			covered_melee_cards += 1
 		run_scene.free()
 
-	expect.call(covered_card_ids.size() == 15, "Current card data should expose all 15 move-then-attack cards to shortcut coverage")
+	expect.call(covered_card_ids.size() == 16, "Current card data should expose all 16 move-then-attack cards to shortcut coverage")
 	expect.call(covered_melee_cards == 12, "Current card data should expose all 12 move-then-melee cards to prepared-runtime shortcut coverage")
-	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push"]), "Combined movement cards should only use adjacent melee or push follow-ups")
+	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push", "pull"]), "Combined movement cards use melee or directed displacement follow-ups")
 
 
 static func _test_move_only_card_does_not_build_enemy_shortcut(expect: Callable) -> void:
@@ -122,12 +123,12 @@ static func _test_every_card_has_one_player_target_decision(expect: Callable) ->
 				targeted_indices.append(action_index)
 		expect.call(not (has_movement and has_ranged_attack) or card_id == "gust_step", "%s must deliberately declare any ranged displacement then movement sequence" % card_id)
 		expect.call(targeted_indices.size() <= 2, "%s should never expose more than one combined target decision" % card_id)
-		if targeted_indices.size() == 2 and card_id != "gust_step":
+		if targeted_indices.size() == 2:
 			var move_action: Dictionary = actions[targeted_indices[0]] as Dictionary
 			var attack_action: Dictionary = actions[targeted_indices[1]] as Dictionary
 			expect.call(str(move_action.get("type", "")) == "move", "%s multi-action targeting should start with ordinary movement" % card_id)
-			expect.call(str(attack_action.get("type", "")) in ["melee", "push"] and int(attack_action.get("range", 0)) == 1, "%s multi-action targeting should finish with one adjacent enemy click" % card_id)
-			expect.call(bool(attack_action.get("required", false)), "%s enemy shortcut should commit its adjacent follow-up attack when the enemy is selected" % card_id)
+			expect.call(str(attack_action.get("type", "")) in ["melee", "push", "pull"] and (int(attack_action.get("range", 0)) == 1 or str(attack_action.get("type", "")) == "pull"), "%s multi-action targeting should finish with one enemy click" % card_id)
+			expect.call(bool(attack_action.get("required", false)), "%s enemy shortcut should commit its follow-up attack when the enemy is selected" % card_id)
 		if bool(card.get("flurry", false)):
 			var state: Dictionary = _combat_state(combat, card_id, Vector2i(8, PLAYER_START.y), 86000 + card_id.hash())
 			state["cards_played_this_turn"] = 0

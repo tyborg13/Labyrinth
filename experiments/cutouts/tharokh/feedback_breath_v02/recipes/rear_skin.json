@@ -1,0 +1,190 @@
+{
+  "facing": "rear",
+  "input_layout": "layouts/rear.json",
+  "output_layout": "layouts/rear_skinned.json",
+  "fields": [
+    {
+      "name": "rear_fore_near",
+      "parts": [
+        "fore_near"
+      ],
+      "bones": [
+        "upper_fore_near",
+        "lower_fore_near",
+        "claw_fore_near"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            180,
+            149
+          ],
+          "axis": [
+            48,
+            41
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            207,
+            168
+          ],
+          "axis": [
+            27,
+            19
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_fore_far",
+      "parts": [
+        "fore_far"
+      ],
+      "bones": [
+        "upper_fore_far",
+        "lower_fore_far",
+        "claw_fore_far"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            108,
+            161
+          ],
+          "axis": [
+            -16,
+            26
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            97,
+            175
+          ],
+          "axis": [
+            -11,
+            14
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_hind_near",
+      "parts": [
+        "hind_near"
+      ],
+      "bones": [
+        "upper_hind_near",
+        "lower_hind_near",
+        "claw_hind_near"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            145,
+            172
+          ],
+          "axis": [
+            22,
+            34
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            158,
+            189
+          ],
+          "axis": [
+            13,
+            17
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_hind_far",
+      "parts": [
+        "hind_far"
+      ],
+      "bones": [
+        "upper_hind_far",
+        "lower_hind_far",
+        "claw_hind_far"
+      ],
+      "grid": [
+        2,
+        2
+      ],
+      "bands": [
+        {
+          "center": [
+            78,
+            164
+          ],
+          "axis": [
+            -2,
+            25
+          ],
+          "width": 12
+        },
+        {
+          "center": [
+            77,
+            175
+          ],
+          "axis": [
+            -1,
+            11
+          ],
+          "width": 8
+        }
+      ]
+    },
+    {
+      "name": "rear_tail",
+      "parts": [
+        "tail"
+      ],
+      "bones": [
+        "tail_base",
+        "tail_tip"
+      ],
+      "grid": [
+        3,
+        3
+      ],
+      "bands": [
+        {
+          "center": [
+            80,
+            208
+          ],
+          "axis": [
+            1,
+            0.5
+          ],
+          "width": 42
+        }
+      ]
+    }
+  ]
+}

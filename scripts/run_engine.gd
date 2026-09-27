@@ -1938,6 +1938,9 @@ func _repair_pending_combat_checkpoints(run_state: Dictionary) -> Dictionary:
 	return next_state
 
 func can_use_emaciated_services(run_state: Dictionary) -> bool:
+	return can_speak_to_emaciated_man(run_state) and ProgressionStore.emaciated_services_unlocked(run_state.get("progression", {}) as Dictionary)
+
+func can_speak_to_emaciated_man(run_state: Dictionary) -> bool:
 	if str(run_state.get("mode", "")) != "room": return false
 	var room: Dictionary = room_metadata(run_state, run_state.get("current_room", Vector2i.ZERO))
 	if str(room.get("type", "")) != "start": return false

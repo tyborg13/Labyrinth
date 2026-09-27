@@ -55,7 +55,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var recovered: Dictionary = board.zekarion_animation_snapshot("enemy_1")
 	expect.call(recovered["clip"] == "idle" and recovered["facing"] == "front" and recovered["mirrored"], "A completed attack immediately resumes player-facing idle")
 	var renderer: Node = (board.get("_zekarion_renderers") as Dictionary)["enemy_1"]
-	_verify_rigid_idle(renderer, expect)
+	_verify_supported_idle(renderer, expect)
 	renderer.call("present", {"clip": "walk", "phase": 2.25}, false)
 	expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), 0.25), "Distance-driven walking wraps across complete cycles")
 	for contact: float in [0.42, 0.38]:
@@ -107,7 +107,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(board.zekarion_animation_snapshot("enemy_2")["texture_id"] == second["texture_id"], "Removing one actor preserves the other's renderer")
 	var definition: Dictionary = GameData.enemy_def("zekarion")
 	expect.call(int(definition["max_hp"]) == 60 and int(definition["base_initiative"]) == 14 and int(definition["reward_embers"]) == 80, "Production presentation preserves Zekarion combat data")
-	expect.call(not Cutout.uses_attack({"kind": "aoe"}, {"type": "zekarion"}) and not Cutout.uses_attack({"kind": "melee"}, {"type": "crawler"}), "Routing excludes unrelated attacks and enemy types")
+	expect.call(Cutout.uses_attack({"kind": "aoe", "intent_id": "tempest_breath"}, {"type": "zekarion"}) and Cutout.action_for_effect({"kind": "aoe", "intent_id": "tempest_breath"}) == "charge", "Committed Overload routes to its area-charge gesture")
+	expect.call(not Cutout.uses_attack({"kind": "intent"}, {"type": "zekarion"}) and not Cutout.uses_attack({"kind": "melee"}, {"type": "crawler"}), "Routing excludes non-actions and unrelated enemy types")
 	_verify_dragon_contract(definition, expect)
 	board.queue_free()
 	await tree.process_frame
@@ -128,7 +129,7 @@ static func fixture_state() -> Dictionary:
 			{"id": 2, "type": "zekarion", "pos": Vector2i(7, 7), "hp": 60, "max_hp": 60, "footprint":Vector2i(2,2), "boss_bar":true},
 			{"id": 3, "type": "crawler", "pos": Vector2i(2, 7), "hp": 9, "max_hp": 9}]}
 
-static func _verify_rigid_idle(renderer: Node, expect: Callable) -> void:
+static func _verify_supported_idle(renderer: Node, expect: Callable) -> void:
 	for facing: String in ["front", "rear"]:
 		var rig: Node2D = (renderer.get("rigs") as Dictionary)[facing]
 		var layout: Dictionary = rig.get("layout")
@@ -141,10 +142,14 @@ static func _verify_rigid_idle(renderer: Node, expect: Callable) -> void:
 			for name: String in layout["joints"]:
 				var actual: Transform2D = Cutout.Motion._world(pose, layout, name)
 				var neutral: Transform2D = Cutout.Motion._world(rest, layout, name)
-				expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Idle preserves every rigid bone basis without ripple: " + facing + "/" + name)
-				var fixed: bool = name == "root" or name.begins_with("thigh_") or name.begins_with("shin_") or name.begins_with("foot_") or name.begins_with("upper_") or name.begins_with("lower_") or name.begins_with("claw_") or name.begins_with("tail_")
-				var expected_offset: Vector2 = Vector2.ZERO if fixed else chest_offset
-				expect.call((actual.origin - neutral.origin).is_equal_approx(expected_offset), "Idle keeps legs planted while the complete upper body bobs together: " + facing + "/" + name)
+				expect.call(actual.is_finite(), "Idle support transforms remain finite")
+				if name in ["claw_near", "claw_far", "foot_near", "foot_far", "root"]:
+					expect.call(actual.is_equal_approx(neutral), "Terminal claws remain rigid and planted: " + facing + "/" + name)
+				elif name in ["upper_near", "upper_far", "thigh_near", "thigh_far"]:
+					expect.call((actual.origin-neutral.origin).is_equal_approx(chest_offset), "Limb roots follow their attached breathing trunk: " + facing + "/" + name)
+				elif name not in ["lower_near", "lower_far", "shin_near", "shin_far"]:
+					expect.call(actual.x.is_equal_approx(neutral.x) and actual.y.is_equal_approx(neutral.y), "Idle keeps non-support parts rigid")
+					expect.call((actual.origin-neutral.origin).is_equal_approx(chest_offset), "Non-support parts use one shared breathing phase")
 		expect.call(is_equal_approx(lowest, -1.2), "Idle retains the accepted 1.2 source-pixel bob in " + facing)
 
 static func _verify_dragon_contract(definition: Dictionary, expect: Callable) -> void:

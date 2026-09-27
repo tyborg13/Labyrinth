@@ -1,0 +1,49 @@
+{
+  "character": "vyraketh",
+  "paint_changed": false,
+  "motion_changed": false,
+  "facings": {
+    "front": {
+      "source_layout": "layouts/front_skinned_v2.json",
+      "limbs": {
+        "fore_far": {
+          "claw_paint_pixels": 582,
+          "reweighted_vertices": 107
+        },
+        "fore_near": {
+          "claw_paint_pixels": 745,
+          "reweighted_vertices": 218
+        },
+        "hind_far": {
+          "claw_paint_pixels": 211,
+          "reweighted_vertices": 194
+        },
+        "hind_near": {
+          "claw_paint_pixels": 432,
+          "reweighted_vertices": 207
+        }
+      }
+    },
+    "rear": {
+      "source_layout": "layouts/rear_skinned_v2.json",
+      "limbs": {
+        "fore_far": {
+          "claw_paint_pixels": 369,
+          "reweighted_vertices": 89
+        },
+        "fore_near": {
+          "claw_paint_pixels": 268,
+          "reweighted_vertices": 150
+        },
+        "hind_far": {
+          "claw_paint_pixels": 392,
+          "reweighted_vertices": 117
+        },
+        "hind_near": {
+          "claw_paint_pixels": 540,
+          "reweighted_vertices": 154
+        }
+      }
+    }
+  }
+}

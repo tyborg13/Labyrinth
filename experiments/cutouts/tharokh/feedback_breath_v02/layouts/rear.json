@@ -1,0 +1,349 @@
+{
+  "canvas_size": [
+    255,
+    255
+  ],
+  "facing": "rear",
+  "joints": {
+    "root": {
+      "position": [
+        127,
+        216
+      ],
+      "parent": null
+    },
+    "torso": {
+      "position": [
+        125,
+        135
+      ],
+      "parent": "root"
+    },
+    "neck": {
+      "position": [
+        158,
+        112
+      ],
+      "parent": "torso"
+    },
+    "head": {
+      "position": [
+        177,
+        104
+      ],
+      "parent": "neck"
+    },
+    "wing_near": {
+      "position": [
+        105,
+        106
+      ],
+      "parent": "torso"
+    },
+    "wing_far": {
+      "position": [
+        184,
+        93
+      ],
+      "parent": "torso"
+    },
+    "tail_base": {
+      "position": [
+        67,
+        150
+      ],
+      "parent": "torso"
+    },
+    "tail_tip": {
+      "position": [
+        80,
+        208
+      ],
+      "parent": "tail_base"
+    },
+    "upper_fore_near": {
+      "position": [
+        159,
+        127
+      ],
+      "parent": "torso"
+    },
+    "lower_fore_near": {
+      "position": [
+        180,
+        149
+      ],
+      "parent": "upper_fore_near"
+    },
+    "claw_fore_near": {
+      "position": [
+        207,
+        168
+      ],
+      "parent": "lower_fore_near"
+    },
+    "upper_fore_far": {
+      "position": [
+        113,
+        149
+      ],
+      "parent": "torso"
+    },
+    "lower_fore_far": {
+      "position": [
+        108,
+        161
+      ],
+      "parent": "upper_fore_far"
+    },
+    "claw_fore_far": {
+      "position": [
+        97,
+        175
+      ],
+      "parent": "lower_fore_far"
+    },
+    "upper_hind_near": {
+      "position": [
+        136,
+        155
+      ],
+      "parent": "torso"
+    },
+    "lower_hind_near": {
+      "position": [
+        145,
+        172
+      ],
+      "parent": "upper_hind_near"
+    },
+    "claw_hind_near": {
+      "position": [
+        158,
+        189
+      ],
+      "parent": "lower_hind_near"
+    },
+    "upper_hind_far": {
+      "position": [
+        79,
+        150
+      ],
+      "parent": "torso"
+    },
+    "lower_hind_far": {
+      "position": [
+        78,
+        164
+      ],
+      "parent": "upper_hind_far"
+    },
+    "claw_hind_far": {
+      "position": [
+        77,
+        175
+      ],
+      "parent": "lower_hind_far"
+    }
+  },
+  "parts": [
+    {
+      "name": "claw_fore_near",
+      "file": "segmented/rear/claw_fore_near.png",
+      "offset": [
+        184,
+        151
+      ],
+      "bone": "claw_fore_near",
+      "z_index": 4
+    },
+    {
+      "name": "claw_hind_near",
+      "file": "segmented/rear/claw_hind_near.png",
+      "offset": [
+        137,
+        175
+      ],
+      "bone": "claw_hind_near",
+      "z_index": 6
+    },
+    {
+      "name": "claw_fore_far",
+      "file": "segmented/rear/claw_fore_far.png",
+      "offset": [
+        82,
+        164
+      ],
+      "bone": "claw_fore_far",
+      "z_index": -5
+    },
+    {
+      "name": "claw_hind_far",
+      "file": "segmented/rear/claw_hind_far.png",
+      "offset": [
+        65,
+        162
+      ],
+      "bone": "claw_hind_far",
+      "z_index": -3
+    },
+    {
+      "name": "wing_near",
+      "file": "segmented/rear/wing_near.png",
+      "offset": [
+        17,
+        10
+      ],
+      "bone": "wing_near",
+      "z_index": 7
+    },
+    {
+      "name": "wing_far",
+      "file": "segmented/rear/wing_far.png",
+      "offset": [
+        146,
+        17
+      ],
+      "bone": "wing_far",
+      "z_index": -8
+    },
+    {
+      "name": "head",
+      "file": "segmented/rear/head.png",
+      "offset": [
+        130,
+        40
+      ],
+      "bone": "head",
+      "z_index": 2
+    },
+    {
+      "name": "fore_near",
+      "file": "segmented/rear/fore_near.png",
+      "offset": [
+        153,
+        117
+      ],
+      "bone": "upper_fore_near",
+      "z_index": 3
+    },
+    {
+      "name": "hind_near",
+      "file": "segmented/rear/hind_near.png",
+      "offset": [
+        118,
+        143
+      ],
+      "bone": "upper_hind_near",
+      "z_index": 5
+    },
+    {
+      "name": "tail",
+      "file": "segmented/rear/tail.png",
+      "offset": [
+        22,
+        135
+      ],
+      "bone": "tail_base",
+      "z_index": 8
+    },
+    {
+      "name": "fore_far",
+      "file": "segmented/rear/fore_far.png",
+      "offset": [
+        90,
+        145
+      ],
+      "bone": "upper_fore_far",
+      "z_index": -6
+    },
+    {
+      "name": "hind_far",
+      "file": "segmented/rear/hind_far.png",
+      "offset": [
+        64,
+        144
+      ],
+      "bone": "upper_hind_far",
+      "z_index": -4
+    },
+    {
+      "name": "neck",
+      "file": "segmented/rear/neck.png",
+      "offset": [
+        121,
+        92
+      ],
+      "bone": "neck",
+      "z_index": 1
+    },
+    {
+      "name": "torso",
+      "file": "segmented/rear/torso.png",
+      "offset": [
+        54,
+        92
+      ],
+      "bone": "torso",
+      "z_index": 0
+    },
+    {
+      "name": "body_under_fore_near",
+      "file": "assets/rear/body_under_fore_near.png",
+      "offset": [
+        154,
+        119
+      ],
+      "bone": "torso",
+      "z_index": -10
+    },
+    {
+      "name": "body_under_fore_far",
+      "file": "assets/rear/body_under_fore_far.png",
+      "offset": [
+        98,
+        146
+      ],
+      "bone": "torso",
+      "z_index": -10
+    },
+    {
+      "name": "body_under_hind_near",
+      "file": "assets/rear/body_under_hind_near.png",
+      "offset": [
+        122,
+        145
+      ],
+      "bone": "torso",
+      "z_index": -10
+    },
+    {
+      "name": "body_under_hind_far",
+      "file": "assets/rear/body_under_hind_far.png",
+      "offset": [
+        65,
+        145
+      ],
+      "bone": "torso",
+      "z_index": -10
+    }
+  ],
+  "landmarks": {
+    "sole_fore_near": [
+      218,
+      183
+    ],
+    "sole_fore_far": [
+      98,
+      188
+    ],
+    "sole_hind_near": [
+      163,
+      201
+    ],
+    "sole_hind_far": [
+      76,
+      183
+    ]
+  }
+}

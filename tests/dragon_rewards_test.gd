@@ -209,6 +209,7 @@ func _test_wallet_recovery() -> void:
 	var profile: Dictionary = Store.default_data()
 	profile["embers"] = 100
 	profile["moltshards"] = 3
+	profile[Store.EMACIATED_AWAKENING_SEEN_KEY] = true
 	profile["run_counter"] = 5
 	var original: Dictionary = engine.create_new_run(902, profile)
 	var id: String = Run.run_result_id(original)
@@ -313,9 +314,9 @@ func _test_relics() -> void:
 	state["player"]["pos"] = Vector2i(3,3)
 	state["player"]["block"] = 10
 	state = combat._trigger_activation_end_relics(state)
-	expect(int(state["player"]["block"]) == 4 and int(state["player"]["stoneskin"]) == 6 and int(state["enemies"][0]["hp"]) == 997, "Worldheart converts at most six Block and deals half to adjacent enemies")
+	expect(int(state["player"]["block"]) == 8 and int(state["player"]["stoneskin"]) == 2 and int(state["enemies"][0]["hp"]) == 999, "Worldheart converts at most two Block and deals half to adjacent enemies")
 	state = combat.apply_player_action(state, {"type":"stoneskin", "amount":20})
-	expect(int(state["enemies"][0]["hp"]) == 993, "Worldheart thorns cap at four damage per Stoneskin gain")
+	expect(int(state["enemies"][0]["hp"]) == 995, "Worldheart thorns cap at four damage per Stoneskin gain")
 	state = _relic_fixture(combat, ["unbound_pinion"])
 	state["player_movement_remaining"] = 0
 	state["enemies"][0]["pos"] = Vector2i(7,3)
@@ -338,20 +339,16 @@ func _test_relics() -> void:
 	state = combat.apply_player_action(state, {"type":"ranged", "damage":1, "range":5}, Vector2i(5,3))
 	expect(Surface.has_surface(state, Vector2i(5,3), "fire"), "Skipped elemental ground leaves Crowncoal available for another hit")
 	state = _relic_fixture(combat, ["winters_hour"])
-	Surface.place(state, Vector2i(4,3), "ice")
-	state = combat.surface_actor_arrival(state, "enemy", 1, Vector2i(4,2))
-	var plays: int = combat.cards_remaining_this_turn(state)
-	state = combat.apply_player_action(state, {"type":"ranged", "damage":1, "range":5, "element":"ice"}, Vector2i(4,3))
-	expect((state["deck"]["hand"] as Array).size() == 2 and combat.cards_remaining_this_turn(state) == plays + 1, "Winter's Hour rewards newly applied Freeze with two draws and one play")
+	state["deck"]["hand"] = ["rime_shard", "pale_spark"]
+	state = combat.finish_player_card(state,0)
+	expect(int(combat.card_def("pale_spark",state)["time"]) == 1, "Winter's Hourglass makes the next non-Ice card cheaper")
+	state = combat.finish_player_card(state,0)
+	expect(int(state["relic_time_reserve"]["winters_hour"]) == 1, "Winter's Hourglass spends only the needed Time")
 	state = _relic_fixture(combat, ["stormroad_coil"])
-	state = combat.apply_player_action(state, {"type":"move", "range":1}, Vector2i(3,3))
-	expect(Surface.has_surface(state, Vector2i(2,3), "electrified"), "Stormroad's first movement leaves a conductor at its origin")
-	Surface.place(state, Vector2i(4,3), "electrified")
-	Surface.place(state, Vector2i(5,3), "electrified")
-	state["enemies"].append(Base.enemy(2, Vector2i(5,3)))
-	plays = combat.cards_remaining_this_turn(state)
-	state = combat.apply_player_action(state, {"type":"ranged", "damage":1, "range":5, "element":"lightning"}, Vector2i(4,3))
-	expect((state["deck"]["hand"] as Array).size() == 1 and combat.cards_remaining_this_turn(state) == plays + 1, "Stormroad rewards conducting through two distinct tiles")
+	state["enemies"][0]["pos"] = Vector2i(6,3)
+	Surface.place(state,Vector2i(4,3),"electrified")
+	state = combat.apply_player_action(state,{"type":"ranged","range":2,"damage":3},Vector2i(6,3))
+	expect(int(state["enemies"][0]["hp"]) == 997 and Surface.has_surface(state,Vector2i(4,3),"electrified"), "Stormroad extends a ranged attack once through reusable Electrified ground")
 	state = _relic_fixture(combat, ["eclipse_mantle"])
 	state = combat.apply_player_action(state, {"type":"blink", "range":4}, Vector2i(3,4))
 	expect((state["illusions"] as Array).size() == 1 and int(state["illusions"][0]["hp"]) == 2 and state["illusions"][0]["pos"] == Vector2i(2,3), "Eclipse Mantle leaves a two-health decoy at the Blink origin")
@@ -371,7 +368,7 @@ func _test_worldheart_secondary_damage() -> void:
 	state = _relic_fixture(combat, ["worldheart"])
 	state["player"]["pos"] = Vector2i(3,3)
 	state["player"]["block"] = 6
-	state["enemies"][0]["hp"] = 3
+	state["enemies"][0]["hp"] = 1
 	var previous_context := {"actor_kind":"player", "source_kind":"direct_attack", "player_card":true, "card_id":"needle_thrust"}
 	state["damage_context"] = previous_context.duplicate(true)
 	state = combat._trigger_activation_end_relics(state)

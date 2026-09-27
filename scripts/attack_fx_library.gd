@@ -30,6 +30,10 @@ const ICE_ANTICIPATION_END_PROGRESS: float = 4.0 / 42.0
 const ICE_TRAVEL_END_PROGRESS: float = 14.0 / 42.0
 
 static func style_for_effect(effect: Dictionary) -> String:
+	var dragon: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
+	if str(dragon.get("geometry", "")) == "physical": return STYLE_DEFAULT
+	if str(dragon.get("geometry", "")) in ["breath", "ground", "meteor"]:
+		return {"fire":STYLE_FIREBALL,"earth":STYLE_EARTH_SPIKES,"air":STYLE_AIR_GUST,"lightning":STYLE_LIGHTNING_BOLT,"ice":STYLE_ICE_SHARDS}.get(str(dragon.get("element", "")),STYLE_DEFAULT)
 	var action_type: String = str(effect.get("action_type", effect.get("kind", "")))
 	var element_id: String = str(effect.get("element", effect.get("_card_element", "none")))
 	var kind: String = str(effect.get("kind", ""))

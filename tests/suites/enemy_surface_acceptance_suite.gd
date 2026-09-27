@@ -15,6 +15,7 @@ static func run(expect: Callable) -> void:
 	_test_crownfire_shared_denial(combat, expect)
 	_test_iskaldra_two_step_freeze(combat, expect)
 	_test_specialist_shock_fuel(combat, expect)
+	_test_overload_surface_denial(combat, expect)
 	_test_electrical_opponent_sets(combat, expect)
 	_test_eclipse_ground_and_air_cascade(combat, expect)
 
@@ -163,7 +164,7 @@ static func _test_iskaldra_two_step_freeze(combat: Combat, expect: Callable) -> 
 	expect.call(int(state["player"].get("freeze", 0)) == 0 and not bool(state["player"].get("chilled", false)), "Repeated Ice hits cannot immediately re-freeze through the skipped activation's protected contact window")
 
 static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> void:
-	for record: Array in [["lightning_wisp", "blinding_arc"], ["zekarion", "tempest_breath"]]:
+	for record: Array in [["lightning_wisp", "blinding_arc"]]:
 		var id: String = str(record[0])
 		var initial: Dictionary = _state(combat, id)
 		Ground.place(initial, Vector2i(2,3), "electrified")
@@ -174,6 +175,27 @@ static func _test_specialist_shock_fuel(combat: Combat, expect: Callable) -> voi
 		initial["player"]["pos"] = Vector2i(3,4)
 		var avoided: Dictionary = combat._resolve_enemy_action(initial, 0, attack)
 		expect.call(int(avoided["player"].get("shock", 0)) == 0 and int(avoided["player"]["hp"]) < 1000, "Leaving %s's conducting ground avoids Shock while its baseline attack remains threatening" % id)
+
+static func _test_overload_surface_denial(combat: Combat, expect: Callable) -> void:
+	var initial: Dictionary = _state(combat, "zekarion")
+	for tile: Vector2i in [Vector2i(2,3), Vector2i(3,3), Vector2i(7,5)]:
+		Ground.place(initial, tile, "electrified")
+	var intent: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, initial, 0, _intent(combat, "zekarion", "tempest_breath"))
+	initial["enemies"][0]["intent"] = intent
+	var attack: Dictionary = intent["actions"][0]
+	var warning: Array = combat.enemy_threat_tiles(initial, 0)["attack"]
+	expect.call(warning.size() == 3 and warning.has(Vector2i(2,3)) and warning.has(Vector2i(7,5)), "Overload announces occupied and disconnected Electrified cells before the player responds")
+	Ground.place(initial, Vector2i(3,4), "electrified")
+	var connected: Dictionary = combat._resolve_enemy_action(initial.duplicate(true), 0, attack)
+	expect.call(int(connected["player"]["hp"]) == 1000 - int(attack["damage"]) and int(connected["player"].get("shock", 0)) == 0, "Overload deals its printed hit once without the Wisp's Shock bonus")
+	expect.call(Ground.tiles(connected, "electrified") == [Vector2i(3,4)], "Overload consumes all surviving announced charges but leaves a later connected charge")
+	initial["player"]["pos"] = Vector2i(3,4)
+	var avoided: Dictionary = combat._resolve_enemy_action(initial.duplicate(true), 0, attack)
+	expect.call(not combat.enemy_threat_tiles(initial, 0)["attack"].has(Vector2i(3,4)) and int(avoided["player"]["hp"]) == 1000, "Moving onto a later connected charge avoids Overload without extending its held warning")
+	initial["player"]["pos"] = Vector2i(2,3)
+	Ground.place(initial, Vector2i(2,3), "ice")
+	var denied: Dictionary = combat._resolve_enemy_action(initial.duplicate(true), 0, attack)
+	expect.call(not combat.enemy_threat_tiles(initial, 0)["attack"].has(Vector2i(2,3)) and int(denied["player"]["hp"]) == 1000 and Ground.element_at(denied, Vector2i(2,3)) == "ice", "Replacing the player's announced charge cancels its Overload hit and preserves replacement Ice")
 
 static func _test_eclipse_ground_and_air_cascade(combat: Combat, expect: Callable) -> void:
 	var initial: Dictionary = _state(combat, "noctyrax")

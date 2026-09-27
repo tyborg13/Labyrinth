@@ -1,0 +1,53 @@
+{
+  "operation": "copy generated paint only; alpha constrained beneath original opaque limb owners",
+  "patches": [
+    {
+      "part": "body_under_fore_near",
+      "source": "source/front_underbody_registered.png",
+      "crop": [
+        129,
+        126,
+        160,
+        160
+      ],
+      "mask": "opaque original fore_near eroded 1px intersect 30x33px proximal ellipse",
+      "owner": "torso"
+    },
+    {
+      "part": "body_under_fore_far",
+      "source": "source/front_underbody_registered.png",
+      "crop": [
+        74,
+        132,
+        102,
+        163
+      ],
+      "mask": "opaque original fore_far eroded 1px intersect 30x33px proximal ellipse",
+      "owner": "torso"
+    },
+    {
+      "part": "body_under_hind_near",
+      "source": "source/front_underbody_registered.png",
+      "crop": [
+        166,
+        144,
+        195,
+        178
+      ],
+      "mask": "opaque original hind_near eroded 1px intersect 30x33px proximal ellipse",
+      "owner": "torso"
+    },
+    {
+      "part": "body_under_hind_far",
+      "source": "source/front_underbody_registered.png",
+      "crop": [
+        103,
+        159,
+        117,
+        176
+      ],
+      "mask": "opaque original hind_far eroded 1px intersect 30x33px proximal ellipse",
+      "owner": "torso"
+    }
+  ]
+}

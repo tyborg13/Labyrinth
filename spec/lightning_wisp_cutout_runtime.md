@@ -1,5 +1,7 @@
 # Lightning Wisp cutout in gameplay
 
+The 2026-09-27 playtest revision is authored in `experiments/cutouts/lightning_wisp/feedback_v02`, copied from the current production baseline. Current idle/art changes and their verification status are recorded in [the feedback cutout notes](../playtest/dragon_cutout_feedback_notes.md). Older `v01` evidence below describes the original integration; do not replay those historical builders over the current rig. Current encounter mechanics are specified in [dragon boss encounters](dragon_boss_encounters.md).
+
 Current travel cadence, floor registration and room fitting are specified in [Actor presentation](actor_presentation.md); the timings and offsets below describe the original integration.
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
@@ -20,7 +22,7 @@ Production owns `assets/units/lightning_wisp_cutout` and `scripts/lightning_wisp
 
 ## Motion and action boundaries
 
-Idle uses a 1.6-second coherent 2.4-source-pixel hover. Every painted bone keeps the same basis, scale and local orientation; only the complete core/envelope translates. Flight uses the existing `walk` routing name with 160:80 source travel per 0.48-second cycle, driven by actual projected route distance. It has no footsteps or pretend ground contacts.
+Idle uses one 1.6-second breathing phase and a 2.4-source-pixel core hover. The crown, tail and lateral arcs move relative to the core by 1.4px, 1.8px and 1.5px laterally/0.7px vertically, respectively. Existing branch-root skins preserve attachment and the core aperture remains rigid. Every painted bone keeps the same basis, scale and local orientation; no independently phased ripple is added. Flight uses the existing `walk` routing name with 160:80 source travel per 0.48-second cycle, driven by actual projected route distance. It has no footsteps or pretend ground contacts.
 
 Spark Dart takes 0.6 seconds: a short backward gathering pose precedes an 18:9-source-pixel dart at the existing 42% melee contact, then recovery. The legacy whole-sprite lunge is suppressed for this actor so motion is applied once. The existing melee result/effect path remains intact.
 

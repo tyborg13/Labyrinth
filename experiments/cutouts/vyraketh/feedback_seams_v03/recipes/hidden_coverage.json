@@ -1,0 +1,530 @@
+[
+  {
+    "facing": "front",
+    "part": "socket_fore_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      94,
+      139
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 163,
+    "sha256": "d965cf5ae13308362f3428db5391759397e95cf7c253cffc6e5b926628464548"
+  },
+  {
+    "facing": "front",
+    "part": "cap_fore_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      94,
+      139
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 185,
+    "sha256": "e97db7d7827af13832c949695ba69aea49eb9d4e0c51e7e694a73cdb6d9af378"
+  },
+  {
+    "facing": "front",
+    "part": "socket_fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      146,
+      142
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 168,
+    "sha256": "df695e1344278da091cb3b702e974d66c2e5e22005d8a8ac7fa2a2a1e50dc817"
+  },
+  {
+    "facing": "front",
+    "part": "cap_fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      146,
+      142
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 196,
+    "sha256": "42626fd55546655ff3a59143e5e32ad34c2db1c39de384a0f6a030830bb7c3d0"
+  },
+  {
+    "facing": "front",
+    "part": "socket_hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      143,
+      147
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 168,
+    "sha256": "df695e1344278da091cb3b702e974d66c2e5e22005d8a8ac7fa2a2a1e50dc817"
+  },
+  {
+    "facing": "front",
+    "part": "cap_hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      143,
+      147
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 196,
+    "sha256": "42626fd55546655ff3a59143e5e32ad34c2db1c39de384a0f6a030830bb7c3d0"
+  },
+  {
+    "facing": "front",
+    "part": "socket_hind_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      171,
+      155
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 160,
+    "sha256": "033effb202e13fae36dd4960c23cac0682dd7b30c17e83d93aaeb6f9ad9e70a6"
+  },
+  {
+    "facing": "front",
+    "part": "cap_hind_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      171,
+      155
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 184,
+    "sha256": "0d4f2984bd09082d3a210d1ecd6507ef9e4b5c6aa0589113355c49f2922a6688"
+  },
+  {
+    "facing": "front",
+    "part": "hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      883,
+      807,
+      1039,
+      1018
+    ],
+    "target_offset": [
+      130,
+      149
+    ],
+    "target_size": [
+      26,
+      23
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 513,
+    "sha256": "3a5bc9d4479ae5607da6c231b1aa5e9e56d1cf76e55e4916a9d21a061750e0cf"
+  },
+  {
+    "facing": "front",
+    "part": "claw_hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      521,
+      955,
+      710,
+      1095
+    ],
+    "target_offset": [
+      126,
+      161
+    ],
+    "target_size": [
+      22,
+      17
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 245,
+    "sha256": "5f956c8b434f9370379d8e73b7c5766244d2d2466ab47c2e39f4b4f335fbf7a7"
+  },
+  {
+    "facing": "front",
+    "part": "mouth_lining",
+    "source": "source/maw_interior_generated.png",
+    "source_crop": [
+      446,
+      754,
+      603,
+      966
+    ],
+    "target_offset": [
+      64,
+      129
+    ],
+    "target_size": [
+      12,
+      16
+    ],
+    "reflect_crop": false,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 150,
+    "sha256": "e1b56d287750d8d37a87d7736acad12d873432b893d59643a7314730f1985724"
+  },
+  {
+    "facing": "rear",
+    "part": "socket_fore_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      124,
+      134
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 168,
+    "sha256": "aaa17151b0a77239c4474590b71d952ecefddcaaa17da69604c99f4ea6be70ab"
+  },
+  {
+    "facing": "rear",
+    "part": "cap_fore_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      124,
+      134
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 196,
+    "sha256": "d609e41df403b59ec85e845b4c7ce616a4616dffec7729a140b48bc8d95419ff"
+  },
+  {
+    "facing": "rear",
+    "part": "socket_fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      77,
+      122
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 156,
+    "sha256": "38160e02517344602cdc52c2a8a0dafc21b589d1689cf825ae38bc160376832f"
+  },
+  {
+    "facing": "rear",
+    "part": "cap_fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      77,
+      122
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 184,
+    "sha256": "dc262e3fa5a750ff3eee980a1ac5bb5de53ec445f72037d9af97f2fa22ab2d5a"
+  },
+  {
+    "facing": "rear",
+    "part": "socket_hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      52,
+      145
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 168,
+    "sha256": "aaa17151b0a77239c4474590b71d952ecefddcaaa17da69604c99f4ea6be70ab"
+  },
+  {
+    "facing": "rear",
+    "part": "cap_hind_far",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      52,
+      145
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 196,
+    "sha256": "d609e41df403b59ec85e845b4c7ce616a4616dffec7729a140b48bc8d95419ff"
+  },
+  {
+    "facing": "rear",
+    "part": "socket_hind_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      618,
+      678,
+      832,
+      864
+    ],
+    "target_offset": [
+      108,
+      144
+    ],
+    "target_size": [
+      14,
+      12
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 168,
+    "sha256": "aaa17151b0a77239c4474590b71d952ecefddcaaa17da69604c99f4ea6be70ab"
+  },
+  {
+    "facing": "rear",
+    "part": "cap_hind_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      628,
+      711,
+      858,
+      941
+    ],
+    "target_offset": [
+      108,
+      144
+    ],
+    "target_size": [
+      14,
+      14
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 196,
+    "sha256": "d609e41df403b59ec85e845b4c7ce616a4616dffec7729a140b48bc8d95419ff"
+  },
+  {
+    "facing": "rear",
+    "part": "fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      883,
+      807,
+      1039,
+      1018
+    ],
+    "target_offset": [
+      79,
+      124
+    ],
+    "target_size": [
+      17,
+      22
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 354,
+    "sha256": "731d7729d0ddb9545287cac761e6dc3d3952aab354e5b3e8b426dcc5033364c0"
+  },
+  {
+    "facing": "rear",
+    "part": "claw_fore_near",
+    "source": "source/front_hidden_alpha.png",
+    "source_crop": [
+      521,
+      955,
+      710,
+      1095
+    ],
+    "target_offset": [
+      81,
+      135
+    ],
+    "target_size": [
+      22,
+      17
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 307,
+    "sha256": "dce2e908498029c12697b578b1d62ff40f4a5b835ae2143d975989fee23c67a7"
+  },
+  {
+    "facing": "rear",
+    "part": "mouth_lining",
+    "source": "source/maw_interior_generated.png",
+    "source_crop": [
+      446,
+      754,
+      603,
+      966
+    ],
+    "target_offset": [
+      139,
+      62
+    ],
+    "target_size": [
+      8,
+      10
+    ],
+    "reflect_crop": true,
+    "mask": "front original alpha 255 only; rear original alpha >=240 (generator emits near-opaque 252), within explicit patch bounds",
+    "mask_polygon": null,
+    "visible_px": 58,
+    "sha256": "03c12883d9fa3898ad09659276fb79f157506d7b12253beb2ca19b9e3840f305"
+  }
+]

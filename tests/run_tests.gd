@@ -260,7 +260,7 @@ func _initialize() -> void:
 	_test_large_enemy_threat_tiles_use_footprint()
 	_test_lightning_strikes_threat_tiles_are_previewed()
 	_test_lightning_strikes_damage_incidental_terrain()
-	_test_zekarion_tempest_breath_leaves_corner_safety()
+	_test_zekarion_overload_preserves_declared_counterplay()
 	_test_zekarion_summons_wisps_when_alone()
 	_test_summoned_wisps_receive_preview_intents()
 	_test_zekarion_ignores_shock_status()
@@ -4789,7 +4789,7 @@ func _test_lightning_strikes_damage_incidental_terrain() -> void:
 	var terrain: Dictionary = (after_state.get("terrain", []) as Array)[0]
 	_assert(int(terrain.get("hp", 0)) == 0, "Deterministic lightning strikes should destroy terrain on incidental strike squares even when no actor occupies them")
 
-func _test_zekarion_tempest_breath_leaves_corner_safety() -> void:
+func _test_zekarion_overload_preserves_declared_counterplay() -> void:
 	var combat: CombatEngine = CombatEngine.new()
 	var state: Dictionary = combat.create_combat(183, _simple_room_layout(), {
 		"hp": 24,
@@ -4817,14 +4817,29 @@ func _test_zekarion_tempest_breath_leaves_corner_safety() -> void:
 			"block": 0
 		}
 	]
-	var tempest_breath: Dictionary = _enemy_intent_by_id("zekarion", "tempest_breath")
-	_set_enemy_intent(state, 0, tempest_breath)
-	var breath_action: Dictionary = ((tempest_breath.get("actions", []) as Array)[0] as Dictionary)
-	_assert(int(breath_action.get("range", 0)) == 3, "Zekarion's Tempest Breath should leave more room-scale counterplay")
+	for tile: Vector2i in [Vector2i(1, 2), Vector2i(2, 2), Vector2i(6, 5)]:
+		BoardSurfaceRules.place(state, tile, "electrified")
+	state["player"]["pos"] = Vector2i(1, 2)
+	# The stable save ID is retained, but Overload now snapshots shared ground.
+	var overload: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, state, 0, _enemy_intent_by_id("zekarion", "tempest_breath"))
+	_set_enemy_intent(state, 0, overload)
 	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
-	_assert(not (threat.get("attack", []) as Array).has(Vector2i(1, 1)), "Tempest Breath threat preview should leave the opposite corner safe")
-	var after_state: Dictionary = combat.resolve_enemy_phase(state)
-	_assert(int((after_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Tempest Breath should not hit a player outside the previewed threat")
+	_assert((threat["attack"] as Array).size() == 3 and threat["attack"].has(Vector2i(1, 2)) and threat["attack"].has(Vector2i(6, 5)), "Overload should announce every current charge, including an occupied and disconnected cell")
+	_assert(not threat["attack"].has(Vector2i(1, 1)), "Overload should leave the uncharged corner safe even beside an announced charge")
+	BoardSurfaceRules.place(state, Vector2i(3, 2), "electrified")
+	_assert(not combat.enemy_threat_tiles(state, 0)["attack"].has(Vector2i(3, 2)), "A connected charge added after declaration should not expand Overload")
+	var struck: Dictionary = combat._resolve_enemy_intent(state.duplicate(true), 0, overload)
+	_assert(int(struck["player"]["hp"]) == 18 and int(struck["player"].get("shock", 0)) == 0, "Remaining on an announced charge should take Overload's six damage once without free Shock")
+	_assert(BoardSurfaceRules.tiles(struck, "electrified") == [Vector2i(3, 2)], "Overload should consume exactly the surviving announced charges")
+	for escape: Vector2i in [Vector2i(1, 1), Vector2i(3, 2)]:
+		var escaped: Dictionary = state.duplicate(true)
+		escaped["player"]["pos"] = escape
+		escaped = combat._resolve_enemy_intent(escaped, 0, overload)
+		_assert(int(escaped["player"]["hp"]) == 24, "Leaving the held Overload warning should avoid damage on uncharged or newly charged ground")
+	BoardSurfaceRules.place(state, Vector2i(1, 2), "ice")
+	_assert(not combat.enemy_threat_tiles(state, 0)["attack"].has(Vector2i(1, 2)), "Replacing the occupied charge should remove its warning before Overload resolves")
+	var denied: Dictionary = combat._resolve_enemy_intent(state, 0, overload)
+	_assert(int(denied["player"]["hp"]) == 24 and BoardSurfaceRules.element_at(denied, Vector2i(1, 2)) == "ice", "Charge replacement should prevent Overload damage and preserve the player's Ice")
 
 func _test_zekarion_summons_wisps_when_alone() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -7779,14 +7794,14 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var progression: Dictionary = ProgressionStore.mark_rested_at_fire(ProgressionStore.default_data())
 	var dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {}, progression)
 	var lines: Array = dialogue.get("lines", [])
-	_assert(lines.size() == 4, "Resting at a fire should no longer unlock a card-upgrade dialogue branch")
+	_assert(lines.size() == 3, "Resting at a fire should no longer unlock a card-upgrade dialogue branch")
 	_assert(not bool(dialogue.get("marks_fire_rest_seen", false)), "Fire rests should not create a one-time card-upgrade dialogue marker")
 	var options: Array = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(not options.any(func(option: Dictionary) -> bool: return str(option.get("action", "")) == "open_card_upgrades"), "The Emaciated Man should no longer offer permanent card upgrade options")
 	progression = ProgressionStore.mark_fire_rest_dialogue_seen(progression)
 	dialogue = dialogue_engine.build_room_dialogue(room, {}, progression)
 	lines = dialogue.get("lines", [])
-	_assert(lines.size() == 4, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
+	_assert(lines.size() == 3, "Legacy fire-rest markers should still return to the default Emaciated Man dialogue")
 	_assert(str((lines[0] as Dictionary).get("text", "")) == "Hehehe. You're back...so soon.", "Runs should still use the default start-room dialogue text")
 	options = (lines[lines.size() - 1] as Dictionary).get("options", [])
 	_assert(not options.any(func(option: Dictionary) -> bool: return str(option.get("action", "")) == "open_card_upgrades"), "Legacy unlocked progression should not keep the old touch option alive")
@@ -7803,7 +7818,7 @@ func _test_emaciated_man_does_not_unlock_card_upgrade_dialogue() -> void:
 	var warning_dialogue: Dictionary = dialogue_engine.build_room_dialogue(room, {"run_index": next_run_index}, next_run_progression)
 	var warning_lines: Array = warning_dialogue.get("lines", [])
 	_assert(bool(warning_dialogue.get("marks_umbra_warning_seen", false)), "The one-time Umbra warning should mark itself consumed after dialogue closes")
-	_assert(warning_lines.size() == 4, "The Emaciated Man's Umbra warning should preserve its three lines before the service offer")
+	_assert(warning_lines.size() == 3, "The Emaciated Man's Umbra warning should keep its three narrative lines without a service offer")
 	_assert(str((warning_lines[0] as Dictionary).get("text", "")) == "You reached his shadow. It will only get stronger the further you stray from this place.", "The Umbra warning should preserve its opening line")
 	_assert(str((warning_lines[0] as Dictionary).get("bbcode", "")).contains("[i]his[/i] shadow"), "The Umbra warning should italicize his in the first line")
 	_assert(str((warning_lines[1] as Dictionary).get("bbcode", "")).contains("[i]his[/i] power"), "The Umbra warning should italicize his in the second line")
@@ -8346,7 +8361,10 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert(instance.find_child("BossDossier", true, false) == null, "Boss combat should remove the obsolete turn-clock dossier widget")
 	_assert(boss_overlay != null and boss_overlay.visible, "Boss combat should show a dedicated top-center health overlay")
 	if boss_overlay != null:
-		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and boss_overlay.size.y <= 110.0, "The boss overlay should stay wide and shallow at the authored combat size")
+		_assert(boss_overlay.size.x >= 700.0 and boss_overlay.size.x <= 820.0 and is_equal_approx(boss_overlay.size.y, 134.0), "The boss overlay should retain its authored width and 134px name, health and status budget")
+		var status_row: Control = instance.get("_boss_status_row") as Control
+		_assert(status_row != null and is_equal_approx(status_row.size.y, 32.0) and boss_overlay.get_global_rect().encloses(status_row.get_global_rect()), "The boss header should contain its full 32px status row")
+		_assert((instance.call("_board_fit_rect") as Rect2).position.y >= boss_overlay.get_global_rect().end.y + 4.0, "Boss board framing should begin below the complete status-bearing header")
 		_assert(boss_overlay.get_node_or_null("BossHealthLinework") == null, "The boss name and HP bar should render without an enclosing background box")
 	_assert(boss_frame != null and boss_frame.texture != null, "Boss health should render the cohesive Umbral dragon frame asset")
 	if boss_frame != null and boss_frame.texture != null:
@@ -8357,7 +8375,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 		_assert(displayed_endcap_width >= 60.0 and boss_frame.size.y >= 80.0, "The boss dragon endcaps should retain a readable fixed-proportion silhouette")
 		_assert(boss_health_host != null and boss_frame.get_global_rect().encloses(boss_health_host.get_global_rect()), "The boss health fill should remain inset inside the dragon frame opening")
 	_assert(boss_health_bar != null and is_zero_approx(boss_health_bar.border_width) and boss_health_bar.border_color.a <= 0.0, "The dragon art should be the boss bar's only frame")
-	var boss_slots: Array[Control] = []
+	var boss_slots: Array[Control]
 	if turn_order_bar != null:
 		for child: Node in turn_order_bar.get_children():
 			if child is Control and child.name != "TurnOrderOverflowBadge":
@@ -8512,7 +8530,9 @@ func _test_run_scene_offers_pass_when_hand_dead() -> void:
 	run_state["combat_state"] = combat_state
 	instance.set("_run_state", run_state)
 	_set_run_scene_combat_state_for_test(instance, combat_state)
-	instance.call("_refresh_choice_bar")
+	# Enter the mode through the production transition, which closes room dialogue.
+	instance.call("_refresh_ui")
+	_assert(not bool(instance.get("_dialogue_active")), "The combat transition should close starting dialogue before exposing Pass")
 	instance.call("_layout_combat_action_dock")
 	instance.call("_layout_choice_button_overlay")
 	var pass_button: Button = instance.find_child("PassPreviewChip", true, false) as Button
@@ -9397,7 +9417,9 @@ func _test_run_scene_selection_prompts_clear_after_pick() -> void:
 		"ember_amount": 0
 	}
 	instance.set("_run_state", run_state)
-	instance.call("_refresh_choice_bar")
+	# Enter the mode through the production transition, which closes room dialogue.
+	instance.call("_refresh_ui")
+	_assert(not bool(instance.get("_dialogue_active")), "The reward transition should close starting dialogue before exposing choices")
 	var prompt_overlay: Control = instance.get("_relic_choice_overlay") as Control
 	var prompt_title: Label = instance.get("_relic_choice_title") as Label
 	var prompt_effect: Control = instance.get("_relic_choice_title_effect") as Control
@@ -9527,7 +9549,9 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	run_state["unbanked_embers"] = 0
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
-	instance.call("_refresh_choice_bar")
+	# Enter the mode through the production transition, which closes room dialogue.
+	instance.call("_refresh_ui")
+	_assert(not bool(instance.get("_dialogue_active")), "The campfire transition should close starting dialogue before exposing choices")
 	var choice_bar: HBoxContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar")
 	var context_overlay: PanelContainer = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/StageRoot/ContextChoiceOverlay")
 	var relic_overlay: Control = instance.get("_relic_choice_overlay") as Control
@@ -9598,7 +9622,9 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 	run_state["player_max_hp"] = 24
 	instance.set("_run_state", run_state)
 	instance.set("_progression", ProgressionStore.default_data())
-	instance.call("_refresh_choice_bar")
+	# Enter the mode through the production transition, which closes room dialogue.
+	instance.call("_refresh_ui")
+	_assert(not bool(instance.get("_dialogue_active")), "The campfire input fixture should enter through the dialogue-closing transition")
 	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
 	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
 	_assert(linger_panel != null, "Campfire single-shot test should expose the linger panel")
@@ -11325,10 +11351,10 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	_assert(text_label != null and text_label.text == "Maybe this time's the one. Then again...probably not.", "The final NPC line should preserve its trailing period")
 	instance.call("_complete_current_dialogue_line")
 	instance.call("_advance_dialogue")
-	instance.call("_complete_current_dialogue_line")
-	_assert(bool(instance.get("_dialogue_active")) and bool(instance.call("_has_current_dialogue_options")), "The opening speech ends with the entrance service")
-	instance.call("_on_dialogue_option_pressed", {"action":"close"})
-	_assert(not bool(instance.get("_dialogue_active")), "Leave closes the entrance service")
+	_assert(not bool(instance.get("_dialogue_active")) and not bool(instance.call("_has_current_dialogue_options")), "Completing the opening speech should close its narrative without appending service options")
+	var context_choices: Control = instance.get("_context_choice_overlay") as Control
+	_assert(_button_with_text(context_choices, "Speak") != null, "Completing speech should restore the separate Speak action")
+	_assert(_button_with_text(context_choices, "Awaken Power") == null, "The recurring service stays locked before the first dragon awakening")
 	var first_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(ProgressionStore.default_data())
 	first_run_progression = ProgressionStore.record_first_umbra_reach(first_run_progression, int(first_run_progression.get("run_counter", 0)))
 	var next_run_progression: Dictionary = ProgressionStore.prepare_for_new_run(first_run_progression)
@@ -11344,10 +11370,8 @@ func _test_run_scene_auto_triggers_starting_npc_dialogue() -> void:
 	for _line_index: int in range(3):
 		instance.call("_complete_current_dialogue_line")
 		instance.call("_advance_dialogue")
-	instance.call("_complete_current_dialogue_line")
-	_assert(bool(instance.call("_has_current_dialogue_options")), "The Umbra warning ends with the entrance service")
-	instance.call("_on_dialogue_option_pressed", {"action":"close"})
-	_assert(not bool(instance.get("_dialogue_active")), "Leave closes the warning's service offer")
+	_assert(not bool(instance.get("_dialogue_active")) and not bool(instance.call("_has_current_dialogue_options")), "Completing the Umbra warning should close its narrative without appending service options")
+	_assert(_button_with_text(context_choices, "Speak") != null and _button_with_text(context_choices, "Awaken Power") == null, "The warning restores Speak without prematurely unlocking the dragon service")
 	var consumed_progression: Dictionary = instance.get("_progression") as Dictionary
 	_assert(bool(consumed_progression.get(ProgressionStore.UMBRA_WARNING_SEEN_KEY, false)), "Closing the Umbra warning should persist its one-time seen marker")
 	instance.queue_free()

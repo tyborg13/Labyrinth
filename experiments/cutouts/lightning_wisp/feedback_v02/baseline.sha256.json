@@ -1,0 +1,19 @@
+{
+  "assets/front/arc_left.png": "6bce826b881a4c29d96a8e7ecec55cbd0cf4af3bb95668c1f58370a6ea84f50b",
+  "assets/front/arc_right.png": "d4e146f3a34b40566bc7d76fca6644ef0d6f48fddf38482631666692ceb227be",
+  "assets/front/core.png": "8e1487c7a3874a1b553bafc3314786a7f1c5f677f7805368e13c096dd85c747e",
+  "assets/front/crown.png": "d87f2835dcf0ef6d2190f018a2e5a7a38b5f0a4923ea32c8787c389d25b2df2a",
+  "assets/front/rest.png": "bacfb724db6f7f84de27a242f70c0d31aa246994fe6d0b41904895fe24b4ceb6",
+  "assets/front/tail.png": "285b65e5d3b04a8a758b25a00063b2f0df62c993ae89e0695cf1020fc5fcae68",
+  "assets/rear/arc_left.png": "ebb9edc3549d3c897fd048b95a2e10171e4e2b1d1e29172cd7f22977cb31a265",
+  "assets/rear/arc_right.png": "276cfc75682dd9f48521d6b076bae88d2d2392a7d9dc0ef612f1abb7571eb257",
+  "assets/rear/core.png": "42aeffb11959b6f12dd6c5191958bbe47d611a1b2751e862d92ed2ca8cdcdd27",
+  "assets/rear/crown.png": "46cd1a4369d5e87aac9c2fd8d1358abb53cf5882a52bf677f0e670e2131fa3f3",
+  "assets/rear/rest.png": "215d16bec0acbd0f5f7524d1ef1f07a94ba07c62132f790df3beaefa69d30062",
+  "assets/rear/tail.png": "1752687c639ff42a02eba7031eb4399349ac21730a2e99982fa5150a1e8704bb",
+  "cutout.json": "ed055ff27f711a292828349d69fd41d123e3159dda3262e75238591e95208ce1",
+  "layouts/front.json": "3da34035399866d216729d07f47ac6f09f889ce559c015a148567bcd5cc5fb3e",
+  "layouts/rear.json": "c43025cb7ff8788e34f5fa0419bc05019493c5bde4f8562df08d6ac98fb5b8cf",
+  "motion.gd": "697edbf24eb06cad037666a064b51c4ca174b26c7744be13126d80d2b7bc0e96",
+  "source/production_motion.gd": "697edbf24eb06cad037666a064b51c4ca174b26c7744be13126d80d2b7bc0e96"
+}

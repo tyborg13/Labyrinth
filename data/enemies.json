@@ -960,10 +960,16 @@
         "actions": [
           {
             "type": "raise_terrain",
-            "count": 2,
+            "count": 4,
             "health": 4,
-            "maximum": 2,
+            "maximum": 4,
             "surface_on_destroy": "rubble"
+          },
+          {
+            "type": "melee",
+            "damage": 4,
+            "range": 1,
+            "element": "earth"
           }
         ]
       },
@@ -992,20 +998,6 @@
         ]
       },
       {
-        "id": "faultline",
-        "name": "Faultline",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "terrain_burst",
-            "damage": 8,
-            "radius": 2,
-            "element": "earth"
-          }
-        ]
-      },
-      {
         "id": "bedrock_breath",
         "name": "Bedrock Breath",
         "time": 5,
@@ -1020,7 +1012,22 @@
             "pattern_footprint": [
               2,
               2
-            ]
+            ],
+            "surface": "rubble"
+          }
+        ]
+      },
+      {
+        "id": "faultline",
+        "name": "Faultline",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "terrain_burst",
+            "damage": 8,
+            "radius": 2,
+            "element": "earth"
           }
         ]
       }
@@ -1056,14 +1063,37 @@
     "intents": [
       {
         "id": "kindle_ground",
-        "name": "Kindle Ground",
-        "time": 4,
+        "name": "Meteorfall",
+        "time": 5,
         "weight": 3,
         "actions": [
           {
             "type": "cinder_marks",
-            "count": 3,
-            "surface": "fire"
+            "count": 5,
+            "surface": "fire",
+            "damage": 4,
+            "element": "fire",
+            "placement": "scattered"
+          }
+        ]
+      },
+      {
+        "id": "cinderfall",
+        "name": "Cinder Breath",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 8,
+            "range": 3,
+            "committed_shape": "fan",
+            "pattern_min_flank": 1,
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "element": "fire"
           }
         ]
       },
@@ -1091,33 +1121,9 @@
             "range": 2
           },
           {
-            "type": "aoe",
-            "damage": 12,
-            "range": 2,
-            "committed_shape": "crescent",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "element": "fire"
-          }
-        ]
-      },
-      {
-        "id": "cinderfall",
-        "name": "Cinderfall",
-        "time": 6,
-        "weight": 3,
-        "actions": [
-          {
-            "type": "aoe",
-            "damage": 8,
-            "range": 3,
-            "committed_shape": "fan",
-            "pattern_footprint": [
-              2,
-              2
-            ],
+            "type": "melee",
+            "damage": 10,
+            "range": 1,
             "element": "fire"
           }
         ]
@@ -1155,41 +1161,20 @@
     ],
     "intents": [
       {
-        "id": "hollow_gale",
-        "name": "Hollow Gale",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "aoe",
-            "damage": 6,
-            "range": 3,
-            "element": "air",
-            "committed_shape": "fan",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "push": 2
-          }
-        ]
-      },
-      {
         "id": "skyhook",
         "name": "Skyhook",
         "time": 5,
         "weight": 1,
         "actions": [
           {
-            "type": "aoe",
-            "damage": 6,
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "ranged",
+            "damage": 4,
             "range": 4,
             "element": "air",
-            "committed_shape": "line",
-            "pattern_footprint": [
-              2,
-              2
-            ],
             "pull": 2
           }
         ]
@@ -1206,15 +1191,35 @@
           },
           {
             "type": "aoe",
-            "damage": 10,
+            "damage": 8,
             "range": 1,
             "element": "air",
-            "committed_shape": "crescent",
+            "committed_shape": "swept_path",
             "pattern_footprint": [
               2,
               2
             ],
             "bleed": 1
+          }
+        ]
+      },
+      {
+        "id": "hollow_gale",
+        "name": "Hollow Gale",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 6,
+            "range": 1,
+            "element": "air",
+            "committed_shape": "ring",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "push": 2
           }
         ]
       },
@@ -1229,8 +1234,16 @@
             "range": 3
           },
           {
-            "type": "block",
-            "amount": 4
+            "type": "aoe",
+            "damage": 8,
+            "range": 5,
+            "element": "air",
+            "committed_shape": "ring",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "minimum_range": 3
           }
         ]
       }
@@ -1276,6 +1289,17 @@
             "type": "frost_armor",
             "amount": 1,
             "maximum": 2
+          },
+          {
+            "type": "aoe",
+            "damage": 3,
+            "range": 1,
+            "element": "none",
+            "committed_shape": "ring",
+            "pattern_footprint": [
+              2,
+              2
+            ]
           }
         ],
         "surface_fuel": {
@@ -1306,26 +1330,7 @@
               2
             ],
             "surface": "ice",
-            "surface_tiles_limit": 2
-          }
-        ]
-      },
-      {
-        "id": "shatterstorm",
-        "name": "Shatterstorm",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "aoe",
-            "damage": 7,
-            "range": 1,
-            "element": "none",
-            "committed_shape": "crescent",
-            "pattern_footprint": [
-              2,
-              2
-            ]
+            "replace_previous_trail": true
           }
         ]
       },
@@ -1344,6 +1349,28 @@
             "damage": 10,
             "range": 1,
             "element": "ice"
+          }
+        ]
+      },
+      {
+        "id": "shatterstorm",
+        "name": "Shatterstorm",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 7,
+            "range": 1,
+            "element": "none",
+            "committed_shape": "ring",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "range_status": "frost_armor",
+            "maximum_range": 3,
+            "consume_status": "frost_armor"
           }
         ]
       }
@@ -1377,65 +1404,6 @@
     "boss_bar": true,
     "intents": [
       {
-        "id": "last_eclipse",
-        "name": "Last Eclipse",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "umbra_eclipse",
-            "duration": 2,
-            "damage": 8,
-            "element": "shadow",
-            "snuff_brazier": true
-          }
-        ]
-      },
-      {
-        "id": "void_claw",
-        "name": "Void Claw",
-        "time": 5,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "move_toward",
-            "range": 2
-          },
-          {
-            "type": "aoe",
-            "damage": 12,
-            "range": 1,
-            "element": "shadow",
-            "committed_shape": "crescent",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "expose": 1
-          }
-        ]
-      },
-      {
-        "id": "starless_breath",
-        "name": "Starless Breath",
-        "time": 6,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "aoe",
-            "damage": 8,
-            "range": 3,
-            "element": "shadow",
-            "committed_shape": "fan",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "pierce": true
-          }
-        ]
-      },
-      {
         "id": "night_coil",
         "name": "Night Coil",
         "time": 6,
@@ -1451,10 +1419,69 @@
               2,
               2
             ],
-            "pull": 1
+            "pull": 1,
+            "snuff_brazier": true
           }
-        ],
-        "restore_braziers": true
+        ]
+      },
+      {
+        "id": "last_eclipse",
+        "name": "Last Eclipse",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "umbra_eclipse",
+            "duration": 2,
+            "damage": 8,
+            "element": "shadow"
+          },
+          {
+            "type": "summon_minions",
+            "minion_type": "veilbound_acolyte",
+            "count": 1,
+            "summon_cap": 2
+          }
+        ]
+      },
+      {
+        "id": "void_claw",
+        "name": "Void Claw",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 12,
+            "range": 1,
+            "element": "shadow",
+            "expose": 1
+          }
+        ]
+      },
+      {
+        "id": "starless_breath",
+        "name": "Starless Breath",
+        "time": 6,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 8,
+            "range": 5,
+            "element": "shadow",
+            "committed_shape": "line",
+            "pattern_footprint": [
+              2,
+              2
+            ],
+            "pierce": true
+          }
+        ]
       }
     ],
     "dragon_cycle": true
@@ -1498,52 +1525,39 @@
         ]
       },
       {
-        "id": "tempest_breath",
-        "name": "Tempest Breath",
-        "time": 5,
-        "weight": 1,
-        "actions": [
-          {
-            "type": "aoe",
-            "damage": 7,
-            "range": 3,
-            "element": "lightning",
-            "committed_shape": "line",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "chain": 2,
-            "surface_bonus": {
-              "surface": "electrified",
-              "subject": "conducted",
-              "shock": 1
-            }
-          }
-        ]
-      },
-      {
         "id": "storm_claw",
-        "name": "Storm Claw",
+        "name": "Storm Lash",
         "time": 5,
         "weight": 1,
         "actions": [
           {
             "type": "move_toward",
-            "range": 2
+            "range": 1
           },
           {
-            "type": "aoe",
-            "damage": 10,
-            "range": 1,
+            "type": "ranged",
+            "damage": 5,
+            "range": 3,
             "element": "lightning",
-            "committed_shape": "crescent",
-            "pattern_footprint": [
-              2,
-              2
-            ],
-            "surface": "electrified",
-            "surface_tiles_limit": 1
+            "surface": "electrified"
+          }
+        ]
+      },
+      {
+        "id": "tempest_breath",
+        "name": "Overload",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 6,
+            "range": 0,
+            "element": "lightning",
+            "committed_shape": "surface_snapshot",
+            "snapshot_surface": "electrified",
+            "consume_surface": "electrified",
+            "no_conduction": true
           }
         ]
       },
@@ -1554,8 +1568,10 @@
         "weight": 1,
         "actions": [
           {
-            "type": "block",
-            "amount": 4
+            "type": "ranged",
+            "damage": 4,
+            "range": 4,
+            "element": "lightning"
           },
           {
             "type": "summon_minions",

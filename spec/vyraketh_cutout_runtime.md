@@ -4,7 +4,36 @@ Current travel cadence, floor registration and room fitting are specified in [Ac
 
 Generated proof paths cited below are retained in the [external roster evidence archive](enemy_cutout_roster_integration.md#evidence-archive-and-compact-history). Editable source cases remain in this repository.
 
-Vyraketh uses an editable dragon cutout for its board body. The accepted front design, portrait, 2×2 footprint, boss health bar, body scale 1.76, vertical art offset 14, 60 HP, 13 initiative and 80-ember reward remain unchanged. Resolver data, targeting, pathing, cinder marks/detonation, terrain interactions, minions, damage and analytics are unchanged. The presentation alone supplies the new anatomy and action cues.
+## Dragon feedback revision, 2026-09-27
+
+The current motion case is `experiments/cutouts/vyraketh/feedback_breath_v02`,
+forked from the accepted art with the current production sampler as its motion
+baseline. Meteorfall (`kindle_ground`) raises the crown and wings in a command
+gesture; Cinder Breath (`cinderfall`) braces, draws the throat back, opens the
+jaw and extends the head as a stream leaves the animated mouth. Crownfire keeps
+its grounded detonation gesture, and Cinder Maw keeps the physical bite.
+
+`dragon_presentation.gd` selects these meanings from the intent and action IDs,
+including committed AoE steps with no victims. Nonphysical area actions last
+1.1 seconds: mouth release is at 0.30, impact and immutable result display at
+0.52, followed by recovery. The physical bite retains its 0.42 contact boundary.
+`dragon_spell_presentation.gd` draws every visible declared target at its board
+depth. Meteorfall descends onto each target; breath travels from the rig's mouth.
+Reduced motion retains the same affected area and result with a still rig.
+Player-facing idle uses the center of the 2×2 body; committed actions keep their
+declared direction through recovery.
+
+Current rules and rewards are in [Dragon boss encounters](dragon_boss_encounters.md).
+Fresh presentation proof and its limitations are recorded in
+[the feedback notes](../playtest/dragon_presentation_feedback_notes.md).
+
+## Original integration record
+
+The following art history, timings and proof describe the original integration.
+Their original encounter numbers and action names are historical; the revision
+above and the encounter specification own the current contract.
+
+Vyraketh uses an editable dragon cutout for its board body. The original integration preserved the accepted front design, portrait, 2×2 footprint, boss health bar, body scale 1.76, vertical art offset 14, 60 HP, 13 initiative and 80-ember reward. It changed presentation without changing its then-current resolver rules.
 
 ## Art and editable source
 
