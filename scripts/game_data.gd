@@ -5,7 +5,7 @@ const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 
 const ElementData = preload("res://scripts/element_data.gd")
 
-const BALANCE_REVISION: String = "dragon_feedback_v2"
+const BALANCE_REVISION: String = "dragon_pressure_v3"
 
 const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"

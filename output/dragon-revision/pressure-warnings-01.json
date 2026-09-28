@@ -1,0 +1,49 @@
+{
+  "attempts": [
+    {
+      "accepted": false,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "Godot exited with code 1",
+      "images": [
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/01_vyraketh_d04_kindle_ground.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/02_vyraketh_d04_cinderfall.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/03_vyraketh_d04_crownfire.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/04_vyraketh_d04_cinder_maw.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/05_tharokh_d08_stonewake.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/06_tharokh_d08_worldspine_claw.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/07_tharokh_d08_bedrock_breath.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/08_tharokh_d08_faultline.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/09_iskaldra_d12_crystal_mantle.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/10_iskaldra_d12_shatterstorm.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/11_iskaldra_d12_whiteout_lance.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/12_iskaldra_d12_rime_talon.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/13_vaeloryx_d16_skyhook.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/14_vaeloryx_d16_razor_dive.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/15_vaeloryx_d16_hollow_gale.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/16_vaeloryx_d16_eye_of_storm.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/17_zekarion_d20_skybreak.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/18_zekarion_d20_storm_claw.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/19_zekarion_d20_tempest_breath.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/20_zekarion_d20_call_wisps.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/21_noctyrax_d24_night_coil.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/22_noctyrax_d24_last_eclipse.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/23_noctyrax_d24_void_claw.png",
+        "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1/probes/dragon_pressure_warnings/24_noctyrax_d24_starless_breath.png"
+      ],
+      "namespace": "dragon-pressure-warnings-01-1790615482719314000-66595-dragon_pressure_warning-1",
+      "returncode": 1
+    }
+  ],
+  "error": "Godot exited with code 1",
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [],
+  "ok": false,
+  "proof_contract": "",
+  "script": "tests/dragon_pressure_warning_probe.gd"
+}

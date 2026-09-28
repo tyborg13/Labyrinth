@@ -1,0 +1,81 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 246.2126,
+          "luma_mean": 17.65753126384142,
+          "luma_min": 0.0,
+          "luma_range": 246.2126,
+          "luma_stdev": 30.48079173726913,
+          "path": "/private/tmp/labyrinth-godot-home/visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/Library/Application Support/Escape the Umbra Visual Probe visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/probes/visible_terrain_shortcut/01_visible_spire_offered.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 14.457673263999263,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 25.143249013088873,
+          "path": "/private/tmp/labyrinth-godot-home/visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/Library/Application Support/Escape the Umbra Visual Probe visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/probes/visible_terrain_shortcut/02_spire_destroyed.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "/private/tmp/LabyrinthDragonPlaytest.app/Contents/MacOS/Godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/visible_terrain_shortcut_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 246.2126,
+      "luma_mean": 17.65753126384142,
+      "luma_min": 0.0,
+      "luma_range": 246.2126,
+      "luma_stdev": 30.48079173726913,
+      "path": "/private/tmp/labyrinth-godot-home/visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/Library/Application Support/Escape the Umbra Visual Probe visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/probes/visible_terrain_shortcut/01_visible_spire_offered.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 14.457673263999263,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 25.143249013088873,
+      "path": "/private/tmp/labyrinth-godot-home/visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/Library/Application Support/Escape the Umbra Visual Probe visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1/probes/visible_terrain_shortcut/02_spire_destroyed.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "visible-terrain-shortcut-01-1790621318298909000-71557-visible_terrain_shortcut-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/visible_terrain_shortcut_probe.gd"
+}

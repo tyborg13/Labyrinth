@@ -75,6 +75,7 @@ const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const BOSS_DAMAGE_ACTION_TYPES: Array[String] = ["terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
+const DragonPressureFields = preload("res://scripts/dragon_pressure_fields.gd")
 const BOSS_PATTERN_ACTION_TYPES: Array[String] = ["raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ENEMY_SUPPORT_ACTION_TYPES: Array[String] = ["heal_ally", "guard_ally"]
 const CARDINAL_DIRECTIONS: Array[Vector2i] = [
@@ -3055,7 +3056,7 @@ func _enemy_action_step_base(before_state: Dictionary, after_state: Dictionary, 
 			}
 		"terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 			var label_by_type := {
-				"terrain_burst": "Faultline",
+				"terrain_burst": "Faultline" if bool(action.get("consume_terrain",true)) else "Worldspine Pulse",
 				"cinder_marks": "Meteorfall",
 				"detonate_cinders": "Crownfire",
 				"gale_force": "Hollow Gale",
@@ -5474,6 +5475,31 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 		next_state = _move_player_from_source(next_state, source_pos, int(action.get("pull", 0)), false, _action_force_direction(action))
 	return next_state
 
+# Shared by resolution and compound warnings. A primary planned attack may
+# prefer a trap; an unplanned follow-up first takes its reachable actor target.
+func _enemy_attack_target_selection(state: Dictionary, enemy_index: int, action: Dictionary, context: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
+	var enemy: Dictionary = _normalized_enemy(state["enemies"][enemy_index])
+	var has_plan: bool = int(context.get("action_index", -1)) == int(context.get("attack_action_index", -2))
+	var target: Dictionary = _current_actor_target_for_plan(state, context) if has_plan else _closest_enemy_target_for_action(state, enemy, action, rng)
+	if not target.is_empty() and not _enemy_action_reaches_target(state, enemy, action, target):
+		target = {}
+	var trap_index: int = _trap_index_at_tile(state, context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
+	if trap_index < 0 and target.is_empty() and not has_plan:
+		trap_index = _best_enemy_trap_attack_index(state, enemy_index, action)
+	if trap_index >= 0:
+		return {"trap_index": trap_index}
+	if target.is_empty():
+		return {"terrain_index": int(context.get("blocking_terrain_index", -1)) if has_plan else -2}
+	return {"target": target}
+
+func _enemy_direct_attack_threat_tiles(state: Dictionary, enemy_index: int, action: Dictionary, context: Dictionary) -> Array[Vector2i]:
+	var enemy: Dictionary = _normalized_enemy(state["enemies"][enemy_index])
+	var selection: Dictionary = _enemy_attack_target_selection(state, enemy_index, action, context)
+	var terrain_index: int = int(selection.get("terrain_index", -1))
+	if terrain_index == -2:
+		terrain_index = _blocking_terrain_index_for_enemy_action(state, enemy_index, action)
+	return _enemy_projected_attack_tiles(state, enemy, action, selection.get("target", {}), terrain_index, int(selection.get("trap_index", -1)))
+
 func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionary, verb: String, rng: RandomNumberGenerator = null, bleed_steps: Array[Dictionary] = [], action_context: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var enemies: Array = next_state.get("enemies", [])
@@ -5481,33 +5507,19 @@ func _enemy_attack_target(state: Dictionary, enemy_index: int, action: Dictionar
 		return next_state
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	var action_type: String = str(action.get("type", ""))
-	var has_plan: bool = int(action_context.get("action_index", -1)) == int(action_context.get("attack_action_index", -2))
-	var target: Dictionary = _current_actor_target_for_plan(next_state, action_context) if has_plan else _closest_enemy_target_for_action(next_state, enemy, action, rng)
-	if not target.is_empty() and not _enemy_action_reaches_target(next_state, enemy, action, target):
-		target = {}
-	var planned_trap_index: int = _trap_index_at_tile(next_state, action_context.get("trap_attack_tile", INVALID_TILE)) if has_plan else -1
-	if planned_trap_index >= 0:
+	var selection: Dictionary = _enemy_attack_target_selection(next_state, enemy_index, action, action_context, rng)
+	var target: Dictionary = selection.get("target", {})
+	var trap_index: int = int(selection.get("trap_index", -1))
+	if trap_index >= 0:
 		next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
 			return next_state
-		enemies = next_state.get("enemies", [])
-		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		next_state = _trigger_trap_at_index(next_state, planned_trap_index)
+		enemy = _normalized_enemy(next_state["enemies"][enemy_index])
+		next_state = _trigger_trap_at_index(next_state, trap_index)
 		_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
 		return next_state
 	if target.is_empty():
-		var trap_attack_index: int = -1 if has_plan else _best_enemy_trap_attack_index(next_state, enemy_index, action)
-		if trap_attack_index >= 0:
-			next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
-			if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
-				return next_state
-			enemies = next_state.get("enemies", [])
-			enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
-			next_state = _trigger_trap_at_index(next_state, trap_attack_index)
-			_log(next_state, "%s triggers a trap." % str(GameData.enemy_def(str(enemy.get("type", ""))).get("name", "Enemy")))
-			return next_state
-		var terrain_override: int = int(action_context.get("blocking_terrain_index", -1)) if has_plan else -2
-		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, terrain_override)
+		return _enemy_attack_blocking_terrain(next_state, enemy_index, action, bleed_steps, int(selection.get("terrain_index", -2)))
 	var resolved: Dictionary = _enemy_action_oriented_to_target(action, enemy, target.get("pos", INVALID_TILE))
 	next_state = _trigger_enemy_bleed_for_resolved_action(next_state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(next_state, enemy_index):
@@ -5591,6 +5603,7 @@ func _enemy_lightning_strikes(state: Dictionary, enemy_index: int, action: Dicti
 	state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
 	if _enemy_cannot_continue_after_bleed(state, enemy_index):
 		return state
+	DragonPressureFields.retire_owned_surface(state,enemy,action)
 	return _resolve_board_attack(state, action, enemy.get("pos", INVALID_TILE), "enemy", int(enemy.get("id", -1)), {}, strike_tiles)
 
 func _enemy_summon_minions(state: Dictionary, enemy_index: int, action: Dictionary, rng: RandomNumberGenerator = null) -> Dictionary:
@@ -5707,6 +5720,7 @@ func _enemy_raise_dragon_spires(state: Dictionary, enemy_index: int, action: Dic
 		BoardSurfaceRules.record_event(next_state, {"kind": "terrain_created", "terrain_kind": DRAGON_SPIRE_KIND, "terrain_id": terrain_id, "tile": tile, "health": health, "source": _surface_source(next_state, action)})
 		terrain_entries.append({
 			"id": terrain_id,
+			"owner_id": int(enemy["id"]),
 			"kind": DRAGON_SPIRE_KIND,
 			"surface_on_destroy": "rubble",
 			"pos": tile,
@@ -5747,11 +5761,13 @@ func _enemy_terrain_burst(state: Dictionary, enemy_index: int, action: Dictionar
 	for target: Dictionary in _actor_targets_in_tiles(next_state, affected_tiles):
 		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
-	for terrain_index: int in _terrain_indices_in_tiles(next_state, spire_tiles):
-		var terrain: Dictionary = _normalized_terrain((next_state.get("terrain", []) as Array)[terrain_index])
-		next_state = _damage_terrain(next_state, terrain_index, int(terrain.get("hp", 0)))
+	if bool(action.get("consume_terrain",true)):
+		for terrain_index: int in _terrain_indices_in_tiles(next_state, spire_tiles):
+			var terrain: Dictionary = _normalized_terrain((next_state.get("terrain", []) as Array)[terrain_index])
+			next_state = _damage_terrain(next_state, terrain_index, int(terrain.get("hp", 0)))
+	BoardSurfaceRules.record_event(next_state,{"kind":"dragon_spire_pulse","tiles":affected_tiles,"radius":int(action.get("radius",1)),"consumed":bool(action.get("consume_terrain",true)),"source":_surface_source(next_state,action)})
 	_mark_dragon_mechanic_opened(next_state, enemy_index)
-	_log(next_state, "%s ruptures the Worldspines." % _enemy_display_name(enemy))
+	_log(next_state, "%s %s the Worldspines." % [_enemy_display_name(enemy), "ruptures" if bool(action.get("consume_terrain",true)) else "pulses"])
 	return next_state
 
 func _cinder_fire_entries(state: Dictionary, owner_enemy_id: int = -1) -> Array[Dictionary]:
@@ -5795,8 +5811,10 @@ func _enemy_create_cinder_marks(state: Dictionary, enemy_index: int, action: Dic
 	if int(action.get("damage", 0)) > 0 and not candidates.is_empty():
 		state = _trigger_enemy_bleed_for_resolved_action(state, enemy_index, action, bleed_steps)
 		if _enemy_cannot_continue_after_bleed(state, enemy_index): return state
+		DragonPressureFields.retire_owned_surface(state,enemy,action)
 		state = _resolve_board_attack(state, action, enemy["pos"], "enemy", int(enemy["id"]), {}, candidates)
 	else:
+		DragonPressureFields.retire_owned_surface(state,enemy,action)
 		for tile: Vector2i in candidates:
 			BoardSurfaceRules.place(state, tile, "fire", _surface_source(state, action))
 	enemy = _surface_actor(state, "enemy", int(enemy["id"]))
@@ -7045,7 +7063,14 @@ func _enemy_can_occupy_anchor(state: Dictionary, enemy: Dictionary, anchor: Vect
 
 func _lightning_strike_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i] = _lightning_strike_tiles(state, enemy, action)
-	var plan: Dictionary = _board_attack_plan(state, action, result, "enemy")
+	# Skybreak retires this dragon's previous field before striking. Its
+	# warning and impact FX must use that same conductor network, while
+	# leaving foreign/player conductors and the live board untouched.
+	var strike_state: Dictionary = state
+	if bool(action.get("replace_owned_field", false)):
+		strike_state = state.duplicate(true)
+		DragonPressureFields.retire_owned_surface(strike_state, enemy, action)
+	var plan: Dictionary = _board_attack_plan(strike_state, action, result, "enemy")
 	for tile: Vector2i in plan.get("used_conductors", {}):
 		if not result.has(tile): result.append(tile)
 	for hit: Dictionary in plan.get("hits", []):
@@ -10691,7 +10716,10 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		state = _trigger_resolved_action_light(state, resolved, target, affected)
 		_mark_light_target_skill_trigger(state, resolved)
 	else:
-		state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, impact), int(resolved.get("damage", 0)))
+		var terrain_targets: Array[int] = _terrain_indices_in_tiles(state, impact)
+		if bool(resolved.get("preserve_owned_terrain",false)):
+			terrain_targets.assign(terrain_targets.filter(func(index: int) -> bool: return int(state["terrain"][index].get("owner_id",-1)) != actor_id))
+		state = _damage_terrain_indices(state, terrain_targets, int(resolved.get("damage", 0)))
 	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, impact))
 	state = _place_action_surface(state, resolved, origin if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0 else target, impact)
 	if actor_kind == "player" and not affected.is_empty():

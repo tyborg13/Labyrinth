@@ -21,12 +21,131 @@ static func run(expect: Callable) -> void:
 	_test_action_upgrades_preserve_one_target_decision(expect)
 	_test_preferred_routes_collect_pickups_without_crossing_traps(expect)
 	_test_equivalent_preview_cache(expect)
+	run_visible_terrain(expect)
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await _test_live_single_click_sequence(tree, expect, "gust_step", "clear", Vector2i(5, 4), "Gust Step must move and pull from one selected enemy without a second target or direction click")
 	await _test_live_single_click_sequence(tree, expect, "slipstream_cut", "clear", Vector2i(5, 4), "Move-melee-push shortcuts should choose their previewed default push direction without another click")
 	await _test_live_single_click_sequence(tree, expect, "sidestep_slash", "heart", Vector2i(4, 4), "Visible move-melee targets should retain one-click shortcuts under Umbra")
+	await run_visible_terrain_live(tree, expect)
+
+
+static func run_visible_terrain(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var state: Dictionary = _visible_terrain_state(combat)
+	var scene := RunScene.new()
+	scene.set("_combat_state", state)
+	var prepared: Dictionary = combat.prepare_player_card(state, 0, "play")
+	var actions: Array = combat.card_play_actions("sidestep_slash", prepared)
+	var preview: Dictionary = scene.call("_card_preview_from_state", "sidestep_slash", prepared, actions, 0)
+	var shortcuts: Dictionary = scene.call("_preview_shortcuts_for_current_action", preview)
+	var plans: Dictionary = shortcuts.get("plans", {})
+	expect.call(combat.effective_umbra_radius(state) == 2, "Terrain shortcut fixture must use finite committed Umbra")
+	for tile: Vector2i in [Vector2i(3, 4), Vector2i(1, 3), Vector2i(3, 3)]:
+		expect.call(plans.has(tile), "Visible spire, trap and enemy must remain attack shortcuts: %s" % tile)
+	for tile: Vector2i in [Vector2i(2, 7), Vector2i(5, 4), Vector2i(2, 1)]:
+		expect.call(not plans.has(tile), "Hidden spire, trap and enemy must not become attack shortcuts: %s" % tile)
+	# The hidden southern spire is within Move 2 + melee reach. Clearing Umbra
+	# must expose it, proving the negative witness is about knowledge, not range.
+	var clear: Dictionary = state.duplicate(true)
+	clear["umbra"]["stage"] = "clear"
+	scene.set("_combat_state", clear)
+	scene.call("_mark_combat_preview_state_changed")
+	var clear_prepared: Dictionary = combat.prepare_player_card(clear, 0, "play")
+	var clear_preview: Dictionary = scene.call("_card_preview_from_state", "sidestep_slash", clear_prepared, combat.card_play_actions("sidestep_slash", clear_prepared), 0)
+	var clear_shortcuts: Dictionary = scene.call("_preview_shortcuts_for_current_action", clear_preview)
+	expect.call((clear_shortcuts.get("plans", {}) as Dictionary).has(Vector2i(2, 7)), "Hidden-spire witness must otherwise be geometrically reachable")
+	var spire := Vector2i(3, 4)
+	expect.call(combat.valid_targets_for_player_action(state, {"type":"melee", "range":1, "damage":5}).has(spire), "Ordinary melee retains its terrain target")
+	expect.call(combat.valid_targets_for_player_action(state, {"type":"ranged", "range":3, "damage":4}).has(spire), "Ordinary ranged retains its terrain target")
+	var hook: Dictionary = (combat.card_play_actions("cleaver_hook", state)[0] as Dictionary)
+	expect.call(not combat.valid_targets_for_player_action(state, hook).has(spire), "Enemy-only force attacks must not gain terrain targets")
+	scene.free()
+
+
+static func run_visible_terrain_live(tree: SceneTree, expect: Callable) -> void:
+	var store = preload("res://scripts/progression_store.gd")
+	var settings = preload("res://scripts/settings_store.gd")
+	var analytics = preload("res://scripts/analytics_store.gd")
+	var tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+	var profile_path: String = store._storage_path
+	var run_path: String = store._run_storage_path
+	var settings_path: String = settings.storage_path()
+	var analytics_path: String = analytics.storage_dir()
+	var old_settings: Dictionary = settings.load_settings()
+	var old_reduced: bool = settings._applied_reduced_motion
+	var prefix: String = "user://visible_terrain_shortcut_%d" % Time.get_ticks_usec()
+	store.set_storage_path(prefix + "_profile.json")
+	store.set_run_storage_path(prefix + "_run.save")
+	settings.set_storage_path(prefix + "_settings.json")
+	analytics.set_storage_dir(prefix + "_events")
+	var profile: Dictionary = store.default_data()
+	profile[tutorial.PROGRESSION_KEY] = {"version":tutorial.VERSION, "status":"dismissed", "completed_steps":[]}
+	store.save_data(profile)
+	var instance: Node = load("res://scenes/run_scene.tscn").instantiate()
+	tree.root.add_child(instance)
+	await tree.process_frame
+	await tree.process_frame
+	var combat := CombatEngine.new()
+	var state: Dictionary = _visible_terrain_state(combat)
+	state["deck"]["hand"] = ["sidestep_slash", "brace"]
+	state["deck"]["draw"] = ["brace"]
+	state["deck"]["discard"] = []
+	state["deck"]["burned"] = []
+	state["current_actor"] = {"kind":"player", "key":"player"}
+	state["cards_played_this_turn"] = 0
+	state.erase("player_turn_restrictions")
+	var run: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run["mode"] = "combat"
+	run["current_room_layout"] = _live_combat_layout("heart", Vector2i(3, 3))
+	run["combat_state"] = state
+	instance.set("_run_state", run)
+	instance.set("_combat_state", state)
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_ui")
+	await tree.process_frame
+	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
+	await instance.call("_begin_card_preview", 0, preview)
+	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
+	var offered: Array = board.get("attack_tiles")
+	expect.call(offered.has(Vector2i(3, 4)), "Live Sidestep selection offers the visible Worldspine")
+	expect.call(not offered.has(Vector2i(2, 7)), "Live selection does not expose the hidden Worldspine")
+	await instance.call("_on_board_tile_clicked", Vector2i(3, 4))
+	var actual: Dictionary = instance.get("_combat_state")
+	var found_spire: bool = false
+	for terrain: Dictionary in actual.get("terrain", []):
+		if str(terrain.get("id", "")) == "visible_worldspine":
+			found_spire = true
+			expect.call(int(terrain.get("hp", 4)) <= 0, "One visible-spire click resolves Sidestep's five damage against four HP")
+	expect.call(found_spire, "Live destruction assertion observes the original Worldspine record")
+	expect.call(Surface.has_rubble(actual, Vector2i(3, 4)), "Destroyed Worldspine creates its normal Rubble counterplay cost")
+	expect.call(int(actual.get("cards_played_this_turn", 0)) == 1 and int(actual.get("player_turn_time_spent", 0)) == 3, "Terrain shortcut pays one actual card play and Sidestep Time")
+	expect.call(int(instance.get("_selected_card_index")) < 0, "Spire click completes without a stranded second target decision")
+	instance.queue_free()
+	await tree.process_frame
+	await tree.process_frame
+	store.set_storage_path(profile_path)
+	store.set_run_storage_path(run_path)
+	settings.set_storage_path(settings_path)
+	analytics.set_storage_dir(analytics_path)
+	settings.apply_settings(old_settings, tree.root, false)
+	settings._applied_reduced_motion = old_reduced
+
+
+static func _visible_terrain_state(combat: CombatEngine) -> Dictionary:
+	var state: Dictionary = _combat_state(combat, "sidestep_slash", Vector2i(3, 3), 20260928)
+	state["umbra"] = combat.call("_initial_umbra_state", _live_combat_layout("heart", Vector2i(3, 3)))
+	state["enemies"].append({"id":2, "type":"crawler", "pos":Vector2i(2, 1), "hp":100, "max_hp":100})
+	state["terrain"] = [
+		{"id":"visible_worldspine", "kind":"dragon_spire", "pos":Vector2i(3, 4), "hp":4, "max_hp":4, "surface_on_destroy":"rubble", "boss_created":true, "owner_id":1},
+		{"id":"hidden_worldspine", "kind":"dragon_spire", "pos":Vector2i(2, 7), "hp":4, "max_hp":4, "surface_on_destroy":"rubble", "boss_created":true, "owner_id":1}
+	]
+	state["traps"] = [
+		{"id":"visible_trap", "pos":Vector2i(1, 3), "element":"earth", "damage":2},
+		{"id":"hidden_trap", "pos":Vector2i(5, 4), "element":"earth", "damage":2}
+	]
+	return state
 
 
 static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Callable) -> void:

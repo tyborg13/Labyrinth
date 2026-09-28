@@ -71,7 +71,8 @@ blocked no-op action entries. Later sequences keep the local curve while raising
 enemy HP by 8% per completed sequence. Damaging intents add
 0/1/1/2/2/3 points and support intents add 0/0/1/1/2/2 points across the six
 sequences. Zekarion's 2x2 footprint makes printed reach feel larger; Overload
-snapshots the announced Electrified cells and resolves without conduction.
+snapshots Electrified centers, threatens their orthogonal neighborhoods without
+additional conduction, retains charge and pairs the field with a live shot.
 Storm Claw supplies close pursuit, while other lightning attacks can conduct
 through connected surfaces, making each intent's geometry and rules relevant.
 Dragon cycles hold directional geometry and cap terrain/armor/summons; Vyraketh
@@ -126,7 +127,7 @@ from typing import Any
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-BALANCE_REVISION = "dragon_feedback_v2"
+BALANCE_REVISION = "dragon_pressure_v3"
 DEFAULT_CARDS_PATH = REPO_ROOT / "data" / "cards.json"
 DEFAULT_EQUIPMENT_PATH = REPO_ROOT / "data" / "equipment.json"
 
@@ -169,12 +170,12 @@ SOURCE_FILTERS = (
 )
 
 BOSS_ENCOUNTER_ROLES = {
-    "zekarion": "capped Wisps, moving ranged pressure, declared global charge Overload",
-    "tharokh": "four spread destructible spires, secondary Stonewake bite, Bedrock Rubble before delayed Faultline rupture",
-    "vyraketh": "damaging scattered Fire, breath across persistent hazards, deniable self-damaging detonation",
-    "vaeloryx": "live ranged pull, held swept Dive, close radial push and a retreating storm ring with safe eye",
-    "iskaldra": "Mantle plus close pressure, full bounded Ice trail, pursuit and armor-dependent burst radius",
-    "noctyrax": "snuff before Eclipse warning, player-relit refuges, live pursuit and capped replacement Acolytes",
+    "zekarion": "capped Wisps, seven-cell charge bands, retained adjacent Overload and simultaneous live shots",
+    "tharokh": "four destructible spires, held body attacks plus persistent pulses, then consuming Faultline and a live shot",
+    "vyraketh": "seven-cell Fire bands, broad breath plus adjacent heat, pursuit during detonation and field renewal",
+    "vaeloryx": "live ranged pull, swept Dive wake retained into Gale, retreating outer Eye ring plus a weaker close bite",
+    "iskaldra": "two-layer Mantle then immediate Shatter, crossed Ice lanes, pursuit plus a surviving-trail burst",
+    "noctyrax": "snuff and darkness, declared player-centered ground sweeps, live pursuit and capped replacement Acolytes",
 }
 
 ENEMY_TACTICAL_ROLES = {
@@ -222,11 +223,11 @@ def encounter_assumptions() -> dict[str, Any]:
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
             "summon_reaction": "newly summoned helpers cannot activate before the next already-scheduled player activation",
-            "ice_lance": "Whiteout coats its whole two-wide held lane; route and Chill pressure persist",
-            "braziers": "Night Coil snuffs before Eclipse warning; player arrival relights and immediately removes Eclipse danger; never automatic cleanup",
-            "pressure": "base HP unchanged; Fire has five damaging marks, Earth four spread spires; armor shrinks Ice burst; Air uses swept/radial geometry; Lightning snapshots charges and consumes only announced cells",
-            "earth_cycle": "Stonewake, Claw, Bedrock Breath, Faultline; spires remain during the lane and its Rubble persists into the rupture warning; unchanged damage and durability",
-            "earth_approach": "with no living spines and body distance at least 3, reserve one legal diagonal approach flank, then use unchanged separation scoring; close placement and route/body-exit safeguards unchanged; excluded from intrinsic card scores",
+            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout coats crossed two-wide range-3 lanes; Talon adds a surviving-trail burst",
+            "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage but not fixed sweeps centered on the declared player position (Eclipse radius3, Claw2, Breath1); never automatic cleanup",
+            "pressure": "base HP and normal repeat intervals unchanged; all six open at clock12 and couple body pressure with fixed fields; Fire seven-cell bands and adjacent heat; Air retains Dive wake into Gale and weak close strike in Eye; Lightning seven-cell bands with retained adjacent Overload",
+            "earth_cycle": "Stonewake, Claw plus persistent radius1 pulse4, Bedrock plus pulse4, Faultline radius2 burst8 plus live shot4; four HP per spine, cap4",
+            "earth_approach": "with no living spines and body distance at least3, reserve a legal diagonal approach flank; stagger two-cell pairs separated from next pair; preserve floor connectivity and two whole-body exits; excluded from intrinsic card scores",
             "worldheart": "at most 2 leftover Block becomes Stoneskin per turn; half-gain adjacent pulse remains capped at 4",
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
         },

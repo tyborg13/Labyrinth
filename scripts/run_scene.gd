@@ -48,6 +48,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const EmberHearthPresentation = preload("res://scripts/ember_hearth_presentation.gd")
+const MoltExchangeFeedback = preload("res://scripts/molt_exchange_feedback.gd")
 const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
@@ -1876,6 +1877,7 @@ var _reward_intro_in_progress: bool = false
 var _campfire_choice_action_pending: bool = false
 var _campfire_embrace_committed: bool = false
 var _campfire_presentation := EmberHearthPresentation.new()
+var _molt_exchange_feedback := MoltExchangeFeedback.new()
 var _relic_claim_in_progress: bool = false
 var _treasure_sequence_epoch: int = 0
 var _treasure_reveal_active: bool = false
@@ -8519,6 +8521,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	_molt_exchange_feedback.reset()
 	_maybe_mark_emaciated_awakening_seen()
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
 	_maybe_mark_fire_rest_dialogue_seen()
@@ -8624,7 +8627,8 @@ func _update_dialogue_footer() -> void:
 		var option: Dictionary = (option_var as Dictionary).duplicate(true)
 		var button := Button.new()
 		button.text = str(option.get("label", "Continue"))
-		button.disabled = bool(option.get("disabled", false))
+		button.set_meta("dialogue_action",str(option.get("action","")))
+		button.disabled = bool(option.get("disabled", false)) or (str(option.get("action", "")) == "exchange_moltshard" and _molt_exchange_feedback.active)
 		button.tooltip_text = str(option.get("tooltip", ""))
 		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
 		_ui_skin.apply_button_text_overrides(button)
@@ -8646,6 +8650,11 @@ func _dialogue_hint_text() -> String:
 func _clear_dialogue_choices() -> void:
 	if _dialogue_choice_bar == null:
 		return
+	# Service refresh replaces its buttons; do not retain a controller candidate
+	# whose control is about to be freed (including after a trade or Leave).
+	var focused: Variant = _controller_focus_candidate.get("control", null)
+	if _controller_focus_candidate.has("control") and (not is_instance_valid(focused) or _dialogue_choice_bar.is_ancestor_of(focused)):
+		_controller_focus_candidate.clear()
 	_clear_children(_dialogue_choice_bar)
 
 func _apply_dialogue_accent(accent_text: String) -> void:
@@ -20573,10 +20582,10 @@ func _preview_shortcuts_for_current_action(
 	var umbra_limited: bool = _preview_umbra_is_limited(preview_state)
 	var information_state: Dictionary = _preview_information_state(preview_state)
 	var visible_lookup: Dictionary = _combat_engine.umbra_visible_tile_lookup(information_state) if umbra_limited else {}
-	# Umbra shortcuts stay limited to enemies the player already knows about and
-	# routes made entirely of visible tiles. That preserves hidden collisions and
-	# newly revealed targets while keeping ordinary visible move-attacks concise.
-	var allowed_target_tiles: Variant = _visible_shortcut_enemy_tiles(information_state, visible_lookup) if umbra_limited else null
+	# Umbra shortcuts use only already-visible actors, terrain and traps, along
+	# routes made entirely of visible tiles. Visible destructibles must remain
+	# valid attack choices without exposing targets revealed only by the move.
+	var allowed_target_tiles: Variant = _visible_shortcut_attackable_tiles(information_state, visible_lookup) if umbra_limited else null
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var plans: Dictionary = {}
 	var move_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
@@ -20944,7 +20953,7 @@ func _remaining_actions_include_shortcut_attack(actions: Array, start_index: int
 			return true
 	return false
 
-func _visible_shortcut_enemy_tiles(state: Dictionary, visible_lookup: Dictionary = {}) -> Dictionary:
+func _visible_shortcut_attackable_tiles(state: Dictionary, visible_lookup: Dictionary = {}) -> Dictionary:
 	var result: Dictionary = {}
 	for enemy_var: Variant in state.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
@@ -20953,6 +20962,14 @@ func _visible_shortcut_enemy_tiles(state: Dictionary, visible_lookup: Dictionary
 		if not _combat_engine.is_enemy_visible_to_player(state, enemy, visible_lookup):
 			continue
 		for tile: Vector2i in _enemy_footprint_tiles(enemy):
+			result[tile] = true
+	for terrain: Dictionary in _combat_engine._live_terrain(state):
+		var tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
+		if _combat_engine.is_tile_visible_to_player(state, tile, visible_lookup):
+			result[tile] = true
+	for trap: Dictionary in _combat_engine._live_traps(state):
+		var tile: Vector2i = trap.get("pos", INVALID_TARGET_TILE)
+		if _combat_engine.is_tile_visible_to_player(state, tile, visible_lookup):
 			result[tile] = true
 	return result
 
@@ -26620,6 +26637,11 @@ func _board_hud_obstacles(display_state: Dictionary) -> Array[Rect2]:
 		rects.append(_boss_health_overlay.get_global_rect().grow(10.0))
 		if action_banner != null and action_banner.visible:
 			rects.append(action_banner.get_global_rect().grow(4.0))
+		elif action_banner != null and str(_boss_unit_for_health_overlay(display_state).get("type", "")) == "noctyrax":
+			# Noctyrax's retained brazier labels must already leave room before an
+			# action appears; the HUD need not repaint during every windup frame.
+			var band := Rect2(Vector2(action_banner.global_position.x, _boss_health_overlay.get_global_rect().end.y + 4.0), Vector2(action_banner.size.x, 30.0))
+			rects.append(band.grow(4.0))
 		if hand_scroll != null and hand_scroll.is_visible_in_tree():
 			var hand_rect: Rect2 = hand_scroll.get_global_rect()
 			hand_rect.position.y = _hand_visual_top() - 12.0
@@ -29001,7 +29023,7 @@ func _show_emaciated_services(notice: String = "") -> void:
 	_complete_current_dialogue_line()
 
 func _exchange_moltshard_at_entrance() -> void:
-	if not _run_engine.can_use_emaciated_services(_run_state): return
+	if _molt_exchange_feedback.active or not _run_engine.can_use_emaciated_services(_run_state): return
 	_sync_progression_from_run()
 	var before: Dictionary = _progression.duplicate(true)
 	var candidate: Dictionary = ProgressionStore.transact_run_wallet(before, RunEngineScript.run_result_id(_run_state), int(_run_state.get("wallet_transaction_sequence", 0)) + 1, "moltshard_exchange", "emaciated_man")
@@ -29020,7 +29042,17 @@ func _exchange_moltshard_at_entrance() -> void:
 	_sync_progression_analytics_outbox_to_run()
 	_persist_committed_boundary("moltshard_exchange_ack")
 	_refresh_ui()
+	# The profile purchase is durable even when analytics acknowledgment retries.
+	# Reserve before rebuilding buttons to reject duplicate pointer/controller input.
+	_molt_exchange_feedback.reserve()
 	_show_emaciated_services("One Moltshard traded for %d Embers. Spend them wisely." % ProgressionStore.MOLT_EXCHANGE_EMBERS)
+	if await _molt_exchange_feedback.play(self, _dialogue_overlay, _dialogue_dialog, ProgressionStore.MOLT_EXCHANGE_EMBERS, _reduced_motion_enabled(), _play_sfx):
+		# Retain the player's highlighted Leave/level-up button. Rebuilding the
+		# footer here would replace that focus with the first available action.
+		for child: Node in _dialogue_choice_bar.get_children():
+			if child is Button and child.get_meta("dialogue_action","")=="exchange_moltshard":
+				child.disabled = ProgressionStore.moltshard_count(_progression)<=0
+		_schedule_controller_modal_refresh()
 
 func _queue_wallet_transaction_analytics(before: Dictionary, after: Dictionary) -> Dictionary:
 	var receipt: Dictionary = ProgressionStore.latest_run_wallet_receipt(after, RunEngineScript.run_result_id(_run_state))

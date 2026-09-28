@@ -2129,7 +2129,7 @@
   "stormroad_coil": {
     "name": "Stormroad Coil",
     "rarity": "legendary",
-    "description": "Your single-target @icon(ranged) attacks can relay once through @icon(surface_electrified). Each leg uses the attack's normal @icon(range) and needs line of sight. The relay and target must be visible.",
+    "description": "Single-target @icon(ranged) attacks can relay once through @icon(surface_electrified), with normal @icon(range) on each leg.",
     "icon_path": "res://assets/art/relics/stormroad_coil.png",
     "accent": "#d9862f",
     "design_version": 4,

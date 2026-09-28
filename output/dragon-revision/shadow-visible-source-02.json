@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 30.037356643461873,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 45.768421193383325,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_dissipate.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.097742419323836,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.85574886785689,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_impact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.10959999999997,
+          "luma_mean": 30.141038346245722,
+          "luma_min": 0.0,
+          "luma_range": 248.10959999999997,
+          "luma_stdev": 45.91491888308342,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.32219999999998,
+          "luma_mean": 30.2550248378623,
+          "luma_min": 0.0,
+          "luma_range": 247.32219999999998,
+          "luma_stdev": 46.09547182785271,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 247.32219999999998,
+          "luma_mean": 30.19977343798886,
+          "luma_min": 0.0,
+          "luma_range": 247.32219999999998,
+          "luma_stdev": 46.018883591146256,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_stream.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_shadow_visible_source_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 30.037356643461873,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 45.768421193383325,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_dissipate.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.097742419323836,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.85574886785689,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_impact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.10959999999997,
+      "luma_mean": 30.141038346245722,
+      "luma_min": 0.0,
+      "luma_range": 248.10959999999997,
+      "luma_stdev": 45.91491888308342,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.32219999999998,
+      "luma_mean": 30.2550248378623,
+      "luma_min": 0.0,
+      "luma_range": 247.32219999999998,
+      "luma_stdev": 46.09547182785271,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 247.32219999999998,
+      "luma_mean": 30.19977343798886,
+      "luma_min": 0.0,
+      "luma_range": 247.32219999999998,
+      "luma_stdev": 46.018883591146256,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/Library/Application Support/Escape the Umbra Visual Probe dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1/probes/dragon_pressure_presentation/starless_breath_aoe_fan_stream.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-shadow-visible-source-02-1790620589862757000-71091-dragon_shadow_visible_so-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_shadow_visible_source_probe.gd"
+}

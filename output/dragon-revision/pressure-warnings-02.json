@@ -1,0 +1,561 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.67848038990378,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 44.81135928702724,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/01_vyraketh_d04_kindle_ground.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.99999999999997,
+          "luma_mean": 29.820676577818865,
+          "luma_min": 0.0,
+          "luma_range": 251.99999999999997,
+          "luma_stdev": 45.32740720599697,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/02_vyraketh_d04_cinderfall.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.46853244225985,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.34671798724159,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/03_vyraketh_d04_crownfire.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.116032212901953,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 47.0254532897466,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/04_vyraketh_d04_cinder_maw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 30.54705317936841,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.045931500620895,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/05_tharokh_d08_stonewake.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 30.92964881366128,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.72089773524499,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/06_tharokh_d08_worldspine_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 30.87908103447742,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.6104875363913,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/07_tharokh_d08_bedrock_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 30.808616007587247,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.29435255217255,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/08_tharokh_d08_faultline.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.70394313903267,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.14327513639277,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/09_iskaldra_d12_crystal_mantle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 31.915524019292047,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.61470246527458,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/10_iskaldra_d12_shatterstorm.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 32.032666553300224,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.543550741683525,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/11_iskaldra_d12_whiteout_lance.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.58399999999997,
+          "luma_mean": 32.37147066592257,
+          "luma_min": 0.0,
+          "luma_range": 248.58399999999997,
+          "luma_stdev": 48.980884152299396,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/12_iskaldra_d12_rime_talon.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.60678420594218,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 47.85553837649938,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/13_vaeloryx_d16_skyhook.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.842300964878927,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.070880350685165,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/14_vaeloryx_d16_razor_dive.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.40344718047556,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 47.89406283419656,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/15_vaeloryx_d16_hollow_gale.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.730084534161005,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 48.251690575636935,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/16_vaeloryx_d16_eye_of_storm.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 249.1994,
+          "luma_mean": 29.275816023405525,
+          "luma_min": 0.0,
+          "luma_range": 249.1994,
+          "luma_stdev": 44.95931772962929,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/17_zekarion_d20_skybreak.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.20579999999998,
+          "luma_mean": 29.614338599330463,
+          "luma_min": 0.0,
+          "luma_range": 254.20579999999998,
+          "luma_stdev": 45.56789312211384,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/18_zekarion_d20_storm_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.695206793730886,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.58619624164058,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/19_zekarion_d20_tempest_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 29.68154320230419,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.5237415921118,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/20_zekarion_d20_call_wisps.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 248.99999999999997,
+          "luma_mean": 30.85540325845689,
+          "luma_min": 0.0,
+          "luma_range": 248.99999999999997,
+          "luma_stdev": 46.293625217814835,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/21_noctyrax_d24_night_coil.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1882,
+          "luma_mean": 31.104109194078507,
+          "luma_min": 0.0,
+          "luma_range": 245.1882,
+          "luma_stdev": 47.73564158199661,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/22_noctyrax_d24_last_eclipse.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1882,
+          "luma_mean": 29.983726471048303,
+          "luma_min": 0.0,
+          "luma_range": 245.1882,
+          "luma_stdev": 46.81188670628375,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/23_noctyrax_d24_void_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.99999999999997,
+          "luma_mean": 30.335689319039084,
+          "luma_min": 0.0,
+          "luma_range": 250.99999999999997,
+          "luma_stdev": 47.44443222115546,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/24_noctyrax_d24_starless_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 241.52159999999998,
+          "luma_mean": 50.577840299745965,
+          "luma_min": 0.0,
+          "luma_range": 241.52159999999998,
+          "luma_stdev": 69.58083686714485,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/grimoire_combat_boss_eclipse.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 241.52159999999998,
+          "luma_mean": 50.68515798797768,
+          "luma_min": 0.0,
+          "luma_range": 241.52159999999998,
+          "luma_stdev": 69.48352111844416,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/grimoire_enemy_noctyrax.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_pressure_warning_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.67848038990378,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 44.81135928702724,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/01_vyraketh_d04_kindle_ground.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.99999999999997,
+      "luma_mean": 29.820676577818865,
+      "luma_min": 0.0,
+      "luma_range": 251.99999999999997,
+      "luma_stdev": 45.32740720599697,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/02_vyraketh_d04_cinderfall.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.46853244225985,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.34671798724159,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/03_vyraketh_d04_crownfire.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.116032212901953,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 47.0254532897466,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/04_vyraketh_d04_cinder_maw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 30.54705317936841,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.045931500620895,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/05_tharokh_d08_stonewake.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 30.92964881366128,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.72089773524499,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/06_tharokh_d08_worldspine_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 30.87908103447742,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.6104875363913,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/07_tharokh_d08_bedrock_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 30.808616007587247,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.29435255217255,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/08_tharokh_d08_faultline.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.70394313903267,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.14327513639277,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/09_iskaldra_d12_crystal_mantle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 31.915524019292047,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.61470246527458,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/10_iskaldra_d12_shatterstorm.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 32.032666553300224,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.543550741683525,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/11_iskaldra_d12_whiteout_lance.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.58399999999997,
+      "luma_mean": 32.37147066592257,
+      "luma_min": 0.0,
+      "luma_range": 248.58399999999997,
+      "luma_stdev": 48.980884152299396,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/12_iskaldra_d12_rime_talon.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.60678420594218,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 47.85553837649938,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/13_vaeloryx_d16_skyhook.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.842300964878927,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.070880350685165,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/14_vaeloryx_d16_razor_dive.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.40344718047556,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 47.89406283419656,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/15_vaeloryx_d16_hollow_gale.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.730084534161005,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 48.251690575636935,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/16_vaeloryx_d16_eye_of_storm.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 249.1994,
+      "luma_mean": 29.275816023405525,
+      "luma_min": 0.0,
+      "luma_range": 249.1994,
+      "luma_stdev": 44.95931772962929,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/17_zekarion_d20_skybreak.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.20579999999998,
+      "luma_mean": 29.614338599330463,
+      "luma_min": 0.0,
+      "luma_range": 254.20579999999998,
+      "luma_stdev": 45.56789312211384,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/18_zekarion_d20_storm_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.695206793730886,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.58619624164058,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/19_zekarion_d20_tempest_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 29.68154320230419,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.5237415921118,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/20_zekarion_d20_call_wisps.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 248.99999999999997,
+      "luma_mean": 30.85540325845689,
+      "luma_min": 0.0,
+      "luma_range": 248.99999999999997,
+      "luma_stdev": 46.293625217814835,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/21_noctyrax_d24_night_coil.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1882,
+      "luma_mean": 31.104109194078507,
+      "luma_min": 0.0,
+      "luma_range": 245.1882,
+      "luma_stdev": 47.73564158199661,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/22_noctyrax_d24_last_eclipse.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1882,
+      "luma_mean": 29.983726471048303,
+      "luma_min": 0.0,
+      "luma_range": 245.1882,
+      "luma_stdev": 46.81188670628375,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/23_noctyrax_d24_void_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.99999999999997,
+      "luma_mean": 30.335689319039084,
+      "luma_min": 0.0,
+      "luma_range": 250.99999999999997,
+      "luma_stdev": 47.44443222115546,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/24_noctyrax_d24_starless_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 241.52159999999998,
+      "luma_mean": 50.577840299745965,
+      "luma_min": 0.0,
+      "luma_range": 241.52159999999998,
+      "luma_stdev": 69.58083686714485,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/grimoire_combat_boss_eclipse.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 241.52159999999998,
+      "luma_mean": 50.68515798797768,
+      "luma_min": 0.0,
+      "luma_range": 241.52159999999998,
+      "luma_stdev": 69.48352111844416,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1/probes/dragon_pressure_warnings/grimoire_enemy_noctyrax.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-pressure-warnings-02-1790615539042170000-66761-dragon_pressure_warning-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_pressure_warning_probe.gd"
+}

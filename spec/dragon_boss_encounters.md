@@ -1,10 +1,11 @@
 # Dragon encounter and reward revision
 
-Content revision: `dragon_feedback_v2`, 2026-09-27. The first revision completed
-native-game studies, but user playtesting found insufficient pressure and visual
-clarity. The feedback revision is in progress; see
-[its acceptance matrix](../playtest/dragon_feedback_revision_20260927.md). Earlier
-playtest conclusions are baseline evidence, not acceptance of this revision.
+Content revision: `dragon_pressure_v3`, 2026-09-28. User playtesting rejected
+the preceding revision's difficulty for **all six** dragons. This revision couples
+body attacks with geographically independent secondary threats. Its native
+acceptance is still pending; the earlier wins are baseline evidence only. See
+[revision ledger](../playtest/dragon_pressure_revision_20260928.md) and
+[independent rejection criteria](../playtest/dragon_pressure_design_review_20260928.md).
 
 ## Acceptance and design
 
@@ -49,69 +50,64 @@ use current definitions. See [save compatibility](save_persistence.md).
 
 | Dragon | HP / base initiative | Repeating cycle (intent Time) | Main decision |
 | --- | --- | --- | --- |
-| Vyraketh | 60 / 13 | Meteorfall (5): five declared 4-Fire impacts leave Fire; Cinder Breath (5): held range-3 fan with first-row shoulders, 8 Fire; Crownfire (5): surviving marked Fire detonates for 8; Cinder Maw (5): Move 2 and live melee 10 Fire | Escape the breath without crossing Fire, deny the later blast, or preserve Fire beside the dragon for self-damage. |
-| Tharokh | 64 / 15 | Stonewake (4): four spread 4-HP spires, maximum four, plus melee 4 Earth; Worldspine Claw (5): Move 2 and held crescent, 12 Earth / Sunder 1; Bedrock Breath (5): held range-4 lane, 10 Earth and Rubble; Faultline (6): 8 Earth within radius 2 of surviving spires | Break a spine to open a safe route, navigate the lane and Rubble before the rupture, or defend while retaining melee access. |
-| Vaeloryx | 58 / 12 | Skyhook (5): Move 2 and live range-4 shot, 4 Air / Pull 2; Razor Dive (5): held Move 3 and swept route perimeter, 8 Air / Bleed 1; Hollow Gale (6): adjacent body perimeter, 6 Air / Push 2; Eye of the Storm (6): retreat up to 3, then 8 Air at body distance 3–5 | Approach the safe eye, leave the storm entirely, or accept displacement while preserving attack access. |
-| Iskaldra | 62 / 14 | Crystal Mantle (4): one layer, at most two, plus adjacent physical 3; consume one Ice under the body for one extra layer; Whiteout Lance (5): held two-wide range-4 lane, 6 Ice and full Ice trail; Rime Talon (5): Move 2 and live melee 10 Ice; Shatterstorm (6): physical 7 at body distance up to 1 + remaining layers (maximum 3), then spend layers | Use cheap hits to shrink the later danger ring, deny Ice fuel, or budget movement across the Ice trail. |
-| Zekarion | 60 / 14 | Skybreak (6): three held marks, 6 Lightning / Electrified; Storm Lash (5): Move 1 and live range-3 shot, 5 Lightning / Electrified; Overload (5): 6 Lightning on all still-present charges announced at reveal, then consume those charges; Call Wisps (6): range-4 shot, 4 Lightning, plus one Wisp up to two alive | Deal with Wisps while choosing when to leave, replace or exploit charged ground before Overload. |
-| Noctyrax | 72 / 14 | Night Coil (6): held range-3 lane, 6 Shadow / Pull 1, snuff one marked brazier; Last Eclipse (6): 8 Shadow outside current Light, Eclipse duration 2, replace one Acolyte up to two alive; Void Claw (5): Move 2 and live melee 12 Shadow / Expose 1; Starless Breath (6): held range-5 lane, 8 Shadow / Pierce | Relight a refuge before Eclipse, create Light, or fight through the darkness while managing replacement Acolytes. |
+| Vyraketh | 60 / 13 | Meteorfall (5): seven held 4-Fire marks in a bent band plus a live range-4 shot for 4; Cinder Breath (5): held range-3 fan for 8 plus 4 within one tile of surviving marked Fire; Crownfire (5): detonate marked Fire for 8, then Move 2 / live bite 6; Cinder Maw (5): Move 2 / live bite 10 and renew a seven-cell band for 3 | Clear a passage through the Fire, defend the live attack, or preserve Fire beside the dragon for Crownfire self-damage. |
+| Tharokh | 64 / 15 | Stonewake (4): four paired 4-HP spires (cap four) plus a held range-4 lane for 4; Worldspine Claw (5): held Move 2 / crescent 12 / Sunder 1 plus radius-1 spire pulse 4; Bedrock Breath (5): held range-4 lane 10 / Rubble plus radius-1 pulse 4; Faultline (6): radius-2 spire burst 8, consume spires, plus live range-4 shot 4 | Break a specific spine to earn a corridor before the body attack, or defend to retain melee access; surviving terrain matters throughout the cycle. |
+| Iskaldra | 62 / 14 | Crystal Mantle (4): two layers (cap three, one extra from consumed Ice under body) plus live range-4 shot 4; Shatterstorm (6): held Move 1 / physical 7 within 1 + layers (cap four), then consume layers; Whiteout Lance (5): range-3 crossed two-wide lanes, 6 Ice / Ice trail; Rime Talon (5): live Move 2 / bite 10 plus 5 on surviving declared trail Ice | Spend cheap hits to shrink the immediate Shatter, deny Ice fuel, or clear/route around a trail while avoiding the live pursuit. |
+| Vaeloryx | 58 / 12 | Skyhook (5): live Move 2 / range-4 shot 4 / Pull 2; Razor Dive (5): held Move 3 / swept-body perimeter 8 / Bleed 1, retain actual wake; Hollow Gale (6): body distance 1–2 for 6 / Push 2 plus fixed Dive wake 5; Eye of the Storm (6): held retreat up to 3 / outer ring distance 2–5 for 8 plus live close bite 4 | Leave both body and wake, counter displacement, or enter the weaker close strike to avoid the stronger outer ring. |
+| Zekarion | 60 / 14 | Skybreak (6): seven held band marks, 6 Lightning / Electrified; Storm Lash (5): live Move 1 / range-3 shot 5 / Electrified plus radius-1 announced charge pulse 3; Overload (5): 6 within one tile of announced charges, retain them, plus live range-4 shot 4; Call Wisps (6): live range-4 shot 4, replace one Wisp up to two alive | Clear enough charge to earn space, defend the remaining live shot, or use the conductors while controlling helpers. |
+| Noctyrax | 72 / 14 | Night Coil (6): held four-wide range-3 lane, 6 / Pull 1, snuff nearest refuge; Last Eclipse (6): 8 outside current Light plus fixed radius-3 sweep 5 around the declared player position, replace one Acolyte up to two; Void Claw (5): live Move 2 / bite 12 / Expose 1 plus radius-2 held ground sweep 4; Starless Breath (6): held range-4 fan 8 / Pierce plus fixed radius-1 held ground sweep 4 | Maintain Light while leaving the held sweep, spend movement/Time, or defend its weaker hit; player-made Light cannot erase the separate ground threat. |
 
-Tharokh's first Stonewake opens at clock 12. Worldspines cannot occupy actors,
-traps or existing terrain, preserve player routes, and leave at least two legal
-one-step exits for the dragon's whole 2×2 body. Destroying one creates Rubble;
-overlapping Faultline areas do not charge the same actor once per spine.
-Bedrock Breath precedes Faultline, so surviving spires constrain the lane escape
-and its Rubble can raise movement costs during the subsequent rupture warning.
-This order brings terrain decisions into the first cycle without increasing HP,
-damage, spire durability or burst radius. Clearing a spine while hitting the boss
-remains useful counterplay.
-When no spines remain and the player is at least three tiles from the dragon's
-body, the first mark prefers a legal diagonal neighbour of the declared player,
-nearest the dragon. This reserves an approach flank that need not disappear in
-the same adjacent attack as the boss. It uses the same route and body-exit
-checks; unavailable flanks fall back to the existing spread score. Remaining
-marks retain the original separation preference, and close-range placement is
-unchanged. Marks never move to follow the player after declaration.
+All six first warnings resolve at initiative clock 12. Normal repeat initiative
+is unchanged. No HP inflation supplies this revision's pressure. Every individual
+area hits each actor once; explicitly separate actions can both hit. Compound
+warnings include each live attack and fixed field. Body-held approach remains
+fixed; intents flagged `live_body` keep ordinary pursuit while their field remains
+anchored. Revealed surface snapshots store centers and derive live neighborhoods
+from surviving centers. Later charge cannot enlarge the snapshot. Legacy saved
+Overload has no neighborhood and still consumes only its original charges.
 
-Vyraketh's Fire uses ordinary shared terrain. Meteorfall includes two near
-approach tiles, the declared player tile when legal, and separated additional
-positions. That Fire persists across Cinder Breath. Crownfire detonates surviving
-Fire at the remembered coordinates and can hit Vyraketh; replacing or consuming
-the Fire denies it. Unrelated Fire does not join the detonation. Cinder Breath
-authors `pattern_min_flank: 1`, producing open-board rows of 4/4/6 tiles. This
-closes the diagonal corner gap found in native play without widening the later
-rows or removing the lateral route around the body. Other and saved fans retain
-their default first-row width.
+Fire and Lightning bands fold against arena edges, avoiding enemy footprints
+and blocking terrain. A new
+band retires only surfaces still owned by that dragon, preserving player or helper
+replacements. Vyraketh remembers only its latest cinder coordinates. Replacing or
+consuming their Fire shrinks both heat and Crownfire. Crownfire uses the ordinary
+shared detonation, including self-damage when the dragon is nearby. Breath keeps
+its held 4/4/6 fan. Fire does not grow permanently from repeated bands.
 
-Iskaldra's latest Whiteout replaces its previous owned trail, preserving surfaces
-painted by others. One active authored trail bounds long-fight Ice accumulation.
-Mantle layers negate one positive direct hit each and are visible on the boss bar;
-breaking a layer reports prevented damage. Removing layers during Shatterstorm's
-warning immediately shrinks its danger radius. The burst spends remaining layers.
-Iskaldra remains Freeze-immune, Vaeloryx Immobilize-immune, and Zekarion Shock-immune.
+Worldspines preserve floor connectivity and at least two legal one-step exits for
+the whole dragon. Pairs are staggered with a preferred two-cell gap and separated
+from the next pair; ranged approaches still reserve a diagonal flank when legal.
+Tharokh's body attacks preserve its own spires; ordinary player damage still breaks
+them. Claw and Breath pulses leave surviving spires intact. Faultline consumes them.
+Breaking one creates Rubble and immediately shrinks subsequent live spire danger.
 
-Vaeloryx's swept Dive uses only the actual surviving movement path. Preview and
-animation use that same path; overlapping wake cells hit each actor once. A blocked
-or interrupted approach cannot damage the unreachable landing. Eye of the Storm
-uses Manhattan distance from the whole 2×2 body, leaving distance 1–2 and distances
-beyond 5 safe. Radial displacement pushes away from the actual dragon body.
+Whiteout replaces only its previous owned Ice trail. Mantle negates one positive
+direct hit per layer; the boss bar and feedback expose the remaining layers.
+Peeling during Shatter shrinks its warning immediately; remaining layers are spent
+on resolution. Iskaldra remains Freeze-immune, Vaeloryx Immobilize-immune, and
+Zekarion Shock-immune. Air's wake is the actual resolved Dive area, serialized in
+the enemy and snapshotted for the next Gale. It neither translates with a displaced
+body nor accumulates across cycles. Gale spends it; no new surface kind is created.
 
-Zekarion starts with two Lightning Wisps; Call Wisps counts them toward its cap.
-Overload snapshots Electrified tiles when announced. Replacing a charge removes
-its danger; charges painted later do not enlarge the warning or conduct the burst
-outward. Each actor is hit once, and only remaining announced charges are consumed.
-Noctyrax starts with two Veilbound Acolytes and replaces one per Eclipse while below
-the cap. New helpers enter the queue once and first act after the next queued player
-activation, or later if their ordinary delay requires it. Saves preserve that slot.
+Zekarion starts with two Wisps. Overload retains Electrified; every surviving
+announced center threatens its own cell and orthogonal neighbors, once per actor
+across overlapping neighborhoods. Surface replacement removes that center's area,
+though another nearby center may still threaten it. The additional live shot is
+distinct. Skybreak retires the boss's prior charge field before painting the next
+band; helper/player-owned conductors retain ordinary surface behavior.
 
-Two Noctyrax braziers occupy oriented (2,5) and (6,3), clear of terrain and traps;
-displaced loot is relocated without changing its count. Night Coil snuffs the
-farther refuge first and alternates identities on later cycles, including after
-resume. Snuffing follows its resolved attack: Bleed killing the dragon first cancels
-it. Eclipse then announces darkness using current Light and never snuffs again.
-Walking or Blinking onto an unlit brazier relights it immediately, making it safe
-before the announced Eclipse. Braziers never restore themselves. Lit refuge cells
-render beneath actors so safety stays visible without hiding the character.
+Noctyrax starts with two Acolytes. Both helper caps include opening helpers. Newly
+summoned helpers always wait past the next queued player activation. Braziers at
+oriented (2,5) and (6,3) remain clear of terrain/traps. Night Coil snuffs the refuge
+nearest the player at declaration. Eclipse and later ground sweeps announce a
+fixed area around the player at declaration (radii 3 / 2 / 1). This area never
+follows later movement, painted Light or body displacement. Relighting by
+walking or Blinking onto a brazier immediately removes darkness damage, while
+the ground sweep remains guardable. Other Light, movement and alternative
+refuges still provide counterplay. Old unflagged sweeps retain their saved
+nearest-brazier anchor; only `field_anchor: player` opts into the new rule.
+Braziers never automatically relight. Old saved snuff/restore flags retain their
+one-time declared behavior. Refuges render below actors.
 
 ## Dragon trophies
 

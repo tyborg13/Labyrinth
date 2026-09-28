@@ -1,0 +1,441 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.72788033849664,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.29381042321936,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_ack_retry_success.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.64074185383922,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.062334957145445,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_empty.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.71360907544699,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.265603932829755,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_failed_save.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.80200278787998,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.52371235482656,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_focus_normal.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.832171828531546,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.57368126129964,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_focus_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.76129918933473,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.352509496496275,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_normal.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 246.82359999999997,
+          "luma_mean": 20.699123556623796,
+          "luma_min": 0.0,
+          "luma_range": 246.82359999999997,
+          "luma_stdev": 32.2191322843062,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 26.06284331698467,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 36.93706131405674,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_dissipate.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 26.098056770005808,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.037910694324694,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_impact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 26.925036056623153,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.90444315150449,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 27.572319704993443,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 39.046309904515184,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 30.058402099805317,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 45.472265525450425,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_dissipate.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 30.042900751339662,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 45.58085834972022,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_impact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 30.102974086518422,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 45.20955576036218,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 251.55479999999997,
+          "luma_mean": 30.192092478641023,
+          "luma_min": 0.0,
+          "luma_range": 251.55479999999997,
+          "luma_stdev": 45.5805436769278,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 245.1602,
+          "luma_mean": 26.008248544760704,
+          "luma_min": 0.0,
+          "luma_range": 245.1602,
+          "luma_stdev": 37.327976019708856,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_dissipate.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 26.00624717652278,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.36716402679946,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_impact.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 25.932474205153014,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.24690555133917,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_reduced.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 26.111284265260466,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.507014245213085,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_release.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 244.6058,
+          "luma_mean": 25.43202829800369,
+          "luma_min": 0.0,
+          "luma_range": 244.6058,
+          "luma_stdev": 37.010823489820176,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/stormroad_coil_short_rules.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_pressure_presentation_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.72788033849664,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.29381042321936,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_ack_retry_success.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.64074185383922,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.062334957145445,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_empty.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.71360907544699,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.265603932829755,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_failed_save.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.80200278787998,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.52371235482656,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_focus_normal.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.832171828531546,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.57368126129964,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_focus_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.76129918933473,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.352509496496275,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_normal.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 246.82359999999997,
+      "luma_mean": 20.699123556623796,
+      "luma_min": 0.0,
+      "luma_range": 246.82359999999997,
+      "luma_stdev": 32.2191322843062,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/exchange_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 26.06284331698467,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 36.93706131405674,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_dissipate.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 26.098056770005808,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.037910694324694,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_impact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 26.925036056623153,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.90444315150449,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 27.572319704993443,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 39.046309904515184,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/last_eclipse_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 30.058402099805317,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 45.472265525450425,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_dissipate.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 30.042900751339662,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 45.58085834972022,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_impact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 30.102974086518422,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 45.20955576036218,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 251.55479999999997,
+      "luma_mean": 30.192092478641023,
+      "luma_min": 0.0,
+      "luma_range": 251.55479999999997,
+      "luma_stdev": 45.5805436769278,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/night_coil_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 245.1602,
+      "luma_mean": 26.008248544760704,
+      "luma_min": 0.0,
+      "luma_range": 245.1602,
+      "luma_stdev": 37.327976019708856,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_dissipate.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 26.00624717652278,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.36716402679946,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_impact.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 25.932474205153014,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.24690555133917,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_reduced.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 26.111284265260466,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.507014245213085,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/starless_breath_release.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 244.6058,
+      "luma_mean": 25.43202829800369,
+      "luma_min": 0.0,
+      "luma_range": 244.6058,
+      "luma_stdev": 37.010823489820176,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1/probes/dragon_pressure_presentation/stormroad_coil_short_rules.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-pressure-presentation-01-1790608249081284000-60016-dragon_pressure_presenta-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_pressure_presentation_probe.gd"
+}

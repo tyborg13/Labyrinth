@@ -114,6 +114,8 @@ func _initialize() -> void:
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/dragon_pressure_mechanics_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/dragon_spire_routes_suite.gd").run(Callable(self, "_assert"))
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	PlayerMovementSuite.run(Callable(self, "_assert"))
@@ -374,6 +376,7 @@ func _initialize() -> void:
 	await _test_main_scenes_instantiate()
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/dragon_exchange_presentation_suite.gd").run_live(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/contextual_cutout_suite.gd").run(self, Callable(self, "_assert"))
@@ -4822,8 +4825,9 @@ func _test_zekarion_overload_preserves_declared_counterplay() -> void:
 	for tile: Vector2i in [Vector2i(1, 2), Vector2i(2, 2), Vector2i(6, 5)]:
 		BoardSurfaceRules.place(state, tile, "electrified")
 	state["player"]["pos"] = Vector2i(1, 2)
-	# The stable save ID is retained, but Overload now snapshots shared ground.
-	var overload: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, state, 0, _enemy_intent_by_id("zekarion", "tempest_breath"))
+	# A v2 save retains its exact-cell consuming warning after the pressure revision.
+	var legacy_overload := {"id":"tempest_breath","name":"Overload","time":5,"actions":[{"type":"aoe","damage":6,"range":0,"element":"lightning","committed_shape":"surface_snapshot","snapshot_surface":"electrified","consume_surface":"electrified","no_conduction":true}]}
+	var overload: Dictionary = preload("res://scripts/guardian_combat_rules.gd").commit(combat, state, 0, legacy_overload)
 	_set_enemy_intent(state, 0, overload)
 	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
 	_assert((threat["attack"] as Array).size() == 3 and threat["attack"].has(Vector2i(1, 2)) and threat["attack"].has(Vector2i(6, 5)), "Overload should announce every current charge, including an occupied and disconnected cell")

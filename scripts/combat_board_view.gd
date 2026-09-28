@@ -3147,6 +3147,11 @@ func _queue_presentation_change_redraws(
 				effects_changed = true
 				action_floor_changed = true
 				overlay_changed = true
+				# Noctyrax's tethered labels solve around the animated actor and
+				# action banner. Retaining the pre-cast HUD until damage changes
+				# actor state can leave its old label over the windup banner.
+				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
+					hud_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
 				effects_changed = true
 			"trap_effects":
@@ -4824,8 +4829,8 @@ func _noctyrax_brazier_markers() -> Array[Dictionary]:
 		var threatened: bool = int(brazier["id"]) == snuffed_id
 		var lit: bool = bool(brazier.get("lit", true))
 		var label: String = "Snuff incoming" if threatened else "Light · Radius 2" if lit else "Unlit brazier"
-		var detail: String = "Relight after Night Coil" if threatened else "Refuge from Eclipse" if lit else "Step here to relight"
-		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Light radius 2 protects against Last Eclipse. Other attacks can still hit." if lit else "Step onto this brazier's tile to relight it and restore Light radius 2."
+		var detail: String = "Relight after Night Coil" if threatened else "Blocks Eclipse darkness" if lit else "Step here to relight"
+		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Light radius 2 blocks Eclipse darkness. The marked ground and other attacks can still hit." if lit else "Step onto this brazier's tile to relight it and restore Light radius 2."
 		if threatened and snuffs_before_hit:
 			label = "Dark before Eclipse"
 			detail = "Use another Light"
@@ -4841,8 +4846,11 @@ func _noctyrax_brazier_markers() -> Array[Dictionary]:
 func _noctyrax_brazier_marker_rect(center: Vector2, width: float, placed: Array[Dictionary]) -> Rect2:
 	var base := Rect2(center+Vector2(-width*.5,-_tile_height()*1.6-54.0),Vector2(width,54))
 	var obstacles: Array[Rect2]
+	var fixed_hud: Array[Rect2]
 	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
-	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects",[]): obstacles.append(inverse*global_rect)
+	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects",[]):
+		fixed_hud.append(inverse*global_rect)
+	obstacles.append_array(fixed_hud)
 	for unit: Dictionary in _visible_units():
 		if _unit_is_preview_echo(unit): continue
 		obstacles.append(_unit_draw_rect(unit).grow(8))
@@ -4851,11 +4859,20 @@ func _noctyrax_brazier_marker_rect(center: Vector2, width: float, placed: Array[
 	var bounds: Rect2 = _enemy_hud_viewport_bounds()
 	var best: Rect2 = base
 	var score: float = INF
+	var y_offsets: Array[float]
+	for value: float in [0.0,-70.0,70.0,-140.0,140.0,210.0]: y_offsets.append(value)
+	# Include exact clear positions beneath/above fixed overlays. Actor crowding
+	# must not push a brazier's words through the current action banner.
+	for rect: Rect2 in fixed_hud:
+		y_offsets.append(rect.end.y+8.0-base.position.y)
+		y_offsets.append(rect.position.y-8.0-base.end.y)
 	for x: float in [0.0,-width*.7,width*.7,-width*1.15,width*1.15]:
-		for y: float in [0.0,-70.0,70.0,-140.0,140.0,210.0]:
+		for y: float in y_offsets:
 			var offset := Vector2(x,y)
 			var candidate := Rect2(base.position+offset,base.size)
 			var candidate_score: float = _enemy_hud_layout_score([candidate],obstacles,bounds,offset)
+			for rect: Rect2 in fixed_hud:
+				candidate_score += _rect_overlap_area(candidate,rect)*1000000000.0
 			if candidate_score < score:
 				score = candidate_score
 				best = candidate

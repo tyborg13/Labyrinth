@@ -47,6 +47,7 @@ static func profile(effect: Dictionary, actor: Dictionary = {}) -> Dictionary:
 			elif action in ["melee", "aoe"]: clip = "claw"
 		"noctyrax":
 			if action in ["summon_minions","summon"]: clip = "eclipse"; geometry = "utility"; element = "shadow"
+			elif action == "aoe" and str(effect.get("committed_shape","")) == "refuge": clip = "eclipse"; geometry = "ground"; element = "shadow"
 			elif action == "umbra_eclipse": clip = "eclipse"; geometry = "ground"; element = "shadow"
 			elif intent == "starless_breath" or action == "ranged": clip = "breath"; geometry = "breath"; element = "shadow"
 			elif intent == "night_coil": clip = "coil"; geometry = "breath"; element = "shadow"

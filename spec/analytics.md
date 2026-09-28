@@ -10,7 +10,7 @@ The game now records local-only analytics as append-only JSON Lines under `user:
 - Default path: `user://analytics/events-YYYY-MM-DD.jsonl`
 - Metadata: `user://analytics/meta.json`
 - Schema version: `1`
-- `balance_revision`: loaded content revision (`dragon_feedback_v2` for revised dragon pressure, trophies, and milestones).
+- `balance_revision`: loaded content revision (`dragon_pressure_v3` for coupled dragon pressure, trophies, and milestones).
 - `balance_transition`: empty for fresh encounters; resumed older combats record
   `{from, to, saved_intents_preserved: true}`. Already committed intents and paid
   checkpoints retain their saved payload until the next ordinary selection.
@@ -683,9 +683,15 @@ events retain their own damage and causal source. Both records use the existing
 combat sequence/idempotency cursor, with no analytics emitted by forecast copies
 or by presentation. Historical JSONL remains readable.
 
-Dragon feedback pressure uses additive surface events: `dragon_status_consumed`
-records the enemy, consumed status, amount and source after Shatterstorm;
-`surface_removed` with reason `overload` identifies announced charges spent, and
-`replaced_trail` identifies the prior owned Ice lane retiring. Night Coil emits
-`dragon_light_snuffed` before the next Eclipse warning. Existing damage and
-surface events continue to flow through append-only local JSONL instrumentation.
+Dragon pressure uses additive surface events: `dragon_status_consumed` records
+the enemy, consumed status, amount and source after Shatterstorm.
+`dragon_spire_pulse` records `tiles`, `radius`, `consumed` and causal `source` for
+persistent Claw/Breath pulses and consuming Faultline. `dragon_field_replaced`
+records `surface`, removed `tiles` and dragon `source` when a new owned band retires
+its predecessor. Individual removals retain their ordinary `surface_removed`
+records with reason `dragon_field_replaced`; player/helper replacements remain.
+`replaced_trail` identifies retiring owned Ice. New Overload retains charge; only
+legacy saved consuming Overload emits removal reason `overload`. Night Coil emits
+`dragon_light_snuffed` before Eclipse. Existing damage/surface/initiative events
+continue through local append-only JSONL. Forecast and presentation do not append
+separate analytics.

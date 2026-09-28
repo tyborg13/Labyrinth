@@ -913,7 +913,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if str(action.get("guardian_kind", "")) == "crag_outcrop":
 				tokens.append(text_token("All outcrops · within %d" % int(action.get("range",1)), "warning", "Surviving outcrops rupture every floor tile within the shown distance."))
 			else:
-				tokens.append(text_token("Spire burst", "warning", "Every surviving Worldspine ruptures tiles within %d, then breaks. The dragon can be hit too." % int(action.get("radius",1))))
+				var consuming: bool = bool(action.get("consume_terrain",true))
+				tokens.append(text_token("Spire burst" if consuming else "Spire pulse", "warning", "Hits within %d of surviving Worldspines. %s" % [int(action.get("radius",1)), "Breaks the spires." if consuming else "Spires remain."]))
 		"cinder_marks":
 			tokens.append(_token_for_action_field(action, "cinder_marks", "count", int(action.get("count", 0)), "neutral", "Creates Fire on the marked tiles."))
 			if int(action.get("damage", 0)) > 0: _append_damage_token(tokens, "ranged", action, options)
@@ -1137,8 +1138,7 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		var low: int = int(action.get("minimum_range",1))
 		var high: int = int(action.get("range",1))
 		row.append(text_token("Ring %d–%d" % [low,high] if low != high else "Ring %d" % high,"warning","Distance is measured from the nearest occupied dragon tile."))
-		if low > 1: row.append(text_token("· Safe within %d" % (low-1),"neutral","The storm leaves the inner area clear. Other attacks can still hit."))
-		elif action.has("range_status"): row.append(text_token("· Mantle fuels range","warning","Each remaining Mantle layer adds 1 range, up to 3. Break layers before Shatterstorm to shrink its threat; it consumes all remaining layers."))
+		if action.has("range_status"): row.append(text_token("· Mantle fuels range","warning","Each remaining layer adds 1 range, up to %d. Break layers to shrink the warning; Shatterstorm spends the rest." % int(action.get("maximum_range",3))))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "swept_path":
@@ -1147,8 +1147,20 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		return row
 	if shape == "surface_snapshot":
 		row.append(surface_token(str(action.get("snapshot_surface","electrified"))))
-		row.append(text_token("Marked tiles · consumed","warning","Hits only the ground marked when this intent was announced, then removes those charges. Later Electrified tiles are not added."))
+		var radius: int = int(action.get("snapshot_radius",0))
+		var label: String = "Marked + adjacent" if radius > 0 else "Marked tiles"
+		if action.has("consume_surface"): label += " · consumed"
+		row.append(text_token(label,"warning","Hits surviving marked ground%s. Replacing a marked surface removes its area; later ground is not added." % (" and its orthogonal neighbors" if radius > 0 else "")))
 		_append_brazier_rule(row,action)
+		return row
+	if shape == "trail_snapshot":
+		row.append(text_token("Dive wake", "warning", "Hits the marked wake left by the actual Dive. It stays fixed when the dragon moves."))
+		return row
+	if shape == "refuge":
+		row.append(text_token("Shadow sweep", "warning", "Hits the marked ground. Light blocks darkness, but this sweep can still hit."))
+		return row
+	if shape == "cross":
+		row.append(text_token("Cross %d" % int(action.get("range",3)), "warning", "Two-wide lanes extend from all four edges of the dragon. Leaves Ice on the marked ground."))
 		return row
 	if action.has("pattern_footprint") and not shape.is_empty():
 		var pattern: Array = []

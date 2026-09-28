@@ -207,7 +207,7 @@ Encounter calibration is also important:
   `0/0/1/1/2/2`. This keeps late fights viable without returning to multi-card
   health sponges.
 - Zekarion's 2x2 footprint makes attack reach feel larger than printed range.
-  Overload snapshots the announced Electrified cells and resolves without
+  Overload snapshots the announced Electrified centers and their orthogonal neighborhoods and resolves without
   conduction, while advancing Storm Claw changes close-range pressure. Other
   lightning attacks can conduct through connected surfaces, so movement safety
   depends on each intent's announced geometry and conduction rules.
@@ -670,40 +670,38 @@ from occupant damage and inherits the initiating attack's reach for Detonate;
 these coefficients remain unchanged. No additional Fire, forced contact or
 owned Gauntlet is assumed in intrinsic card scores.
 
-### Dragon feedback revision (`dragon_feedback_v2`)
+### Dragon pressure revision (`dragon_pressure_v3`)
 
-Base dragon HP and initiatives remain unchanged for the pressure prototype.
-Meteorfall adds five damaging marks and keeps Fire across the breath; Earth spreads
-four attackable spires and adds a small bite to setup. Bedrock Breath paints Rubble
-before Faultline consumes the spires, retaining terrain pressure across the first
-lane escape and rupture warning without changing either attack's numbers.
-At body distance three or more, its first spine prefers one legal diagonal
-approach flank before the unchanged spread score selects the other marks. The
-close-cycle placement, safety filters, four-HP clearing cost and reaction time
-remain unchanged. This affects whether an incidental boss Sweep clears the
-approach, not the intrinsic value assigned to that card.
-Mantle adds a physical pulse,
-and its remaining layers increase Shatterstorm's radius until cheap hits remove
-them. Air replaces repeated crescents with a swept dive and a safe-eye storm ring.
-Overload consumes only announced charges, while Noctyrax gives an actual relight
-window before Eclipse and replaces defeated Acolytes. These affect encounter
-pressure rather than intrinsic card scores and require fresh native-play studies.
+The user rejected `dragon_feedback_v2` for **all six** bosses: ordinary attacks
+plus free sidesteps remained sufficient. Base HP and normal repeat intervals stay
+unchanged, while all six first warnings now resolve at clock 12. The new context
+is simultaneous body and field pressure with bounded, player-removable fuel.
 
-Whiteout Lance paints its entire two-wide lane, increasing persistent route/Chill
-pressure without changing direct damage. Newly summoned helpers act after the
-next queued player activation even if the summoner acts during a long card delay.
-Noctyrax braziers require player arrival to relight and do not reset automatically.
-Worldheart converts at most 2 leftover Block per turn (previously 6): enough to
-retain a small defensive investment and generate a 1-damage adjacent pulse,
-without making an ordinary Block card a full persistent heal. Its other Stoneskin
-pulse remains half the actual gain, rounded down, capped at 4.
+Fire uses seven-cell bands, adjacent cinder heat during Breath and pursuit during
+Crownfire. Earth pairs four 4-HP spires and adds persistent radius-1 / 4-damage
+pulses during Claw/Breath before radius-2 / 8-damage Faultline consumes them.
+Ice puts Shatter immediately after two-layer Mantle (three with fuel), then crossed
+Ice lanes and Talon plus surviving-trail burst. Air retains actual Dive wake for
+Gale and exchanges its stronger outer Eye ring for a weaker close strike.
+Lightning's seven-cell bands threaten orthogonal neighbors during retained
+Overload alongside a live shot. Noctyrax holds a sweep around the player's
+declared position during Eclipse (radius 3) and later attacks (radii 2 / 1);
+relighting removes darkness but not that fixed, guardable sweep.
 
-Gust Step now Moves 1 before its 3-damage, range-2 Pull 2. It uses the normal single
-enemy movement/attack shortcut or deliberate movement-only ground selection. This
-trades post-pull escape for approach reach; Time remains 4. Printed score before
-reordering was 2.61; after is 2.71, still ordinary common-card strength. Prepared-terrain and trophy value remain encounter-specific
-manual assessments, excluded from intrinsic card coefficients.
+These changes raise the contextual value of surface replacement, selective
+terrain damage, defense, control and movement. None grants guaranteed prepared
+board uptime or changes a printed card's intrinsic coefficients. The scorer's
+`dragon_feedback_rules` records the same assumptions. Native acquired-build
+studies must show repeated real opportunity costs, not merely larger tile counts
+or one movement card used during otherwise free offense. See
+[dragon encounter rules](dragon_boss_encounters.md) for exact actions and saved
+warning compatibility.
 
+The prior trophy/card balance remains: Worldheart converts at most 2 leftover
+Block per turn, its half-gain Stoneskin pulse stays capped at 4; Gust Step Moves 1
+before range-2 Pull 2 / damage 3 at Time 4, scored 2.71 (previous order 2.61).
+New helpers still wait beyond the next queued player activation. Trophy and
+prepared-field benefits remain outside intrinsic printed-card scores.
 
 ### Dragon trophy Time and relay context
 

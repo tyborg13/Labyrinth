@@ -129,15 +129,18 @@ static func _test_invalid_paid_technique(combat: Combat, expect: Callable) -> vo
 static func _test_authored_specialist_shock_fuel(combat: Combat, expect: Callable) -> void:
 	var reviewed: Dictionary = {"zekarion": ["storm_claw", "skybreak", "tempest_breath"], "lightning_wisp": ["static_lash", "blinding_arc"]}
 	var specialists: Dictionary = {}
-	var overload_checked: bool = false
+	var overload_parts: Array[String]
 	for enemy_id: String in reviewed:
 		for intent: Dictionary in GameData.enemy_def(enemy_id).get("intents", []):
 			if not (reviewed[enemy_id] as Array).has(str(intent.get("id", ""))): continue
 			for action: Dictionary in intent.get("actions", []):
 				expect.call(int(action.get("shock", 0)) == 0, "%s/%s has no free baseline Shock" % [enemy_id, intent["id"]])
 				if enemy_id == "zekarion" and str(intent["id"]) == "tempest_breath":
-					overload_checked = true
-					expect.call(str(action.get("committed_shape", "")) == "surface_snapshot" and str(action.get("consume_surface", "")) == "electrified" and bool(action.get("no_conduction", false)), "Overload spends its announced charges instead of gaining the Wisp's reusable conduction bonus")
+					overload_parts.append(str(action.get("type", "")))
+					if str(action.get("type", "")) == "aoe":
+						expect.call(str(action.get("committed_shape", "")) == "surface_snapshot" and str(action.get("snapshot_surface", "")) == "electrified" and int(action.get("snapshot_radius", 0)) == 1 and not action.has("consume_surface") and bool(action.get("no_conduction", false)), "Current Overload retains its announced charges and hits their adjacent field without extending through conduction")
+					else:
+						expect.call(str(action.get("type", "")) == "ranged" and str(action.get("element", "")) == "lightning" and int(action.get("damage", 0)) > 0 and int(action.get("range", 0)) > 0, "Current Overload follows its fixed field with a separate live Lightning bolt")
 				var bonus: Dictionary = action.get("surface_bonus", {})
 				if int(bonus.get("shock", 0)) == 0: continue
 				specialists["%s/%s" % [enemy_id, intent["id"]]] = true
@@ -151,7 +154,7 @@ static func _test_authored_specialist_shock_fuel(combat: Combat, expect: Callabl
 				Ground.remove(state, Vector2i(2,3), "electrified", "denied_by_player")
 				var denied: Dictionary = combat._resolve_enemy_action(state, 0, action)
 				expect.call(int(denied["player"].get("shock", 0)) == 0 and int(denied["player"]["hp"]) < 1000, "%s retains direct damage but loses Shock when the player is no longer electrically assisted" % enemy_id)
-	expect.call(specialists == {"lightning_wisp/blinding_arc": true} and overload_checked, "The authored Wisp Shock specialist and Zekarion's distinct consuming Overload policy are both covered")
+	expect.call(specialists == {"lightning_wisp/blinding_arc": true} and overload_parts == ["aoe", "ranged"], "The authored Wisp alone earns conducted Shock; current Overload resolves its retained field before its live bolt")
 
 static func _pursuit_fixture(combat: Combat, hp: int = 1) -> Dictionary:
 	var state: Dictionary = Base.fixture(combat)

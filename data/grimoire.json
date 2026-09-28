@@ -621,8 +621,8 @@
       "enemy_id": "zekarion",
       "title": "Zekarion, the Raging Tempest",
       "body": [
-        "Storm dragon supported by up to two Lightning Wisps. Skybreak and Storm Lash leave Electrified ground.",
-        "Overload announces every current Electrified tile, then strikes and consumes the charges still there. Move away or replace a charge to avoid it; newly painted tiles wait for a later Overload."
+        "Storm dragon supported by up to two Lightning Wisps. Its charged bands persist between attacks.",
+        "Overload strikes around the announced charges, then fires a separate bolt. Replace charges to shrink the blast; surviving charges remain."
       ]
     },
     {
@@ -640,7 +640,7 @@
       "title": "Worldspines",
       "icon": "worldspines",
       "body": [
-        "Tharokh raises stone spires that can be attacked. Faultline blasts around surviving spires, then breaks them into Rubble."
+        "Tharokh raises breakable spires. They pulse during Claw and Breath; Faultline blasts farther, then breaks them into Rubble."
       ]
     },
     {
@@ -649,8 +649,8 @@
       "title": "Meteorfall and Crownfire",
       "icon": "detonate",
       "body": [
-        "Meteorfall strikes marked cells and leaves Fire. That Fire remains dangerous during Cinder Breath.",
-        "Crownfire detonates Fire still present on the Meteorfall cells. Replace or consume it to deny the blast, or keep the dragon beside its own Fire."
+        "Meteorfall strikes marked cells and leaves Fire. Cinder Breath also burns the ground beside that Fire.",
+        "Crownfire detonates the surviving marked Fire while Vyraketh pursues you. Replace the Fire to deny the blast, or lure the dragon into it."
       ]
     },
     {
@@ -659,8 +659,8 @@
       "title": "The Hollow Gale",
       "icon": "gale_force",
       "body": [
-        "Hollow Gale hits every tile beside Vaeloryx and pushes struck actors away. Move beyond the marked perimeter to avoid it.",
-        "Eye of the Storm threatens a ring after the dragon retreats. The close eye and tiles beyond the outer edge are safe."
+        "Hollow Gale blasts around Vaeloryx and along its earlier Dive wake. Its body blast pushes struck actors away.",
+        "Eye of the Storm threatens a wide ring after the dragon retreats. Escape the outer edge, or enter the eye and face a weaker bite."
       ]
     },
     {
@@ -669,7 +669,7 @@
       "title": "Crystal Mantle",
       "icon": "frost_armor",
       "body": [
-        "Each damaging hit breaks one Crystal Mantle layer instead of damaging health. Separate cheap hits can clear the layers before a heavy strike.",
+        "Each direct damaging hit breaks one Crystal Mantle layer instead of damaging health. Cheap hits can clear layers before a heavy strike.",
         "Each remaining layer extends Shatterstorm by one tile. Break layers during its warning to shrink the danger; the burst consumes the layers that remain.",
         "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus."
       ]
@@ -681,7 +681,7 @@
       "icon": "umbra_eclipse",
       "body": [
         "Night Coil extinguishes a marked brazier before Noctyrax announces Last Eclipse. Walk or Blink onto an unlit brazier to relight it.",
-        "Eclipse harms actors outside current Light. Relight a refuge or create Light before it resolves; the refuge stays lit until a later Night Coil.",
+        "Light blocks Eclipse's darkness. Relight a refuge or create Light, but evade or guard against the fixed marked ground. Refuges stay lit until Night Coil.",
         "Noctyrax replaces defeated Acolytes, up to two alive. They hide in Umbra; Light and truesight reveal them."
       ]
     },
@@ -702,7 +702,7 @@
       "title": "Tharokh, the Worldspine",
       "body": [
         "Earth dragon whose Worldspines reshape the arena.",
-        "Faultline threatens the ground around surviving spires. Breaking them early leaves Rubble but removes those blast centers."
+        "Its spires pulse alongside body attacks. Break a spire to open a route before Faultline detonates the remaining field."
       ]
     },
     {
@@ -711,8 +711,8 @@
       "enemy_id": "vyraketh",
       "title": "Vyraketh, the Cinder Crown",
       "body": [
-        "Fire dragon that scatters damaging Meteorfall marks, then breathes across the arena while their Fire remains.",
-        "Crownfire detonates the surviving marked Fire and can hit the dragon too. Its later bite pursues you."
+        "Fire dragon that lays marked bands of Fire. Its breath threatens a broad fan and the ground beside surviving marked Fire.",
+        "Crownfire detonates marked Fire while the dragon pursues you. Its later bite renews the marks; replacing Fire weakens the field."
       ]
     },
     {
@@ -721,8 +721,8 @@
       "enemy_id": "vaeloryx",
       "title": "Vaeloryx, the Hollow Gale",
       "body": [
-        "Air dragon that pulls you into reach, dives along a declared route and pushes nearby actors away.",
-        "Its retreating storm has a safe close eye. Decide whether to follow it into that eye or spend movement escaping the outer edge."
+        "Air dragon that pulls you into reach and dives along a declared route. Its Dive wake erupts again during Hollow Gale.",
+        "Its retreating storm combines a wide ring with a weaker close bite. Choose between escaping the ring and defending inside the eye."
       ]
     },
     {
@@ -732,7 +732,7 @@
       "title": "Iskaldra, the Rime Tyrant",
       "body": [
         "Ice dragon protected by visible Crystal Mantle layers. Ice under its body can fuel an extra layer.",
-        "Its lance paints a whole Ice lane, and Shatterstorm reaches farther with each remaining layer. Cheap hits shrink the warning; the burst spends the layers."
+        "Shatterstorm follows Mantle; breaking layers shrinks its reach. Whiteout paints crossed Ice lanes that can burst again during the pursuing Talon."
       ]
     },
     {
@@ -742,7 +742,7 @@
       "title": "Noctyrax, the Last Eclipse",
       "body": [
         "Shadow dragon and final boss of the twenty-fourth depth.",
-        "Night Coil extinguishes a brazier before Eclipse. Enter its tile to relight a refuge, or create your own Light while fighting the dragon and its replacement Acolytes."
+        "Night Coil snuffs a brazier; enter its tile to relight it. Light blocks Eclipse's darkness, but evade or guard against the fixed marked ground while fighting Noctyrax and its Acolytes."
       ]
     },
     {

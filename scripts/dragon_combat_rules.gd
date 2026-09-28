@@ -3,6 +3,7 @@ extends RefCounted
 const Paths = preload("res://scripts/path_utils.gd")
 const Committed = preload("res://scripts/guardian_combat_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
+const Fields = preload("res://scripts/dragon_pressure_fields.gd")
 
 static func declare(engine: RefCounted, state: Dictionary, index: int, intents: Array) -> Dictionary:
 	var enemy: Dictionary = state["enemies"][index]
@@ -19,9 +20,11 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 	var intent: Dictionary = (intents[posmod(cycle, intents.size())] as Dictionary).duplicate(true)
 	for action: Dictionary in intent.get("actions", []):
 		match str(action.get("type", "")):
-			"cinder_marks": action["declared_tiles"] = meteor_tiles(engine, state, enemy, int(action.get("count", 5))) if str(action.get("placement", "")) == "scattered" else kindle_tiles(engine, state, enemy, int(action.get("count", 3)))
-			"raise_terrain": action["declared_tiles"] = spire_tiles(engine,state,enemy,int(action.get("count",4)),int(action.get("maximum",4)))
-			"lightning_strikes": action["declared_tiles"] = storm_tiles(engine,state,enemy,int(action.get("count",3)))
+			"cinder_marks":
+				if str(action.get("placement", "")) == "band": action["declared_tiles"] = Fields.band_tiles(engine, state, enemy, int(action.get("count", 7)))
+				else: action["declared_tiles"] = meteor_tiles(engine, state, enemy, int(action.get("count", 5))) if str(action.get("placement", "")) == "scattered" else kindle_tiles(engine, state, enemy, int(action.get("count", 3)))
+			"raise_terrain": action["declared_tiles"] = spire_tiles(engine,state,enemy,int(action.get("count",4)),int(action.get("maximum",4)),str(action.get("placement","")) == "paired")
+			"lightning_strikes": action["declared_tiles"] = Fields.band_tiles(engine,state,enemy,int(action.get("count",7))) if str(action.get("placement","")) == "band" else storm_tiles(engine,state,enemy,int(action.get("count",3)))
 		if bool(action.get("snuff_brazier",false)):
 			var braziers: Array = state.get("guardian_braziers",[])
 			if not braziers.is_empty():
@@ -30,6 +33,9 @@ static func declare(engine: RefCounted, state: Dictionary, index: int, intents: 
 				# The opening preserves the nearby refuge; later Coils
 				# alternate by identity, including after a save/resume.
 				choices.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return Paths.manhattan(a["pos"], state["player"]["pos"]) > Paths.manhattan(b["pos"], state["player"]["pos"]))
+				if bool(action.get("snuff_nearest",false)):
+					choices = braziers.duplicate()
+					choices.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return Paths.manhattan(a["pos"], state["player"]["pos"]) < Paths.manhattan(b["pos"], state["player"]["pos"]))
 				if not choices.is_empty():
 					action["brazier_id"] = int(choices[0]["id"])
 					enemy["eclipse_brazier_id"] = action["brazier_id"]
@@ -96,7 +102,7 @@ static func meteor_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionar
 		result.append(selected)
 	return result
 
-static func spire_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, count: int, maximum: int = 4) -> Array[Vector2i]:
+static func spire_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary, count: int, maximum: int = 4, paired: bool = false) -> Array[Vector2i]:
 	var preview: Dictionary = state.duplicate(true)
 	var result: Array[Vector2i]
 	var choices: Array[Vector2i] = Committed.candidates(engine,state,enemy["pos"],state["player"]["pos"],6)
@@ -113,6 +119,11 @@ static func spire_tiles(engine: RefCounted, state: Dictionary, enemy: Dictionary
 				# Spread the four future radius-2 bursts across routes. A cluster of
 				# four rocks is still a single cheap dodge, despite its larger count.
 				var score: int = separation * 10 - Paths.manhattan(tile, state["player"]["pos"])
+				if paired:
+					# Stagger paired pressure across the approach. Radius-one pulses
+					# overlap without putting all four rocks in one incidental Sweep.
+					var preferred_gap: int = 2 if result.size() % 2 == 1 else 4
+					score = -absi(separation - preferred_gap) * 20 - Paths.manhattan(tile, state["player"]["pos"]) * 3
 				if score > best_score:
 					best_score = score
 					selected = tile
@@ -142,7 +153,9 @@ static func spire_preserves_routes(engine: RefCounted, state: Dictionary, enemy:
 	if not Committed.preserves_routes(engine, state, tile): return false
 	var preview: Dictionary = state.duplicate(true)
 	preview["terrain"].append({"kind":engine.DRAGON_SPIRE_KIND, "pos":tile, "hp":4})
-	var blockers: Dictionary = engine._enemy_path_blockers(preview, enemy, true, false)
+	# Structural exits ignore temporary actors. Actual placement still rejects
+	# occupied marks; a nearby player must not cancel every held spire.
+	var blockers: Dictionary = engine._occupied_terrain_tiles(preview)
 	var exits: int = 0
 	for direction: Vector2i in Paths.DIRS_4:
 		if engine._enemy_can_occupy_anchor(preview, enemy, enemy["pos"] + direction, blockers): exits += 1
