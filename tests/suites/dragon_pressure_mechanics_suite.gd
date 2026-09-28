@@ -25,6 +25,7 @@ static func run(expect: Callable) -> void:
 	_test_skybreak_retirement_preview(expect)
 	_test_spires_survive_body_attacks(expect)
 	_test_spire_pulse_overlap_and_clearing(expect)
+	_test_breath_spire_outer_corridor(expect)
 	_test_ice_cross_and_mantle_counterplay(expect)
 	_test_ice_trail_owner_retirement(expect)
 	_test_actual_dive_wake(expect)
@@ -365,6 +366,40 @@ static func _test_spire_pulse_overlap_and_clearing(expect: Callable) -> void:
 	hit = _resolve_action(_roundtrip(expect, state, "broken spire"), pulse)
 	expect.call(hit["player"]["hp"] == state["player"]["hp"], "A broken spire cannot still pulse after reload")
 	expect.call(combat._dragon_spires(hit).size() == 2, "The other persistent spires survive that denied pulse")
+
+static func _test_breath_spire_outer_corridor(expect: Callable) -> void:
+	var combat := Combat.new()
+	var state: Dictionary = _arena("tharokh")
+	state["player"]["pos"] = Vector2i(2,4)
+	for tile: Vector2i in [Vector2i(2,5), Vector2i(1,2)]:
+		state["terrain"].append({"id":200+tile.x,"kind":combat.DRAGON_SPIRE_KIND,"pos":tile,"hp":4,"max_hp":4,"owner_id":state["enemies"][0]["id"],"surface_on_destroy":"rubble"})
+	_declare(expect, state, "bedrock_breath")
+	var lane: Dictionary = _action(expect, state, "aoe")
+	# A held westward lane is avoided from the southern corridor. Breath's
+	# surviving-spire field must still contest that formerly free outer cell.
+	var refuge := Vector2i(4,5)
+	state["player"]["pos"] = refuge
+	expect.call(not Committed.live_tiles(combat, state, state["enemies"][0], lane).has(refuge), "Outer-corridor witness is outside the held body attack")
+	expect.call((combat.enemy_intent_plan(state, 0)["projected_attack"] as Array).has(refuge), "Breath warning includes the two-cell spire corridor")
+	var intact: Dictionary = _resolve(_roundtrip(expect, state, "Breath outer corridor"))
+	expect.call(int(state["player"]["hp"]) - int(intact["player"]["hp"]) == 4, "Avoiding the lane alone still pays exactly one small spire pulse")
+	expect.call(combat._dragon_spires(intact).size() == 2, "The broader Breath pulse retains its destructible sources")
+	var guarded: Dictionary = state.duplicate(true)
+	guarded["player"]["block"] = 4
+	guarded = _resolve(guarded)
+	expect.call(guarded["player"]["hp"] == state["player"]["hp"] and int(guarded["player"]["block"]) == 0, "Ordinary guard can pay for retaining the contested corridor")
+	var distant: Dictionary = state.duplicate(true)
+	distant["player"]["pos"] = Vector2i(5,5)
+	expect.call(not (combat.enemy_intent_plan(distant, 0)["projected_attack"] as Array).has(Vector2i(5,5)), "The farther corridor remains a real unthreatened alternative")
+	var cleared: Dictionary = combat._damage_terrain(state, combat._terrain_index_at_tile(state, Vector2i(2,5)), 4)
+	expect.call(not (combat.enemy_intent_plan(cleared, 0)["projected_attack"] as Array).has(refuge), "Destroying the relevant spire immediately opens its unique outer corridor")
+	cleared = _resolve(_roundtrip(expect, cleared, "Cleared Breath corridor"))
+	expect.call(cleared["player"]["hp"] == state["player"]["hp"] and combat._dragon_spires(cleared).size() == 1, "The earned opening survives reload without erasing the other spire")
+	var legacy: Dictionary = state.duplicate(true)
+	for action: Dictionary in legacy["enemies"][0]["intent"]["actions"]:
+		if str(action.get("type", "")) == "terrain_burst": action["radius"] = 1
+	legacy = _roundtrip(expect, legacy, "Previously declared narrow Breath")
+	expect.call(not (combat.enemy_intent_plan(legacy, 0)["projected_attack"] as Array).has(refuge), "An already saved narrow Breath warning is not widened on reload")
 
 static func _test_ice_cross_and_mantle_counterplay(expect: Callable) -> void:
 	var combat := Combat.new()

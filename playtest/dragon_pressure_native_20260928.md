@@ -6,14 +6,15 @@ HP, boss state, or outcomes are rewritten during an attempt. Reopening a paused
 attempt uses its existing autosave, not fixture regeneration. Only public UI and
 card rules inform decisions; JSONL is read afterward to audit the actions.
 
-## Vyraketh 01 — first cycle, ongoing
+## Vyraketh 01 — completed adaptive continuation
 
 Native Godot 4.6.1, isolated fixture `dragon-pressure-vyraketh-01`, depth 4,
 balanced acquired build, natural hand. Started at 20/24 HP against 60 HP.
-First four enemy activations completed; paused on player turn 5 at 8/24 HP
-against 30 HP to run independent correctness regressions. This is not a win
-or an accepted complete fight. The isolated window was set to Windowed and
-100% UI scale for interaction; dedicated presentation proof covers 1920x1080.
+The first four enemy activations were paused on player turn 5 at 8/24 HP
+against 30 HP for independent correctness regressions. The same autosave was
+resumed without regeneration and won on T7, clock 114, at 6/24 HP before the
+reward heal. The isolated window used Windowed and 100% UI scale for native
+interaction; dedicated presentation proof separately covers 1920x1080.
 
 | Warning | Actual decisions | Observed result |
 | --- | --- | --- |
@@ -25,9 +26,9 @@ or an accepted complete fight. The isolated window was set to Windowed and
 The first two turns deliberately tried the user's rejected approach: preserve
 two offensive plays and solve the warning with ordinary movement. They cost 12
 HP. The following turns demonstrate two available ways to recover positioning:
-extra movement and displacement. They do not yet prove the tuning across a full
-fight or that every alternative is costly. A stronger pilot can retain more
-attack value on the fourth turn. Continue the attempt and test the other five.
+extra movement and displacement. At that partial checkpoint they did not prove the tuning across a full
+fight or that every alternative was costly. A stronger pilot can retain more
+attack value on the fourth turn. The unchanged continuation is audited below.
 
 Control lesson: select cards and inspect their current target phase after a
 movement choice. Clicking a floor square can commit the movement while skipping
@@ -48,9 +49,81 @@ lines, not a proof that every two-attack/free-movement route loses HP. Gust's
 Pull made the bolt easier to reach, so do not call all four damage unavoidable.
 Root Snare's low output is not an earned cost without showing its actual Rubble
 replacement mattered. Assess the fourth turn against an 8-damage Sidestep+Kite
-line, not the accidental 3-damage line. Acceptance still requires a later cycle,
+line, not the accidental 3-damage line. At that checkpoint, acceptance still required a later cycle,
 element-specific decisions, and a competent adaptive win. No HP or damage
-retuning follows from this pilot's partial attempt alone.
+retuning followed from the partial attempt alone.
+
+### Vyraketh continuation — complete post-action audit
+
+The continuation used the existing six-card T5 hand and ordinary level-1 build:
+Iron Cleaver, Ward Kite, Patched Cloak, Skirmisher Boots and Cracked Lantern;
+Iron Buckler was the only starting relic. There were no skills, Defiance,
+Crowncoal or Worldheart effects during combat. Two ordinary movement points
+were available per activation. No healing card or item was used; a Pitch
+Firebomb was picked up on T5 and remained unused alongside Crimson Draught.
+
+| Player activation / clock | Committed decisions and route | Audited outcome |
+| --- | --- | --- |
+| T5 / 68→84 | Stone Plate: 4 Stoneskin, 4 Time, 2 actual draws including Iron Buckler. Lantern Shot: 4 damage, 3 Time, no draw because the hand was capped. Ordinary movement spends both points from (7,4) to (6,5), collecting the Firebomb. | Meteorfall's seven cells miss the endpoint. Its separate live bolt consumes exactly 4 Stone, with zero HP loss. Boss 30→26 by Lantern, then 26→23 by an enemy-owned Fire start tick. Player remains 8 HP. This is an actual dedicated defensive play with useful absorption. |
+| T6 / 84→101 | Frostbolt deals 4 at (5,2), creating Ice. Shadow Step pays 4 Time, Blinks three cells (6,5)→(3,5) and draws the last card. Ordinary movement spends both points to (3,3). | Both Breath and its separate heat field miss. Ice applies Chilled to the boss at its activation. Boss remains 19 HP; no enemy damage reaches the player. The next turn draw reshuffles the empty pile and costs 2 Fatigue: player 8→6. |
+| T7 / 101→114, victory | Shrapnel Burst deals 9 (7 + Chilled 2), Time 6. Low Sweep's enemy shortcut moves one cell to (4,3), deals 5 (3 + Chilled 2), and applies Immobilize, Time 4. Ordinary movement spends both points retreating to (2,3). | Boss 19→10→5. Crownfire's shared blast kills the remaining 5 HP while the hero is outside it. The boss dies before its movement/melee follow-up, so Immobilize is **not** credited with preventing that attack. Player remains 6 HP. |
+
+The fourteen card records total **52 boss damage**, and the only other boss
+losses are 3 from its own Fire and the final 5 actually lost to its own
+8-damage Crownfire. Total player HP loss is **14 = live bolt 4 + Breath 8 +
+Fatigue 2**. The second bolt spends 4 Stoneskin, not HP. There are no card-play
+refunds, healing, active skills or prior-dragon trophy damage in this study.
+All seven activations spend both ordinary movement points (14 total); cards
+add eight cells of movement/Blink. The first six activations pay 47 card Time
+plus six base costs of 9, reaching clock 101. The last two cards would return
+the player at 120; the boss instead kills itself at clock 114. Enemy resolution
+records often use the settled next-player envelope clock, so those envelope
+values are not substituted for the actual enemy queue times.
+
+Costs must be stated narrowly. Initial T5 destination clicks before selecting
+the hero did not move or spend anything; they are pilot input errors, not a
+blocked escape or boss-imposed cost. T5 proves guard can replace an offensive play
+and absorb the live layer while movement avoids the fixed layer. T6's Blink
+crosses the central crate and preserves access to the northern flank, but it
+was the pilot's chosen route. The recorded fan and heat tile sets leave
+(6,7) unmarked, and the room geometry suggests the ordinary route
+(6,5)→(6,6)→(6,7) as a cheaper retreat. That route was **not played or run through
+the engine**, and ends farther from melee access; it is a counterfactual to
+check, not a verified free full-cycle strategy. Do not count all five cells of
+T6 movement as forced. Low Sweep retained its attack correctly, unlike the
+first-cycle Sidestep mistake, but the final shared blast makes its Root benefit
+unnecessary in the observed outcome.
+
+Bounded design verdict: retain the current Fire pressure prototype for this
+cohort, subject to independent review. It offers distinct, readable options:
+spend health to keep damage during the opening, absorb the live bolt while
+leaving its marks, cross the fan/heat field using mobility, and preserve the
+boss's own Fire for its shared payoff. The adaptive continuation was winnable
+from 8 HP without healing or hidden-information help. That conclusion depends
+on the actual guard use and recurring compound warnings, not the low ending
+HP, the earlier targeting mistake, or an assertion that every chosen movement
+was necessary. This one level-1 run does not prove later-gate balance, remove
+the cheap-retreat counterfactual, or accept the other five dragons. No extra
+HP/damage tuning is justified by this run alone.
+
+The native milestone displayed Crowncoal Heart, +110 Embers, +6 actual HP and
+one first-dragon Moltshard. Continue reached the cleared section-I map. Normal
+quit is confirmed by runner session `62936`, exit 0. The saved room state has
+12/24 HP, 110 held/unbanked Embers, Iron Buckler plus Crowncoal, an empty pending
+reward, and one Moltshard receipt; run statistics are 60 dealt / 14 received.
+The final save/profile and compact event audit are preserved at
+`/private/tmp/dragon-pressure-native/vyraketh-01-complete/`.
+
+Evidence: the same append-only JSONL now contains 143 lines, run
+`run_95605824_a6efa2bc`, combat `run_95605824_a6efa2bc_c001`. The original session
+has sequences 1–73; resumed session `session_58601675_e4a4d2ae` has sequences
+1–70, so sequence numbers alone are not unique across this file. Continuation
+card records are file lines 83/86, 111/113 and 126/127; defended bolt is 108,
+Breath/heat misses 121/122, and victory/reward/claim are 140–143. The resumed
+records correctly use `dragon_pressure_v3`. Source JSONL SHA256:
+`de7cea1f42ed02d9a50d28656fd735b88f6dabaefdcb26ffc685c5aca5089061`.
+No future deck order or hidden state informed native decisions; this audit was
+performed only after the normal quit.
 
 ## Noctyrax 01 — first cycle, paused before the player-anchor revision
 
@@ -296,7 +369,7 @@ pilot did not inspect future hands to choose actions.
 | --- | --- | --- |
 | T6 / 87→102 | After the already-spent Warded Advance and rubble step, Sidestep Slash breaks the (5,4) spire. Pass with one ordinary point unused. | Claw and the three remaining radius-one spires miss at (5,5); Warded's guard is unused. The ensuing reshuffle costs 2 Fatigue, leaving 13 HP versus 25. Clearing this spire opens the subsequent approach, but the workaround route forced by the old UI bug is excluded from difficulty credit. |
 | T7 / 102→119 | Gust Step skips movement, hits for 5 including Chill and pulls the body from (4,2) to (4,3). Cleaver Hook hits for 8 and pushes it west to (3,3), Time 4+4. Ordinary (5,5)→(5,4) costs 1; Pass with two points unused. | Player returns on the clock-119 tie before the queued Bedrock Breath. The shifted body no longer occupies the held lane; the cleared spire no longer threatens this approach. This is a cheap two-offense control turn, not a paid defensive sacrifice. |
-| T8 / 119 | Frostbolt hits for 6 and applies Freeze; Chain Bolt also hits for 6 against Freeze, Time 4+5. No ordinary move, potion or skill. | Victory at 13/24 HP. The second Bedrock Breath never resolves. |
+| T8 / 119 | Frostbolt hits for 6 and applies Freeze; Chain Bolt also hits for 6 against Freeze, Time 4+5. No ordinary move, potion or manual skill activation; acquired passives remain active. | Victory at 13/24 HP. The second Bedrock Breath never resolves. |
 
 All 16 card plays account for all 70 boss HP; two destroyed spires account for
 8 additional terrain HP. The player loses exactly 7 HP: the first Claw's spire
@@ -319,3 +392,107 @@ sessions, combat `run_275646199_409562ce_c001`, revision `dragon_pressure_v3`.
 Read-only Variant decoding confirms the final reward, one reshuffle, the
 `Fatigue costs 2 health` log and final position. Save SHA-256:
 `e7b69290298b3fdb5cc19c54d05d9d98ed7be7d1dc8662bff7ba9b32b8b7335d`.
+
+
+### Earth01 independent verdict — one further pressure phase required
+
+Independent reviewer `boss_fun_review/fresh_final_review` reconciled all 133
+records and recommends **tune**, not difficulty acceptance. The useful hybrid
+guard at Faultline and dedicated T6 spire clear are too sparse for the repeated
+opportunity-cost gate. Shrapnel still attacks the boss while clearing; setup
+turns and the final control/tie line remain cheap. This does not prove a universal
+exploit or a correctness defect. Preserve HP, damage and the destructible field.
+
+The bounded follow-up increases only Bedrock Breath's retained-spire radius
+from 1 to 2. Claw stays radius 1; Faultline keeps radius 2 and consumes its field.
+The old T3 outer corridor now needs guard, farther movement or a relevant clear.
+A focused geometry/guard/clear/reload witness and fresh Earth02 native play are
+required; Earth01 stays historical radius-one evidence. Quick Wits was acquired
+and active throughout; references to unused skills mean no manual activation,
+not absence of passive progression benefits.
+
+
+### Fire01 independent verdict — retain for the tested first gate
+
+Independent reviewer `boss_fun_review/fresh_final_review` reconciled the
+143-record log, frozen reward state and 14 card plays, and recommends **retain**
+for this depth-4 balanced F2 cohort. After the chosen T2 Butcher/Hook pair, the
+player is at (2,3), the boss at (4,3), and northern crates (2,1)/(3,1) remain.
+A read-only cardinal unit-cost endpoint upper bound gives ten cells reachable
+within two ordinary points; all ten lie in the recorded Breath/heat union.
+Ignoring additional entry costs makes that bound generous. It supports a real
+cost on this observed line, not an engine replay of every possible card pair.
+The opening live bolt and T5's useful dedicated Stone Plate add recurring
+pressure. Guard, paid movement and using the boss's Fire provide viable play.
+
+The reviewer excludes the early skipped Sidestep strike, the mistaken reading
+of Root Snare as immobilization, T6 Blink necessity, T7 Root prevention and
+Fatigue. A cheap T6 endpoint at (6,7) remains a plausible alternative with lost
+melee access. Retention here does not accept later-gate Fire or all six bosses.
+
+### Tharokh 02 — radius-two Breath, completed native fight
+
+Root generated and reload-verified a fresh balanced depth-8 encounter with
+`tools/inspection_fixture.py`, manifest
+`/private/tmp/dragon-pressure-native/tharokh-02.json`, isolated namespace
+`dragon-pressure-tharokh-02`. The build begins at 20/24 HP against 70 HP, with
+17 natural cards, three ordinary movement from Pilgrim Boots, acquired Quick
+Wits and one Crimson Draught. No hand, health, order or mid-fight state was
+authored; future draws were not inspected before choosing actions. The only
+combat change from Earth01 is Breath's retained-spire radius 1→2. The native
+window used the normal production renderer at 100% UI scale; the separate
+five-image Earth warning/Grimoire proof uses 1920×1080.
+
+| Activation / clock | Actual play and choice | Audited result |
+| --- | --- | --- |
+| T1 / 0→16 | Lantern Shot 4 (3 Time), ordinary (1,4)→(2,4)→(3,4), Cleaver Sweep 6 (4 Time), then ordinary (3,5). | Stonewake body lane misses and raises four spires; player 20, boss 60. This setup remains a cheap offense turn. |
+| T2 / 16→36 | Shrapnel Burst clears (3,4) and splashes the boss for 7 (6 Time). Step into (3,4) for one point, then deliberately choose Butcher Chop 12 (5 Time) and the known two-point retreat to (2,4). | Player accepts the telegraphed 5-HP pulse for this burst line; Claw body misses. The cost is knowingly chosen this time, not another rubble-budget mistake. It is not proof that every alternative attack pair takes damage. Player 15, boss 41. |
+| T3 / 36→52 | Low Sweep moves one cell and hits for 3 (4 Time). Cinch Straps spends the other play/3 Time for 7 Block and draws two through Quick Wits. Ordinary path (3,4)→(3,5)→(4,5) costs all three points. | Body Breath misses, but the retained (3,6) spire now reaches (4,5) at radius 2. Its pulse consumes 5 Block, whereas the old radius-one fight left this guard unused. Player 15, boss 38. |
+| T4 / 52→69 | Kite Bash 3/6 Block pushes the body north (4 Time); ordinary to (5,5), Root Snare 2 (4 Time), ordinary to (6,5), Pass with one point unused. | The radius-two Faultline misses and consumes three spires. The separate live shot consumes 5 Block. Root Snare creates Rubble/Light, not immobilization. Player 15, boss 33. |
+| T5 / 69→87 | Frostbolt 4 and Chain Bolt 4 cost 4+5 Time; ordinary (6,5)→(6,4) costs two, then Pass. | Setup lane misses. New spires appear at (5,4), (6,3), (2,5), (7,4), constraining the nearby approaches. Ice applies Chill at the boss activation, after these two attacks. Player 15, boss 25. |
+| T6 / 87→103 | Sidestep Slash skips its optional movement and spends one play/3 Time solely to destroy the visible (5,4) spire. Ordinary entry to its cleared tile costs one. Cleaver Hook (4 Time) hits the chilled boss for 8 and pushes its footprint onto the (5,1) Earth trap for 6 more. Stay at (5,4), two points unused. | The opened corridor and body displacement avoid Claw/pulse. The clear contributes no boss damage. The natural reshuffle costs 2 Fatigue; player 13, boss 11. The trap damage is real counterplay, not an extra card hit. |
+| T7 / 103→118 | Lantern Shot 4 (3 Time); choose Cinch Straps (3 Time) to draw two and return after 15 total Time, one tick ahead of the next Breath. No movement. | Guard is unused and expires; do not count it as absorption. A 4-Time second play would return on the player-first clock-119 tie, so this faster draw line is chosen, not proved necessary. Player 13, boss 7. |
+| T8 / 118 | Frostbolt 4 then Chain Bolt's final 3 HP; no movement, item use or manual skill activation. | Victory before the clock-119 Breath. Its second-cycle warning never resolves. |
+
+Sixteen card receipts account for 70 boss HP including the 6 triggered-trap
+HP in Cleaver Hook's receipt; direct card damage alone is 64. Two dedicated
+terrain receipts total 8 spire HP (the first also splashes the boss). Player
+loss is 7 HP: the consciously accepted first pulse 5 plus Fatigue 2. Useful
+defense now absorbs ten damage in two consecutive phases: 5 from the newly
+widened Breath pulse and 5 from Faultline's live shot. T7's unused guard,
+Fatigue, and any unplayed-route assumptions do not establish difficulty.
+
+The observed line now pays a dedicated defensive play at Breath, a dedicated
+clear in the second cycle, and a chosen low-damage draw turn before the next
+Breath. The existing hybrid-guard turn remains useful but is not a full lost
+offensive play. This supports a meaningful bounded improvement over Earth01;
+the separate independent verdict below accepts this cohort. It does not prove
+that the observed route or every card choice was optimal.
+
+Root inspected Dragon Vanquished and quit normally; wrapper 17661 exited 0.
+The prepared Worldheart reward remains unclaimed with 110 held/unbanked Embers,
++6 healing (run HP 19, frozen board HP 13), no additional Moltshard, and the
+Draught unused. Read-only audit preserves the save, decoded Variant and all
+118 records under `/private/tmp/dragon-pressure-native/tharokh-02-complete/`.
+Combat `run_128835208_4d0652c8_c001`, one session, revision `dragon_pressure_v3`.
+Save SHA-256 `b2ba82b1c05c08e9fff4d586ca56d1bf6b02df12f89c99346c4767fa48df4a8a`;
+JSONL SHA-256 `2f248befd07324edd963a539d05a144235ea8a38d288a290117aadd44c64bda4`.
+
+
+### Earth02 independent verdict — retain for the tested second gate
+
+Independent reviewer `boss_fun_review/fresh_final_review` reconciled all 118
+records and the persisted save, including hashes, and recommends **retain**
+for this depth-8 balanced F3 cohort. The newly useful dedicated guard at Breath
+and independently useful hybrid guard at Faultline now provide two distinct
+first-cycle defensive responses. The later dedicated clear costs a full play,
+3 Time and zero boss damage before opening the approach; the subsequent
+push-into-trap hit rewards that counterplay. HP/damage inflation is unnecessary.
+
+Exclude the chosen T2 HP loss as proof all attack pairs fail, unused T7 guard,
+Fatigue and the cheap setup turns from forced-cost credit. A 4-Time second card
+on T7 would also win the player-first clock-119 tie, so the actual fast draw
+line is not evidence of a required timing sacrifice. The terminal kill refund
+is unused. No potion or Defiance was spent; Pilgrim, Quick Wits and Coil are
+part of this acquired cohort. This scoped verdict does not accept the unplayed
+dragons, every build, or the final exact HEAD/publication.

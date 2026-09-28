@@ -556,3 +556,80 @@ used as a fun criterion, and the actual failed route does not prove every
 two-offense route fails. No arbitrary extra Noct run is required solely for
 these acknowledged mistakes; a reproduced settled-preview discrepancy or a
 concrete repeatable cheap strategy would justify another targeted iteration.
+
+### Visible terrain shortcut — counterplay correctness closure
+
+Earth native play exposed a selection defect, not a new combat rule: ordinary
+melee/ranged actions already damage Worldspines, but the movement/attack UI
+shortcut filtered its possible destinations through enemies only. The narrow
+RunScene helper now also admits live terrain/traps that are visible in the
+committed information state. Hidden terrain remains excluded even when a
+preview movement would reveal it. Cleaver Hook remains an enemy-only Push card.
+
+The focused real-RunScene regression failed seven relevant assertions under
+the old enemy-only filter and passes with the fix. Its visible spine is actually
+destroyed to Rubble for one Sidestep play and 3 Time; hidden targets remain
+absent, and a full-visibility positive control proves that exclusion is due to
+visibility. Independent reviewer `fresh_final_review` approved this narrow
+code/test change. Baseline/fixed task logs are under
+`/private/tmp/labyrinth-godot-home/visible-terrain-shortcut-{baseline-01,fixed-02}/`.
+
+Fresh renderer receipt `output/dragon-revision/visible-terrain-shortcut-02.json`
+passes both 1920×1080/100% images. The offered visible spine and complete
+one-click destruction state were inspected at original resolution by the
+worker and root; the card tether, target HP, hidden area and resolved Rubble
+are legible without clipping. Probe01's uninitialized-pointer tether is
+superseded. Root separately exercised the actual native click in the preserved
+Earth T6 save, paying one card/3 Time to destroy the 4-HP spine. These are input,
+privacy and presentation proofs; the pre-fix blocked choice cannot be credited
+as Earth difficulty.
+
+### Native Fire01 follow-up — adaptive finish, bounded recommendation
+
+The unchanged paused Fire autosave now completes T7/clock114 at 6 HP, without
+healing or item use. See the detailed native journal and preserved final state
+in `/private/tmp/dragon-pressure-native/vyraketh-01-complete/`. Fourteen cards
+account for 52 boss HP, its own Fire for 3 and its final Crownfire for 5. Player
+losses are 4 live bolt + 8 Breath + 2 Fatigue; T5's separate live bolt consumes
+the 4 Stoneskin purchased with a full card play. A second compound Breath is
+evaded with Frostbolt plus Blink and ordinary movement.
+
+The completed independent native audit recommends retaining this Fire cohort. The
+useful dedicated guard and recoverable compound warnings support the change;
+the initial lost HP and victory alone do not. T6 Blink was chosen rather than
+proved necessary: a not-played two-step retreat to (6,7) appears outside the
+recorded fan/heat sets, at reduced melee access. T7 Root was applied but did
+not prevent a hit because Crownfire killed the boss before pursuit. The early
+Sidestep attack skip remains a pilot error. This is one realistic first-gate
+cohort, not later-gate balance, proof against every possible cheap route, or
+acceptance of the remaining dragons.
+
+
+The independent Fire reviewer additionally checked a generous unit-cost,
+cardinal two-point endpoint bound after T2's actual attack pair. All ten
+reachable cells lie in the recorded Breath/heat union with the observed crates
+present. This supports the real cost of that chosen line without claiming an
+engine counterfactual of every attack pair. See the native journal's separate
+verdict for the limits of this depth-4 acceptance.
+
+### Earth Breath follow-up — bounded change and fresh evidence
+
+Only Bedrock Breath's retained-spire pulse widens from radius 1 to 2. Claw
+remains radius 1; Faultline remains a consuming radius-two burst. HP, damage and
+cadence stay unchanged. The focused authored geometry witness checks a missed
+body lane plus outer pulse, useful guard, a farther safe corridor, a relevant
+spire clear and old serialized radius-one behavior after reload. All 294
+pressure checks pass; all five new 1920×1080 warning/Grimoire originals were
+inspected by root and pass their presentation check.
+
+Earth02's actual first Breath now consumes 5 Block at (4,5), two cells from its
+retained (3,6) spire. The native fight finishes T8/clock118 with 13 HP: 64 direct
+card damage plus a 6-HP pushed-into-trap hit, two destroyed spires, 5 deliberately
+accepted pulse HP, 2 Fatigue and 10 useful Block across Breath/Faultline.
+The second cycle uses a dedicated clear and a fast draw turn before the next
+Breath. The native journal preserves the exact sequence and distinguishes
+unused guard, cheap setup turns and unproven alternative routes. The independent reviewer retains this depth-8 F3 tuning: useful guard in
+consecutive first-cycle phases and the paid terrain opening satisfy the
+bounded repeated-cost gate. T7's faster return is not a required cost, because
+one tick later also wins the player-first tie. The superseded Earth01 remains
+a rejected radius-one case rather than acceptance evidence.

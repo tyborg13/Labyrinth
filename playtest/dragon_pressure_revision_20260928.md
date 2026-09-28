@@ -131,7 +131,7 @@ Coil copy retains the mechanical effect and drops redundant targeting prose.
 
 - Native Earth01 now completes at T8, clock 119, 13/24 HP. Its audit separates
   two real spire clears and useful hybrid guard from a rubble-route mistake,
-  an input bug workaround and Fatigue; independent difficulty review is pending.
+  an input bug workaround and Fatigue; the independent review below requires tuning.
 - Native Earth exposed a finite-Umbra UI bug excluding visible terrain and traps
   from movement/attack shortcuts. The narrow repair preserves hidden-target
   filtering and enemy-only push rules. Focused regression passes, the old filter
@@ -148,11 +148,39 @@ Coil copy retains the mechanical effect and drops redundant targeting prose.
   this is not claimed as a fully visible maw-to-target demonstration. No further
   artistic revision is pending on the inspected material.
 
+- Independent Earth01 review rejects difficulty acceptance: the dedicated clear
+  and useful hybrid guard are too sparse for the repeated-cost gate. Only the
+  Bedrock retained-spire radius increases 1→2; Claw, Faultline, HP, damage and
+  cadence remain. The first native corridor at (4,5) lies two cells from its
+  surviving (3,6) spire. A distinct authored two-spire regression checks guard,
+  clearing, farther refuge and preservation of old saved narrow warnings.
+  Separate static review approves the bounded change; Python scorer suites
+  pass 1 + 6. `dragon-pressure-mechanics-06` passes all 294 checks. Fresh
+  `pressure-earth-breath-01` passes five 1920×1080/100% originals, all inspected
+  by root: four compound warning rows and the Worldspines Grimoire entry are
+  legible and unclipped, including the expanded Breath field.
+- Local checkpoint `98358f0a4` commits the all-six pressure, shadow/exchange,
+  copy and visible-terrain shortcut changes. The subsequent bounded Earth
+  tuning and final evidence will be committed after remaining native checks.
+- Native Fire01 completes T7/clock114 at 6 HP and claims its milestone.
+  Independent review retains the tested depth-4 F2 tuning: the observed heavy
+  pair has no safe two-point endpoint in the recorded Breath/heat union, and
+  later Stone Plate consumes a defensive play for useful absorption. Exclude
+  pilot mistakes, unproven Blink necessity, Fatigue and unnecessary final Root.
+- Fresh native Earth02 completes T8/clock118 at 13 HP. Breath now consumes
+  5 actual Block in the old outer corridor, followed by Faultline consuming
+  5 hybrid Block. The second cycle includes a dedicated spire clear, a real
+  push-into-trap reward and a low-Time draw choice before the next Breath.
+  Full event/save accounting is in the native journal. Independent review
+  retains this depth-8 F3 tuning for its useful consecutive defensive phases
+  and dedicated clear. The fast draw line was chosen; a one-tick-later return
+  also wins the player-first tie and is not credited as a forced timing cost.
+  Ice, Air and Lightning native assessments follow serially.
+
 ## Current completion boundary
 
-Noct02 and Earth01 have complete native outcomes; Earth difficulty review is
-pending. Fire01 is resuming for later-cycle assessment, followed by Ice, Air
-and Lightning. Remaining native acceptance, a stable commit, exact-HEAD
-independent review and eight final reset/reload fixtures are still required.
-The prior full regression passed; the new targeting repair needs its integrated
-verification. No push, landing or cleanup is authorized.
+Fire01, Earth02 and Noct02 have completed native fights and bounded independent
+retain verdicts. Ice, Air and Lightning still need completed native assessments.
+A final commit, exact-HEAD independent review and eight final reset/reload
+fixtures remain required. Rerun the integrated suite after the targeting
+repair and final Earth tuning settle. No push, landing or cleanup is authorized.

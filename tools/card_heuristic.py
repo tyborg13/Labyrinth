@@ -226,7 +226,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout coats crossed two-wide range-3 lanes; Talon adds a surviving-trail burst",
             "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage but not fixed sweeps centered on the declared player position (Eclipse radius3, Claw2, Breath1); never automatic cleanup",
             "pressure": "base HP and normal repeat intervals unchanged; all six open at clock12 and couple body pressure with fixed fields; Fire seven-cell bands and adjacent heat; Air retains Dive wake into Gale and weak close strike in Eye; Lightning seven-cell bands with retained adjacent Overload",
-            "earth_cycle": "Stonewake, Claw plus persistent radius1 pulse4, Bedrock plus pulse4, Faultline radius2 burst8 plus live shot4; four HP per spine, cap4",
+            "earth_cycle": "Stonewake, Claw plus persistent radius1 pulse4, Bedrock plus radius2 pulse4, Faultline radius2 burst8 plus live shot4; four HP per spine, cap4",
             "earth_approach": "with no living spines and body distance at least3, reserve a legal diagonal approach flank; stagger two-cell pairs separated from next pair; preserve floor connectivity and two whole-body exits; excluded from intrinsic card scores",
             "worldheart": "at most 2 leftover Block becomes Stoneskin per turn; half-gain adjacent pulse remains capped at 4",
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",

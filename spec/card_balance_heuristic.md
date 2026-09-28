@@ -678,8 +678,10 @@ unchanged, while all six first warnings now resolve at clock 12. The new context
 is simultaneous body and field pressure with bounded, player-removable fuel.
 
 Fire uses seven-cell bands, adjacent cinder heat during Breath and pursuit during
-Crownfire. Earth pairs four 4-HP spires and adds persistent radius-1 / 4-damage
-pulses during Claw/Breath before radius-2 / 8-damage Faultline consumes them.
+Crownfire. Earth pairs four 4-HP spires and adds persistent 4-damage pulses: radius 1
+during Claw, then radius 2 during Breath before radius-2 / 8-damage Faultline
+consumes them. The Breath increase contests the formerly cheap sidestep while
+keeping selective spire destruction and ordinary guard effective.
 Ice puts Shatter immediately after two-layer Mantle (three with fuel), then crossed
 Ice lanes and Talon plus surviving-trail burst. Air retains actual Dive wake for
 Gale and exchanges its stronger outer Eye ring for a weaker close strike.

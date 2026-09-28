@@ -1,0 +1,141 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 30.530630156590806,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.040374129434724,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/01_tharokh_d08_stonewake.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 253.0,
+          "luma_mean": 30.91382506722032,
+          "luma_min": 0.0,
+          "luma_range": 253.0,
+          "luma_stdev": 45.70568801216937,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/02_tharokh_d08_worldspine_claw.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 31.058694930396417,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.88154936487596,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/03_tharokh_d08_bedrock_breath.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 250.1938,
+          "luma_mean": 30.835961040804545,
+          "luma_min": 0.0,
+          "luma_range": 250.1938,
+          "luma_stdev": 45.32376145534402,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/04_tharokh_d08_faultline.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 241.52159999999998,
+          "luma_mean": 50.84404918933717,
+          "luma_min": 0.0,
+          "luma_range": 241.52159999999998,
+          "luma_stdev": 70.297556242019,
+          "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/grimoire_combat_worldspines.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "/private/tmp/LabyrinthDragonPlaytest.app/Contents/MacOS/Godot",
+    "--display-driver",
+    "macos",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange",
+    "--script",
+    "tests/dragon_pressure_earth_breath_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 30.530630156590806,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.040374129434724,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/01_tharokh_d08_stonewake.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 253.0,
+      "luma_mean": 30.91382506722032,
+      "luma_min": 0.0,
+      "luma_range": 253.0,
+      "luma_stdev": 45.70568801216937,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/02_tharokh_d08_worldspine_claw.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 31.058694930396417,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.88154936487596,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/03_tharokh_d08_bedrock_breath.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 250.1938,
+      "luma_mean": 30.835961040804545,
+      "luma_min": 0.0,
+      "luma_range": 250.1938,
+      "luma_stdev": 45.32376145534402,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/04_tharokh_d08_faultline.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 241.52159999999998,
+      "luma_mean": 50.84404918933717,
+      "luma_min": 0.0,
+      "luma_range": 241.52159999999998,
+      "luma_stdev": 70.297556242019,
+      "path": "/private/tmp/labyrinth-godot-home/dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/Library/Application Support/Escape the Umbra Visual Probe dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1/probes/dragon_pressure_warnings/grimoire_combat_worldspines.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "dragon-pressure-earth-breath-01-1790622344400691000-72628-dragon_pressure_earth_br-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/dragon_pressure_earth_breath_probe.gd"
+}

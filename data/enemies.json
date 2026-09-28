@@ -1034,7 +1034,7 @@
           {
             "type": "terrain_burst",
             "damage": 4,
-            "radius": 1,
+            "radius": 2,
             "element": "earth",
             "consume_terrain": false
           }
