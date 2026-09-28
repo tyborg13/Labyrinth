@@ -13,6 +13,8 @@ Inspect the marked area and turn clock before spending cards. Each encounter inc
 ### Vyraketh fight
 
 ```sh
+
+
 cd /Users/borgerding/workspace/Labyrinth.worktrees/dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange && python3 tools/inspection_fixture.py --task-id dragon-boss-encounters-milestone-rewards-and-molt-shard-exchange --run-id dragon-feedback-inspect-vyraketh-encounter --godot /private/tmp/LabyrinthDragonPlaytest.app/Contents/MacOS/Godot --manifest /private/tmp/dragon-feedback-inspection/final-v2/vyraketh-encounter.json --launch --scenario dragon --dragon-id vyraketh --dragon-depth 4 --dragon-build balanced --dragon-case encounter --summary 'Vyraketh depth 4: natural acquired-build opening'
 ```
 
