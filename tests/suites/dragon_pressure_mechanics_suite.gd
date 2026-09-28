@@ -27,6 +27,7 @@ static func run(expect: Callable) -> void:
 	_test_spire_pulse_overlap_and_clearing(expect)
 	_test_breath_spire_outer_corridor(expect)
 	_test_ice_cross_and_mantle_counterplay(expect)
+	_test_ice_post_whiteout_pursuit(expect)
 	_test_ice_trail_owner_retirement(expect)
 	_test_actual_dive_wake(expect)
 	_test_refuge_anchor_and_light(expect)
@@ -421,6 +422,60 @@ static func _test_ice_cross_and_mantle_counterplay(expect: Callable) -> void:
 	state = _resolve(state)
 	for tile: Vector2i in area: expect.call(Surface.has_surface(state, tile, "ice"), "Every resolved cross cell receives Ice")
 	expect.call(_same_tiles(state["enemies"][0].get("authored_trail", []), area), "The stored Whiteout trail equals its actual resolved cross")
+
+static func _test_ice_post_whiteout_pursuit(expect: Callable) -> void:
+	var combat := Combat.new()
+	var state: Dictionary = _arena("iskaldra")
+	# Controlled rules witness matching Ice01's relevant post-Whiteout anchors.
+	# Terrain/traps were cleared by _arena; this is not a native fight replay.
+	state["player"]["pos"] = Vector2i(2,2)
+	var player_actor: Dictionary = state["current_actor"].duplicate(true)
+	_declare(expect, state, "whiteout_lance")
+	state = _resolve(state)
+	# This staged resolver step does not advance the initiative queue. Restore
+	# the real entry player actor before asking for ordinary movement.
+	state["current_actor"] = player_actor
+	expect.call(state["enemies"][0]["pos"] == Vector2i(4,3) and str(state["enemies"][0]["intent"]["id"]) == "rime_talon", "Actual Whiteout resolution declares Talon from the recorded body anchor")
+	var trail: Array = (state["enemies"][0].get("authored_trail", []) as Array).duplicate()
+	var field: Dictionary = _action(expect, state, "aoe", "surface_snapshot")
+	var refuge := Vector2i(2,1)
+	expect.call(not Committed.live_tiles(combat, state, state["enemies"][0], field).has(refuge), "The old one-step refuge remains outside the unchanged Ice field")
+	state["player_movement_capacity"] = combat.player_movement_capacity(state)
+	state["player_movement_remaining"] = combat.player_movement_capacity(state)
+	var before_retreat: Dictionary = state.duplicate(true)
+	expect.call(combat.player_movement_targets(state).has(refuge), "The one-step refuge is actually reachable from the post-Whiteout position")
+	state = combat.apply_player_movement(state, refuge)
+	expect.call(state["player"]["pos"] == refuge and int((state.get("last_player_movement", {}) as Dictionary).get("spent", -1)) == 1, "The ordinary route resolves for exactly one movement point")
+	var before: Dictionary = state.duplicate(true)
+	var plan: Dictionary = combat.enemy_intent_plan(state, 0)
+	expect.call(state == before, "The longer Talon warning preserves live state and RNG")
+	expect.call((plan["projected_attack"] as Array).has(refuge), "Live pursuit now warns at the formerly free one-step refuge")
+	state = _roundtrip(expect, state, "Post-Whiteout Talon pursuit")
+	expect.call(combat.enemy_intent_plan(state, 0) == plan, "The longer live pursuit warning is unchanged after reload")
+	var hit: Dictionary = _resolve(state)
+	expect.call(int(state["player"]["hp"]) - int(hit["player"]["hp"]) == 10, "The actual Talon bite reaches the refuge without inventing a trail hit")
+	expect.call(combat._enemy_distance_to_tile(hit["enemies"][0], refuge) == 1, "The body actually reaches melee distance rather than dealing remote bite damage")
+	expect.call(_same_tiles(hit["enemies"][0].get("authored_trail", []), trail), "Pursuit does not move or widen Whiteout's fixed trail")
+	var west: Dictionary = combat.apply_player_movement(before_retreat, Vector2i(1,2))
+	expect.call(west["player"]["pos"] == Vector2i(1,2) and int((west.get("last_player_movement", {}) as Dictionary).get("spent", -1)) == 1, "The westward alternative also resolves as real one-point movement")
+	expect.call((combat.enemy_intent_plan(west, 0)["projected_attack"] as Array).has(Vector2i(1,2)) and int(west["player"]["hp"]) - int(_resolve(west)["player"]["hp"]) == 10, "The longer pursuit also reaches the adjacent westward escape, with matching warning and resolution")
+	var guarded: Dictionary = combat.apply_player_action(state, {"type":"block", "amount":10})
+	guarded = _resolve(guarded)
+	expect.call(guarded["player"]["hp"] == state["player"]["hp"] and int(guarded["player"]["block"]) == 0, "Ten guard still pays for holding the contested cell")
+	var rooted: Dictionary = state.duplicate(true)
+	rooted["enemies"][0]["immobilize"] = true
+	rooted = _roundtrip(expect, rooted, "Rooted Talon pursuit")
+	var rooted_warning: Array = combat.enemy_threat_tiles(rooted, 0)["projected_attack"]
+	expect.call(not rooted_warning.has(refuge) and rooted_warning.has(Vector2i(4,1)), "The status-aware UI warning removes the rooted bite while retaining the surviving trail")
+	rooted = _resolve(rooted)
+	expect.call(rooted["player"]["hp"] == state["player"]["hp"] and rooted["enemies"][0]["pos"] == Vector2i(4,3), "Root still prevents the longer pursuit at actual resolution")
+	var legacy: Dictionary = state.duplicate(true)
+	for action: Dictionary in legacy["enemies"][0]["intent"]["actions"]:
+		if str(action.get("type", "")) == "move_toward": action["range"] = 2
+	legacy = _roundtrip(expect, legacy, "Previously declared short Talon")
+	expect.call(not (combat.enemy_intent_plan(legacy, 0)["projected_attack"] as Array).has(refuge), "Reload preserves a previously saved two-step warning")
+	var old_hit: Dictionary = _resolve(legacy)
+	expect.call(old_hit["player"]["hp"] == legacy["player"]["hp"], "An already-declared legacy Talon keeps its old miss at resolution")
 
 static func _test_ice_trail_owner_retirement(expect: Callable) -> void:
 	var state: Dictionary = _arena("iskaldra")

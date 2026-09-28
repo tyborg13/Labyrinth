@@ -174,7 +174,7 @@ BOSS_ENCOUNTER_ROLES = {
     "tharokh": "four destructible spires, held body attacks plus persistent pulses, then consuming Faultline and a live shot",
     "vyraketh": "seven-cell Fire bands, broad breath plus adjacent heat, pursuit during detonation and field renewal",
     "vaeloryx": "live ranged pull, swept Dive wake retained into Gale, retreating outer Eye ring plus a weaker close bite",
-    "iskaldra": "two-layer Mantle then immediate Shatter, crossed Ice lanes, pursuit plus a surviving-trail burst",
+    "iskaldra": "two-layer Mantle then immediate Shatter, crossed Ice lanes, three-step pursuit plus a surviving-trail burst",
     "noctyrax": "snuff and darkness, declared player-centered ground sweeps, live pursuit and capped replacement Acolytes",
 }
 
@@ -223,7 +223,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
             "summon_reaction": "newly summoned helpers cannot activate before the next already-scheduled player activation",
-            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout coats crossed two-wide range-3 lanes; Talon adds a surviving-trail burst",
+            "ice_lance": "two-layer Mantle precedes immediate Shatter; Whiteout coats crossed two-wide range-3 lanes; Talon pursues up to three steps and adds a surviving-trail burst",
             "braziers": "Night Coil snuffs the nearest refuge; arrival relights and removes darkness damage but not fixed sweeps centered on the declared player position (Eclipse radius3, Claw2, Breath1); never automatic cleanup",
             "pressure": "base HP and normal repeat intervals unchanged; all six open at clock12 and couple body pressure with fixed fields; Fire seven-cell bands and adjacent heat; Air retains Dive wake into Gale and weak close strike in Eye; Lightning seven-cell bands with retained adjacent Overload",
             "earth_cycle": "Stonewake, Claw plus persistent radius1 pulse4, Bedrock plus radius2 pulse4, Faultline radius2 burst8 plus live shot4; four HP per spine, cap4",

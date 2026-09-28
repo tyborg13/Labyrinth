@@ -683,7 +683,9 @@ during Claw, then radius 2 during Breath before radius-2 / 8-damage Faultline
 consumes them. The Breath increase contests the formerly cheap sidestep while
 keeping selective spire destruction and ordinary guard effective.
 Ice puts Shatter immediately after two-layer Mantle (three with fuel), then crossed
-Ice lanes and Talon plus surviving-trail burst. Air retains actual Dive wake for
+Ice lanes and live three-step Talon pursuit plus a surviving-trail burst. The
+extra pursuit step contests the observed one-step post-Whiteout refuge; Root
+and guard still counter the bite. Air retains actual Dive wake for
 Gale and exchanges its stronger outer Eye ring for a weaker close strike.
 Lightning's seven-cell bands threaten orthogonal neighbors during retained
 Overload alongside a live shot. Noctyrax holds a sweep around the player's

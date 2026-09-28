@@ -496,3 +496,64 @@ line is not evidence of a required timing sacrifice. The terminal kill refund
 is unused. No potion or Defiance was spent; Pilgrim, Quick Wits and Coil are
 part of this acquired cohort. This scoped verdict does not accept the unplayed
 dragons, every build, or the final exact HEAD/publication.
+
+
+### Iskaldra 01 — completed native depth-12 balanced fight
+
+The reviewer generated and reload-verified one fresh natural encounter with
+`tools/inspection_fixture.py`, manifest
+`/private/tmp/dragon-pressure-native/iskaldra-01.json`, namespace
+`dragon-pressure-iskaldra-01`, seed 7262029. The preserved opening begins at
+20/24 HP versus 72 HP, level 3, 17 natural cards, three ordinary movement,
+Quick Wits and Measured Breath, no Defiance capacity, and unupgraded
+Rapier / Ward-Kite / Boiled Leather / Skirmisher Boots / Cracked Lantern.
+Relics are Iron Buckler, Pilgrim Boots, Stormroad Coil and Worldheart. These
+are the earlier seeded gate trophies for this fixture; it has no Crowncoal
+or Hourglass during the fight. Quick Wits supplies the extra draws. No hand,
+health or mid-fight state was rewritten; only public UI and rules informed
+live choices. Full motion and 100% UI scale were used in the native window.
+
+| Activation / player clock | Actual play and choice | Audited result |
+| --- | --- | --- |
+| T1 / 0→15 | Parry Rhythm gives 5 Block and draws two for 3 Time. Sidestep Slash's enemy shortcut moves (1,4)→(3,4), hits for 5 and costs 3 Time. Pass with all three ordinary points unused. | Worldheart converts 2 Block and pulses the adjacent boss for 1. Mantle forms two layers; its shot consumes 3 Block + 2 Stoneskin. Player 20, boss 66. This is useful dedicated defense, not lost HP. |
+| T2 / 15→28 | Low Sweep skips optional movement, pays one play/4 Time, deals zero HP damage into Mantle and applies Root. Ordinary retreat (3,4)→(1,3) costs all three points; Pass the second play to bank it. | One layer is broken (three damage prevented); Shatter's radius falls from 3 to 2, Root suppresses its move, and the retreat avoids it. The remaining layer is consumed. Shatter also destroys three crates and triggers two Ice traps. Player 20, boss 66. Do not claim two strips were necessary. |
+| T3 / 28→52 | Riposte Lunge moves two to (3,3), deals 5 and grants 4 Block (5 Time). Needle Thrust 7 (4 Time), then the banked Shrapnel Burst 7 (6 Time). Ordinary retreat to (2,2) costs two points; picks up Jaw Trap; Pass with one point unused. | Whiteout misses. The banked play still pays its printed Time. Player 20, boss 47. This is a cheap high-offense window after the prior armor/control investment; Riposte's Block is not required for this escape. |
+| T4 / 52→70 | Frostbolt 6 (4 Time) and Chain Bolt 6 (5 Time), each including +2 against Chilled. One ordinary step (2,2)→(2,1); Pass with two points unused. | The boss moves (4,3)→(4,2)→(4,1), but neither live melee nor the retained Ice field hits. Player 20, boss 35. This is a concrete two-attacks-plus-one-step counterexample for Rime. Chill initially came from trap Ice touching the large body, then persisted through the observed attacks. |
+| T5 / 70→86 | One ordinary step to (3,1); Kite Bash deals 5, grants 6 Block and pushes the boss (4,1)→(5,1) (4 Time). Lantern Shot deals 6, draws Warded Advance and costs 3 Time. Remaining two movement returns to (2,2). | Mantle forms two layers. Its shot consumes 4 Block + 1 Stoneskin; player 20, boss 24, 3 Stoneskin remains. Useful hybrid defense preserves both attacks, with lower attack damage than a dedicated strike. |
+| T6 / 86→98 | The natural full hand is mostly defense, with Gust out of range. Cinch Straps gives 7 Block and draws only the last card, Crimson Draught, because of the hand cap (3 Time). Hold (2,2), bank the second play, leave all movement unused. | Shatter consumes both layers and hits for 8: 5 Block + 3 Stoneskin, zero HP. Player 20, boss 24, 2 Stoneskin. This is a chosen close-position/tempo line. The guard is useful, but ordinary escape was not exhaustively excluded and its necessity is not claimed. |
+| T7 / 98→119 | Gust Step's enemy shortcut moves (2,2)→(3,2), deals 5 and pulls the boss one cell to (4,1) (4 Time). Stone Plate grants 4 Stoneskin, pulses the adjacent boss for 2 through Worldheart, and draws two after reshuffling (4 Time). Frostbolt deals 6 (4 Time). One ordinary step to (3,3), Pass two points unused. | Fatigue costs 2 HP; Stone Plate was chosen to cycle a defensive hand, not required to survive Whiteout. Entry onto old Ice applies Chill, but the subsequent Whiteout misses and replaces the owned trail, clearing this tile. Player 18, boss 11, 6 Stoneskin. The one-step Whiteout escape remains cheap. |
+| T8 / 119 | Chain Bolt 4 (5 Time), one ordinary step (3,3)→(3,2), Needle Thrust 7 (4 Time). | Victory before the second Rime resolves. Player 18 with 6 Stoneskin. The final step applies Chill but the kill prevents any follow-up; do not credit a second Rime escape. |
+
+All 140 append-only records are audited. Sixteen card receipts account for
+71 boss HP, including Stone Plate's 2-HP Worldheart pulse; the first end-turn
+Worldheart pulse supplies the remaining 1. Direct card hits therefore total
+69 HP and Worldheart pulses total 3. Eighteen incoming damage is absorbed
+across three attacks (12 Block, 6 Stoneskin); no enemy or terrain HP damage is
+taken. The entire 2-HP loss is the Stone Plate reshuffle. Both Crimson Draught
+and the picked-up Jaw Trap remain unused, and no manual skill was activated.
+Small no-op selection clicks before T3 movement consumed nothing; there was
+no skipped-attack card, repeated Pass, healing or revived death to credit.
+
+The pilot's provisional assessment is **tune a weak compound phase**, pending
+the independent verdict. Mantle's live shot and the first layer/Root retreat
+create real costs, and the paid armor trade is readable. They do not erase the
+observed Whiteout/Rime cheap sequence: 19 damage followed by 12 damage while
+spending only two then one ordinary steps, with no dedicated defensive play.
+The second Whiteout is again escaped in one step; the second Shatter defense
+was chosen with a defensive hand and cannot alone prove recurring forced
+pressure. The win and high remaining HP are not themselves a rejection test.
+Consider strengthening Rime's relationship to the existing trail, rather than
+HP, raw damage or merely making Mantle soak more attacks. No mechanic changed
+during this attempt. The later Rime warning was killed before resolution.
+
+Dragon Vanquished showed Winter's Hourglass, 110 Embers, +6 actual healing and
+the already-earned first-dragon Moltshard receipt. Continue was clicked once;
+acquisition completed into the cleared section-III map. Native runner 28971
+exited 0 after normal quit. The completed save is mode `room`, HP 24, held /
+unbanked Embers 110, one Hourglass, empty pending reward and unchanged one
+Moltshard. Copies and compact audit are preserved in
+`/private/tmp/dragon-pressure-native/iskaldra-01-complete/`.
+Save SHA-256: `472f80be1521bbbe51868788eecb0cea80e7c79f94f3b463b37b3e381e107bc1`.
+JSONL SHA-256: `0830431909ca06fd70c537d24f34a922d48e5d63285bf0e2ec1fa0bb2fd3d2f3`.
+Opening raw save SHA-256:
+`f12348a80eb69e094b3f81ae4a8f173b8aa76efa86b6470b15419959878e966a`.

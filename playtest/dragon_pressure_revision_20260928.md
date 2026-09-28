@@ -177,10 +177,52 @@ Coil copy retains the mechanical effect and drops redundant targeting prose.
   also wins the player-first tie and is not credited as a forced timing cost.
   Ice, Air and Lightning native assessments follow serially.
 
+- Checkpoint `556ad0970` commits the bounded Earth tuning and three completed
+  native verdicts. The separate [integrated source review](dragon_pressure_source_review_20260928.md)
+  approves the v3 delta at that exact checkpoint with no actionable findings.
+  Final gameplay, integrated regression, fixture and exact final-HEAD gates
+  remain as stated below.
+
+- Integrated `dragon-pressure-full-03`: PASS, wrapper 99908 exited 0 on the
+  current committed production code. This includes the 294 pressure checks,
+  visible-terrain shortcut regression, spire routes and exchange recovery.
+  Expected injected acknowledgment/legacy-save diagnostics and the existing
+  ObjectDB shutdown warning remain. No implementation change was made during
+  the run; only review documentation was pending.
+
+- `dragon-pressure-committed-05`: PASS on checkpoint `556ad0970`, wrapper
+  31511 exited 0. Ice01 then completed but independent review returned **TUNE**:
+  its useful guard was too sparse, and the observed T4 ordinary step to `(2,1)`
+  avoided both live Talon and the trail after two attacks. Root on T2 was a
+  chosen line, not a demonstrated necessity: a three-step unshrunk-Shatter
+  escape remained on the recorded opening board.
+- Bounded Ice trial increases only Rime Talon's live pursuit 2→3. Health,
+  damage, armor, cadence and the exact-cell trail burst are unchanged. A
+  controlled post-Whiteout rules witness checks real one-point movement,
+  read-only warnings, actual bite/guard/Root resolution and saved legacy
+  Move-2 behavior. Separate static review approves the corrected trial; Python
+  scorer/context suites pass (1 + 6). Runtime proof and a fresh native Ice02
+  remain pending. The independent reviewer also checked a proposed two-step
+  `(2,2)→(1,2)→(1,1)` escape against Ice01's actual opening save and later
+  events: `(1,1)` is a structural pillar, unchanged by Shatter. That particular
+  counterexample is invalid; the legal westward one-step alternative is also
+  covered by the controlled pursuit witness. This is bounded route analysis,
+  not native acceptance.
+
+- `dragon-pressure-mechanics-07`: PASS 318, wrapper 59213 exited 0. The
+  revised Ice bite catches both controlled one-point refuges while guard,
+  Root and legacy serialized Move-2 behavior resolve correctly. Fresh
+  `pressure-ice-pursuit-01`: PASS four real-renderer 1920×1080/100% originals,
+  all inspected by root. The full four-part cycle remains readable; Rime's
+  Move 3, scaled bite, separate marked-trail hit and ghost path are legible
+  without clipping. These are correctness/readability proofs; native Ice02
+  remains required. Air01 has now completed; its independent audit is pending.
+
 ## Current completion boundary
 
 Fire01, Earth02 and Noct02 have completed native fights and bounded independent
-retain verdicts. Ice, Air and Lightning still need completed native assessments.
+retain verdicts. Ice01 requires the bounded pursuit retune and a fresh fight; Air
+needs independent assessment, and Lightning still needs a completed native fight.
 A final commit, exact-HEAD independent review and eight final reset/reload
-fixtures remain required. Rerun the integrated suite after the targeting
-repair and final Earth tuning settle. No push, landing or cleanup is authorized.
+fixtures remain required. The integrated suite now passes with the targeting repair and tuned Earth Breath;
+further production changes would require affected re-verification. No push, landing or cleanup is authorized.
