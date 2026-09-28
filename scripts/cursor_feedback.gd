@@ -3,6 +3,8 @@ class_name CursorFeedbackController
 
 const CustomCursorGlyphScript = preload("res://scripts/custom_cursor_glyph.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const AssetLoader = preload("res://scripts/asset_loader.gd")
+const RunSfx = preload("res://scripts/run_sfx_library.gd")
 
 const CONTEXT_META: String = "cursor_feedback_context"
 const DRAG_SOURCE_META: String = "cursor_feedback_drag_source"
@@ -14,6 +16,7 @@ const VALID_CLICK_SECONDS: float = 0.045
 const INVALID_CLICK_SECONDS: float = 0.105
 const VALID_CLICK_VOLUME_DB: float = -7.0
 const INVALID_CLICK_VOLUME_DB: float = -10.0
+const FOCUS_COOLDOWN_MSEC: int = 80
 const SCENE_TRANSITION_LEAD_SECONDS: float = 0.11
 const SCENE_TRANSITION_MINIMUM_SECONDS: float = 0.44
 const NATIVE_CURSOR_REFRESH_SECONDS: float = 0.24
@@ -22,6 +25,8 @@ const TRANSPARENT_CURSOR_SIZE: int = 16
 var _glyph
 var _audio_players: Array[AudioStreamPlayer] = []
 var _audio_cursor: int = 0
+var _focus_player: AudioStreamPlayer
+var _last_focus_msec: int = -1000
 var _valid_click_stream: AudioStreamWAV
 var _invalid_click_stream: AudioStreamWAV
 var _left_pressed: bool = false
@@ -35,7 +40,7 @@ var _loading_until_msec: int = 0
 var _transition_generation: int = 0
 var _last_feedback_kind: String = ""
 var _last_valid_gesture_msec: int = -1000
-var _feedback_counts: Dictionary = {"valid": 0, "invalid": 0}
+var _feedback_counts: Dictionary = {"valid": 0, "invalid": 0, "focus": 0}
 var _transparent_native_cursor: ImageTexture
 var _installed_native_shapes: PackedInt32Array = PackedInt32Array()
 var _native_cursor_refresh_elapsed: float = 0.0
@@ -304,6 +309,28 @@ func play_action_confirmation() -> void:
 	# press already plays it; do not double that sound on the release signal.
 	if Time.get_ticks_msec() - _last_valid_gesture_msec >= 120:
 		_play_click_feedback(true)
+
+func play_focus_feedback() -> void:
+	var now: int = Time.get_ticks_msec()
+	if is_loading() or now - _last_focus_msec < FOCUS_COOLDOWN_MSEC:
+		return
+	if _focus_player == null:
+		# Reuse the approved Hearth cloth tick and mix level without duplicating
+		# its asset. One separate voice keeps rapid navigation from stacking or
+		# interrupting the existing click/confirmation sounds.
+		var entry: Dictionary = RunSfx.entry(RunSfx.HEARTH_FOCUS_ID)
+		SettingsStore.ensure_audio_buses()
+		_focus_player = AudioStreamPlayer.new()
+		_focus_player.name = "UiFocusPlayer"
+		_focus_player.bus = str(entry["bus"])
+		_focus_player.volume_db = float(entry["volume_db"])
+		_focus_player.stream = AssetLoader.load_audio_stream(str(entry["path"]))
+		add_child(_focus_player)
+	if _focus_player.stream == null:
+		return
+	_last_focus_msec = now
+	_feedback_counts["focus"] = int(_feedback_counts.get("focus", 0)) + 1
+	_focus_player.play()
 
 func _play_click_feedback(valid: bool) -> void:
 	if valid: _last_valid_gesture_msec = Time.get_ticks_msec()

@@ -92,6 +92,10 @@ func _initialize() -> void:
 		accept.pressed = pressed
 		_proof_viewport.push_input(accept, true)
 		await process_frame
+	var result_deadline: int = Time.get_ticks_msec() + 2000
+	while bool(instance.get("_campfire_choice_action_pending")) and Time.get_ticks_msec() < result_deadline:
+		await process_frame
+	_expect_choice(not bool(instance.get("_campfire_choice_action_pending")), "Hearth result must finish before capturing the resolved state")
 	await _choice_settle()
 	var after: Dictionary = instance.get("_run_state") as Dictionary
 	_expect_choice(str(after.get("mode", "")) == "room", "Native keyboard activation must resolve the campfire choice")
@@ -115,7 +119,22 @@ func _load_campfire(instance: Node, engine: RunEngine, base: Dictionary, embers:
 	instance.call("_load_run_state", state)
 	instance.call("_close_dialogue")
 	instance.call("_close_large_map")
+	# Measure settled material hit bounds after the Hearth's staggered arrival;
+	# sampling at the old fixed 250 ms measures the intentional reveal scale.
+	var choices: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
+	var reveal_deadline: int = Time.get_ticks_msec() + 2000
+	while not _campfire_choices_revealed(choices) and Time.get_ticks_msec() < reveal_deadline:
+		await process_frame
+	_expect_choice(_campfire_choices_revealed(choices), "All Hearth choices must finish arriving before material inspection")
 	await _choice_settle()
+
+func _campfire_choices_revealed(choices: HBoxContainer) -> bool:
+	if choices.get_child_count() != 3:
+		return false
+	for panel: Node in choices.get_children():
+		if not bool(panel.get_meta("choice_revealed", false)):
+			return false
+	return true
 
 func _choice_point(point: Vector2) -> void:
 	var event := InputEventMouseMotion.new()

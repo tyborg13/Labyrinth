@@ -376,15 +376,21 @@ this zero-held case represents a settled snapshot. Later UI refresh, Grimoire
 persistence, and terminal retry must preserve that bank and the original recap
 amount without adding it again. This does not add or repeat analytics events.
 
-`progression_level_up` fires when Draw Strength commits at a campfire or at the
-opening Emaciated Man. Its `source` distinguishes `campfire` and
-`emaciated_man`; `transaction_id` identifies the durable wallet receipt. Its
+`progression_level_up` fires when Draw Strength commits at an Ember Hearth
+(the internal room type remains `campfire`) or at the opening Emaciated Man.
+Its `source` distinguishes `campfire` and `emaciated_man`; `transaction_id`
+identifies the durable wallet receipt. Its
 payload records `level_before`, `level_after`, the unchanged post-purchase
 `skill_ids`, `unspent_skill_points_before`,
 `unspent_skill_points_after`, ember `cost`, `held_embers_after`, and
 `room`. It grants one bankable point and never implies a skill choice. The
 shared event context records the resulting Defiance capacity and remaining
 charges; a milestone level adds exactly the capacity delta to the active run.
+
+Ember Hearth presentation plays after the existing commit boundaries. Rebuilding
+choices, highlighting them, or playing a result does not emit a second level-up
+or alter run events. Linger and Embrace retain their existing persistence and
+analytics contracts; `campfire_linger` and the room type remain stable.
 
 `progression_skill_learned` fires after one legal skill is saved from the
 persistent tree. Its payload records `skill_id`, the complete post-learn

@@ -395,6 +395,7 @@ func _initialize() -> void:
 	await preload("res://tests/suites/veilbound_acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/vyraketh_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/zekarion_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/ui_button_feedback_suite.gd").run(self, Callable(self, "_assert"))
 	await RunSfxSuite.run(self, Callable(self, "_assert"))
 	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
@@ -419,6 +420,7 @@ func _initialize() -> void:
 	await _test_run_scene_fatigue_damage_visual_event()
 	await _test_run_scene_campfire_choices_use_relic_overlay()
 	await _test_run_scene_campfire_choice_press_is_single_shot()
+	await preload("res://tests/suites/ember_hearth_suite.gd").run(self, _assert)
 	await _test_run_scene_campfire_bonfire_persists_after_leave()
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_flurry_utility_resolves_without_attack_target()
@@ -6904,7 +6906,7 @@ func _test_minimap_uses_door_icons_and_greys_cleared_rooms() -> void:
 	for entry_var: Variant in map_view.call("_legend_entries"):
 		var entry: Dictionary = entry_var
 		labels[str(entry.get("label", ""))] = true
-	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Campfire", "Relic", "Scavenger", "Boss"]:
+	for expected_label: String in ["Fire", "Ice", "Lightning", "Air", "Earth", "Ember Hearth", "Relic", "Scavenger", "Boss"]:
 		_assert(labels.has(expected_label), "Full map legend should include %s" % expected_label)
 	_assert(not labels.has("Fight"), "Full map legend should not invent a generic Fight room icon")
 	var marker_rooms: Dictionary = {
@@ -9544,6 +9546,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	await process_frame
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "campfire"
+	run_state["player_hp"] = 10
+	run_state["player_max_hp"] = 24
 	run_state["progression"] = ProgressionStore.default_data()
 	run_state["held_embers"] = 0
 	run_state["unbanked_embers"] = 0
@@ -9560,9 +9564,9 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(not context_overlay.visible and _buttons_under(context_overlay).is_empty(), "Campfire choices should no longer use button overlays")
 	_assert(relic_overlay != null and relic_overlay.visible, "Campfire choices should use the shared relic-style stage overlay")
 	_assert(relic_bar != null and relic_bar.get_child_count() == 3, "Campfire overlay should expose heal, carry, and level-up choice panels")
-	_assert(_label_with_text(relic_overlay, "Linger for a moment") != null, "Campfire overlay should label the continue option")
-	_assert(_label_with_text(relic_overlay, "Embrace the fire's warmth") != null, "Campfire overlay should label the abandon option")
-	_assert(_label_with_text(relic_overlay, "Learn a new skill") != null, "Campfire overlay should label the level-up option")
+	_assert(_label_with_text(relic_overlay, "Linger") != null, "Campfire overlay should label the continue option")
+	_assert(_label_with_text(relic_overlay, "Embrace") != null, "Campfire overlay should label the abandon option")
+	_assert(_label_with_text(relic_overlay, "Draw Strength") != null, "Campfire overlay should label the level-up option")
 	_assert(_label_with_text(relic_overlay, "+4 HP") != null, "Campfire linger choice should show a compact heal chip")
 	_assert(_label_with_text(relic_overlay, "CONTINUE") == null, "Campfire linger choice should not duplicate continue text in a chip")
 	_assert(_label_with_text(relic_overlay, "BANK HELD") == null, "Campfire abandon choice should not duplicate bank text in a chip")
@@ -9577,7 +9581,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	var linger_panel: PanelContainer = relic_bar.get_child(0) as PanelContainer if relic_bar != null and relic_bar.get_child_count() > 0 else null
 	_assert(linger_panel != null and linger_panel.find_child("CampfireChoiceInnerGlow", true, false) is PanelContainer, "Campfire choices should include a subtle inner firelight glow")
 	if linger_panel != null:
-		_assert(linger_panel.custom_minimum_size == Vector2(264.0, 220.0), "Larger relic-offer cards should not resize the shared campfire choices")
+		_assert(linger_panel.custom_minimum_size == Vector2(300.0, 220.0), "Hearth panels should fit cost and skill point on one row")
 		instance.call("_show_campfire_choice_feedback_pulse", linger_panel, Color("efb35f"))
 		await process_frame
 		_assert(linger_panel.find_child("CampfireChoicePressPulse", true, false) is PanelContainer, "Campfire choices should show a press feedback pulse")
@@ -9596,8 +9600,8 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	relic_overlay = instance.get("_relic_choice_overlay") as Control
 	relic_bar = instance.get("_relic_choice_bar") as HBoxContainer
 	_assert(_label_with_text(relic_overlay, "180 EMBERS") != null, "Campfire level-up choice should reveal its cost chip when affordable")
-	_assert(_label_with_text(relic_overlay, "NEW SKILL") != null, "Campfire level-up choice should reveal its qualitative benefit when affordable")
-	_assert(_label_with_text(relic_overlay, "Spend embers, choose a skill, continue") != null, "Campfire level-up choice should explain the skill choice without changing the flow")
+	_assert(_label_with_text(relic_overlay, "+1 SKILL POINT") != null, "Campfire level-up choice should reveal its qualitative benefit when affordable")
+	_assert(_label_with_text(relic_overlay, "Level up, continue") != null, "Campfire level-up choice should explain the skill choice without changing the flow")
 	var enabled_strength_panel: Control = null
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		enabled_strength_panel = relic_bar.get_child(2) as Control
@@ -9615,6 +9619,8 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 	await process_frame
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "campfire"
+	run_state["player_hp"] = 10
+	run_state["player_max_hp"] = 24
 	run_state["progression"] = ProgressionStore.default_data()
 	run_state["held_embers"] = 0
 	run_state["unbanked_embers"] = 0
@@ -9632,12 +9638,13 @@ func _test_run_scene_campfire_choice_press_is_single_shot() -> void:
 		instance.queue_free()
 		await process_frame
 		return
+	await create_timer(0.65).timeout
 	var click := InputEventMouseButton.new()
 	click.button_index = MOUSE_BUTTON_LEFT
 	click.pressed = true
 	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
 	instance.call("_on_campfire_choice_gui_input", click, "linger", linger_panel, Color("efb35f"))
-	await create_timer(0.14).timeout
+	await create_timer(1.5).timeout
 	await process_frame
 	var next_state: Dictionary = instance.get("_run_state")
 	_assert(str(next_state.get("mode", "")) == "room", "Campfire linger press should still leave campfire mode")

@@ -2,6 +2,7 @@ extends RefCounted
 class_name UiSkin
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const ThemedButtonOrnament = preload("res://scripts/themed_button_ornament.gd")
 const ThemedInsetOrnament = preload("res://scripts/themed_inset_ornament.gd")
 const ThemedPanelOrnament = preload("res://scripts/themed_panel_ornament.gd")
@@ -263,6 +264,7 @@ func apply_button_stylebox_overrides(
 	if button is Button:
 		(button as Button).alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_ensure_button_ornament(button, variant)
+	ButtonFeedback.bind_button(button)
 
 func _applied_button_style_set(variant: String, toggle_mode: bool) -> Dictionary:
 	var cache_key: String = "%s:%s" % [variant, "toggle" if toggle_mode else "plain"]

@@ -1,0 +1,154 @@
+# Ember Hearth
+
+The Ember Hearth is the dungeon refuge previously displayed as Campfire. Its
+internal `campfire` room type, save identifiers, icon and physical fire are
+unchanged. The name describes the existing refuge, without adding new lore.
+
+## Decision and hierarchy
+
+The player chooses one use of the hearth: **Linger** restores up to 4 HP and
+continues, **Embrace** banks held Embers and ends the run, or **Draw Strength**
+spends the displayed level cost for one level and a bankable skill point. Rules,
+costs, healing amount, and progression outcomes are unchanged. The Linger chip
+shows the actual capped heal (or Full Health); Embrace shows the banked amount;
+Draw Strength distinguishes a skill point from immediately learning a skill.
+
+The room, player and fire remain primary above the three existing illustrated
+panels. The room header names the place once. Short choice titles, consequence
+text and existing benefit/cost chips provide the decision without added lore
+copy. This reuses the shared overlay, typography, dedicated choice art,
+combat healing particles, floating text and controller focus system.
+
+## Presentation lifecycle
+
+Options fade and settle in with a 100 ms stagger. Rebuilding the same room's UI
+never repeats its arrival cue. Pointer and keyboard/controller focus share one
+emphasis state; pointer exit cannot erase keyboard focus. Left/right and Tab
+cycle the available choices. Unaffordable Strength exposes its cost and held
+balance and cannot activate. Invisible choices ignore activation while revealing.
+
+Selection has an immediate sound, outline pulse and selected-panel emphasis;
+other choices dim. Repeated input is gated for the entire resolution. Linger's
+committed HP and floating gain appear with the established healing particles.
+Draw Strength commits before showing a skill-point result, then opens Skills.
+Embrace persists the bank before its departure cue and return to the menu.
+The panels fade out before travel resumes. The route map waits for the result.
+
+Reduced motion uses short opacity transitions, a stationary healing pose and
+readable result text; it has no choice scaling or stagger. All six cues use the
+UI Sound Effects bus. The cues are edited from the existing shipped card,
+equipment, air and fire recordings by `tools/generate_ember_hearth_sfx.py`.
+There are no pitched oscillators, musical note sequences or added reverb.
+Five soft air pulses follow the healing pluses. See
+`assets/audio/sfx/run/EMBER_HEARTH_AUDIO.md` for sources and timing. Fire ambience
+continues through the result using its existing world-audio path.
+
+Run outcomes are committed before presentation. Loading a new state invalidates
+old presentation continuations. An OS close during a successful Embrace cannot
+recreate the already-cleared run. A failed bank or level-purchase profile save retains the resumable run
+and leaves the choice unspent. No animation state is persisted.
+
+## Proof
+
+`tests/campfire_choice_probe.gd` owns real-renderer proof at 1920x1080 and 100%
+UI scale, including reveal, unavailable/focused choices, selection, recovery,
+level-up/return, banking/departure and reduced motion. Focused lifecycle tests
+live in `tests/suites/ember_hearth_suite.gd` and run in the full suite.
+
+### Acceptance record — 2026-09-18
+
+The player question is which single hearth benefit to take. The choice row is
+the primary action; the visible player, HP and held Embers supply its context.
+Existing illustrated panels, typography, benefit/cost chips, focus outline,
+healing effect and floating text are reused. No new icon identity is introduced.
+
+| UI rubric gate | Result | Evidence |
+| --- | --- | --- |
+| Immediate comprehension | Pass | Three short verbs with explicit consequences and numeric gains/costs. |
+| Visual hierarchy | Pass | One room title, room above choices, selected option stays bright while others dim. |
+| Gameplay visibility | Pass | Board and player remain above the choice row; healing is visible at the actor. |
+| Compact, precise copy | Pass | Actual capped healing, explicit bank/end-run outcome, and one skill point rather than a promised learned skill. |
+| State and consequence | Pass | Unaffordable, focused, selected, full-health, recovery, level-up and banked states captured. |
+| Interaction completeness | Pass | Real pointer clicks and controller D-pad/accept/back sequence; available-choice focus links and duplicate-input guards tested. |
+| Visual cohesion | Pass | Existing art and component vocabulary, with restrained gold/green feedback. |
+| Accessibility | Pass | Text/chips communicate outcomes without sound/color; reduced motion holds the heal pose and omits scaling/stagger. |
+| Layout resilience | Pass | Inspected all 13 frames at 1920x1080, 100% UI scale; no choice clipping or board overlap. |
+| Visual proof | Pass | Fresh Metal renderer frames from the production scene; all 13 inspected at original resolution. |
+
+Proof artifacts are retained under
+`output/ember-hearth-polish-2026-09-18` in the primary checkout. The
+`screenshots/hearth_v2_01_arrival.png` through
+`screenshots/hearth_v2_13_bank_departure.png` sequence covers arrival,
+unaffordable/ready choices, controller focus, selection, healing, route return,
+level result, usable Skills, Skills-to-route return, reduced healing,
+full health and departure. The JSON renderer receipt retains original paths.
+
+Executed verification:
+
+```sh
+python3 tools/godot_task_runner.py --task-id polish-ember-refuge-arrival-choices-healing-and-departure --stream -- godot --headless --path . --script tests/run_tests.gd
+python3 tools/godot_task_runner.py --task-id polish-ember-refuge-arrival-choices-healing-and-departure --stream -- godot --headless --path . --script tests/ember_hearth_test.gd
+python3 tools/visual_probe_runner.py tests/campfire_choice_probe.gd --task-id polish-ember-refuge-arrival-choices-healing-and-departure --no-headless --display-driver macos --rendering-method mobile --rendering-driver metal --expect-size 1920x1080 --min-images 13 --result-manifest /private/tmp/ember-hearth-proof/visual-native.json
+git diff --check
+```
+
+All passed. The final focused suite and renderer capture use the current
+24-HP scale, including 22-to-24 capped recovery and 8-to-12 recovery.
+The full suite retains its ambiguous-legacy-save warning and an
+ObjectDB shutdown warning; neither is a failing assertion. Audio checks cover
+source duration, UI bus routing, one-shot invocation and waveform levels; the
+visual runner uses Dummy audio, so subjective in-game mix is left to the
+playable inspection fixture. Physical controller hardware, Windows export and
+configurations beyond the required 1920x1080/100% were not exercised.
+
+### Audio refinement — 2026-09-26
+
+The first synthesized note palette sounded too chipper and electronic in user
+inspection. Replace its pitched attacks with dry foley, warm fire texture and
+a soft air ripple. Preserve the approved visual flow, durations, actions and
+UI audio bus controls. Healing should read as recovery while its pluses rise;
+hover should remain a quiet tactile acknowledgement. This is a focused audio
+revision, with no changes to the visual hierarchy or rules.
+
+Current audio proof and audition files live under
+`output/ember-hearth-audio-2026-09-26` in the primary checkout. The historical
+2026-09-18 captures remain visual evidence only; their former synthetic audio
+palette is superseded.
+
+Verification for the audio revision: full Godot suite **PASS**, focused hearth
+lifecycle/audio suite **PASS**, deterministic rebuild byte comparison for all
+six WAVs **PASS**, exact durations/zero endpoints/unclipped signal checks
+**PASS**, and fresh native Metal probe **PASS** (13 frames, 1920x1080/100%).
+All 13 frames were inspected at original resolution; the ten UI rubric gates
+remain Pass, with no changed layout, input or outcome behavior. Commands use
+the same task runner and renderer probe as above; current receipts are
+`full-suite.log`, `focused.log`, `audio-verification.json`, `signal-report.json`
+and `visual.json` in the 2026-09-26 proof directory.
+
+Recovery's rendered source RMS is -17 dBFS; its -10 dB entry gain yields
+-27 dBFS before the shared buses, close to the earlier cue's level. Focus is
+-37 dBFS before the shared buses. Spectral checks show a lower, broader texture;
+they are technical evidence, not a substitute for user listening. Standalone
+previews retain relative game levels and add an explicitly labeled 12 dB
+preview-only boost. Live subjective fit remains for user audition. Existing
+non-failing legacy-save/ObjectDB warnings and prior platform limitations remain.
+
+### Integration with current master — 2026-09-26
+
+The hearth retains the current `campfire_choice_*_v2.png` art and shared choice
+surface finish. Pointer and keyboard focus feed the same emphasis state, so
+leaving a focused panel with the pointer keeps both the material treatment and
+sound deduplication correct. Arrival and outcome feedback keep their existing
+input gates alongside treasure presentation and deferred analytics cleanup.
+The shared hover binding also remains on Scavenger wares alongside their newer
+bounded material response; neither system owns or replaces the other's input.
+
+Integration proof is retained under
+`output/ember-hearth-integration-2026-09-26` in the primary checkout.
+
+The full suite, Hearth lifecycle, shared hover/focus, treasure and merchant
+interaction checks, and the three current music checks pass. Fresh renderer
+proof covers 13 Hearth lifecycle frames, five shared-UI input states and nine
+choice-material states at 1920x1080/100%; all 27 were inspected. The materials
+probe now waits for arrival and result completion before measuring settled
+bounds, preserving its native input and unchanged-hit-target assertions.

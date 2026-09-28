@@ -1,13 +1,13 @@
 extends SceneTree
-
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
-const ProgressionStore = preload("res://scripts/progression_store.gd")
-const RunEngine = preload("res://scripts/run_engine.gd")
-
-const OUTPUT_DIR: String = "user://campfire_choice_probe"
+const Store = preload("res://scripts/progression_store.gd")
+const Settings = preload("res://scripts/settings_store.gd")
+const Hearth = preload("res://tests/suites/ember_hearth_suite.gd")
+const ProbeScene = preload("res://tests/fixtures/ember_hearth_run_scene.gd")
+const OUTPUT_DIR: String = "user://ember_hearth_probe_v2"
 const PROBE_VIEWPORT: Vector2i = Vector2i(1920, 1080)
-
 var _failed: bool = false
+var _instance: Node
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
@@ -18,183 +18,151 @@ func _initialize() -> void:
 	root.content_scale_size = PROBE_VIEWPORT
 	root.size = PROBE_VIEWPORT
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
-	_clear_probe_output(OUTPUT_DIR)
-	ProgressionStore.set_storage_path("user://labyrinth_progression_campfire_choice_probe.json")
-	ProgressionStore.set_run_storage_path("user://labyrinth_run_campfire_choice_probe.save")
-	ProgressionStore.clear_saved_run()
-	await _capture_campfire_choice_states()
+	Store.set_storage_path("user://hearth_probe_profile.json")
+	Store.set_run_storage_path("user://hearth_probe_run.save")
+	Settings.set_storage_path("user://hearth_probe_settings.json")
+	var settings: Dictionary = Settings.default_settings()
+	settings["ui_scale"] = 1.0
+	Settings.save_settings(settings)
+	Settings.apply_settings(settings, root, false)
+	call_deferred("_run")
+
+func _run() -> void:
+	_instance = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_instance.set_script(ProbeScene)
+	root.add_child(_instance)
+	await process_frame
+	Hearth.setup(_instance, 8, 0, false, true)
+	var reveal_deadline: int = Time.get_ticks_msec() + 2000
+	while Hearth.panel(_instance, 0).modulate.a < 0.1 and Time.get_ticks_msec() < reveal_deadline:
+		await process_frame
+	_check(Hearth.panel(_instance, 0).modulate.a > Hearth.panel(_instance, 2).modulate.a, "Arrival reveals the options in order")
+	await _capture("01_arrival")
+	await Hearth.wait_ready(self)
+	_assert_framing()
+	await _capture("02_unaffordable")
+	Hearth.setup(_instance, 22, 180, false, true)
+	await Hearth.wait_ready(self)
+	await _capture("03_ready")
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "controller", "steam_deck")
+	_instance.call("_refresh_controller_interface")
+	Hearth.panel(_instance, 0).grab_focus()
+	await _joy(JOY_BUTTON_DPAD_RIGHT)
+	_check(root.gui_get_focus_owner() == Hearth.panel(_instance, 1), "Controller moves from Linger to Embrace")
+	await _joy(JOY_BUTTON_DPAD_RIGHT)
+	_check(root.gui_get_focus_owner() == Hearth.panel(_instance, 2), "Controller moves to affordable Strength")
+	await _capture("04_controller_focus")
+	# Return to pointer and use the actual viewport hit path, not a direct action call.
+	router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	await process_frame
+	await _click_panel(0)
+	_check(bool(_instance.get("_campfire_choice_action_pending")), "Pointer activation begins one selection")
+	await _capture("05_selected")
+	await create_timer(0.22).timeout
+	var board: Node = _instance.get("board_view")
+	var presentation: Dictionary = board.get("presentation")
+	_check((presentation.get("effect", {}) as Dictionary).get("kind", "") == "heal", "Healing uses the real character effect")
+	_check(int((_instance.get("_run_state") as Dictionary).get("player_hp", 0)) == 24, "Healing shows the actual capped two-HP gain")
+	await _capture("06_healing")
+	await Hearth.wait_finished(self, _instance)
+	await create_timer(0.5).timeout
+	_check(not bool(_instance.get("_animation_lock")), "Linger releases travel after the result")
+	_check((_instance.get("_large_map_scrim") as Control).visible, "The route map opens only after healing finishes")
+	await _capture("07_continue")
+	Hearth.setup(_instance, 8, 180, false, true)
+	await Hearth.wait_ready(self)
+	router.call("set_forced_state_for_test", "controller", "steam_deck")
+	_instance.call("_refresh_controller_interface")
+	Hearth.panel(_instance, 2).grab_focus()
+	await _joy(JOY_BUTTON_A)
+	await create_timer(0.43).timeout
+	_check(int((_instance.get("_progression") as Dictionary).get("level", 0)) == 2, "Controller A commits Draw Strength")
+	await _capture("08_strength_result")
+	await Hearth.wait_finished(self, _instance)
+	var learn: Button = (_instance.get("_skill_tree_view") as Node).get("_detail_action") as Button
+	_check(learn != null and not learn.disabled, "The skill tree immediately enables spending the earned point")
+	await _capture("09_skills")
+	await _joy(JOY_BUTTON_B)
+	_check(not (_instance.get("_upgrade_scrim") as Control).visible, "Controller B closes Skills")
+	_check(not bool(_instance.get("_animation_lock")), "Closing Skills returns input")
+	await create_timer(0.45).timeout
+	_check((_instance.get("_large_map_scrim") as Control).visible, "Closing Skills returns to the route map")
+	await _capture("10_strength_return")
+	router.call("set_forced_state_for_test", "pointer", "steam_deck")
+	Hearth.setup(_instance, 8, 0, true, true)
+	await Hearth.wait_ready(self)
+	await _click_panel(0)
+	await create_timer(0.24).timeout
+	presentation = board.get("presentation")
+	_check(is_equal_approx(float(presentation.get("effect_progress", 0.0)), 0.48), "Reduced motion holds a visible static healing pose")
+	_check(Hearth.panel(_instance, 0).scale == Vector2.ONE, "Reduced motion never scales a choice")
+	await _capture("11_reduced_healing")
+	await Hearth.wait_finished(self, _instance)
+	Hearth.setup(_instance, 24, 180, false, true)
+	await Hearth.wait_ready(self)
+	await _capture("12_full_health")
+	await _click_panel(1)
+	await create_timer(0.44).timeout
+	_check(not Store.has_saved_run(), "Embrace is already durably banked during departure")
+	await _capture("13_bank_departure")
+	await create_timer(1.1).timeout
+	_check(_instance.get("requested_scene") == "res://scenes/main_menu.tscn", "Embrace finishes by returning to the main menu")
+	router.call("clear_forced_state_for_test")
+	_instance.queue_free()
+	await process_frame
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("TEST RESULT: %s Ember Hearth visual and input sequence" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
-func _capture_campfire_choice_states() -> void:
-	var packed: PackedScene = load("res://scenes/run_scene.tscn")
-	if packed == null:
-		_fail("Run scene should load for campfire choice probe")
-		return
-	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+func _joy(button: JoyButton) -> void:
+	var event := InputEventJoypadButton.new()
+	event.button_index = button
+	event.pressed = true
+	root.push_input(event, true)
 	await process_frame
-	await process_frame
-
-	var probe_run_engine := RunEngine.new()
-	await _capture_choice_state(
-		instance,
-		probe_run_engine,
-		0,
-		120,
-		"%s/campfire_firelight_polished_strength_unaffordable.png" % OUTPUT_DIR
-	)
-	await _capture_choice_state(
-		instance,
-		probe_run_engine,
-		180,
-		120,
-		"%s/campfire_firelight_polished_strength_affordable.png" % OUTPUT_DIR
-	)
-	await _capture_affordable_hover_state(instance, "%s/campfire_firelight_polished_strength_hover.png" % OUTPUT_DIR)
-	await _capture_linger_feedback_state(instance, "%s/campfire_firelight_polished_linger_pulse.png" % OUTPUT_DIR)
-	await _capture_choice_state(
-		instance,
-		probe_run_engine,
-		180,
-		36,
-		"%s/campfire_firelight_polished_low_hp.png" % OUTPUT_DIR
-	)
-
-	instance.queue_free()
+	event = event.duplicate()
+	event.pressed = false
+	root.push_input(event, true)
 	await process_frame
 
-func _capture_choice_state(instance: Node, probe_run_engine: RunEngine, held_embers: int, player_hp: int, output_path: String) -> void:
-	var progression: Dictionary = ProgressionStore.set_embers(ProgressionStore.default_data(), held_embers)
-	var base_state: Dictionary = probe_run_engine.create_new_run(721, progression)
-	var campfire_coord: Vector2i = _first_room_coord_of_type(probe_run_engine, base_state, "campfire")
-	if campfire_coord == Vector2i.ZERO:
-		_fail("Probe run should include a campfire room")
-		return
-	var campfire_state: Dictionary = _run_state_for_room(probe_run_engine, base_state, campfire_coord, "campfire", Vector2i(1, 0))
-	campfire_state["player_hp"] = player_hp
-	campfire_state["player_max_hp"] = 360
-	campfire_state["held_embers"] = held_embers
-	campfire_state["unbanked_embers"] = held_embers
-	campfire_state["progression"] = progression
-	instance.call("_load_run_state", campfire_state)
-	await _settle_campfire_visuals()
-	_assert_non_combat_board_framing(instance, "campfire")
-	await _save_root_screenshot(output_path)
-
-func _assert_non_combat_board_framing(instance: Node, label: String) -> void:
-	var board: Control = instance.get_node("BoardUnderlay/CombatBoard") as Control
-	var overlay: Control = instance.get("_relic_choice_host") as Control
-	if board == null or overlay == null or not overlay.visible:
-		_fail("%s framing proof needs the visible board and option overlay" % label)
-		return
-	var board_bounds: Rect2 = instance.call("_contextual_combat_rendered_board_bounds") as Rect2
-	var overlay_bounds: Rect2 = overlay.get_global_rect()
-	var safe_rect: Rect2 = (board.get("presentation") as Dictionary).get("board_safe_global_rect", Rect2()) as Rect2
-	if board_bounds.size.y <= 0.0 or safe_rect.size.y <= 0.0:
-		_fail("%s framing proof needs non-empty rendered and safe bounds" % label)
-		return
-	if board_bounds.end.y > overlay_bounds.position.y - 8.0:
-		_fail("%s board should stay visibly clear of its option overlay (board=%s overlay=%s)" % [label, board_bounds, overlay_bounds])
-	if absf(board_bounds.get_center().y - safe_rect.get_center().y) > safe_rect.size.y * 0.16:
-		_fail("%s board should be centered in the overlay-aware usable region (board=%s safe=%s)" % [label, board_bounds, safe_rect])
-	if board_bounds.size.x < PROBE_VIEWPORT.x * 0.45 or board_bounds.size.y < safe_rect.size.y * 0.55:
-		_fail("%s board should remain visually primary after safe-region fitting (board=%s safe=%s)" % [label, board_bounds, safe_rect])
-	print("NON-COMBAT GEOMETRY %s board=%s safe=%s overlay=%s" % [label, board_bounds, safe_rect, overlay_bounds])
-
-func _capture_affordable_hover_state(instance: Node, output_path: String) -> void:
-	var before_rects: Array = _choice_panel_rects(instance)
-	var strength_panel: PanelContainer = _strength_choice_panel(instance)
-	if strength_panel == null:
-		_fail("Affordable campfire choices should expose a strength panel")
-		return
-	instance.call("_set_campfire_choice_hovered", strength_panel, Color("d79a4d"), true)
-	await _settle_campfire_visuals()
-	var after_rects: Array = _choice_panel_rects(instance)
-	if not _rect_lists_match(before_rects, after_rects):
-		_fail("Campfire choice hover should not move or resize the choice panels")
-	await _save_root_screenshot(output_path)
-	instance.call("_set_campfire_choice_hovered", strength_panel, Color("d79a4d"), false)
+func _click_panel(index: int) -> void:
+	var point: Vector2 = Hearth.panel(_instance, index).get_global_rect().get_center()
+	var motion := InputEventMouseMotion.new()
+	motion.position = point
+	motion.global_position = point
+	root.push_input(motion, true)
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.position = point
+	event.global_position = point
+	event.pressed = true
+	root.push_input(event, true)
+	await process_frame
+	event = event.duplicate()
+	event.pressed = false
+	root.push_input(event, true)
 	await process_frame
 
-func _capture_linger_feedback_state(instance: Node, output_path: String) -> void:
-	var linger_panel: PanelContainer = _choice_panel(instance, 0)
-	if linger_panel == null:
-		_fail("Affordable campfire choices should expose a linger panel")
-		return
-	instance.call("_show_campfire_choice_feedback_pulse", linger_panel, Color("efb35f"))
-	await process_frame
-	await process_frame
-	await _save_root_screenshot(output_path)
+func _assert_framing() -> void:
+	var board: Control = _instance.get("board_view") as Control
+	var overlay: Control = _instance.get("_relic_choice_host") as Control
+	var bounds: Rect2 = _instance.call("_contextual_combat_rendered_board_bounds")
+	var safe: Rect2 = (board.get("presentation") as Dictionary).get("board_safe_global_rect", Rect2())
+	_check(bounds.end.y <= overlay.get_global_rect().position.y - 8.0, "Room stays clear of the choices")
+	_check(absf(bounds.get_center().y - safe.get_center().y) <= safe.size.y * 0.16, "Room remains centered above the choices")
+	_check(bounds.size.x >= PROBE_VIEWPORT.x * 0.45, "Room remains visually primary")
 
-func _settle_campfire_visuals() -> void:
-	await process_frame
-	await process_frame
-	await create_timer(0.18).timeout
-	await process_frame
+func _capture(name: String) -> void:
+	await _save_root_screenshot("%s/hearth_v2_%s.png" % [OUTPUT_DIR, name])
 
-func _choice_panel_rects(instance: Node) -> Array:
-	var rects: Array = []
-	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
-	if relic_bar == null:
-		return rects
-	for child: Node in relic_bar.get_children():
-		var control: Control = child as Control
-		if control != null:
-			rects.append(control.get_global_rect())
-	return rects
+func _check(ok: bool, message: String) -> void:
+	if not ok: _fail(message)
 
-func _strength_choice_panel(instance: Node) -> PanelContainer:
-	return _choice_panel(instance, 2)
-
-func _choice_panel(instance: Node, index: int) -> PanelContainer:
-	var relic_bar: HBoxContainer = instance.get("_relic_choice_bar") as HBoxContainer
-	if relic_bar == null or relic_bar.get_child_count() <= index:
-		return null
-	return relic_bar.get_child(index) as PanelContainer
-
-func _rect_lists_match(before_rects: Array, after_rects: Array) -> bool:
-	if before_rects.size() != after_rects.size():
-		return false
-	for index: int in range(before_rects.size()):
-		var before_rect: Rect2 = before_rects[index]
-		var after_rect: Rect2 = after_rects[index]
-		if before_rect.position.distance_to(after_rect.position) > 0.5:
-			return false
-		if before_rect.size.distance_to(after_rect.size) > 0.5:
-			return false
-	return true
-
-func _run_state_for_room(probe_run_engine: RunEngine, source_state: Dictionary, coord: Vector2i, mode: String, travel_dir: Vector2i) -> Dictionary:
-	var state: Dictionary = source_state.duplicate(true)
-	var room: Dictionary = probe_run_engine.room_metadata(state, coord).duplicate(true)
-	room["revealed"] = true
-	room["visited"] = true
-	room["cleared"] = mode == "room"
-	var rooms: Dictionary = (state.get("rooms", {}) as Dictionary).duplicate(true)
-	rooms[_room_key(coord)] = room
-	state["rooms"] = rooms
-	state["current_room"] = coord
-	state["current_room_layout"] = probe_run_engine.call("_display_layout_for_room", int(state.get("seed", 0)), room, travel_dir)
-	state["mode"] = mode
-	state["combat_state"] = {}
-	state["pending_reward"] = {}
-	state["pending_relics"] = []
-	return state
-
-func _first_room_coord_of_type(probe_run_engine: RunEngine, state: Dictionary, room_type: String) -> Vector2i:
-	for radius: int in range(1, 9):
-		for x: int in range(-radius, radius + 1):
-			for y: int in range(-radius, radius + 1):
-				var coord := Vector2i(x, y)
-				if maxi(absi(x), absi(y)) != radius:
-					continue
-				if str(probe_run_engine.room_metadata(state, coord).get("type", "")) == room_type:
-					return coord
-	return Vector2i.ZERO
-
-func _room_key(coord: Vector2i) -> String:
-	return "%d,%d" % [coord.x, coord.y]
+func _fail(message: String) -> void:
+	_failed = true
+	push_error(message)
+	print("TEST RESULT: FAIL " + message)
 
 func _save_root_screenshot(output_path: String) -> void:
 	await process_frame
@@ -213,31 +181,3 @@ func _save_root_screenshot(output_path: String) -> void:
 	if source_size != PROBE_VIEWPORT:
 		image.resize(PROBE_VIEWPORT.x, PROBE_VIEWPORT.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
-
-func _clear_probe_output(output_dir: String) -> void:
-	var absolute_dir: String = ProjectSettings.globalize_path(output_dir)
-	_clear_probe_output_absolute(absolute_dir)
-
-func _clear_probe_output_absolute(absolute_dir: String) -> void:
-	var dir := DirAccess.open(absolute_dir)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	while true:
-		var entry: String = dir.get_next()
-		if entry.is_empty():
-			break
-		if entry in [".", ".."]:
-			continue
-		var child_path: String = absolute_dir.path_join(entry)
-		if dir.current_is_dir():
-			_clear_probe_output_absolute(child_path)
-			DirAccess.remove_absolute(child_path)
-		else:
-			DirAccess.remove_absolute(child_path)
-	dir.list_dir_end()
-
-func _fail(message: String) -> void:
-	_failed = true
-	push_error(message)
-	print("TEST RESULT: FAIL %s" % message)

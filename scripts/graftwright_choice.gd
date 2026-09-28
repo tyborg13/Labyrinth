@@ -1,5 +1,7 @@
 extends Button
+
 ## Native input/focus with object-specific art, never a stretched action skin.
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 
 signal inspect_requested
 
@@ -16,6 +18,7 @@ var keyboard_navigation: bool = false
 var _pressed_visual: bool = false
 
 func _ready() -> void:
+	ButtonFeedback.bind_button(self)
 	for state_name: String in ["normal", "hover", "pressed", "disabled", "focus"]:
 		add_theme_stylebox_override(state_name, StyleBoxEmpty.new())
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

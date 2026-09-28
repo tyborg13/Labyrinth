@@ -674,7 +674,7 @@ func _room_label(node: Dictionary) -> String:
 	return _type_label(str(node.get("type", "")))
 
 func _type_label(type: String) -> String:
-	return {"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Campfire", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
+	return {"combat": "Standard combat", "guardian": "Guardian combat", "event": "Event", "scavenger": "Scavenger", "graftwright": "Graftwright", "treasure": "Relic", "campfire": "Ember Hearth", "boss": "Boss", "start": "Threshold", "unknown": "Unknown"}.get(type, "Room")
 
 func _roman(index: int) -> String:
 	return ["I", "II", "III", "IV", "V", "VI"][clampi(index, 0, 5)]

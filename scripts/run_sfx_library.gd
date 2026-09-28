@@ -8,7 +8,51 @@ const CAMPFIRE_LOOP_ID: String = "run.campfire_loop"
 const REWARD_ACCEPTED_ID: String = "run.reward_accepted"
 const VICTORY_RESOLUTION_ID: String = "run.victory_resolution"
 
+const HEARTH_ARRIVAL_ID: String = "run.ember_hearth_arrival"
+const HEARTH_FOCUS_ID: String = "run.ember_hearth_focus"
+const HEARTH_SELECT_ID: String = "run.ember_hearth_select"
+const HEARTH_RECOVER_ID: String = "run.ember_hearth_recover"
+const HEARTH_STRENGTH_ID: String = "run.ember_hearth_strength"
+const HEARTH_DEPART_ID: String = "run.ember_hearth_depart"
+
 const SFX: Dictionary = {
+	HEARTH_ARRIVAL_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_arrival.wav",
+		"trimmed_duration": 0.68,
+		"volume_db": -14.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+	HEARTH_FOCUS_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_focus.wav",
+		"trimmed_duration": 0.12,
+		"volume_db": -17.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+	HEARTH_SELECT_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_select.wav",
+		"trimmed_duration": 0.26,
+		"volume_db": -12.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+	HEARTH_RECOVER_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_recover.wav",
+		"trimmed_duration": 0.95,
+		"volume_db": -10.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+	HEARTH_STRENGTH_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_strength.wav",
+		"trimmed_duration": 0.95,
+		"volume_db": -12.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+	HEARTH_DEPART_ID: {
+		"path": "res://assets/audio/sfx/run/ember_hearth_depart.wav",
+		"trimmed_duration": 1.0,
+		"volume_db": -14.0,
+		"bus": SettingsStore.UI_SFX_BUS
+	},
+
 	DOOR_OPEN_ID: {
 		"path": "res://assets/audio/sfx/run/door_open.wav",
 		"trimmed_duration": 1.318844,

@@ -1,5 +1,7 @@
 extends Button
+
 ## Native actions with the Scavenger's own leather strap and brass, shaded type.
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const Materials = preload("res://scripts/scavenger_materials.gd")
 var surface: String = "action"
 var reduced_motion: bool = false
@@ -11,6 +13,7 @@ var _last_text: String = ""
 var _last_size: Vector2
 var _last_font: int = 0
 func _ready() -> void:
+	ButtonFeedback.bind_button(self)
 	for state: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
 		add_theme_stylebox_override(state, StyleBoxEmpty.new())
 	for state: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color", "font_hover_pressed_color", "font_outline_color"]:

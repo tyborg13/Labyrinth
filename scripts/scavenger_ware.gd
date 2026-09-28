@@ -1,6 +1,7 @@
 extends Button
 ## Shelf-object material response. Native input and the shop's hover scale remain
 ## authoritative; this control animates paint and its existing content press only.
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const Materials = preload("res://scripts/scavenger_materials.gd")
 const RESPONSE_SECONDS: float = 0.12
 
@@ -26,6 +27,7 @@ var _target := Vector3.ZERO
 var _elapsed: float = RESPONSE_SECONDS
 
 func _ready() -> void:
+	ButtonFeedback.bind_button(self)
 	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "disabled", "focus"]:
 		add_theme_stylebox_override(state_name, StyleBoxEmpty.new())
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND

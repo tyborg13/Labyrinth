@@ -1,0 +1,90 @@
+# Music continuity across automatic scene bridges
+
+The owner requested that automatic menu/board/menu sequences never introduce a
+track for only the intervening animation. Deliberate fast navigation may still
+change music promptly.
+
+## Behavior
+
+RunScene resolves music after UI refreshes settle. Automatic animations, travel,
+reward reveals/delivery, relic acquisition, escape states and sliced UI rebuilding
+retain the current playback until their destination is ready. A map that is about
+to open automatically must have a queued presentation and pass the same
+eligibility predicate used by music routing,
+so its underlying board cannot claim a temporary quiet cue. A frame signal
+listener exists only while a request waits; it retries using the latest scene
+state and disconnects on settlement or audio shutdown. No minimum track duration
+or arbitrary multi-second debounce delays player navigation.
+
+The same track continues at its existing playback position. Starting a fight and
+manually closing a map still select their stable destination cue. Terminal defeat
+retains immediate priority and the existing death-animation fade. No audio assets,
+track gains, routes, menu layout, input rules, saves or analytics outcomes change.
+Only the existing automatic-map eligibility check is extracted without changing
+its conditions. This is audio-only presentation work; screenshots cannot prove
+playback continuity, so native playback tests and playable fixtures provide proof.
+
+## Verification
+
+`tests/music_continuity_test.gd` first reproduced the issue on the unmodified
+runtime: actual map-to-pre-battle travel requested the quiet board cue during a
+roughly 1.7-second handoff, replaced the playback, then restarted The Turning Key.
+Both normal and reduced-motion cases failed, as did automatic-map refresh and
+longer bridge holds.
+
+The corrected focused test passes. It checks actual scene methods, active track
+selection, AudioStreamPlayback identity and advancing playback position through
+map travel, automatic map presentation, stable combat entry, manual map closure,
+2.2-second animation holds, acquisition/relic/sliced-refresh holds, retry without
+a new UI refresh, escape, terminal priority and cancellation at audio shutdown.
+Peer review also reproduced a stale map prediction after opening dialogue had
+blocked an automatic presentation. The added regression waits for that blocked
+callback, then manually opens/closes the map. Prediction now requires a genuinely
+queued automatic presentation, so the visible quiet board receives Lanterns.
+
+Existing `tests/original_music_test.gd`, `tests/combat_music_integration_test.gd`,
+and `tests/main_menu_input_test.gd` pass. The latter verifies New/Continue/Replace
+and normal/reduced-motion handoffs, with no overlap of main-menu and room music.
+Some runs emit the existing non-failing ObjectDB cleanup warning. A concurrent
+main-menu rerun passed every music handoff but missed the unrelated seal fade
+lower timing bound (346 ms versus 350 ms). Rerunning it alone passed, including
+a 388 ms seal fade; no startup code or assertion was changed. Isolated rerun log:
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790429102318878000-42324/godot.log`.
+
+Full regression command (task-local HOME and Steam disabled):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/keep-music-continuous-across-automatic-scene-bridges && python3 tools/godot_task_runner.py --task-id keep-music-continuous-across-automatic-scene-bridges --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+The final full Godot suite passed (`TEST RESULT: PASS`, exit 0). Log for the reviewed runtime:
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790428857215207000-41949/godot.log`.
+The suite exercises its deliberate ambiguous-save migration warning.
+Focused final log:
+`/private/tmp/labyrinth-godot-home/keep-music-continuous-across-automatic-s-1790428855037058000-41927/godot.log`.
+`git diff --check` passes; no editor scan or import metadata changes.
+
+## Inspection
+
+Both fixtures are generated and independently reloaded by the standard verifier.
+The commands below regenerate the initial inspection state before launching.
+Choose Continue, finish the opening conversation, open the map and choose a fight.
+The Turning Key should continue without a quiet-track interruption or restart
+through the door animation and pre-battle screen. Begin the fight for Ashen
+Pursuit; deliberately open/close the map to confirm navigation remains responsive.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/keep-music-continuous-across-automatic-scene-bridges && python3 tools/inspection_fixture.py --task-id keep-music-continuous-across-automatic-scene-bridges --run-id music-continuity-start --launch --scenario start --seed 82271 --summary 'Finish the opening conversation, open the map, and choose a fight: The Turning Key should continue through the door animation into pre-battle. Begin combat to hear Ashen Pursuit.'
+```
+
+Reward delivery into the map:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/keep-music-continuous-across-automatic-scene-bridges && python3 tools/inspection_fixture.py --task-id keep-music-continuous-across-automatic-scene-bridges --run-id music-continuity-reward --launch --scenario reward --summary 'Choose a reward and listen through its delivery and automatic return to the map; then choose the next destination.'
+```
+
+Manifests: `/private/tmp/labyrinth-inspection-manifests/music-continuity-start.json`
+and `/private/tmp/labyrinth-inspection-manifests/music-continuity-reward.json`.
+Audible emotional fit remains owner inspection; this proof establishes continuity
+and routing, not a subjective listening review. Publication requires approval of
+this task's committed result.
