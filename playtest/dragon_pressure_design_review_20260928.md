@@ -633,3 +633,102 @@ consecutive first-cycle phases and the paid terrain opening satisfy the
 bounded repeated-cost gate. T7's faster return is not a required cost, because
 one tick later also wins the player-first tie. The superseded Earth01 remains
 a rejected radius-one case rather than acceptance evidence.
+
+### Ice01 native rejection and Air01 audit boundary
+
+Independent review rejects Ice01's recurring-cost coverage despite a clean
+18-HP win. The actual Whiteout/Rime pair permits 19 then 12 damage with only
+two then one ordinary steps, and the later Whiteout again needs one step.
+A recorded ordinary alternative also avoids the first unshrunk Shatter, so
+its actual layer/Root play is chosen rather than proved mandatory. The bounded
+Rime Move2→3 trial preserves HP, damage, cadence and trail; fresh Ice02 remains
+the difficulty gate. The unchanged (1,1) pillar invalidates a proposed escape
+through that tile, but not the legitimate cheap-route evidence from Ice01.
+
+Air01 completes T7/clock99 at 4 HP after consuming Crimson Draught. The detailed
+native journal and 95-record audit distinguish its genuine timing decisions
+from mistakes. The first no-movement Dive escape is caused by an expended Air
+trap pushing the player out of the held sweep; it is not a repeatable empty
+phase. Gale still has a two-attacks-plus-one-step window. The second cycle
+shows a long-turn Skyhook/Dive pair: the chosen two attacks cross both boss
+activations, whereas an early Pass after Kite would preserve the player-first
+tie and a new reaction at the price of an attack. Dedicated guard is actually
+used. The pilot's attempted Root fails against the dragon's existing immunity,
+and the Eye route voluntarily stays in its ring. Neither mistake, gross HP
+loss, recovery-item use nor the eventual win is acceptance by itself. The
+independent Air verdict is pending; no Air source change is inferred here.
+
+The independent Air01 audit now recommends **retain** for the tested depth-16
+F3 cohort. Its key reproducible tradeoff is player clock 66: two 4-Time cards
+return at 83 after Skyhook66 and Dive79, while one 4-Time card plus an early
+Pass returns on the player-first79 tie. A Kite-only line retains Skyhook guard
+but forgoes the other attack. Useful first-cycle guard supplies repeated paid
+choices; the cheap Gale window and one-use trap escape do not establish a
+cheap full cycle. The exclusions above remain binding. No Air tuning follows.
+
+
+### Ice02 independent retention and Lightning01 defeat boundary
+
+Ice02's complete natural depth-12 study now receives independent **retain**
+for the three-step Rime at `cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`.
+The recorded first-Rime board has no free ordinary F3 endpoint outside legal
+trap-free pursuit; an optimistic Gust-plus-F3 bound likewise retains a bite
+at every enumerated endpoint. This static legal-route check favors escape
+but does not replay AI selection. The actual finite Jaw Trap/Root is meaningful
+control at the price of a play and item; useful recurring Mantle defense
+supports the linked cycle. Chosen armor stripping, free Shatter, the later
+pilot recovery, Fatigue and high remaining HP remain excluded. See the native
+journal and `/private/tmp/dragon-pressure-native/iskaldra-02-complete/independent-difficulty-review.md`.
+
+Lightning01 ends in a preserved T6/clock105 defeat, with the boss reconciled
+to 45 HP. This is not automatic acceptance or a reason to tune damage. The
+14-card, 148-event record shows genuine helper target competition, repeatedly
+consumed guard, a response window for the replacement and a short-Pass versus
+double-activation timing choice. It also contains decisive pilot mistakes:
+expecting Crowncoal on existing Electrified ground, expecting a summoned
+Wisp kill refund, and misreading Quick Wits as another play. Ghost Stride did
+not add movement allowance; the final endpoint stayed in the expanded field.
+Skybreak had no live bolt and both recorded bands missed. T1/T5 guard was
+used by Wisps, while the paid movement at T5 could have been ordinary.
+
+The native journal explicitly preserves legal but unproved alternatives and
+all damage/defense/finite-resource accounting. Normal Defiance restored 6;
+Crimson Draught stayed unused. The loss does not establish an unavoidable
+trap or a competent safe winning line. The independent verdict follows below;
+no acceptance or production retuning follows from the defeat alone.
+
+
+### Lightning01 independent retention
+
+Independent reviewer `boss_fun_review/fresh_final_review` recommends **retain**
+for the tested depth-20, level-4 F3 build on production
+`cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`. Its static route/LOS witnesses
+place all 11 T2 ordinary endpoints within legal live Lash reach, all 16 T3
+endpoints within Overload's live range, and all 11 T6 ordinary/Ghost endpoints
+inside the held field. Recurring guard, helper prioritization and early-Pass
+costs therefore survive exclusion of the pilot's mistakes. Skybreak remains
+a cheaper phase. These are bounded static checks of recorded positions, not
+an exhaustive engine replay or proof against every possible strategy.
+
+Fair counterplay remains: before T6's plays were consumed, the held Frostbolt
+could Freeze the already Chilled boss, then Hourglass-discounted Cinch could
+provide 7 Block for 1 Time. The return would be 104, before Overload105,
+with Lash skipped and enough current HP/defense for the intervening helper
+attacks. That line was not played and does not prove a complete victory.
+The held Draught and earlier finite-skill use likewise remain alternatives,
+not claims that healing or a particular card was mandatory.
+
+The mistaken Crowncoal finish, summoned-kill refund, Quick Wits/play assumption,
+Ghost movement expectation, unsafe endpoint, Fatigue, Defiance use and defeat
+are excluded from forced-difficulty credit. No further Lightning tuning or
+native replay is justified by this bounded study. This closes its difficulty
+gate only; final exact-HEAD review, fixture certification and publication
+remain separate coordinator gates.
+
+The independent review and its produced artifacts are preserved in
+`/private/tmp/dragon-pressure-native/zekarion-01-complete/`.
+Review file: `independent-difficulty-review.md`.
+Review SHA-256: `efc809b7f687acb626b7f7e493cc982f53012609a472fe37ea3a5555b821daaa`.
+Route script SHA-256: `7c9f2cbf0bcb8cc98e00579b380772129b74429cb003e4eaf97b7b8c47f1e584`.
+Route JSON SHA-256: `5ebafe967eaf931ab9ee25129b70a60984d9dc83ddd73e5fc02c6dd258796e02`.
+JSONL SHA-256: `975b73780844dfbb790d44a8722c4e79f91d5dfbcaaf30c26a82efd5d432cbe4`.

@@ -218,11 +218,78 @@ Coil copy retains the mechanical effect and drops redundant targeting prose.
   without clipping. These are correctness/readability proofs; native Ice02
   remains required. Air01 has now completed; its independent audit is pending.
 
+- Checkpoint `cf826c8fb` commits the bounded Ice pursuit change, focused
+  PASS 318 and four inspected warning renders. Fresh native Ice02 remains the
+  difficulty gate for that change.
+- Independent Air01 review retains current depth-16 LV3/F3 tuning. Thirteen
+  cards and 95 events reconcile 72 boss damage; victory is T7/clock99, with
+  the milestone claimed and section IV map reached. Useful guard is spent in
+  separate first-cycle phases (Skyhook 6, Eye 7). At T5/clock66, two four-Time
+  cards return the player at83, after both Skyhook66 and Dive79; one four-Time
+  card returns at79 and wins the tie before Dive. Deferring a play is a real
+  alternative to accepting that consecutive pressure. The first Dive's cheap
+  escape came from a consumed Air trap pushing the player out of its sweep;
+  later ordinary retreat did not solve the repeated sequence. Root immunity
+  confusion, the poorer Eye endpoint, optional potion, Fatigue and final low HP
+  do not count as required costs. No Air tuning change is needed.
+
+- Integrated `dragon-pressure-full-04`: **PASS**, wrapper 43738 exited 0 on
+  committed production `cf826c8fb`, including the revised 318-check pressure
+  suite. The injected acknowledgment failure, legacy-save preservation warning
+  and existing ObjectDB shutdown warning are the documented expected diagnostics.
+  No production file changed during the run. The native runtime lease then
+  returned to the pilot for Lightning while Ice02's independent audit proceeds.
+
+
+- Independent Ice02 review **retains** the three-step Rime on `cf826c8fb`.
+  The completed native fight and 155-event audit reconcile 16 cards, 71
+  card-receipt damage plus one separate Worldheart pulse. Two Mantle shots
+  consume 7 Block + 3 Stoneskin; no enemy attack removes player HP. At the
+  first Rime, all 15 ordinary F3 endpoints admit a legal trap-free whole-body
+  Move3 bite, including all six endpoints outside the retained trail. A
+  deliberately escape-favoring Gust geometry bound covers 136 movement
+  allocations across 10 cast/body pairs and still finds a bite route for each.
+  This is a code-grounded route-existence bound, not an engine replay or an
+  exhaustive strategy search. Even zero-card return61 follows Rime60.
+  The actual finite Jaw/Root therefore buys meaningful control, alongside the
+  recurring useful Mantle defense. Exclude the optional T2 armor strip, freely
+  avoided T6 Shatter, T8 bad-approach recovery, Fatigue and final HP. No further
+  Ice tuning is justified. Frozen review and reproducible route script/JSON:
+  `/private/tmp/dragon-pressure-native/iskaldra-02-complete/`.
+  Review SHA-256 `a6e787f4e0f444143abc8b8b7d32360125bb3215d62b774d66bf32d9424f9715`;
+  route JSON `d7dadeadf9f6bed9939a62fa59ea60ad276ad80290641f934d941070b2beb09e`.
+
+- Independent Lightning01 review **retains** current tuning without requiring
+  another native attempt. The completed run is a defeat at T6/clock105, with
+  boss 45 HP: 148 events, 14 cards, 59 total enemy HP damage and 32 useful
+  defense. Its loss, helper-finishing error, assumed summoned-kill refund,
+  skill misunderstandings, shallow retreat and unused Draught do not establish
+  difficulty. In the recorded first cycle, all 11 ordinary F3 endpoints at
+  T2 remain reachable by live Lash; all 16 at T3 remain inside Overload's
+  live range. The early Pass plus useful guard and later dedicated Call
+  guard supply repeated costs. There is fair precommit T6 counterplay:
+  Frost on the publicly Chilled, nonimmune boss then discounted Cinch
+  freezes/skips Lash, gives 7 Block and returns at104 before Overload105.
+  The two possible Wisp shots fit the available defense/HP budget. This is
+  a static, source-grounded alternative, not a native replay or a guaranteed
+  winning policy. Frozen evidence is in
+  `/private/tmp/dragon-pressure-native/zekarion-01-complete/`.
+
 ## Current completion boundary
 
-Fire01, Earth02 and Noct02 have completed native fights and bounded independent
-retain verdicts. Ice01 requires the bounded pursuit retune and a fresh fight; Air
-needs independent assessment, and Lightning still needs a completed native fight.
-A final commit, exact-HEAD independent review and eight final reset/reload
-fixtures remain required. The integrated suite now passes with the targeting repair and tuned Earth Breath;
-further production changes would require affected re-verification. No push, landing or cleanup is authorized.
+All six dragons now have completed natural-build native fights and bounded
+independent **retain** verdicts: Fire01, Earth02, Ice02, Air01, Lightning01
+and Noct02. Five finish in victory; Lightning finishes in defeat, with fair
+precommit counterplay checked separately and its pilot mistakes excluded.
+These studies establish the observed choices, not all builds, boss orders,
+optimal play or a corrected native Lightning victory.
+
+The final integrated suite, focused mechanics and changed warning renderer
+checks pass on production `cf826c8fb`. The closing commit changes only review
+and inspection documentation; no further runtime test is warranted by those
+text edits. Final exact-HEAD independent signoff and all eight generated,
+reload-verified fixture handoffs are recorded outside the worktree in
+`/private/tmp/dragon-pressure-inspection/v3/final-handoff.json`, so their
+post-commit certification does not alter the reviewed HEAD. The inspection
+[guide](dragon_pressure_inspection_20260928.md) contains each reset command.
+Publication remains subject to the user's inspection and explicit approval.

@@ -1,8 +1,8 @@
-# Dragon pressure v3 inspection — DRAFT, 2026-09-28
+# Dragon pressure v3 inspection — 2026-09-28
 
-**Draft recipes only.** These v3 fixtures have not yet been generated or verified for a final commit. Reviewed HEAD, generation/reload receipts and final native acceptance are pending. The [previous inspection guide](dragon_feedback_inspection_20260927.md), including the user's blank lines, is unchanged.
+Inspect all six revised dragons, the Molt Shard exchange cue and the shorter Stormroad Coil rules. The reviewed build and eight fixture verification records are in the [final inspection receipt](/private/tmp/dragon-pressure-inspection/v3/final-handoff.json). The [previous inspection guide](dragon_feedback_inspection_20260927.md) remains available.
 
-After handoff, choose one reset command below, then **Continue** in the game. Quit before opening another case. Each command regenerates and verifies that case's isolated starting save before launching; it replaces progress in that case only. The normal player profile and older v2 inspection saves use different namespaces.
+Choose one reset command below, then **Continue** in the game. Quit before opening another case. Each command regenerates and verifies that case's isolated starting save before launching; it replaces progress in that case only. The normal player profile and older v2 inspection saves use different namespaces.
 
 The six fights use the current production encounter, natural shuffle and **balanced** acquired-build family at depths 4/8/12/16/20/24. Earlier trophies, normal skill budgets, equipment progression and one ordinary healing item are retained; there is no authored winning hand or extra health. These are staged gate encounters, not full descents. Inspect at 1920×1080 and 100% UI scale. Commands depend on this worktree and the existing local Godot 4.6.1 app.
 
@@ -14,8 +14,8 @@ Across **all six dragons**, try keeping both offensive plays and relying on ordi
 | --- | --- |
 | Vyraketh, depth 4 | Held fire marks plus body attacks; decide when to clear fuel, defend, displace or spend extra movement. |
 | Tharokh, depth 8 | Breakable spires plus body pressure; compare breaking a spire against attacking the boss and watch Faultline consume the remaining field. |
-| Iskaldra, depth 12 | Crystal Mantle followed by Shatter; reducing Mantle and managing Ice/trail pressure should affect the next decision. |
-| Vaeloryx, depth 16 | Dive wake, Gale and the close/outer Eye choices; movement must respond to both the body and held field. |
+| Iskaldra, depth 12 | Live Mantle shots and three-step Rime pursuit across a retained Ice trail; compare guard, finite control and extra movement against keeping both attacks. |
+| Vaeloryx, depth 16 | Dive wake, Gale and the close/outer Eye choices; watch when a second card crosses the next boss deadline and an early Pass buys another reaction. |
 | Zekarion, depth 20 | Persistent charged terrain, Overload and live shots; check meaningful charge denial and repeated positional pressure. |
 | Noctyrax, depth 24 | Brazier darkness protection plus separately announced ground sweeps at the player's declared position; relighting alone should not solve every layer. Inspect the new smoky shadow FX, actor readability and reduced-motion setting. |
 
@@ -85,4 +85,6 @@ Substitute any run ID from this guide to resume that case. The unlimited interac
 
 ## Handoff status
 
-Pending: all-six completed native assessment, final commit, exact-HEAD independent review, generation/reload verification for these eight recipes, and receipt binding. The inspected shadow material revision is accepted; native Earth completion and the visible-terrain shortcut repair are recorded in the journal. Integrated full regression currently passes; rerun affected checks after any further implementation changes. Current implementation evidence lives in the [pressure ledger](dragon_pressure_revision_20260928.md), [native journal](dragon_pressure_native_20260928.md) and [presentation receipt](dragon_pressure_presentation_20260928.md). No publication approval is implied by this draft.
+All six completed native studies have independent retain verdicts. Five ended in victory; Lightning ended in defeat after documented pilot mistakes, with repeated costs and a fair precommit alternative reviewed separately. These are bounded acquired-build studies, not proof of every build or a corrected Lightning victory. The full integrated regression passes on the final production code.
+
+Use the [final inspection receipt](/private/tmp/dragon-pressure-inspection/v3/final-handoff.json) for the exact reviewed commit, independent signoff and all eight generation/reload checks. Detailed evidence is in the [pressure ledger](dragon_pressure_revision_20260928.md), [native journal](dragon_pressure_native_20260928.md), [source review](dragon_pressure_source_review_20260928.md) and [presentation receipt](dragon_pressure_presentation_20260928.md). Publication follows user inspection and explicit approval.

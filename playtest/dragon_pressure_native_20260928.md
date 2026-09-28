@@ -557,3 +557,298 @@ Save SHA-256: `472f80be1521bbbe51868788eecb0cea80e7c79f94f3b463b37b3e381e107bc1`
 JSONL SHA-256: `0830431909ca06fd70c537d24f34a922d48e5d63285bf0e2ec1fa0bb2fd3d2f3`.
 Opening raw save SHA-256:
 `f12348a80eb69e094b3f81ae4a8f173b8aa76efa86b6470b15419959878e966a`.
+
+### Ice01 independent verdict — tune Rime, preserve the counterexamples
+
+Independent reviewer `boss_fun_review/fresh_final_review` audited the completed
+Ice01 records and recommends **tune**, not acceptance. Useful Mantle defense
+and armor interactions do not close the repeated cheap Whiteout/Rime windows.
+The reviewer also found a generous ordinary route from the T2 starting (3,4)
+to (1,5), via (2,4)/(1,4), outside the original unshrunk Shatter warning. No
+occupant, surface or trap blocks that recorded route. Therefore the actual
+Low Sweep layer/Root plus early Pass is chosen control/tempo, not proof that
+armor stripping was required to avoid damage. T6's guard is likewise useful
+but not proven necessary.
+
+The bounded trial changes only Rime pursuit from 2 to 3, retaining damage,
+HP, cadence and the existing trail. It catches the observed (2,1) retreat and
+the real westward (1,2) alternative. A suggested escape through (1,1) is invalid
+because that unchanged tile is a pillar. Static review, focused runtime and
+fresh warning proof are separate gates; a fresh Ice02 native fight is still
+required before accepting the trial.
+
+### Vaeloryx 01 — completed native depth-16 balanced fight
+
+One fresh natural inspection fixture was generated and reload-verified before
+play: `/private/tmp/dragon-pressure-native/vaeloryx-01.json`, namespace
+`dragon-pressure-vaeloryx-01`, seed 7262030. Opening save and profile were
+preserved under the adjacent `vaeloryx-01-opening/` directory. The build starts
+20/24 HP versus 72 HP, level 3, 17 natural cards, three ordinary movement,
+Quick Wits and Measured Breath, and no Defiance capacity. Equipment is
+unupgraded Rapier / Ward-Kite / Boiled Leather / Trapdoor Spurs / Cracked
+Lantern. Relics are Iron Buckler, Pilgrim Boots, Reinforced Shield, Stormroad
+Coil, Winter's Hourglass and Crowncoal Heart. There is **no Worldheart** in
+this seeded progression. Crimson Draught begins equipped. No hand, health,
+order or combat state was rewritten. Only public UI and rules informed play;
+full motion and 100% UI scale were used in the native window.
+
+| Activation / player clock | Actual play and choice | Audited result |
+| --- | --- | --- |
+| T1 / 0→17 | Riposte Lunge moves (1,4)→(3,4), deals 5 and gives 4 Block (5 Time). Parry Rhythm adds 5 Block and draws two (3 Time). Ordinary retreat to (1,4) costs two points; one unused. | Skyhook's 6 is fully blocked and Pull ends at (2,3). Crowncoal's activation Fire deals 3; player 20, boss 64. The retreat deliberately avoids the known northern trap route; dedicated guard is useful. |
+| T2 / 17→35 | Shrapnel Burst is centered on (5,3) for 7, avoiding a voluntary splash on the nearby (3,3) trap (6 Time). Lantern Shot hits for 4 and draws Frostbolt (3 Time). No ordinary movement; Pass all three points. | Fire deals 3, then Dive advances (4,3)→(3,3), triggering that Air trap for 7 boss damage. Its wake pushes the hero (2,3)→(1,3), outside the held Dive sweep. Player 20, boss 43. This observed no-movement escape is a one-shot terrain interaction, not evidence that Dive always misses. |
+| T3 / 35→50 | Frostbolt 4 costs 4 Time and banks three Hourglass Time; Chain Bolt 4 spends it and costs 2. One ordinary step (1,3)→(1,2); two unused. | Both Gale's live radius-two ring and the old Dive wake miss. Gale triggers the other two Air traps and clears another crate without damaging the player. Fire deals 3 and Ice applies Chill; player 20, boss 32. Two attacks plus one step is a concrete cheap window. |
+| T4 / 50→66 | Spur Trip moves (1,2)→(3,2) and deals 7 including Chill (4 Time). Cinch Straps gives 7 Block and draws two (3 Time). Ordinary route to (2,4) spends all three points and auto-ends. | Vaeloryx is immune to immobilize; no Root is applied. Eye retreats (3,3)→(3,4)→(4,4). Its held ring hits for 10: 7 Block + 3 HP. Fire deals 3; player 17, boss 22. The attempted Root and the poorly chosen ring endpoint are pilot errors, not forced damage. The 16-Time return preserves the player-first tie before Skyhook. |
+| T5 / 66→83 | Ordinary step to (3,4); Needle Thrust 7 (4 Time), then Kite Bash 3/6 Block pushes the body (4,4)→(5,4) (4 Time). Remaining two ordinary points retreat to (1,4). | The long 17-Time turn spans Skyhook and Dive. Skyhook consumes all 6 Block and pulls the player to (3,4); Dive advances through (5,5)/(4,5) to (3,5), hits for 10 HP and applies Bleed 1. Player 7, boss 12. A Kite-only early Pass would return on the clock-79 player-first tie before Dive, trading the other attack for a fresh reaction. The actual hit is a chosen cadence risk, not unavoidable damage. |
+| T6 / 83→99 | Gust Step moves (3,4)→(3,3), deals 3 and pulls the boss one cell to (3,4), entering Crowncoal Fire for 2 more (4 Time). Its movement and Pull each trigger Bleed 1. Choose the equipped Crimson Draught instead of another attack: +2 HP, one play/3 Time, item consumed. Ordinary retreat (3,3)→(1,3) costs two points and one further Bleed HP; one point unused. | Both Gale layers miss after the retreat. Fire deals 3 to the boss. The next natural reshuffle costs 2 Fatigue; player 4, boss 4. Healing does not cure Bleed; the status clears at turn end. The recovery is useful on this chosen line, but an alternative offensive finish was not ruled out. |
+| T7 / 99 | Lantern Shot deals the final 4 for 3 Time, with no movement. | Victory before the second Eye resolves. Player 4/24; terminal kill refund is unused. |
+
+All 95 append-only records reconcile. Thirteen card plays include the consumed
+Draught. Direct card hits total 48 boss HP; Crowncoal adds 15 activation Fire
+and 2 entry Fire; the triggered Air trap supplies 7, totaling 72. Card receipts
+include the entry Fire and therefore total 50. No Worldheart pulse or Stoneskin
+absorption occurred. Incoming attacks consume 19 Block across two Skyhooks
+and Eye. Gross HP loss is 18: Eye 3, Dive 10, Bleed 3 and Fatigue 2; the item
+heals 2, so 20−18+2=4. No manual skill activation or Defiance occurred.
+
+The first-cycle Dive/Gale pair is forgiving, but its first escape consumes an
+actual room trap; the later linked Skyhook/Dive does punish spending both slow
+plays. The dedicated guard at Skyhook, a short guard/draw choice before Eye,
+and the later early-Pass alternative are meaningful candidates for the recurring
+cost criterion. They must be assessed alongside the one-step Gale window.
+The mistaken Root expectation, the T4 ring route, low final HP and victory alone
+are excluded from difficulty credit. The T6 healing choice is not claimed
+necessary, and the second Eye was killed before resolution. Independent
+review is pending; this entry does not accept all-six difficulty.
+
+Dragon Vanquished showed Unbound Pinion, 110 Embers, +6 actual healing and the
+already-earned first-dragon Moltshard. Continue was clicked once; acquisition
+finished into the cleared section-IV map. Normal quit completed with runner
+69661 exit 0. The final save is mode `room`, HP 10, held/unbanked Embers 110,
+one newly acquired Pinion, empty pending reward, unchanged one Moltshard and
+no equipped Draught. Copies plus compact audit are preserved at
+`/private/tmp/dragon-pressure-native/vaeloryx-01-complete/`.
+Save SHA-256: `6f83c5971311e20c6d5353c81fa9d623bdea9ea079d593fe1dbebd116c29497a`.
+JSONL SHA-256: `3847490bb2f8c11cd48adb2ea054e642ff6bab8b5ff759a48ba71ab2403d769d`.
+Opening raw save SHA-256:
+`4402dca7b12c941e331b9af4ac6059a5448fea91637971c9ac088e5345cb085d`.
+
+### Air01 independent verdict — retain for the tested fourth gate
+
+Independent reviewer `boss_fun_review/fresh_final_review` reconciled all 95
+records, the opening and final saves, and recommends **retain** for this
+level-3, depth-16, F3 cohort. Useful dedicated guard against the first Skyhook
+and the defended, short-Time Eye line provide distinct paid choices. The later
+cadence is exact: enemy base 8 gives slots 12, 25, 38, 52, 66, 79 and 92. Two
+4-Time cards from player clock 66 return at 83 and admit Skyhook plus Dive;
+a single 4-Time card returns at 79 and wins the player-first tie. Kite-only
+also defends Skyhook, while Needle-only does not. This is a concrete attack
+versus reaction-time tradeoff, not credit for an unavoidable hit.
+
+The one-step Gale escape remains real; the first Dive's trap-push benefit is
+one-use, and the later Dive demonstrates that the whole cycle is not solved
+by the same cheap sidestep. Exclude the immunity misread, poor Eye endpoint,
+optional healing, Bleed incurred by the chosen Gust line, Fatigue and low
+remaining HP from claims of forced difficulty. Retention is bounded to this
+acquired build and observed natural line; it is not all-six, all-build or
+final-HEAD approval. No Air tuning is justified by this study.
+
+
+### Iskaldra 02 — completed native test of three-step Rime pursuit
+
+This fresh fixture tests production `cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`:
+only Rime's pursuit changed from two to three since Ice01. The generated and
+reload-verified manifest is `/private/tmp/dragon-pressure-native/iskaldra-02.json`,
+namespace `dragon-pressure-iskaldra-02`, seed 7262029. Generator/verifier wrapper
+8762 exited 0. Opening save and profile are preserved in `iskaldra-02-opening/`.
+The natural build is the same depth-12, level-3 balanced family as Ice01:
+20/24 HP versus 72 HP, 17 cards, F3, Quick Wits and Measured Breath, no Defiance,
+unupgraded Rapier / Ward-Kite / Boiled Leather / Skirmisher Boots / Cracked
+Lantern; Iron Buckler, Pilgrim Boots, Stormroad Coil and Worldheart. There is
+no Crowncoal or Hourglass during the fight. No hand, health, card order or
+combat state was rewritten; live decisions used only public UI and rules.
+The native window ran full motion and 100% UI scale.
+
+| Activation / player clock | Actual play and choice | Audited result |
+| --- | --- | --- |
+| T1 / 0→15 | Parry Rhythm 5 Block/two draws for 3 Time; Sidestep Slash moves (1,4)→(3,4), hits 5 for 3 Time. Pass all three ordinary points. | Worldheart converts 2 Block and pulses 1. Mantle's live shot consumes 3 Block + 2 Stoneskin. Player 20, boss 66. |
+| T2 / 15→28 | Low Sweep skips optional movement, removes one Mantle layer, applies Root, pays 4 Time and deals zero HP damage. Ordinary retreat to (1,3) costs all three points; bank the second play. | Root suppresses the move, reduced Shatter misses, and its remaining layer is consumed. Three crates are destroyed and two Ice traps trigger. Player 20, boss 66. As established in Ice01, this is chosen control/tempo: a different ordinary route could avoid the original full ring without stripping it. |
+| T3 / 28→52 | Riposte Lunge moves to (3,3), hits 5 and gives 4 Block (5 Time); Needle 7 (4 Time); banked Shrapnel 7 (6 Time). Two ordinary points reach (2,2) and collect Jaw Trap; Pass one point. | Whiteout misses. Player 20, boss 47. This remains a cheap high-offense window, with the banked card still paying Time. The unused Block supplies 2 Stoneskin through Worldheart. |
+| T4 / 52→69 | Instead of the previously successful one-step Rime retreat, ordinary move (2,2)→(3,2) puts the recovered Jaw Trap in range. Consume it for 4 damage including Chill, Root and 4 Time; Frostbolt hits 6 for 4 Time. Hold unmarked (3,2), Pass two movement points. | Immobilize suppresses pursuit; the retained Ice field misses. Player 20, boss 37. This spends a finite item and one play for control, with 2 less immediate damage than Frost + Chain. Whether a free F3 two-offense alternative still exists is the decisive independent review question, not the resulting HP. |
+| T5 / 69→85 | One ordinary step to Ice (3,3) applies Chill. Kite Bash hits 5, grants 6 Block and pushes the boss (4,3)→(5,3) (4 Time). Lantern hits 6 and draws Warded Advance (3 Time). Two ordinary points retreat to (2,2), auto-ending. | Mantle's 5 is absorbed by 4 Block + 1 Stoneskin. Player 20, boss 26, 3 Stoneskin. Useful hybrid defense and displacement preserve both attacks; do not call the approach Chill forced. |
+| T6 / 85→94 | The hand is mostly defensive and Mantle has two layers. One ordinary step (2,2)→(1,2) makes the full Shatter forecast Safe. Play no card; Pass both plays and two movement points, banking one play. | Shatter moves (5,3)→(4,3), misses, and consumes both layers. Player 20, boss 26. No guard or armor-strip cost is credited. Damage stalls for this chosen wait, but a defensive hand alone is not proof of forced opportunity cost. |
+| T7 / 94→116 | Ordinary step back to (2,2); Gust's shortcut moves to (3,2), hits 5 and pulls the boss two cells to (2,3) (4 Time). Chain hits 6 (5 Time). Stone Plate gives 4 Stoneskin, pulses the adjacent boss for 2 through Worldheart and draws only the final Draught (4 Time). Remaining two ordinary points end at (4,1). | Entry at (4,1) applies Chill, then the new Whiteout replaces its owned trail and clears that tile; the attack misses. Its area triggers the third Ice trap. Boss 13, Stoneskin 7. The following natural turn-draw reshuffle costs 2 Fatigue, bringing HP to 18; Stone Plate itself has zero HP delta. A mistaken Cinch selection was canceled without spending a play. |
+| T8 / 116→132 | Frostbolt hits 4 (4 Time). The pilot attempts to approach for Kite via (3,1), overlooking Ice under Light and applying Chill. Recover with Warded Advance (3 Time): move two to (5,1), gain 7 Block and draw Needle. One ordinary step reaches (6,1); Pass the last point. | Rime pursues (2,3)→(2,2)→(2,1)→(3,1), but neither its melee nor field hits. Player 18, boss 9, 9 Stoneskin after Worldheart conversion. Exclude the paid recovery as forced: the initial eastward route from (4,1) was cheaper. No Freeze actually applied. |
+| T9 / 132 | One ordinary step (6,1)→(5,1), then Needle deals 9 including Chill for 4 Time. | Victory before the next Mantle. Player 18/24 with 9 Stoneskin; unused terminal kill refund. |
+
+All 155 append-only events reconcile. Sixteen card plays include the consumed
+Jaw Trap. Direct card hits total 69 boss HP, Stone Plate's Worldheart pulse
+adds 2, and the first end-turn Worldheart pulse adds 1, totaling 72. Card
+receipts therefore total 71 rather than 72. Two Mantle shots consume 10 defense
+(7 Block, 3 Stoneskin); no enemy, trap, Ice or Umbra HP damage occurs. The only
+2-HP loss is the natural T8 reshuffle. Crimson Draught remains held, and no
+manual ability or Defiance was used. The banked plays came from Measured
+Breath at T2 and T6. No claimed difficulty credit comes from the canceled
+selection, the T8 approach mistake, Fatigue, high remaining HP or victory.
+
+The first Rime differs materially from Ice01's demonstrated one-step free
+escape: it was answered with a finite control item, at a small damage cost.
+The second Rime actually completes its full three-step pursuit, but the pilot's
+recovery line cannot establish that a paid move was necessary. Whiteout remains
+an offense window and the second Shatter has a cheap ordinary retreat. Retain
+versus further tuning therefore depends on the first Rime's legal F3 alternatives
+and the linked cycle, not a claim that every chosen defensive card was required.
+Independent difficulty review is pending; this study does not accept all six.
+
+Dragon Vanquished displayed Winter's Hourglass, 110 Embers, +6 actual healing
+and the already-earned first-dragon Moltshard. Continue was clicked once and
+settled into the cleared section-III map. Native runner 96734 exited 0 after
+normal quit; the runtime lease was explicitly returned to root. The final save
+is mode `room`, HP 24, held/unbanked Embers 110, one Hourglass, empty pending
+reward, one Moltshard, and Crimson Draught still equipped. Final save/profile,
+all JSONL records and compact audit are preserved in
+`/private/tmp/dragon-pressure-native/iskaldra-02-complete/`.
+Save SHA-256: `7ad83f90e1fba150a435e13ff144640f3bff9524ed21c02bea5ebd6764cea9e8`.
+JSONL SHA-256: `7b4cf2cd8b4f40f8dd9b02e337c633a533fd1a216f107019e87eb28f252495b6`.
+Opening raw save SHA-256:
+`efe610b4819bcba21337cbb9413590563cd0d02dd8252ebfdf6668f09c478851`.
+
+
+### Ice02 independent verdict — retain the three-step pursuit
+
+Independent reviewer `boss_fun_review/fresh_final_review` recommends **retain**
+at production `cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`. Its reconstructed
+first-Rime board admits a trap-free Move3 bite against all 15 ordinary F3
+endpoints, including the six outside the recorded Ice field. A deliberately
+escape-favoring Gust bound also admits a bite for all 10 legal cast/body pairs
+and 136 movement allocations. This is a geometric legal-route check, not
+an exhaustive engine replay or proof of every AI tie-break; it ignores LOS,
+visibility and the second attack's range in the player's favor. The pillar
+at (1,1) remains blocked. Even a no-card return at 61 follows Rime at 60.
+
+The consumed Jaw Trap/Root therefore answers a real control/defense/movement
+question, rather than the old free offensive retreat. Recurring useful Mantle
+guard provides another paid choice. Whiteout and some Shatter states retain
+cheap windows. Exclude T2's chosen layer strip, T6's freely avoided Shatter,
+T8's mistaken approach/recovery, Fatigue and final HP from difficulty credit.
+This is bounded depth-12 acquired-build acceptance, not all-six, all-build or
+final-HEAD approval. No further Ice tuning is justified by this study.
+
+Independent review and reproducible route bound are preserved beside the
+completed evidence in `iskaldra-02-complete/`.
+Review SHA-256: `a6e787f4e0f444143abc8b8b7d32360125bb3215d62b774d66bf32d9424f9715`.
+Route script SHA-256: `713ea18519af899312406ae8f21061d1895fa52d6156b5a518388928b0744008`.
+Route JSON SHA-256: `d7dadeadf9f6bed9939a62fa59ea60ad276ad80290641f934d941070b2beb09e`.
+
+
+### Zekarion 01 — preserved native defeat, rules mistakes excluded
+
+This fresh depth-20, level-4 balanced fixture ran unchanged production
+`cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`, seed 7262044, namespace
+`dragon-pressure-zekarion-01`. Generation and reload verification exited 0
+(wrapper 23257); the manifest is `/private/tmp/dragon-pressure-native/zekarion-01.json`.
+The natural 17-card build starts at 20/24 HP against 80 HP with F3,
+unupgraded Rapier / Ward-Kite / Boiled Leather / Trapdoor Spurs / Clockwork
+Arrowhead, Crimson Draught, Iron Buckler, Pilgrim Boots, Reinforced Shield and
+the four earned trophies Worldheart / Crowncoal / Hourglass / Pinion. Selected
+skills are Quick Wits, Measured Breath and Ghost Stride. Level 4 supplies one
+normal Defiance charge; the absence of a separately selected Defiance skill
+does not remove it. Opening save/profile were preserved before any combat
+input. No hand, HP, draw order or save was rewritten. Decisions used public
+UI/rules; logs were read only after normal quit. Native official 4.6.1 ran
+Metal/Mobile, full motion and 100% UI scale in a window.
+
+| Activation / player clock | Actual play and choice | Audited result |
+| --- | --- | --- |
+| T1 / 0→22 | Riposte moves (1,4)→(1,3), hits the near initial Wisp for 5 and gives 4 Block (5 Time). Ordinary steps reach (2,2). Kite hits its remaining 3 and gives 6 Block (4 Time), refunding one play for this initial room enemy. Spur Trip moves to (4,2), hits the boss for 5 and applies Root (4 Time). Last ordinary step reaches (4,1). | Skybreak's seven fixed marks miss. The surviving Wisp advances, then its Static Lash consumes 5 Block. Worldheart retained 2 Stoneskin. Player 20, boss 75. Root does not prevent a move in this nonmoving boss phase. The paid guard is useful against the helper; there is no live Skybreak bolt. |
+| T2 / 22→41 | One ordinary step to (5,1); Needle hits the second initial Wisp at (6,1) for 7 (4 Time). The pilot wrongly expects Crowncoal Fire to finish its last HP despite existing Electrified ground. Two ordinary steps return via (4,1) to (4,2). Reprise spends 1 HP, gives 8 Block and draws five (6 Time). | The surviving Wisp fires twice for 5 each, with Storm Lash's live 7 between them. Those attacks consume 6 Block + 4 Stoneskin and 7 HP; the held field misses. Worldheart pulses the adjacent boss for 1. Player 12, boss 74. The failed Fire assumption and resulting helper damage are pilot errors, not required encounter cost. |
+| T3 / 41→57 | Clockwork Mark kills the initial Wisp's last HP for 4 Time, refunds a play and draws zero at the full hand cap. All three ordinary steps reach (7,2). Parry Rhythm gives 5 Block and draws two (3 Time). Pass the refunded spare play, banking one through Measured Breath. | Overload's fixed field misses, but its live 6 consumes 3 Block + 2 Stoneskin and 1 HP. Player 11, boss 74. The short 16-Time turn returns before Call Wisps at 58; another card would cross it. This is a real tempo/guard choice on the played line, not proof that every alternative attack pair is unsafe. |
+| T4 / 57→74 | Frostbolt deals 4 (4 Time) and banks three Hourglass Time. Two ordinary steps reach (6,3). Adjacent Spur Vault skips movement, hits 4 for discounted 1 Time and pushes the anchor (4,3)→(3,3); no trap triggers. Leather Roll deliberately skips movement, grants 6 Block and draws Gust (3 Time). Last ordinary step reaches (6,4). | Call's live 6 consumes 4 Block + 2 Stoneskin. A replacement Wisp is scheduled at 75, after the player's next activation at 74. Player 11, boss 66. The third play was banked previously; Leather is used as dedicated guard, not necessary movement. |
+| T5 / 74→90 | Gust skips movement, hits 3 and pulls the boss (3,3)→(4,3), entering Ice and applying Chill before Crowncoal paints its struck bare tile (4 Time). Warded Advance moves (6,4)→(7,5) and grants 7 Block (3 Time). Pass all three ordinary points. | Skybreak misses and its owned seven-cell field replaces the prior band. Boss Fire deals 3. The replacement Wisp takes its response-window turn at 75, advances again at 83 and lands Spark Dart for 4 Block. Worldheart retains 2 Stoneskin. Natural reshuffle Fatigue costs 2 HP: player 9, boss 60. The two-cell displacement was available ordinarily; do not credit the card's movement as forced. Its defense does absorb a real helper attack. |
+| T6 / 90→105, defeat | Shrapnel at (6,4) hits the Chilled boss for 9 and the Wisp for 7 (6 Time). Frostbolt kills the summoned Wisp's last HP (4 Time), banks three Hourglass Time, and correctly refunds no play. The planned third guard is unavailable. Quick Wits is then misread as a play gain: it actually discards Storm Beacon and draws Leather Roll. Ghost Stride turns the next ordinary move into Blink: (7,5)→(6,6) spends two points, then (5,6) spends the third and auto-ends. | The 19-Time turn would return at 109, admitting Lash at 90 and Overload at 105. Lash's live 7 consumes 2 Stoneskin + 5 HP; its expanded field hits for 4, triggering Defiance and restoring 6. Overload's field then deals 6 and kills before its later shot. Both boss activations take 3 Fire: final boss 45. The chosen endpoint remains in the displayed field, and the missing-refund/skill assumptions are pilot errors. |
+
+All 148 append-only records reconcile. Fourteen card plays deal 49 actual
+HP across enemies: 25 to the boss and 24 to the three Wisps. Worldheart's
+one pulse and three Crowncoal Fire ticks add 10, matching the terminal 59
+damage dealt. No player trap, Fire-entry, Shock or Umbra HP damage occurs.
+Enemy attacks consume 22 Block and 10 Stoneskin and deal 23 HP; Reprise costs
+1 and Fatigue costs 2. Defiance restores 6, so `20 − 23 − 1 − 2 + 6 = 0`.
+Quick Wits and Ghost Stride are the only manually activated skills; Crimson
+Draught remains unused. The last on-screen boss value 48 was before the final
+Overload activation's Fire tick, not the terminal value 45.
+
+The opening and replacement helpers create actual target/guard competition;
+the replacement has a complete reaction opportunity before it acts. Guard
+is consumed in several phases, and T3's early Pass plus T4's carried play
+makes timing useful. Nevertheless, this attempt's loss is not difficulty
+acceptance. T1/T5 Skybreak had ordinary escape routes, Reprise's long draw
+turn follows a mistaken helper finish, and T6 spends both plays before trying
+to solve defense. The fixed warnings did not become unfair merely because
+the pilot misread rules or selected a dangerous endpoint.
+
+Known alternatives must stay qualified: after T2 Needle, the already-held
+Storm Beacon could legally finish the 1-HP Wisp instead of Reprise, trading
+guard/draw/health cost for removal and an initial-enemy refund. T6's single
+6-Time card plus early Pass returns on the player-first clock-105 tie before
+Overload; it still must solve the intervening Lash/helper pressure. Available
+guard, the held two-HP Draught, or earlier finite-skill use are choices, not
+claims of a proven safe winning line. No damage or HP change is justified by
+this defeat alone. The separate independent verdict follows below.
+
+Pilot reminder for future natural attempts: summoned Wisp kills do not
+refund a play; Quick Wits discards/draws without adding a play; Crowncoal does
+not replace existing Electrified ground. Ghost Stride changes movement type,
+not the ordinary movement allowance. Read Skybreak as fixed marked strikes,
+not a live bolt; assess the helper queue separately. Check the whole next
+activation interval before spending a second slow card, and choose an actual
+field-free endpoint or pay defense while a play remains.
+
+Run Ended showed three enemies killed, 59 dealt, 26 received, depth 20,
+five prior rooms cleared, zero bosses defeated and zero held Embers lost.
+No boss reward was granted. The terminal flow removed `current_run.save`;
+the old migration backups are not final saves. The profile has one completed
+result `run:0:seed:7262044`, zero Embers, one unchanged Moltshard and no trophy
+award. Normal quit finished native runner 5501 with exit 0; an exposed leftover
+Project Manager was separately quit, and the runtime lease returned to root.
+Preserved JSONL/profile/settings/manifest, opening hashes and compact audit are
+under `/private/tmp/dragon-pressure-native/zekarion-01-complete/`.
+JSONL SHA-256: `975b73780844dfbb790d44a8722c4e79f91d5dfbcaaf30c26a82efd5d432cbe4`.
+Final profile SHA-256: `0934a22541bc3c227baae380e5b95b75ee53db9c0ad33c1a17fcf00e4be72de0`.
+Opening raw save SHA-256:
+`6ef7553d2e1f6158379eeae96ce0af88ba7a980c387927ae9800cb1a4174faeb`.
+
+
+### Lightning01 independent verdict — retain, with mistake-driven defeat excluded
+
+Independent reviewer `boss_fun_review/fresh_final_review` recommends **retain**
+for this depth-20, level-4 F3 cohort on production
+`cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`. Repeated paid choices survive
+removal of the pilot's failed helper plan: its read-only geometry check finds
+all 11 ordinary T2 endpoints within a legal Move1/range3 Lash shot, and all
+16 T3 endpoints within Overload's range4. T6's 11 ordinary endpoints, also
+reachable with the budget-consuming Ghost Blink, remain in the held field.
+These are generous static geometry bounds, not a replay of all AI choices or
+card sequences. The actual consumed guard, helper removal and early-Pass
+cadence support recurring pressure; Skybreak remains a cheaper escape phase.
+
+The reviewer also identifies a concrete held-card alternative before spending
+T6's two plays: Frostbolt on the already Chilled boss can Freeze it, then
+Hourglass discounts Cinch Straps to 1 Time for 7 Block. The five paid Time
+returns at 104 before Overload at 105; Freeze skips Lash. Even two maximum
+six-damage helper attacks fit the available 9 defense plus 9 HP. This is
+source-based fair-counterplay evidence, not a natively executed or guaranteed
+winning line. The held Draught provides another finite choice without proving
+that healing was required.
+
+Exclude the missed Crowncoal finish, summoned-kill refund assumption, Quick
+Wits misread, wasted movement expectation, chosen unsafe endpoint, Fatigue,
+Defiance consumption and defeat from forced-difficulty credit. No Lightning
+HP/damage retuning or extra native replay is justified by this study. This
+verdict covers one acquired build and the recorded opportunities, not every
+build, all possible strategies or final-HEAD approval.
+The independent review and static route artifacts are preserved in
+`/private/tmp/dragon-pressure-native/zekarion-01-complete/`.
+Review file: `independent-difficulty-review.md`.
+Review SHA-256: `efc809b7f687acb626b7f7e493cc982f53012609a472fe37ea3a5555b821daaa`.
+Route script SHA-256: `7c9f2cbf0bcb8cc98e00579b380772129b74429cb003e4eaf97b7b8c47f1e584`.
+Route JSON SHA-256: `5ebafe967eaf931ab9ee25129b70a60984d9dc83ddd73e5fc02c6dd258796e02`.
+The artifacts bind the opening save and full JSONL hashes recorded above.

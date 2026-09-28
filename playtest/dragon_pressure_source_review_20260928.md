@@ -59,3 +59,54 @@ Root inspected all four: full phase rows and Talon's Move 3, scaled bite,
 separate trail hit and ghost path remain legible and unclipped. The westward
 one-point refuge is now included in the controlled rules witness and passes.
 These results do not replace the required fresh native Ice02 assessment.
+
+The independent reviewer subsequently approved the complete bounded Ice trial
+at `cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`: mechanics-07 is PASS 318
+with no log errors/warnings; the renderer receipt is exit 0 / PASS 4, explicitly
+staged (`native_play=false`), and all 23 named source hashes match current
+files. The reviewer separately inspected the original Rime image; Move 3,
+bite 11, trail 6 / Marked tiles, projected body and marked ground are legible
+and unclipped. Root supplies the other three images' visual inspection.
+
+- Rime PNG SHA-256: `ca574235676b843b47ea53f93bb826627f2414e0c1548c85cf2a646aefe20973`
+- Enemy data SHA-256: `2900d429a67cabd69a69af97b4c65ad6ef04f7ee4e19bd4fa54e1630122355c5`
+- Pressure suite SHA-256: `c40f666edac705f4e2202b48ec3e1569d63ba5ac5d3c6ecd34400b7287f9a033`
+
+This closes source/focused/changed-warning review for the Ice correction.
+Native Ice02 difficulty and final exact-HEAD/fixture acceptance remain open.
+
+Final integrated follow-up on committed production `cf826c8fb`:
+`dragon-pressure-full-04` exits 0 with `TEST RESULT: PASS`, including the
+318-check revised pressure suite. The documented injected acknowledgment,
+legacy-save and existing ObjectDB shutdown diagnostics remain. Its complete log
+is at `/private/tmp/labyrinth-godot-home/dragon-pressure-full-04/Library/Application Support/Godot/app_userdata/Escape the Umbra/logs/godot.log`.
+No production file changed during this run. Final native/HEAD/fixture acceptance
+still requires the remaining independent decisions and receipts.
+
+
+The same independent reviewer subsequently returns **RETAIN** for completed
+native Ice02 at production `cf826c8fbc2e67929b38a2ccf68e57e97ea49cb3`.
+Its frozen `/private/tmp/dragon-pressure-native/iskaldra-02-complete/independent-difficulty-review.md`
+separates legal-route bounds from engine replay and excludes optional defense,
+route mistakes and Fatigue. The finite first-Rime control choice and recurring
+useful Mantle defense close this bounded Ice gate. Lightning, exact final HEAD
+and all eight inspection receipts remain pending; publication is not approved.
+
+
+## Final native gate and commit binding
+
+Lightning01 also receives independent **RETAIN** at production `cf826c8fb`.
+The terminal loss is excluded as difficulty evidence; the reviewer separately
+checks first-cycle live reach, repeated useful guard/tempo costs and a fair
+Frost/Cinch precommit alternative to the fatal two-attack turn. That alternative
+is a source-grounded counterfactual, not another native run or a guaranteed
+win. The native/design journals preserve the complete accounting and limits.
+All six bounded native gates are now closed without further production edits.
+
+The final documentation commit sits above the already reviewed and tested
+production checkpoint. Exact final-HEAD approval and the eight independent
+inspection reload verifications are bound in
+`/private/tmp/dragon-pressure-inspection/v3/final-handoff.json` after that
+commit, rather than by a self-referential source edit. That receipt is the
+final certification record; this historical review text alone is not its
+substitute or publication approval.
