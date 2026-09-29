@@ -107,6 +107,13 @@ Consumable item loadout state is included as `equipped_items` and
 
 Chain attack presentation uses an opt-in resolver trace of hit order and intermediate snapshots. The trace is returned separately from combat state; it is not saved or logged. Damage, keyword resolution, card payment and analytics event boundaries remain the ordinary atomic action. The UI reveals each committed target outcome as its bolt arrives.
 
+Card selection, cancellation and optional aim adjustments remain speculative.
+The one-decision card flow commits and emits `card_played` exactly once after
+the chosen target resolves all automatic effects. A blocked damaging Push/Pull
+records its actual damage and zero forced movement; cancelled previews emit no
+play, payment, movement or surface events. Existing append-only payload fields
+and event boundaries are unchanged.
+
 ## Card Metrics Supported
 
 The current event stream is enough to derive:

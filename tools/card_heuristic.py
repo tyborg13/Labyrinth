@@ -232,6 +232,7 @@ def encounter_assumptions() -> dict[str, Any]:
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
         },
         "guardian_encounters": GUARDIAN_ASSUMPTIONS,
+        "card_targeting": "one board decision, automatic riders and one-click movement approaches; damaging push/pull may hit within maximum range even when displacement is blocked; force value still assumes useful space",
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,

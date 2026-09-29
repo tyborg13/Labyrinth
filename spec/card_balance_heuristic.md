@@ -51,6 +51,11 @@ These assumptions are baked into the current coefficients:
   readable.
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
+- Card targeting uses one board decision, with automatic riders and combined
+  movement approaches. Damaging Push/Pull can hit anywhere within maximum
+  range even when displacement is blocked. Existing ranged playability factors
+  already assume this radius; force value remains a conditional positional
+  benefit and receives no extra score for blocked movement.
 - Flurry cards snapshot all card plays available when they begin, repeat their
   printed actions and health cost once per snapped play, and spend all snapped
   plays. The physical card's top-level Time cost is paid once. Plays gained

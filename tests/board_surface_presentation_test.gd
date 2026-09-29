@@ -126,8 +126,9 @@ func _test_board_surface_cancel(combat: RefCounted) -> void:
 	scene.call("_refresh_ui")
 	await scene.call("_on_card_pressed", 0)
 	var strip: Node = scene.get("_action_step_tracker_steps")
-	assert(strip.get_node("ActionStepChip1").get_meta("action_value_text") == "15", "Actual active strip uses modified melee damage")
-	assert(strip.get_node("ActionStepChip2").get_meta("action_value_text") == "15", "Actual active strip uses modified Detonate damage")
+	assert(strip.get_child_count() == 0, "Automatic melee/Detonate effects must not recreate the step strip")
+	var display: Dictionary = scene.call("_card_widget_display", "rekindle_edge", state)
+	assert(str(display["summary_bbcode"]).contains("15"), "The selected card retains modified damage without a duplicate step strip")
 	scene.call("_reset_card_resolution")
 	state = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)
 	run["combat_state"] = state
@@ -208,25 +209,9 @@ func _test_action_step_damage(scene: Node, combat: RefCounted) -> void:
 	var selected: Array = scene.call("_action_step_damage_options", state, strikes, [Vector2i(4, 3)])
 	var after: Dictionary = engine.call("apply_player_action", state, strikes[0], Vector2i(4, 3))
 	assert(selected[1]["final_damage"] == engine.call("final_damage_for_player_action", after, strikes[1]), "Selected prefix does not consume completed modifiers twice")
-	# A committed step may confirm a previously hidden HP change. Update only the
-	# current and future values; completed values stay attached to their pre-state.
-	state["relics"] = ["bloodglass_knife"]
-	state["player"]["hp"] = 55
-	state["player"]["max_hp"] = 100
-	state["player"]["block"] = 0
-	state["player"]["stoneskin"] = 0
-	scene.set("_combat_state", state)
 	scene.call("_begin_action_step_resolution_tracker", "fixture", strikes, [])
-	var confirmed: Dictionary = state.duplicate(true)
-	confirmed["player"]["hp"] = 45
-	scene.call("_set_action_step_resolution_index", 1, confirmed, [])
-	var resolved_values: Array = scene.get("_action_step_resolution_damage_options")
-	assert(resolved_values[0]["final_damage"] == 10 and resolved_values[1]["final_damage"] == 15, "Resolution preserves completed damage and updates the next step from its actual pre-state")
+	assert(not scene.get("_action_step_resolution_active") and (scene.get("_action_step_resolution_damage_options") as Array).is_empty(), "Automatic multi-effect resolution must not build a retired step tracker or replay its damage")
 	scene.call("_clear_action_step_resolution_tracker")
-	assert((scene.get("_action_step_resolution_damage_options") as Array).is_empty(), "Resolution display cache clears with its tracker")
-	scene.call("_begin_action_step_resolution_tracker", "fixture", strikes, [])
-	scene.call("_begin_action_step_resolution_tracker", "fixture", strikes.slice(0, 1), [Vector2i(4, 3)], false)
-	assert(not scene.get("_action_step_resolution_active") and (scene.get("_action_step_resolution_damage_options") as Array).is_empty(), "A one-step card replaces and clears a previous multi-step damage cache")
 
 func _test_rubble_stop_presentation(scene: Node, combat: RefCounted) -> void:
 	var state: Dictionary = preload("res://tests/suites/board_surface_suite.gd").fixture(combat)

@@ -9761,107 +9761,7 @@ func _test_run_scene_flurry_utility_resolves_without_attack_target() -> void:
 	await process_frame
 
 func _test_run_scene_action_step_tracker_states() -> void:
-	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
-	if run_scene == null:
-		_failures.append("Run scene should load for action step tracker coverage")
-		return
-	var instance: Node = run_scene.instantiate()
-	root.add_child(instance)
-	await process_frame
-
-	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(5, 4)])
-	await process_frame
-	var piles_y_before: float = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
-	await _choose_clicked_card_action(instance, 0, "play")
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "Move-attack selection should show current movement and remaining attack")
-	_assert_action_step_tracker_layout(instance, piles_y_before, "Move-attack tracker should not shift piles or controls")
-	var board: Node = instance.get_node("BoardUnderlay/CombatBoard")
-	_assert((board.get("move_tiles") as Array).has(Vector2i(4, 4)) and (board.get("attack_tiles") as Array).has(Vector2i(5, 4)), "Move-attack selection should expose both movement destinations and the enemy shortcut")
-	var movement_only_enemy_hp: int = int((((instance.get("_combat_state") as Dictionary).get("enemies", []) as Array)[0] as Dictionary).get("hp", 0))
-	await instance.call("_on_board_tile_clicked", Vector2i(4, 4))
-	await process_frame
-	var movement_only_state: Dictionary = instance.get("_combat_state") as Dictionary
-	_assert((movement_only_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1)) == Vector2i(4, 4), "Clicking a movement destination should resolve the combined card as movement-only")
-	_assert(int(((movement_only_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == movement_only_enemy_hp, "Movement-only resolution should omit the follow-up attack")
-	_assert(int(instance.get("_selected_card_index")) < 0, "Movement-only resolution should finish without another click")
-
-	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)])
-	await _choose_clicked_card_action(instance, 0, "play")
-	await process_frame
-	_assert(not bool(instance.call("_current_action_can_skip")), "Move-attack cards should not offer a separate movement skip click")
-	_assert_action_step_tracker_statuses(instance, ["current", "remaining"], "An adjacent enemy should remain the single combined target")
-
-	_load_action_step_tracker_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], true)
-	await _choose_clicked_card_action(instance, 0, "play")
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["skipped", "current"], "Auto-skipped immobilized movement should be visible before the attack")
-
-	_load_action_step_tracker_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(5, 5)])
-	await process_frame
-	piles_y_before = _control_global_rect(instance, ACTION_STEP_PILES_PATH).position.y
-	await _choose_clicked_card_action(instance, 0, "play")
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Targetless follow-up actions should remain visible after the current move step")
-	_assert_action_step_tracker_layout(instance, piles_y_before, "Targetless follow-up tracker should occupy overlay space above controls")
-	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
-	var tracker_position_before_resolution: Vector2 = tracker.global_position if tracker != null else Vector2.ZERO
-	instance.call("_lock_action_step_tracker_position_for_resolution")
-	instance.set("_animation_lock", true)
-	instance.set("_animating_hand_card_index", 0)
-	instance.call("_begin_action_step_resolution_tracker", "guarded_step", (GameData.card_def("guarded_step").get("actions", []) as Array).duplicate(true), [Vector2i(4, 4)], false)
-	instance.call("_refresh_animation_lock_ui")
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["current", "remaining", "remaining"], "Execution should keep tracker visible during the move animation step")
-	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution should keep the tracker at its pre-animation position when the hand reflows")
-	instance.call("_set_action_step_resolution_index", 1)
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["done", "current", "remaining"], "Execution should advance tracker to targetless block step")
-	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution tracker should remain fixed through the block step")
-	instance.call("_set_action_step_resolution_index", 2)
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["done", "done", "current"], "Execution should advance tracker to targetless card-play step")
-	_assert(tracker != null and tracker.global_position.is_equal_approx(tracker_position_before_resolution), "Execution tracker should remain fixed through the card-play step")
-	instance.call("_set_action_step_resolution_index", 3)
-	await process_frame
-	_assert_action_step_tracker_statuses(instance, ["done", "done", "done"], "Execution should show all steps done through final card resolution")
-	instance.call("_clear_action_step_resolution_tracker")
-	instance.set("_animation_lock", false)
-	instance.set("_animating_hand_card_index", -1)
-
-	_load_action_step_tracker_fixture(instance, "quick_stab", Vector2i(2, 4), [Vector2i(3, 4)])
-	await _choose_clicked_card_action(instance, 0, "play")
-	await process_frame
-	tracker = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
-	_assert(tracker != null and tracker.visible, "Single-action cards should use the same coherent action context")
-	_assert_action_step_tracker_statuses(instance, ["current"], "Single-action context should show its current step")
-	_assert(str(tracker.get_meta("action_verb", "")).contains("MELEE"), "Single-action context should surface a terse action verb")
-	_assert(_button_with_text(tracker, "Cancel") != null, "Single-action context should keep Cancel in the same region")
-	# The optimized entry and ordinary immediate entry must present identical
-	# tracker metadata/values and preserve the locked position before rendering.
-	var single_actions: Array = (GameData.card_def("quick_stab").get("actions", []) as Array).duplicate(true)
-	instance.call("_lock_action_step_tracker_position_for_resolution")
-	var single_position: Vector2 = tracker.global_position
-	instance.set("_animation_lock", true)
-	instance.call("_begin_action_step_resolution_tracker", "quick_stab", single_actions, [Vector2i(3, 4)])
-	instance.call("_refresh_animation_lock_ui")
-	var expected_tracker_meta: Dictionary = {}
-	for key: String in ["step_statuses", "step_action_types", "context_mode", "action_verb", "target_state", "risk_text", "risk_tone"]:
-		expected_tracker_meta[key] = tracker.get_meta(key)
-	var expected_damage_text: String = str((instance.get("_action_step_tracker_steps") as Node).get_child(0).get_meta("action_value_text", ""))
-	instance.call("_begin_action_step_resolution_tracker", "quick_stab", single_actions, [Vector2i(3, 4)], false)
-	instance.call("_refresh_animation_lock_ui")
-	for key: String in expected_tracker_meta:
-		_assert(tracker.get_meta(key) == expected_tracker_meta[key], "Coalesced single-action tracker must preserve %s before the render boundary" % key)
-	_assert(str((instance.get("_action_step_tracker_steps") as Node).get_child(0).get_meta("action_value_text", "")) == expected_damage_text, "Coalesced single-action tracker must retain its visible damage value")
-	_assert((instance.get("_action_step_resolution_damage_options") as Array).is_empty(), "Single-action selection cannot retain unused resolution damage data")
-	_assert(tracker.global_position.is_equal_approx(single_position), "Coalesced single-action tracker must preserve its locked position")
-	var locked_selection: int = int(instance.get("_selected_card_index"))
-	instance.call("_on_cancel_requested")
-	_assert(int(instance.get("_selected_card_index")) == locked_selection and bool(instance.get("_animation_lock")), "Cancel input cannot alter or unlock a committed single-action presentation")
-
-	instance.queue_free()
-	await process_frame
+	await preload("res://tests/suites/card_targeting_audit_suite.gd").run(self, Callable(self, "_assert"))
 
 func _load_action_step_tracker_fixture(instance: Node, card_id: String, player_pos: Vector2i, enemy_positions: Array, immobilized: bool = false) -> void:
 	instance.call("_reset_card_resolution")
@@ -9910,37 +9810,6 @@ func _load_action_step_tracker_fixture(instance: Node, card_id: String, player_p
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.set("_dialogue_active", false)
 	instance.call("_refresh_ui")
-
-func _assert_action_step_tracker_statuses(instance: Node, expected: Array, message: String) -> void:
-	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
-	_assert(tracker != null and tracker.visible, message)
-	if tracker == null:
-		return
-	var statuses: Array = tracker.get_meta("step_statuses", [])
-	_assert(statuses.size() == expected.size(), "%s: expected %d steps but got %d" % [message, expected.size(), statuses.size()])
-	if statuses.size() != expected.size():
-		return
-	for index: int in range(expected.size()):
-		_assert(str(statuses[index]) == str(expected[index]), "%s: expected %s but got %s" % [message, str(expected), str(statuses)])
-
-func _assert_action_step_tracker_layout(instance: Node, expected_piles_y: float, message: String) -> void:
-	var tracker: Control = instance.get_node_or_null(ACTION_STEP_TRACKER_PATH) as Control
-	var choice: Control = instance.get_node_or_null(ACTION_STEP_CHOICE_PATH) as Control
-	var piles: Control = instance.get_node_or_null(ACTION_STEP_PILES_PATH) as Control
-	_assert(tracker != null and choice != null and piles != null, "%s: tracker controls should exist" % message)
-	if tracker == null or choice == null or piles == null:
-		return
-	_assert(absf(piles.global_position.y - expected_piles_y) <= 1.0, "%s: pile row moved from %.1f to %.1f" % [message, expected_piles_y, piles.global_position.y])
-	var tracker_rect: Rect2 = tracker.get_global_rect()
-	for control: Control in [choice, piles]:
-		if control.visible and control.size.x > 0.0 and control.size.y > 0.0:
-			_assert(not tracker_rect.intersects(control.get_global_rect()), "%s: tracker should not overlap %s" % [message, control.name])
-
-func _control_global_rect(instance: Node, path: String) -> Rect2:
-	var control: Control = instance.get_node_or_null(path) as Control
-	if control == null:
-		return Rect2()
-	return Rect2(control.global_position, control.size)
 
 func _test_run_scene_move_attack_shortcut_clicks_enemy() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
@@ -13453,16 +13322,13 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 	instance.call("_layout_choice_button_overlay")
 
 func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
-	var action_context: Control = instance.get("_action_step_tracker") as Control
-	_assert(action_context != null and action_context.visible, "%s should show the action context" % context)
-	if action_context == null:
-		return
-	var risk_text: String = str(action_context.get_meta("risk_text", ""))
-	var risk_tone: String = str(action_context.get_meta("risk_tone", ""))
-	_assert(risk_text.contains(expected_fragment), "%s should include risk '%s', got '%s'" % [context, expected_fragment, risk_text])
-	_assert(risk_tone == expected_tone, "%s should use risk tone %s, got %s" % [context, expected_tone, risk_tone])
+	var forecast: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
+	var fragment: String = "UNKNOWN" if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
+	_assert(forecast != null and forecast.is_visible_in_tree() and forecast.text.contains(fragment), "%s should retain risk in the existing forecast ribbon: %s" % [context, fragment])
+	var summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(str(summary.get("tone", "safe")) == expected_tone, "%s should retain its risk tone" % context)
 	var pass_chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
-	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s should retain the stable Pass forecast as a visibly unavailable, non-focusable control while the action context owns the current risk" % context)
+	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s forecast remains visible while Pass is unavailable during targeting" % context)
 
 func _label_text_fits(label: Label) -> bool:
 	if label == null:

@@ -3,7 +3,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const Fixture = preload("res://tests/suites/card_playability_summary_suite.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 
-# Frozen algorithms before range-first rejection and read-only one-step checks.
+# Range-first optimization oracle, with the current damaging-force targeting law.
 class OriginalCombatEngine:
 	extends CombatEngine
 
@@ -163,7 +163,7 @@ class OriginalCombatEngine:
 					if force_direction != Vector2i.ZERO:
 						if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
 							continue
-					elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
+					elif int(resolved_force_action.get("damage", 0)) <= 0 and _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
 						continue
 					var enemy_targetable: bool = false
 					for enemy_tile: Vector2i in _enemy_footprint_tiles(enemy):

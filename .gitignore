@@ -43,3 +43,6 @@ Thumbs.db
 
 # Resettable full-roster contextual animation captures and authoring studies.
 /output/contextual-animation-polish/
+
+# Reproducible card targeting audit screenshots, logs and inspection saves.
+/output/card-targeting-audit/

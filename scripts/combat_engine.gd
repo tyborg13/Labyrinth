@@ -1120,7 +1120,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if force_direction != Vector2i.ZERO:
 					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
 						continue
-				elif _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
+				# Damage remains useful when displacement is blocked (including a
+				# Pull against an adjacent enemy). Range is a maximum, never a ring.
+				elif int(resolved_force_action.get("damage", 0)) <= 0 and _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
 					continue
 				_append_enemy_footprint_targets(targets, enemy)
 	if targeting_type in ["melee", "ranged", "push", "pull"]:

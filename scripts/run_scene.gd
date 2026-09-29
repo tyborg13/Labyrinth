@@ -2351,6 +2351,13 @@ func _input(event: InputEvent) -> void:
 				_close_card_upgrade_overlay()
 			get_viewport().set_input_as_handled()
 		return
+	# Cancellation belongs to the selection, including when the pointer is over
+	# the hand/HUD instead of the board's GUI input receiver.
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		if _selected_card_index >= 0 or _drag_card_index >= 0 or _player_movement_selected or _surface_aim.active():
+			get_viewport().set_input_as_handled()
+			await _on_board_cancel_requested()
+			return
 	if _guided_tutorial_requires_continue() and event.is_action_pressed("ui_accept"):
 		_on_contextual_combat_prompt_completed(_guided_tutorial_phase_id)
 		get_viewport().set_input_as_handled()
@@ -10484,38 +10491,10 @@ func _setup_action_step_tracker() -> void:
 	_action_context_command_bar.add_theme_constant_override("v_separation", 6)
 	action_row.add_child(_action_context_command_bar)
 
-func _schedule_action_tracker_prewarm(hand: Array) -> void:
-	if _action_step_tracker == null or hand.is_empty():
-		return
-	for mode_def: Dictionary in [
-		{"play_kind": "play", "text": "PRINTED", "accent": Color("d8aa5f")},
-	]:
-		_queue_action_tracker_prewarm_job("mode|%s" % str(mode_def.get("play_kind", "")), {
-			"kind": "mode",
-			"mode": mode_def,
-		})
-	var action_values: Array[Dictionary]
-	for hand_index: int in range(hand.size()):
-		# Chips use the prepared printed actions, including generated Flurry steps
-		# and charge-dependent trap effects. Target enumeration adds no chip data.
-		var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, hand_index, "play")
-		for action_var: Variant in _combat_engine.card_play_actions(str(hand[hand_index]), prepared_state):
-			if typeof(action_var) == TYPE_DICTIONARY:
-				action_values.append((action_var as Dictionary).duplicate(true))
-	for action: Dictionary in action_values:
-		_queue_action_tracker_chip_prewarm(action, "current")
-	for status: String in ["current", "remaining", "done", "skipped"]:
-		_queue_action_tracker_prewarm_job("connector|%s" % status, {
-			"kind": "connector",
-			"status": status,
-		})
-	for action: Dictionary in action_values:
-		for status: String in ["remaining", "done", "skipped"]:
-			_queue_action_tracker_chip_prewarm(action, status)
-	if _action_tracker_prewarm_scheduled or _action_tracker_prewarm_queue.is_empty():
-		return
-	_action_tracker_prewarm_scheduled = true
-	call_deferred("_warm_action_tracker_components")
+func _schedule_action_tracker_prewarm(_hand: Array) -> void:
+	# Numbered action chips and mode placards are retired. Do not prepare their
+	# textures or simulate their actions for each hand refresh.
+	return
 
 func _queue_action_tracker_chip_prewarm(action: Dictionary, status: String) -> void:
 	var icon_key: String = _action_step_icon_key(action)
@@ -14172,96 +14151,33 @@ func _refresh_player_movement_meter() -> void:
 	call_deferred("_layout_combat_action_dock")
 
 func _refresh_action_step_tracker() -> void:
-	if _action_step_tracker == null or _action_step_tracker_steps == null or _action_context_command_bar == null:
+	if _action_step_tracker == null or _action_context_command_bar == null:
 		return
-	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	# One card has one board decision. Automatic effects are still resolved in
+	# order internally, but never presented as selectable steps. Retain only
+	# optional aiming tools (Rotate / relic techniques), using the shared buttons.
 	_clear_children_now(_action_step_tracker_steps)
 	_clear_children_now(_action_context_command_bar)
-	if _card_action_mode_selector != null:
-		_clear_children_now(_card_action_mode_selector)
-		_card_action_mode_selector.visible = false
-	if _card_action_mode_host != null:
-		_card_action_mode_host.visible = false
-	_drag_zone_panels.clear()
-	_drag_zone_labels.clear()
-	_drag_zone_detail_labels.clear()
-	performance_phase_started = _record_runtime_performance_phase("tracker_clear", performance_phase_started)
+	_action_context_header.hide()
+	_action_step_tracker_steps.hide()
+	_action_step_tracker_steps.get_parent().custom_minimum_size = Vector2.ZERO
+	_card_action_mode_host.hide()
+	_card_action_mode_selector.hide()
+	_action_context_connector.hide()
+	_action_step_tracker.custom_minimum_size = Vector2.ZERO
 	_action_step_tracker.set_meta("step_statuses", [])
 	_action_step_tracker.set_meta("step_action_types", [])
-	_action_step_tracker.set_meta("choice_card_index", -1)
-	var tracker_state: Dictionary = _action_step_tracker_state()
-	performance_phase_started = _record_runtime_performance_phase("tracker_state", performance_phase_started)
-	var active: bool = bool(tracker_state.get("active", false))
-	_action_step_tracker.visible = active
-	if _action_context_connector != null:
-		_action_context_connector.visible = false
-	if not active:
-		if _action_step_tracker_title != null:
-			_action_step_tracker_title.text = ""
-		return
-	var card_id: String = str(tracker_state.get("card_id", ""))
-	var actions: Array = tracker_state.get("actions", [])
-	var current_index: int = int(tracker_state.get("action_index", 0))
-	var context_mode: String = str(tracker_state.get("mode", "selection"))
-	_action_step_tracker.custom_minimum_size = ACTION_STEP_TRACKER_CHOICE_MIN_SIZE if context_mode == "choice" else ACTION_STEP_TRACKER_MIN_SIZE
-	var compact_header_mode: bool = context_mode == "drag"
-	if _action_context_header != null:
-		_action_context_header.visible = context_mode != "choice"
-	if _action_context_detail_row != null:
-		_action_context_detail_row.visible = compact_header_mode
-	if _action_context_status_row != null:
-		_action_context_status_row.visible = false
-	var selected_targets: Array[Vector2i] = _vector2i_array(tracker_state.get("selected_targets", []))
-	var card: Dictionary = _card_def(card_id, _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_card", performance_phase_started)
-	var current_number: int = clampi(current_index + 1, 1, maxi(1, actions.size()))
-	if _action_step_tracker_title != null:
-		_action_step_tracker_title.text = str(card.get("name", card_id))
-	if _action_context_step_label != null:
-		_action_context_step_label.visible = not compact_header_mode
-		_action_context_step_label.text = "STEP %d/%d" % [current_number, maxi(1, actions.size())]
-	var skipped_indices: Dictionary = _action_step_skipped_target_indices_for(actions, selected_targets)
-	var statuses: Array = []
-	var action_types: Array = []
-	var damage_options: Array = _action_step_tracker_damage_options(tracker_state)
-	for index: int in range(0 if context_mode == "drag" else actions.size()):
-		var action: Dictionary = {}
-		if typeof(actions[index]) == TYPE_DICTIONARY:
-			action = actions[index] as Dictionary
-		var status: String = _action_step_status_for_index(index, current_index, skipped_indices)
-		statuses.append(status)
-		action_types.append(str(action.get("type", "")))
-		if index > 0:
-			_action_step_tracker_steps.add_child(CardActionContextArt.make_action_connector(status, index))
-		_action_step_tracker_steps.add_child(_build_action_step_chip(index, action, status, damage_options[index]))
-	performance_phase_started = _record_runtime_performance_phase("tracker_chips", performance_phase_started)
-	_action_step_tracker.set_meta("step_statuses", statuses)
-	_action_step_tracker.set_meta("step_action_types", action_types)
-	_action_step_tracker.set_meta("context_mode", context_mode)
-	_action_step_tracker.set_meta("choice_card_index", _card_action_choice_index if context_mode == "choice" else -1)
-	_refresh_card_action_mode_selector(context_mode)
-	performance_phase_started = _record_runtime_performance_phase("tracker_modes", performance_phase_started)
-	_build_action_context_commands(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_commands_total", performance_phase_started)
-	_update_action_context_copy(tracker_state)
-	performance_phase_started = _record_runtime_performance_phase("tracker_copy_total", performance_phase_started)
+	var state: Dictionary = _action_step_tracker_state()
+	if not state.is_empty() and not _animation_lock:
+		_build_action_context_commands(state)
+	_action_step_tracker.visible = _action_context_command_bar.get_child_count() > 0
 	_layout_action_step_tracker()
-	_record_runtime_performance_phase("tracker_layout", performance_phase_started)
 	call_deferred("_layout_action_step_tracker")
 
 func _action_step_tracker_state() -> Dictionary:
 	var mode: String = str(_run_state.get("mode", "room"))
 	if mode != "combat":
 		return {}
-	if _action_step_resolution_active and _action_step_resolution_actions.size() > 1:
-		return {
-			"active": true,
-			"mode": "resolution",
-			"card_id": _action_step_resolution_card_id,
-			"actions": _action_step_resolution_actions,
-			"action_index": clampi(_action_step_resolution_index, 0, _action_step_resolution_actions.size()),
-			"selected_targets": _action_step_resolution_targets
-		}
 	if _drag_card_index >= 0:
 		# Drag state is communicated spatially by the held card, selected hand pose,
 		# raster targeting arrow, and board targets. A side instruction block only
@@ -14614,10 +14530,6 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
-	if _current_action_can_skip():
-		_add_action_context_button("Skip", _on_skip_action_pressed, "Skip this step", alongside_mode_tabs)
-	if not _pending_umbra_commit_locked:
-		_add_action_context_button("Cancel", _on_cancel_requested, "Return card to hand", alongside_mode_tabs)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	# Card clicks now enter their printed action flow directly; the former mode
@@ -14896,13 +14808,10 @@ func _begin_action_step_resolution_tracker(card_id: String, actions: Array, sele
 	_action_step_resolution_actions = actions.duplicate(true)
 	_action_step_resolution_targets = _vector2i_array(selected_targets)
 	_action_step_resolution_index = 0
-	_action_step_resolution_active = _action_step_resolution_actions.size() > 1
-	# Only the multi-step resolution presentation reads this cache. Selection
-	# mode computes its own values, so a one-step card must not replay its attack
-	# here merely to populate an unused array.
+	_action_step_resolution_active = false
+	# No step presentation remains. Keep the cache empty instead of replaying
+	# committed attacks solely for duplicate display values.
 	_action_step_resolution_damage_options.clear()
-	if _action_step_resolution_active:
-		_action_step_resolution_damage_options = _action_step_damage_options(_combat_state, actions, selected_targets)
 	if refresh_now:
 		_refresh_action_step_tracker()
 
@@ -15756,6 +15665,25 @@ func _add_pass_preview_chip() -> void:
 		_pass_preview_overlay.add_child(chip)
 	else:
 		choice_bar.add_child(chip)
+
+func _refresh_selected_card_forecast() -> void:
+	var chip: Button = find_child("PassPreviewChip", true, false) as Button
+	if chip == null:
+		return
+	var label: Label = chip.find_child("PassPreviewForecastLine", true, false) as Label
+	var row: Control = chip.find_child("PassPreviewDamageRow", true, false) as Control
+	if label == null or row == null:
+		return
+	var summary: Dictionary = _pass_preview_summary()
+	var entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
+	var parts: PackedStringArray = []
+	for entry: Dictionary in entries:
+		parts.append(str(entry.get("text", "")))
+		label.add_theme_color_override("font_color", entry.get("color", Color.WHITE))
+	label.text = "TURN END  •  %s" % "  •  ".join(parts)
+	row.set_meta("pass_preview_values", entries.duplicate(true))
+	chip.tooltip_text = _pass_preview_tooltip(summary)
+	label.tooltip_text = chip.tooltip_text
 
 func _pass_preview_action_available() -> bool:
 	if _surface_aim.active():
@@ -21773,7 +21701,7 @@ func _refresh_board_hover_presentation() -> void:
 		performance_phase_started = _record_runtime_performance_phase("hover_context_check", performance_phase_started)
 		if action_context_can_change:
 			var previous_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
-			_update_action_context_copy()
+			_refresh_selected_card_forecast()
 			performance_phase_started = _record_runtime_performance_phase("hover_context_copy_total", performance_phase_started)
 			var next_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
 			if not previous_tracker_minimum.is_equal_approx(next_tracker_minimum):
@@ -22249,12 +22177,8 @@ func _cancel_player_movement_selection(refresh_ui: bool = true) -> void:
 		_refresh_card_preview_ui()
 
 func _current_action_can_skip() -> bool:
-	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or not _pending_action_can_skip:
-		return false
-	var action_type: String = str((_pending_actions[_pending_action_index] as Dictionary).get("type", ""))
-	if action_type in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
-		return false
-	return true
+	# A target click commits the card; there is no intermediate step to skip.
+	return false
 
 func _on_skip_action_pressed() -> void:
 	if _animation_lock or not _current_action_can_skip():
