@@ -8,7 +8,7 @@ const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
-const OUTPUT := "user://probes/move_attack_approach_v2"
+const OUTPUT := "user://probes/move_attack_approach_v4"
 var failures: Array[String]
 var canvas: SubViewport
 
@@ -33,6 +33,7 @@ func _run() -> void:
 	canvas.size = Vector2i(1920, 1080)
 	canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(canvas)
+	canvas.notify_mouse_entered()
 	for input_path: String in ["pointer", "drag", "controller", "reduced_motion"]:
 		await _exercise(input_path)
 	for failure: String in failures:
@@ -88,19 +89,27 @@ func _exercise(input_path: String) -> void:
 		_expect(not path.is_empty() and path.back() == endpoint, "%s arrow chooses %s" % [input_path, endpoint])
 		_expect((presentation.get("effect", {}) as Dictionary).get("from") == endpoint, "%s attack originates from the displayed endpoint" % input_path)
 		_expect(scene.get("_combat_state") == before, "%s hover never spends the card or moves the player" % input_path)
-		await _capture("%s_%s_v2" % [input_path, "west" if endpoint == Suite.WEST else "south"])
+		await _capture("%s_%s_v4" % [input_path, "west" if endpoint == Suite.WEST else "south"])
 	# A selected card can be cancelled and reselected without stale intent.
 	if input_path == "pointer":
+		var defaults: Dictionary = scene.get("_preview_shortcuts_cache")
+		var default_tile: Vector2i = defaults["plans"][Suite.ENEMY]["move_tile"]
+		for outside: Vector2 in [Vector2(1000, 950), Vector2(1900, 45)]:
+			await _hover(scene, Suite.SOUTH, input_path)
+			await _hover(scene, Suite.ENEMY, input_path)
+			await _pointer_motion(outside)
+			_expect(scene.get("_move_attack_approach").entry == Suite.INVALID, "Actual pointer departure over hand/HUD clears approach")
+			await _pointer_motion(Drag._tile_global_position(scene, Suite.ENEMY))
+			_expect(scene.get("_hovered_board_tile") == Suite.ENEMY, "Actual pointer re-entry restores enemy preview")
+			var returned: Dictionary = scene.call("_shortcut_plan_for_tile", scene.call("_active_card_preview"), Suite.ENEMY)
+			_expect(returned.get("move_tile") == default_tile, "Actual pointer return from hand/HUD uses default route")
+		await _capture("pointer_default_v4")
 		await scene.call("_on_board_cancel_requested")
 		_expect(int(scene.get("_selected_card_index")) < 0, "Board cancel leaves no selected card")
 		await scene.call("_on_card_pressed", 0)
 		_expect(scene.get("_move_attack_approach").entry == Suite.INVALID, "Reselection clears the approach")
 		await _hover(scene, Suite.WEST, input_path)
 		await _hover(scene, Suite.ENEMY, input_path)
-		# Clear via off-board entry, inspect the fallback, then choose SOUTH again.
-		await _hover(scene, Suite.INVALID, input_path)
-		await _hover(scene, Suite.ENEMY, input_path)
-		await _capture("pointer_default_v2")
 		await _hover(scene, Suite.SOUTH, input_path)
 		await _hover(scene, Suite.ENEMY, input_path)
 	if input_path == "controller":
@@ -130,7 +139,7 @@ func _exercise(input_path: String) -> void:
 		var targets: Array = payload.get("selected_targets", [])
 		_expect(targets.size() == 2 and Vector2i(int(targets[0]["x"]), int(targets[0]["y"])) == Suite.SOUTH and Vector2i(int(targets[1]["x"]), int(targets[1]["y"])) == Suite.ENEMY, "%s analytics records chosen endpoint then enemy" % input_path)
 		_expect(payload.get("target_decision_count") == 1, "Approach selection remains one confirmed decision")
-	await _capture("%s_resolved_v2" % input_path)
+	await _capture("%s_resolved_v4" % input_path)
 	scene.queue_free()
 	await _settle()
 
@@ -145,7 +154,13 @@ func _hover(scene: Node, tile: Vector2i, input_path: String) -> void:
 			motion.position = Drag._tile_global_position(scene, tile)
 			motion.global_position = motion.position
 			canvas.push_input(motion, true)
-		scene.call("_on_board_tile_hovered", tile)
+	await _settle()
+
+func _pointer_motion(position: Vector2) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = position
+	motion.global_position = position
+	canvas.push_input(motion, true)
 	await _settle()
 
 func _settle() -> void:

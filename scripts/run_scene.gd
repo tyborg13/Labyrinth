@@ -2372,7 +2372,13 @@ func _input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 	if event is InputEventMouseMotion and _click_card_targeting_active():
-		_sync_click_targeting_arrow(_mouse_event_position(event))
+		var pointer_position: Vector2 = _mouse_event_position(event)
+		if _move_attack_approach.tile.x >= 0 and _drag_board_tile_at(pointer_position).x < 0:
+			# Hand/HUD controls consume GUI motion before the board receives it.
+			# Clear both owners so returning to the same enemy emits a fresh entry.
+			board_view.call("_clear_hover_for_navigation")
+			_on_board_tile_hovered(INVALID_TARGET_TILE)
+		_sync_click_targeting_arrow(pointer_position)
 	if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
 		if event.is_action_pressed("ui_left"):
 			_rotate_aoe_aim(-1)

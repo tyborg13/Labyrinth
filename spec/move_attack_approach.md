@@ -47,7 +47,8 @@ It runs in the full suite. `tests/move_attack_approach_probe.gd` exercises live
 RunScene pointer, drag, controller and reduced-motion paths, checks the arrow
 and attack origin before committing, then verifies position, damage, Time,
 selection completion and the actual local analytics event. It also checks
-cancel/reselect and input handoff. Headless execution runs the same assertions;
+cancel/reselect, input handoff, and actual pointer departure onto the hand/HUD
+followed by re-entry into the same enemy. Headless execution runs the same assertions;
 real-renderer execution captures native 1920x1080 frames at 100% UI scale.
 
 Task-local commands (run from the task worktree):
