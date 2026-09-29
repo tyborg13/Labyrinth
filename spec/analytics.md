@@ -175,7 +175,10 @@ movement, and surface creation/consumption payoffs during the resolved transitio
 - the player-facing targeting gesture via `target_decision_count` and
   `target_decision_tile`. Card plays now record one board decision even when a
   combined move-and-melee card internally resolves both its preferred movement
-  endpoint and enemy target. Choosing an empty destination instead records that
+  endpoint and enemy target. The endpoint can come from the legal tile hovered
+  immediately before entering the enemy; `selected_targets` retains that actual
+  movement request followed by the attack target. Hovering alone emits no event.
+  Choosing an empty destination instead records that
   destination and resolves the movement-only branch without the follow-up
   attack. Targetless cards record the protagonist tile used to confirm the
   play.
