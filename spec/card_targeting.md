@@ -16,6 +16,8 @@ Gust Step’s apparent range ring came from rejecting Pull targets with no legal
 
 Defensive movement examples include Guarded Step, Warded Advance, Leather Roll, Dust Glide, Static Pivot, Zephyr Feint and Worldroot Stride; Blink/support examples include Shadow Step, Trapdoor, Shadow Gate, Gravewind Step and Voidsilk Molt. The shared interaction fix covers their automatic riders.
 
+Peer review also caught the optional Worldroot origin-then-target flow and a targetless drag-cancel race. Worldroot now offers enemy targets directly and chooses the first legal origin in connected cardinal BFS order (nearest to the hero). Preview and resolution share the choice and Rubble payment; remote-only reach defaults to Worldroot so the card remains selectable. Right-click/Escape snapback revokes input and commit eligibility before animation, preventing a later left-release from playing the cancelled card. Worldroot’s range, damage and fuel cost remain unchanged.
+
 ## Design and UI proof
 
 Surface: combat card targeting. Player question: which target/destination should receive this card? Primary action: one board click or supported controller/drag activation. Hierarchy: selected card and spatial consequences lead; optional aiming tools remain secondary; exact rules stay on cards/tooltips. Supported pointer, drag, keyboard and controller paths are preserved. Native proof uses 1920×1080, 100% UI scale; reduced motion and controller-to-pointer handoff are included.
@@ -31,7 +33,7 @@ Surface: combat card targeting. Player question: which target/destination should
 | Visual cohesion | Pass: existing card, board arrow, forecast and UiSkin buttons. |
 | Accessibility | Pass: focus, shape/text cues and reduced motion preserved. |
 | Layout resilience | Pass: inspected 1920×1080/100% frames. Existing controller hand tuck is retained; Focus Hand restores card detail. |
-| Visual proof | Pass: ten native Metal frames, with semantic assertions and screenshot-region contracts. |
+| Visual proof | Pass: thirteen native Metal frames, with semantic assertions and screenshot-region contracts. |
 
 ## Reproducible verification
 
@@ -49,7 +51,7 @@ python3 tools/card_heuristic.py
 
 The focused suite invokes production selection/preview/input handlers for all cards and all 1,274 targets offered in its Clear fixture. Its host substitutes the final animation/save boundary with the normal payment resolver to keep the exhaustive run bounded; native proof separately executes actual commits, payment, analytics and animations. It also validates 349 generated action-add options (the compatibility upgrade API; current meta-progression does not apply old numerical mods). Every damaging force card is tested from distance 1 through range+1; pure force and blocked LOS are negative witnesses. Existing full-suite tests cover Umbra, interrupted approaches, relic variants, drag and controller behavior. The force-query oracle has 6,260 comparisons under the corrected legality rule.
 
-Artifacts: `output/card-targeting-audit/` (ignored, reproducible): `card-pool-audit.json`, `full-02.log`, `surface-02.log`, `force-query.log`, heuristic before/after logs, `native-03.json`, and `images-v3/`. Native snapshots cover Gust Step select/cancel/adjacent hit, Guarded Step select/all effects, optional Rotate, targetless confirmation, controller targeting with reduced motion, Back/pointer handoff, and Flurry completion. Cancellations emit no `card_played`; a normal target commit emits exactly one.
+Artifacts: `output/card-targeting-audit/` (ignored, reproducible): `card-pool-audit.json`, `full-03.log`, `surface-02.log`, `force-query.log`, heuristic before/after logs, `native-06.json`, and `images-v4/`. Native snapshots cover Gust Step select/cancel/adjacent hit, Guarded Step select/all effects, optional Rotate, targetless confirmation, controller targeting with reduced motion, Back/pointer handoff, Flurry completion, automatic Worldroot origin/hit and drag-cancel release safety. Cancellations emit no `card_played`; a normal target commit emits exactly one.
 
 Limitations: native runtime proof is macOS Metal; physical controller hardware and Windows execution are not claimed. Typed-array conventions are preserved. This is an interaction/correctness audit, not a new win-rate or performance calibration.
 

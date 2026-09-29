@@ -60,6 +60,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			expect.call(int(instance.get("commits")) == 1 and int(instance.get("_selected_card_index")) < 0, "%s at %s completes after one board click" % [id,tile])
 		rows.append({"id":id,"name":GameData.card_def(id)["name"],"actions":actions.map(func(a:Dictionary)->String:return str(a["type"])),"targets_exercised":targets.size(),"targetless":bool(preview.get("complete",false)),"shortcut_targets":(shortcuts.get("plans",{}) as Dictionary).size()})
 		await tree.process_frame
+	await _test_worldroot(instance, combat, expect)
 	_test_force_range(combat,expect)
 	instance.queue_free()
 	await tree.process_frame
@@ -122,3 +123,30 @@ static func _test_force_range(combat: CombatEngine, expect: Callable) -> void:
 	blocked["grid"][4][3] = "wall"
 	blocked["enemies"][0]["pos"] = Vector2i(4,4)
 	expect.call(not combat.valid_targets_for_player_action(blocked,{"type":"pull","amount":2,"range":2,"damage":3}).has(Vector2i(4,4)),"Damage does not bypass line of sight")
+
+static func _test_worldroot(instance: Node, combat: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = state_for(combat, "quick_stab")
+	state["relics"] = ["worldroot_idol"]
+	state["enemies"] = [{"id": 1, "type": "crawler", "pos": Vector2i(5, 4), "hp": 100, "max_hp": 100}]
+	for x: int in range(2, 5): Surface.place(state, Vector2i(x, 4), "rubble")
+	_install(instance, state)
+	await instance.call("_on_card_pressed", 0)
+	var action: Dictionary = {"type": "melee", "damage": 3, "range": 1, "_surface_relic_modes": ["remote"]}
+	instance.call("_select_surface_relic_variant", action)
+	var target := Vector2i(5, 4)
+	expect.call((instance.get("_pending_target_tiles") as Array).has(target), "Worldroot offers the enemy without an origin pick")
+	expect.call(combat.action_with_automatic_origin(state, action, target).get("_origin_tile") == Vector2i(4, 4), "Worldroot chooses a connected legal origin deterministically")
+	var forecast: Dictionary = combat.surface_preview_for_player_action(state, action, target)["state"]
+	expect.call(int(forecast["enemies"][0]["hp"]) == 97 and not Surface.has_rubble(forecast, Vector2i(4, 4)), "Worldroot preview includes hit and origin payment")
+	await instance.call("_on_board_cancel_requested")
+	expect.call(instance.get("_combat_state") == state and int(instance.get("_selected_card_index")) < 0, "Worldroot cancels without paying Rubble")
+	await instance.call("_on_card_pressed", 0)
+	instance.call("_select_surface_relic_variant", action)
+	await instance.call("_on_board_tile_clicked", target)
+	var result: Dictionary = instance.get("committed_result")
+	expect.call(int(instance.get("commits")) == 1 and int(instance.get("_selected_card_index")) < 0, "Worldroot completes with one enemy click")
+	expect.call(int(result["enemies"][0]["hp"]) == 97 and not Surface.has_rubble(result, Vector2i(4, 4)), "Worldroot committed hit/payment match preview")
+	var rejected: Dictionary = state.duplicate(true)
+	Surface.remove(rejected, Vector2i(3, 4), "rubble", "test")
+	expect.call(not combat.valid_targets_for_player_action(rejected, action).has(target), "Disconnected Worldroot origins cannot extend reach")
+	expect.call(combat.apply_player_action(rejected, action, target) == rejected, "Invalid Worldroot cannot spend or hit")

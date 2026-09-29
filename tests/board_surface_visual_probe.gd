@@ -143,9 +143,7 @@ func _initialize() -> void:
 					scene.call("_select_surface_relic_variant", option)
 			current = (scene.get("_pending_actions") as Array)[0] as Dictionary
 			assert(Relics.mode_enabled(current, "remote") and not Relics.mode_enabled(current, "cross"))
-			assert(bool(scene.get("_surface_relic_origin_pending")))
-			scene.call("_select_surface_relic_origin", Vector2i(4, 5))
-			assert(not bool(scene.get("_surface_relic_origin_pending")))
+			assert(not current.has("_origin_tile"), "Worldroot chooses its origin from the target")
 			await _capture("07_worldroot_selected")
 		if card_index == 3:
 			var found_crush: bool = false

@@ -966,6 +966,15 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 		result.erase(_surface_actor(state,"illusion",int(action["_illusion_id"])).get("pos",INVALID_TILE))
 		return result
 	action = _resolved_surface_action(state, action)
+	if SurfaceRelicRules.mode_enabled(action, "remote") and not action.has("_origin_tile"):
+		var remote_targets: Array[Vector2i]
+		for origin: Vector2i in SurfaceRelicRules.origin_tiles(state):
+			var candidate: Dictionary = action.duplicate(true)
+			candidate["_origin_tile"] = origin
+			for tile: Vector2i in valid_targets_for_player_action(state, candidate, 0, accept_target):
+				if not remote_targets.has(tile): remote_targets.append(tile)
+				if accepted_limit > 0 and remote_targets.size() >= accepted_limit: return remote_targets
+		return remote_targets
 	if not player_action_can_resolve(state, action) or (action.has("_origin_tile") and not is_tile_visible_to_player(state, action["_origin_tile"])):
 		return []
 	var player: Dictionary = state.get("player", {})
@@ -1173,6 +1182,21 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 	targets = legal
 	return targets
 
+# Worldroot is one target decision. BFS order chooses the nearest connected
+# origin to the hero, with the shared cardinal order breaking ties. Preview and
+# commit use this same legality query, including visibility, LOS and relic cost.
+func action_with_automatic_origin(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
+	if not SurfaceRelicRules.mode_enabled(action, "remote") or action.has("_origin_tile"):
+		return action
+	for origin: Vector2i in SurfaceRelicRules.origin_tiles(state):
+		var candidate: Dictionary = action.duplicate(true)
+		candidate["_origin_tile"] = origin
+		candidate.erase("_surface_relic_needs_origin")
+		if valid_targets_for_player_action(state, candidate).has(target): return candidate
+	var invalid: Dictionary = action.duplicate(true)
+	invalid["_surface_relic_invalid"] = true
+	return invalid
+
 func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
 	return (
 		_surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
@@ -1284,6 +1308,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		target_tile = next_state.get("last_action_target", INVALID_TILE)
 	elif str(action.get("target", "")) == "player":
 		target_tile = (next_state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+	action = action_with_automatic_origin(next_state, action, target_tile)
 	var performance_phase_started: int = _record_runtime_performance_phase("player_action_duplicate", performance_total_started)
 	if not player_action_can_resolve(next_state, action):
 		_record_runtime_performance_phase("player_action_total", performance_total_started)

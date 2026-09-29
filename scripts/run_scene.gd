@@ -1640,7 +1640,6 @@ var _surface_analytics_revisions: Dictionary = {}
 var _surface_aim = SurfaceAimFlow.new()
 var _surface_skill_choice_row: HBoxContainer
 var _surface_skill_tiles: Array[Vector2i]
-var _surface_relic_origin_pending: bool = false
 var _surface_preview_cache_key: String = ""
 var _surface_preview_cache: Dictionary = {}
 var _surface_resolution_cache_key: String = ""
@@ -1915,6 +1914,7 @@ var _drag_target_arrow: CardDragTargetingArrow
 var _drag_zone_panels: Dictionary = {}
 var _drag_zone_labels: Dictionary = {}
 var _drag_zone_detail_labels: Dictionary = {}
+var _drag_cancel_in_progress: bool = false
 var _drag_card_index: int = -1
 var _drag_card_options: Dictionary = {}
 var _drag_hover_zone: String = ""
@@ -2213,6 +2213,9 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _drag_cancel_in_progress:
+		get_viewport().set_input_as_handled()
+		return
 	if _campfire_choice_action_pending:
 		get_viewport().set_input_as_handled()
 		return
@@ -3327,7 +3330,7 @@ func _controller_activate_current() -> void:
 		await _on_board_tile_clicked(_controller_board_tile)
 		if _focused_intent_enemy_id >= 0:
 			_controller_set_board_tile(_controller_board_tile)
-		elif _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active() and not _surface_relic_origin_pending:
+		elif _selected_card_index < 0 and not _player_movement_selected and not _surface_aim.active():
 			_controller_region = "hand"
 			_controller_set_hand_focused(true)
 			_controller_set_hand_index(maxi(0, _controller_hand_index))
@@ -8730,13 +8733,17 @@ func _finish_drag_play(preserve_card_preview: bool, refresh_ui: bool = true) -> 
 	if refresh_ui: _refresh_card_preview_ui()
 
 func _animate_drag_cancel_to_source() -> void:
+	if _drag_cancel_in_progress: return
+	# Revoke input/commit ownership before awaiting the visual snapback.
+	_drag_cancel_in_progress = true
 	var target_rect: Rect2 = _drag_card_cancel_rect if _drag_card_cancel_rect.size.length() > 0.0 else _drag_card_source_rect
 	if _drag_card_proxy != null and target_rect.size.length() > 0.0:
 		await _animate_card_proxy_to_rect(_drag_card_proxy, target_rect, CARD_SNAPBACK_SECONDS)
 	_cancel_drag_play()
+	_drag_cancel_in_progress = false
 
 func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
-	if _drag_card_index < 0:
+	if _drag_cancel_in_progress or _drag_card_index < 0:
 		return
 	if mouse_position.x < 0.0 or mouse_position.y < 0.0:
 		mouse_position = _current_mouse_position()
@@ -8810,11 +8817,11 @@ func _leave_drag_targeting() -> void:
 
 func _set_drag_hover_tile(tile: Vector2i) -> void:
 	if _hovered_board_tile == tile:
-		_update_action_context_copy()
+		_refresh_selected_card_forecast()
 		return
 	_hovered_board_tile = tile
 	_refresh_stage_view()
-	_update_action_context_copy()
+	_refresh_selected_card_forecast()
 
 func _drag_hover_target_is_valid(tile: Vector2i) -> bool:
 	if not _drag_targeting_active or tile.x < 0:
@@ -9408,7 +9415,7 @@ func _update_drag_overlay_hover(zone: String) -> void:
 		detail_label.add_theme_color_override("font_color", accent.lightened(0.32) if valid else Color("8c8277"))
 		label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.52)
 		detail_label.modulate = Color.WHITE if valid else Color(1.0, 1.0, 1.0, 0.64)
-	_update_action_context_copy()
+	_refresh_selected_card_forecast()
 
 func _drag_zone_detail_text(zone: String, valid: bool) -> String:
 	if not valid:
@@ -14619,7 +14626,7 @@ func _on_rotate_action_context_pressed() -> void:
 	if not _current_action_supports_rotation():
 		return
 	_rotate_aoe_aim(1)
-	_update_action_context_copy()
+	_refresh_selected_card_forecast()
 
 func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 	if _action_step_tracker == null or not _action_step_tracker.visible:
@@ -19163,8 +19170,6 @@ func _sanitize_preview_for_umbra_information(source_preview: Dictionary, informa
 func _active_card_preview() -> Dictionary:
 	if _surface_aim.active():
 		return {"state": _combat_state, "action": _surface_aim.action(), "target_tiles": _surface_skill_tiles, "complete": false, "playable": true, "skill_aim": true}
-	if _surface_relic_origin_pending:
-		return {"state": _preview_combat_state, "action": {"type": "surface", "surface": "rubble"}, "target_tiles": SurfaceRelicRules.origin_tiles(_preview_combat_state), "complete": false, "playable": true, "origin_aim": true}
 	if _combat_skill_card_selection_zone == "hand":
 		return {}
 	if _player_movement_selected:
@@ -19194,6 +19199,8 @@ func _active_card_preview() -> Dictionary:
 				target_tiles = _vector2i_array([_pending_orientation_target_tile])
 			elif str(action.get("type", "")) == "aoe":
 				action = _action_with_aoe_aim_orientation(action)
+			if target_tiles.has(_hovered_board_tile):
+				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
 			# Pending targets are already orientation-current and Umbra-sanitized when
 			# selection state changes. Re-sanitizing here rebuilt the visibility map on
 			# every board hover, often several times for the same pointer event.
@@ -19834,6 +19841,18 @@ func _card_preview_from_state(
 				or (allow_skip_suffix_shortcut and _continuation_can_finish_by_skipping_targets(actions, cursor + 1, true))
 			)
 			var candidate_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, action, 1 if existence_only else 0, accept_target)
+			# A remote-only attack must be selectable so its optional technique is
+			# reachable. Default to Worldroot only when ordinary reach has no target.
+			if candidate_targets.is_empty() and not SurfaceRelicRules.mode_enabled(action, "remote"):
+				for variant: Dictionary in SurfaceRelicRules.action_variants(working_state, action):
+					if not SurfaceRelicRules.mode_enabled(variant, "remote"): continue
+					var remote_targets: Array[Vector2i] = _combat_engine.valid_targets_for_player_action(working_state, variant, 1 if existence_only else 0, accept_target)
+					if remote_targets.is_empty(): continue
+					action = variant
+					actions = actions.duplicate(true)
+					actions[cursor] = action
+					candidate_targets = remote_targets
+					break
 			# A combined move-attack card has one board decision with two kinds of
 			# legal result: click an enemy to take the shortcut and attack, or click a
 			# destination to spend the movement and deliberately omit the follow-up.
@@ -21277,7 +21296,7 @@ func _set_aoe_aim_orientation(direction: Vector2i) -> void:
 		_refresh_pending_aoe_target_tiles()
 		_mark_preview_selection_changed()
 		_refresh_stage_view()
-		_update_action_context_copy()
+		_refresh_selected_card_forecast()
 
 func _rotate_aoe_aim(step: int) -> void:
 	var current_index: int = ORIENTATION_DIRECTIONS.find(_aoe_aim_orientation)
@@ -21720,7 +21739,7 @@ func _board_hover_stage_refresh_needed(tile: Vector2i) -> bool:
 	if mode != "combat":
 		_board_hover_threat_active = false
 		return false
-	if _surface_aim.active() or _surface_relic_origin_pending or _player_movement_selected or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
+	if _surface_aim.active() or _player_movement_selected or _selected_card_index >= 0 or _hovered_card_index >= 0 or _drag_card_index >= 0:
 		_board_hover_threat_active = false
 		return true
 	var threat_active: bool = _hovered_tile_has_visible_enemy(tile)
@@ -21802,9 +21821,6 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if _surface_aim.active():
 		_commit_surface_skill_tile(tile)
 		return
-	if _surface_relic_origin_pending:
-		_select_surface_relic_origin(tile)
-		return
 	if not _guided_tutorial_board_tile_allowed(tile):
 		_guided_tutorial_reject()
 		return
@@ -21867,7 +21883,8 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	if preview_action_type in ["move", "blink"] and _remaining_actions_include_shortcut_attack(_pending_actions, _pending_action_index + 1):
 		await _on_pending_movement_only_clicked(tile)
 		return
-	var action: Dictionary = _pending_actions[_pending_action_index]
+	var action: Dictionary = _combat_engine.action_with_automatic_origin(_preview_combat_state, _pending_actions[_pending_action_index], tile)
+	_pending_actions[_pending_action_index] = action
 	var previous_action_index: int = _pending_action_index
 	if str(action.get("type", "")) == "aoe":
 		action = _action_with_aoe_aim_orientation(action)
@@ -21903,10 +21920,6 @@ func _on_cancel_requested() -> void:
 		return
 	if _surface_aim.active():
 		_cancel_surface_skill_selection()
-		return
-	if _surface_relic_origin_pending:
-		_surface_relic_origin_pending = false
-		_cancel_card_selection()
 		return
 	if _dialogue_active:
 		_advance_dialogue()
@@ -26607,7 +26620,6 @@ func _board_framing_safe_global_rect() -> Rect2:
 
 func _board_status_label(preview: Dictionary) -> String:
 	if _dialogue_active or _surface_aim.active(): return ""
-	if _surface_relic_origin_pending: return "Worldroot · choose an origin"
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
 		return ""
@@ -26631,7 +26643,6 @@ func _board_status_label(preview: Dictionary) -> String:
 
 func _board_status_detail(preview: Dictionary) -> String:
 	if _surface_aim.active(): return ""
-	if _surface_relic_origin_pending: return "Choose visible Rubble, then choose the attack target."
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _animation_lock:
 		return ""
@@ -32297,7 +32308,6 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
-	_surface_relic_origin_pending = false
 	_surface_preview_cache_key = ""
 	_selected_card_index = -1
 	_card_targeting_pointer_position = Vector2(-1.0, -1.0)
@@ -34113,22 +34123,11 @@ func _select_surface_relic_variant(variant: Dictionary, action_index: int = -1) 
 	if not SurfaceRelicRules.mode_enabled(selected, "remote"):
 		selected.erase("_origin_tile")
 	_pending_actions[_pending_action_index] = selected
-	_surface_relic_origin_pending = SurfaceRelicRules.mode_enabled(selected, "remote") and not selected.has("_origin_tile")
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
-	if _surface_relic_origin_pending:
-		_pending_target_tiles = SurfaceRelicRules.origin_tiles(_preview_combat_state)
-	else:
-		_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, selected, _combat_engine.valid_targets_for_player_action(_preview_combat_state, selected))
+	_pending_target_tiles = _preview_target_tiles_for_action(_preview_combat_state, selected, _combat_engine.valid_targets_for_player_action(_preview_combat_state, selected))
 	_mark_preview_selection_changed()
 	_refresh_card_preview_ui()
 	if _controller_is_active(): _controller_enter_board(true)
-
-func _select_surface_relic_origin(tile: Vector2i) -> void:
-	if not SurfaceRelicRules.origin_tiles(_preview_combat_state).has(tile) or _pending_action_index >= _pending_actions.size(): return
-	var action: Dictionary = (_pending_actions[_pending_action_index] as Dictionary).duplicate(true)
-	action["_origin_tile"] = tile
-	_surface_relic_origin_pending = false
-	_select_surface_relic_variant(action)
 
 func _surface_events_between(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var events: Array[Dictionary]
@@ -34142,7 +34141,7 @@ func _surface_events_between(before_state: Dictionary, after_state: Dictionary) 
 
 func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> void:
 	var tile: Vector2i = _hovered_board_tile
-	if tile.x < 0 or not (preview.get("target_tiles", []) as Array).has(tile) or bool(preview.get("origin_aim", false)):
+	if tile.x < 0 or not (preview.get("target_tiles", []) as Array).has(tile):
 		return
 	var state: Dictionary = preview.get("state", _combat_state) as Dictionary
 	var action: Dictionary = preview.get("action", {}) as Dictionary

@@ -810,7 +810,7 @@
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it.",
+    "description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it. The origin is chosen automatically.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
     "design_version": 3,

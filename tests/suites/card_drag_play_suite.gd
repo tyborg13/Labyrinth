@@ -97,6 +97,7 @@ static func _test_raster_arrow_geometry(expect: Callable) -> void:
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
+	await _test_cancel_snapback_release(tree, expect)
 	await _test_card_widget_drag_threshold(tree, expect)
 	await _test_off_center_follow_and_snapback(tree, expect)
 	await _test_targeted_drag_entry_and_invalid_release(tree, expect)
@@ -1052,3 +1053,29 @@ static func _grid() -> Array:
 			row.append("wall" if x == 0 or y == 0 or x == 7 or y == 7 else "stone")
 		grid.append(row)
 	return grid
+
+static func _test_cancel_snapback_release(tree: SceneTree, expect: Callable) -> void:
+	var instance: Node = await _live_instance(tree, expect, "stone_plate", Vector2i(5, 4), 98253)
+	var before: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	instance.call("_on_card_drag_started", 0, _drag_start_position(instance, 0))
+	await tree.process_frame
+	var point: Vector2 = _tile_global_position(instance, Vector2i(2, 4))
+	await instance.call("_update_card_drag", point)
+	var right := InputEventMouseButton.new()
+	right.button_index = MOUSE_BUTTON_RIGHT
+	right.pressed = true
+	right.position = point
+	instance.call("_input", right) # Deliberately do not await visual snapback.
+	expect.call(bool(instance.get("_drag_cancel_in_progress")), "Cancel revokes drag input synchronously")
+	var motion := InputEventMouseMotion.new()
+	motion.position = point + Vector2(40, 0)
+	await instance.call("_input", motion)
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.position = point
+	await instance.call("_input", release)
+	await tree.create_timer(0.35).timeout
+	expect.call(instance.get("_combat_state") == before, "Release/motion during cancelled targetless snapback cannot play or pay")
+	expect.call(int(instance.get("_drag_card_index")) < 0 and not bool(instance.get("_drag_cancel_in_progress")), "Snapback returns input ownership to the hand")
+	instance.queue_free()
+	await tree.process_frame

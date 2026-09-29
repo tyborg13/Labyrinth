@@ -1,5 +1,5 @@
 {
-  "min_images": 10,
+  "min_images": 13,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -159,6 +159,57 @@
     },
     {
       "pattern": "*10_flurry_automatic_completion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            120,
+            1300,
+            820
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*11_worldroot_one_target.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            120,
+            1300,
+            820
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*12_worldroot_resolved.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            120,
+            1300,
+            820
+          ],
+          "min_luma_range": 12,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*13_drag_cancel_release_safe.png",
       "width": 1920,
       "height": 1080,
       "regions": [

@@ -702,3 +702,5 @@ legacy saved consuming Overload emits removal reason `overload`. Night Coil emit
 `dragon_light_snuffed` before Eclipse. Existing damage/surface/initiative events
 continue through local append-only JSONL. Forecast and presentation do not append
 separate analytics.
+
+Worldroot automatic origin selection is part of the same card commit: the chosen Rubble origin is consumed by the ordinary surface event path. It does not add an origin-pick event or a second card play. Cancelling a drag revokes commit input before snapback animation, so a concurrent release emits no card-play event.

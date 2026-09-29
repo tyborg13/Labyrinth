@@ -7,8 +7,11 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const Fixture = preload("res://tests/suites/move_attack_shortcut_suite.gd")
+const Ground = preload("res://scripts/board_surface_rules.gd")
+const Relics = preload("res://scripts/surface_relic_rules.gd")
+const Drag = preload("res://tests/suites/card_drag_play_suite.gd")
 const InputRouter = preload("res://scripts/input_router.gd")
-const OUT := "user://probes/card_targeting_audit_20260929_v3"
+const OUT := "user://probes/card_targeting_audit_20260929_v4"
 var scene: Node
 var canvas: SubViewport
 
@@ -117,6 +120,48 @@ func _run() -> void:
 	await scene.call("_on_board_tile_clicked",Vector2i(2,3))
 	assert(int(scene.get("_selected_card_index")) < 0)
 	await _capture("10_flurry_automatic_completion")
+	Settings._applied_reduced_motion = false
+	await _install("quick_stab")
+	var worldroot: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	worldroot["relics"] = ["worldroot_idol"]
+	worldroot["enemies"][0]["pos"] = Vector2i(5,4)
+	worldroot["enemies"].remove_at(1)
+	for x: int in range(2,5): Ground.place(worldroot,Vector2i(x,4),"rubble")
+	scene.set("_combat_state",worldroot)
+	(scene.get("_run_state") as Dictionary)["combat_state"] = worldroot
+	scene.call("_mark_combat_preview_state_changed")
+	scene.call("_refresh_ui")
+	await scene.call("_on_card_pressed",0)
+	assert(int(scene.get("_selected_card_index")) == 0, "Remote-only reach remains playable")
+	await _hover(Vector2i(5,4))
+	var worldroot_preview: Dictionary = scene.call("_active_card_preview")
+	assert((worldroot_preview["action"] as Dictionary).get("_origin_tile") == Vector2i(4,4))
+	await _capture("11_worldroot_one_target")
+	await scene.call("_on_board_cancel_requested")
+	assert(scene.get("_combat_state") == worldroot)
+	assert(_play_events().is_empty())
+	await scene.call("_on_card_pressed",0)
+	await scene.call("_on_board_tile_clicked",Vector2i(5,4))
+	after = scene.get("_combat_state")
+	assert(int(after["enemies"][0]["hp"]) == 91 and not Ground.has_rubble(after,Vector2i(4,4)))
+	assert(int(scene.get("_selected_card_index")) < 0 and _play_events().size() == 1)
+	await _capture("12_worldroot_resolved")
+	await _install("stone_plate")
+	before = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	scene.call("_on_card_drag_started",0,Drag._drag_start_position(scene,0))
+	await process_frame
+	var drop: Vector2 = Drag._tile_global_position(scene,Vector2i(2,4))
+	await scene.call("_update_card_drag",drop)
+	right.position = drop
+	canvas.push_input(right,true)
+	assert(bool(scene.get("_drag_cancel_in_progress")))
+	var release := InputEventMouseButton.new()
+	release.button_index = MOUSE_BUTTON_LEFT
+	release.position = drop
+	canvas.push_input(release,true)
+	await create_timer(0.35).timeout
+	assert(scene.get("_combat_state") == before and _play_events().is_empty())
+	await _capture("13_drag_cancel_release_safe")
 	print(ProjectSettings.globalize_path(OUT))
 	print("CARD TARGETING NATIVE PROBE: PASS")
 	quit()
@@ -163,6 +208,8 @@ func _settle() -> void:
 
 func _capture(name: String) -> void:
 	await _settle()
+	await create_timer(0.3).timeout
+	await process_frame
 	assert((scene.get("_action_step_tracker_steps") as Node).get_child_count() == 0)
 	assert(not (scene.get("_action_context_header") as Control).visible)
 	RenderingServer.force_draw()

@@ -90,8 +90,6 @@ static func resolve_action(state: Dictionary, action: Dictionary) -> Dictionary:
 		result["_allow_sideways_force"] = has_effect(state, "rubble_redirect")
 	if mode_enabled(result, "crush"):
 		result["_detonate_surface"] = "rubble"
-	if mode_enabled(result, "remote") and not result.has("_origin_tile"):
-		result["_surface_relic_needs_origin"] = true
 	return result
 
 static func origin_tiles(state: Dictionary) -> Array[Vector2i]:
