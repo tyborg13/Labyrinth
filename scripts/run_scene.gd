@@ -41,6 +41,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
+const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
 const SurfaceAimFlow = preload("res://scripts/surface_aim_flow.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
@@ -1584,6 +1585,7 @@ var _committed_hand_query_diagnostics: Dictionary = {}
 var _fallback_preview_cache: Dictionary = {}
 var _card_play_options_cache: Dictionary = {}
 var _card_widget_display_cache: Dictionary = {}
+var _move_attack_approach = MoveAttackApproach.new()
 var _preview_shortcuts_cache_key: String = ""
 var _preview_shortcuts_cache: Dictionary = {}
 var _preview_shortcuts_content_cache: Dictionary = {}
@@ -2435,6 +2437,7 @@ func _build_controller_interface() -> void:
 	_refresh_controller_prompts()
 
 func _on_input_modality_changed(modality: String) -> void:
+	_move_attack_approach.clear()
 	if modality == InputRouterScript.MODALITY_POINTER:
 		_controller_set_hand_focused(true)
 		if not _controller_magic_source_kind.is_empty():
@@ -8802,6 +8805,7 @@ func _leave_drag_targeting() -> void:
 	return
 
 func _set_drag_hover_tile(tile: Vector2i) -> void:
+	_move_attack_approach.observe(tile, self)
 	if _hovered_board_tile == tile:
 		_update_action_context_copy()
 		return
@@ -13658,6 +13662,7 @@ func _combat_portrait_path(identity: String) -> String:
 	return str(TURN_ORDER_PORTRAITS.get(identity, ""))
 
 func _on_turn_order_enemy_hovered(tile: Vector2i, actor_key: String) -> void:
+	_move_attack_approach.clear()
 	if tile.x < 0:
 		return
 	_turn_order_hovered_enemy_key = actor_key
@@ -19667,6 +19672,7 @@ func _mark_preview_selection_changed() -> void:
 	_invalidate_preview_derived_caches()
 
 func _invalidate_preview_derived_caches() -> void:
+	_move_attack_approach.clear()
 	_pending_card_forecast_cache.clear()
 	_pending_card_known_forecast_cache.clear()
 	_pass_preview_warm_generation += 1
@@ -19716,7 +19722,7 @@ func _pass_preview_key() -> String:
 	# These revisions own and eagerly invalidate every state transition that can
 	# affect this cache. Hashing the full combat snapshot and its nested action
 	# arrays made even a cache hit O(state size) on every pointer move.
-	return "%d|%d|%d|%d|%d|%d,%d|%d,%d|%d,%d|%s" % [
+	return "%d|%d|%d|%d|%d|%d,%d|%d,%d|%d,%d|%s|%d" % [
 		_combat_preview_revision,
 		_preview_selection_revision,
 		_selected_card_index,
@@ -19728,7 +19734,8 @@ func _pass_preview_key() -> String:
 		_aoe_aim_orientation.y,
 		_pending_orientation_target_tile.x,
 		_pending_orientation_target_tile.y,
-		_card_action_choice_mode
+		_card_action_choice_mode,
+		_move_attack_approach.revision
 	]
 
 func _cache_pass_preview(key: String, summary: Dictionary) -> void:
@@ -20494,6 +20501,10 @@ func _shortcut_plan_for_tile(preview: Dictionary, target_tile: Vector2i) -> Dict
 	_prepare_preview_shortcuts_for_current_action(preview)
 	var plans: Dictionary = _preview_shortcuts_cache.get("plans", {}) as Dictionary
 	var plan: Dictionary = plans.get(target_tile, {}) as Dictionary
+	if not plan.is_empty():
+		var preferred: Dictionary = _move_attack_approach.plan_for(self, preview, target_tile, _preview_shortcuts_cache.get("movement_plan", {}))
+		if not preferred.is_empty():
+			return preferred
 	if plan.is_empty() or not bool(plan.get("deferred_move_resolution", false)):
 		return plan
 	var preview_state: Dictionary = plan.get("deferred_preview_state", {}) as Dictionary
@@ -21734,6 +21745,7 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		and _guided_tutorial_visible_enemy_tiles().has(_guided_tutorial_intent_enemy_tile)
 	):
 		presented_tile = _guided_tutorial_intent_enemy_tile
+	_move_attack_approach.observe(presented_tile, self)
 	_hovered_board_tile = presented_tile
 	if (
 		_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_INSPECT_ENEMY
