@@ -232,7 +232,8 @@ def encounter_assumptions() -> dict[str, Any]:
             "gust_step": "Move 1 then range-2 Pull 2 / damage 3, one enemy shortcut; movement-only ground selection remains available",
         },
         "guardian_encounters": GUARDIAN_ASSUMPTIONS,
-        "card_targeting": "one board decision, automatic riders and one-click movement approaches; damaging push/pull may hit within maximum range even when displacement is blocked; force value still assumes useful space",
+        "card_targeting": "one board decision, automatic riders and one-click movement approaches; push/pull targets are legal within maximum range when they deal damage, move the target or collide; force value still assumes useful space",
+        "forced_movement": "straight cardinal lines only (default longer axis, Rotate picks the other); a stopped line deals 2 collision damage per lost tile to the target and its blocker (walls take none); non-direct, Block/Stoneskin absorb; distance relics add collision damage",
         "large_enemy_targeting": "one legal visible footprint tile makes the actor's full footprint clickable; still one target and one hit",
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,
@@ -324,6 +325,9 @@ class HeuristicWeights:
     repeated_consumption_availability: float = 0.35
     detonate_shared_hazard_cost: float = 0.45
     displacement_hazard_value_per_tile: float = 0.24
+    # Collision: 2 damage per lost tile to target and blocker, available on
+    # roughly a third of forced-movement plays, at damage weight (~0.30/tile).
+    collision_value_per_tile: float = 0.30
     kill_card_play_value: float = 0.45
     illusion_health_per_point: float = 0.48
     illusion_range_per_tile: float = 0.12
@@ -641,14 +645,14 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if action_type == "push":
                 push += int(action.get("amount", 0))
             if push > 0:
-                breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile) * playability * targets * action_scale
+                breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile + weights.collision_value_per_tile) * playability * targets * action_scale
                 has_push_pull = True
 
             pull = int(action.get("pull", 0))
             if action_type == "pull":
                 pull += int(action.get("amount", 0))
             if pull > 0:
-                pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile
+                pull_value = weights.pull_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile + weights.collision_value_per_tile
                 if has_move:
                     pull_value += weights.move_pull_bonus_per_tile
                 breakdown.control += pull * pull_value * playability * targets * action_scale

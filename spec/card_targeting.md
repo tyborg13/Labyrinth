@@ -6,7 +6,7 @@ Right-click anywhere in the unobstructed combat surface, Escape, and controller 
 
 Numbered steps, Skip and the separate Cancel button are retired for every card, including resolution animations. Only optional Rotate and relic technique buttons can use the existing compact command host. Turn-end consequences remain in the established forecast ribbon, refreshed as the selected target changes.
 
-Damaging Push/Pull accepts visible enemies at any distance up to printed range. When no displacement direction exists, the hit still resolves and movement is zero. Pure zero-damage displacement still needs a legal move. Walls, Umbra, explicit force directions and the shared large-footprint targeting rule remain enforced.
+Push/Pull accepts a visible enemy at any distance up to printed range (with line of sight past range 1) when the action does something to it: damage above zero, at least one tile of travel, or a collision. A zero-damage Pull on an enemy already beside the hero is therefore illegal, while a zero-damage Push on a pinned enemy is legal because it collides. The line itself follows [forced movement](forced_movement.md): an off-axis target offers two straight lines, the default is chosen automatically, and optional Rotate (keyboard left/right, controller LB/RB) switches lines without adding a board decision. Hover forecast and commit use the same aimed line. Walls, Umbra and the shared large-footprint targeting rule remain enforced.
 
 ## Card pool overhaul additions (wave 1)
 

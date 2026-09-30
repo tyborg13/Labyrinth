@@ -1656,6 +1656,12 @@ var _pending_selected_targets: Array[Vector2i] = []
 var _pending_umbra_commit_locked: bool = false
 var _pending_orientation_target_tile: Vector2i = INVALID_TARGET_TILE
 var _aoe_aim_orientation: Vector2i = Vector2i(1, 0)
+# Push/Pull aim (spec/forced_movement.md): the aimed target is the last hovered
+# legal forced-movement target; Rotate cycles its straight-line candidates.
+var _force_aim_key: String = ""
+var _force_aim_tile: Vector2i = INVALID_TARGET_TILE
+var _force_aim_index: int = 0
+var _force_aim_rotate_shown: bool = false
 var _victory_carry_processed: bool = false
 var _defeat_loss_processed: bool = false
 var _victory_carry_amount: int = 0
@@ -2389,15 +2395,10 @@ func _input(event: InputEvent) -> void:
 			board_view.call("_clear_hover_for_navigation")
 			_on_board_tile_hovered(INVALID_TARGET_TILE)
 		_sync_click_targeting_arrow(pointer_position)
-	if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
-		if event.is_action_pressed("ui_left"):
-			_rotate_aoe_aim(-1)
-			get_viewport().set_input_as_handled()
-			return
-		if event.is_action_pressed("ui_right"):
-			_rotate_aoe_aim(1)
-			get_viewport().set_input_as_handled()
-			return
+	if _selected_card_index >= 0 and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")) and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
+		_rotate_aoe_aim(-1 if event.is_action_pressed("ui_left") else 1)
+		get_viewport().set_input_as_handled()
+		return
 	if _is_map_shortcut_event(event):
 		if _guided_tutorial_hard_gate_active():
 			_guided_tutorial_reject("The map can wait until the guided action is complete.")
@@ -2636,13 +2637,13 @@ func _handle_controller_input(event: InputEvent) -> bool:
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
-		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
+		if _selected_card_index >= 0 and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
 			_rotate_aoe_aim(-1)
 		elif _controller_region == "hand":
 			_controller_cycle_hand(-1)
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_NEXT):
-		if _selected_card_index >= 0 and _current_action_is_aimed_aoe():
+		if _selected_card_index >= 0 and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
 			_rotate_aoe_aim(1)
 		elif _controller_region == "hand":
 			_controller_cycle_hand(1)
@@ -14176,6 +14177,7 @@ func _refresh_action_step_tracker() -> void:
 	# optional aiming tools (Rotate / relic techniques), using the shared buttons.
 	_clear_children_now(_action_step_tracker_steps)
 	_clear_children_now(_action_context_command_bar)
+	_force_aim_rotate_shown = false
 	_action_context_header.hide()
 	_action_step_tracker_steps.hide()
 	_action_step_tracker_steps.get_parent().custom_minimum_size = Vector2.ZERO
@@ -14548,6 +14550,9 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
+	elif _force_aim_rotation_available():
+		_force_aim_rotate_shown = true
+		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, _force_aim_rotate_tooltip(), alongside_mode_tabs)
 
 func _refresh_card_action_mode_selector(context_mode: String) -> void:
 	# Card clicks now enter their printed action flow directly; the former mode
@@ -14634,7 +14639,7 @@ func _current_action_supports_rotation() -> bool:
 	return str(action.get("type", "")) in ["aoe", "surface", "detonate"] and _combat_engine.player_action_needs_orientation(action)
 
 func _on_rotate_action_context_pressed() -> void:
-	if not _current_action_supports_rotation():
+	if not _current_action_supports_rotation() and not _force_aim_rotation_available():
 		return
 	_rotate_aoe_aim(1)
 	_refresh_selected_card_forecast()
@@ -15908,7 +15913,7 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if str(action.get("type", "")) in ["aoe", "surface", "detonate"]:
 		action = _action_with_aoe_aim_orientation(action)
 	elif _target_needs_force_orientation(action, _hovered_board_tile):
-		return {}
+		action = _shortcut_action_with_default_force_direction(_preview_combat_state, action, _hovered_board_tile)
 	if not _pending_target_tiles.has(_hovered_board_tile):
 		return {}
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -19212,6 +19217,8 @@ func _active_card_preview() -> Dictionary:
 				action = _action_with_aoe_aim_orientation(action)
 			if target_tiles.has(_hovered_board_tile):
 				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
+				if not orientation_pending:
+					action = _action_with_force_aim(_preview_combat_state, action, _hovered_board_tile)
 			# Pending targets are already orientation-current and Umbra-sanitized when
 			# selection state changes. Re-sanitizing here rebuilt the visibility map on
 			# every board hover, often several times for the same pointer event.
@@ -19612,8 +19619,9 @@ func _mark_preview_selection_changed() -> void:
 	_preview_selection_revision += 1
 	_invalidate_preview_derived_caches()
 
-func _invalidate_preview_derived_caches() -> void:
-	_move_attack_approach.clear()
+func _invalidate_preview_derived_caches(keep_move_approach: bool = false) -> void:
+	if not keep_move_approach:
+		_move_attack_approach.clear()
 	_pending_card_forecast_cache.clear()
 	_pending_card_known_forecast_cache.clear()
 	_pass_preview_warm_generation += 1
@@ -21316,6 +21324,9 @@ func _set_aoe_aim_orientation(direction: Vector2i) -> void:
 		_refresh_selected_card_forecast()
 
 func _rotate_aoe_aim(step: int) -> void:
+	if not _current_action_is_aimed_aoe():
+		_rotate_force_aim(step)
+		return
 	var current_index: int = ORIENTATION_DIRECTIONS.find(_aoe_aim_orientation)
 	if current_index < 0:
 		current_index = ORIENTATION_DIRECTIONS.find(Vector2i(1, 0))
@@ -21355,23 +21366,130 @@ func _cardinal_direction(direction: Variant) -> Vector2i:
 func _force_direction_for_action(action: Dictionary, target_tile: Vector2i, hover_tile: Vector2i) -> Vector2i:
 	return _force_direction_for_action_in_state(_preview_combat_state, action, target_tile, hover_tile)
 
-func _force_direction_for_action_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i, hover_tile: Vector2i) -> Vector2i:
-	var allowed: Array[Vector2i] = _combat_engine.force_directions_for_player_action(state, action, target_tile)
-	if allowed.is_empty():
+func _force_direction_for_action_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i, _hover_tile: Vector2i) -> Vector2i:
+	# Hover, Rotate and commit share one aim: the engine's straight-line
+	# candidates for this target, default first, indexed by the current aim.
+	return _force_aim_direction(state, action, target_tile)
+
+func _force_aim_key_for_tile(tile: Vector2i) -> String:
+	if _selected_card_index < 0 or tile.x < 0:
+		return ""
+	var state: Dictionary = _preview_combat_state if not _preview_combat_state.is_empty() else _combat_state
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var as Dictionary
+		if int(enemy.get("hp", 0)) > 0 and _enemy_footprint_tiles(enemy).has(tile):
+			return "%d:%d:%d" % [_selected_card_index, _pending_action_index, int(enemy.get("id", -1))]
+	return ""
+
+func _force_aim_direction(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Vector2i:
+	var options: Array[Vector2i] = _combat_engine.force_direction_options_for_player_action(state, action, target_tile)
+	if options.is_empty():
 		return Vector2i.ZERO
-	var candidate: Vector2i = Vector2i.ZERO
-	if hover_tile.x >= 0 and hover_tile != target_tile:
-		candidate = _direction_from_tiles(target_tile, hover_tile)
-	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	if candidate == Vector2i.ZERO and player_tile != target_tile:
-		var fallback_delta: Vector2i = target_tile - player_tile
+	var index: int = 0
+	if not _force_aim_key.is_empty() and _force_aim_key_for_tile(target_tile) == _force_aim_key:
+		index = _force_aim_index
+	return options[posmod(index, options.size())]
+
+func _action_with_force_aim(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	if str(action.get("type", "")) not in ["melee", "ranged", "push", "pull"]:
+		return action
+	var direction: Vector2i = _force_aim_direction(state, action, target_tile)
+	if direction == Vector2i.ZERO:
+		return action
+	var aimed: Dictionary = action.duplicate(true)
+	aimed["force_direction"] = direction
+	return aimed
+
+func _pending_flow_has_force_aim() -> bool:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
+		return false
+	for index: int in range(_pending_action_index, _pending_actions.size()):
+		if typeof(_pending_actions[index]) != TYPE_DICTIONARY:
+			continue
+		var action: Dictionary = _pending_actions[index] as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		if action_type == "pull" or (int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0):
-			fallback_delta = player_tile - target_tile
-		candidate = _cardinal_direction(fallback_delta)
-	if allowed.has(candidate):
-		return candidate
-	return allowed[0]
+		if action_type in ["push", "pull"] or (action_type in ["melee", "ranged"] and (int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0)):
+			return true
+	return false
+
+func _force_aim_context_for_tile(tile: Vector2i) -> Dictionary:
+	# The state/action pair that will commit against this tile: the pending
+	# attack itself, or the planned attack of a move-then-attack shortcut.
+	if tile.x < 0 or not _pending_flow_has_force_aim():
+		return {}
+	var preview: Dictionary = _active_card_preview()
+	if preview.is_empty():
+		return {}
+	var shortcut_plan: Dictionary = _shortcut_plan_for_tile(preview, tile)
+	if not shortcut_plan.is_empty():
+		var plan_state: Dictionary = shortcut_plan.get("state", {}) as Dictionary
+		if plan_state.is_empty():
+			return {}
+		return {"state": plan_state, "action": shortcut_plan.get("action", {}), "tile": tile}
+	if not (preview.get("target_tiles", []) as Array).has(tile):
+		return {}
+	var action: Dictionary = _pending_actions[_pending_action_index] as Dictionary
+	if str(action.get("type", "")) not in ["melee", "ranged", "push", "pull"]:
+		return {}
+	return {"state": _preview_combat_state, "action": action, "tile": tile}
+
+func _force_aim_options() -> Array[Vector2i]:
+	var context: Dictionary = _force_aim_context_for_tile(_force_aim_tile)
+	if context.is_empty() or _force_aim_key_for_tile(_force_aim_tile) != _force_aim_key:
+		var none: Array[Vector2i]
+		return none
+	return _combat_engine.force_direction_options_for_player_action(context["state"], context["action"], context["tile"])
+
+func _force_aim_rotation_available() -> bool:
+	if _force_aim_key.is_empty() or not _pending_flow_has_force_aim():
+		return false
+	return _force_aim_options().size() >= 2
+
+func _force_aim_rotate_tooltip() -> String:
+	var context: Dictionary = _force_aim_context_for_tile(_force_aim_tile)
+	var action: Dictionary = context.get("action", {}) as Dictionary
+	var pulling: bool = str(action.get("type", "")) == "pull" or (int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0)
+	return "Change pull direction" if pulling else "Change push direction"
+
+func _sync_force_aim_target(tile: Vector2i) -> void:
+	# Only a legal forced-movement target changes the aimed target. Crossing
+	# empty tiles or the HUD (where Rotate lives) keeps the current aim.
+	if tile.x < 0 or not _pending_flow_has_force_aim():
+		return
+	if _force_aim_context_for_tile(tile).is_empty():
+		return
+	var key: String = _force_aim_key_for_tile(tile)
+	if key.is_empty() or key == _force_aim_key:
+		_force_aim_tile = tile if not key.is_empty() else _force_aim_tile
+		return
+	var aim_was_rotated: bool = _force_aim_index != 0
+	_force_aim_key = key
+	_force_aim_tile = tile
+	_force_aim_index = 0
+	if aim_was_rotated:
+		_mark_force_aim_changed()
+
+func _reset_force_aim() -> void:
+	_force_aim_key = ""
+	_force_aim_tile = INVALID_TARGET_TILE
+	_force_aim_index = 0
+
+func _mark_force_aim_changed() -> void:
+	# Planned shortcut actions and hover forecasts carry the aimed direction.
+	_preview_selection_revision += 1
+	_invalidate_preview_derived_caches(true)
+
+func _rotate_force_aim(step: int) -> void:
+	_sync_force_aim_target(_hovered_board_tile)
+	var options: Array[Vector2i] = _force_aim_options()
+	if options.size() < 2:
+		return
+	_force_aim_index = posmod(_force_aim_index + step, options.size())
+	_mark_force_aim_changed()
+	_refresh_stage_view()
+	_refresh_selected_card_forecast()
 
 func _shortcut_action_with_default_force_direction(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	if not _target_needs_force_orientation_in_state(state, action, target_tile):
@@ -21595,6 +21713,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 		_pending_umbra_commit_locked = false
 		_pending_orientation_target_tile = INVALID_TARGET_TILE
 		_aoe_aim_orientation = Vector2i(1, 0)
+		_reset_force_aim()
 		_append_skipped_target_placeholders(0, _pending_action_index)
 		_mark_preview_selection_changed()
 		_refresh_card_preview_ui()
@@ -21616,6 +21735,7 @@ func _begin_card_preview(index: int, preview: Dictionary, label_override: String
 	_pending_selected_targets.clear()
 	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
+	_reset_force_aim()
 	if _pending_action_index < _pending_actions.size():
 		_reset_aoe_aim_orientation_for_action(_pending_actions[_pending_action_index])
 		_refresh_pending_aoe_target_tiles()
@@ -21709,6 +21829,7 @@ func _on_board_tile_hovered(tile: Vector2i) -> void:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_CONFIRM_INTENT)
 	if _animation_lock:
 		return
+	_sync_force_aim_target(presented_tile)
 	# Input can deliver several pointer moves and a click before the next draw.
 	# Commit targeting immediately, but render only the final hover presentation.
 	# A click that starts an action supersedes that hover before it is visible.
@@ -21735,6 +21856,8 @@ func _refresh_board_hover_presentation() -> void:
 			_refresh_stage_view()
 		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh_total", performance_phase_started)
 		var action_context_can_change: bool = _pass_preview_hover_can_change()
+		if _pending_flow_has_force_aim() and _force_aim_rotation_available() != _force_aim_rotate_shown:
+			_refresh_action_step_tracker()
 		performance_phase_started = _record_runtime_performance_phase("hover_context_check", performance_phase_started)
 		if action_context_can_change:
 			var previous_tracker_minimum: Vector2 = _action_step_tracker.get_combined_minimum_size() if _action_step_tracker != null else Vector2.ZERO
@@ -32340,6 +32463,7 @@ func _clear_active_card_preview_state() -> void:
 	_pending_umbra_commit_locked = false
 	_pending_orientation_target_tile = INVALID_TARGET_TILE
 	_aoe_aim_orientation = Vector2i(1, 0)
+	_reset_force_aim()
 	_preview_combat_state.clear()
 	_pending_drag_play_source_rect = Rect2()
 	_hovered_board_tile = Vector2i(-1, -1)
@@ -33435,10 +33559,14 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		if selected_targets[target_index].x >= 0:
 			target_decision_tile = selected_targets[target_index]
 			break
+	var played_surface_events: Array[Dictionary] = _surface_events_between(before_state, resolved_state)
+	var collisions: Dictionary = _combat_engine.force_collision_summary(played_surface_events)
 	return {
 		"play_mode": play_mode,
 		"rules_version": BoardSurfaceRules.RULES_VERSION,
-		"surface_events": _surface_events_between(before_state, resolved_state),
+		"surface_events": played_surface_events,
+		"forced_collisions": int(collisions.get("count", 0)),
+		"collision_damage_dealt": int(collisions.get("damage", 0)),
 		"target_decision_count": 1,
 		"target_decision_tile": target_decision_tile,
 		"flurry": flurry_played,
@@ -34199,6 +34327,7 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
 	result["surface_preview_arcs"] = arcs
 	_append_guardian_displacement_preview(result, state, after)
+	_append_forced_displacement_preview(result, state, after)
 	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
 	if not losses.is_empty():
 		result["damage_preview"] = losses
@@ -34240,6 +34369,59 @@ func _append_guardian_displacement_preview(result: Dictionary, before: Dictionar
 	previews.append_array(_enemy_destination_preview_units(before,hints))
 	result["preview_units"] = previews
 	result["displacement_paths"] = paths.values()
+
+func _append_forced_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
+	# Push/Pull travel one straight line, so each displaced enemy's route is the
+	# line from its old anchor to its resolved anchor on the same simulated
+	# result the damage forecast uses. Collisions come from their board events.
+	var events: Array[Dictionary] = _surface_events_between(before, after)
+	var grouped: Dictionary = {}
+	var markers: Array = []
+	for event: Dictionary in events:
+		match str(event.get("kind", "")):
+			"guardian_line_step":
+				grouped["enemy_%d" % int(event.get("enemy_id", -1))] = true
+			"force_collision":
+				markers.append({
+					"tile": event.get("tile", INVALID_TARGET_TILE),
+					"blocked_tile": event.get("blocked_tile", INVALID_TARGET_TILE),
+					"direction": event.get("direction", Vector2i.ZERO),
+					"damage": int(event.get("damage", 0)),
+					"actor_key": str(event.get("actor_key", "")),
+					"blocker_kind": str(event.get("blocker_kind", ""))
+				})
+	var after_by_key: Dictionary = {}
+	for enemy_var: Variant in after.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			after_by_key[_enemy_key(enemy_var as Dictionary)] = enemy_var
+	var paths: Array = (result.get("displacement_paths", []) as Array).duplicate()
+	var hints: Array[Dictionary]
+	for enemy_var: Variant in before.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY or int((enemy_var as Dictionary).get("hp", 0)) <= 0:
+			continue
+		var key: String = _enemy_key(enemy_var as Dictionary)
+		var moved: Dictionary = after_by_key.get(key, {}) as Dictionary
+		if grouped.has(key) or moved.is_empty():
+			continue
+		var from: Vector2i = (enemy_var as Dictionary).get("pos", INVALID_TARGET_TILE)
+		var to: Vector2i = moved.get("pos", from)
+		if from == to or (from.x != to.x and from.y != to.y):
+			continue
+		var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+		var path: Array[Vector2i] = _vector2i_array([from])
+		while path[path.size() - 1] != to:
+			path.append(path[path.size() - 1] + step)
+		paths.append(path)
+		if int(moved.get("hp", 0)) > 0:
+			hints.append({"enemy_key": key, "projected_path": path, "projected_destination": to})
+	if not paths.is_empty():
+		result["displacement_paths"] = paths
+	if not hints.is_empty():
+		var previews: Array = (result.get("preview_units", []) as Array).duplicate()
+		previews.append_array(_enemy_destination_preview_units(before, hints))
+		result["preview_units"] = previews
+	if not markers.is_empty():
+		result["collision_markers"] = markers
 
 func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
 	var chips: Array = []

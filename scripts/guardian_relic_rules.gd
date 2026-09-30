@@ -88,21 +88,12 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 	if moved_ids.has(int(target["id"])): return state
 	var pushing: bool = int(action.get("push",0))>0
 	var distance: int = int(action.get("push",0)) if pushing else int(action.get("pull",0))
-	var direction: Vector2i = engine._action_force_direction(action)
-	if direction==Vector2i.ZERO:
-		direction = engine._cardinal_direction(target["pos"]-source) * (1 if pushing else -1)
+	var source_tiles: Dictionary = engine._force_source_tiles(state,source)
+	# The group follows the same straight line a lone target would take.
+	var direction: Vector2i = engine._resolved_force_direction(state,"enemy",int(target["id"]),action,source,pushing,distance,source_tiles)
 	if direction==Vector2i.ZERO or distance<=0: return state
-	var target_distance: int = engine._enemy_distance_to_tile(target,source)
-	var projected: Dictionary = target.duplicate(true)
-	projected["pos"] += direction
-	var next_distance: int = engine._enemy_distance_to_tile(projected,source)
-	if not bool(action.get("_allow_sideways_force",false)) and ((pushing and next_distance<=target_distance) or (not pushing and next_distance>=target_distance)): return state
 	var group: Array[int] = []
 	group.append(index)
-	var anchors: Dictionary = {target["pos"]:index}
-	for member_index: int in range(state["enemies"].size()):
-		var member: Dictionary = state["enemies"][member_index]
-		if int(member.get("hp",0))>0: anchors[member["pos"]]=member_index
 	# Include touching full footprints only when their anchors share the force axis.
 	var changed: bool = true
 	while changed:
@@ -126,18 +117,33 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 	group.sort()
 	for member_index: int in group: moved_ids[int(state["enemies"][member_index]["id"])] = true
 	for step: int in range(distance):
-		var blocked: Dictionary = engine._occupied_actor_tiles(state)
-		blocked[state["player"]["pos"]] = true
+		var group_tiles: Dictionary = {}
 		for member_index: int in group:
-			for tile: Vector2i in Surfaces.footprint_tiles(state["enemies"][member_index]): blocked.erase(tile)
-		for tile: Vector2i in engine._occupied_terrain_tiles(state): blocked[tile]=true
+			for tile: Vector2i in Surfaces.footprint_tiles(state["enemies"][member_index]): group_tiles[tile]=true
 		var origins: Dictionary = {}
+		var front_index: int = -1
+		var front_contact: Dictionary = {}
 		for member_index: int in group:
 			var member: Dictionary = state["enemies"][member_index]
 			if int(member.get("hp",0))<=0: return state
 			origins[member_index]=member["pos"]
+			var blockers: Array[Dictionary]
+			var blocked_tile: Vector2i = Vector2i(-99999,-99999)
 			for tile: Vector2i in Surfaces.footprint_tiles(member,member["pos"]+direction):
-				if not Paths.is_passable(state["grid"],tile) or blocked.has(tile): return state
+				if group_tiles.has(tile): continue
+				# A pulled line that reaches its source simply stops.
+				if not pushing and source_tiles.has(tile): return state
+				var blocker: Dictionary = engine._force_blocker_at(state,tile,"enemy",int(member["id"]))
+				if blocker.is_empty(): continue
+				if blocked_tile.x==-99999: blocked_tile=tile
+				if not blockers.any(func(prior: Dictionary)->bool: return str(prior["key"])==str(blocker["key"])): blockers.append(blocker)
+			if blockers.is_empty(): continue
+			# Only the leading member collides with the obstruction.
+			if front_index<0 or (Vector2(member["pos"]).dot(Vector2(direction)) > Vector2(state["enemies"][front_index]["pos"]).dot(Vector2(direction))):
+				front_index=member_index
+				front_contact={"blocked_tile":blocked_tile,"blockers":blockers}
+		if front_index>=0:
+			return engine._apply_force_collision(state,"enemy",int(state["enemies"][front_index]["id"]),front_contact,direction,distance-step,pushing)
 		# Translate atomically, then resolve ordinary contacts in stable actor order.
 		for member_index: int in group: state["enemies"][member_index]["pos"] += direction
 		for member_index: int in group:

@@ -3152,7 +3152,7 @@ func _queue_presentation_change_redraws(
 				# actor state can leave its old label over the windup banner.
 				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
 					hud_changed = true
-			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect":
+			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "collision_markers":
 				effects_changed = true
 			"trap_effects":
 				effects_changed = true
@@ -4218,6 +4218,9 @@ func _draw_effects_render_layer() -> void:
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_effect_overlay()
 	_record_render_section_time("effect_overlay", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_collision_markers()
+	_record_render_section_time("collision_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_lethal_preview_icons(units_to_draw)
 	_record_render_section_time("lethal_preview_icons", section_started_usec)
@@ -8627,6 +8630,26 @@ func _build_damage_preview_map(source_presentation: Dictionary) -> Dictionary:
 
 func _unit_is_preview_lethal(unit: Dictionary) -> bool:
 	return bool(_unit_damage_preview(unit).get("lethal", false))
+
+func _draw_collision_markers() -> void:
+	# Forecast contact point of a stopped Push/Pull: the collision icon sits on
+	# the shared edge between the target and whatever stops it.
+	for marker_var: Variant in presentation.get("collision_markers", []):
+		if typeof(marker_var) != TYPE_DICTIONARY:
+			continue
+		var marker: Dictionary = marker_var as Dictionary
+		var tile: Vector2i = marker.get("tile", Vector2i(-1, -1))
+		var blocked: Vector2i = marker.get("blocked_tile", Vector2i(-1, -1))
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+			continue
+		var contact: Vector2 = _tile_center(tile).lerp(_tile_center(blocked), 0.5) if blocked.x > -900 else _tile_center(tile)
+		var icon_size: float = clampf(_tile_width() * 0.36, 26.0, 46.0)
+		var center: Vector2 = contact - Vector2(0.0, _tile_height() * 0.62)
+		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+		draw_circle(center, icon_size * 0.56, Color(0.05, 0.03, 0.02, 0.62))
+		var damage: int = int(marker.get("damage", 0))
+		var tooltip: String = "Collision: %d damage to the target and to what stops it." % damage if str(marker.get("blocker_kind", "")) != "wall" else "Collision: %d damage to the target. Walls take nothing." % damage
+		_draw_keyword_icon("collision", rect, tooltip)
 
 func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:

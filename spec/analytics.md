@@ -166,6 +166,12 @@ movement, and surface creation/consumption payoffs during the resolved transitio
   the play, and the current `player_base_initiative`
 - surface revision before/after, actual creation/replacement/consumption events,
   contact and activation-start damage, Freeze fuel, and Chain/conduction routes
+- forced-movement collisions: `forced_collisions` counts the play's
+  `force_collision` board events and `collision_damage_dealt` sums their
+  `total_damage` (target plus damaged blockers; walls take none) before Block
+  or Stoneskin absorption. The events themselves also appear in
+  `surface_events` and the `surface_event` stream with direction, blocked tile,
+  target and blocker keys ([forced movement](forced_movement.md))
 - illusions created and their total created health
 - immediate status application deltas for bleed, expose, chilled, freeze, shock,
   and immobilize

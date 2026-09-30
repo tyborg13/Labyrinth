@@ -92,6 +92,7 @@ const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const DRAGON_SPIRE_KIND: String = "dragon_spire"
 const CINDER_MARK_KIND: String = "cinder_mark"
 const INVALID_TILE: Vector2i = Vector2i(-999999, -999999)
+const FORCE_COLLISION_DAMAGE_PER_TILE: int = 2
 const ENEMY_PATH_TEMPORARY_BLOCKER_TURN_COST: int = 1
 const ENEMY_PATH_TRAP_BASE_PENALTY: int = 1000
 const ENEMY_TACTICAL_SCORE_WINDOW: int = 32
@@ -1120,7 +1121,6 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 					targets.append(tile)
 		"push", "pull":
 			var forced_range: int = int(resolved_action.get("range", 1))
-			var pushing: bool = action_type == "push"
 			for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 				var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 				if int(enemy.get("hp", 0)) <= 0:
@@ -1140,14 +1140,10 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if not enemy_targetable:
 					continue
 				var resolved_force_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved_action, enemy_index)
-				var force_direction: Vector2i = _action_force_direction(resolved_force_action)
-				var force_amount: int = _forced_movement_amount(resolved_force_action)
-				if force_direction != Vector2i.ZERO:
-					if not _forced_direction_can_move_enemy(state, enemy_index, force_direction, player_pos, pushing, bool(action.get("_allow_sideways_force", false))):
-						continue
-				# Damage remains useful when displacement is blocked (including a
-				# Pull against an adjacent enemy). Range is a maximum, never a ring.
-				elif int(resolved_force_action.get("damage", 0)) <= 0 and _force_directions_for_enemy(state, enemy_index, player_pos, pushing, force_amount).is_empty():
+				# A target is legal when the card does something to it: damage, at
+				# least one tile of travel, or a collision. A zero-damage Pull on an
+				# adjacent enemy does nothing. Range is a maximum, never a ring.
+				if int(resolved_force_action.get("damage", 0)) <= 0 and not _force_action_affects_enemy(state, enemy_index, resolved_force_action, player_pos):
 					continue
 				_append_enemy_footprint_targets(targets, enemy)
 	if targeting_type in ["melee", "ranged", "push", "pull"]:
@@ -2640,40 +2636,66 @@ func _raise_player_outcrops(state: Dictionary, action: Dictionary, target_tile: 
 		_log(state, "Raised %d outcrop%s." % [raised, "" if raised == 1 else "s"])
 	return state
 
-func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var resolved_action: Dictionary = _resolved_surface_action(state, action)
-	var force_direction: Vector2i = _action_force_direction(resolved_action)
-	if force_direction == Vector2i.ZERO:
-		return []
-	if not force_directions_for_player_action(state, action, target_tile).has(force_direction):
-		return []
-	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
-	if enemy_index < 0:
-		return []
-	var amount: int = _forced_movement_amount(resolved_action)
-	if amount <= 0:
-		return []
-	return _enemy_direction_path(state, enemy_index, force_direction, amount)
+func force_direction_options_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	# Straight-line candidates for a single-target Push/Pull, default first.
+	# Hover, Rotate and commit all read this list (spec/forced_movement.md).
+	var context: Dictionary = _player_force_context(state, action, target_tile)
+	if context.is_empty():
+		var none: Array[Vector2i]
+		return none
+	var resolved_action: Dictionary = context["action"]
+	return _force_direction_candidates(state, "enemy", int(context["enemy_id"]), context["source"], bool(context["pushing"]), int(context["amount"]), bool(resolved_action.get("_allow_sideways_force", false)))
 
 func force_directions_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	return force_direction_options_for_player_action(state, action, target_tile)
+
+func resolved_force_direction_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Vector2i:
+	var context: Dictionary = _player_force_context(state, action, target_tile)
+	if context.is_empty():
+		return Vector2i.ZERO
+	return _resolved_force_direction(state, "enemy", int(context["enemy_id"]), context["action"], context["source"], bool(context["pushing"]), int(context["amount"]), _force_source_tiles(state, context["source"]))
+
+func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	# Anchors the target will occupy after each tile of travel, before any
+	# collision. Surfaces and traps along the line do not shorten it.
+	var context: Dictionary = _player_force_context(state, action, target_tile)
+	if context.is_empty():
+		var none: Array[Vector2i]
+		return none
+	var source_tiles: Dictionary = _force_source_tiles(state, context["source"])
+	var direction: Vector2i = _resolved_force_direction(state, "enemy", int(context["enemy_id"]), context["action"], context["source"], bool(context["pushing"]), int(context["amount"]), source_tiles)
+	return _force_line_anchors(state, "enemy", int(context["enemy_id"]), direction, int(context["amount"]), source_tiles, bool(context["pushing"]))
+
+func force_collision_summary(events: Array) -> Dictionary:
+	# Analytics: count of stopped Push/Pull lines and all collision damage dealt
+	# to targets and blockers (walls take none).
+	var count: int = 0
+	var damage: int = 0
+	for event_var: Variant in events:
+		if typeof(event_var) == TYPE_DICTIONARY and str((event_var as Dictionary).get("kind", "")) == "force_collision":
+			count += 1
+			damage += int((event_var as Dictionary).get("total_damage", 0))
+	return {"count": count, "damage": damage}
+
+func _player_force_context(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
 	var resolved_action: Dictionary = _resolved_surface_action(state, action)
+	if str(resolved_action.get("type", "")) not in ["melee", "ranged", "push", "pull"] or not _action_has_forced_movement(resolved_action):
+		return {}
 	var enemy_index: int = _enemy_index_at_tile(state, target_tile)
 	if enemy_index < 0:
-		return []
+		return {}
+	resolved_action = _action_with_target_state_relic_modifiers(state, resolved_action, enemy_index)
+	var amount: int = _forced_movement_amount(resolved_action)
+	if amount <= 0:
+		return {}
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
-	if bool(resolved_action.get("_allow_sideways_force", false)):
-		var sideways: Array[Vector2i]
-		for direction: Vector2i in CARDINAL_DIRECTIONS:
-			if _forced_direction_can_move_enemy(state, enemy_index, direction, player_pos, true, true):
-				sideways.append(direction)
-		return sideways
-	return _force_directions_for_enemy(
-		state,
-		enemy_index,
-		player_pos,
-		_forced_movement_pushes(resolved_action),
-		_forced_movement_amount(resolved_action)
-	)
+	return {
+		"action": resolved_action,
+		"enemy_id": int(((state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("id", -1)),
+		"source": resolved_action.get("_origin_tile", player_pos),
+		"pushing": _forced_movement_pushes(resolved_action),
+		"amount": amount
+	}
 
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
 	var resolved_action: Dictionary = _resolved_surface_action(state, action)
@@ -5218,7 +5240,9 @@ func _forced_movement_pushes(action: Dictionary) -> bool:
 	return push_amount > 0 or pull_amount <= 0
 
 func _action_force_direction(action: Dictionary) -> Vector2i:
-	return _cardinal_direction(action.get("force_direction", action.get("orientation", Vector2i.ZERO)))
+	# Only an explicit force_direction chooses a line; an AOE orientation aims
+	# the pattern, never the Push/Pull that rides on it.
+	return _cardinal_direction(action.get("force_direction", Vector2i.ZERO))
 
 func _action_orientation_direction(action: Dictionary) -> Vector2i:
 	return _cardinal_direction(action.get("orientation", Vector2i.ZERO))
@@ -5277,6 +5301,11 @@ func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictio
 			continue
 		var action_types: Array = effect.get("action_types", [])
 		if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
+			continue
+		# Distance relics also extend keyword Push/Pull riders (e.g. a melee
+		# Push 1); collision damage scales with that distance.
+		var required_field: String = str(effect.get("requires_field", ""))
+		if not required_field.is_empty() and int(resolved_action.get(required_field, 0)) <= 0:
 			continue
 		var field: String = str(effect.get("field", ""))
 		if field.is_empty():
@@ -5524,20 +5553,11 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 		for status_id: String in triggered_statuses:
 			next_state = _trigger_status_relics(next_state, status_id, action)
 			next_state = _surface_status_light(next_state, status_id, enemy.get("pos", INVALID_TILE))
-	if trigger_player_relics and (int(action.get("push",0))>0 or int(action.get("pull",0))>0) and GuardianRelicRules.amount(state,"force_enemy_line")>0:
-		return GuardianRelicRules.force_group(self,next_state,enemy_index,action,source_pos)
-	if int(action.get("push", 0)) > 0:
-		var push_direction: Vector2i = _action_force_direction(action)
-		if push_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, push_direction, source_pos, true, bool(action.get("_allow_sideways_force", false))):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, push_direction, int(action.get("push", 0)), trigger_player_relics)
-		elif push_direction == Vector2i.ZERO:
-			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("push", 0)), true, trigger_player_relics)
-	elif int(action.get("pull", 0)) > 0:
-		var pull_direction: Vector2i = _action_force_direction(action)
-		if pull_direction != Vector2i.ZERO and _forced_direction_can_move_enemy(next_state, enemy_index, pull_direction, source_pos, false, bool(action.get("_allow_sideways_force", false))):
-			next_state = _move_enemy_in_direction(next_state, enemy_index, pull_direction, int(action.get("pull", 0)), trigger_player_relics)
-		elif pull_direction == Vector2i.ZERO:
-			next_state = _move_enemy_from_source(next_state, enemy_index, source_pos, int(action.get("pull", 0)), false, trigger_player_relics)
+	if int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0:
+		if trigger_player_relics and GuardianRelicRules.amount(next_state, "force_enemy_line") > 0:
+			return GuardianRelicRules.force_group(self, next_state, enemy_index, action, source_pos)
+		var pushing: bool = int(action.get("push", 0)) > 0
+		next_state = _force_move_enemy_from(next_state, enemy_index, action, source_pos, pushing, int(action.get("push", 0)) if pushing else int(action.get("pull", 0)))
 	return next_state
 
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
@@ -5554,9 +5574,9 @@ func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, sou
 	next_state["player"] = player
 	next_state = _surface_freeze_actor(next_state, "player", -1, action)
 	if int(action.get("push", 0)) > 0:
-		next_state = _move_player_from_source(next_state, source_pos, int(action.get("push", 0)), true, _action_force_direction(action))
+		next_state = _force_move_player_from(next_state, action, source_pos, true, int(action.get("push", 0)))
 	elif int(action.get("pull", 0)) > 0:
-		next_state = _move_player_from_source(next_state, source_pos, int(action.get("pull", 0)), false, _action_force_direction(action))
+		next_state = _force_move_player_from(next_state, action, source_pos, false, int(action.get("pull", 0)))
 	return next_state
 
 # Shared by resolution and compound warnings. A primary planned attack may
@@ -5946,7 +5966,7 @@ func _enemy_gale_force(state: Dictionary, enemy_index: int, action: Dictionary, 
 		next_state = _damage_actor_target(next_state, target, int(action.get("damage", 0)), _action_pierces_defense(action), action)
 		next_state = _apply_action_keywords_to_target(next_state, target, action, _closest_enemy_tile_to(enemy, target.get("pos", Vector2i.ZERO)))
 	var player_pos: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", Vector2i.ZERO)
-	next_state = _move_player_from_source(next_state, _closest_enemy_tile_to(enemy, player_pos), int(action.get("amount", 3)), true)
+	next_state = _force_move_player_from(next_state, action, _closest_enemy_tile_to(enemy, player_pos), true, int(action.get("amount", 3)))
 	_mark_dragon_mechanic_opened(next_state, enemy_index)
 	_log(next_state, "%s unleashes the Hollow Gale." % _enemy_display_name(enemy))
 	return next_state
@@ -6048,146 +6068,329 @@ func _boss_action_threat_tiles(state: Dictionary, enemy: Dictionary, action: Dic
 			return _umbra_eclipse_threat_tiles(DragonCombatRules.eclipse_preview(state,action))
 	return []
 
-func _force_directions_for_enemy(state: Dictionary, enemy_index: int, source_pos: Vector2i, pushing: bool, amount: int) -> Array[Vector2i]:
-	var directions: Array[Vector2i] = []
-	if amount <= 0:
-		return directions
-	for direction: Vector2i in CARDINAL_DIRECTIONS:
-		if not _forced_direction_can_move_enemy(state, enemy_index, direction, source_pos, pushing):
-			continue
-		directions.append(direction)
-	return directions
+# Forced movement (spec/forced_movement.md). Push and Pull travel in one
+# straight cardinal line for their full distance: they never turn, slide
+# around a blocker or pathfind. A stopped line collides; the target and
+# whatever stopped it each take FORCE_COLLISION_DAMAGE_PER_TILE for every tile
+# of distance that was lost. Every forced movement resolves through
+# `_resolved_force_direction` and `_force_move_actor`.
 
-func _forced_direction_can_move_enemy(state: Dictionary, enemy_index: int, direction: Vector2i, source_pos: Vector2i, pushing: bool, sideways: bool = false) -> bool:
+func _force_unit(state: Dictionary, kind: String, id: int) -> Dictionary:
+	var unit: Dictionary = _surface_actor(state, kind, id)
+	if unit.is_empty():
+		return unit
+	return _normalized_enemy(unit) if kind == "enemy" else unit
+
+func _force_source_tiles(state: Dictionary, source_pos: Vector2i) -> Dictionary:
+	# A pull stops without colliding once it reaches its source actor, including
+	# any tile of a large enemy's footprint.
+	var tiles: Dictionary = {source_pos: true}
+	var enemy_index: int = _enemy_index_at_tile(state, source_pos)
+	if enemy_index >= 0:
+		for tile: Vector2i in _enemy_footprint_tiles(_normalized_enemy((state.get("enemies", []) as Array)[enemy_index] as Dictionary)):
+			tiles[tile] = true
+	return tiles
+
+func _force_direction_candidates(state: Dictionary, kind: String, id: int, source_pos: Vector2i, pushing: bool, amount: int, allow_sideways: bool = false) -> Array[Vector2i]:
+	var candidates: Array[Vector2i]
+	var unit: Dictionary = _force_unit(state, kind, id)
+	if unit.is_empty() or int(unit.get("hp", 0)) <= 0 or amount <= 0 or source_pos == INVALID_TILE:
+		return candidates
+	var delta: Vector2i = _closest_enemy_tile_to(unit, source_pos) - source_pos
+	var away: int = 1 if pushing else -1
+	var x_direction := Vector2i(signi(delta.x) * away, 0)
+	var y_direction := Vector2i(0, signi(delta.y) * away)
+	if delta.x == 0 and delta.y != 0:
+		candidates.append(y_direction)
+	elif delta.y == 0 and delta.x != 0:
+		candidates.append(x_direction)
+	elif delta != Vector2i.ZERO:
+		var prefer_y: bool = absi(delta.y) > absi(delta.x)
+		if absi(delta.x) == absi(delta.y):
+			# Exact diagonal: prefer the line with more free travel, then horizontal.
+			var source_tiles: Dictionary = _force_source_tiles(state, source_pos)
+			prefer_y = _force_free_travel(state, kind, id, y_direction, amount, source_tiles, pushing) > _force_free_travel(state, kind, id, x_direction, amount, source_tiles, pushing)
+		candidates.append(y_direction if prefer_y else x_direction)
+		candidates.append(x_direction if prefer_y else y_direction)
+	if allow_sideways:
+		for direction: Vector2i in CARDINAL_DIRECTIONS:
+			if not candidates.has(direction):
+				candidates.append(direction)
+	return candidates
+
+func _resolved_force_direction(state: Dictionary, kind: String, id: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int, source_tiles: Dictionary) -> Vector2i:
+	var candidates: Array[Vector2i] = _force_direction_candidates(state, kind, id, source_pos, pushing, amount, bool(action.get("_allow_sideways_force", false)))
+	var chosen: Vector2i = _action_force_direction(action)
+	if action.has("_enemy_id"):
+		# Committed dragon lines keep their authored direction. Otherwise an
+		# enemy takes whichever straight line hurts the player more.
+		if chosen != Vector2i.ZERO:
+			return chosen
+		if candidates.size() >= 2 and kind == "player":
+			return _worse_force_direction_for_player(state, candidates, amount, source_tiles, pushing)
+	if candidates.is_empty():
+		return Vector2i.ZERO
+	return chosen if candidates.has(chosen) else candidates[0]
+
+func _worse_force_direction_for_player(state: Dictionary, candidates: Array[Vector2i], amount: int, source_tiles: Dictionary, pushing: bool) -> Vector2i:
+	var best: Vector2i = candidates[0]
+	var best_harm: int = _force_player_harm(state, best, amount, source_tiles, pushing)
+	for index: int in range(1, candidates.size()):
+		var harm: int = _force_player_harm(state, candidates[index], amount, source_tiles, pushing)
+		if harm > best_harm:
+			best = candidates[index]
+			best_harm = harm
+	return best
+
+func _force_player_harm(state: Dictionary, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> int:
+	# Reuse the real mover on a private copy so collision, trap and surface
+	# damage along the line are measured exactly as they would resolve.
+	var trial: Dictionary = state.duplicate(true)
+	var before: Dictionary = _normalized_player(trial.get("player", {}))
+	trial = _force_move_actor(trial, "player", -1, direction, amount, source_tiles, pushing)
+	var after: Dictionary = _normalized_player(trial.get("player", {}))
+	var guard_before: int = int(before.get("hp", 0)) + int(before.get("block", 0)) + int(before.get("stoneskin", 0))
+	return guard_before - int(after.get("hp", 0)) - int(after.get("block", 0)) - int(after.get("stoneskin", 0))
+
+func _force_free_travel(state: Dictionary, kind: String, id: int, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> int:
+	return _force_line_anchors(state, kind, id, direction, amount, source_tiles, pushing).size()
+
+func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> Array[Vector2i]:
+	# Geometric line only: surfaces and traps along the way do not block.
+	var anchors: Array[Vector2i]
+	var unit: Dictionary = _force_unit(state, kind, id)
+	if unit.is_empty() or direction == Vector2i.ZERO:
+		return anchors
+	var anchor: Vector2i = unit.get("pos", INVALID_TILE)
+	for _step: int in range(maxi(0, amount)):
+		anchor += direction
+		if not _force_step_contact(state, kind, id, unit, anchor, source_tiles, pushing).is_empty():
+			break
+		anchors.append(anchor)
+	return anchors
+
+func _force_blocker_at(state: Dictionary, tile: Vector2i, mover_kind: String, mover_id: int) -> Dictionary:
+	if not PathUtils.is_passable(state.get("grid", []), tile):
+		return {"kind": "wall", "id": -1, "key": "wall", "tile": tile}
+	var terrain_index: int = _terrain_index_at_tile(state, tile)
+	if terrain_index >= 0:
+		var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+		var terrain_id: String = str(terrain.get("id", terrain_index))
+		return {"kind": "terrain", "id": -1, "terrain_id": terrain_id, "terrain_kind": str(terrain.get("kind", "")), "key": "terrain_%s" % terrain_id, "tile": tile}
+	var enemy_index: int = _enemy_index_at_tile(state, tile)
+	if enemy_index >= 0:
+		var enemy: Dictionary = (state.get("enemies", []) as Array)[enemy_index] as Dictionary
+		if mover_kind != "enemy" or int(enemy.get("id", -1)) != mover_id:
+			return {"kind": "enemy", "id": int(enemy.get("id", -1)), "key": _enemy_key(enemy), "tile": tile}
+	if mover_kind != "player":
+		var player: Dictionary = state.get("player", {}) as Dictionary
+		if int(player.get("hp", 0)) > 0 and player.get("pos", INVALID_TILE) == tile:
+			return {"kind": "player", "id": -1, "key": "player", "tile": tile}
+	for illusion: Dictionary in _live_illusions(state):
+		if illusion.get("pos", INVALID_TILE) != tile:
+			continue
+		if mover_kind == "illusion" and int(illusion.get("id", -1)) == mover_id:
+			continue
+		return {"kind": "illusion", "id": int(illusion.get("id", -1)), "key": _illusion_key(illusion), "tile": tile}
+	return {}
+
+func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Dictionary, anchor: Vector2i, source_tiles: Dictionary, pushing: bool) -> Dictionary:
+	# {} = free step; {"source": true} = a pull reached its source and stops
+	# without colliding; otherwise the blocked tile and each distinct blocker.
+	var tiles: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit, anchor)
+	if not pushing:
+		for tile: Vector2i in tiles:
+			if source_tiles.has(tile):
+				return {"source": true, "blocked_tile": tile}
+	var blockers: Array[Dictionary]
+	var keys: Dictionary = {}
+	var blocked_tile: Vector2i = INVALID_TILE
+	for tile: Vector2i in tiles:
+		var blocker: Dictionary = _force_blocker_at(state, tile, kind, id)
+		if blocker.is_empty():
+			continue
+		if blocked_tile == INVALID_TILE:
+			blocked_tile = tile
+		if keys.has(str(blocker["key"])):
+			continue
+		keys[str(blocker["key"])] = true
+		blockers.append(blocker)
+	if blockers.is_empty():
+		return {}
+	return {"blocked_tile": blocked_tile, "blockers": blockers}
+
+func _force_place_actor(state: Dictionary, kind: String, id: int, anchor: Vector2i) -> Dictionary:
+	match kind:
+		"enemy":
+			var index: int = _enemy_index_for_id(state, id)
+			if index < 0:
+				return state
+			var enemies: Array = state.get("enemies", [])
+			var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
+			enemy["pos"] = anchor
+			enemies[index] = enemy
+			state["enemies"] = enemies
+		"player":
+			var player: Dictionary = _normalized_player(state.get("player", {}))
+			player["pos"] = anchor
+			state["player"] = player
+			_collect_loot_at_player(state)
+		"illusion":
+			var illusions: Array = (state.get("illusions", []) as Array).duplicate(false)
+			for index: int in range(illusions.size()):
+				if typeof(illusions[index]) == TYPE_DICTIONARY and int((illusions[index] as Dictionary).get("id", -1)) == id:
+					var illusion: Dictionary = (illusions[index] as Dictionary).duplicate(true)
+					illusion["pos"] = anchor
+					illusions[index] = illusion
+			state["illusions"] = illusions
+	return state
+
+func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> Dictionary:
 	var step_direction: Vector2i = _cardinal_direction(direction)
-	if step_direction == Vector2i.ZERO:
-		return false
+	if step_direction == Vector2i.ZERO or amount <= 0:
+		return state
+	var moved: int = 0
+	var contact: Dictionary = {}
+	for _step: int in range(amount):
+		var unit: Dictionary = _force_unit(state, kind, id)
+		if unit.is_empty() or int(unit.get("hp", 0)) <= 0:
+			# Defeated on the way: it stops there and nothing collides.
+			return state
+		var current: Vector2i = unit.get("pos", INVALID_TILE)
+		contact = _force_step_contact(state, kind, id, unit, current + step_direction, source_tiles, pushing)
+		if not contact.is_empty():
+			break
+		state = _force_place_actor(state, kind, id, current + step_direction)
+		moved += 1
+		# Surfaces and traps never block; they trigger on entry as usual.
+		state = surface_actor_arrival(state, kind, id, current)
+	if contact.is_empty() or bool(contact.get("source", false)):
+		return state
+	if int(_force_unit(state, kind, id).get("hp", 0)) <= 0:
+		return state
+	return _apply_force_collision(state, kind, id, contact, step_direction, amount - moved, pushing)
+
+func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: int) -> Dictionary:
+	# Non-direct like Fire ground: Block and Stoneskin absorb it; Chilled,
+	# Frozen, Expose, Crystal Mantle and on-hit riders never apply.
+	if amount <= 0:
+		return state
+	if kind == "player":
+		return _damage_player(state, amount, false, false, "collision")
+	return _surface_damage_actor(state, kind, id, amount, false, false)
+
+func _apply_force_collision(state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
+	if lost <= 0:
+		return state
+	var damage: int = GameData.fixed_point_amount(FORCE_COLLISION_DAMAGE_PER_TILE) * lost
+	var unit: Dictionary = _force_unit(state, kind, id)
+	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
+	var context_before: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
+	# Keep the card's context so a collision kill is that card's kill.
+	var context: Dictionary = context_before.duplicate(true)
+	context["source_kind"] = "force_collision"
+	state["damage_context"] = context
+	state["_surface_damage_batch"] = true
+	state = _force_collision_damage(state, kind, id, damage)
+	var blockers: Array = []
+	var total_damage: int = damage
+	for blocker_var: Variant in contact.get("blockers", []):
+		var blocker: Dictionary = (blocker_var as Dictionary).duplicate(true)
+		var dealt: int = 0
+		match str(blocker.get("kind", "")):
+			"terrain":
+				var terrain_index: int = _terrain_index_at_tile(state, blocker.get("tile", INVALID_TILE))
+				if terrain_index >= 0:
+					state = _damage_terrain(state, terrain_index, damage)
+					dealt = damage
+			"enemy", "player", "illusion":
+				state = _force_collision_damage(state, str(blocker["kind"]), int(blocker.get("id", -1)), damage)
+				dealt = damage
+		blocker["damage"] = dealt
+		total_damage += dealt
+		blockers.append(blocker)
+	var primary: Dictionary = blockers[0] if not blockers.is_empty() else {}
+	var blocked_tile: Vector2i = contact.get("blocked_tile", INVALID_TILE)
+	BoardSurfaceRules.record_event(state, {
+		"kind": "force_collision",
+		"tile": blocked_tile - direction,
+		"anchor": unit.get("pos", INVALID_TILE),
+		"blocked_tile": blocked_tile,
+		"direction": direction,
+		"force": "push" if pushing else "pull",
+		"actor_kind": kind,
+		"id": id,
+		"actor_key": _surface_actor_key(kind, id),
+		"lost_tiles": lost,
+		"damage": damage,
+		"target_damage": damage,
+		"blocker_kind": str(primary.get("kind", "")),
+		"blocker_key": str(primary.get("key", "")),
+		"blocker_damage": int(primary.get("damage", 0)),
+		"blockers": blockers,
+		"total_damage": total_damage,
+		"source": context_before.duplicate(true)
+	})
+	_log(state, "Collision: %d damage." % damage)
+	state["damage_context"] = context_before
+	state["_surface_damage_batch"] = previous_batch
+	if not previous_batch:
+		state = _flush_surface_deaths(state)
+	return state
+
+func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i) -> bool:
+	# Zero-damage Push/Pull is legal when it moves the target or collides.
+	var amount: int = _forced_movement_amount(action)
 	var enemies: Array = state.get("enemies", [])
-	if enemy_index < 0 or enemy_index >= enemies.size():
+	if amount <= 0 or enemy_index < 0 or enemy_index >= enemies.size():
 		return false
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	if int(enemy.get("hp", 0)) <= 0:
+	var pushing: bool = _forced_movement_pushes(action)
+	var source_tiles: Dictionary = _force_source_tiles(state, source_pos)
+	var direction: Vector2i = _resolved_force_direction(state, "enemy", int(enemy.get("id", -1)), action, source_pos, pushing, amount, source_tiles)
+	if direction == Vector2i.ZERO:
 		return false
-	var before_distance: int = _enemy_distance_to_tile(enemy, source_pos)
-	var moved_enemy: Dictionary = enemy.duplicate(true)
-	moved_enemy["pos"] = enemy.get("pos", Vector2i.ZERO) + step_direction
-	var after_distance: int = _enemy_distance_to_tile(moved_enemy, source_pos)
-	if not sideways and pushing and after_distance <= before_distance:
-		return false
-	if not sideways and not pushing and after_distance >= before_distance:
-		return false
-	# The direction query needs only the first collision check. The path helper
-	# owns a deep copy because it simulates subsequent positions; none is changed
-	# here, so use the same footprint/occupancy rules against the read-only state.
-	var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
-	var occupied: Dictionary = _enemy_blocking_tiles(state, int(enemy.get("id", -1)))
-	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
-	return _enemy_can_occupy_anchor(state, enemy, candidate, occupied, player_pos)
+	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing)
+	return not bool(contact.get("source", false))
 
-func _enemy_direction_path(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int) -> Array[Vector2i]:
-	var path: Array[Vector2i] = []
-	var step_direction: Vector2i = _cardinal_direction(direction)
-	if step_direction == Vector2i.ZERO or amount <= 0:
-		return path
-	var next_state: Dictionary = state.duplicate(true)
-	for _step: int in range(amount):
-		var enemies: Array = next_state.get("enemies", [])
-		if enemy_index < 0 or enemy_index >= enemies.size():
-			break
-		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			break
-		var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
-		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
-		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
-		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
-			break
-		enemy["pos"] = candidate
-		enemies[enemy_index] = enemy
-		next_state["enemies"] = enemies
-		path.append(candidate)
-	return path
-
-func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int, player_triggered_traps: bool = false) -> Dictionary:
-	var next_state: Dictionary = state
-	var step_direction: Vector2i = _cardinal_direction(direction)
-	if step_direction == Vector2i.ZERO or amount <= 0:
-		return next_state
-	for _step: int in range(amount):
-		var enemies: Array = next_state.get("enemies", [])
-		if enemy_index < 0 or enemy_index >= enemies.size():
-			break
-		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			break
-		var candidate: Vector2i = enemy.get("pos", Vector2i.ZERO) + step_direction
-		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
-		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
-		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
-			break
-		enemy["pos"] = candidate
-		enemies[enemy_index] = enemy
-		next_state["enemies"] = enemies
-		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), enemy.get("pos", Vector2i.ZERO) - step_direction)
-		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-			break
-	return next_state
-
-func _move_enemy_from_source(state: Dictionary, enemy_index: int, source_pos: Vector2i, amount: int, pushing: bool, player_triggered_traps: bool = false) -> Dictionary:
-	var next_state: Dictionary = state
-	var enemies: Array = next_state.get("enemies", [])
+func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
 	if enemy_index < 0 or enemy_index >= enemies.size() or amount <= 0:
-		return next_state
-	for _step: int in range(amount):
-		enemies = next_state.get("enemies", [])
-		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-		if int(enemy.get("hp", 0)) <= 0:
-			break
-		var current: Vector2i = enemy.get("pos", Vector2i.ZERO)
-		var occupied: Dictionary = _enemy_blocking_tiles(next_state, int(enemy.get("id", -1)))
-		var player_pos: Vector2i = (next_state.get("player", {}) as Dictionary).get("pos", Vector2i(-99, -99))
-		var candidate: Vector2i = (
-			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, occupied, player_pos)
-			if pushing
-			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, occupied)
-		)
-		if candidate == current:
-			break
-		if not _enemy_can_occupy_anchor(next_state, enemy, candidate, occupied, player_pos):
-			break
-		enemy["pos"] = candidate
-		enemies[enemy_index] = enemy
-		next_state["enemies"] = enemies
-		next_state = surface_actor_arrival(next_state, "enemy", int(enemy.get("id", -1)), current)
-		if int(((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary).get("hp", 0)) <= 0:
-			break
-	return next_state
+		return state
+	var enemy_id: int = int((enemies[enemy_index] as Dictionary).get("id", -1))
+	var source_tiles: Dictionary = _force_source_tiles(state, source_pos)
+	var direction: Vector2i = _resolved_force_direction(state, "enemy", enemy_id, action, source_pos, pushing, amount, source_tiles)
+	return _force_move_actor(state, "enemy", enemy_id, direction, amount, source_tiles, pushing)
+
+func _force_move_player_from(state: Dictionary, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
+	if amount <= 0:
+		return state
+	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+	var source: Vector2i = source_pos
+	var source_tiles: Dictionary = {}
+	var source_enemy: Dictionary = _surface_actor(state, "enemy", int(action.get("_enemy_id", -1))) if action.has("_enemy_id") else {}
+	if not source_enemy.is_empty():
+		# Enemy force originates at its footprint tile nearest the player.
+		source_enemy = _normalized_enemy(source_enemy)
+		source = _closest_enemy_tile_to(source_enemy, player_pos)
+		for tile: Vector2i in _enemy_footprint_tiles(source_enemy):
+			source_tiles[tile] = true
+	else:
+		source_tiles = _force_source_tiles(state, source)
+	var direction: Vector2i = _resolved_force_direction(state, "player", -1, action, source, pushing, amount, source_tiles)
+	return _force_move_actor(state, "player", -1, direction, amount, source_tiles, pushing)
+
+func _move_enemy_in_direction(state: Dictionary, enemy_index: int, direction: Vector2i, amount: int, _player_triggered_traps: bool = false) -> Dictionary:
+	var enemies: Array = state.get("enemies", [])
+	if enemy_index < 0 or enemy_index >= enemies.size():
+		return state
+	return _force_move_actor(state, "enemy", int((enemies[enemy_index] as Dictionary).get("id", -1)), direction, amount, {}, true)
 
 func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: int, pushing: bool, force_direction: Vector2i = Vector2i.ZERO) -> Dictionary:
-	var next_state: Dictionary = state
-	if amount <= 0:
-		return next_state
-	for _step: int in range(amount):
-		var player: Dictionary = _normalized_player(next_state.get("player", {}))
-		var current: Vector2i = player.get("pos", Vector2i.ZERO)
-		var enemy_occupied: Dictionary = _player_blocking_tiles(next_state)
-		var next_tile: Vector2i = (
-			_next_tile_away_from_source(next_state.get("grid", []), current, source_pos, enemy_occupied, Vector2i(-99, -99))
-			if pushing
-			else _next_tile_toward_source(next_state.get("grid", []), current, source_pos, enemy_occupied)
-		)
-		if force_direction != Vector2i.ZERO:
-			next_tile = current + force_direction
-			if not PathUtils.is_passable(next_state["grid"],next_tile) or enemy_occupied.has(next_tile): next_tile = current
-		if next_tile == current:
-			break
-		player["pos"] = next_tile
-		next_state["player"] = player
-		_collect_loot_at_player(next_state)
-		next_state = surface_actor_arrival(next_state, "player", -1, current)
-		if int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
-			break
-	return _dispel_illusion_at_player(next_state)
+	var action: Dictionary = {}
+	if force_direction != Vector2i.ZERO:
+		action["force_direction"] = force_direction
+	return _force_move_player_from(state, action, source_pos, pushing, amount)
 
 func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance: int = -1, minimum_progress: bool = true, result: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
@@ -6430,13 +6633,9 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 			for tile: Vector2i in wake:
 				if not BoardSurfaceRules.footprint_tiles(unit).has(tile):
 					continue
-				var direction: Vector2i = tile - center
-				if str(actor["kind"]) == "enemy":
-					state = _move_enemy_in_direction(state, _enemy_index_for_id(state, int(actor["id"])), direction, 1, false)
-				elif str(actor["kind"]) == "player":
-					state = _surface_move_player_direction(state, direction)
-				else:
-					state = _surface_move_illusion(state, int(actor["id"]), direction)
+				# An outward Push 1 from the trap: the same straight-line collision law.
+				var center_tiles: Dictionary = {center: true}
+				state = _force_move_actor(state, str(actor["kind"]), int(actor["id"]), tile - center, 1, center_tiles, true)
 				break
 	else:
 		for tile: Vector2i in wake:
@@ -6512,30 +6711,6 @@ func _trap_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 		if trap.get("pos", Vector2i(-1, -1)) == tile:
 			return index
 	return -1
-
-func _next_tile_away_from_source(grid: Array, start: Vector2i, source_pos: Vector2i, occupied: Dictionary, blocked_target: Vector2i) -> Vector2i:
-	var best_tile: Vector2i = start
-	var best_score: int = PathUtils.manhattan(start, source_pos)
-	for dir: Vector2i in PathUtils.DIRS_4:
-		var candidate: Vector2i = start + dir
-		if candidate == blocked_target:
-			continue
-		if occupied.has(candidate):
-			continue
-		if not PathUtils.is_passable(grid, candidate):
-			continue
-		var score: int = PathUtils.manhattan(candidate, source_pos)
-		if score > best_score:
-			best_score = score
-			best_tile = candidate
-	return best_tile
-
-func _next_tile_toward_source(grid: Array, start: Vector2i, source_pos: Vector2i, occupied: Dictionary) -> Vector2i:
-	var path: Array[Vector2i] = PathUtils.find_path(grid, start, source_pos, occupied, true)
-	if path.is_empty():
-		return start
-	var candidate: Vector2i = path[1] if path.size() > 1 else start
-	return start if candidate == source_pos else candidate
 
 func _apply_enemy_self_damage(state: Dictionary, enemy_index: int, amount: int) -> Dictionary:
 	if amount <= 0:
@@ -10799,14 +10974,18 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			if damage > 0:
 				state = _consume_enemy_expose(state, index)
 			if action.has("_group_force_context"): hit_action["_group_force_context"] = action["_group_force_context"]
+			# The aimed line belongs to the primary target; Chain hops push from
+			# their hop origin along their own default line.
+			if hit["from"] != hit["to"]: hit_action.erase("force_direction")
 			state = _apply_action_keywords_to_enemy(state, index, hit_action, origin if hit["from"] == hit["to"] else hit["from"])
 			_mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
 		else:
 			var hit_origin: Vector2i = origin
 			if actor_kind == "enemy" and bool(hit_action.get("radial_force",false)):
+				# Ring force radiates from the nearest footprint tile, like every
+				# enemy Push/Pull; the ordinary straight-line resolver picks the line.
 				hit_origin = _closest_enemy_tile_to(_surface_actor(state,"enemy",actor_id),hit["to"])
-				hit_action["force_direction"] = _cardinal_direction(hit["to"]-hit_origin) * (1 if int(hit_action.get("push",0))>0 else -1)
 			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
 			state = _apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
 		if bool(hit.get("hidden_direct", false)):
@@ -11107,17 +11286,6 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 		step["surface_events"] = _surface_events_since(before_state, after_state)
 	return step
 
-func _surface_move_player_direction(state: Dictionary, direction: Vector2i) -> Dictionary:
-	var player: Dictionary = state.get("player", {}) as Dictionary
-	var origin: Vector2i = player.get("pos", INVALID_TILE)
-	var destination: Vector2i = origin + direction
-	if not PathUtils.is_passable(state.get("grid", []), destination) or _player_blocking_tiles(state).has(destination):
-		return state
-	player["pos"] = destination
-	_collect_loot_at_player(state)
-	state = surface_actor_arrival(state, "player", -1, origin)
-	return _dispel_illusion_at_player(state)
-
 # Find useful routes only. Zero relays preserves ordinary nearest-enemy Chain;
 # extra ground is selected by relay count, distance, then stable actor/tile order.
 func _surface_chain_useful_route(state: Dictionary, opponents: Array[Dictionary], visited: Dictionary, used: Dictionary, served: Dictionary, origin: Vector2i, reach: int, conductive: Array[Vector2i], player_chain: bool, lightning: bool, visible_lookup: Dictionary = {}) -> Array[Dictionary]:
@@ -11200,6 +11368,8 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 	state["_surface_damage_batch"] = true
 	state["damage_context"] = {"player_card": false, "source_kind": "forecast"}
 	var hit_action: Dictionary = action.duplicate(true)
+	if actor.has("from") and actor["from"] != actor.get("to", actor["from"]):
+		hit_action.erase("force_direction")
 	# Native Chain continues from the actual post-hit position. Amplification
 	# can defeat this hop before Push/Pull, so survival must match commitment.
 	if actor.has("enemy_hop"):
