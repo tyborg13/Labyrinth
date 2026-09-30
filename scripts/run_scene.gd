@@ -44,6 +44,8 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const HudSeatScrimScript = preload("res://scripts/hud_seat_scrim.gd")
 const TurnBannerScript = preload("res://scripts/turn_banner.gd")
+const TurnOrderPlate = preload("res://scripts/turn_order_plate.gd")
+const GildedRule = preload("res://scripts/ui_gilded_rule.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
@@ -1197,7 +1199,7 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
-const TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH: String = "res://assets/art/ui/turn_order_brush_backing_v2.png"
+const TURN_ORDER_PLATE_ART_HOOK: String = "gilded_plate_v1"
 const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/resource_meter_frame.png"
 const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame.png"
 const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame_hover.png"
@@ -1259,6 +1261,8 @@ const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
+const RELIC_OFFER_ICON_SIZE: float = 88.0
+const RELIC_OFFER_ICON_STAGE_HEIGHT: float = 100.0
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 34.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
@@ -1872,6 +1876,7 @@ var _dialogue_portrait: TextureRect
 var _combat_atmosphere: Control
 var _hud_seat_scrim: Control
 var _turn_banner: Control
+var _relic_choice_glow: Texture2D
 var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
@@ -13357,8 +13362,7 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
-	frame.set_meta("turn_order_art_hook", "brush_backing_v2")
-	frame.set_meta("turn_order_backing_asset", TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH)
+	frame.set_meta("turn_order_art_hook", TURN_ORDER_PLATE_ART_HOOK)
 	frame.set_meta("turn_order_team", str(entry.get("team", "enemy")))
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -13368,27 +13372,24 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _turn_order_slot_style(entry, active))
 	frame.add_child(panel)
-	var backing := TextureRect.new()
-	backing.name = "TurnOrderBrushBacking"
-	backing.set_anchors_preset(Control.PRESET_FULL_RECT)
-	backing.anchor_right = 1.0
-	backing.anchor_bottom = 1.0
-	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	backing.stretch_mode = TextureRect.STRETCH_SCALE
-	backing.clip_contents = false
-	backing.texture = AssetLoader.load_texture(TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH)
-	backing.modulate = _turn_order_backing_modulate(entry, active)
-	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(backing)
+	var team_name: String = str(entry.get("team", "enemy"))
+	var projected_entry: bool = _turn_order_is_card_preview_projection(entry)
+	var plate := TurnOrderPlate.new()
+	plate.name = "TurnOrderPlate"
+	plate.set_anchors_preset(Control.PRESET_FULL_RECT)
+	plate.anchor_right = 1.0
+	plate.anchor_bottom = 1.0
+	plate.clip_contents = false
+	plate.configure(TurnOrderPlate.LAYER_FILL, team_name, active, projected_entry)
+	panel.add_child(plate)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	# Retain only a tiny crop-safety inset. The abstract torn silhouette supplies
-	# atmosphere behind the actor without becoming a frame or opaque box.
-	var side_inset: int = 1
-	var top_inset: int = 1
-	var bottom_inset: int = 1
+	# The portrait sits just inside the tile's hairline rim.
+	var side_inset: int = 2
+	var top_inset: int = 2
+	var bottom_inset: int = 2
 	margin.add_theme_constant_override("margin_left", side_inset)
 	margin.add_theme_constant_override("margin_top", top_inset)
 	margin.add_theme_constant_override("margin_right", side_inset)
@@ -13419,6 +13420,14 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
+	var rim := TurnOrderPlate.new()
+	rim.name = "TurnOrderPlateRim"
+	rim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rim.anchor_right = 1.0
+	rim.anchor_bottom = 1.0
+	rim.z_index = 6
+	rim.configure(TurnOrderPlate.LAYER_RIM, team_name, active, projected_entry)
+	frame.add_child(rim)
 	var health_bar: SegmentedHealthBar = _turn_order_health_bar(entry, slot_size)
 	if health_bar != null:
 		frame.add_child(health_bar)
@@ -13485,17 +13494,6 @@ func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 	# surrounding frame or panel.
 	return Color(0.92, 0.92, 0.92, 0.94)
 
-func _turn_order_backing_modulate(entry: Dictionary, active: bool) -> Color:
-	# The abstract brush silhouette is a secondary team cue, never a bright faction banner.
-	# Portrait identity and clock value still carry the primary turn-order reading.
-	var team: String = str(entry.get("team", "enemy"))
-	var tint: Color = Color("7897b2") if team == "player" else Color("b97870")
-	var alpha: float = 0.66 if active else 0.54
-	if bool(entry.get("projected", false)) and not active:
-		alpha *= 0.82
-	tint.a = alpha
-	return tint
-
 func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()
 	badge.name = "ProjectionPreviewBadge"
@@ -13546,10 +13544,12 @@ func _turn_order_projection_badge_style() -> StyleBoxFlat:
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()
-	# Relative time is a supporting cue: keep its small medallion out of the
-	# portrait's center so actor identity and active/queued state read first.
-	var badge_size := Vector2(clampf(15.0 + float(text.length()) * 5.0, 19.0, 31.0), 16.0)
-	badge.position = Vector2(slot_size.x - badge_size.x - 5.0, 4.0) if slot_size.x >= 120.0 else Vector2(slot_size.x - badge_size.x - 3.0, 3.0)
+	badge.name = "TurnOrderTimeMedallion"
+	# A round medallion straddling the tile's upper-right corner reads as the
+	# actor's place on the clock without covering the portrait's face.
+	var diameter: float = 26.0 if active else 23.0
+	var badge_size := Vector2(maxf(diameter, 12.0 + float(text.length()) * 9.0), diameter)
+	badge.position = Vector2(slot_size.x - badge_size.x + 7.0, -5.0)
 	badge.custom_minimum_size = badge_size
 	badge.size = badge_size
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -13560,13 +13560,13 @@ func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slo
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
-	label.add_theme_color_override("font_color", Color("fff4d2"))
-	label.add_theme_color_override("font_outline_color", Color("120b07"))
-	label.add_theme_constant_override("outline_size", 1)
+	label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(label, UiTypography.SIZE_BODY if active else UiTypography.SIZE_SMALL)
+	label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT if active else UiPalette.TEXT)
+	label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	label.add_theme_constant_override("outline_size", 3)
 	badge.add_child(label)
 	return badge
-
 func _turn_order_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.035, 0.025, 0.86)
@@ -13612,22 +13612,19 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	var team: String = str(entry.get("team", "enemy"))
-	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
-	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
-	style.border_color = accent.lightened(0.18 if active else 0.02)
+	var accent: Color = UiPalette.ALLY if team == "player" else UiPalette.DANGER
+	style.bg_color = Color(UiPalette.INK_0, 0.96)
+	style.border_color = UiPalette.GOLD_BRIGHT if active else accent.lerp(UiPalette.GOLD_DIM, 0.45)
 	if _turn_order_is_card_preview_projection(entry) and not active:
-		style.bg_color = Color(0.055, 0.075, 0.090, 0.94)
+		style.bg_color = Color(0.055, 0.075, 0.090, 0.96)
 		style.border_color = Color("f4c968")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
+	style.set_border_width_all(2 if active else 1)
+	style.set_corner_radius_all(13)
+	style.anti_aliasing = true
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	style.shadow_size = 3
+	style.shadow_offset = Vector2(0.0, 1.0)
 	return style
-
 func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 	var clock: int = int(entry.get("time", 0))
 	var eta: int = _turn_order_relative_time(entry)
@@ -16949,31 +16946,65 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 7)
+	vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	vbox.add_theme_constant_override("separation", 6)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
+	# The relic rests on a soft pool of its own accent light, larger than an
+	# inventory icon so the offer reads as treasure.
+	var accent: Color = Color(GameData.relic_accent(relic_id))
+	var icon_stage := Control.new()
+	icon_stage.name = "RelicChoiceIconStage"
+	icon_stage.custom_minimum_size = Vector2(0.0, RELIC_OFFER_ICON_STAGE_HEIGHT)
+	icon_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon_stage)
+	var glow := TextureRect.new()
+	glow.name = "RelicChoiceIconGlow"
+	glow.texture = _relic_choice_glow_texture()
+	glow.modulate = Color(accent.lerp(UiPalette.GOLD_BRIGHT, 0.35), 0.55)
+	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glow.stretch_mode = TextureRect.STRETCH_SCALE
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.set_anchors_preset(Control.PRESET_CENTER)
+	glow.offset_left = -RELIC_OFFER_ICON_SIZE
+	glow.offset_right = RELIC_OFFER_ICON_SIZE
+	glow.offset_top = -RELIC_OFFER_ICON_STAGE_HEIGHT * 0.5
+	glow.offset_bottom = RELIC_OFFER_ICON_STAGE_HEIGHT * 0.5
+	icon_stage.add_child(glow)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(76.0, 76.0)
+	icon.name = "RelicChoiceIcon"
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon)
+	icon.set_anchors_preset(Control.PRESET_CENTER)
+	icon.offset_left = -RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_right = RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_top = -RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_bottom = RELIC_OFFER_ICON_SIZE * 0.5
+	icon_stage.add_child(icon)
 
 	var label := Label.new()
 	label.text = str(relic.get("name", relic_id))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 34.0)
+	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 28.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
-	label.add_theme_color_override("font_color", Color("fff1d5"))
-	label.add_theme_color_override("font_outline_color", Color("26180f"))
-	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
+	label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT)
+	label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	label.add_theme_constant_override("outline_size", 3)
 	vbox.add_child(label)
+
+	var rule := GildedRule.new()
+	rule.name = "RelicChoiceRule"
+	rule.accent = accent.lerp(UiPalette.GOLD, 0.5)
+	rule.custom_minimum_size = Vector2(0.0, 10.0)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(rule)
 
 	var description := RichTextLabel.new()
 	description.name = "RelicChoiceDescription_%s" % relic_id
@@ -16983,10 +17014,10 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 122.0)
+	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 96.0)
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_rich_text_size(description, UiTypography.SIZE_BODY_LARGE)
-	description.add_theme_color_override("default_color", Color("dec9a7"))
+	description.add_theme_color_override("default_color", UiPalette.TEXT)
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	InlineIconText.apply_to(description, str(relic.get("description", "")))
@@ -17421,10 +17452,27 @@ func _campfire_choice_chip_text_color(tone: String, choice_enabled: bool) -> Col
 			return Color("d1c1a8")
 	return Color("fff1d5") if choice_enabled else Color("c8b69b")
 
+func _relic_choice_glow_texture() -> Texture2D:
+	if _relic_choice_glow != null:
+		return _relic_choice_glow
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 1.0, 1.0, 0.9))
+	gradient.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	gradient.add_point(0.45, Color(1.0, 1.0, 1.0, 0.28))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.0, 0.5)
+	texture.width = 128
+	texture.height = 96
+	_relic_choice_glow = texture
+	return texture
+
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
-	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
+	style.bg_color = Color(UiPalette.INK_2, 0.95).lightened(0.05) if hovered else Color(UiPalette.INK_1, 0.92)
+	style.border_color = accent.lerp(UiPalette.GOLD_BRIGHT, 0.4) if hovered else Color(accent.lerp(UiPalette.GOLD_DIM, 0.5), 0.70)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -17433,10 +17481,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
 	style.content_margin_bottom = 0.0
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
 	style.shadow_size = 22 if hovered else 16
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)

@@ -1,6 +1,7 @@
 extends Control
 class_name CombatBoardView
 
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
 var _illusion_renderers: Dictionary = {}
@@ -507,6 +508,8 @@ var status_detail: String = ""
 var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
+const STATUS_LABEL_COLOR := Color("f0cf8a")
+const STATUS_RULE_COLOR := Color("c9a25e")
 const IMPACT_CAMERA_SHAKE_PX: float = 3.0
 const IMPACT_CAMERA_SHAKE_PLAYER_PX: float = 5.5
 const IMPACT_CAMERA_SHAKE_OSCILLATIONS: float = 3.5
@@ -9701,7 +9704,16 @@ func _draw_status_text() -> void:
 	var label_font_size: int = UiTypography.scaled_size(self, UiTypography.role_size(role))
 	var layout: Dictionary = _status_text_layout(font, label_font_size)
 	var label_rect: Rect2 = layout.get("label", Rect2()) as Rect2
-	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, Color("f4ebd7"))
+	draw_string_outline(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, 4, Color(0.03, 0.02, 0.015, 0.9))
+	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, STATUS_LABEL_COLOR)
+	# Short gilded rules flank the room status so it reads as a placard.
+	var rule_y: float = label_rect.position.y + label_rect.size.y * 0.62
+	var rule_gap: float = 16.0
+	var rule_length: float = 64.0
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.position.x - rule_gap, rule_y), Vector2(label_rect.position.x - rule_gap - rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.end.x + rule_gap, rule_y), Vector2(label_rect.end.x + rule_gap + rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
+	GildedFrame.draw_diamond(self, Vector2(label_rect.position.x - rule_gap + 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
+	GildedFrame.draw_diamond(self, Vector2(label_rect.end.x + rule_gap - 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
 	if not status_detail.is_empty():
 		var detail_font: Font = UiTypography.text_font()
 		if detail_font == null:

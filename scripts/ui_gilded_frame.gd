@@ -155,6 +155,10 @@ static func _draw_rounded_rect(canvas: CanvasItem, rect: Rect2, radius: float, c
 	var r: Rect2 = Rect2(rect.position + offset, rect.size)
 	canvas.draw_colored_polygon(cut_corner_points(r, radius * 0.6), color)
 
+# One-sided fade: full alpha at `from`, clear at `to`.
+static func draw_fading_line(canvas: CanvasItem, from: Vector2, to: Vector2, color: Color) -> void:
+	_draw_fading_line(canvas, from, to, color, true)
+
 # Line whose alpha fades from full at `from` to zero at `to` (or both ends).
 static func _draw_fading_line(canvas: CanvasItem, from: Vector2, to: Vector2, color: Color, one_sided: bool = false) -> void:
 	var segments: int = 12
