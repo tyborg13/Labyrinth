@@ -28,14 +28,6 @@ RATE = 44100
 # Each cue: source recording, ffmpeg filter chain, output name, peak ceiling.
 CUES = [
     {
-        # The unused reward bell, lowered a whole tone and shortened into a
-        # soft "your move" call that sits under the hand's draw sounds.
-        "name": "turn_start_bell.wav",
-        "source": "reward_collect.wav",
-        "filter": "atrim=0:1.1,asetrate={rate}*0.89,aresample={rate},lowpass=f=5200,afade=t=in:d=0.012,afade=t=out:st=0.28:d=0.70",
-        "peak_db": -3.0,
-    },
-    {
         # Pass/end turn: the card take, slowed into a heavier, deliberate slap.
         "name": "pass_turn_commit.wav",
         "source": "card_play_take.wav",

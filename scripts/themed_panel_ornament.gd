@@ -2,6 +2,8 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const SurfaceFinish = preload("res://scripts/ui_surface_finish.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
 
 const VARIANT_DIALOG: String = "dialog"
 const VARIANT_PARCHMENT: String = "parchment"
@@ -60,39 +62,31 @@ func sync_outer_frame_rect() -> void:
 func _draw() -> void:
 	if _panel == null or size.x < 48.0 or size.y < 36.0:
 		return
+	var accent: Color = Color(_panel.get_meta("panel_surface_accent", _default_gold()))
+	var hovered: bool = bool(_panel.get_meta("panel_hovered", false))
 	if bool(_panel.get_meta("panel_outer_frame_only", false)):
-		if _frame_atlas != null:
-			var outer_frame_scale: float = _frame_scale()
-			_draw_rails(outer_frame_scale)
-			_draw_corners(outer_frame_scale)
+		# Major dialogs keep their own fill; the frame is a crisp gilded edge.
+		var frame_rect := Rect2(Vector2.ZERO, size)
+		GildedFrame.draw_gilding(self, frame_rect, accent, 1.0, 6.0, 0.0, false)
+		GildedFrame.draw_corner_brackets(self, frame_rect, accent, clampf(minf(size.x, size.y) * 0.06, 18.0, 40.0), 2.0, 1.0)
 		return
 	var palette: Dictionary = _palette()
-	var cut: float = clampf(minf(size.x, size.y) * 0.035, 9.0, 22.0)
-	var body_rect := Rect2(Vector2(2.0, 2.0), size - Vector2(4.0, 4.0))
-	var body_points: PackedVector2Array = _cut_corner_points(body_rect, cut)
-	draw_colored_polygon(_offset_points(body_points, Vector2(0.0, 12.0)), Color(0.0, 0.0, 0.0, 0.62))
-	draw_colored_polygon(body_points, palette["outer"])
-	if bool(_panel.get_meta("panel_hovered", false)):
-		var accent: Color = Color(_panel.get_meta("panel_surface_accent", Color("efbd66")))
-		draw_polyline(_closed_points(body_points), Color(accent.r, accent.g, accent.b, 0.92), 4.0, true)
-	var inset_rect := body_rect.grow(-8.0)
-	var inset_points: PackedVector2Array = _cut_corner_points(inset_rect, maxf(4.0, cut - 5.0))
-	draw_colored_polygon(inset_points, palette["inner"])
-	SurfaceFinish.draw_dark_well(self, inset_points, inset_rect, _variant)
-	if _panel.has_meta("panel_surface_accent"):
-		var surface_accent: Color = Color(_panel.get_meta("panel_surface_accent"))
-		var accent_alpha: float = 0.78 if bool(_panel.get_meta("panel_hovered", false)) else 0.40
-		draw_polyline(
-			_closed_points(inset_points),
-			Color(surface_accent.r, surface_accent.g, surface_accent.b, accent_alpha),
-			2.0,
-			true
-		)
-	if _frame_atlas == null:
-		return
-	var frame_scale: float = _frame_scale()
-	_draw_rails(frame_scale)
-	_draw_corners(frame_scale)
+	var cut: float = clampf(minf(size.x, size.y) * 0.03, 4.0, 10.0)
+	var body_rect := Rect2(Vector2(1.0, 1.0), size - Vector2(2.0, 2.0))
+	GildedFrame.draw_panel(self, body_rect, {
+		"top": palette["top"],
+		"bottom": palette["bottom"],
+		"gold": accent,
+		"strength": 1.0 if hovered or _panel.has_meta("panel_surface_accent") else 0.82,
+		"cut": cut,
+		"shadow_spread": 10.0 if _variant == VARIANT_HUD else 16.0,
+		"glow": Color(accent, 0.30) if hovered else Color.TRANSPARENT,
+		"inner_inset": 4.0 if _variant != VARIANT_HUD else 3.0,
+		"corner_studs": _variant != VARIANT_HUD or minf(size.x, size.y) >= 60.0,
+	})
+
+func _default_gold() -> Color:
+	return Palette.DANGER if _variant == VARIANT_DANGER else Palette.GOLD
 
 func _draw_rails(frame_scale: float) -> void:
 	var horizontal_size: Vector2 = HORIZONTAL_RAIL_TILE_REGION.size * frame_scale
@@ -198,24 +192,16 @@ func _frame_scale() -> float:
 	return scale_value * short_side_factor
 
 func _palette() -> Dictionary:
-	var outer := Color("2b1b17")
-	var inner := Color(0.034, 0.025, 0.028, 0.985)
-	if _variant == VARIANT_PARCHMENT:
-		outer = Color("3b2418")
-		inner = Color(0.095, 0.055, 0.035, 0.98)
-	elif _variant == VARIANT_HUD:
-		outer = Color("211b1b")
-		inner = Color(0.025, 0.022, 0.027, 0.95)
-	elif _variant == VARIANT_CHOICE:
-		outer = Color("372118")
-		inner = Color(0.070, 0.040, 0.030, 0.98)
-	elif _variant == VARIANT_DANGER:
-		outer = Color("381719")
-		inner = Color(0.075, 0.022, 0.028, 0.985)
-	return {
-		"outer": outer,
-		"inner": inner,
-	}
+	match _variant:
+		VARIANT_PARCHMENT:
+			return {"top": Color("2c1c13"), "bottom": Color("1a100b")}
+		VARIANT_HUD:
+			return {"top": Color(0.125, 0.097, 0.078, 0.93), "bottom": Color(0.078, 0.063, 0.051, 0.93)}
+		VARIANT_CHOICE:
+			return {"top": Color("261b14"), "bottom": Color("140f0b")}
+		VARIANT_DANGER:
+			return {"top": Color("2b1313"), "bottom": Color("160a0a")}
+	return {"top": Palette.INK_2, "bottom": Palette.INK_1}
 
 func _cut_corner_points(rect: Rect2, cut: float) -> PackedVector2Array:
 	var left: float = rect.position.x

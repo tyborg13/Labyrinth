@@ -4,7 +4,10 @@ class_name UiTypography
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
 const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Display.tres"
-const UI_FONT_PATH: String = "res://fonts/LabyrinthCrumble-UI.tres"
+# Headings, labels and controls use Cinzel's inscriptional capitals; body and
+# rules text keep the highly legible Labyrinth Crumble text cut.
+const UI_FONT_PATH: String = "res://fonts/cinzel/Cinzel-Bold.tres"
+const HEAVY_UI_FONT_PATH: String = "res://fonts/cinzel/Cinzel-Black.tres"
 const TEXT_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Text.tres"
 const STONE_TEXT_SHADER_CODE: String = """
 shader_type canvas_item;
@@ -95,6 +98,32 @@ static func display_font() -> Font:
 
 static func ui_font() -> Font:
 	return AssetLoader.load_font(UI_FONT_PATH)
+
+static func heavy_ui_font() -> Font:
+	return AssetLoader.load_font(HEAVY_UI_FONT_PATH)
+
+static var _eyebrow_font: FontVariation
+
+# Letter-spaced small capitals for kickers and section eyebrows ("DEPTH 1").
+static func eyebrow_font() -> Font:
+	if _eyebrow_font == null:
+		var base: Font = ui_font()
+		if base == null:
+			return null
+		_eyebrow_font = FontVariation.new()
+		_eyebrow_font.base_font = base
+		_eyebrow_font.spacing_glyph = 2
+	return _eyebrow_font
+
+static func apply_eyebrow(label: Label, size: int = SIZE_CAPTION, color: Color = Color("b5a58a")) -> void:
+	if label == null:
+		return
+	var font: Font = eyebrow_font()
+	if font != null:
+		label.add_theme_font_override("font", font)
+	set_label_size(label, size)
+	label.uppercase = true
+	label.add_theme_color_override("font_color", color)
 
 static func text_font() -> Font:
 	return AssetLoader.load_font(TEXT_FONT_PATH)

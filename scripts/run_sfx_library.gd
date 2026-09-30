@@ -15,11 +15,9 @@ const HEARTH_RECOVER_ID: String = "run.ember_hearth_recover"
 const HEARTH_STRENGTH_ID: String = "run.ember_hearth_strength"
 const HEARTH_DEPART_ID: String = "run.ember_hearth_depart"
 
-const TURN_START_ID: String = "run.turn_start_bell"
 const PASS_COMMIT_ID: String = "run.pass_turn_commit"
 const MENU_OPEN_ID: String = "run.menu_page_open"
 const MENU_CLOSE_ID: String = "run.menu_page_close"
-const EMBER_GAIN_ID: String = "run.ember_gain"
 const DUNGEON_AMBIENCE_ID: String = "run.dungeon_hall_ambience"
 # Modes that sit inside the torch-lit halls get the quiet stone-hall bed. The
 # campfire owns its own fire loop; terminal and menu-like modes stay dry so the
@@ -36,7 +34,7 @@ const SFX: Dictionary = {
 	HEARTH_FOCUS_ID: {
 		"path": "res://assets/audio/sfx/run/ember_hearth_focus.wav",
 		"trimmed_duration": 0.12,
-		"volume_db": -13.0,
+		"volume_db": -17.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
 	HEARTH_SELECT_ID: {
@@ -67,7 +65,7 @@ const SFX: Dictionary = {
 	DOOR_OPEN_ID: {
 		"path": "res://assets/audio/sfx/run/door_open.wav",
 		"trimmed_duration": 1.318844,
-		"volume_db": -5.0,
+		"volume_db": -10.0,
 		"bus": SettingsStore.WORLD_SFX_BUS
 	},
 	CAMPFIRE_LOOP_ID: {
@@ -82,13 +80,6 @@ const SFX: Dictionary = {
 		"trimmed_duration": 4.863220,
 		"volume_db": -12.0,
 		"bus": SettingsStore.UI_SFX_BUS
-	},
-	TURN_START_ID: {
-		"path": "res://assets/audio/sfx/ui/turn_start_bell.wav",
-		"trimmed_duration": 1.236,
-		"volume_db": -10.0,
-		"bus": SettingsStore.UI_SFX_BUS,
-		"pitch_variance": 0.0
 	},
 	PASS_COMMIT_ID: {
 		"path": "res://assets/audio/sfx/ui/pass_turn_commit.wav",
@@ -108,23 +99,17 @@ const SFX: Dictionary = {
 		"volume_db": -7.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
-	EMBER_GAIN_ID: {
-		"path": "res://assets/audio/sfx/ember_collect.wav",
-		"trimmed_duration": 0.45,
-		"volume_db": -9.0,
-		"bus": SettingsStore.UI_SFX_BUS
-	},
 	DUNGEON_AMBIENCE_ID: {
 		"path": "res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav",
 		"trimmed_duration": 48.0,
-		"volume_db": -3.0,
+		"volume_db": -6.0,
 		"bus": SettingsStore.WORLD_SFX_BUS,
 		"loop": true
 	},
 	VICTORY_RESOLUTION_ID: {
 		"path": "res://assets/audio/sfx/run/victory_resolution.wav",
 		"trimmed_duration": 5.062375,
-		"volume_db": -3.0,
+		"volume_db": -7.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	}
 }

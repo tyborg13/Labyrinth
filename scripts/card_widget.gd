@@ -47,7 +47,7 @@ const READY_WAVE_SCALE_BONUS: float = 0.022
 const READY_WAVE_RISE_SECONDS: float = 0.09
 const READY_WAVE_SETTLE_SECONDS: float = 0.20
 const READY_WAVE_GLOW_INSET: float = 4.0
-const DAMAGE_NEUTRAL_COLOR: String = "#503d2c"
+const DAMAGE_NEUTRAL_COLOR: String = "#2a170c"
 const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 const CONDITIONAL_TEXT_COLOR: String = "#fff7df"
@@ -68,6 +68,8 @@ const ART_MAX_HEIGHT: float = 118.0
 const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
+const SUMMARY_VALUE_TO_ICON_RATIO: float = 0.62
+const SUMMARY_SEGMENT_VALUE_RATIO: float = 0.58
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
@@ -1326,6 +1328,8 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.tooltip_text = tooltip
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	if not conditional:
+		label.add_theme_font_override("font", UiTypography.display_font())
 	UiTypography.set_label_size(label, label_size)
 	label.add_theme_color_override("font_color", _token_value_color(token, conditional))
 	label.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
@@ -1368,7 +1372,8 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var details_height: float = details_panel.custom_minimum_size.y if details_panel.custom_minimum_size.y > 0.0 else desc_label.custom_minimum_size.y
 	var available_height: float = maxf(_scaled_card_value(56.0, 28.0), details_height - _scaled_card_value(SUMMARY_VERTICAL_PADDING, 4.0))
 	var available_width: float = _summary_available_width()
-	var base_candidates: Array = [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
+	# Sparse cards earn bold, scan-level icons; dense cards still step down to fit.
+	var base_candidates: Array = [42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [46.0, 44.0, 42.0, 40.0, 38.0, 36.0, 34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
 	for candidate_var: Variant in base_candidates:
 		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))
@@ -1376,7 +1381,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var minimum_label_size: int = _summary_min_label_size()
 	for candidate_var: Variant in icon_candidates:
 		var icon_size: float = float(candidate_var)
-		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
+		var label_size: int = maxi(minimum_label_size, int(round(icon_size * SUMMARY_VALUE_TO_ICON_RATIO)))
 		var row_gap: int = _summary_row_gap(icon_size, row_count)
 		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_width:
 			return {
@@ -1387,7 +1392,7 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var fallback_icon: float = float(icon_candidates[icon_candidates.size() - 1])
 	return {
 		"icon_size": fallback_icon,
-		"label_size": maxi(minimum_label_size, int(round(fallback_icon * 0.58))),
+		"label_size": maxi(minimum_label_size, int(round(fallback_icon * SUMMARY_VALUE_TO_ICON_RATIO))),
 		"row_gap": _summary_row_gap(fallback_icon, row_count)
 	}
 
@@ -1563,7 +1568,9 @@ func _summary_token_segments(tokens: Array) -> Array:
 	if clean_tokens.is_empty():
 		return []
 	var preferred_icon_size: float = _summary_icon_size()
-	var preferred_label_size: int = maxi(_summary_min_label_size(), int(round(preferred_icon_size * 0.58)))
+	# Row breaks follow the established compact measure so a shared-target
+	# action never splits merely because its rendered values grew bolder.
+	var preferred_label_size: int = maxi(_summary_min_label_size(), int(round(preferred_icon_size * SUMMARY_SEGMENT_VALUE_RATIO)))
 	var preferred_gap: int = _summary_row_gap(preferred_icon_size, 1)
 	var available_width: float = _summary_available_width()
 	if clean_tokens.size() <= 4 and _summary_segment_width_estimate(clean_tokens, preferred_icon_size, preferred_label_size, preferred_gap) <= available_width:

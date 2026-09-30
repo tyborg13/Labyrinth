@@ -13,10 +13,10 @@ const EXPECTED_DURATIONS: Dictionary = {
 }
 
 const EXPECTED_VOLUME_DB: Dictionary = {
-	RunSfxLibrary.DOOR_OPEN_ID: -5.0,
+	RunSfxLibrary.DOOR_OPEN_ID: -10.0,
 	RunSfxLibrary.CAMPFIRE_LOOP_ID: -4.0,
 	RunSfxLibrary.REWARD_ACCEPTED_ID: -12.0,
-	RunSfxLibrary.VICTORY_RESOLUTION_ID: -3.0
+	RunSfxLibrary.VICTORY_RESOLUTION_ID: -7.0
 }
 
 static func run(tree: SceneTree, expect: Callable) -> void:
@@ -77,7 +77,9 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 			var looped_wav: AudioStreamWAV = ambient_player.stream as AudioStreamWAV
 			expect.call(looped_wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and looped_wav.loop_end > 0, "Campfire ambience should loop sample-accurately without a restart gap")
 	instance.call("_update_ambient_sfx_for_context", "room")
-	expect.call(ambient_player != null and not ambient_player.playing and ambient_player.stream == null, "Leaving campfire mode should stop its ambience")
+	expect.call(str(instance.get("_active_ambient_sfx_id")) == RunSfxLibrary.DUNGEON_AMBIENCE_ID and ambient_player != null and ambient_player.playing, "Leaving campfire mode should hand over from the fire loop to the quiet hall bed")
+	instance.call("_update_ambient_sfx_for_context", "victory")
+	expect.call(ambient_player != null and not ambient_player.playing and ambient_player.stream == null, "Terminal screens should stop room ambience")
 
 	var door_started_msec: int = Time.get_ticks_msec()
 	await instance.call("_play_door_opening_animation", Vector2i(4, 0))

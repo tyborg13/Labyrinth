@@ -7938,7 +7938,7 @@ func _test_ui_typography_system() -> void:
 	var ui_font: Font = UiTypography.ui_font()
 	var text_font: Font = UiTypography.text_font()
 	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Display.tres"), "Hero roles should use the expressive Labyrinth Crumble display cut")
-	_assert(ui_font != null and ui_font.resource_path.ends_with("LabyrinthCrumble-UI.tres"), "Headings and controls should use the restrained Labyrinth Crumble UI cut")
+	_assert(ui_font != null and ui_font.resource_path.ends_with("Cinzel-Bold.tres"), "Headings and controls should use the inscriptional Cinzel capitals")
 	_assert(text_font != null and text_font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "Body roles should use the clean Labyrinth Crumble text cut")
 
 func _test_main_scenes_instantiate() -> void:

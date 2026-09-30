@@ -1,5 +1,7 @@
 extends "res://tests/loadout_material_polish_probe.gd"
 
+const OUTER_FRAME_CORNER_RADIUS: int = preload("res://scripts/ui_skin.gd").OUTER_FRAME_CORNER_RADIUS
+
 const CHARACTER_OUTPUT: String = "user://probes/character_menu_polish_v2"
 
 func _initialize() -> void:
@@ -167,7 +169,7 @@ func _assert_menu_edge_alignment(dialog: Control) -> void:
 		for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
 			_require(style.get_border_width(side) == (0 if outer else 2), "Character native rim width remains unchanged")
 		for corner: int in [CORNER_TOP_LEFT, CORNER_TOP_RIGHT, CORNER_BOTTOM_RIGHT, CORNER_BOTTOM_LEFT]:
-			_require(style.get_corner_radius(corner) == (14 if outer else 8), "Character native corner silhouette remains unchanged")
+			_require(style.get_corner_radius(corner) == (OUTER_FRAME_CORNER_RADIUS if outer else 8), "Character corner silhouette matches its frame treatment")
 		var geometry: Dictionary = finish.call("menu_face_geometry")
 		var face: Rect2 = geometry.get("rect", Rect2())
 		var expected: Rect2 = Rect2(Vector2.ZERO, panel.size) if outer else Rect2(Vector2(2.0, 2.0), panel.size - Vector2(4.0, 4.0))
@@ -175,7 +177,7 @@ func _assert_menu_edge_alignment(dialog: Control) -> void:
 		var radii: PackedVector2Array = geometry.get("radii", PackedVector2Array())
 		_require(radii.size() == 4, "Material has a contour for all four native corners")
 		for radius: Vector2 in radii:
-			_require(radius == Vector2.ONE * (14.0 if outer else 6.0), "Material follows Character rounded inner corners")
+			_require(radius == Vector2.ONE * (float(OUTER_FRAME_CORNER_RADIUS) if outer else 6.0), "Material follows Character inner corners")
 		print("CHARACTER FACE ", panel.name, " global=", panel.get_global_rect(), " local=", face, " radii=", radii)
 		if DisplayServer.get_name() != "headless":
 			await _assert_material_reaches_rim(panel, finish, outer)

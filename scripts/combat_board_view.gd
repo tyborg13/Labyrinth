@@ -507,6 +507,9 @@ var status_detail: String = ""
 var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
+const IMPACT_CAMERA_SHAKE_PX: float = 3.0
+const IMPACT_CAMERA_SHAKE_PLAYER_PX: float = 5.5
+const IMPACT_CAMERA_SHAKE_OSCILLATIONS: float = 3.5
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
@@ -2693,6 +2696,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	_update_impact_camera_shake()
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
 	# A pose-only submission affects its addressed family. Other persistent
 	# canvases continue their own idle processing; walking the complete roster
@@ -8682,6 +8686,29 @@ func _unit_impact_strength(unit: Dictionary) -> float:
 	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
 	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
 	return clampf(1.0 - progress, 0.0, 1.0) * strength
+
+# A short, decaying camera kick on the whole board layer (never the HUD) sells
+# the weight of a hit. It follows the existing impact timeline exactly, so it
+# needs no extra timers, and reduced motion keeps the camera perfectly still.
+func _update_impact_camera_shake() -> void:
+	var layer: CanvasLayer = get_parent() as CanvasLayer
+	if layer == null:
+		return
+	var impact_keys: Array = presentation.get("impact_actor_keys", []) as Array
+	if impact_keys.is_empty() or bool(presentation.get("reduced_motion", false)):
+		if layer.offset != Vector2.ZERO:
+			layer.offset = Vector2.ZERO
+		return
+	var progress: float = clampf(float(presentation.get("impact_progress", 1.0)), 0.0, 1.0)
+	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	var player_hit: bool = impact_keys.has("player")
+	var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if player_hit else IMPACT_CAMERA_SHAKE_PX) * strength
+	var decay: float = pow(1.0 - progress, 2.0)
+	if decay <= 0.001:
+		layer.offset = Vector2.ZERO
+		return
+	var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
+	layer.offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
 
 func _unit_impact_shake_strength(unit: Dictionary) -> float:
 	if bool(presentation.get("reduced_motion", false)):
