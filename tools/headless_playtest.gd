@@ -2105,7 +2105,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
 	var flurry_played: bool = bool(printed_card.get("flurry", false))
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
-	return {
+	var payload: Dictionary = {
 		"play_mode": "printed",
 		"flurry": flurry_played,
 		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
@@ -2150,6 +2150,8 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"selected_targets": targets.duplicate(true),
 		"actions": actions.duplicate(true)
 	}
+	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
+	return payload
 
 func _analytics_comparable_actions(actions: Array) -> Array:
 	var result: Array = []

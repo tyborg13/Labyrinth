@@ -39,7 +39,7 @@ func _draw() -> void:
 		_draw_face_button(rect, glyph_text)
 	elif action_name == &"controller_dpad":
 		_draw_dpad(rect)
-	elif action_name == &"controller_move":
+	elif action_name == &"controller_move" or action_name == InputRouterScript.ACTION_EMPOWER:
 		_draw_stick(rect, glyph_text)
 	else:
 		_draw_rounded_key(rect, glyph_text, shoulder_action)
@@ -117,7 +117,7 @@ static func preferred_size(next_action_name: StringName) -> Vector2:
 		return Vector2(30.0, 30.0)
 	if next_action_name in SHOULDER_ACTIONS:
 		return Vector2(68.0, 27.0) if next_action_name == InputRouterScript.ACTION_HAND_BUMPERS else Vector2(42.0, 27.0)
-	if next_action_name in [&"controller_move", &"controller_dpad"]:
+	if next_action_name in [&"controller_move", &"controller_dpad", InputRouterScript.ACTION_EMPOWER]:
 		return Vector2(34.0, 30.0)
 	return Vector2(36.0, 27.0)
 

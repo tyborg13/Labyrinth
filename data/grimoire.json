@@ -346,6 +346,49 @@
       ]
     },
     {
+      "id": "keyword:follow_up",
+      "section": "keywords",
+      "title": "Follow-up",
+      "default": true,
+      "icon": "follow_up",
+      "aliases": [
+        "combo",
+        "second card"
+      ],
+      "body": [
+        "Gains its listed bonus if you already played another card this turn. The bonus is decided when the card starts, so every Flurry repeat shares it, and the card's numbers update in your hand while it is active."
+      ]
+    },
+    {
+      "id": "keyword:empower",
+      "section": "keywords",
+      "title": "Empower",
+      "default": true,
+      "icon": "empower",
+      "aliases": [
+        "overcharge",
+        "extra cost"
+      ],
+      "body": [
+        "An optional extra cost. While playing the card, toggle Empower (E, or the right stick on a controller) to gain its listed bonus.",
+        "The cost is paid when the card finishes: extra Time added to your next turn, health paid after the card resolves (Block does not prevent it), or Exhaust."
+      ]
+    },
+    {
+      "id": "keyword:stagger",
+      "section": "keywords",
+      "title": "Stagger",
+      "icon": "stagger",
+      "aliases": [
+        "delay",
+        "slow"
+      ],
+      "body": [
+        "Pushes the struck enemy's next turn later on the turn clock by the Stagger value. Dragons take half, rounded down.",
+        "Each enemy can be delayed by at most 6 per player turn. Hover a Stagger target to preview its new place in the turn order."
+      ]
+    },
+    {
       "id": "keyword:illusion",
       "section": "keywords",
       "title": "Illusion",

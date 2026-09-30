@@ -92,7 +92,8 @@ const ACTION_FIELD_ENTRY_IDS := {
 	"chain": "keyword:chain",
 	"pierce": "keyword:pierce",
 	"push": "keyword:push",
-	"pull": "keyword:pull"
+	"pull": "keyword:pull",
+	"stagger": "keyword:stagger"
 }
 
 static var _cache: Dictionary = {}
@@ -615,6 +616,19 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 		wanted["keyword:flurry"] = true
 	if int(card.get("health_cost", 0)) > 0:
 		wanted["keyword:health_cost"] = true
+	# Card-level keywords, plus whatever their bonus mods/appended actions use.
+	for keyword_field: String in ["follow_up", "empower"]:
+		var keyword_spec: Variant = card.get(keyword_field, null)
+		if typeof(keyword_spec) != TYPE_DICTIONARY or (keyword_spec as Dictionary).is_empty():
+			continue
+		wanted["keyword:%s" % keyword_field] = true
+		_collect_nested_action_entry_ids((keyword_spec as Dictionary).get("mods", []), wanted)
+		_collect_entry_ids_for_actions((keyword_spec as Dictionary).get("append", []), wanted)
+		var keyword_cost: Dictionary = (keyword_spec as Dictionary).get("cost", {}) as Dictionary
+		if bool(keyword_cost.get("exhaust", false)):
+			wanted["keyword:exhaust"] = true
+		if int(keyword_cost.get("health", 0)) > 0:
+			wanted["keyword:health_cost"] = true
 	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
@@ -814,6 +828,10 @@ static func _card_entry_body(card: Dictionary) -> Array:
 		notes.append("Consumed after use")
 	if bool(card.get("flurry", false)):
 		notes.append("Spends every current card play; repeats actions and health cost per play, but pays Time once")
+	if typeof(card.get("follow_up", null)) == TYPE_DICTIONARY:
+		notes.append("Follow-up: gains its bonus when another card was already played this turn")
+	if typeof(card.get("empower", null)) == TYPE_DICTIONARY:
+		notes.append("Empower: an optional extra cost chosen while playing it")
 	if bool(card.get("starter", false)):
 		notes.append("Starter card")
 	elif bool(card.get("reward_pool", true)):

@@ -84,6 +84,9 @@ const KEYWORDS: Dictionary = {
 		"description": "Repeats this card once per remaining card play, spending them all. Pays Time once.",
 		"path": "%s/flurry.png" % ICON_ROOT
 	},
+	"follow_up": {"label": "Follow-up", "description": "Gains the listed bonus if you already played a card this turn.", "path": "%s/follow_up.png" % ICON_ROOT},
+	"empower": {"label": "Empower", "description": "Optional: pay the listed extra cost while playing this card to gain the listed bonus.", "path": "%s/empower.png" % ICON_ROOT},
+	"stagger": {"label": "Stagger", "description": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.", "path": "%s/stagger.png" % ICON_ROOT},
 	"time": {
 		"label": "Time",
 		"description": "Adds to the initiative delay before your next turn.",
@@ -536,7 +539,8 @@ static func tooltip_entries_for_rows(
 			var token: Dictionary = token_var as Dictionary
 			if str(token.get("kind", "")) == "surface_condition":
 				var surface_key: String = str(token.get("icon", "surface"))
-				_append_tooltip_entry(entries, seen, surface_key, tooltip(surface_key))
+				var keyword_condition: bool = token.has("state_condition") or token.has("scale_bonus")
+				_append_tooltip_entry(entries, seen, surface_key, token_tooltip(token) if keyword_condition else tooltip(surface_key))
 				continue
 			if str(token.get("kind", "")) == "text":
 				continue
@@ -734,6 +738,7 @@ static func rows_for_actions(actions: Array, options_by_index: Array = []) -> Ar
 		var bonus_row: Array = tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
+		rows.append_array(keyword_rider_rows(action))
 	return rows
 
 static func append_action_row(rows: Array, action: Dictionary, row: Array, previous_action_row_index: int = -1) -> int:
@@ -778,7 +783,139 @@ static func _same_pattern(left: Array, right: Array) -> bool:
 static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Array:
 	var rows: Array = cost_rows_for_card(card)
 	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index))
+	rows.append_array(keyword_rows_for_card(card))
 	return rows
+
+# Card-level Follow-up / Empower segments: keyword icon, Empower cost, then the
+# bonus. `state` marks a segment active when its bonus is already in the rows.
+static func keyword_rows_for_card(card: Dictionary, state: Dictionary = {}) -> Array:
+	var rows: Array = []
+	var printed: Array = card.get("actions", []) as Array
+	var follow_up: Variant = card.get("follow_up", null)
+	if typeof(follow_up) == TYPE_DICTIONARY and not (follow_up as Dictionary).is_empty():
+		var active: bool = bool(state.get("follow_up", false))
+		var row: Array = [token_for("follow_up", "✓" if active else null, "bonus" if active else "neutral", "Follow-up%s\nGains this bonus if you already played a card this turn." % (" · active" if active else ""))]
+		row[0]["keyword_segment"] = "follow_up"
+		row[0]["active"] = active
+		row.append_array(tokens_for_keyword_bonus(printed, follow_up as Dictionary, "bonus" if active else "condition"))
+		rows.append(row)
+	var empower: Variant = card.get("empower", null)
+	if typeof(empower) == TYPE_DICTIONARY and not (empower as Dictionary).is_empty():
+		var active: bool = bool(state.get("empowered", false))
+		var row: Array = [token_for("empower", "✓" if active else null, "bonus" if active else "neutral", "Empower%s\nOptional: pay the extra cost while playing this card for the bonus." % (" · active" if active else ""))]
+		row[0]["keyword_segment"] = "empower"
+		row[0]["active"] = active
+		var cost: Dictionary = (empower as Dictionary).get("cost", {}) as Dictionary
+		if bool(cost.get("exhaust", false)):
+			row.append(token_for("exhaust", null, "neutral", "Empower cost: Exhaust this card."))
+		if int(cost.get("health", 0)) > 0:
+			row.append(token_for("health_cost", "-%d" % int(cost.get("health", 0)), "neutral", "Empower cost: pay %d health after the card resolves." % int(cost.get("health", 0))))
+		if int(cost.get("time", 0)) > 0:
+			row.append(token_for("time", "+%d" % int(cost.get("time", 0)), "neutral", "Empower cost: %d more Time." % int(cost.get("time", 0))))
+		row.append_array(tokens_for_keyword_bonus(printed, empower as Dictionary, "bonus" if active else "condition"))
+		rows.append(row)
+	return rows
+
+static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, tone: String = "condition") -> Array:
+	var tokens: Array = []
+	for mod_var: Variant in spec.get("mods", []):
+		if typeof(mod_var) != TYPE_DICTIONARY:
+			continue
+		var mod: Dictionary = mod_var
+		var index: int = int(mod.get("action", -1))
+		var action: Dictionary = printed_actions[index] as Dictionary if index >= 0 and index < printed_actions.size() and typeof(printed_actions[index]) == TYPE_DICTIONARY else {}
+		var added: Dictionary = mod.get("add", {}) as Dictionary
+		for field_var: Variant in added.keys():
+			var field: String = str(field_var)
+			tokens.append(token_for(_keyword_field_icon(action, field), "%+d" % int(added[field_var]), tone))
+		var assigned: Dictionary = mod.get("set", {}) as Dictionary
+		for field_var: Variant in assigned.keys():
+			var field: String = str(field_var)
+			var value: Variant = assigned[field_var]
+			match field:
+				"pattern":
+					var pattern_token: Dictionary = _aoe_pattern_token({"pattern": value, "range": int(action.get("range", 0))})
+					pattern_token["tone"] = tone
+					tokens.append(pattern_token)
+				"surface":
+					tokens.append(surface_token(str(value)))
+				_:
+					if typeof(value) == TYPE_BOOL:
+						if bool(value):
+							tokens.append(token_for(_keyword_field_icon(action, field), null, tone))
+					else:
+						tokens.append(token_for(_keyword_field_icon(action, field), str(value), tone))
+	for appended_var: Variant in spec.get("append", []):
+		if typeof(appended_var) != TYPE_DICTIONARY:
+			continue
+		for token_var: Variant in tokens_for_action(appended_var as Dictionary):
+			var token: Dictionary = (token_var as Dictionary).duplicate(true)
+			if str(token.get("tone", "neutral")) == "neutral":
+				token["tone"] = tone
+			tokens.append(token)
+	return tokens
+
+static func _keyword_field_icon(action: Dictionary, field: String) -> String:
+	match field:
+		"damage":
+			return _damage_icon_for_action(action, _damage_bonus_fallback_icon(action))
+		"amount":
+			var action_key: String = action_icon_key(action)
+			return action_key if not action_key.is_empty() else "range"
+		"health":
+			return "illusion" if str(action.get("type", "")) == "illusion" else "health"
+	return field if KEYWORDS.has(field) else action_icon_key(action)
+
+# Per-hit rider rows: state bonuses (target in Light / Frozen / at half health)
+# and scale bonuses (per Stoneskin or tile moved this turn).
+static func keyword_rider_rows(action: Dictionary) -> Array:
+	var rows: Array = []
+	var bonuses: Variant = action.get("state_bonus", [])
+	if typeof(bonuses) == TYPE_ARRAY:
+		for bonus_var: Variant in bonuses:
+			if typeof(bonus_var) != TYPE_DICTIONARY:
+				continue
+			var bonus: Dictionary = bonus_var
+			var row: Array = [state_condition_token(str(bonus.get("state", "")))]
+			if int(bonus.get("damage", 0)) != 0:
+				row.append(token_for(_damage_icon_for_action(action, _damage_bonus_fallback_icon(action)), "%+d" % int(bonus.get("damage", 0)), "condition"))
+			if int(bonus.get("stagger", 0)) != 0:
+				row.append(token_for("stagger", "%+d" % int(bonus.get("stagger", 0)), "condition"))
+			rows.append(row)
+	var scale: Variant = action.get("scale_bonus", {})
+	if typeof(scale) == TYPE_DICTIONARY and not (scale as Dictionary).is_empty():
+		rows.append([scale_bonus_token(action)])
+	return rows
+
+const STATE_CONDITION_COPY: Dictionary = {
+	"light": {"icon": "illuminate", "prefix": "if Target in", "text": "if Target in Light:", "tooltip": "If Target in Light\nApplies if the target stands in Light."},
+	"frozen": {"icon": "freeze", "prefix": "if Target", "text": "if Target Frozen:", "tooltip": "If Target Frozen\nApplies if the target is Frozen before the hit."},
+	"half_hp": {"icon": "health", "prefix": "if Target ≤½", "text": "if Target at half health:", "tooltip": "If Target at Half Health\nApplies if the target is at or below half health before the hit."},
+}
+
+static func state_condition_token(condition: String) -> Dictionary:
+	var copy: Dictionary = STATE_CONDITION_COPY.get(condition, {"icon": "targeting", "prefix": "if", "tooltip": condition}) as Dictionary
+	var token: Dictionary = text_token(str(copy.get("text", "if %s:" % condition)), "neutral", str(copy.get("tooltip", "")))
+	token["kind"] = "surface_condition"
+	token["icon"] = str(copy.get("icon", "targeting"))
+	token["prefix"] = str(copy.get("prefix", "if"))
+	token["suffix"] = ":"
+	token["state_condition"] = condition
+	return token
+
+static func scale_bonus_token(action: Dictionary) -> Dictionary:
+	var scale: Dictionary = action.get("scale_bonus", {}) as Dictionary
+	var per: String = str(scale.get("per", ""))
+	var icon: String = "stoneskin" if per == "stoneskin" else "move"
+	var suffix: String = "%+d each (max %d)" % [int(scale.get("damage", 1)), int(scale.get("max", 0))]
+	var detail: String = "Stoneskin you have" if per == "stoneskin" else "tile you moved this turn"
+	var token: Dictionary = text_token("%s %s" % [label(icon), suffix], "neutral", "Deals %d more damage for each %s (maximum %d more)." % [int(scale.get("damage", 1)), detail, int(scale.get("max", 0))])
+	token["kind"] = "surface_condition"
+	token["icon"] = icon
+	token["prefix"] = ""
+	token["suffix"] = suffix
+	token["scale_bonus"] = scale.duplicate(true)
+	return token
 
 static func cost_rows_for_card(card: Dictionary) -> Array:
 	var row: Array = []
@@ -1045,6 +1182,8 @@ static func _append_keyword_tokens(tokens: Array, action: Dictionary) -> void:
 		tokens.append(_token_for_action_field(action, "immobilize", "immobilize"))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "chain", "chain", int(action.get("chain", 0))))
+	if int(action.get("stagger", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "stagger", "stagger", int(action.get("stagger", 0))))
 	if int(action.get("push", 0)) > 0:
 		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
 	if int(action.get("pull", 0)) > 0:

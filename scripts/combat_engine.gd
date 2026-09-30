@@ -14,6 +14,7 @@ const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -602,7 +603,10 @@ func _hand_has_non_item_burn(state: Dictionary) -> bool:
 	var hand: Array = ((state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	for card_id_var: Variant in hand:
 		var card_id: String = str(card_id_var)
-		if bool(card_def(card_id, state).get("burn", false)) and not GameData.card_is_item(card_id):
+		var hand_card: Dictionary = card_def(card_id, state)
+		# An Exhaust Empower cost can be preserved by Rehearsed Escape too.
+		var exhausts: bool = bool(hand_card.get("burn", false)) or bool(CardKeywordRules.empower_cost(hand_card).get("exhaust", false))
+		if exhausts and not GameData.card_is_item(card_id):
 			return true
 	return false
 
@@ -649,9 +653,16 @@ func arm_carry_the_guard(state: Dictionary) -> Dictionary:
 	_log(next_state, "%s is armed to carry block remaining at turn end." % SkillTreeLibrary.display_name(skill_id))
 	return next_state
 
-func prepare_player_card(state: Dictionary, _hand_index: int, _play_mode: String = "play") -> Dictionary:
+func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String = "play") -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	SurfaceRelicRules.configure(next_state)
+	# Follow-up and Empower are decided at the card's start (play_mode "empower"
+	# opts into the extra cost) and ride on the prepared state to finish_player_card.
+	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
+	if hand_index >= 0 and hand_index < hand.size():
+		var card_id: String = str(hand[hand_index])
+		if CardKeywordRules.card_id_may_have_keywords(card_id):
+			CardKeywordRules.stamp_card_start(next_state, card_id, card_def(card_id, next_state), play_mode == "empower")
 	return next_state
 
 func skill_events(state: Dictionary) -> Array[Dictionary]:
@@ -893,7 +904,7 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
-	var printed_actions: Array = (card.get("actions", []) as Array).duplicate(true)
+	var printed_actions: Array = CardKeywordRules.actions_for_play(card, card_id, state)
 	# Stamp once before Flurry expands the printed sequence. The card identity is
 	# source metadata, independent of the selected target, repeat, or later actor.
 	for action_var: Variant in printed_actions:
@@ -1354,6 +1365,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				var loot_before: int = _unclaimed_loot_count(next_state)
 				player["pos"] = target_tile
 				next_state["player"] = player
+				CardKeywordRules.record_tiles_moved(next_state, PathUtils.manhattan(blink_origin, target_tile))
 				_collect_loot_at_player(next_state)
 				next_state = surface_actor_arrival(next_state, "player", -1, blink_origin)
 				next_state = _place_action_surface(next_state, resolved_action, target_tile)
@@ -1465,6 +1477,7 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_traverse_total", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
+	CardKeywordRules.record_tiles_moved(next_state, resolved_path.size() - 1)
 	_mark_first_move_used(next_state)
 	performance_phase_started = _record_runtime_performance_phase("move_path_endpoint", performance_phase_started)
 	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
@@ -1619,6 +1632,9 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	var deck: Dictionary = next_state.get("deck", {}).duplicate(true)
 	deck["hand"] = hand
 	var card: Dictionary = card_def(card_id, next_state)
+	# An opted-in Empower cost is paid with the card's own costs, after effects.
+	var empower_payment: Dictionary = CardKeywordRules.empower_payment(next_state, card_id, card)
+	next_state.erase(CardKeywordRules.PLAY_MODIFIERS_KEY)
 	var destination: String = "discard"
 	if bool(card.get("consume_on_play", false)):
 		var makeshift_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_item")
@@ -1636,7 +1652,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 			deck["consumed"] = consumed
 			destination = "consume"
 			BattlefieldItemRules.consume(next_state, card_id)
-	elif bool(card.get("burn", false)):
+	elif bool(card.get("burn", false)) or bool(empower_payment.get("exhaust", false)):
 		var escape_id: String = SkillTreeLibrary.skill_id_for_effect("preserve_burn")
 		var escape_armed: bool = bool((next_state.get("skill_flags", {}) as Dictionary).get("burn_preserve_armed", false))
 		if not GameData.card_is_item(card_id) and has_skill(next_state, escape_id) and escape_armed:
@@ -1672,12 +1688,18 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	if health_cost > 0:
 		next_state = _lose_player_health(next_state, health_cost, true, false, "card_health_cost")
 		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
+	var empower_health: int = int(empower_payment.get("health", 0))
+	if empower_health > 0:
+		next_state = _lose_player_health(next_state, empower_health, true, false, "card_health_cost")
+		_log(next_state, "Paid %d health to Empower %s." % [empower_health, str(card.get("name", card_id))])
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
 	var time_cost: int = card_time_cost_from_def(card)
 	var borrowed_time_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
 	if used_banked_play and _skill_charge_available(next_state, borrowed_time_id):
 		time_cost = 0
 		_mark_skill_used(next_state, borrowed_time_id, "%s removes this card's Time." % SkillTreeLibrary.display_name(borrowed_time_id))
+	# Borrowed Time removes the printed Time only; an Empower surcharge is still paid.
+	time_cost += int(empower_payment.get("time", 0))
 	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + time_cost
 	DragonTrophyRules.finish_card_time(next_state,card,card_id,_relic_effects(next_state),time_cost,play_context)
 	next_state = _trigger_card_play_relics(
@@ -1761,6 +1783,10 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 		result.append(_umbra_presented_turn_order_entry(state, current_actor, projection_context))
 	performance_phase_started = _record_runtime_performance_phase("current_turn_order_active", performance_phase_started)
 	var queue: Array = _sorted_turn_queue(state.get("turn_queue", []))
+	# A hovered Stagger target previews its delay without touching the real queue.
+	var preview_delays: Dictionary = state.get(CardKeywordRules.PREVIEW_DELAYS_KEY, {}) as Dictionary
+	if not preview_delays.is_empty():
+		queue = _sorted_turn_queue(CardKeywordRules.queue_with_preview_delays(queue, preview_delays))
 	performance_phase_started = _record_runtime_performance_phase("current_turn_order_initial_sort", performance_phase_started)
 	var preview_queue: Array = []
 	for entry_var: Variant in queue:
@@ -1787,6 +1813,8 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 			continue
 		entry["active"] = false
 		entry["eta"] = maxi(0, int(entry.get("time", clock)) - clock)
+		if (entry_var as Dictionary).has("stagger_preview"):
+			entry["stagger_preview"] = int((entry_var as Dictionary).get("stagger_preview", 0))
 		result.append(_umbra_presented_turn_order_entry(state, entry, projection_context))
 	_record_runtime_performance_phase("current_turn_order_present", performance_phase_started)
 	_record_runtime_performance_phase("current_turn_order_total", performance_total_started)
@@ -2618,6 +2646,15 @@ func force_directions_for_player_action(state: Dictionary, action: Dictionary, t
 		_forced_movement_amount(resolved_action)
 	)
 
+func card_keyword_play_summary(card_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array) -> Dictionary:
+	return CardKeywordRules.play_summary(card_def(card_id, before_state), before_state, resolved_state, actions)
+
+func card_empower_time_surcharge(card_id: String, state: Dictionary) -> int:
+	return CardKeywordRules.empower_time_surcharge(state, card_id, card_def(card_id, state))
+
+func stagger_delays_between(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	return CardKeywordRules.stagger_delays_between(before_state, after_state)
+
 func final_damage_for_player_action(state: Dictionary, action: Dictionary) -> int:
 	var resolved_action: Dictionary = _resolved_surface_action(state, action)
 	return _final_damage_for_resolved_player_action(state, resolved_action, _relic_effects(state))
@@ -2630,6 +2667,7 @@ func _final_damage_for_resolved_player_action(state: Dictionary, resolved_action
 	return maxi(
 		0,
 		base_damage
+		+ CardKeywordRules.scale_bonus_damage(state, resolved_action)
 		+ _attack_bonus_for_current_turn_from_effects(state, relic_effects)
 		+ _conditional_attack_bonus_for_action_from_effects(state, resolved_action, relic_effects)
 	)
@@ -2649,6 +2687,9 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 		})
 	for modifier: Dictionary in _conditional_attack_modifiers_for_action(state, action):
 		modifiers.append(modifier)
+	var scale_modifier: Dictionary = CardKeywordRules.scale_bonus_modifier(state, action)
+	if not scale_modifier.is_empty():
+		modifiers.append(scale_modifier)
 	return modifiers
 
 func enemy_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
@@ -4951,10 +4992,16 @@ func _schedule_actor(state: Dictionary, entry: Dictionary) -> void:
 	if entry.is_empty():
 		return
 	var queue: Array = _sorted_turn_queue(state.get("turn_queue", []))
-	var scheduled: Dictionary = entry.duplicate(true)
+	# Stagger that landed while this enemy had no queued turn applies here.
+	var scheduled: Dictionary = CardKeywordRules.consume_pending_stagger(state, entry.duplicate(true))
 	scheduled["seq"] = _claim_activation_seq(state)
 	queue.append(scheduled)
 	state["turn_queue"] = _sorted_turn_queue(queue)
+
+# Stagger N: the enemy's next queued turn moves N later (bosses half, at most 6
+# per enemy each player activation). Never changes initiative_clock.
+func _apply_stagger_to_enemy(state: Dictionary, enemy_id: int, amount: int) -> int:
+	return CardKeywordRules.apply_stagger(self, state, enemy_id, amount)
 
 func _schedule_enemy_after_turn(state: Dictionary, enemy: Dictionary, turn_time_cost: int) -> void:
 	var delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(state, enemy) + maxi(0, turn_time_cost))
@@ -10713,6 +10760,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				continue
 			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
 			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
 			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = _damage_for_enemy_target(state, hit_action, index)
 			state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action))
@@ -10720,6 +10768,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				state = _consume_enemy_expose(state, index)
 			if action.has("_group_force_context"): hit_action["_group_force_context"] = action["_group_force_context"]
 			state = _apply_action_keywords_to_enemy(state, index, hit_action, origin if hit["from"] == hit["to"] else hit["from"])
+			_apply_stagger_to_enemy(state, int(hit["id"]), int(hit_action.get("stagger", 0)))
 			_mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
 		else:
@@ -11131,6 +11180,7 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 				hit_action[field] = int(hit_action.get(field, 0)) + int(bonus[field])
 	hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
 	hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
+	hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
 	state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 	state = _damage_enemy(state, index, _damage_for_enemy_target(state, hit_action, index), true, _action_pierces_defense(hit_action))
 	if GuardianRelicRules.amount(state,"force_enemy_line")>0 and _action_has_forced_movement(hit_action):

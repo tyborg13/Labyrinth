@@ -164,6 +164,12 @@ movement, and surface creation/consumption payoffs during the resolved transitio
   than multiplying it by `flurry_plays_spent`.
 - initiative timing: printed `card_time`, player turn time spent before/after
   the play, and the current `player_base_initiative`
+- card keywords (additive, `spec/card_keywords.md`): `follow_up_active` (the
+  card's Follow-up bonus applied), `empowered` (the player opted into Empower),
+  `empower_cost` (the Empower cost dictionary, e.g. `{"time": 2}`, or null) and
+  `stagger_applied` (total turn-clock delay this card added to enemies after
+  dragon halving and the per-turn cap). An Empower Time cost is already
+  included in `turn_time_spent_after`.
 - surface revision before/after, actual creation/replacement/consumption events,
   contact and activation-start damage, Freeze fuel, and Chain/conduction routes
 - illusions created and their total created health
