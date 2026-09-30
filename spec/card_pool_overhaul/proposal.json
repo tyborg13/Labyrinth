@@ -1,0 +1,8293 @@
+{
+ "baseline": {
+  "commit": "0a2330850",
+  "cards_json_sha256_prefix": "3b92f61f1a4dd4d2"
+ },
+ "stats": {
+  "before": {
+   "total": 158,
+   "magic": 56,
+   "gear_cards": 88,
+   "gear_pieces": 42,
+   "items": 10
+  },
+  "after": {
+   "total": 305,
+   "magic": 129,
+   "gear_cards": 152,
+   "gear_pieces": 72,
+   "items": 24
+  },
+  "status": {
+   "tweak": 25,
+   "keep": 94,
+   "cut": 3,
+   "new": 150,
+   "rework": 32,
+   "moved": 4
+  },
+  "impl": {
+   "0": 165,
+   "1": 45,
+   "2": 95
+  },
+  "school_rarity": {
+   "fire": {
+    "common": 10,
+    "rare": 6,
+    "epic": 4,
+    "legendary": 2
+   },
+   "ice": {
+    "common": 9,
+    "rare": 8,
+    "epic": 3,
+    "legendary": 2
+   },
+   "lightning": {
+    "common": 9,
+    "rare": 6,
+    "epic": 5,
+    "legendary": 2
+   },
+   "air": {
+    "common": 10,
+    "rare": 7,
+    "epic": 3,
+    "legendary": 2
+   },
+   "earth": {
+    "common": 10,
+    "rare": 7,
+    "epic": 3,
+    "legendary": 2
+   },
+   "radiance": {
+    "common": 5,
+    "rare": 6,
+    "epic": 3,
+    "legendary": 2
+   }
+  },
+  "keywords": {
+   "Empower": 14,
+   "Follow-up": 9,
+   "Stagger": 13,
+   "Retaliate": 11,
+   "Quicken": 6,
+   "Rite": 9
+  },
+  "slots": {
+   "weapon": 17,
+   "offhand": 14,
+   "armor": 13,
+   "boots": 13,
+   "trinket": 15
+  },
+  "plain_gear_after": 18,
+  "plain_gear_before": 25
+ },
+ "pieces": [
+  {
+   "id": "training_sword",
+   "name": "Training Sword",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "Starter blade. Teaches playing a card second (Follow-up) and paying extra for more (Empower).",
+   "cards": [
+    "quick_stab",
+    "whirlwind_slash",
+    "bloody_lunge"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "iron_cleaver",
+   "name": "Iron Cleaver",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "A butcher's blade. Breaks armor and finishes wounded enemies.",
+   "cards": [
+    "cleaver_hook",
+    "needle_flurry",
+    "butcher_chop"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "duelist_rapier",
+   "name": "Duelist Rapier",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Parry and punish. The Retaliate weapon.",
+   "cards": [
+    "riposte_lunge",
+    "battle_rhythm",
+    "bodkin_arrow"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "grave_greatsword",
+   "name": "Grave Greatsword",
+   "slot": "weapon",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Slow, enormous, and paid for in blood.",
+   "cards": [
+    "grave_cleave",
+    "blood_price",
+    "tombsplitter"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "sawtooth_knife",
+   "name": "Sawtooth Knife",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "Many small cuts. Bleed and Expose at low Time.",
+   "cards": [
+    "sawtooth_flurry",
+    "serrated_slip",
+    "backhand_nick"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "stormstring_bow",
+   "name": "Stormstring Bow",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": "lightning",
+   "theme": "Arrows that leave charge behind.",
+   "cards": [
+    "stormstring_shot",
+    "forked_nock",
+    "far_draw"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "hookspine_halberd",
+   "name": "Hookspine Halberd",
+   "slot": "weapon",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Reach 2 and control. Hooks, pins and flank sweeps.",
+   "cards": [
+    "hookspine_reap",
+    "sweeping_haft",
+    "hook_and_hold"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "phoenix_brand",
+   "name": "Phoenix Brand",
+   "slot": "weapon",
+   "rarity": "legendary",
+   "element": "fire",
+   "theme": "Fire melee that detonates what it strikes.",
+   "cards": [
+    "phoenix_cleave",
+    "ember_guard",
+    "rekindle_edge"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "windlass_repeater",
+   "name": "Windlass Repeater",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": null,
+   "theme": "The Flurry crossbow.",
+   "cards": [
+    "windlass_volley",
+    "crank_reload",
+    "pinning_quarrel"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "war_maul",
+   "name": "War Maul",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "Blunt force. Stagger, and shoves into walls.",
+   "cards": [
+    "crushing_blow",
+    "haft_shove",
+    "overhead_smash"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "hunting_spear",
+   "name": "Hunting Spear",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "Reach, a brace against charges, and one throw.",
+   "cards": [
+    "spear_thrust",
+    "brace_the_spear",
+    "hurl_spear"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "tinkers_knives",
+   "name": "Tinker's Knives",
+   "slot": "weapon",
+   "rarity": "common",
+   "element": null,
+   "theme": "Cheap blades and quick hands. Low Time, card flow.",
+   "cards": [
+    "ricochet_knife",
+    "fan_of_knives",
+    "palm_blade"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "dawnlight_censer",
+   "name": "Dawnlight Censer",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": null,
+   "theme": "A swinging censer of holy light. Radiance melee.",
+   "cards": [
+    "censer_swing",
+    "hallowed_strike",
+    "incense_haze"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "tourney_lance",
+   "name": "Tourney Lance",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Momentum. Every tile you move this turn adds damage.",
+   "cards": [
+    "couched_lance",
+    "joust",
+    "unhorse"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "rimebite_hatchet",
+   "name": "Rimebite Hatchet",
+   "slot": "weapon",
+   "rarity": "epic",
+   "element": "ice",
+   "theme": "Ice melee. Chill up close, then cash in the Freeze.",
+   "cards": [
+    "rime_hack",
+    "frozen_bite",
+    "shatter_swing"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "galewhip",
+   "name": "Galewhip",
+   "slot": "weapon",
+   "rarity": "rare",
+   "element": "air",
+   "theme": "Reach 3. Drag, startle and bind.",
+   "cards": [
+    "lash",
+    "crack_the_whip",
+    "snare_coil"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "worldbreaker",
+   "name": "Worldbreaker",
+   "slot": "weapon",
+   "rarity": "legendary",
+   "element": "earth",
+   "theme": "Earth legendary. Raise stone, then break it into projectiles.",
+   "cards": [
+    "fault_strike",
+    "raise_the_anvil",
+    "worldbreak"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "splintered_shield",
+   "name": "Splintered Shield",
+   "slot": "offhand",
+   "rarity": "common",
+   "element": null,
+   "theme": "Starter shield. Cheap Block and a free extra play.",
+   "cards": [
+    "brace",
+    "guarded_step"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "ward_kite",
+   "name": "Ward-Kite",
+   "slot": "offhand",
+   "rarity": "common",
+   "element": null,
+   "theme": "A kite shield for advancing and shoving.",
+   "cards": [
+    "kite_bash",
+    "warded_advance"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "chain_guard",
+   "name": "Chain Guard",
+   "slot": "offhand",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Hook and hold at range 2.",
+   "cards": [
+    "chain_catch",
+    "chain_lock"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "mirror_guard",
+   "name": "Mirror Guard",
+   "slot": "offhand",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Decoys that open enemies up.",
+   "cards": [
+    "mirror_feint",
+    "mirror_flash"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "buckler_of_nails",
+   "name": "Buckler of Nails",
+   "slot": "offhand",
+   "rarity": "common",
+   "element": null,
+   "theme": "A spiked buckler. Pierce and Retaliate.",
+   "cards": [
+    "nail_parry",
+    "spike_check"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "lodestone_buckler",
+   "name": "Lodestone Buckler",
+   "slot": "offhand",
+   "rarity": "rare",
+   "element": "lightning",
+   "theme": "Magnetic defense for Lightning builds.",
+   "cards": [
+    "lodestone_reversal",
+    "polar_guard"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "witchglass_aegis",
+   "name": "Witchglass Aegis",
+   "slot": "offhand",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Reflection. Decoys that return what they take.",
+   "cards": [
+    "witchglass_double",
+    "reflected_threat"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "sunken_anchor",
+   "name": "Sunken Anchor",
+   "slot": "offhand",
+   "rarity": "legendary",
+   "element": null,
+   "theme": "Drag enemies in and crush them against you.",
+   "cards": [
+    "anchor_slam",
+    "undertow_guard"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "tower_shield",
+   "name": "Tower Shield",
+   "slot": "offhand",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Plant it or charge with it.",
+   "cards": [
+    "shield_wall",
+    "shield_charge"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "parrying_dagger",
+   "name": "Parrying Dagger",
+   "slot": "offhand",
+   "rarity": "common",
+   "element": null,
+   "theme": "The duelist's second blade. Retaliate and Follow-up.",
+   "cards": [
+    "deflect",
+    "main_gauche"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "sunward_targe",
+   "name": "Sunward Targe",
+   "slot": "offhand",
+   "rarity": "rare",
+   "element": "radiance",
+   "theme": "A polished targe that throws light.",
+   "cards": [
+    "sun_flash",
+    "blinding_bash"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "glacial_bulwark",
+   "name": "Glacial Bulwark",
+   "slot": "offhand",
+   "rarity": "epic",
+   "element": "ice",
+   "theme": "Ice defense. Freeze the ground you hold.",
+   "cards": [
+    "hoarfrost_wall",
+    "cold_shoulder"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "basalt_pavise",
+   "name": "Basalt Pavise",
+   "slot": "offhand",
+   "rarity": "rare",
+   "element": "earth",
+   "theme": "Earth offhand. Plant stone cover.",
+   "cards": [
+    "plant_pavise",
+    "stonewall_stance"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "grapple_hook",
+   "name": "Grapple Hook",
+   "slot": "offhand",
+   "rarity": "common",
+   "element": null,
+   "theme": "Reach across the room, either way.",
+   "cards": [
+    "grapple",
+    "yank"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "patched_cloak",
+   "name": "Patched Cloak",
+   "slot": "armor",
+   "rarity": "common",
+   "element": null,
+   "theme": "Starter armor. One emergency patch and a blink.",
+   "cards": [
+    "patch_up",
+    "shadow_step"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "boiled_leather",
+   "name": "Boiled Leather",
+   "slot": "armor",
+   "rarity": "common",
+   "element": null,
+   "theme": "Plain, dependable leather.",
+   "cards": [
+    "leather_roll",
+    "rallying_breath"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "glassbone_cuirass",
+   "name": "Glassbone Cuirass",
+   "slot": "armor",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Fragile, strong armor that runs on health.",
+   "cards": [
+    "glassbone_guard",
+    "last_light"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "undertaker_plate",
+   "name": "Undertaker Plate",
+   "slot": "armor",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Heavy plate that punishes whoever gets close.",
+   "cards": [
+    "undertaker_stand",
+    "grave_sprint"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "stitcher_apron",
+   "name": "Stitcher Apron",
+   "slot": "armor",
+   "rarity": "common",
+   "element": null,
+   "theme": "The field surgeon's apron. Patch wounds, cut bindings.",
+   "cards": [
+    "field_suture",
+    "threadbare_guard"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "cinderweave_mail",
+   "name": "Cinderweave Mail",
+   "slot": "armor",
+   "rarity": "rare",
+   "element": "fire",
+   "theme": "Fire armor for standing close.",
+   "cards": [
+    "cinderweave_guard",
+    "cinder_patch"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "rimeplate_harness",
+   "name": "Rimeplate Harness",
+   "slot": "armor",
+   "rarity": "epic",
+   "element": "ice",
+   "theme": "Ice armor that pins what it hits.",
+   "cards": [
+    "rimeplate_lock",
+    "hoarfrost_shell"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "voidsilk_carapace",
+   "name": "Voidsilk Carapace",
+   "slot": "armor",
+   "rarity": "legendary",
+   "element": null,
+   "theme": "Shed your skin and leave it behind.",
+   "cards": [
+    "voidsilk_molt",
+    "empty_husk"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "thornmail",
+   "name": "Thornmail",
+   "slot": "armor",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Barbs that answer every blow.",
+   "cards": [
+    "barbed_mail",
+    "bristle"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "quarrymail",
+   "name": "Quarrymail",
+   "slot": "armor",
+   "rarity": "epic",
+   "element": "earth",
+   "theme": "Earth armor. Turn temporary defense into permanent defense.",
+   "cards": [
+    "quarry_plating",
+    "shrug_off"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "stormweave_robe",
+   "name": "Stormweave Robe",
+   "slot": "armor",
+   "rarity": "rare",
+   "element": "lightning",
+   "theme": "Lightning armor. Shock what touches you, move faster.",
+   "cards": [
+    "static_mantle",
+    "galvanize"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "gale_cloak",
+   "name": "Gale Cloak",
+   "slot": "armor",
+   "rarity": "common",
+   "element": "air",
+   "theme": "Air armor. Move freely and don't get moved.",
+   "cards": [
+    "catch_the_wind",
+    "windbreak"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "pilgrim_vestments",
+   "name": "Pilgrim Vestments",
+   "slot": "armor",
+   "rarity": "common",
+   "element": "radiance",
+   "theme": "Radiance armor for deep, dark rooms.",
+   "cards": [
+    "vigil",
+    "blessed_salve"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "skirmisher_boots",
+   "name": "Skirmisher Boots",
+   "slot": "boots",
+   "rarity": "common",
+   "element": null,
+   "theme": "Starter boots. Step in and hit, or step in and pin.",
+   "cards": [
+    "sidestep_slash",
+    "hamstring_shot"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "dust_tabi",
+   "name": "Dust Tabi",
+   "slot": "boots",
+   "rarity": "common",
+   "element": null,
+   "theme": "Light, quick footwear.",
+   "cards": [
+    "dust_skip",
+    "dust_glide"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "trapdoor_spurs",
+   "name": "Trapdoor Spurs",
+   "slot": "boots",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Spring over trouble and kick it into walls.",
+   "cards": [
+    "spur_vault",
+    "hamstring_slice"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "gravewind_soles",
+   "name": "Gravewind Soles",
+   "slot": "boots",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Ghost-step in for the kill.",
+   "cards": [
+    "gravewind_step",
+    "shadow_gate"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "hobnail_grips",
+   "name": "Hobnail Grips",
+   "slot": "boots",
+   "rarity": "common",
+   "element": null,
+   "theme": "Heavy hobnailed boots. Kick and stomp.",
+   "cards": [
+    "hobnail_drive",
+    "heel_hook"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "static_spurs",
+   "name": "Static Spurs",
+   "slot": "boots",
+   "rarity": "rare",
+   "element": "lightning",
+   "theme": "Lightning boots. Wire the floor as you go.",
+   "cards": [
+    "static_pivot",
+    "spur_spark"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "cloudstep_sandals",
+   "name": "Cloudstep Sandals",
+   "slot": "boots",
+   "rarity": "epic",
+   "element": "air",
+   "theme": "Air boots. Stay out of reach and keep acting.",
+   "cards": [
+    "cloudstep_loop",
+    "zephyr_feint"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "worldroot_greaves",
+   "name": "Worldroot Greaves",
+   "slot": "boots",
+   "rarity": "legendary",
+   "element": "earth",
+   "theme": "Earth legendary. Rubble as armor.",
+   "cards": [
+    "worldroot_stride",
+    "rooted_kick"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "ironshod_sabatons",
+   "name": "Ironshod Sabatons",
+   "slot": "boots",
+   "rarity": "rare",
+   "element": null,
+   "theme": "Momentum boots. Moving further hits harder.",
+   "cards": [
+    "iron_wheel",
+    "headlong"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "frostwalkers",
+   "name": "Frostwalkers",
+   "slot": "boots",
+   "rarity": "common",
+   "element": "ice",
+   "theme": "Ice boots. Leave a cold trail.",
+   "cards": [
+    "glide",
+    "rime_step"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "emberstriders",
+   "name": "Emberstriders",
+   "slot": "boots",
+   "rarity": "rare",
+   "element": "fire",
+   "theme": "Fire boots. Walk through flame and leave more behind.",
+   "cards": [
+    "cinder_trail",
+    "hotfoot"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "monks_wraps",
+   "name": "Monk's Wraps",
+   "slot": "boots",
+   "rarity": "common",
+   "element": null,
+   "theme": "Footwraps for a two-card rhythm.",
+   "cards": [
+    "flowing_step",
+    "palm_strike"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "dawnwalkers",
+   "name": "Dawnwalkers",
+   "slot": "boots",
+   "rarity": "rare",
+   "element": "radiance",
+   "theme": "Radiance boots. Light a path, then travel along the light.",
+   "cards": [
+    "sunpath_stride",
+    "seek_the_light"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "cracked_lantern",
+   "name": "Cracked Lantern",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": null,
+   "theme": "Starter light.",
+   "cards": [
+    "lantern_shot"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "ember_pendant",
+   "name": "Ember Pendant",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": "fire",
+   "theme": "A small fire charm.",
+   "cards": [
+    "ember_tithe"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "clockwork_arrowhead",
+   "name": "Clockwork Arrowhead",
+   "slot": "trinket",
+   "rarity": "rare",
+   "element": null,
+   "theme": "A timed bolt that sets back the target's clock.",
+   "cards": [
+    "clockwork_mark"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "sealed_cyclone",
+   "name": "Sealed Cyclone",
+   "slot": "trinket",
+   "rarity": "legendary",
+   "element": null,
+   "theme": "A storm in a bottle, once per fight.",
+   "cards": [
+    "unsealed_gale"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "bone_dice",
+   "name": "Bone Dice",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": null,
+   "theme": "The gambler's charm: marks and extra plays.",
+   "cards": [
+    "loaded_toss",
+    "snake_eyes"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "rime_locket",
+   "name": "Rime Locket",
+   "slot": "trinket",
+   "rarity": "rare",
+   "element": "ice",
+   "theme": "An Ice charm.",
+   "cards": [
+    "locket_chill",
+    "kept_breath"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "ember_hourglass",
+   "name": "Ember Hourglass",
+   "slot": "trinket",
+   "rarity": "epic",
+   "element": "fire",
+   "theme": "Borrowed Time, paid in fire.",
+   "cards": [
+    "borrowed_spark",
+    "cinder_second"
+   ],
+   "status": "tweak",
+   "note": ""
+  },
+  {
+   "id": "crown_of_thorns",
+   "name": "Crown of Thorns",
+   "slot": "trinket",
+   "rarity": "legendary",
+   "element": null,
+   "theme": "Blood legendary. Bleed them, and bleed for it.",
+   "cards": [
+    "thorn_crown_pact",
+    "royal_bramble"
+   ],
+   "status": "rework",
+   "note": ""
+  },
+  {
+   "id": "war_dancer_sash",
+   "name": "War-Dancer Sash",
+   "slot": "trinket",
+   "rarity": "epic",
+   "element": null,
+   "theme": "The Flurry trinket.",
+   "cards": [
+    "blade_dance",
+    "gathering_rhythm"
+   ],
+   "status": "keep",
+   "note": ""
+  },
+  {
+   "id": "geode_charm",
+   "name": "Geode Charm",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": "earth",
+   "theme": "An Earth charm that grows stone.",
+   "cards": [
+    "geode"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "stormglass_orb",
+   "name": "Stormglass Orb",
+   "slot": "trinket",
+   "rarity": "rare",
+   "element": "lightning",
+   "theme": "A Lightning charm for speed.",
+   "cards": [
+    "charged_orb"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "doppel_doll",
+   "name": "Doppel Doll",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": null,
+   "theme": "A straw double for illusion builds.",
+   "cards": [
+    "straw_double"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "headsmans_coin",
+   "name": "Headsman's Coin",
+   "slot": "trinket",
+   "rarity": "rare",
+   "element": null,
+   "theme": "A finisher's token.",
+   "cards": [
+    "headsmans_toll"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "gamblers_watch",
+   "name": "Gambler's Watch",
+   "slot": "trinket",
+   "rarity": "epic",
+   "element": null,
+   "theme": "Time trinket. Buy speed now, pay for cards later.",
+   "cards": [
+    "stolen_moment",
+    "reprise"
+   ],
+   "status": "new",
+   "note": ""
+  },
+  {
+   "id": "oathstone",
+   "name": "Oathstone",
+   "slot": "trinket",
+   "rarity": "common",
+   "element": null,
+   "theme": "A sworn promise to hit hard.",
+   "cards": [
+    "sworn_oath"
+   ],
+   "status": "new",
+   "note": ""
+  }
+ ],
+ "cards": [
+  {
+   "id": "pale_spark",
+   "name": "Pale Spark",
+   "src": "starter",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 3 at range 3.",
+   "status": "tweak",
+   "note": "Range 2 lost to a step plus a melee card. Range 3 lets the opener hit from safety while staying the weakest spell.",
+   "impl": 0,
+   "was_id": "pale_spark",
+   "piece": null,
+   "was": {
+    "name": "Pale Spark",
+    "rarity": "common",
+    "time": 3,
+    "text": "Deal 3 at range 2."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "dull_bolt",
+   "name": "Dull Bolt",
+   "src": "starter",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 at range 3.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "dull_bolt",
+   "piece": null,
+   "was": {
+    "name": "Dull Bolt",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 4 at range 3."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "waning_pulse",
+   "name": "Waning Pulse",
+   "src": "starter",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 to each adjacent enemy and Push them 1.",
+   "status": "tweak",
+   "note": "The lowest-scoring starter. Now it is the starter deck's escape from a surround, and it teaches Push on turn one.",
+   "impl": 0,
+   "was_id": "waning_pulse",
+   "piece": null,
+   "was": {
+    "name": "Waning Pulse",
+    "rarity": "common",
+    "time": 4,
+    "text": "Pulse for 4 on adjacent tiles."
+   },
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ember_jab",
+   "name": "Measured Cut",
+   "src": "starter",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 5, then draw 1.",
+   "status": "cut",
+   "note": "Flagged as a starter but used by no starting kit, reward or shop. Dead data.",
+   "impl": 0,
+   "was_id": "ember_jab",
+   "piece": null,
+   "was": {
+    "name": "Measured Cut",
+    "rarity": "common",
+    "time": 3,
+    "text": "Strike for 5, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "guiding_flare",
+   "name": "Guiding Flare",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 at range 3. Leave Fire and radius-2 Light for 2 turns.",
+   "status": "tweak",
+   "note": "Range 2 to 3. Fire's Light painter; Firebrand Volley no longer does its job better.",
+   "impl": 0,
+   "was_id": "guiding_flare",
+   "piece": null,
+   "was": {
+    "name": "Guiding Flare",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 3 at range 2, then leave Fire and radius-2 Light for 2 turns."
+   },
+   "tags": [
+    "Fire",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "firebrand_volley",
+   "name": "Firebrand Volley",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 4 at range 3. Leave Fire.",
+   "status": "tweak",
+   "note": "Was strictly better than Guiding Flare. Drops the Light rider and becomes the fast, plain painter.",
+   "impl": 0,
+   "was_id": "firebrand_volley",
+   "piece": null,
+   "was": {
+    "name": "Firebrand Volley",
+    "rarity": "common",
+    "time": 3,
+    "text": "Deal 4 at range 3, then leave Fire and radius-1 Light for 2 turns."
+   },
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cinder_bloom",
+   "name": "Cinder Bloom",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 2 in a cross at range 2. Leave Fire in the cross. Empower (Exhaust): the pattern becomes a radius-2 diamond.",
+   "status": "tweak",
+   "note": "Time 6 to 5. The wide painter; the once-per-combat Empower paints a whole Detonate board.",
+   "impl": 1,
+   "was_id": "cinder_bloom",
+   "piece": null,
+   "was": {
+    "name": "Cinder Bloom",
+    "rarity": "common",
+    "time": 6,
+    "text": "Deal 2 in a cross at range 2, then leave Fire in the pattern."
+   },
+   "tags": [
+    "Empower",
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hearth_rush",
+   "name": "Hearth Rush",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Move 2, then strike for 6. Leave Fire beneath the target.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hearth_rush",
+   "piece": null,
+   "was": {
+    "name": "Hearth Rush",
+    "rarity": "common",
+    "time": 5,
+    "text": "Move 2, then strike for 6 and leave Fire beneath the target."
+   },
+   "tags": [
+    "Fire",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cinderline_tempo",
+   "name": "Cinderline Tempo",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 2 at range 2, then Detonate 6 at the target.",
+   "status": "tweak",
+   "note": "Time 4 to 3. A cash-out that needs setup should be cheap.",
+   "impl": 0,
+   "was_id": "cinderline_tempo",
+   "piece": null,
+   "was": {
+    "name": "Cinderline Tempo",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 2 at range 2, then Detonate 6 at the impact."
+   },
+   "tags": [
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "kindle",
+   "name": "Kindle",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Place Fire on a tile within range 3. Draw 1.",
+   "status": "new",
+   "note": "The cheapest Fire setup. Lets a hand holding only a Detonate still function.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Draw"
+   ]
+  },
+  {
+   "id": "flame_jet",
+   "name": "Flame Jet",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 to the first 3 tiles in a line from you (rotatable). Leave Fire on the farthest tile.",
+   "status": "new",
+   "note": "A close-range line, a shape Fire lacked. The far tile becomes the next Detonate anchor.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "scorch",
+   "name": "Scorch",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 at range 3. +3 if the target stands on Fire.",
+   "status": "new",
+   "note": "Non-consuming payoff: rewards keeping Fire on the board instead of spending it.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "stoke",
+   "name": "Stoke",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Each enemy you can see that stands on Fire takes 3.",
+   "status": "new",
+   "note": "A wide, non-consuming payoff. Detonate spends Fire; Stoke rewards having lots of it.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire"
+   ]
+  },
+  {
+   "id": "ember_ward",
+   "name": "Ember Ward",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Leave Fire under each adjacent enemy.",
+   "status": "new",
+   "note": "Ward cycle. Melee enemies that stay to hit you burn at their turn start.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Block"
+   ]
+  },
+  {
+   "id": "inferno_ritual",
+   "name": "Inferno Ritual",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 3 in a cross at range 2, then Detonate 9 in that pattern.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "inferno_ritual",
+   "piece": null,
+   "was": {
+    "name": "Inferno Ritual",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 3 in a cross at range 2, then Detonate 9 in that pattern."
+   },
+   "tags": [
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "molten_reach",
+   "name": "Molten Reach",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 4 along a 3-tile line at range 2. Leave Fire along it.",
+   "status": "tweak",
+   "note": "Time 6 to 5, in line with the other painters.",
+   "impl": 0,
+   "was_id": "molten_reach",
+   "piece": null,
+   "was": {
+    "name": "Molten Reach",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 4 along a three-tile line at range 2, then leave Fire along it."
+   },
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cinder_fusillade",
+   "name": "Cinder Fusillade",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Deal 2 at range 3 and leave Fire, once per play spent.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "cinder_fusillade",
+   "piece": null,
+   "was": {
+    "name": "Cinder Fusillade",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Flurry. Deal 2 at range 3 and leave Fire for each play spent."
+   },
+   "tags": [
+    "Fire",
+    "Flurry",
+    "Attack"
+   ]
+  },
+  {
+   "id": "flashsteam",
+   "name": "Flashsteam",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Target a cross within range 3. Consume all Ice in it. Deal 3 to each enemy in the cross, +4 to enemies that stood on Ice.",
+   "status": "new",
+   "note": "Fire + Ice bridge. An Ice player's leftover lanes become a Fire player's ammunition.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "magma_vent",
+   "name": "Magma Vent",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Consume a Rubble tile within range 3. Deal 5 to each enemy on it and its four neighbors, then leave Fire there.",
+   "status": "new",
+   "note": "Fire + Earth bridge. Card-level version of what Basalt Kiln does as a relic.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Rubble",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cinder_wall",
+   "name": "Cinder Wall",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Leave Fire on a 4-tile line within range 2 (rotatable). Gain 4 Block.",
+   "status": "new",
+   "note": "Defensive Fire: a wall that makes approaching you cost health.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Block"
+   ]
+  },
+  {
+   "id": "immolation",
+   "name": "Immolation",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Detonate 7 on every Fire tile within 1 of you, including your own. You take no damage from it. Empower (2 HP): within 2 instead.",
+   "status": "new",
+   "note": "The firewalker's burst. Stand in your own Fire, then cash all of it out at once.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Fire",
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "pyroclasm",
+   "name": "Pyroclasm",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 7,
+   "costs": [],
+   "text": "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.",
+   "status": "new",
+   "note": "Fire's single-target nuke, conditional on the element's own setup.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rite_of_the_pyre",
+   "name": "Rite of the Pyre",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: your Fire tiles deal 2 more damage.",
+   "status": "new",
+   "note": "Fire's engine piece. Every painter after this one is worth more.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "meteorfall",
+   "name": "Meteorfall",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 7,
+   "costs": [],
+   "text": "Mark a 3-tile line within range 4 (rotatable). At the start of your next turn, each marked tile takes 8 and becomes Fire.",
+   "status": "new",
+   "note": "Vyraketh's marks, turned around. A telegraphed strike that controls where enemies are willing to stand.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire"
+   ]
+  },
+  {
+   "id": "wildfire_halo",
+   "name": "Wildfire Halo",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [],
+   "text": "Deal 4 in a large diamond at range 2, then Detonate 10 in that pattern.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "wildfire_halo",
+   "piece": null,
+   "was": {
+    "name": "Wildfire Halo",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Deal 4 in a large pattern at range 2, then Detonate 10 in that pattern."
+   },
+   "tags": [
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "salamander_heart",
+   "name": "Salamander Heart",
+   "src": "magic",
+   "school": "fire",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: you ignore Fire damage. At the start of your turn, if you stand on Fire, gain 3 Stoneskin and draw 1.",
+   "status": "new",
+   "note": "Build-around. Turns Fire from a shared hazard into your terrain.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Fire",
+    "Draw",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "frostbolt",
+   "name": "Frostbolt",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Ice at range 3. Leave Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "frostbolt",
+   "piece": null,
+   "was": {
+    "name": "Frostbolt",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 4 Ice damage at range 3, then leave Ice."
+   },
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rime_shard",
+   "name": "Rime Shard",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 2 Ice along a 2-tile line at range 2. Leave Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "rime_shard",
+   "piece": null,
+   "was": {
+    "name": "Rime Shard",
+    "rarity": "common",
+    "time": 3,
+    "text": "Deal 2 Ice damage along a two-tile line at range 2, then leave Ice."
+   },
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cold_grasp",
+   "name": "Cold Grasp",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Strike at reach 2 for 7 Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "cold_grasp",
+   "piece": null,
+   "was": {
+    "name": "Cold Grasp",
+    "rarity": "common",
+    "time": 4,
+    "text": "Strike up to range 2 for 7 Ice damage."
+   },
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "icicle_lance",
+   "name": "Icicle Lance",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 6 Ice at range 3. Pierce.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "icicle_lance",
+   "piece": null,
+   "was": {
+    "name": "Icicle Lance",
+    "rarity": "common",
+    "time": 5,
+    "text": "Pierce for 6 Ice damage at range 3."
+   },
+   "tags": [
+    "Ice",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "frost_lane",
+   "name": "Frost Lane",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Leave Ice on a 3-tile line within range 3 (rotatable). Draw 1.",
+   "status": "new",
+   "note": "Pure lane painter. Enemies that walk it are Chilled on entry.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Draw"
+   ]
+  },
+  {
+   "id": "skate",
+   "name": "Skate",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. This turn, Ice costs you no movement and doesn't Chill you.",
+   "status": "new",
+   "note": "Ice mobility. Your own lanes become roads for you and traps for them.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Move"
+   ]
+  },
+  {
+   "id": "shiver_shot",
+   "name": "Shiver Shot",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Deal 2 Ice at range 4.",
+   "status": "new",
+   "note": "The cheapest Freeze trigger. Ice needed a fast card to convert Chilled into Frozen.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hoarfrost_ward",
+   "name": "Hoarfrost Ward",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Leave Ice under each adjacent enemy.",
+   "status": "new",
+   "note": "Ward cycle. Enemies that stay adjacent start their turn Chilled for your next Ice hit.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Block"
+   ]
+  },
+  {
+   "id": "rimefang",
+   "name": "Rimefang",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Ice at range 2. Follow-up: +3, and leave Ice.",
+   "status": "new",
+   "note": "Rewards playing it second; played second after a painter, it can Freeze.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hush_of_winter",
+   "name": "Hush of Winter",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 5 Ice at range 4. If this Freezes the target, draw 2.",
+   "status": "rework",
+   "note": "Was a top-5 score with no identity (6 damage + draw). Now it pays you for doing the Ice setup.",
+   "impl": 2,
+   "was_id": "hush_of_winter",
+   "piece": null,
+   "was": {
+    "name": "Hush of Winter",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 6 Ice damage at range 4, then draw 1."
+   },
+   "tags": [
+    "Ice",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "shatterline",
+   "name": "Shatterline",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 5 Ice along a 3-tile line at range 2. Pierce. Empower (+2 Time): the line is 5 tiles.",
+   "status": "tweak",
+   "note": "Time 7 to 6, plus an optional long line.",
+   "impl": 1,
+   "was_id": "shatterline",
+   "piece": null,
+   "was": {
+    "name": "Shatterline",
+    "rarity": "rare",
+    "time": 7,
+    "text": "Pierce a three-tile line for 5 Ice damage at range 2."
+   },
+   "tags": [
+    "Empower",
+    "Ice",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "glacier_pin",
+   "name": "Glacier Pin",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 3 Ice along a 2-tile line at range 2 and Immobilize. Leave Ice.",
+   "status": "keep",
+   "note": "Already Ice's best setup: pinned enemies can't walk off their Ice before it Chills them.",
+   "impl": 0,
+   "was_id": "glacier_pin",
+   "piece": null,
+   "was": {
+    "name": "Glacier Pin",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 3 Ice damage along a two-tile line at range 2 and immobilize. Leave Ice in the line."
+   },
+   "tags": [
+    "Ice",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "icebound_chains",
+   "name": "Icebound Chains",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 5 Ice at range 2 and Immobilize. Gain Truesight for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "icebound_chains",
+   "piece": null,
+   "was": {
+    "name": "Icebound Chains",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 5 Ice damage at range 2 and immobilize. Gain truesight for 2 turns."
+   },
+   "tags": [
+    "Ice",
+    "Light",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "prism_sight",
+   "name": "Prism Sight",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Gain Truesight for 2 turns and 4 Block. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "prism_sight",
+   "piece": null,
+   "was": {
+    "name": "Prism Sight",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Gain truesight for 2 turns, gain 4 block, and draw 1."
+   },
+   "tags": [
+    "Light",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "frost_circuit",
+   "name": "Frost Circuit",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Choose an Ice tile within range 3. It and all Ice connected to it become Electrified. Deal 2 Lightning to each enemy on them and Shock them.",
+   "status": "new",
+   "note": "Ice + Lightning bridge. Converts frozen lanes into a live network.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Electrified",
+    "Shock",
+    "Attack"
+   ]
+  },
+  {
+   "id": "sleet_squall",
+   "name": "Sleet Squall",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Push 2 at range 3, then deal 3 Ice to the target.",
+   "status": "new",
+   "note": "Ice + Air bridge. Push first, hit second: a target shoved onto Ice is Chilled on entry, so the hit Freezes it.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ice_sculpture",
+   "name": "Ice Sculpture",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Create a 4-health illusion within range 3. Leave Ice on each tile adjacent to it.",
+   "status": "new",
+   "note": "A decoy that is also a trap. Enemies that step up to hit it arrive Chilled.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Ice"
+   ]
+  },
+  {
+   "id": "frost_nova",
+   "name": "Frost Nova",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 4 Ice to each adjacent enemy. Leave Ice on all 8 tiles around you.",
+   "status": "new",
+   "note": "Paints a whole ring at once. Pairs with Skate and Hoarfrost Wall.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "shatter",
+   "name": "Shatter",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 5 Ice at range 3. If the target was Frozen, also deal 5 to each enemy adjacent to it.",
+   "status": "new",
+   "note": "The Freeze payoff that spreads: 15 to the Frozen target, shards to its neighbors.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rite_of_hoarfrost",
+   "name": "Rite of Hoarfrost",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: whenever you Freeze an enemy, gain 3 Block and draw 1.",
+   "status": "new",
+   "note": "Ice's engine. Each Freeze now refunds a card.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Ice",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "white_silence",
+   "name": "White Silence",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "legendary",
+   "time": 8,
+   "costs": [],
+   "text": "Deal 4 Ice to each Chilled enemy you can see. (Each is Frozen.)",
+   "status": "rework",
+   "note": "Was 10 damage at range 3, a big number and nothing more. Now it is the Ice capstone: a mass Freeze for a prepared board.",
+   "impl": 2,
+   "was_id": "white_silence",
+   "piece": null,
+   "was": {
+    "name": "White Silence",
+    "rarity": "legendary",
+    "time": 8,
+    "text": "Deal 10 Ice damage at range 3."
+   },
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "crystal_mantle",
+   "name": "Crystal Mantle",
+   "src": "magic",
+   "school": "ice",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Gain 2 Mantle. Each direct hit against you breaks one Mantle instead of dealing damage.",
+   "status": "new",
+   "note": "Iskaldra's armor for the player. It negates hits by count, so it answers boss strikes that Block can't.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": []
+  },
+  {
+   "id": "spark_dart",
+   "name": "Spark Dart",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Lightning at range 3. Leave Electrified and radius-1 Light for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "spark_dart",
+   "piece": null,
+   "was": {
+    "name": "Spark Dart",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 4 Lightning damage at range 3, then leave Electrified and radius-1 Light for 2 turns."
+   },
+   "tags": [
+    "Electrified",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "chain_bolt",
+   "name": "Chain Bolt",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Lightning at range 3. Chain 2. Empower (+2 Time): Chain 4.",
+   "status": "tweak",
+   "note": "Time 5 to 4, plus an Empower. Lightning should be the fast element.",
+   "impl": 1,
+   "was_id": "chain_bolt",
+   "piece": null,
+   "was": {
+    "name": "Chain Bolt",
+    "rarity": "common",
+    "time": 5,
+    "text": "Deal 4 Lightning damage with Chain 2 at range 3."
+   },
+   "tags": [
+    "Empower",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "spark_focus",
+   "name": "Spark Focus",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Leave Electrified on a 3-tile line within range 3 (rotatable). Draw 1. Gain 1 Vision for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "spark_focus",
+   "piece": null,
+   "was": {
+    "name": "Spark Focus",
+    "rarity": "common",
+    "time": 3,
+    "text": "Place a three-tile Electrified line at range 3, draw 1, then gain 1 Vision for 2 turns."
+   },
+   "tags": [
+    "Electrified",
+    "Light",
+    "Draw"
+   ]
+  },
+  {
+   "id": "static_lash",
+   "name": "Static Lash",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Lightning at range 3. Hits conducted through Electrified also Shock.",
+   "status": "tweak",
+   "note": "Time 6 to 4. A conditional common can't cost more than an unconditional rare.",
+   "impl": 0,
+   "was_id": "static_lash",
+   "piece": null,
+   "was": {
+    "name": "Static Lash",
+    "rarity": "common",
+    "time": 6,
+    "text": "Deal 4 Lightning damage at range 3. Electrified-assisted hits also Shock."
+   },
+   "tags": [
+    "Electrified",
+    "Shock",
+    "Attack"
+   ]
+  },
+  {
+   "id": "jolt",
+   "name": "Jolt",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 1,
+   "costs": [],
+   "text": "Deal 2 Lightning at range 3.",
+   "status": "new",
+   "note": "The one-Time zap. Finishes a wounded enemy for the kill play, or pokes a network.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "static_rush",
+   "name": "Static Rush",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 2. Quicken 2.",
+   "status": "new",
+   "note": "Reposition and make the next card cheaper.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Quicken",
+    "Move"
+   ]
+  },
+  {
+   "id": "capacitor",
+   "name": "Capacitor",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Gain 4 Block. Your next Lightning attack this turn gains Chain 2.",
+   "status": "new",
+   "note": "Setup card that turns any single bolt into a multi-target one.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Chain",
+    "Block"
+   ]
+  },
+  {
+   "id": "static_ward",
+   "name": "Static Ward",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Electrify your tile and the tile of each adjacent enemy.",
+   "status": "new",
+   "note": "Ward cycle. Your tile links the adjacent tiles, so the next bolt hits everyone around you.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Electrified",
+    "Block"
+   ]
+  },
+  {
+   "id": "arc_flash",
+   "name": "Arc Flash",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 3 Lightning at range 3. Follow-up: Chain 2.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "storm_relay",
+   "name": "Storm Relay",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 5 Lightning at range 3. Chain 2. Hits conducted through Electrified also Shock.",
+   "status": "tweak",
+   "note": "Time 7 to 6.",
+   "impl": 0,
+   "was_id": "storm_relay",
+   "piece": null,
+   "was": {
+    "name": "Storm Relay",
+    "rarity": "rare",
+    "time": 7,
+    "text": "Deal 5 Lightning damage with Chain 2 at range 3. Electrified-assisted hits also Shock."
+   },
+   "tags": [
+    "Electrified",
+    "Shock",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "volt_surge",
+   "name": "Volt Surge",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 Lightning along a 3-tile line at range 2. Leave Electrified.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "volt_surge",
+   "piece": null,
+   "was": {
+    "name": "Volt Surge",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Deal 3 Lightning damage along a three-tile line at range 2, then leave Electrified."
+   },
+   "tags": [
+    "Electrified",
+    "Attack"
+   ]
+  },
+  {
+   "id": "storm_beacon",
+   "name": "Storm Beacon",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 3 Lightning at range 3. Chain 2. Leave Electrified and radius-2 Light for 2 turns at the impact.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "storm_beacon",
+   "piece": null,
+   "was": {
+    "name": "Storm Beacon",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 3 Lightning damage with Chain 2 at range 3, then leave Electrified and radius-2 Light for 2 turns at the impact."
+   },
+   "tags": [
+    "Electrified",
+    "Light",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "overclock",
+   "name": "Overclock",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Draw 1. Gain 1 card play. Empower (1 HP): draw 2 instead.",
+   "status": "new",
+   "note": "Lightning's card-flow piece, with a blood option for the big turn.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Draw",
+    "Card play"
+   ]
+  },
+  {
+   "id": "plasma_arc",
+   "name": "Plasma Arc",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 Lightning at range 3. Chain 2. Each enemy hit that stands on Fire takes 4 more; consume that Fire.",
+   "status": "new",
+   "note": "Lightning + Fire bridge.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "thunderclap",
+   "name": "Thunderclap",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 Lightning to each adjacent enemy and Push them 1. Electrify your tile.",
+   "status": "new",
+   "note": "Lightning + Air bridge. A shockwave that clears space and leaves a conductor behind.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Electrified",
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "storm_salvo",
+   "name": "Storm Salvo",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Deal 2 Lightning at range 3 with Chain 1, then draw 1, once per play spent.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "storm_salvo",
+   "piece": null,
+   "was": {
+    "name": "Storm Salvo",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Flurry. Deal 2 at range 3 with chain 1, then draw 1, for each card play spent."
+   },
+   "tags": [
+    "Chain",
+    "Flurry",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "thunderline",
+   "name": "Thunderline",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 7,
+   "costs": [],
+   "text": "Deal 6 Lightning along a 3-tile line at range 2. Chain 1. Hits conducted through Electrified also Shock.",
+   "status": "tweak",
+   "note": "Legendary to epic, Time 8 to 7. Strong, but it doesn't change how you play.",
+   "impl": 0,
+   "was_id": "thunderline",
+   "piece": null,
+   "was": {
+    "name": "Thunderline",
+    "rarity": "legendary",
+    "time": 8,
+    "text": "Deal 6 Lightning damage along a three-tile line at range 2 with Chain 1. Electrified-assisted hits also Shock."
+   },
+   "tags": [
+    "Electrified",
+    "Shock",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "discharge",
+   "name": "Discharge",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Choose an Electrified tile within range 4. Deal 4 Lightning to each enemy on or adjacent to its connected network, then remove the network.",
+   "status": "new",
+   "note": "Cash in the wiring. Ordinary Lightning keeps the network; Discharge spends it for a bigger area.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Electrified",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ball_lightning",
+   "name": "Ball Lightning",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Create a 3-health illusion within range 3 and Electrify its tile. Enemies that damage it take 4 Lightning and are Shocked.",
+   "status": "new",
+   "note": "A decoy that punishes whoever takes the bait.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Electrified",
+    "Shock"
+   ]
+  },
+  {
+   "id": "rite_of_the_storm",
+   "name": "Rite of the Storm",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: at the start of each of your turns, deal 2 Lightning to each enemy standing on Electrified.",
+   "status": "new",
+   "note": "Makes wiring worth doing even on turns you don't attack.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Electrified",
+    "Attack"
+   ]
+  },
+  {
+   "id": "tempest_form",
+   "name": "Tempest Form",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: your cards cost 1 less Time (minimum 1).",
+   "status": "new",
+   "note": "Build-around for the turn clock. Pays for itself in about three turns, so it is strongest in long fights.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite"
+   ]
+  },
+  {
+   "id": "skybolt",
+   "name": "Skybolt",
+   "src": "magic",
+   "school": "lightning",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 8 Lightning to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
+   "status": "new",
+   "note": "Zekarion's strike in the player's hand. The only card that ignores sight lines.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Shock",
+    "Attack"
+   ]
+  },
+  {
+   "id": "dawnstep",
+   "name": "Dawnstep",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. Gain 2 Vision for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "dawnstep",
+   "piece": null,
+   "was": {
+    "name": "Dawnstep",
+    "rarity": "common",
+    "time": 2,
+    "text": "Move 3, then gain 2 vision for 2 turns."
+   },
+   "tags": [
+    "Light",
+    "Move"
+   ]
+  },
+  {
+   "id": "threaded_path",
+   "name": "Threaded Path",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. Create radius-1 Light where you arrive for 2 turns. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "threaded_path",
+   "piece": null,
+   "was": {
+    "name": "Threaded Path",
+    "rarity": "common",
+    "time": 2,
+    "text": "Move 3. Create radius-1 Light where you arrive for 2 turns, then draw 1."
+   },
+   "tags": [
+    "Light",
+    "Draw",
+    "Move"
+   ]
+  },
+  {
+   "id": "gust_step",
+   "name": "Gust Step",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Move 1, then Pull 2 at range 2 for 3.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "gust_step",
+   "piece": null,
+   "was": {
+    "name": "Gust Step",
+    "rarity": "common",
+    "time": 4,
+    "text": "Move 1, then Pull 2 at range 2 for 3 damage."
+   },
+   "tags": [
+    "Push/Pull",
+    "Move"
+   ]
+  },
+  {
+   "id": "slipstream_cut",
+   "name": "Slipstream Cut",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then strike for 5 and Push 1.",
+   "status": "keep",
+   "note": "Unchanged text; it gains collision damage from the forced-movement rule.",
+   "impl": 0,
+   "was_id": "slipstream_cut",
+   "piece": null,
+   "was": {
+    "name": "Slipstream Cut",
+    "rarity": "common",
+    "time": 4,
+    "text": "Move 2, then strike for 5 and Push 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "updraft",
+   "name": "Updraft",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Push 2 at range 3 for 3.",
+   "status": "tweak",
+   "note": "1 less damage. Driving the target into a wall, crate or another enemy now adds up to 4 to each of them.",
+   "impl": 0,
+   "was_id": "updraft",
+   "piece": null,
+   "was": {
+    "name": "Updraft",
+    "rarity": "common",
+    "time": 4,
+    "text": "Push 2 at range 3 for 4 damage."
+   },
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "buffet",
+   "name": "Buffet",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Push 1 at range 2 for 2.",
+   "status": "new",
+   "note": "A cheap nudge: one tile onto a trap or Fire, or 2 collision damage against a wall.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "crosswind",
+   "name": "Crosswind",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 3 at range 3 and Push 2 in any direction.",
+   "status": "new",
+   "note": "Sideways force. Uses the engine's existing sideways-force flag (Quarry Winch's aiming) without the Rubble cost.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hurricane_palm",
+   "name": "Hurricane Palm",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 3 and Push 3.",
+   "status": "new",
+   "note": "The big shove. Against a wall or another enemy, the collision adds up to 6 to each.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "gale_ward",
+   "name": "Gale Ward",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Push each adjacent enemy 1.",
+   "status": "new",
+   "note": "Ward cycle. Disengage without spending a move.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "wind_shear",
+   "name": "Wind Shear",
+   "src": "magic",
+   "school": "air",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 along a 3-tile line at range 2 and Push each target 1 away from you. Empower (+2 Time): Push 2 instead.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "vacuum_line",
+   "name": "Vacuum Line",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Pull 3 at range 3 for 6. Draw 1.",
+   "status": "tweak",
+   "note": "Time 7 to 6.",
+   "impl": 0,
+   "was_id": "vacuum_line",
+   "piece": null,
+   "was": {
+    "name": "Vacuum Line",
+    "rarity": "rare",
+    "time": 7,
+    "text": "Pull 3 at range 3 for 6 damage, then draw 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Draw"
+   ]
+  },
+  {
+   "id": "squall_shot",
+   "name": "Squall",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 2 in a cross at range 3. Push each enemy in it 1 away from the center; an enemy on the center is pushed away from you.",
+   "status": "rework",
+   "note": "Was a hard-to-read three-tile pattern that scored 1.95. Now a scatter: break up a formation into walls and each other.",
+   "impl": 2,
+   "was_id": "squall_shot",
+   "piece": null,
+   "was": {
+    "name": "Squall Shot",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 4 in a rotatable pattern at range 2 and Push 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "razor_gale",
+   "name": "Razor Gale",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Deal 2 at range 2 and Push 1, once per play spent.",
+   "status": "keep",
+   "note": "Unchanged. Once the first copy pins the target against something, each later copy also collides.",
+   "impl": 0,
+   "was_id": "razor_gale",
+   "piece": null,
+   "was": {
+    "name": "Razor Gale",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Flurry. Deal 2 at range 2 and push 1 for each card play spent."
+   },
+   "tags": [
+    "Push/Pull",
+    "Flurry",
+    "Attack"
+   ]
+  },
+  {
+   "id": "changing_winds",
+   "name": "Changing Winds",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Swap places with an enemy or illusion within range 3.",
+   "status": "new",
+   "note": "The positional classic the pool lacked: put them where you were, on your hazards.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "fan_the_flames",
+   "name": "Fan the Flames",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Push 2 at range 3 for 2. Leave Fire on each tile the target passes through.",
+   "status": "new",
+   "note": "Air + Fire bridge. Draws a Fire line with the enemy's own body.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire",
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "dust_devil",
+   "name": "Dust Devil",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Consume a Rubble tile within range 3. Push each enemy adjacent to it 2 away from it. Expose 2.",
+   "status": "new",
+   "note": "Air + Earth bridge.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rubble",
+    "Push/Pull",
+    "Expose"
+   ]
+  },
+  {
+   "id": "kestrel_dive",
+   "name": "Kestrel Dive",
+   "src": "magic",
+   "school": "air",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 3, then strike an adjacent enemy for 5 and Push 1.",
+   "status": "new",
+   "note": "Air's melee: drop in from above and knock the target into something.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "vortex",
+   "name": "Vortex",
+   "src": "magic",
+   "school": "air",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Choose a tile within range 3. Pull each enemy within 2 of it 1 tile toward it.",
+   "status": "new",
+   "note": "Gathers a group for an area attack, the opposite of Squall. Enemies pulled into each other collide.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "eye_of_the_storm",
+   "name": "Eye of the Storm",
+   "src": "magic",
+   "school": "air",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Gain 6 Block. Until your next turn, enemies that hit you in melee are Pushed 2.",
+   "status": "new",
+   "note": "A Retaliate variant: the answer to being surrounded.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "rite_of_tailwinds",
+   "name": "Rite of Tailwinds",
+   "src": "magic",
+   "school": "air",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: gain 1 extra independent movement each turn. Your Push and Pull move targets 1 tile farther.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "skybreak_current",
+   "name": "Skybreak Current",
+   "src": "magic",
+   "school": "air",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [],
+   "text": "Deal 4 at range 4 and Push 5.",
+   "status": "rework",
+   "note": "Was Updraft for 3 more Time (6 damage, Push 2). Now a real legendary: launch one enemy across the room. Stopped after one tile, it deals 8 more to the target and to what it hit.",
+   "impl": 0,
+   "was_id": "skybreak_current",
+   "piece": null,
+   "was": {
+    "name": "Skybreak Current",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Deal 6 at range 3 and Push 2."
+   },
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cyclone_seal",
+   "name": "Cyclone Seal",
+   "src": "magic",
+   "school": "air",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Choose a tile within range 3. Pull every enemy within 3 of it up to 3 tiles toward it, then deal 6 to each enemy adjacent to it.",
+   "status": "moved",
+   "note": "Was Force Seal, a neutral spell no reward could offer. Keeps its name and becomes Air's gathering finisher.",
+   "impl": 2,
+   "was_id": "cyclone_seal",
+   "piece": null,
+   "was": {
+    "name": "Force Seal",
+    "rarity": "epic",
+    "time": 7,
+    "text": "Exhaust. Deal 8 in a cross pattern at range 3."
+   },
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "venom_claw",
+   "name": "Quarry Claw",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 8. Leave Rubble beneath the target.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "venom_claw",
+   "piece": null,
+   "was": {
+    "name": "Quarry Claw",
+    "rarity": "common",
+    "time": 4,
+    "text": "Strike for 8, then leave Rubble beneath the target."
+   },
+   "tags": [
+    "Rubble",
+    "Attack"
+   ]
+  },
+  {
+   "id": "stone_plate",
+   "name": "Stone Plate",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 4 Stoneskin. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "stone_plate",
+   "piece": null,
+   "was": {
+    "name": "Stone Plate",
+    "rarity": "common",
+    "time": 4,
+    "text": "Gain 4 Stoneskin, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "quarry_step",
+   "name": "Quarry Step",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Move 2, then strike for 6. Leave Rubble beneath the target.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "quarry_step",
+   "piece": null,
+   "was": {
+    "name": "Quarry Step",
+    "rarity": "common",
+    "time": 5,
+    "text": "Move 2, then strike for 6 and leave Rubble beneath the target."
+   },
+   "tags": [
+    "Rubble",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "thorn_skewer",
+   "name": "Thorn Skewer",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 6. Pierce. +3 if the target stands on Rubble.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "thorn_skewer",
+   "piece": null,
+   "was": {
+    "name": "Thorn Skewer",
+    "rarity": "common",
+    "time": 3,
+    "text": "Pierce an adjacent enemy for 6. Deal 3 more if it stands on Rubble."
+   },
+   "tags": [
+    "Rubble",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "root_snare",
+   "name": "Root Snare",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 1 at range 3 and Immobilize. Leave Rubble.",
+   "status": "rework",
+   "note": "The name promised a snare. Trades its Light for Immobilize; the Rubble stays.",
+   "impl": 0,
+   "was_id": "root_snare",
+   "piece": null,
+   "was": {
+    "name": "Root Snare",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 2 at range 2, then leave Rubble and radius-1 Light for 2 turns."
+   },
+   "tags": [
+    "Rubble",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "raise_stone",
+   "name": "Raise Stone",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Raise an outcrop on an empty tile within range 3. Draw 1.",
+   "status": "new",
+   "note": "Cheap cover. Outcrops block sight, so this answers archers and casters, and gives pushes something to collide with.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Draw"
+   ]
+  },
+  {
+   "id": "stone_ward",
+   "name": "Stone Ward",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Leave Rubble under each adjacent enemy.",
+   "status": "new",
+   "note": "Ward cycle. Enemies that want to chase you pay 2 movement to leave.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rubble",
+    "Block"
+   ]
+  },
+  {
+   "id": "rockburst",
+   "name": "Rockburst",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Destroy an outcrop or crate within range 3. Deal 6 to each enemy adjacent to it. Leave Rubble in a cross there.",
+   "status": "new",
+   "note": "Crates are in every combat room, so this works with no setup.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Rubble",
+    "Attack"
+   ]
+  },
+  {
+   "id": "tremor",
+   "name": "Tremor",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 to each enemy within 2 tiles of you. Stagger 2. Empower (+2 Time): Stagger 4.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rooted_stance",
+   "name": "Rooted Stance",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 6 Stoneskin. You can't Move or Blink for the rest of this turn.",
+   "status": "new",
+   "note": "Cheap persistent defense with a real cost. Play it last.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Stoneskin",
+    "Move"
+   ]
+  },
+  {
+   "id": "basalt_guard",
+   "name": "Basalt Guard",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Create a 4-health illusion on Rubble within range 3. Gain 4 Block and 2 Stoneskin.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "basalt_guard",
+   "piece": null,
+   "was": {
+    "name": "Basalt Guard",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Create a 4-health illusion on Rubble at range 3, then gain 4 Block and 2 Stoneskin."
+   },
+   "tags": [
+    "Illusion",
+    "Rubble",
+    "Block",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "grave_mortar",
+   "name": "Grave Mortar",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Strike all adjacent tiles for 9. Leave Rubble there.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "grave_mortar",
+   "piece": null,
+   "was": {
+    "name": "Grave Mortar",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Strike adjacent tiles for 9, then leave Rubble there."
+   },
+   "tags": [
+    "Rubble",
+    "Attack"
+   ]
+  },
+  {
+   "id": "glowstone_ward",
+   "name": "Glowstone Ward",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Gain 4 Stoneskin. Create lasting radius-2 Light within range 3.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "glowstone_ward",
+   "piece": null,
+   "was": {
+    "name": "Glowstone Ward",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Gain 4 stoneskin and place a lasting light at range 3."
+   },
+   "tags": [
+    "Light",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "earthen_rampart",
+   "name": "Earthen Rampart",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Raise outcrops on a 3-tile line within range 2 (rotatable). Gain 3 Stoneskin. Empower (Exhaust): the line is 5 tiles.",
+   "status": "new",
+   "note": "A wall. Cuts a room in half, blocks a firing lane, or builds something to push enemies into.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Outcrop",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "stonefist",
+   "name": "Stonefist",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 5. +1 for each Stoneskin you have (maximum +6).",
+   "status": "new",
+   "note": "Stoneskin as offense. The first payoff in the pool for stacking it.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Stoneskin",
+    "Attack"
+   ]
+  },
+  {
+   "id": "frost_heave",
+   "name": "Frost Heave",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Consume the Ice under an enemy within range 3. Deal 6 to it, Immobilize it, and leave Rubble.",
+   "status": "new",
+   "note": "Earth + Ice bridge.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Rubble",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "grounding",
+   "name": "Grounding",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Remove every Electrified tile within 2 of you. Gain 2 Stoneskin per tile removed (maximum 8).",
+   "status": "new",
+   "note": "Earth + Lightning bridge. Also strips Zekarion's and the wisps' wiring from under your feet.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Electrified",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "spike_mantle",
+   "name": "Spike Mantle",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Strike all adjacent tiles for 8, or 12 against targets on Rubble. Pierce. Consume adjacent Rubble to gain 4 Stoneskin.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "spike_mantle",
+   "piece": null,
+   "was": {
+    "name": "Spike Mantle",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Pierce adjacent tiles for 8, or 12 against targets on Rubble. Consume adjacent Rubble to gain 4 Stoneskin."
+   },
+   "tags": [
+    "Rubble",
+    "Pierce",
+    "Stoneskin",
+    "Attack"
+   ]
+  },
+  {
+   "id": "petrify",
+   "name": "Petrify",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "An enemy within range 3 skips its next turn and gains 8 Block.",
+   "status": "new",
+   "note": "A full turn skip, like Freeze, but the target comes back harder to kill.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Block"
+   ]
+  },
+  {
+   "id": "rite_of_the_mountain",
+   "name": "Rite of the Mountain",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: at the start of each of your turns, gain 3 Stoneskin.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "tectonic_maul",
+   "name": "Tectonic Maul",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 8,
+   "costs": [],
+   "text": "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact. Stagger 3.",
+   "status": "tweak",
+   "note": "Adds Stagger 3, so the slowest card in the pool buys some of its Time back.",
+   "impl": 1,
+   "was_id": "tectonic_maul",
+   "piece": null,
+   "was": {
+    "name": "Tectonic Maul",
+    "rarity": "legendary",
+    "time": 8,
+    "text": "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact."
+   },
+   "tags": [
+    "Stagger",
+    "Rubble",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "worldspine",
+   "name": "Worldspine",
+   "src": "magic",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Raise four 4-health Worldspines around a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
+   "status": "new",
+   "note": "Tharokh's spires for the player: a cage around one enemy, or a pulsing wall across the room.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Outcrop"
+   ]
+  },
+  {
+   "id": "sunlance",
+   "name": "Sunlance",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 at range 4. +3 if the target stands in Light.",
+   "status": "new",
+   "note": "The basic Light payoff on a card instead of a relic.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "beacon",
+   "name": "Beacon",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Create radius-2 Light within range 4 for 3 turns. Draw 1.",
+   "status": "new",
+   "note": "Pure Light setup, cheap enough to play alongside the payoff.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Draw"
+   ]
+  },
+  {
+   "id": "mirror_image",
+   "name": "Mirror Image",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Create a 3-health illusion within range 3. Draw 1. Empower (+2 Time): 5 health instead.",
+   "status": "new",
+   "note": "The baseline decoy. Illusions move to Radiance: they are tricks of light.",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Empower",
+    "Illusion",
+    "Draw"
+   ]
+  },
+  {
+   "id": "dazzle",
+   "name": "Dazzle",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 2 at range 3. If the target stands in Light, Stagger 3.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "seekers_mark",
+   "name": "Seeker's Mark",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Gain Truesight for 2 turns. Draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Draw"
+   ]
+  },
+  {
+   "id": "trapdoor",
+   "name": "Trapdoor",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 4 and gain 5 Block. Gain 2 Vision for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "trapdoor",
+   "piece": null,
+   "was": {
+    "name": "Trapdoor",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Blink 4, gain 5 block, then gain 2 vision for 2 turns."
+   },
+   "tags": [
+    "Light",
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "ember_rain",
+   "name": "Lantern Rain",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 in a cross at range 3. Create radius-2 Light at the impact for 2 turns.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "ember_rain",
+   "piece": null,
+   "was": {
+    "name": "Lantern Rain",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Deal 3 in a cross pattern at range 3, then create radius-2 Light at the impact for 2 turns."
+   },
+   "tags": [
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "revealing_glare",
+   "name": "Revealing Glare",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Expose 3 each enemy in Light within range 4. Draw 1.",
+   "status": "new",
+   "note": "Sets up one big hit on every lit enemy.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Expose",
+    "Draw"
+   ]
+  },
+  {
+   "id": "refraction",
+   "name": "Refraction",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 at range 3. It also hits each enemy adjacent to one of your illusions.",
+   "status": "new",
+   "note": "Illusions become relays: enemies crowding a decoy all get hit.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Attack"
+   ]
+  },
+  {
+   "id": "shattered_reflection",
+   "name": "Shattered Reflection",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Destroy one of your illusions. Deal 6 to each enemy adjacent to it and create radius-2 Light there for 2 turns.",
+   "status": "new",
+   "note": "Spend a decoy once the enemies have gathered around it.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "break_the_veil",
+   "name": "Break the Veil",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Dispel Umbra 1. Draw 1.",
+   "status": "new",
+   "note": "A cheap, narrow Daybreak for deep rooms.",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Draw"
+   ]
+  },
+  {
+   "id": "hall_of_mirrors",
+   "name": "Hall of Mirrors",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Create a 2-health illusion on each empty tile adjacent to you. Gain 3 Block.",
+   "status": "new",
+   "note": "Up to four decoys at once. Enemies prefer illusions on distance ties, so this screens you.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Block"
+   ]
+  },
+  {
+   "id": "searing_light",
+   "name": "Searing Light",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 to each enemy standing in Light.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rite_of_noon",
+   "name": "Rite of Noon",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Rite"
+   ],
+   "text": "Rite: you radiate radius-2 Light. Your attacks against enemies in Light deal 2 more.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rite",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "daybreak",
+   "name": "Daybreak",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Dispel Umbra 2. Draw 2. Gain 1 card play.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "daybreak",
+   "piece": null,
+   "was": {
+    "name": "Daybreak",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Exhaust. Reduce the Umbra by 2 stages, draw 2, and gain 1 card play."
+   },
+   "tags": [
+    "Light",
+    "Draw",
+    "Card play"
+   ]
+  },
+  {
+   "id": "doppelganger",
+   "name": "Doppelganger",
+   "src": "magic",
+   "school": "radiance",
+   "rarity": "legendary",
+   "time": 5,
+   "costs": [],
+   "text": "Create a 5-health illusion within range 3. While it lives, you may fire ranged attacks from its tile.",
+   "status": "new",
+   "note": "A second firing position. Every ranged card gains a new angle.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion"
+   ]
+  },
+  {
+   "id": "iron_wheel",
+   "name": "Iron Wheel",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Move 3, then strike for 4. +1 for each tile you moved this turn (maximum +5).",
+   "status": "moved",
+   "note": "Was unreachable neutral magic. Moves to Ironshod Sabatons and becomes the momentum card: the free 2 tiles now count.",
+   "impl": 2,
+   "was_id": "iron_wheel",
+   "piece": "ironshod_sabatons",
+   "was": {
+    "name": "Iron Wheel",
+    "rarity": "common",
+    "time": 5,
+    "text": "Move 3, then strike for 8."
+   },
+   "tags": [
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ricochet_knife",
+   "name": "Ricochet Knife",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 5 at range 2. Draw 1.",
+   "status": "moved",
+   "note": "Was unreachable neutral magic. Moves to Tinker's Knives.",
+   "impl": 0,
+   "was_id": "ricochet_knife",
+   "piece": "tinkers_knives",
+   "was": {
+    "name": "Ricochet Knife",
+    "rarity": "common",
+    "time": 4,
+    "text": "Deal 6 at range 2, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "reprise",
+   "name": "Reprise",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [
+    "HP 1"
+   ],
+   "text": "Draw 4. Gain 5 Block. Health cost 1.",
+   "status": "moved",
+   "note": "Was unreachable neutral magic. Moves to Gambler's Watch, next to a Quicken card that offsets its Time.",
+   "impl": 0,
+   "was_id": "reprise",
+   "piece": "gamblers_watch",
+   "was": {
+    "name": "Reprise",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Lose 1 health. Draw 4 and gain 5 block."
+   },
+   "tags": [
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "cinderburst",
+   "name": "Shrapnel Burst",
+   "src": "magic",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 6,
+   "costs": [],
+   "text": "Deal 7 in a cross at range 3.",
+   "status": "cut",
+   "note": "Unreachable neutral magic. Its job moves to the Shrapnel Bomb item.",
+   "impl": 0,
+   "was_id": "cinderburst",
+   "piece": null,
+   "was": {
+    "name": "Shrapnel Burst",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 7 in a cross pattern at range 3."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "gate_gambit",
+   "name": "Gate Gambit",
+   "src": "magic",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 8,
+   "costs": [
+    "Exhaust",
+    "HP 1"
+   ],
+   "text": "Exhaust. Draw 3. Gain 2 card plays and 3 Block. Health cost 1.",
+   "status": "cut",
+   "note": "Unreachable, and 8 Time before the extra plays pay off. Overclock, Crank Reload and Gathering Rhythm cover the role.",
+   "impl": 0,
+   "was_id": "gate_gambit",
+   "piece": null,
+   "was": {
+    "name": "Gate Gambit",
+    "rarity": "epic",
+    "time": 8,
+    "text": "Exhaust. Lose 1 health. Draw 3, gain 2 card plays, and gain 3 block."
+   },
+   "tags": [
+    "Draw",
+    "Card play",
+    "Block"
+   ]
+  },
+  {
+   "id": "quick_stab",
+   "name": "Quick Stab",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Strike for 6. Follow-up: +3.",
+   "status": "tweak",
+   "note": "9 damage for 2 Time was the best melee rate in the game, on a starter. Still 9 when played second.",
+   "impl": 1,
+   "was_id": "quick_stab",
+   "piece": "training_sword",
+   "was": {
+    "name": "Quick Stab",
+    "rarity": "common",
+    "time": 2,
+    "text": "Strike an adjacent enemy for 9."
+   },
+   "tags": [
+    "Follow-up",
+    "Attack"
+   ]
+  },
+  {
+   "id": "whirlwind_slash",
+   "name": "Whirlwind Slash",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Strike all adjacent tiles for 8.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "whirlwind_slash",
+   "piece": "training_sword",
+   "was": {
+    "name": "Whirlwind Slash",
+    "rarity": "common",
+    "time": 5,
+    "text": "Strike all adjacent tiles for 8."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "bloody_lunge",
+   "name": "Bloody Lunge",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 6,
+   "costs": [],
+   "text": "Move 2, then strike for 9. Empower (1 HP): +4.",
+   "status": "rework",
+   "note": "Was a mandatory 1 HP at Time 8. The health payment becomes your choice, and the card gets playable.",
+   "impl": 1,
+   "was_id": "bloody_lunge",
+   "piece": "training_sword",
+   "was": {
+    "name": "Bloody Lunge",
+    "rarity": "common",
+    "time": 8,
+    "text": "Lose 1 health. Move 2, then strike for 12."
+   },
+   "tags": [
+    "Empower",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cleaver_hook",
+   "name": "Cleaver Hack",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 5. Sunder 4.",
+   "status": "rework",
+   "note": "Was a push-1 hit. Now the cleaver opens armor for the next card, which matters against Warden and Surgeon rooms.",
+   "impl": 0,
+   "was_id": "cleaver_hook",
+   "piece": "iron_cleaver",
+   "was": {
+    "name": "Cleaver Hook",
+    "rarity": "common",
+    "time": 4,
+    "text": "Hack an adjacent enemy for 6 and shove 1."
+   },
+   "tags": [
+    "Sunder",
+    "Attack"
+   ]
+  },
+  {
+   "id": "needle_flurry",
+   "name": "Cleaver Sweep",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Strike the 3-tile arc in front of you for 5 (rotatable).",
+   "status": "rework",
+   "note": "Was the same four-tile ring as five other cards. A front arc is a new shape.",
+   "impl": 0,
+   "was_id": "needle_flurry",
+   "piece": "iron_cleaver",
+   "was": {
+    "name": "Cleaver Sweep",
+    "rarity": "common",
+    "time": 4,
+    "text": "Strike all adjacent tiles for 6."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "butcher_chop",
+   "name": "Butcher Chop",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 5,
+   "costs": [],
+   "text": "Strike for 10. +5 against a target at or below half health.",
+   "status": "rework",
+   "note": "Execute. The cleaver's identity is finishing.",
+   "impl": 2,
+   "was_id": "butcher_chop",
+   "piece": "iron_cleaver",
+   "was": {
+    "name": "Butcher Chop",
+    "rarity": "common",
+    "time": 5,
+    "text": "Strike an adjacent enemy for 12."
+   },
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "riposte_lunge",
+   "name": "Riposte Lunge",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then strike for 5. Retaliate 4.",
+   "status": "rework",
+   "note": "The name finally does what it says.",
+   "impl": 1,
+   "was_id": "riposte_lunge",
+   "piece": "duelist_rapier",
+   "was": {
+    "name": "Riposte Lunge",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Move 2, strike an adjacent enemy for 5, then gain 4 block."
+   },
+   "tags": [
+    "Retaliate",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "battle_rhythm",
+   "name": "Parry Rhythm",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 4 Block. Retaliate 3. Draw 1.",
+   "status": "rework",
+   "note": "Was Cinch Straps at rare. Now it is the parry you play when you see a melee intent coming.",
+   "impl": 1,
+   "was_id": "battle_rhythm",
+   "piece": "duelist_rapier",
+   "was": {
+    "name": "Parry Rhythm",
+    "rarity": "rare",
+    "time": 3,
+    "text": "Gain 5 block, then draw 1."
+   },
+   "tags": [
+    "Retaliate",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "bodkin_arrow",
+   "name": "Needle Thrust",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 5. Pierce. Follow-up: +4.",
+   "status": "tweak",
+   "note": "",
+   "impl": 1,
+   "was_id": "bodkin_arrow",
+   "piece": "duelist_rapier",
+   "was": {
+    "name": "Needle Thrust",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Pierce an adjacent enemy for 7."
+   },
+   "tags": [
+    "Follow-up",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "grave_cleave",
+   "name": "Grave Cleave",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Strike the 3-tile arc in front of you for 7 (rotatable). Expose 3.",
+   "status": "rework",
+   "note": "Front arc instead of the shared ring; it sets up the Blood Price that follows.",
+   "impl": 0,
+   "was_id": "grave_cleave",
+   "piece": "grave_greatsword",
+   "was": {
+    "name": "Grave Cleave",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Strike adjacent tiles for 6 and Expose 2."
+   },
+   "tags": [
+    "Expose",
+    "Attack"
+   ]
+  },
+  {
+   "id": "blood_price",
+   "name": "Blood Price",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Strike for 12. Empower (2 HP): +8 and Pierce.",
+   "status": "rework",
+   "note": "20 piercing damage when you choose to pay, 12 when you don't.",
+   "impl": 1,
+   "was_id": "blood_price",
+   "piece": "grave_greatsword",
+   "was": {
+    "name": "Blood Price",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Spend 1 health. Strike an adjacent enemy for 16."
+   },
+   "tags": [
+    "Empower",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "tombsplitter",
+   "name": "Tombsplitter",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 8,
+   "costs": [],
+   "text": "Strike the first 2 tiles in a line from you for 12 (rotatable). Stagger 3.",
+   "status": "rework",
+   "note": "Was the four-tile ring again, at 1.72. Now a heavy line that knocks the target back on the turn clock.",
+   "impl": 1,
+   "was_id": "tombsplitter",
+   "piece": "grave_greatsword",
+   "was": {
+    "name": "Tombsplitter",
+    "rarity": "epic",
+    "time": 8,
+    "text": "Strike all adjacent tiles for 10."
+   },
+   "tags": [
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "sawtooth_flurry",
+   "name": "Sawtooth Flurry",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Strike for 3 and Bleed 1, once per play spent.",
+   "status": "rework",
+   "note": "Was named Flurry without being one. Now it is: Bleed stacks per copy.",
+   "impl": 0,
+   "was_id": "sawtooth_flurry",
+   "piece": "sawtooth_knife",
+   "was": {
+    "name": "Sawtooth Flurry",
+    "rarity": "common",
+    "time": 3,
+    "text": "Fast adjacent cut for 5 and bleed 1."
+   },
+   "tags": [
+    "Bleed",
+    "Flurry",
+    "Attack"
+   ]
+  },
+  {
+   "id": "serrated_slip",
+   "name": "Serrated Slip",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2, then strike for 3. Expose 3.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "serrated_slip",
+   "piece": "sawtooth_knife",
+   "was": {
+    "name": "Serrated Slip",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, then nick for 3 and expose 3."
+   },
+   "tags": [
+    "Expose",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "backhand_nick",
+   "name": "Backhand Nick",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 4. Bleed 1. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "backhand_nick",
+   "piece": "sawtooth_knife",
+   "was": {
+    "name": "Backhand Nick",
+    "rarity": "common",
+    "time": 3,
+    "text": "Strike for 4, bleed 1, then draw 1."
+   },
+   "tags": [
+    "Bleed",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "stormstring_shot",
+   "name": "Stormstring Shot",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 Lightning at range 4. Chain 1. Leave Electrified at the impact.",
+   "status": "tweak",
+   "note": "3 to 4 damage, Time 5 to 4.",
+   "impl": 0,
+   "was_id": "stormstring_shot",
+   "piece": "stormstring_bow",
+   "was": {
+    "name": "Stormstring Shot",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Deal 3 Lightning damage with Chain 1 at range 4, then leave Electrified at the impact."
+   },
+   "tags": [
+    "Electrified",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "forked_nock",
+   "name": "Forked Nock",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 Lightning at range 3. Chain 2. Expose 2.",
+   "status": "tweak",
+   "note": "Time 6 to 5.",
+   "impl": 0,
+   "was_id": "forked_nock",
+   "piece": "stormstring_bow",
+   "was": {
+    "name": "Forked Nock",
+    "rarity": "rare",
+    "time": 6,
+    "text": "Deal 3 Lightning damage with Chain 2 at range 3 and Expose 2."
+   },
+   "tags": [
+    "Expose",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "far_draw",
+   "name": "Far Draw",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Leave Electrified on a tile within range 3. Draw 1.",
+   "status": "keep",
+   "note": "Now unique to this bow; Windlass Repeater gets its own card.",
+   "impl": 0,
+   "was_id": "far_draw",
+   "piece": "stormstring_bow",
+   "was": {
+    "name": "Far Draw",
+    "rarity": "rare",
+    "time": 3,
+    "text": "Place an Electrified tile at range 3, then draw 1."
+   },
+   "tags": [
+    "Electrified",
+    "Draw"
+   ]
+  },
+  {
+   "id": "hookspine_reap",
+   "name": "Hookspine Reap",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Pull 1 at range 2 for 6. Bleed 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hookspine_reap",
+   "piece": "hookspine_halberd",
+   "was": {
+    "name": "Hookspine Reap",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Hook for 6 at range 2, pull 1, and bleed 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Bleed"
+   ]
+  },
+  {
+   "id": "sweeping_haft",
+   "name": "Sweeping Haft",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Strike the four diagonal tiles for 6. Sunder 3.",
+   "status": "rework",
+   "note": "Diagonals are tiles orthogonal enemies can't strike you from. The halberd hits what flanks you.",
+   "impl": 0,
+   "was_id": "sweeping_haft",
+   "piece": "hookspine_halberd",
+   "was": {
+    "name": "Sweeping Haft",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Sweep adjacent tiles for 5, push 1, and sunder 3."
+   },
+   "tags": [
+    "Sunder",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hook_and_hold",
+   "name": "Hook and Hold",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Strike at reach 2 for 4. Immobilize. Expose 4.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hook_and_hold",
+   "piece": "hookspine_halberd",
+   "was": {
+    "name": "Hook and Hold",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Reach 2 for 4, immobilize, and expose 4."
+   },
+   "tags": [
+    "Expose",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "phoenix_cleave",
+   "name": "Phoenix Cleave",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "legendary",
+   "time": 5,
+   "costs": [
+    "Exhaust",
+    "HP 1"
+   ],
+   "text": "Exhaust. Strike all adjacent tiles for 10, then Detonate 10 on those tiles. Health cost 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "phoenix_cleave",
+   "piece": "phoenix_brand",
+   "was": {
+    "name": "Phoenix Cleave",
+    "rarity": "legendary",
+    "time": 5,
+    "text": "Exhaust. Lose 1 health. Strike adjacent tiles for 10, then Detonate 10 on those tiles."
+   },
+   "tags": [
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ember_guard",
+   "name": "Ember Guard",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "legendary",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 7 Block. Leave Fire on a tile within range 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "ember_guard",
+   "piece": "phoenix_brand",
+   "was": {
+    "name": "Ember Guard",
+    "rarity": "legendary",
+    "time": 4,
+    "text": "Gain 7 Block, then place one Fire tile at range 1."
+   },
+   "tags": [
+    "Fire",
+    "Block"
+   ]
+  },
+  {
+   "id": "rekindle_edge",
+   "name": "Rekindle Edge",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "legendary",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 8, then Detonate 8 at the target.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "rekindle_edge",
+   "piece": "phoenix_brand",
+   "was": {
+    "name": "Rekindle Edge",
+    "rarity": "legendary",
+    "time": 4,
+    "text": "Strike for 8, then Detonate 8 at the impact."
+   },
+   "tags": [
+    "Detonate",
+    "Attack"
+   ]
+  },
+  {
+   "id": "windlass_volley",
+   "name": "Windlass Volley",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Deal 2 along a 2-tile line at range 3, once per play spent.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "windlass_volley",
+   "piece": "windlass_repeater",
+   "was": {
+    "name": "Windlass Volley",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Flurry. Deal 2 along a 2-tile line at range 3 for each card play spent."
+   },
+   "tags": [
+    "Flurry",
+    "Attack"
+   ]
+  },
+  {
+   "id": "crank_reload",
+   "name": "Crank Reload",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Draw 1. Gain 1 card play.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "crank_reload",
+   "piece": "windlass_repeater",
+   "was": {
+    "name": "Crank Reload",
+    "rarity": "rare",
+    "time": 3,
+    "text": "Draw 1 and gain 1 card play."
+   },
+   "tags": [
+    "Draw",
+    "Card play"
+   ]
+  },
+  {
+   "id": "pinning_quarrel",
+   "name": "Pinning Quarrel",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 4 at range 4. Immobilize.",
+   "status": "new",
+   "note": "Replaces the Far Draw copy the repeater shared with Stormstring Bow.",
+   "impl": 0,
+   "was_id": null,
+   "piece": "windlass_repeater",
+   "was": null,
+   "tags": [
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "crushing_blow",
+   "name": "Crushing Blow",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 6,
+   "costs": [],
+   "text": "Strike for 8. Stagger 3.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "war_maul",
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "haft_shove",
+   "name": "Haft Shove",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 2 and Push 2.",
+   "status": "new",
+   "note": "Cheap setup: shove the target onto a hazard, or into a wall for 4 more.",
+   "impl": 0,
+   "was_id": null,
+   "piece": "war_maul",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "overhead_smash",
+   "name": "Overhead Smash",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 7,
+   "costs": [],
+   "text": "Strike for 12. Empower (+2 Time): Stagger 4.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "war_maul",
+   "was": null,
+   "tags": [
+    "Empower",
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "spear_thrust",
+   "name": "Spear Thrust",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Strike the first 2 tiles in a line from you for 5 (rotatable).",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "hunting_spear",
+   "was": null,
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "brace_the_spear",
+   "name": "Brace the Spear",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 3 Block. Retaliate 5.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "hunting_spear",
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Block"
+   ]
+  },
+  {
+   "id": "hurl_spear",
+   "name": "Hurl Spear",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 6 at range 4. Empower (Exhaust): +4 and Immobilize.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "hunting_spear",
+   "was": null,
+   "tags": [
+    "Empower",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "fan_of_knives",
+   "name": "Fan of Knives",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 along a 3-tile line at range 2 (rotatable).",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "tinkers_knives",
+   "was": null,
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "palm_blade",
+   "name": "Palm Blade",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Strike for 4. Follow-up: draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "tinkers_knives",
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "censer_swing",
+   "name": "Censer Swing",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Strike all adjacent tiles for 5. Create radius-2 Light on yourself for 2 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "dawnlight_censer",
+   "was": null,
+   "tags": [
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hallowed_strike",
+   "name": "Hallowed Strike",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 6. +4 if the target stands in Light.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "dawnlight_censer",
+   "was": null,
+   "tags": [
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "incense_haze",
+   "name": "Incense Haze",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain Truesight for 2 turns and 3 Block.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "dawnlight_censer",
+   "was": null,
+   "tags": [
+    "Light",
+    "Block"
+   ]
+  },
+  {
+   "id": "couched_lance",
+   "name": "Couched Lance",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Strike at reach 2 for 4. +1 for each tile you moved this turn (maximum +5).",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "tourney_lance",
+   "was": null,
+   "tags": [
+    "Attack"
+   ]
+  },
+  {
+   "id": "joust",
+   "name": "Joust",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Move up to 4 in a straight line, then strike for 6.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "tourney_lance",
+   "was": null,
+   "tags": [
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "unhorse",
+   "name": "Unhorse",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 4 and Push 2.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "tourney_lance",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "rime_hack",
+   "name": "Rime Hack",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Strike for 5 Ice. Leave Ice beneath the target.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "rimebite_hatchet",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "frozen_bite",
+   "name": "Frozen Bite",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 4 Ice. If this Freezes the target, gain 1 card play.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "rimebite_hatchet",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Card play",
+    "Attack"
+   ]
+  },
+  {
+   "id": "shatter_swing",
+   "name": "Shatter Swing",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Strike for 8. If the target is Frozen, also deal 4 to each enemy adjacent to it.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "rimebite_hatchet",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "lash",
+   "name": "Lash",
+   "src": "gear",
+   "school": "air",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Strike at reach 3 for 4 and Pull 1.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "galewhip",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "crack_the_whip",
+   "name": "Crack the Whip",
+   "src": "gear",
+   "school": "air",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Strike at reach 3 for 3. Stagger 2.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "galewhip",
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "snare_coil",
+   "name": "Snare Coil",
+   "src": "gear",
+   "school": "air",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Pull 3 at range 3 for 2. Immobilize.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "galewhip",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Immobilize"
+   ]
+  },
+  {
+   "id": "fault_strike",
+   "name": "Fault Strike",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [],
+   "text": "Strike for 9. Leave Rubble on the target's tile and the 2 tiles behind it.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "worldbreaker",
+   "was": null,
+   "tags": [
+    "Rubble",
+    "Attack"
+   ]
+  },
+  {
+   "id": "raise_the_anvil",
+   "name": "Raise the Anvil",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 3,
+   "costs": [],
+   "text": "Raise an outcrop adjacent to you. Gain 4 Stoneskin.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "worldbreaker",
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "worldbreak",
+   "name": "Worldbreak",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [],
+   "text": "Destroy an adjacent outcrop. Deal 10 to each enemy in the 3-tile line beyond it. Stagger 2.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "worldbreaker",
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Outcrop",
+    "Attack"
+   ]
+  },
+  {
+   "id": "brace",
+   "name": "Brace",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 1,
+   "costs": [],
+   "text": "Gain 6 Block.",
+   "status": "tweak",
+   "note": "8 Block for 1 Time outclassed every later defensive card. Still the cheapest Block in the game.",
+   "impl": 0,
+   "was_id": "brace",
+   "piece": "splintered_shield",
+   "was": {
+    "name": "Brace",
+    "rarity": "common",
+    "time": 1,
+    "text": "Gain 8 block."
+   },
+   "tags": [
+    "Block"
+   ]
+  },
+  {
+   "id": "guarded_step",
+   "name": "Guarded Step",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2. Gain 3 Block. Gain 1 card play.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "guarded_step",
+   "piece": "splintered_shield",
+   "was": {
+    "name": "Guarded Step",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, gain 3 block, and gain 1 card play."
+   },
+   "tags": [
+    "Card play",
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "kite_bash",
+   "name": "Kite Bash",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 6 Block. Bash an adjacent enemy for 3 and Push 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "kite_bash",
+   "piece": "ward_kite",
+   "was": {
+    "name": "Kite Bash",
+    "rarity": "common",
+    "time": 4,
+    "text": "Gain 6 block, then bash an adjacent enemy for 3 and push 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "warded_advance",
+   "name": "Warded Advance",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2. Gain 7 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "warded_advance",
+   "piece": "ward_kite",
+   "was": {
+    "name": "Warded Advance",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, then gain 7 block."
+   },
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "chain_catch",
+   "name": "Chain Catch",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Pull 2 at range 2 for 2. Gain 5 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "chain_catch",
+   "piece": "chain_guard",
+   "was": {
+    "name": "Chain Catch",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Hook a target at range 2 for 2, pull 2, then gain 5 block."
+   },
+   "tags": [
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "chain_lock",
+   "name": "Chain Lock",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Deal 3 at range 2. Immobilize. Gain 4 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "chain_lock",
+   "piece": "chain_guard",
+   "was": {
+    "name": "Chain Lock",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Snare a target at range 2 for 3 and immobilize, then gain 4 block."
+   },
+   "tags": [
+    "Immobilize",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "mirror_feint",
+   "name": "Mirror Feint",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Create a 3-health illusion adjacent to an enemy within range 3. That enemy is Exposed 3.",
+   "status": "rework",
+   "note": "Was one of five near-identical illusion-plus-Block cards. Now a flanking decoy.",
+   "impl": 2,
+   "was_id": "mirror_feint",
+   "piece": "mirror_guard",
+   "was": {
+    "name": "Mirror Feint",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Create a 3-health illusion at range 3, then gain 5 block."
+   },
+   "tags": [
+    "Illusion",
+    "Expose"
+   ]
+  },
+  {
+   "id": "mirror_flash",
+   "name": "Mirror Flash",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 3,
+   "costs": [],
+   "text": "Create a 2-health illusion within range 2. Gain 4 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "mirror_flash",
+   "piece": "mirror_guard",
+   "was": {
+    "name": "Mirror Flash",
+    "rarity": "epic",
+    "time": 3,
+    "text": "Create a 2-health illusion at range 2, then gain 4 block."
+   },
+   "tags": [
+    "Illusion",
+    "Block"
+   ]
+  },
+  {
+   "id": "nail_parry",
+   "name": "Nail Parry",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Strike for 3. Pierce. Sunder 2.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "nail_parry",
+   "piece": "buckler_of_nails",
+   "was": {
+    "name": "Nail Parry",
+    "rarity": "common",
+    "time": 3,
+    "text": "Gain 5 block, then pierce an adjacent enemy for 3 and sunder 2."
+   },
+   "tags": [
+    "Sunder",
+    "Pierce",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "spike_check",
+   "name": "Spike Check",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Retaliate 3.",
+   "status": "rework",
+   "note": "Was a three-rider bash (Push, Bleed, Block). Spikes should hurt whoever hits you.",
+   "impl": 1,
+   "was_id": "spike_check",
+   "piece": "buckler_of_nails",
+   "was": {
+    "name": "Spike Check",
+    "rarity": "common",
+    "time": 4,
+    "text": "Gain 4 block, then bash for 3, push 1, and bleed 1."
+   },
+   "tags": [
+    "Retaliate",
+    "Block"
+   ]
+  },
+  {
+   "id": "lodestone_reversal",
+   "name": "Lodestone Reversal",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Pull 2 at range 2 for 3 Lightning. Leave Electrified at the destination. Gain 5 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "lodestone_reversal",
+   "piece": "lodestone_buckler",
+   "was": {
+    "name": "Lodestone Reversal",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Pull 2 at range 2 for 3 Lightning damage, leave Electrified at the destination, then gain 5 Block."
+   },
+   "tags": [
+    "Electrified",
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "polar_guard",
+   "name": "Polar Guard",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 6 Block, or 9 while standing on Electrified.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "polar_guard",
+   "piece": "lodestone_buckler",
+   "was": {
+    "name": "Polar Guard",
+    "rarity": "rare",
+    "time": 3,
+    "text": "Gain 6 Block, or 9 while standing on Electrified."
+   },
+   "tags": [
+    "Electrified",
+    "Block"
+   ]
+  },
+  {
+   "id": "witchglass_double",
+   "name": "Witchglass Double",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Create a 3-health illusion within range 3. Gain 4 Block. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "witchglass_double",
+   "piece": "witchglass_aegis",
+   "was": {
+    "name": "Witchglass Double",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Create a 3-health illusion at range 3, gain 4 block, then draw 1."
+   },
+   "tags": [
+    "Illusion",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "reflected_threat",
+   "name": "Reflected Threat",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Create a 4-health illusion within range 3. Enemies that damage it take that much damage too.",
+   "status": "rework",
+   "note": "Witchglass reflects. Now a decoy that hits back.",
+   "impl": 2,
+   "was_id": "reflected_threat",
+   "piece": "witchglass_aegis",
+   "was": {
+    "name": "Reflected Threat",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Create a 4-health illusion at range 3, then gain 3 block."
+   },
+   "tags": [
+    "Illusion"
+   ]
+  },
+  {
+   "id": "anchor_slam",
+   "name": "Anchor Slam",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 7,
+   "costs": [],
+   "text": "Gain 3 Stoneskin. Pull 2 at range 3 for 5. Sunder 4. Immobilize.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "anchor_slam",
+   "piece": "sunken_anchor",
+   "was": {
+    "name": "Anchor Slam",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Gain 3 stoneskin, then pull 2 at range 3 for 5, sunder 4, and immobilize."
+   },
+   "tags": [
+    "Push/Pull",
+    "Sunder",
+    "Immobilize",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "undertow_guard",
+   "name": "Undertow Guard",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [],
+   "text": "Gain 9 Block. Pull 2 at range 3 for 2. Expose 4.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "undertow_guard",
+   "piece": "sunken_anchor",
+   "was": {
+    "name": "Undertow Guard",
+    "rarity": "legendary",
+    "time": 6,
+    "text": "Gain 9 block, then pull 2 at range 3 for 2 and expose 4."
+   },
+   "tags": [
+    "Push/Pull",
+    "Expose",
+    "Block"
+   ]
+  },
+  {
+   "id": "shield_wall",
+   "name": "Shield Wall",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 9 Block. You can't Move or Blink for the rest of this turn.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "tower_shield",
+   "was": null,
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "shield_charge",
+   "name": "Shield Charge",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then bash an adjacent enemy for 3 and Push 2.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "tower_shield",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "deflect",
+   "name": "Deflect",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Gain 3 Block. Retaliate 4.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "parrying_dagger",
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Block"
+   ]
+  },
+  {
+   "id": "main_gauche",
+   "name": "Main-Gauche",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Strike for 3. Follow-up: +3 and draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "parrying_dagger",
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "sun_flash",
+   "name": "Sun Flash",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Create radius-2 Light on yourself for 2 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "sunward_targe",
+   "was": null,
+   "tags": [
+    "Light",
+    "Block"
+   ]
+  },
+  {
+   "id": "blinding_bash",
+   "name": "Blinding Bash",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Bash an adjacent enemy for 4. If it stands in Light, Stagger 3.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "sunward_targe",
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Light",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hoarfrost_wall",
+   "name": "Hoarfrost Wall",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 6 Block. Leave Ice on each empty tile adjacent to you.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "glacial_bulwark",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Block"
+   ]
+  },
+  {
+   "id": "cold_shoulder",
+   "name": "Cold Shoulder",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 3,
+   "costs": [],
+   "text": "Bash an adjacent enemy for 4 Ice and Push 1.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "glacial_bulwark",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "plant_pavise",
+   "name": "Plant Pavise",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Raise an outcrop adjacent to you. Gain 5 Block.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "basalt_pavise",
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Block"
+   ]
+  },
+  {
+   "id": "stonewall_stance",
+   "name": "Stonewall Stance",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 4 Stoneskin. Follow-up: +3 Stoneskin.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "basalt_pavise",
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "grapple",
+   "name": "Grapple",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Blink to a tile adjacent to an enemy, outcrop or crate within range 4.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "grapple_hook",
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Move"
+   ]
+  },
+  {
+   "id": "yank",
+   "name": "Yank",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Pull 3 at range 4 for 2.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "grapple_hook",
+   "was": null,
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "patch_up",
+   "name": "Patch Up",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Heal 2. Gain 2 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "patch_up",
+   "piece": "patched_cloak",
+   "was": {
+    "name": "Patch Up",
+    "rarity": "common",
+    "time": 2,
+    "text": "Exhaust. Heal 2 and gain 2 block."
+   },
+   "tags": [
+    "Block",
+    "Heal"
+   ]
+  },
+  {
+   "id": "shadow_step",
+   "name": "Shadow Step",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 3. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "shadow_step",
+   "piece": "patched_cloak",
+   "was": {
+    "name": "Shadow Step",
+    "rarity": "common",
+    "time": 4,
+    "text": "Blink 3, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Move"
+   ]
+  },
+  {
+   "id": "leather_roll",
+   "name": "Leather Roll",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2. Gain 6 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "leather_roll",
+   "piece": "boiled_leather",
+   "was": {
+    "name": "Leather Roll",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, then gain 6 block."
+   },
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "rallying_breath",
+   "name": "Cinch Straps",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 7 Block. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "rallying_breath",
+   "piece": "boiled_leather",
+   "was": {
+    "name": "Cinch Straps",
+    "rarity": "common",
+    "time": 3,
+    "text": "Gain 7 block, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "glassbone_guard",
+   "name": "Glassbone Guard",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [
+    "HP 1"
+   ],
+   "text": "Gain 6 Stoneskin. Draw 1. Health cost 1.",
+   "status": "tweak",
+   "note": "Weakest gear card in the pool (1.45). Same trade, now worth making.",
+   "impl": 0,
+   "was_id": "glassbone_guard",
+   "piece": "glassbone_cuirass",
+   "was": {
+    "name": "Glassbone Guard",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Spend 1 health. Gain 4 stoneskin and draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "last_light",
+   "name": "Glass Mending",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Heal 3. Gain 2 Stoneskin.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "last_light",
+   "piece": "glassbone_cuirass",
+   "was": {
+    "name": "Glass Mending",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Exhaust. Heal 3 and gain 2 stoneskin."
+   },
+   "tags": [
+    "Stoneskin",
+    "Heal"
+   ]
+  },
+  {
+   "id": "undertaker_stand",
+   "name": "Undertaker Stand",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Gain 8 Block. Retaliate 5.",
+   "status": "rework",
+   "note": "Was 10 Block and 2 Stoneskin, a bigger Brace. Now plate that makes melee enemies pay.",
+   "impl": 1,
+   "was_id": "undertaker_stand",
+   "piece": "undertaker_plate",
+   "was": {
+    "name": "Undertaker Stand",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Gain 10 block and 2 stoneskin."
+   },
+   "tags": [
+    "Retaliate",
+    "Block"
+   ]
+  },
+  {
+   "id": "grave_sprint",
+   "name": "Coffin Brace",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Gain 12 Block. Heal 2.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "grave_sprint",
+   "piece": "undertaker_plate",
+   "was": {
+    "name": "Coffin Brace",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Exhaust. Gain 12 block and heal 2."
+   },
+   "tags": [
+    "Block",
+    "Heal"
+   ]
+  },
+  {
+   "id": "field_suture",
+   "name": "Field Suture",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Heal 2. Gain 5 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "field_suture",
+   "piece": "stitcher_apron",
+   "was": {
+    "name": "Field Suture",
+    "rarity": "common",
+    "time": 2,
+    "text": "Exhaust. Heal 2 and gain 5 block."
+   },
+   "tags": [
+    "Block",
+    "Heal"
+   ]
+  },
+  {
+   "id": "threadbare_guard",
+   "name": "Unpick",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Remove Bleed, Immobilize and Chilled from yourself. Gain 4 Block. Draw 1.",
+   "status": "rework",
+   "note": "Was Cinch Straps with 1 less Block, in the same slot. Now the pool's only cleanse, for Crawler, Gaoler and Lancer rooms.",
+   "impl": 2,
+   "was_id": "threadbare_guard",
+   "piece": "stitcher_apron",
+   "was": {
+    "name": "Threadbare Guard",
+    "rarity": "common",
+    "time": 3,
+    "text": "Gain 6 block and draw 1."
+   },
+   "tags": [
+    "Ice",
+    "Bleed",
+    "Immobilize",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "cinderweave_guard",
+   "name": "Cinderweave Guard",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [],
+   "text": "Gain 5 Block. Strike all adjacent tiles for 2 and leave Fire there.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "cinderweave_guard",
+   "piece": "cinderweave_mail",
+   "was": {
+    "name": "Cinderweave Guard",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Gain 5 Block, then strike adjacent tiles for 2 and leave Fire there."
+   },
+   "tags": [
+    "Fire",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "cinder_patch",
+   "name": "Cinder Patch",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Heal 2. Gain 4 Block. Clear Fire beneath you.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "cinder_patch",
+   "piece": "cinderweave_mail",
+   "was": {
+    "name": "Cinder Patch",
+    "rarity": "rare",
+    "time": 3,
+    "text": "Exhaust. Heal 2, gain 4 Block, and clear Fire beneath you."
+   },
+   "tags": [
+    "Fire",
+    "Block",
+    "Heal"
+   ]
+  },
+  {
+   "id": "rimeplate_lock",
+   "name": "Rimeplate Lock",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 6,
+   "costs": [],
+   "text": "Gain 3 Stoneskin and 3 Block. Deal 2 Ice at range 2. Immobilize. Leave Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "rimeplate_lock",
+   "piece": "rimeplate_harness",
+   "was": {
+    "name": "Rimeplate Lock",
+    "rarity": "epic",
+    "time": 6,
+    "text": "Gain 3 Stoneskin and 3 Block, then deal 2 Ice damage at range 2, immobilize, and leave Ice."
+   },
+   "tags": [
+    "Ice",
+    "Immobilize",
+    "Block",
+    "Stoneskin",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hoarfrost_shell",
+   "name": "Hoarfrost Shell",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Gain 6 Block. Leave Ice on a 2-tile line within range 2 (rotatable).",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hoarfrost_shell",
+   "piece": "rimeplate_harness",
+   "was": {
+    "name": "Hoarfrost Shell",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Gain 6 Block, then place a two-tile Ice line at range 2."
+   },
+   "tags": [
+    "Ice",
+    "Block"
+   ]
+  },
+  {
+   "id": "voidsilk_molt",
+   "name": "Voidsilk Molt",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 3, leaving a 4-health illusion where you stood. Draw 1.",
+   "status": "rework",
+   "note": "Was an Exhaust blink with Block and draw. Now the husk you leave behind takes the hit meant for you.",
+   "impl": 2,
+   "was_id": "voidsilk_molt",
+   "piece": "voidsilk_carapace",
+   "was": {
+    "name": "Voidsilk Molt",
+    "rarity": "legendary",
+    "time": 6,
+    "text": "Exhaust. Blink 4, gain 4 block, then draw 1."
+   },
+   "tags": [
+    "Illusion",
+    "Draw",
+    "Move"
+   ]
+  },
+  {
+   "id": "empty_husk",
+   "name": "Empty Husk",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 2,
+   "costs": [],
+   "text": "Swap places with one of your illusions. It gains your Block.",
+   "status": "rework",
+   "note": "Was the fifth illusion-plus-Block card. Now the escape half of the Molt pair.",
+   "impl": 2,
+   "was_id": "empty_husk",
+   "piece": "voidsilk_carapace",
+   "was": {
+    "name": "Empty Husk",
+    "rarity": "legendary",
+    "time": 5,
+    "text": "Create a 4-health illusion at range 3 and gain 5 block."
+   },
+   "tags": [
+    "Illusion",
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "barbed_mail",
+   "name": "Barbed Mail",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 5 Block. Retaliate 3 with Bleed 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "thornmail",
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Bleed",
+    "Block"
+   ]
+  },
+  {
+   "id": "bristle",
+   "name": "Bristle",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Gain 3 Stoneskin. Retaliate 2.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "thornmail",
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "quarry_plating",
+   "name": "Quarry Plating",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [],
+   "text": "Gain 5 Stoneskin. Leave Rubble beneath you.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "quarrymail",
+   "was": null,
+   "tags": [
+    "Rubble",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "shrug_off",
+   "name": "Shrug Off",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 2,
+   "costs": [],
+   "text": "Convert all your Block into Stoneskin. Draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "quarrymail",
+   "was": null,
+   "tags": [
+    "Draw",
+    "Block",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "static_mantle",
+   "name": "Static Mantle",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 5 Block. Until your next turn, enemies that hit you in melee are Shocked.",
+   "status": "new",
+   "note": "A Retaliate variant that cancels the next attack instead of dealing damage.",
+   "impl": 1,
+   "was_id": null,
+   "piece": "stormweave_robe",
+   "was": null,
+   "tags": [
+    "Retaliate",
+    "Shock",
+    "Block"
+   ]
+  },
+  {
+   "id": "galvanize",
+   "name": "Galvanize",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 1,
+   "costs": [],
+   "text": "Draw 1. Quicken 2.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "stormweave_robe",
+   "was": null,
+   "tags": [
+    "Quicken",
+    "Draw"
+   ]
+  },
+  {
+   "id": "catch_the_wind",
+   "name": "Catch the Wind",
+   "src": "gear",
+   "school": "air",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. Gain 1 Block per tile moved.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "gale_cloak",
+   "was": null,
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "windbreak",
+   "name": "Windbreak",
+   "src": "gear",
+   "school": "air",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 6 Block. You can't be Pushed or Pulled until your next turn.",
+   "status": "new",
+   "note": "An answer to Gaolers, Vaeloryx and trap pushes.",
+   "impl": 2,
+   "was_id": null,
+   "piece": "gale_cloak",
+   "was": null,
+   "tags": [
+    "Push/Pull",
+    "Block"
+   ]
+  },
+  {
+   "id": "vigil",
+   "name": "Vigil",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Gain 5 Block. Gain 1 Vision for 2 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "pilgrim_vestments",
+   "was": null,
+   "tags": [
+    "Light",
+    "Block"
+   ]
+  },
+  {
+   "id": "blessed_salve",
+   "name": "Blessed Salve",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Heal 3. Create radius-2 Light on yourself for 2 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "pilgrim_vestments",
+   "was": null,
+   "tags": [
+    "Light",
+    "Heal"
+   ]
+  },
+  {
+   "id": "sidestep_slash",
+   "name": "Sidestep Slash",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2, then strike for 5.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "sidestep_slash",
+   "piece": "skirmisher_boots",
+   "was": {
+    "name": "Sidestep Slash",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, then strike for 5."
+   },
+   "tags": [
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hamstring_shot",
+   "name": "Low Sweep",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then strike for 3. Immobilize.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hamstring_shot",
+   "piece": "skirmisher_boots",
+   "was": {
+    "name": "Low Sweep",
+    "rarity": "common",
+    "time": 4,
+    "text": "Move 2, then sweep an adjacent enemy for 3 and immobilize."
+   },
+   "tags": [
+    "Immobilize",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "dust_skip",
+   "name": "Dust Skip",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Blink 2. Draw 1.",
+   "status": "tweak",
+   "note": "Was identical to Cloudstep Loop and one Time cheaper than Shadow Step. Now the short, cheap blink.",
+   "impl": 0,
+   "was_id": "dust_skip",
+   "piece": "dust_tabi",
+   "was": {
+    "name": "Dust Skip",
+    "rarity": "common",
+    "time": 3,
+    "text": "Blink 3, then draw 1."
+   },
+   "tags": [
+    "Draw",
+    "Move"
+   ]
+  },
+  {
+   "id": "dust_glide",
+   "name": "Dust Glide",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. Gain 3 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "dust_glide",
+   "piece": "dust_tabi",
+   "was": {
+    "name": "Dust Glide",
+    "rarity": "common",
+    "time": 2,
+    "text": "Move 3, then gain 3 block."
+   },
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "spur_vault",
+   "name": "Spur Vault",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 2, then kick an adjacent enemy for 4 and Push 2.",
+   "status": "rework",
+   "note": "Was a 2.10 kick. The vault now lets you choose the side you kick from, so you pick the wall.",
+   "impl": 0,
+   "was_id": "spur_vault",
+   "piece": "trapdoor_spurs",
+   "was": {
+    "name": "Spur Vault",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Move 2, then kick an adjacent enemy for 4 and push 1."
+   },
+   "tags": [
+    "Push/Pull",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "hamstring_slice",
+   "name": "Spur Trip",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then strike for 5. Immobilize.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hamstring_slice",
+   "piece": "trapdoor_spurs",
+   "was": {
+    "name": "Spur Trip",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Move 2, then strike an adjacent enemy for 5 and immobilize."
+   },
+   "tags": [
+    "Immobilize",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "gravewind_step",
+   "name": "Gravewind Step",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 3. Gain 4 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "gravewind_step",
+   "piece": "gravewind_soles",
+   "was": {
+    "name": "Gravewind Step",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Blink 3, then gain 4 block."
+   },
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "shadow_gate",
+   "name": "Gravewind Gate",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Blink 4. Your next attack this turn deals 3 more.",
+   "status": "rework",
+   "note": "Was Gravewind Step with 1 more Block. Two near-copies on one item.",
+   "impl": 2,
+   "was_id": "shadow_gate",
+   "piece": "gravewind_soles",
+   "was": {
+    "name": "Gravewind Gate",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Blink 3, then gain 5 block."
+   },
+   "tags": [
+    "Move"
+   ]
+  },
+  {
+   "id": "hobnail_drive",
+   "name": "Hobnail Drive",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Move 2, then kick an adjacent enemy for 3 and Push 2.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "hobnail_drive",
+   "piece": "hobnail_grips",
+   "was": {
+    "name": "Hobnail Drive",
+    "rarity": "common",
+    "time": 3,
+    "text": "Move 2, then kick an adjacent enemy for 3 and push 2."
+   },
+   "tags": [
+    "Push/Pull",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "heel_hook",
+   "name": "Heel Stomp",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then stomp an adjacent enemy for 4. Stagger 2.",
+   "status": "rework",
+   "note": "Was a common that out-scored the rare Spur Trip at the same job. Now the stomp that delays.",
+   "impl": 1,
+   "was_id": "heel_hook",
+   "piece": "hobnail_grips",
+   "was": {
+    "name": "Heel Hook",
+    "rarity": "common",
+    "time": 4,
+    "text": "Move 2, then trip for 4, immobilize, and expose 2."
+   },
+   "tags": [
+    "Stagger",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "static_pivot",
+   "name": "Static Pivot",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Move 3. Leave Electrified where you arrive. Gain 3 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "static_pivot",
+   "piece": "static_spurs",
+   "was": {
+    "name": "Static Pivot",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Move 3, leave Electrified where you arrive, then gain 3 Block."
+   },
+   "tags": [
+    "Electrified",
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "spur_spark",
+   "name": "Spur Spark",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Move 2. Leave Electrified where you arrive. Quicken 1.",
+   "status": "tweak",
+   "note": "Adds Quicken 1.",
+   "impl": 1,
+   "was_id": "spur_spark",
+   "piece": "static_spurs",
+   "was": {
+    "name": "Spur Spark",
+    "rarity": "rare",
+    "time": 2,
+    "text": "Move 2 and leave Electrified where you arrive."
+   },
+   "tags": [
+    "Quicken",
+    "Electrified",
+    "Move"
+   ]
+  },
+  {
+   "id": "cloudstep_loop",
+   "name": "Cloudstep Loop",
+   "src": "gear",
+   "school": "air",
+   "rarity": "epic",
+   "time": 3,
+   "costs": [],
+   "text": "Blink 3. If you end with no adjacent enemies, gain 1 card play.",
+   "status": "rework",
+   "note": "Was an exact copy of Dust Skip at epic. Now it pays you for kiting.",
+   "impl": 2,
+   "was_id": "cloudstep_loop",
+   "piece": "cloudstep_sandals",
+   "was": {
+    "name": "Cloudstep Loop",
+    "rarity": "epic",
+    "time": 3,
+    "text": "Blink 3, then draw 1."
+   },
+   "tags": [
+    "Card play",
+    "Move"
+   ]
+  },
+  {
+   "id": "zephyr_feint",
+   "name": "Zephyr Feint",
+   "src": "gear",
+   "school": "air",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Move 3. Draw 1. Gain 2 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "zephyr_feint",
+   "piece": "cloudstep_sandals",
+   "was": {
+    "name": "Zephyr Feint",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Move 3, draw 1, and gain 2 Block."
+   },
+   "tags": [
+    "Draw",
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "worldroot_stride",
+   "name": "Worldroot Stride",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [],
+   "text": "Move 3. Gain 4 Stoneskin, or 6 if you arrived on Rubble. Leave Rubble beneath you.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "worldroot_stride",
+   "piece": "worldroot_greaves",
+   "was": {
+    "name": "Worldroot Stride",
+    "rarity": "legendary",
+    "time": 6,
+    "text": "Move 3, then gain 4 Stoneskin, or 6 if you arrived on existing Rubble. Leave Rubble beneath you."
+   },
+   "tags": [
+    "Rubble",
+    "Stoneskin",
+    "Move"
+   ]
+  },
+  {
+   "id": "rooted_kick",
+   "name": "Rooted Kick",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "legendary",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2, then strike for 5, Push 1 and Sunder 3. Leave Rubble at the target's destination.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "rooted_kick",
+   "piece": "worldroot_greaves",
+   "was": {
+    "name": "Rooted Kick",
+    "rarity": "legendary",
+    "time": 4,
+    "text": "Move 2, then strike for 5, Push 1 and Sunder 3. Leave Rubble at the target's destination."
+   },
+   "tags": [
+    "Rubble",
+    "Push/Pull",
+    "Sunder",
+    "Move",
+    "Attack"
+   ]
+  },
+  {
+   "id": "headlong",
+   "name": "Headlong",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Move 4. Your next attack this turn deals 1 more for each tile you moved this turn (maximum +4).",
+   "status": "new",
+   "note": "Gives momentum to any attack, including magic.",
+   "impl": 2,
+   "was_id": null,
+   "piece": "ironshod_sabatons",
+   "was": null,
+   "tags": [
+    "Move"
+   ]
+  },
+  {
+   "id": "glide",
+   "name": "Glide",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 3. Leave Ice on the tile you started on.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "frostwalkers",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Move"
+   ]
+  },
+  {
+   "id": "rime_step",
+   "name": "Rime Step",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Move 2. Leave Ice under an adjacent enemy.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "frostwalkers",
+   "was": null,
+   "tags": [
+    "Ice",
+    "Move"
+   ]
+  },
+  {
+   "id": "cinder_trail",
+   "name": "Cinder Trail",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Move 3, leaving Fire on each tile you leave. Fire doesn't damage you this turn.",
+   "status": "new",
+   "note": "A wall of Fire behind you. Enemies that chase you walk through it.",
+   "impl": 2,
+   "was_id": null,
+   "piece": "emberstriders",
+   "was": null,
+   "tags": [
+    "Fire",
+    "Move"
+   ]
+  },
+  {
+   "id": "hotfoot",
+   "name": "Hotfoot",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Move 2. If you started your turn on Fire, gain 4 Block and draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "emberstriders",
+   "was": null,
+   "tags": [
+    "Fire",
+    "Draw",
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "flowing_step",
+   "name": "Flowing Step",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 1,
+   "costs": [],
+   "text": "Move 2. Follow-up: draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "monks_wraps",
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Draw",
+    "Move"
+   ]
+  },
+  {
+   "id": "palm_strike",
+   "name": "Palm Strike",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Strike for 4. Follow-up: +3 and Push 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "monks_wraps",
+   "was": null,
+   "tags": [
+    "Follow-up",
+    "Push/Pull",
+    "Attack"
+   ]
+  },
+  {
+   "id": "sunpath_stride",
+   "name": "Sunpath Stride",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [],
+   "text": "Move 4. Leave radius-1 Light on each tile you enter for 2 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "dawnwalkers",
+   "was": null,
+   "tags": [
+    "Light",
+    "Move"
+   ]
+  },
+  {
+   "id": "seek_the_light",
+   "name": "Seek the Light",
+   "src": "gear",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Blink to any tile in Light within range 5.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "dawnwalkers",
+   "was": null,
+   "tags": [
+    "Light",
+    "Move"
+   ]
+  },
+  {
+   "id": "lantern_shot",
+   "name": "Lantern Shot",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 3 at range 3. Create radius-2 Light at the impact for 2 turns. Draw 1.",
+   "status": "tweak",
+   "note": "4 to 3 damage. Scored 4.85 as a starter, above most rewards.",
+   "impl": 0,
+   "was_id": "lantern_shot",
+   "piece": "cracked_lantern",
+   "was": {
+    "name": "Lantern Shot",
+    "rarity": "common",
+    "time": 3,
+    "text": "Deal 4 at range 3, then create radius-2 Light at the impact for 2 turns. Draw 1."
+   },
+   "tags": [
+    "Light",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "ember_tithe",
+   "name": "Ember Tithe",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "common",
+   "time": 4,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Deal 3 at range 2 and leave Fire. Heal 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "ember_tithe",
+   "piece": "ember_pendant",
+   "was": {
+    "name": "Ember Tithe",
+    "rarity": "common",
+    "time": 4,
+    "text": "Exhaust. Deal 3 at range 2, leave Fire, then heal 1."
+   },
+   "tags": [
+    "Fire",
+    "Heal",
+    "Attack"
+   ]
+  },
+  {
+   "id": "clockwork_mark",
+   "name": "Clockwork Mark",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 4 at range 3. Stagger 2. Draw 1.",
+   "status": "rework",
+   "note": "Was Ricochet Knife with worse numbers. A clockwork trinket should touch the turn clock.",
+   "impl": 1,
+   "was_id": "clockwork_mark",
+   "piece": "clockwork_arrowhead",
+   "was": {
+    "name": "Clockwork Mark",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Deal 5 at range 2, then draw 1."
+   },
+   "tags": [
+    "Stagger",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "unsealed_gale",
+   "name": "Unsealed Gale",
+   "src": "gear",
+   "school": "air",
+   "rarity": "legendary",
+   "time": 6,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Push every enemy within 3 of you 3 tiles away.",
+   "status": "rework",
+   "note": "Was an Exhaust Force Seal with Push 1. Now the escape that also drives everyone into the walls.",
+   "impl": 2,
+   "was_id": "unsealed_gale",
+   "piece": "sealed_cyclone",
+   "was": {
+    "name": "Unsealed Gale",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Exhaust. Deal 7 in a cross pattern at range 3 and push 1."
+   },
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "loaded_toss",
+   "name": "Loaded Toss",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Deal 2 at range 2. Draw 1. Gain 1 card play.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "loaded_toss",
+   "piece": "bone_dice",
+   "was": {
+    "name": "Loaded Toss",
+    "rarity": "common",
+    "time": 3,
+    "text": "Deal 2 at range 2, draw 1, and gain 1 card play."
+   },
+   "tags": [
+    "Draw",
+    "Card play",
+    "Attack"
+   ]
+  },
+  {
+   "id": "snake_eyes",
+   "name": "Snake Eyes",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [
+    "Exhaust"
+   ],
+   "text": "Exhaust. Deal 1 at range 2. Expose 6. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "snake_eyes",
+   "piece": "bone_dice",
+   "was": {
+    "name": "Snake Eyes",
+    "rarity": "common",
+    "time": 2,
+    "text": "Exhaust. Mark at range 2 for 1 and expose 6, then draw 1."
+   },
+   "tags": [
+    "Expose",
+    "Draw",
+    "Attack"
+   ]
+  },
+  {
+   "id": "locket_chill",
+   "name": "Locket Chill",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Deal 3 Ice at range 2. Leave Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "locket_chill",
+   "piece": "rime_locket",
+   "was": {
+    "name": "Locket Chill",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Deal 3 Ice damage at range 2, then leave Ice."
+   },
+   "tags": [
+    "Ice",
+    "Attack"
+   ]
+  },
+  {
+   "id": "kept_breath",
+   "name": "Kept Breath",
+   "src": "gear",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 4 Block. Draw 1. Leave Ice on a tile within range 2.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "kept_breath",
+   "piece": "rime_locket",
+   "was": {
+    "name": "Kept Breath",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Gain 4 Block, draw 1, then place one Ice tile at range 2."
+   },
+   "tags": [
+    "Ice",
+    "Draw",
+    "Block"
+   ]
+  },
+  {
+   "id": "borrowed_spark",
+   "name": "Borrowed Spark",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Exhaust",
+    "HP 1"
+   ],
+   "text": "Exhaust. Leave Fire on a 2-tile line within range 3. Draw 2. Gain 1 card play. Health cost 1.",
+   "status": "tweak",
+   "note": "Time 5 to 4.",
+   "impl": 0,
+   "was_id": "borrowed_spark",
+   "piece": "ember_hourglass",
+   "was": {
+    "name": "Borrowed Spark",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Exhaust. Lose 1 health. Place a two-tile Fire line at range 3, draw 2, and gain 1 play."
+   },
+   "tags": [
+    "Fire",
+    "Draw",
+    "Card play"
+   ]
+  },
+  {
+   "id": "cinder_second",
+   "name": "Cinder Second",
+   "src": "gear",
+   "school": "fire",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Gain 2 Block. Detonate 4 within range 2. Draw 1.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "cinder_second",
+   "piece": "ember_hourglass",
+   "was": {
+    "name": "Cinder Second",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Gain 2 Block, Detonate 4 at range 2, then draw 1."
+   },
+   "tags": [
+    "Detonate",
+    "Draw",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "thorn_crown_pact",
+   "name": "Thorn Crown Pact",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 5,
+   "costs": [
+    "Rite",
+    "HP 2"
+   ],
+   "text": "Rite: enemies that hit you in melee take 3 and Bleed 1. Health cost 2.",
+   "status": "rework",
+   "note": "Was a grab bag of Stoneskin, Pierce, Bleed and Sunder. Now one permanent thorn aura, bought with blood.",
+   "impl": 2,
+   "was_id": "thorn_crown_pact",
+   "piece": "crown_of_thorns",
+   "was": {
+    "name": "Thorn Crown Pact",
+    "rarity": "legendary",
+    "time": 7,
+    "text": "Lose 1 health. Gain 5 Stoneskin, then Pierce for 6 at range 2, Bleed 1 and Sunder 2."
+   },
+   "tags": [
+    "Retaliate",
+    "Rite",
+    "Bleed"
+   ]
+  },
+  {
+   "id": "royal_bramble",
+   "name": "Royal Bramble",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "legendary",
+   "time": 5,
+   "costs": [],
+   "text": "Pull 2 at range 2 for 4. Bleed 2. Empower (1 HP): Expose 4 and Sunder 4.",
+   "status": "rework",
+   "note": "Keeps its riders but moves the health payment into an optional Empower.",
+   "impl": 1,
+   "was_id": "royal_bramble",
+   "piece": "crown_of_thorns",
+   "was": {
+    "name": "Royal Bramble",
+    "rarity": "legendary",
+    "time": 6,
+    "text": "Lose 1 health. Pull 2 at range 2 for 4, bleed 1, expose 4, and sunder 4."
+   },
+   "tags": [
+    "Empower",
+    "Push/Pull",
+    "Bleed",
+    "Expose",
+    "Sunder"
+   ]
+  },
+  {
+   "id": "blade_dance",
+   "name": "Blade Dance",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Flurry"
+   ],
+   "text": "Flurry. Gain 2 Block, then strike for 4, once per play spent.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "blade_dance",
+   "piece": "war_dancer_sash",
+   "was": {
+    "name": "Blade Dance",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Flurry. Gain 2 block, then strike for 4, for each card play spent."
+   },
+   "tags": [
+    "Flurry",
+    "Block",
+    "Attack"
+   ]
+  },
+  {
+   "id": "gathering_rhythm",
+   "name": "Gathering Rhythm",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [],
+   "text": "Move 2. Draw 1. Gain 2 card plays.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "gathering_rhythm",
+   "piece": "war_dancer_sash",
+   "was": {
+    "name": "Gathering Rhythm",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Move 2, draw 1, and gain 2 card plays."
+   },
+   "tags": [
+    "Draw",
+    "Card play",
+    "Move"
+   ]
+  },
+  {
+   "id": "geode",
+   "name": "Geode",
+   "src": "gear",
+   "school": "earth",
+   "rarity": "common",
+   "time": 3,
+   "costs": [],
+   "text": "Raise an outcrop within range 2. Gain 3 Stoneskin.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "geode_charm",
+   "was": null,
+   "tags": [
+    "Outcrop",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "charged_orb",
+   "name": "Charged Orb",
+   "src": "gear",
+   "school": "lightning",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Quicken 2. Your next Lightning attack this turn gains Chain 1.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "stormglass_orb",
+   "was": null,
+   "tags": [
+    "Quicken",
+    "Chain"
+   ]
+  },
+  {
+   "id": "straw_double",
+   "name": "Straw Double",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Create a 2-health illusion adjacent to you. Draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": "doppel_doll",
+   "was": null,
+   "tags": [
+    "Illusion",
+    "Draw"
+   ]
+  },
+  {
+   "id": "headsmans_toll",
+   "name": "Headsman's Toll",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [],
+   "text": "Deal 3 at range 3. If this kills, gain 1 more card play and draw 1.",
+   "status": "new",
+   "note": "Stacks with the normal kill play: a successful toll is a 2-play refund.",
+   "impl": 2,
+   "was_id": null,
+   "piece": "headsmans_coin",
+   "was": null,
+   "tags": [
+    "Draw",
+    "Card play",
+    "Attack"
+   ]
+  },
+  {
+   "id": "stolen_moment",
+   "name": "Stolen Moment",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 1,
+   "costs": [],
+   "text": "Quicken 3. Draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": "gamblers_watch",
+   "was": null,
+   "tags": [
+    "Quicken",
+    "Draw"
+   ]
+  },
+  {
+   "id": "sworn_oath",
+   "name": "Sworn Oath",
+   "src": "gear",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [],
+   "text": "Gain 3 Block. Your next attack this turn deals 3 more.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": "oathstone",
+   "was": null,
+   "tags": [
+    "Block"
+   ]
+  },
+  {
+   "id": "crimson_draught",
+   "name": "Crimson Draught",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Heal 2.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "crimson_draught",
+   "piece": null,
+   "was": {
+    "name": "Crimson Draught",
+    "rarity": "common",
+    "time": 3,
+    "text": "Consume. Heal 2."
+   },
+   "tags": [
+    "Heal"
+   ]
+  },
+  {
+   "id": "mossglass_elixir",
+   "name": "Mossglass Elixir",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 4,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Heal 2. Gain 1 Stoneskin.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "mossglass_elixir",
+   "piece": null,
+   "was": {
+    "name": "Mossglass Elixir",
+    "rarity": "rare",
+    "time": 4,
+    "text": "Consume. Heal 2 and gain 1 stoneskin."
+   },
+   "tags": [
+    "Stoneskin",
+    "Heal"
+   ]
+  },
+  {
+   "id": "nail_bomb",
+   "name": "Shrapnel Bomb",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 5,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 4 in a cross at range 3. Sunder 2.",
+   "status": "rework",
+   "note": "Was the lowest-scoring card in the game (1.19). Takes over Shrapnel Burst's job.",
+   "impl": 0,
+   "was_id": "nail_bomb",
+   "piece": null,
+   "was": {
+    "name": "Nail Bomb",
+    "rarity": "common",
+    "time": 5,
+    "text": "Consume. Bomb a tile within 2 for 2 and sunder 1."
+   },
+   "tags": [
+    "Sunder",
+    "Attack"
+   ]
+  },
+  {
+   "id": "pitch_firebomb",
+   "name": "Pitch Firebomb",
+   "src": "item",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 2 in a cross at range 2. Leave Fire in the cross.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "pitch_firebomb",
+   "piece": null,
+   "was": {
+    "name": "Pitch Firebomb",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Consume. Deal 2 in a small blast at range 2, then leave Fire in the pattern."
+   },
+   "tags": [
+    "Fire",
+    "Attack"
+   ]
+  },
+  {
+   "id": "frost_snare",
+   "name": "Frost Snare",
+   "src": "item",
+   "school": "ice",
+   "rarity": "rare",
+   "time": 5,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 2 Ice at range 2. Immobilize. Leave Ice.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "frost_snare",
+   "piece": null,
+   "was": {
+    "name": "Frost Snare",
+    "rarity": "rare",
+    "time": 5,
+    "text": "Consume. Deal 2 Ice damage at range 2, immobilize and leave Ice."
+   },
+   "tags": [
+    "Ice",
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "storm_jar",
+   "name": "Storm Jar",
+   "src": "item",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 2 Lightning at range 3. Chain 1. Hits conducted through Electrified also Shock.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "storm_jar",
+   "piece": null,
+   "was": {
+    "name": "Storm Jar",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Consume. Deal 2 Lightning damage with Chain 1 at range 3. Electrified-assisted hits also Shock."
+   },
+   "tags": [
+    "Electrified",
+    "Shock",
+    "Chain",
+    "Attack"
+   ]
+  },
+  {
+   "id": "smoke_bomb",
+   "name": "Smoke Bomb",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Blink 2. Gain 2 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "smoke_bomb",
+   "piece": null,
+   "was": {
+    "name": "Smoke Bomb",
+    "rarity": "common",
+    "time": 3,
+    "text": "Consume. Blink 2 and gain 2 block."
+   },
+   "tags": [
+    "Block",
+    "Move"
+   ]
+  },
+  {
+   "id": "jaw_trap",
+   "name": "Jaw Trap",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 2 at range 2. Immobilize.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "jaw_trap",
+   "piece": null,
+   "was": {
+    "name": "Jaw Trap",
+    "rarity": "common",
+    "time": 4,
+    "text": "Consume. Clamp a target at range 2 for 2 and immobilize."
+   },
+   "tags": [
+    "Immobilize",
+    "Attack"
+   ]
+  },
+  {
+   "id": "bone_ward_charm",
+   "name": "Bone-Ward Charm",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Gain 2 Stoneskin and 3 Block.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "bone_ward_charm",
+   "piece": null,
+   "was": {
+    "name": "Bone-Ward Charm",
+    "rarity": "epic",
+    "time": 4,
+    "text": "Consume. Gain 2 stoneskin and 3 block."
+   },
+   "tags": [
+    "Block",
+    "Stoneskin"
+   ]
+  },
+  {
+   "id": "grave_dust_satchel",
+   "name": "Quarry Dust",
+   "src": "item",
+   "school": "earth",
+   "rarity": "epic",
+   "time": 5,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 2 in a cross at range 2. Pierce. Leave Rubble.",
+   "status": "keep",
+   "note": "",
+   "impl": 0,
+   "was_id": "grave_dust_satchel",
+   "piece": null,
+   "was": {
+    "name": "Quarry Dust",
+    "rarity": "epic",
+    "time": 5,
+    "text": "Consume. Pierce a small blast for 2 at range 2, then leave Rubble."
+   },
+   "tags": [
+    "Rubble",
+    "Pierce",
+    "Attack"
+   ]
+  },
+  {
+   "id": "powder_keg",
+   "name": "Powder Keg",
+   "src": "item",
+   "school": "fire",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Place a 3-health keg on an empty tile within range 2. When it's destroyed, it deals 8 to its tile and each adjacent tile.",
+   "status": "new",
+   "note": "A bomb enemies can set off for you. Crates and traps already teach the idea.",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": []
+  },
+  {
+   "id": "lamp_oil",
+   "name": "Lamp Oil",
+   "src": "item",
+   "school": "fire",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Leave Fire on a 3-tile line within range 3 (rotatable).",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Fire"
+   ]
+  },
+  {
+   "id": "caltrops",
+   "name": "Caltrops",
+   "src": "item",
+   "school": "earth",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Leave Rubble in a cross within range 2. Enemies in it Bleed 2.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Rubble",
+    "Bleed"
+   ]
+  },
+  {
+   "id": "hourglass_sand",
+   "name": "Hourglass Sand",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "rare",
+   "time": 2,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Quicken 4. Draw 1.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Quicken",
+    "Draw"
+   ]
+  },
+  {
+   "id": "throwing_net",
+   "name": "Throwing Net",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 4,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Immobilize an enemy within range 3. Stagger 3.",
+   "status": "new",
+   "note": "",
+   "impl": 1,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Immobilize"
+   ]
+  },
+  {
+   "id": "flash_powder",
+   "name": "Flash Powder",
+   "src": "item",
+   "school": "radiance",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Create radius-3 Light within range 3 for 2 turns. Enemies in it are Exposed 2.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light",
+    "Expose"
+   ]
+  },
+  {
+   "id": "whetstone",
+   "name": "Whetstone",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Your next attack this turn deals 4 more and Pierces.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Pierce"
+   ]
+  },
+  {
+   "id": "mirror_charm",
+   "name": "Mirror Charm",
+   "src": "item",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Create a 5-health illusion within range 3.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Illusion"
+   ]
+  },
+  {
+   "id": "bottled_gale",
+   "name": "Bottled Gale",
+   "src": "item",
+   "school": "air",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Push each adjacent enemy 3.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Push/Pull"
+   ]
+  },
+  {
+   "id": "bitter_tonic",
+   "name": "Bitter Tonic",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 2,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Draw 2. Gain 1 card play.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Draw",
+    "Card play"
+   ]
+  },
+  {
+   "id": "glacier_salts",
+   "name": "Glacier Salts",
+   "src": "item",
+   "school": "ice",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Leave Ice in a cross within range 3.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice"
+   ]
+  },
+  {
+   "id": "thunderstone",
+   "name": "Thunderstone",
+   "src": "item",
+   "school": "lightning",
+   "rarity": "epic",
+   "time": 4,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Deal 5 Lightning to any enemy you can see, ignoring line of sight. Stagger 2.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Stagger",
+    "Attack"
+   ]
+  },
+  {
+   "id": "smelling_salts",
+   "name": "Smelling Salts",
+   "src": "item",
+   "school": "neutral",
+   "rarity": "common",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Remove Immobilize, Shock and Chilled from yourself. Move 2.",
+   "status": "new",
+   "note": "",
+   "impl": 2,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Ice",
+    "Immobilize",
+    "Shock",
+    "Move"
+   ]
+  },
+  {
+   "id": "seers_candle",
+   "name": "Seer's Candle",
+   "src": "item",
+   "school": "radiance",
+   "rarity": "rare",
+   "time": 3,
+   "costs": [
+    "Consume"
+   ],
+   "text": "Gain Truesight and 2 Vision for 3 turns.",
+   "status": "new",
+   "note": "",
+   "impl": 0,
+   "was_id": null,
+   "piece": null,
+   "was": null,
+   "tags": [
+    "Light"
+   ]
+  }
+ ]
+}
