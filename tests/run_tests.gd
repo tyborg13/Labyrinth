@@ -59,6 +59,7 @@ const ScavengerShopSuite = preload("res://tests/suites/scavenger_shop_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const GuidedCombatTutorialSuite = preload("res://tests/suites/guided_combat_tutorial_suite.gd")
 const CardDragPlaySuite = preload("res://tests/suites/card_drag_play_suite.gd")
+const ForcedMovementSuite = preload("res://tests/suites/forced_movement_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -125,6 +126,7 @@ func _initialize() -> void:
 	RelicSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/chain_attack_suite.gd").run(Callable(self, "_assert"))
+	ForcedMovementSuite.run(Callable(self, "_assert"))
 	AttackSfxSuite.run(Callable(self, "_assert"))
 	RadiancePackageSuite.run(Callable(self, "_assert"))
 	BoardSurfaceSuite.run(Callable(self, "_assert"))
@@ -236,6 +238,7 @@ func _initialize() -> void:
 	_test_rotated_line_aoe_uses_selected_orientation()
 	_test_combat_board_aoe_footprint_timing()
 	_test_forced_movement_uses_selected_straight_line()
+	_test_tailwind_fletching_modifies_existing_forced_movement()
 	_test_enemy_phase_preserves_preview_cycle()
 	_test_elemental_room_rewards_follow_affinity(default_progression)
 	_test_chain_hits_clustered_enemies()
@@ -406,6 +409,7 @@ func _initialize() -> void:
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
 	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
+	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
@@ -2569,26 +2573,41 @@ func _test_relic_effect_hooks() -> void:
 	_assert(BoardSurfaceRules.element_at(state, (state["enemies"][0] as Dictionary).get("pos")) == "fire", "Phoenix paints Fire beneath enemies without old damaging Burn")
 
 func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
+	# Collision damage scales with distance, so distance relics also extend
+	# keyword Push/Pull riders on attacks (spec/forced_movement.md).
 	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
-	var skybreak_attack: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[1]
-	_assert(int(skybreak_attack.get("range", 0)) == 7, "Tailwind should keep its ranged Air range bonus")
+	var skybreak_attack: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[0]
+	_assert(int(skybreak_attack.get("range", 0)) == 3, "Tailwind should leave ranged Air range unchanged")
 	_assert(int(skybreak_attack.get("push", 0)) == 3, "Tailwind should increase existing push on Air ranged attacks")
-	_assert(ActionIcons.token_tooltip(ActionIcons.tokens_for_action(skybreak_attack)[2] as Dictionary).contains("Tailwind Fletching"), "Relic-modified push tokens should name Tailwind in their tooltip")
+	_assert(int(skybreak_attack.get("damage", 0)) == 6, "Tailwind's damage bonus stays on standalone Push/Pull actions")
+	var skybreak_push_token: Dictionary = {}
+	for token_var: Variant in ActionIcons.tokens_for_action(skybreak_attack):
+		if str((token_var as Dictionary).get("icon", "")) == "push":
+			skybreak_push_token = token_var as Dictionary
+	_assert(ActionIcons.token_tooltip(skybreak_push_token).contains("Tailwind Fletching"), "Relic-modified push tokens should name Tailwind in their tooltip")
 	var tailwind_squall: Dictionary = GameData.card_def_for_progression("squall_shot", {"relics": ["tailwind_fletching"]})
-	var squall_action: Dictionary = (tailwind_squall.get("actions", []) as Array)[1]
+	var squall_action: Dictionary = (tailwind_squall.get("actions", []) as Array)[0]
 	_assert(int(squall_action.get("push", 0)) == 2, "Tailwind should increase existing push on Air AOE attacks")
 	var tailwind_vacuum: Dictionary = GameData.card_def_for_progression("vacuum_line", {"relics": ["tailwind_fletching"]})
 	var vacuum_action: Dictionary = (tailwind_vacuum.get("actions", []) as Array)[0]
-	_assert(int(vacuum_action.get("amount", 0)) == 6, "Tailwind should increase existing Air pull action distance")
-	var stacked_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
-	var stacked_action: Dictionary = (stacked_updraft.get("actions", []) as Array)[1]
-	_assert(int(stacked_action.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
-	var stacked_tokens: Array = ActionIcons.tokens_for_action(stacked_action)
-	var stacked_push_token: Dictionary = (stacked_tokens[stacked_tokens.size() - 1] as Dictionary)
-	_assert(str(stacked_push_token.get("icon", "")) == "push", "Forced movement cards should render push after the hit")
-	var stacked_tooltip: String = ActionIcons.token_tooltip(stacked_push_token)
-	_assert(ActionIcons.token_is_modified(stacked_push_token), "Relic-modified forced movement should carry a dynamic token marker")
-	_assert(stacked_tooltip.contains("Tailwind Fletching") and stacked_tooltip.contains("Anchor Chain"), "A token modified by multiple relics should list every source")
+	_assert(int(vacuum_action.get("amount", 0)) == 4, "Tailwind should increase existing Air pull action distance")
+	var tailwind_updraft: Dictionary = GameData.card_def_for_progression("updraft", {"relics": ["tailwind_fletching", "anchor_chain"]})
+	var updraft_action: Dictionary = (tailwind_updraft.get("actions", []) as Array)[0]
+	_assert(int(updraft_action.get("amount", 0)) == 3, "Tailwind adds printed distance; Anchor Chain waits for combat Block")
+	var updraft_tokens: Array = ActionIcons.tokens_for_action(updraft_action)
+	var updraft_push_token: Dictionary = (updraft_tokens[updraft_tokens.size() - 1] as Dictionary)
+	_assert(str(updraft_push_token.get("icon", "")) == "push", "Forced movement cards should render push after the hit")
+	_assert(ActionIcons.token_is_modified(updraft_push_token) and ActionIcons.token_tooltip(updraft_push_token).contains("Tailwind Fletching"), "Relic-modified forced movement should carry a dynamic token marker")
+	var combat: CombatEngine = CombatEngine.new()
+	var state: Dictionary = combat.create_combat(2571, _simple_room_layout(), {"hp": 24, "max_hp": 24, "deck_cards": ["updraft", "skybreak_current"], "relics": ["tailwind_fletching", "anchor_chain"], "hand_size": 2})
+	state["player"]["block"] = 2
+	var stacked_updraft: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("updraft", state)[0])
+	_assert(int(stacked_updraft.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
+	var stacked_skybreak: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("skybreak_current", state)[0])
+	_assert(int(stacked_skybreak.get("push", 0)) == 4, "Anchor Chain should also extend keyword Push on attacks while the player has Block")
+	state["player"]["block"] = 0
+	var unguarded: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("skybreak_current", state)[0])
+	_assert(int(unguarded.get("push", 0)) == 3, "Anchor Chain's keyword extension needs Block")
 
 func _test_pierce_ignores_defenses() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -3657,22 +3676,29 @@ func _test_forced_movement_uses_selected_straight_line() -> void:
 		{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 20, "max_hp": 20, "block": 0}
 	]
 	var push_action: Dictionary = {"type": "push", "amount": 2, "range": 5, "damage": 0, "force_direction": Vector2i(0, -1)}
-	_assert(combat.player_action_needs_orientation(push_action), "Push actions should ask the player for a movement direction")
+	_assert(combat.player_action_needs_orientation(push_action), "Push actions carry a straight-line force direction")
 	var push_directions: Array[Vector2i] = combat.force_directions_for_player_action(state, push_action, Vector2i(4, 4))
-	_assert(push_directions.has(Vector2i(0, -1)) and push_directions.has(Vector2i(1, 0)) and not push_directions.has(Vector2i(-1, 0)), "Push should only offer directions that move farther from the player")
+	_assert(push_directions.size() == 1 and push_directions.has(Vector2i(1, 0)), "An aligned push offers only the straight line away from the player")
 	var push_preview: Array[Vector2i] = combat.forced_movement_tiles_for_player_action(state, push_action, Vector2i(4, 4))
-	_assert(push_preview.size() == 2 and push_preview[0] == Vector2i(4, 3) and push_preview[1] == Vector2i(4, 2), "Push preview should follow a chosen straight line that increases distance")
+	_assert(push_preview.size() == 2 and push_preview[0] == Vector2i(5, 4) and push_preview[1] == Vector2i(6, 4), "A non-candidate stored direction previews the default straight line")
 	var pushed_state: Dictionary = combat.apply_player_action(state, push_action, Vector2i(4, 4))
 	var pushed_enemy: Dictionary = (pushed_state.get("enemies", []) as Array)[0]
-	_assert(pushed_enemy.get("pos", Vector2i.ZERO) == Vector2i(4, 2), "Push should move the target along the selected away direction")
-	var invalid_push_action: Dictionary = {"type": "push", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i(-1, 0)}
-	_assert(not combat.valid_targets_for_player_action(state, invalid_push_action).has(Vector2i(4, 4)), "Push should reject directions that move the target closer to the player")
+	_assert(pushed_enemy.get("pos", Vector2i.ZERO) == Vector2i(6, 4), "Push should move the target along the resolved straight line")
+	var closer_push_action: Dictionary = {"type": "push", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i(-1, 0)}
+	_assert(combat.valid_targets_for_player_action(state, closer_push_action).has(Vector2i(4, 4)), "A stored direction never makes a movable push target illegal")
 	var pull_action: Dictionary = {"type": "pull", "amount": 1, "range": 5, "damage": 0, "force_direction": Vector2i(-1, 0)}
 	var pull_directions: Array[Vector2i] = combat.force_directions_for_player_action(state, pull_action, Vector2i(4, 4))
-	_assert(pull_directions.size() == 1 and pull_directions.has(Vector2i(-1, 0)), "Pull should only offer directions that move closer to the player")
+	_assert(pull_directions.size() == 1 and pull_directions.has(Vector2i(-1, 0)), "An aligned pull offers only the straight line toward the player")
 	var pulled_state: Dictionary = combat.apply_player_action(state, pull_action, Vector2i(4, 4))
 	var pulled_enemy: Dictionary = (pulled_state.get("enemies", []) as Array)[0]
-	_assert(pulled_enemy.get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Pull should move the target along the selected closer direction")
+	_assert(pulled_enemy.get("pos", Vector2i.ZERO) == Vector2i(3, 4), "Pull should move the target along its straight line toward the player")
+	state["enemies"][0]["pos"] = Vector2i(4, 3)
+	var off_axis: Array[Vector2i] = combat.force_directions_for_player_action(state, push_action, Vector2i(4, 3))
+	_assert(off_axis.size() == 2 and off_axis[0] == Vector2i(1, 0) and off_axis[1] == Vector2i(0, -1), "An off-axis push offers the larger axis first and the other axis second")
+	var aimed_path: Array[Vector2i] = combat.forced_movement_tiles_for_player_action(state, push_action, Vector2i(4, 3))
+	_assert(aimed_path.size() == 2 and aimed_path[0] == Vector2i(4, 2) and aimed_path[1] == Vector2i(4, 1), "A candidate stored direction previews its own straight line")
+	var aimed_state: Dictionary = combat.apply_player_action(state, push_action, Vector2i(4, 3))
+	_assert(((aimed_state.get("enemies", []) as Array)[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 1), "The aimed alternate line commits")
 
 func _test_enemy_phase_preserves_preview_cycle() -> void:
 	var combat: CombatEngine = CombatEngine.new()
@@ -9996,9 +10022,11 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	await create_timer(1.5).timeout
 	var final_state: Dictionary = instance.get("_combat_state")
 	var enemies: Array = final_state.get("enemies", [])
-	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3), "North-oriented Squall should push its center target north")
-	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 1), "North-oriented Squall should hit and push the northern arm")
-	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 3), "North-oriented Squall should hit and push the eastern arm")
+	# The pattern orientation aims the area; each Push still travels its own
+	# straight line away from the hero (spec/forced_movement.md).
+	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "North-oriented Squall should push its center target straight away from the hero")
+	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 2), "North-oriented Squall should hit the northern arm and push it along the horizontal diagonal-tie line")
+	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 4) and int((enemies[2] as Dictionary).get("hp", 0)) == int((enemies[0] as Dictionary).get("hp", 0)) - 2, "North-oriented Squall should hit the eastern arm and collide it with the wall")
 	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 6), "North-oriented Squall should leave the old southern arm untouched")
 	var played_events: Array[Dictionary] = _analytics_events_by_type(AnalyticsStore.load_all_events(), "card_played")
 	_assert(((final_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Squall should not create Light after its Radiance rider is removed")
@@ -11872,6 +11900,7 @@ func _test_run_scene_logs_local_analytics() -> void:
 	_assert(play_payload.has("illusions_created"), "Card play analytics should include created illusion counts")
 	_assert(play_payload.has("surface_events") and int(play_payload.get("rules_version", 0)) == BoardSurfaceRules.RULES_VERSION, "Card play analytics must carry source-aware ground events and the new rules version")
 	_assert(play_payload.has("terrain_hp_damage"), "Card play analytics should include terrain damage")
+	_assert(int(play_payload.get("forced_collisions", -1)) >= 0 and int(play_payload.get("collision_damage_dealt", -1)) >= 0, "Card play analytics should include forced-movement collisions")
 	_assert(play_payload.has("terrain_destroyed"), "Card play analytics should include destroyed terrain")
 	_assert(play_payload.has("traps_triggered"), "Card play analytics should include triggered traps")
 	_assert(play_payload.has("triggered_trap_damage"), "Card play analytics should include triggered trap damage")

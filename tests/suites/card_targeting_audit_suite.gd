@@ -119,7 +119,8 @@ static func _test_force_range(combat: CombatEngine, expect: Callable) -> void:
 					var after: Dictionary = combat.apply_player_action(state,action,tile)
 					expect.call(int(after["enemies"][0]["hp"]) < 100,"%s hits even when force cannot displace an adjacent target" % id)
 	var blocked: Dictionary = Fixture._combat_state(combat,"gust_step",Vector2i(3,4),1)
-	expect.call(not combat.valid_targets_for_player_action(blocked,{"type":"pull","amount":2,"range":2,"damage":0}).has(Vector2i(3,4)),"Pure displacement still requires somewhere to move")
+	expect.call(not combat.valid_targets_for_player_action(blocked,{"type":"pull","amount":2,"range":2,"damage":0}).has(Vector2i(3,4)),"A zero-damage Pull on an adjacent enemy does nothing and stays illegal")
+	expect.call(combat.valid_targets_for_player_action(blocked,{"type":"push","amount":2,"range":2,"damage":0}).has(Vector2i(3,4)),"A zero-damage Push that moves or collides is a legal target")
 	blocked["grid"][4][3] = "wall"
 	blocked["enemies"][0]["pos"] = Vector2i(4,4)
 	expect.call(not combat.valid_targets_for_player_action(blocked,{"type":"pull","amount":2,"range":2,"damage":3}).has(Vector2i(4,4)),"Damage does not bypass line of sight")

@@ -99,7 +99,7 @@ func _test_relics() -> void:
 	for enemy: Dictionary in state["enemies"]: enemy["block"]=0
 	var forced: Dictionary = engine.apply_player_action(state,{"type":"melee","range":1,"damage":1,"push":2},Vector2i(2,1))
 	check(forced["enemies"][0]["pos"]==Vector2i(4,1) and forced["enemies"][2]["pos"]==Vector2i(6,1),"Talon carries contiguous row two steps")
-	check(forced["enemies"][1]["hp"]==100,"Talon does not grant collateral damage")
+	check(forced["enemies"][1]["hp"]==100 and forced["enemies"][2]["hp"]==100,"A free Talon line deals no collision damage to its members")
 	state=fixture("cragbound_gauntlet",[Vector2i(7,7)])
 	state["player"]["stoneskin"]=7
 	var cover: Dictionary = engine.apply_player_action(state,engine.card_play_actions("root_snare",state)[0],Vector2i(2,1))
@@ -236,6 +236,7 @@ func _test_relic_edges() -> void:
 	state["grid"][1][6] = "wall"
 	state = engine.apply_player_action(state,{"type":"melee","range":1,"damage":1,"push":3},Vector2i(2,1))
 	check(state["enemies"][0]["pos"]==Vector2i(3,1) and state["enemies"][2]["pos"]==Vector2i(5,1),"Talon stops the whole line at the first obstruction")
+	check(state["enemies"][2]["hp"]==96 and state["enemies"][1]["hp"]==100 and state["enemies"][0]["hp"]==99,"Only Talon's front member collides (2 per lost tile); other members take no collision damage and the wall takes none")
 	state = fixture("galehook_talon",[Vector2i(2,1),Vector2i(4,1)])
 	state["enemies"][0]["footprint"] = Vector2i(2,2)
 	for actor: Dictionary in state["enemies"]: actor["block"]=0

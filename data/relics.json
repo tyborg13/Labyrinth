@@ -343,6 +343,20 @@
         ],
         "field": "amount",
         "amount": 1
+      },
+      {
+        "type": "card_action_mod",
+        "element": "air",
+        "requires_field": "push",
+        "field": "push",
+        "amount": 1
+      },
+      {
+        "type": "card_action_mod",
+        "element": "air",
+        "requires_field": "pull",
+        "field": "pull",
+        "amount": 1
       }
     ]
   },
@@ -453,6 +467,20 @@
           "pull"
         ],
         "field": "amount",
+        "amount": 1
+      },
+      {
+        "type": "player_state_action_mod",
+        "player_min_block": 1,
+        "requires_field": "push",
+        "field": "push",
+        "amount": 1
+      },
+      {
+        "type": "player_state_action_mod",
+        "player_min_block": 1,
+        "requires_field": "pull",
+        "field": "pull",
         "amount": 1
       }
     ]

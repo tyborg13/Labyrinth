@@ -52,10 +52,15 @@ These assumptions are baked into the current coefficients:
 - Killing an enemy with a card grants `+1` card play for the turn, so high
   damage gets a modest execute-tempo premium.
 - Card targeting uses one board decision, with automatic riders and combined
-  movement approaches. Damaging Push/Pull can hit anywhere within maximum
-  range even when displacement is blocked. Existing ranged playability factors
-  already assume this radius; force value remains a conditional positional
-  benefit and receives no extra score for blocked movement.
+  movement approaches. A Push/Pull target is legal anywhere within maximum
+  range when the action deals damage, moves the target at least one tile, or
+  collides. Existing ranged playability factors already assume this radius;
+  force value remains a conditional positional benefit.
+- Forced movement travels one straight cardinal line
+  ([forced movement](forced_movement.md)). A stopped line collides: the target
+  and whatever stopped it take 2 damage per lost tile (walls take none). The
+  collision value below prices that at roughly one collision per three
+  forced-movement plays, so relics that add distance also add damage value.
 - Flurry cards snapshot all card plays available when they begin, repeat their
   printed actions and health cost once per snapped play, and spend all snapped
   plays. The physical card's top-level Time cost is paid once. Plays gained
@@ -371,7 +376,10 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Push: `0.28` per tile
 - Pull: `0.14` per tile
 - Directed push/pull bonus: `0.03` per forced-movement tile
-- Shared hazard opportunity: `0.16` per forced-movement tile
+- Shared hazard opportunity: `0.24` per forced-movement tile
+- Collision opportunity: `0.30` per forced-movement tile (`2` damage per lost
+  tile x about `0.33` collision availability x the `0.45` damage weight, for
+  target plus blocker), applied like the hazard value and scaled by playability
 
 Synergy bonuses:
 
@@ -436,9 +444,9 @@ blink in the same card:
 For ranged, ranged AOE, push, and pull attacks, playability is based on printed
 range. Rotatable asymmetric AOE patterns get a small orientation bonus because
 the player can rotate the pattern while aiming around the hovered center tile.
-Push and pull get a small directed-force bonus because the player chooses among
-legal straight cardinal lines after choosing the target, constrained to directions
-that move the target farther from or closer to the caster:
+Push and pull get a small directed-force bonus because the player can Rotate
+between the two straight cardinal lines of an off-axis target (away from or
+toward the caster) before committing:
 
 - Range `1`: `0.35`
 - Range `2`: `0.65`

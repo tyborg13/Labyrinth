@@ -95,6 +95,11 @@ const ACTION_FIELD_ENTRY_IDS := {
 	"pull": "keyword:pull"
 }
 
+const LINKED_ENTRY_IDS := {
+	"keyword:push": ["keyword:collision"],
+	"keyword:pull": ["keyword:collision"]
+}
+
 static var _cache: Dictionary = {}
 # Catalog data is generated from immutable resource definitions. Public accessors
 # still return isolated copies; hot internal derivation paths share these refs.
@@ -766,6 +771,11 @@ static func _collect_nested_action_entry_ids(value: Variant, wanted: Dictionary)
 				if not field_entry.is_empty() and _truthy_value(nested_value):
 					wanted[field_entry] = true
 				_collect_nested_action_entry_ids(nested_value, wanted)
+			# Push and Pull always teach Collision: stopped forced movement collides.
+			for entry_id: String in LINKED_ENTRY_IDS:
+				if wanted.has(entry_id):
+					for linked_id: String in LINKED_ENTRY_IDS[entry_id]:
+						wanted[linked_id] = true
 		TYPE_ARRAY:
 			for item_var: Variant in value:
 				_collect_nested_action_entry_ids(item_var, wanted)

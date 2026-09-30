@@ -2105,8 +2105,12 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var flurry_plays_spent: int = _combat_engine.card_plays_spent_for_actions(actions)
 	var flurry_played: bool = bool(printed_card.get("flurry", false))
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
+	var surface_events: Array[Dictionary] = _combat_engine._surface_events_since(before_state, resolved_state)
+	var collisions: Dictionary = _combat_engine.force_collision_summary(surface_events)
 	return {
 		"play_mode": "printed",
+		"forced_collisions": int(collisions.get("count", 0)),
+		"collision_damage_dealt": int(collisions.get("damage", 0)),
 		"flurry": flurry_played,
 		"flurry_plays_spent": flurry_plays_spent if flurry_played else 0,
 		"printed_health_cost": int(printed_card.get("health_cost", 0)),
@@ -2142,7 +2146,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"enemy_defense_bypassed": _enemy_defense_bypassed_between(before_state, resolved_state, actions),
 		"surfaces_before": surfaces_before,
 		"surfaces_after": surfaces_after,
-		"surface_events": _combat_engine._surface_events_since(before_state, resolved_state),
+		"surface_events": surface_events,
 		"illusions_created": _illusions_created_between(before_state, resolved_state),
 		"illusion_health_created": _illusion_health_created_between(before_state, resolved_state),
 		"enemy_status_applied": _enemy_status_added_breakdown(before_state, resolved_state),

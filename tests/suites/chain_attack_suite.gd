@@ -28,7 +28,8 @@ static func run(expect: Callable) -> void:
 	var pushed_hits: Array = pushed_result.get("chain_hits", [])
 	expect.call(pushed_result.get("state") == combat.apply_player_action(state, pushed, Vector2i(4, 4)), "Chain trace must preserve forced movement and its effect on route selection")
 	if pushed_hits.size() > 1:
-		expect.call(pushed_hits[1].get("from") == Vector2i(4, 3), "A pushed primary target must launch its next hop from its resolved tile")
+		# Push travels straight away from the hero at (2,4): east to (5,4).
+		expect.call(pushed_hits[1].get("from") == Vector2i(5, 4), "A pushed primary target must launch its next hop from its resolved tile")
 	else:
 		expect.call(false, "Push fixture must contain a reachable next target")
 	var hidden: Dictionary = state.duplicate(true)

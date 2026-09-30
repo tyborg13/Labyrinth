@@ -607,6 +607,20 @@ static func draw_preview(canvas: CanvasItem, tile: Vector2i, center: Vector2, wi
 			var b: Vector2 = polygon[(edge + 1) % 4]
 			canvas.draw_line(a.lerp(b, 0.15), a.lerp(b, 0.84), Color(tint, 0.7), maxf(1.0, width * 0.012), true)
 
+static func _draw_collision_feedback(canvas: CanvasItem, center: Vector2, width: float, event: Dictionary, progress: float, reduced: bool) -> void:
+	# A stopped Push/Pull flashes on the shared edge between target and blocker.
+	var direction: Vector2i = event.get("direction", Vector2i.ZERO)
+	var contact: Vector2 = center + Vector2(float(direction.x - direction.y) * width * 0.25, float(direction.x + direction.y) * width * 0.125) - Vector2(0.0, width * 0.16)
+	var t: float = 0.5 if reduced else clampf(progress, 0.0, 1.0)
+	var alpha: float = 0.8 if reduced else sin(t * PI)
+	var tint := Color("ffd9a0")
+	_floor_glow(canvas, contact, Vector2(width * (0.20 + t * 0.22), width * (0.12 + t * 0.12)), Color(tint, alpha * 0.55))
+	for spoke: int in range(8):
+		var angle: float = float(spoke) * TAU / 8.0 + 0.2
+		var inner: Vector2 = contact + Vector2(cos(angle), sin(angle) * 0.62) * width * (0.05 + t * 0.06)
+		var outer: Vector2 = contact + Vector2(cos(angle), sin(angle) * 0.62) * width * (0.12 + t * 0.14)
+		canvas.draw_line(inner, outer, Color(tint, alpha), maxf(1.2, width * 0.018), true)
+
 static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, width: float, events: Array, progress: float, reduced: bool = false) -> void:
 	if progress >= 1.0 and not reduced: return
 	for event_var: Variant in events:
@@ -620,6 +634,9 @@ static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, w
 			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,false)
 			SpellFx.impact(canvas,element,center,width*0.70,progress,0.85,reduced,true)
 		var kind: String = str(event.get("kind", ""))
+		if kind == "force_collision":
+			if event.get("tile", Vector2i(-1, -1)) == tile: _draw_collision_feedback(canvas, center, width, event, progress, reduced)
+			continue
 		if not element.is_empty() or kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
 		var tint: Color = color_for(str(event.get("surface", "fire")))
 		var alpha: float = sin(clampf(progress, 0.0, 1.0) * PI) * 0.55

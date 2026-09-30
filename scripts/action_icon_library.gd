@@ -166,13 +166,18 @@ const KEYWORDS: Dictionary = {
 	},
 	"push": {
 		"label": "Push",
-		"description": "Forces the target away.",
+		"description": "Forces the target away in one straight line. If it's stopped early, it collides.",
 		"path": "%s/push.png" % ICON_ROOT
 	},
 	"pull": {
 		"label": "Pull",
-		"description": "Forces the target closer.",
+		"description": "Forces the target closer in one straight line. If it's stopped early, it collides.",
 		"path": "%s/pull.png" % ICON_ROOT
+	},
+	"collision": {
+		"label": "Collision",
+		"description": "A stopped Push or Pull deals 2 damage per tile not moved to the target and to whatever stopped it. Walls take nothing. Block and Stoneskin absorb it.",
+		"path": "%s/collision.png" % ICON_ROOT
 	},
 	"health": {
 		"label": "Health",

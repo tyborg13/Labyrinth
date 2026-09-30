@@ -454,7 +454,9 @@
       "title": "Push",
       "icon": "push",
       "body": [
-        "Forces the target away from the attack’s origin until it reaches the displayed distance or a blocked tile."
+        "Forces the target away from the attack’s origin in one straight line for the displayed distance. It never turns or slides around anything.",
+        "When the target is off to a diagonal, it goes along the longer side by default; Rotate switches to the other side before you commit.",
+        "If a wall, crate, outcrop, character or illusion stops it early, it collides."
       ]
     },
     {
@@ -463,7 +465,19 @@
       "title": "Pull",
       "icon": "pull",
       "body": [
-        "Forces the target toward the attack’s origin until it reaches the displayed distance or a blocked tile."
+        "Forces the target toward the attack’s origin in one straight line for the displayed distance. It never turns or slides around anything.",
+        "When the target is off to a diagonal, it comes along the longer side by default; Rotate switches to the other side before you commit.",
+        "A pull that reaches its source simply stops. Anything else that stops it early makes it collide."
+      ]
+    },
+    {
+      "id": "keyword:collision",
+      "section": "keywords",
+      "title": "Collision",
+      "icon": "collision",
+      "body": [
+        "When forced movement is stopped by a wall, crate, outcrop, character or illusion, the target takes 2 damage for each tile it didn't move, and so does whatever it hit. Walls take nothing.",
+        "Block and Stoneskin absorb it; Chilled, Frozen and Expose don't add to it."
       ]
     },
     {
