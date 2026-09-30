@@ -2812,8 +2812,8 @@ func _vector2i_array(values: Variant) -> Array[Vector2i]:
 func _root_screenshot_image() -> Image:
 	var image: Image = root.get_viewport().get_texture().get_image()
 	# Retina windows return the backing texture at device-pixel resolution even
-	# though the authored viewport is 1920x1080. Normalize proof output to the UI
-	# rubric's required logical resolution.
+	# though the authored viewport is 1920x1080. Normalize proof output to that
+	# logical resolution.
 	if image.get_size() != _viewport_size:
 		image.resize(_viewport_size.x, _viewport_size.y, Image.INTERPOLATE_LANCZOS)
 	return image

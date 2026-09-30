@@ -1261,8 +1261,9 @@ const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
-const RELIC_OFFER_ICON_SIZE: float = 88.0
-const RELIC_OFFER_ICON_STAGE_HEIGHT: float = 100.0
+const RELIC_OFFER_ICON_SIZE: float = 76.0
+const RELIC_OFFER_ICON_STAGE_HEIGHT: float = 80.0
+const RELIC_OFFER_DESCRIPTION_MIN_HEIGHT: float = 130.0
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 34.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
@@ -13549,7 +13550,7 @@ func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slo
 	# actor's place on the clock without covering the portrait's face.
 	var diameter: float = 26.0 if active else 23.0
 	var badge_size := Vector2(maxf(diameter, 12.0 + float(text.length()) * 9.0), diameter)
-	badge.position = Vector2(slot_size.x - badge_size.x + 7.0, -5.0)
+	badge.position = Vector2(slot_size.x - badge_size.x + 7.0, -2.0)
 	badge.custom_minimum_size = badge_size
 	badge.size = badge_size
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -13567,6 +13568,7 @@ func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slo
 	label.add_theme_constant_override("outline_size", 3)
 	badge.add_child(label)
 	return badge
+
 func _turn_order_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.035, 0.025, 0.86)
@@ -13625,6 +13627,7 @@ func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBox
 	style.shadow_size = 3
 	style.shadow_offset = Vector2(0.0, 1.0)
 	return style
+
 func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 	var clock: int = int(entry.get("time", 0))
 	var eta: int = _turn_order_relative_time(entry)
@@ -16947,7 +16950,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 
 	var vbox := VBoxContainer.new()
 	vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
-	vbox.add_theme_constant_override("separation", 6)
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
@@ -16990,7 +16993,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 28.0)
+	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 26.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.add_theme_font_override("font", UiTypography.ui_font())
 	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
@@ -17002,7 +17005,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	var rule := GildedRule.new()
 	rule.name = "RelicChoiceRule"
 	rule.accent = accent.lerp(UiPalette.GOLD, 0.5)
-	rule.custom_minimum_size = Vector2(0.0, 10.0)
+	rule.custom_minimum_size = Vector2(0.0, 8.0)
 	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(rule)
 
@@ -17014,7 +17017,10 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 96.0)
+	# Exact rules text always gets the remaining height: 130 px holds the longest
+	# current relic (126 px) and grows with the panel if copy ever gets longer.
+	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, RELIC_OFFER_DESCRIPTION_MIN_HEIGHT)
+	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_rich_text_size(description, UiTypography.SIZE_BODY_LARGE)
 	description.add_theme_color_override("default_color", UiPalette.TEXT)

@@ -59,6 +59,23 @@ floor shadows); the former navy button bodies clashed with it.
   forecast ribbon, and resource meters with round gilt sockets, all authored at
   2x layout size for crisp high-DPI rendering.
 
+- **Dividers** (`scripts/ui_gilded_rule.gd`): a short line–diamond–line rule
+  for separating a name from its rules text.
+- **Choice plates** (relic and campfire choices, `ui_surface_finish.gd`
+  `_draw_choice`): a quiet well with the gilded hairline and corner studs;
+  emphasis brightens the gilding and adds a soft glow. Relic offers show the
+  relic on a pool of its accent light, a gold name, a divider, then the exact
+  rules text, which always receives enough height to show in full
+  (`tests/relic_offer_fit_probe.gd` checks every relic).
+- **Initiative rail** (`scripts/turn_order_plate.gd`): each actor is a tile with
+  a glass fill beneath the sprite portrait and a hairline rim above it (z 6),
+  teal for allies and crimson for enemies with a team base line under the
+  health bar. The next actor's tile is gilded with a warm glow. Time values sit
+  in round medallions straddling each tile's upper-right corner.
+- **Status placard** (`CombatBoardView._draw_status_text`): room states such as
+  "Relic", "Choose Door" and "Victory" in gold with flanking fading rules; the
+  top HUD scrim thins toward the centre so the placard stays bright.
+
 ## Combat composition
 
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm

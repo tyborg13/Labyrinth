@@ -2,6 +2,7 @@ extends Control
 class_name CombatBoardView
 
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 var _protagonist_renderer: Node
 var _illusion_renderers: Dictionary = {}
@@ -508,8 +509,8 @@ var status_detail: String = ""
 var exit_tiles: Dictionary = {}
 var exit_icon_ids: Dictionary = {}
 var presentation: Dictionary = {}
-const STATUS_LABEL_COLOR := Color("f0cf8a")
-const STATUS_RULE_COLOR := Color("c9a25e")
+const STATUS_LABEL_COLOR := UiPaletteTokens.GOLD_BRIGHT
+const STATUS_RULE_COLOR := UiPaletteTokens.GOLD
 const IMPACT_CAMERA_SHAKE_PX: float = 3.0
 const IMPACT_CAMERA_SHAKE_PLAYER_PX: float = 5.5
 const IMPACT_CAMERA_SHAKE_OSCILLATIONS: float = 3.5

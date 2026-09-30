@@ -184,7 +184,7 @@ func _save_root_screenshot(output_path: String) -> void:
 		return
 	var image: Image = root.get_viewport().get_texture().get_image()
 	# macOS may expose a Retina-sized backing texture even when the authored
-	# logical canvas is 1920x1080. Normalize proof to the rubric's exact canvas.
+	# logical canvas is 1920x1080. Normalize proof to that exact canvas.
 	if image.get_size() != VIEWPORT_SIZE:
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
