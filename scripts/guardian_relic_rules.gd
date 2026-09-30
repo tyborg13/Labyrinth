@@ -9,7 +9,7 @@ const INVALID := Vector2i(-1,-1)
 
 static func amount(state: Dictionary, effect_type: String) -> int:
 	var result: int = 0
-	for effect: Dictionary in Data.relic_effects_for_ids(state.get("relics",[])):
+	for effect: Dictionary in Data.relic_effects_for_state(state):
 		if str(effect.get("type","")) == effect_type: result += int(effect.get("amount",1))
 	return result
 

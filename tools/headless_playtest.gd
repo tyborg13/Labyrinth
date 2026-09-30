@@ -12,6 +12,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -1922,7 +1923,10 @@ func _log_reward_choice(choice_kind: String, card_id: String, reward: Dictionary
 	})
 
 func _log_card_played(card_id: String, instance_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array, targets: Array[Vector2i]) -> void:
-	_analytics_store.write_event("card_played", _analytics_context(before_state, card_id, instance_id), _card_play_payload(card_id, before_state, resolved_state, actions, targets))
+	var payload: Dictionary = _card_play_payload(card_id, before_state, resolved_state, actions, targets)
+	# Additive wave-3 keyword fields, identical to RunScene's card_played payload.
+	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
+	_analytics_store.write_event("card_played", _analytics_context(before_state, card_id, instance_id), payload)
 
 func _log_enemy_status_ticks(phase: Dictionary, combat_state: Dictionary) -> void:
 	for step_var: Variant in phase.get("steps", []):

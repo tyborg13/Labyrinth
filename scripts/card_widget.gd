@@ -1147,6 +1147,8 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",time_cost)) - time_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
+	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
+	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 
@@ -1169,7 +1171,7 @@ func _refresh_summary_display(card: Dictionary) -> void:
 		rows = ActionIcons.rows_for_card(card)
 	if rows.is_empty():
 		desc_label.visible = true
-		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else str(card.get("description", ""))
+		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else ActionIcons.card_rules_text(card)
 		if _summary_icon_box != null:
 			_summary_icon_box.visible = false
 			_clear_children(_summary_icon_box)

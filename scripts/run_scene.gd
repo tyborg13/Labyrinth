@@ -57,6 +57,8 @@ const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
+const RiteRules = preload("res://scripts/rite_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
@@ -11791,6 +11793,8 @@ func _refresh_relic_bar() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	var relic_ids: Array = (_run_state.get("relics", []) as Array).duplicate()
+	# Active Rites are combat-scoped relic effects; they sit after the relics.
+	var rite_entries: Array[Dictionary] = RiteRules.hud_entries(_combat_state)
 	var skill_ids: Array[String] = _selected_skill_ids_for_hud()
 	var event_revision: int = int(_combat_state.get("skill_event_revision", 0)) if not _combat_state.is_empty() else 0
 	var defiance_event_revision: int = int(_combat_state.get("defiance_event_revision", 0)) if not _combat_state.is_empty() else 0
@@ -11823,6 +11827,7 @@ func _refresh_relic_bar() -> void:
 	var signature: String = str(hash([
 		relic_ids,
 		_combat_state.get("relic_time_reserve", {}),
+		rite_entries,
 		skill_ids,
 		skill_sigil_presentation,
 		defiance_capacity,
@@ -11842,7 +11847,7 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {})])
+	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {}), rite_entries])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
 		_clear_children(_relic_icon_grid)
@@ -11850,7 +11855,7 @@ func _refresh_relic_bar() -> void:
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_clear", performance_phase_started)
 	_skill_sigil = null
 	_defiance_badge = null
-	relic_bar.visible = defiance_capacity > 0 or not relic_ids.is_empty() or not skill_ids.is_empty()
+	relic_bar.visible = defiance_capacity > 0 or not relic_ids.is_empty() or not skill_ids.is_empty() or not rite_entries.is_empty()
 	if defiance_capacity > 0:
 		_defiance_badge = _build_defiance_badge(defiance_remaining, defiance_capacity)
 		_relic_utility_bar.add_child(_defiance_badge)
@@ -11930,6 +11935,8 @@ func _refresh_relic_bar() -> void:
 				counter.add_theme_constant_override("outline_size",7)
 				frame.add_child(counter)
 			_relic_icon_grid.add_child(frame)
+		for rite_index: int in range(rite_entries.size()):
+			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
 	# The hidden popover refreshes itself on open. Rebuilding its full palette on
 	# every combat status revision spent a frame on nodes the player could not see.
@@ -11946,6 +11953,30 @@ func _refresh_relic_bar() -> void:
 		call_deferred("_pulse_defiance_badge")
 	_record_runtime_performance_phase("relic_bar_deferred_effects", performance_phase_started)
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
+
+func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
+	var frame := TooltipPanelContainer.new()
+	frame.name = "ActiveRite_%d" % rite_index
+	frame.custom_minimum_size = RELIC_BADGE_SIZE
+	frame.set_meta("rite_card_id", str(entry.get("card_id", "")))
+	frame.focus_mode = Control.FOCUS_ALL
+	frame.tooltip_text = str(entry.get("tooltip", ""))
+	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
+	var accent: Color = Color(str(card.get("accent", "#d9862f")))
+	frame.add_theme_stylebox_override("panel", _pile_card_style(Color("1d1420"), accent, 4.0))
+	var icon := TextureRect.new()
+	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	icon.offset_left = 5.0
+	icon.offset_top = 5.0
+	icon.offset_right = -5.0
+	icon.offset_bottom = -5.0
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = ActionIcons.icon_texture(str(entry.get("icon", "rite")))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(icon)
+	return frame
 
 func _build_header_utility_divider(node_name: String) -> ColorRect:
 	var divider := ColorRect.new()
@@ -18146,6 +18177,8 @@ func _show_card_focus_tooltips(index: int) -> void:
 	var leading_icons: Array = []
 	if int(card.get("time", 0)) > 0:
 		leading_icons.append("time")
+	if ActionIcons.card_is_rite(card):
+		leading_icons.append("rite")
 	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(
 		display.get("summary_rows", []) as Array,
 		leading_icons
@@ -19504,6 +19537,8 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var action: Dictionary = action_var
 		var action_type: String = str(action.get("type", ""))
 		var row: Array = []
+		# Pending next-attack Pierce/Chain shows on the attack that will use it.
+		action = TempoRules.display_action(preview_state, action)
 		match action_type:
 			"melee", "ranged", "aoe", "detonate":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
@@ -19534,7 +19569,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			summary_rows.append(bonus_row)
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
-		summary_text = str(card.get("description", ""))
+		summary_text = ActionIcons.card_rules_text(card)
 	return {
 		"summary_bbcode": summary_text,
 		"summary_rows": summary_rows,
@@ -19559,6 +19594,7 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 	var action_type: String = str(action.get("type", ""))
 	if action_type not in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return
+	TempoRules.consume_for_preview(state, action)
 	if int(action.get("damage", 0)) <= 0:
 		return
 	if _combat_engine.attack_bonus_for_current_turn(state) == 0:
@@ -33329,7 +33365,10 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 	if card_id.is_empty():
 		return
 	_analytics_flush_surface_events(resolved_state)
-	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets))
+	var payload: Dictionary = _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets)
+	# Additive wave-3 keyword fields: quicken_spent, next_attack_bonus_used, rite_started.
+	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
+	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), payload)
 
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
 	_analytics_flush_surface_events(resolved_state)

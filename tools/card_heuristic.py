@@ -369,6 +369,28 @@ class HeuristicWeights:
     baseline_card_time: float = 5.0
     # Calibrated against early enemy first/repeat cycles of roughly 11-20 initiative.
     time_delta_value: float = 0.45
+    # Wave-3 keywords (spec/card_keywords_wave3.md). Retaliate already folds in
+    # the chance that an enemy strikes you in melee before your next turn.
+    retaliate_per_point: float = 0.35
+    retaliate_bleed_per_point: float = 0.30
+    retaliate_shock_value: float = 1.0
+    retaliate_push_per_tile: float = 0.20
+    quicken_per_time: float = 0.40
+    next_attack_damage_per_point: float = 0.40
+    next_attack_pierce_value: float = 0.60
+    next_attack_chain_per_hop: float = 0.45
+    next_attack_tiles_moved_expected_bonus: float = 1.0
+    # Rites: per-activation estimates over the remaining combat.
+    rite_remaining_activations: float = 3.0
+    rite_fire_hits_per_activation: float = 0.60
+    rite_fire_contacts_avoided_per_activation: float = 0.50
+    rite_on_surface_availability: float = 0.50
+    rite_freezes_per_activation: float = 0.50
+    rite_pulse_targets_per_activation: float = 0.80
+    rite_discounted_cards_per_activation: float = 2.0
+    rite_discount_availability: float = 0.80
+    rite_forced_moves_per_activation: float = 0.60
+    rite_lit_attacks_per_activation: float = 0.50
 
 
 @dataclass
@@ -387,6 +409,7 @@ class ScoreBreakdown:
     flurry_compression_bonus: float = 0.0
     flurry_commitment_penalty: float = 0.0
     tempo: float = 0.0
+    rite: float = 0.0
     total: float = 0.0
 
 
@@ -485,6 +508,63 @@ def surface_availability(condition: dict[str, Any], prepared: set[str], weights:
     if kind in prepared:
         return 0.80  # Earlier painting is available, but target/footprint must overlap.
     return base
+
+
+def retaliate_value(action: dict[str, Any], weights: HeuristicWeights) -> tuple[float, float]:
+    """(offense, control) for one Retaliate or Rite thorns payload."""
+    offense = int(action.get("amount", action.get("damage", 0))) * weights.retaliate_per_point
+    offense += int(action.get("bleed", 0)) * weights.retaliate_bleed_per_point
+    control = (weights.retaliate_shock_value if int(action.get("shock", 0)) > 0 else 0.0)
+    control += int(action.get("push", 0)) * weights.retaliate_push_per_tile
+    return offense, control
+
+
+def next_attack_value(action: dict[str, Any], move_tiles: float, weights: HeuristicWeights) -> float:
+    damage = float(int(action.get("damage", 0)))
+    per_tile = action.get("per_tile_moved", {})
+    if isinstance(per_tile, dict) and per_tile:
+        expected_tiles = move_tiles + weights.next_attack_tiles_moved_expected_bonus
+        damage += min(float(int(per_tile.get("max", 0))), expected_tiles * int(per_tile.get("damage", 1)))
+    value = damage * weights.next_attack_damage_per_point
+    if bool(action.get("pierce", False)):
+        value += weights.next_attack_pierce_value
+    value += int(action.get("chain", 0)) * weights.next_attack_chain_per_hop
+    return value
+
+
+def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> float:
+    """Expected value of one Rite effect over the assumed remaining activations."""
+    turns = weights.rite_remaining_activations
+    kind = str(effect.get("type", ""))
+    if kind == "surface_damage_bonus":
+        return int(effect.get("amount", 0)) * weights.damage_per_point * weights.rite_fire_hits_per_activation * turns
+    if kind == "surface_immunity":
+        return 3 * weights.stoneskin_per_point * weights.rite_fire_contacts_avoided_per_activation * turns
+    if kind in {"turn_start_on_surface", "turn_start_reward", "status_applied_reward"}:
+        reward = 0.0
+        for item in effect.get("rewards", []):
+            amount = int(item.get("amount", 0))
+            reward += amount * {"stoneskin": weights.stoneskin_per_point, "block": weights.block_per_point, "draw": weights.draw_per_point, "heal": weights.heal_per_point, "card_play": weights.card_play_per_point}.get(str(item.get("type", "")), 0.0)
+        availability = {"turn_start_on_surface": weights.rite_on_surface_availability, "status_applied_reward": weights.rite_freezes_per_activation}.get(kind, 1.0)
+        return reward * availability * turns
+    if kind == "turn_start_surface_pulse":
+        return int(effect.get("damage", 0)) * weights.damage_per_point * weights.rite_pulse_targets_per_activation * turns
+    if kind == "card_time_discount":
+        return int(effect.get("amount", 0)) * weights.time_delta_value * weights.rite_discounted_cards_per_activation * turns * weights.rite_discount_availability
+    if kind == "independent_movement_bonus":
+        return int(effect.get("amount", 0)) * weights.pure_move_per_tile * turns
+    if kind == "forced_movement_bonus":
+        return int(effect.get("amount", 0)) * weights.push_value_per_tile * weights.rite_forced_moves_per_activation * turns
+    if kind == "player_light_aura":
+        return (int(effect.get("radius", 0)) * weights.illuminate_radius_per_tile + turns * weights.illuminate_duration_per_activation) * weights.umbra_relevance
+    if kind == "target_state_action_mod":
+        added = effect.get("add", {})
+        damage = int(added.get("damage", 0)) if isinstance(added, dict) else int(effect.get("amount", 0))
+        return damage * weights.damage_per_point * weights.rite_lit_attacks_per_activation * turns
+    if kind == "thorns":
+        offense, control = retaliate_value(effect, weights)
+        return (offense + control) * turns
+    return 0.0
 
 
 def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) -> ScoreBreakdown:
@@ -736,6 +816,21 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             breakdown.radiance += max(0, int(action.get("amount", 1))) * weights.dispel_umbra_per_stage * weights.umbra_relevance
             continue
 
+        if action_type == "retaliate":
+            offense, control = retaliate_value(action, weights)
+            breakdown.offense += offense * action_scale
+            breakdown.control += control * action_scale
+            has_defense = True
+            continue
+
+        if action_type == "quicken":
+            breakdown.tempo += int(action.get("amount", 0)) * weights.quicken_per_time * action_scale
+            continue
+
+        if action_type == "next_attack":
+            breakdown.offense += next_attack_value(action, move_tiles + blink_tiles, weights) * action_scale
+            continue
+
     if has_attack:
         breakdown.mobility += move_tiles * weights.attack_move_followthrough_per_tile
         breakdown.mobility += blink_tiles * weights.attack_blink_followthrough_per_tile
@@ -798,7 +893,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             weights.burn_card_penalty - draw_amount * weights.burn_card_draw_offset_per_card,
         )
     card_time = max(1, min(10, int(card.get("time", weights.baseline_card_time))))
-    breakdown.tempo = (weights.baseline_card_time - card_time) * weights.time_delta_value
+    breakdown.tempo += (weights.baseline_card_time - card_time) * weights.time_delta_value
+    rite = card.get("rite", {})
+    if isinstance(rite, dict):
+        breakdown.rite = sum(rite_effect_value(effect, weights) for effect in rite.get("effects", []) if isinstance(effect, dict))
 
     breakdown.total = round(
         breakdown.offense
@@ -810,6 +908,7 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.radiance
         + breakdown.synergy
         + breakdown.tempo
+        + breakdown.rite
         + breakdown.flurry_compression_bonus
         - breakdown.surface_fuel_cost
         - breakdown.health_cost

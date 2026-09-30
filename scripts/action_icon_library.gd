@@ -144,6 +144,10 @@ const KEYWORDS: Dictionary = {
 		"description": "Uses this item card once, then removes it from the run.",
 		"path": "%s/consume.png" % ICON_ROOT
 	},
+	"retaliate": {"label": "Retaliate", "description": "Until your next turn, an enemy that hits you in melee takes this much damage (Block and Stoneskin absorb it) and any listed riders. Several Retaliates add up.", "path": "%s/retaliate.png" % ICON_ROOT},
+	"quicken": {"label": "Quicken", "description": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.", "path": "%s/quicken.png" % ICON_ROOT},
+	"rite": {"label": "Rite", "description": "Rite: Exhaust. Lasts for the rest of this combat.", "path": "%s/rite.png" % ICON_ROOT},
+	"next_attack": {"label": "Next Attack", "description": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.", "path": "%s/stat_might.png" % ICON_ROOT},
 	"freeze": {
 		"label": "Freeze",
 		"description": "Skips the next turn and takes triple attack damage.",
@@ -416,10 +420,14 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"move": "move",
 	"move_away": "retreat",
 	"move_toward": "move",
+	"next_attack": "next_attack",
 	"pull": "pull",
 	"push": "push",
+	"quicken": "quicken",
 	"raise_terrain": "raise_terrain",
 	"ranged": "ranged",
+	"retaliate": "retaliate",
+	"rite": "rite",
 	"stoneskin": "stoneskin",
 	"summon_minions": "summon_minions",
 	"terrain_burst": "terrain_burst",
@@ -780,7 +788,21 @@ static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Arr
 	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index))
 	return rows
 
+static func card_is_rite(card: Dictionary) -> bool:
+	return typeof(card.get("rite", null)) == TYPE_DICTIONARY and not (card["rite"] as Dictionary).is_empty()
+
+## Rules text for a card shown without icon rows. A Rite card is always shown
+## as its text ("Rite:" already means Exhaust); its health cost is appended.
+static func card_rules_text(card: Dictionary) -> String:
+	var text: String = str(card.get("description", ""))
+	var health_cost: int = int(card.get("health_cost", 0))
+	if card_is_rite(card) and health_cost > 0 and not text.to_lower().contains("health"):
+		text = "%s Health cost %d." % [text.strip_edges(), health_cost]
+	return text
+
 static func cost_rows_for_card(card: Dictionary) -> Array:
+	if card_is_rite(card) and (card.get("actions", []) as Array).is_empty():
+		return []
 	var row: Array = []
 	if bool(card.get("burn", false)):
 		row.append(token_for("exhaust"))
@@ -929,6 +951,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"umbra_eclipse":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "eclipse", "duration", int(action.get("duration", 0)), "neutral", "Forces Eclipse for this many player turns. Radiance and light protect affected tiles."))
+		"retaliate":
+			_append_retaliate_tokens(tokens, action)
+		"quicken":
+			tokens.append(_token_for_action_field(action, "quicken", "amount", int(action.get("amount", 0)), "neutral", "Quicken %d\nYour next card this turn costs %d less Time (minimum 1)." % [int(action.get("amount", 0)), int(action.get("amount", 0))]))
+		"next_attack":
+			_append_next_attack_tokens(tokens, action)
 	if int(action.get("outcrop_health", 0)) > 0:
 		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
@@ -946,6 +974,58 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		tokens.push_front(surface_condition_token(requirement))
 	return tokens
 
+
+static func _append_retaliate_tokens(tokens: Array, action: Dictionary) -> void:
+	var amount: int = int(action.get("amount", 0))
+	var riders: PackedStringArray = []
+	if int(action.get("bleed", 0)) > 0:
+		riders.append("Bleed %d" % int(action.get("bleed", 0)))
+	if int(action.get("shock", 0)) > 0:
+		riders.append("Shock")
+	if int(action.get("push", 0)) > 0:
+		riders.append("Push %d" % int(action.get("push", 0)))
+	var detail: String = "Until your next turn, enemies that hit you in melee"
+	var shown_amount: Variant = null
+	if amount > 0:
+		detail += " take %d" % amount
+		shown_amount = amount
+	if not riders.is_empty():
+		detail += (" and suffer %s" if amount > 0 else " suffer %s") % ", ".join(riders)
+	tokens.append(_token_for_action_field(action, "retaliate", "amount", shown_amount, "neutral", "Retaliate\n%s." % detail))
+	if int(action.get("bleed", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "bleed", "bleed", int(action.get("bleed", 0))))
+	if int(action.get("shock", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "shock", "shock", int(action.get("shock", 0))))
+	if int(action.get("push", 0)) > 0:
+		tokens.append(_token_for_action_field(action, "push", "push", int(action.get("push", 0))))
+
+static func _append_next_attack_tokens(tokens: Array, action: Dictionary) -> void:
+	var element_id: String = str(action.get("element", ""))
+	var subject: String = "Your next %s attack this turn" % element_id.capitalize() if not element_id.is_empty() and element_id != "none" else "Your next attack this turn"
+	var parts: PackedStringArray = []
+	var damage: int = int(action.get("damage", 0))
+	if damage > 0:
+		parts.append("deals %d more" % damage)
+	var per_tile: Dictionary = action.get("per_tile_moved", {}) as Dictionary if typeof(action.get("per_tile_moved", null)) == TYPE_DICTIONARY else {}
+	if not per_tile.is_empty():
+		parts.append("deals %d more for each tile you moved this turn (maximum %d)" % [int(per_tile.get("damage", 1)), int(per_tile.get("max", 0))])
+	if bool(action.get("pierce", false)):
+		parts.append("Pierces")
+	if int(action.get("chain", 0)) > 0:
+		parts.append("gains Chain %d" % int(action.get("chain", 0)))
+	var tooltip_text: String = "Next Attack\n%s %s." % [subject, " and ".join(parts)]
+	var value: Variant = null
+	if damage > 0:
+		value = "+%d" % damage
+	elif not per_tile.is_empty():
+		value = "+%d" % int(per_tile.get("max", 0))
+	tokens.append(token_for("next_attack", value, "neutral", tooltip_text))
+	if ElementData.is_elemental(element_id):
+		tokens.append(token_for(element_icon_key(element_id), null, "neutral", "Only a %s attack uses this bonus." % element_id.capitalize()))
+	if bool(action.get("pierce", false)):
+		tokens.append(token_for("pierce", null, "neutral", tooltip_text))
+	if int(action.get("chain", 0)) > 0:
+		tokens.append(token_for("chain", int(action.get("chain", 0)), "neutral", tooltip_text))
 
 static func _bonus_token(icon_key: String, amount: int, tooltip_text: String) -> Dictionary:
 	return token_for(icon_key, "+%d" % amount, "neutral", tooltip_text)

@@ -376,6 +376,47 @@
       ]
     },
     {
+      "id": "keyword:retaliate",
+      "section": "keywords",
+      "title": "Retaliate",
+      "icon": "retaliate",
+      "body": [
+        "Until the start of your next turn, an enemy whose melee attack hits you takes the Retaliate amount. Block and Stoneskin absorb it; Chill, Freeze and Expose do not add to it.",
+        "Melee means a melee attack or any attack made from a tile next to you. Retaliate triggers once per enemy attack. Several Retaliates add their damage and Bleed; Shock and Push use the largest.",
+        "A foe defeated by Retaliate pays its normal rewards but does not refund a card play."
+      ]
+    },
+    {
+      "id": "keyword:quicken",
+      "section": "keywords",
+      "title": "Quicken",
+      "icon": "quicken",
+      "body": [
+        "Your next card this turn costs that much less Time, to a minimum of 1. The card that grants Quicken never discounts itself.",
+        "Several Quickens add up. Unused Quicken ends with your turn. The Time badge shows the discount."
+      ]
+    },
+    {
+      "id": "keyword:next_attack",
+      "section": "keywords",
+      "title": "Next Attack",
+      "icon": "next_attack",
+      "body": [
+        "Your next attack on a later card this turn gains the listed bonus: extra damage, Pierce, or Chain. A bonus naming an element waits for an attack of that element.",
+        "Several bonuses add up and are spent together by that attack. Unused bonuses end with your turn."
+      ]
+    },
+    {
+      "id": "keyword:rite",
+      "section": "keywords",
+      "title": "Rite",
+      "icon": "rite",
+      "body": [
+        "Rite: Exhaust. Lasts for the rest of this combat.",
+        "Playing a Rite removes the card for this combat and keeps its rule active until the combat ends, like a relic. Rites never carry into the next combat."
+      ]
+    },
+    {
       "id": "keyword:health_cost",
       "section": "keywords",
       "title": "Health Cost",
