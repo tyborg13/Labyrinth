@@ -12977,7 +12977,9 @@ func _layout_combat_objective_hud_content() -> void:
 
 func _combat_objective_hud_target_rect() -> Rect2:
 	var hud_width: float = _combat_objective_hud.preferred_width()
-	var hud_height: float = 68.0
+	# Use the rendered content height so the dock gap stays exact when the
+	# objective's typography grows past the authored 68 px minimum.
+	var hud_height: float = maxf(68.0, _combat_objective_hud.get_combined_minimum_size().y)
 	var left: float = UiTypography.SAFE_MARGIN
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var top: float = viewport_size.y * 0.60

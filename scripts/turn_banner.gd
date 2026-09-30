@@ -9,7 +9,7 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 
 const BANNER_HEIGHT: float = 84.0
-const BANNER_TOP_RATIO: float = 0.115
+const BANNER_TOP_RATIO: float = 0.055
 const FADE_IN_SECONDS: float = 0.16
 const HOLD_SECONDS: float = 0.62
 const FADE_OUT_SECONDS: float = 0.34
