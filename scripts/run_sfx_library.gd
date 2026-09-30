@@ -95,7 +95,7 @@ const SFX: Dictionary = {
 	DUNGEON_AMBIENCE_ID: {
 		"path": "res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav",
 		"trimmed_duration": 48.0,
-		"volume_db": -12.0,
+		"volume_db": -20.0,
 		"bus": SettingsStore.WORLD_SFX_BUS,
 		"loop": true
 	},

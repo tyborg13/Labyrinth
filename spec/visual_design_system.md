@@ -81,7 +81,8 @@ floor shadows); the former navy button bodies clashed with it.
   hover/click ticks drift ±3–4.5 %. Stingers keep their authored pitch.
 - New cues are derived from shipped recordings by `tools/generate_ui_cue_sfx.py`:
   menu page open/close, and a barely-there stone-hall room tone (the campfire
-  loop's low body only, slowed and low-passed, no crackle; playback −12 dB)
+  loop's low body only, slowed and low-passed, no crackle; playback −20 dB,
+  about −50 dBFS RMS effective)
   for room, combat, pre-battle, reward, treasure and event modes. Pressing Pass
   plays only the shared button click; card sounds are reserved for cards.
 - Preserved owner-auditioned decisions: card draw (0 dB, ~9–11 dB under
