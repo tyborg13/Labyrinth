@@ -937,12 +937,14 @@ func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0
-	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"]
+	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop"]
 
 func player_action_needs_orientation(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0 and _aoe_pattern_variants(action).size() > 1
+	if action_type == "outcrop":
+		return action.has("pattern") and _aoe_pattern_variants(action).size() > 1
 	return _action_has_forced_movement(action)
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
@@ -987,7 +989,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 	var occupied: Dictionary = {}
 	var targets: Array[Vector2i] = []
 	var visible_lookup: Dictionary = {}
-	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate"]:
+	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate", "outcrop"]:
 		visible_lookup = umbra_visible_tile_lookup(state)
 	match targeting_type:
 		"surface", "detonate", "consume_surface":
@@ -1030,6 +1032,20 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if not PathUtils.is_passable(state.get("grid", []), tile):
 					continue
 				if not is_tile_visible_to_player(state, tile, visible_lookup):
+					continue
+				targets.append(tile)
+		"outcrop":
+			# A visible, in-sight tile is legal when at least one tile of the
+			# raise can stand there without sealing any floor away.
+			var outcrop_range: int = int(resolved_action.get("range", 1))
+			for tile: Vector2i in PathUtils.diamond_tiles(player_pos, outcrop_range, state.get("grid", [])):
+				if tile == player_pos:
+					continue
+				if not is_tile_visible_to_player(state, tile, visible_lookup):
+					continue
+				if not combat_line_of_sight(state, player_pos, tile):
+					continue
+				if outcrop_tiles_for_player_action(state, resolved_action, tile).is_empty():
 					continue
 				targets.append(tile)
 		"illuminate":
@@ -1309,6 +1325,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	elif str(action.get("target", "")) == "player":
 		target_tile = (next_state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 	action = action_with_automatic_origin(next_state, action, target_tile)
+	action = _action_with_facing_aim(next_state, action, target_tile)
 	var performance_phase_started: int = _record_runtime_performance_phase("player_action_duplicate", performance_total_started)
 	if not player_action_can_resolve(next_state, action):
 		_record_runtime_performance_phase("player_action_total", performance_total_started)
@@ -1428,6 +1445,9 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		"illusion":
 			if target_is_valid:
 				next_state = _create_illusion(next_state, target_tile, int(resolved_action.get("health", resolved_action.get("amount", 0))))
+		"outcrop":
+			if target_is_valid:
+				next_state = _raise_player_outcrops(next_state, resolved_action, target_tile)
 	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and action.has("surface"):
 		next_state = _place_action_surface(next_state, action, target_tile)
 	if action.has("clear_surface"):
@@ -2581,7 +2601,44 @@ func move_bonus_for_current_turn(state: Dictionary) -> int:
 func aoe_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = Vector2i(-1, -1)) -> Array[Vector2i]:
 	var player_pos: Vector2i = (_normalized_player(state.get("player", {}))).get("pos", Vector2i.ZERO)
 	var center: Vector2i = target_tile if int(action.get("range", 0)) > 0 and target_tile.x >= 0 else player_pos
+	action = _action_with_facing_aim(state, action, center)
 	return _best_aoe_tiles_for_target(state, action, center, false)
+
+# Tiles a player `outcrop` action raises at `target_tile`, in raise order. A
+# plain outcrop raises the target; `pattern` (optionally `rotate` with an
+# `orientation`) raises every legal pattern tile around it. Each tile must be
+# empty floor and must preserve every floor route after the earlier tiles rise.
+func outcrop_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	if action.has("pattern"):
+		candidates = _best_aoe_tiles_for_target(state, action, target_tile, false)
+	else:
+		candidates.append(target_tile)
+	# Probe a shallow copy with placeholder terrain so later pattern tiles see
+	# the walls raised before them. Nothing here mutates the caller's state.
+	var probe: Dictionary = state.duplicate(false)
+	var probe_terrain: Array = (state.get("terrain", []) as Array).duplicate(false)
+	probe["terrain"] = probe_terrain
+	var result: Array[Vector2i] = []
+	for tile: Vector2i in candidates:
+		if not CombatTerrainRules.is_empty_floor(self, probe, tile):
+			continue
+		if not GuardianCombatRules.preserves_routes(self, probe, tile):
+			continue
+		result.append(tile)
+		probe_terrain.append({"id": "_outcrop_probe", "kind": "crag_outcrop", "pos": tile, "hp": 1, "max_hp": 1})
+	return result
+
+func _raise_player_outcrops(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	var health: int = maxi(1, int(action.get("health", 3)))
+	var source: Dictionary = _surface_source(state, action)
+	var raised: int = 0
+	for tile: Vector2i in outcrop_tiles_for_player_action(state, action, target_tile):
+		if CombatTerrainRules.raise_outcrop(self, state, tile, health, source):
+			raised += 1
+	if raised > 0:
+		_log(state, "Raised %d outcrop%s." % [raised, "" if raised == 1 else "s"])
+	return state
 
 func forced_movement_tiles_for_player_action(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var resolved_action: Dictionary = _resolved_surface_action(state, action)
@@ -7308,7 +7365,7 @@ func _zekarion_summon_intent() -> Dictionary:
 
 func _best_aoe_tiles_for_target(state: Dictionary, action: Dictionary, target_tile: Vector2i, score_player: bool) -> Array[Vector2i]:
 	var grid: Array = state.get("grid", [])
-	var centered_target: bool = int(action.get("range", 0)) > 0
+	var centered_target: bool = _aoe_target_is_pattern_center(action)
 	var orientation: Vector2i = _action_orientation_direction(action)
 	if orientation != Vector2i.ZERO:
 		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
@@ -7386,7 +7443,7 @@ func _aoe_pattern_specs_hit_attackable(target_tile: Vector2i, specs: Array[Dicti
 	return false
 
 func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
-	var centered_target: bool = int(action.get("range", 0)) > 0
+	var centered_target: bool = _aoe_target_is_pattern_center(action)
 	var orientation: Vector2i = _action_orientation_direction(action)
 	if orientation != Vector2i.ZERO:
 		var oriented_offsets: Array[Vector2i] = _aoe_pattern_offsets_for_direction(action, orientation)
@@ -7395,6 +7452,29 @@ func _aoe_tiles_for_anchor(grid: Array, action: Dictionary, target_tile: Vector2
 	if variants.is_empty():
 		return []
 	return _tiles_for_centered_aoe_offsets(grid, target_tile, variants[0]) if centered_target else _tiles_for_aoe_offsets(grid, target_tile, variants[0])
+
+# A ranged area centers its pattern on the selected tile. A facing-aimed area
+# (`"aim": "facing"`) is authored facing +x with offset (0, 0) on the selected
+# adjacent tile, so that tile anchors the pattern instead of its centroid.
+func _aoe_target_is_pattern_center(action: Dictionary) -> bool:
+	return int(action.get("range", 0)) > 0 and not _action_aims_facing(action)
+
+func _action_aims_facing(action: Dictionary) -> bool:
+	return str(action.get("aim", "")) == "facing"
+
+# The selected tile fixes a facing-aimed pattern's orientation: the cardinal
+# direction from the acting origin to that tile. There is no separate rotate
+# decision, and preview, legality and commit all derive it from the same tile.
+func _action_with_facing_aim(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Dictionary:
+	if not _action_aims_facing(action) or target_tile.x < 0:
+		return action
+	var origin: Vector2i = action.get("_origin_tile", (_normalized_player(state.get("player", {}))).get("pos", INVALID_TILE))
+	var direction: Vector2i = _cardinal_direction(target_tile - origin)
+	if direction == Vector2i.ZERO:
+		return action
+	var aimed: Dictionary = action.duplicate(true)
+	aimed["orientation"] = direction
+	return aimed
 
 func _tiles_for_centered_aoe_offsets(grid: Array, center: Vector2i, offsets: Array) -> Array[Vector2i]:
 	return _tiles_for_aoe_offsets(grid, center - _aoe_center_offset(offsets), offsets)

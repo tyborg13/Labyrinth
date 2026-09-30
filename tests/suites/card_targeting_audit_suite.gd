@@ -83,6 +83,8 @@ static func state_for(combat: CombatEngine, id: String) -> Dictionary:
 	state["player"]["stoneskin"] = 8
 	state["enemies"].append({"id":2,"type":"crawler","pos":Vector2i(4,4),"hp":100,"max_hp":100})
 	state["enemies"].append({"id":3,"type":"crawler","pos":Vector2i(2,2),"hp":100,"max_hp":100})
+	# A diagonal neighbor lets diagonal-only sweeps (Sweeping Haft) find a target.
+	state["enemies"].append({"id":4,"type":"crawler","pos":Vector2i(3,5),"hp":100,"max_hp":100})
 	state["deck"] = {"hand":[id,"brace"],"draw":["brace","brace","brace"],"discard":[],"burned":[],"cycles":0}
 	state["current_actor"] = {"kind":"player","key":"player"}
 	state["cards_played_this_turn"] = 0

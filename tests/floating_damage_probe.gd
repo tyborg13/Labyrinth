@@ -11,7 +11,8 @@ const OUTPUT_DIR: String = "user://probes/floating_combat_v4"
 const PROGRESSION_PATH: String = "user://floating_damage_probe_progression.json"
 const RUN_PATH: String = "user://floating_damage_probe_run.save"
 const SETTINGS_PATH: String = "user://floating_damage_probe_settings.json"
-const LEGACY_GATE_GAMBIT_SERIAL_SECONDS: float = 4.03
+# Measured on the cut Gate Gambit (three utility effects); Prism Sight now owns the fixture.
+const LEGACY_THREE_UTILITY_SERIAL_SECONDS: float = 4.03
 const LEGACY_LOADED_TOSS_SERIAL_SECONDS: float = 3.91
 const TARGET_MULTI_EFFECT_DURATION_RATIO: float = 0.50
 
@@ -233,14 +234,14 @@ func _capture_multi_effect_card_timelines(
 	screenshot_size: Vector2i
 ) -> void:
 	var loaded_toss_types: Array[String] = _card_action_types("loaded_toss")
-	var gate_gambit_types: Array[String] = _card_action_types("gate_gambit")
+	var prism_sight_types: Array[String] = _card_action_types("prism_sight")
 	_expect(
 		loaded_toss_types == ["ranged", "draw", "card_play"],
 		"Loaded Toss should remain the attack, draw, and card-play overlap fixture"
 	)
 	_expect(
-		gate_gambit_types == ["draw", "card_play", "block"],
-		"Gate Gambit should remain the three-utility-effect overlap fixture"
+		prism_sight_types == ["truesight", "block", "draw"],
+		"Prism Sight should remain the three-utility-effect overlap fixture"
 	)
 	var player_tile := Vector2i(3, 3)
 	var loaded_toss_groups: Array[Dictionary] = [
@@ -286,30 +287,30 @@ func _capture_multi_effect_card_timelines(
 			"%s/%s" % [output_dir, str(capture.get("name", ""))],
 			screenshot_size
 		)
-	var gate_gambit_groups: Array[Dictionary] = [
+	var prism_sight_groups: Array[Dictionary] = [
 		FloatingCombatText.timeline_group([{
 			"tile": player_tile,
-			"text": "+3 draw",
-			"color": Color("f1d18b"),
+			"text": "Truesight",
+			"color": Color("ffe394"),
 		}], 0.0),
 		FloatingCombatText.timeline_group([{
 			"tile": player_tile,
-			"text": "+2 play",
-			"color": Color("ffe27a"),
+			"text": "+4 block",
+			"color": Color("90d9ff"),
 		}], FloatingCombatText.ACTION_ADVANCE_SECONDS),
 		FloatingCombatText.timeline_group([{
 			"tile": player_tile,
-			"text": "+3 block",
-			"color": Color("90d9ff"),
+			"text": "+1 draw",
+			"color": Color("f1d18b"),
 		}], FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.29),
 	]
 	for capture: Dictionary in [
 		{
-			"name": "gate_gambit_draw_play_overlap.png",
+			"name": "prism_sight_truesight_block_overlap.png",
 			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.02,
 		},
 		{
-			"name": "gate_gambit_play_block_overlap.png",
+			"name": "prism_sight_block_draw_overlap.png",
 			"elapsed": FloatingCombatText.ACTION_ADVANCE_SECONDS + 0.31,
 		},
 	]:
@@ -317,7 +318,7 @@ func _capture_multi_effect_card_timelines(
 			instance,
 			viewport,
 			combat_state,
-			gate_gambit_groups,
+			prism_sight_groups,
 			float(capture.get("elapsed", 0.0)),
 			false,
 			["player"],
@@ -336,20 +337,20 @@ func _card_action_types(card_id: String) -> Array[String]:
 
 func _verify_actual_multi_effect_resolution_pacing(instance: Node, combat_state: Dictionary) -> void:
 	var no_targets: Array[Vector2i] = []
-	var gate_gambit_started_usec: int = Time.get_ticks_usec()
+	var prism_sight_started_usec: int = Time.get_ticks_usec()
 	await instance.call(
 		"_animate_player_card_resolution",
 		combat_state.duplicate(true),
-		"gate_gambit",
-		(GameData.card_def("gate_gambit").get("actions", []) as Array).duplicate(true),
+		"prism_sight",
+		(GameData.card_def("prism_sight").get("actions", []) as Array).duplicate(true),
 		no_targets
 	)
-	var gate_gambit_seconds: float = float(Time.get_ticks_usec() - gate_gambit_started_usec) / 1000000.0
+	var prism_sight_seconds: float = float(Time.get_ticks_usec() - prism_sight_started_usec) / 1000000.0
 	_expect(
-		gate_gambit_seconds
-		<= LEGACY_GATE_GAMBIT_SERIAL_SECONDS * TARGET_MULTI_EFFECT_DURATION_RATIO,
-		"Gate Gambit's former 4.03-second serial presentation should resolve within half that time, got %.3f"
-		% gate_gambit_seconds
+		prism_sight_seconds
+		<= LEGACY_THREE_UTILITY_SERIAL_SECONDS * TARGET_MULTI_EFFECT_DURATION_RATIO,
+		"A three-utility card's former 4.03-second serial presentation should resolve within half that time, got %.3f"
+		% prism_sight_seconds
 	)
 	var loaded_toss_targets: Array[Vector2i] = []
 	loaded_toss_targets.append(Vector2i(5, 3))
@@ -369,8 +370,8 @@ func _verify_actual_multi_effect_resolution_pacing(instance: Node, combat_state:
 		% loaded_toss_seconds
 	)
 	print(
-		"MULTI-EFFECT POPUP PACING: Gate Gambit %.3fs, Loaded Toss %.3fs"
-		% [gate_gambit_seconds, loaded_toss_seconds]
+		"MULTI-EFFECT POPUP PACING: Prism Sight %.3fs, Loaded Toss %.3fs"
+		% [prism_sight_seconds, loaded_toss_seconds]
 	)
 
 
@@ -619,14 +620,14 @@ func _install_combat_fixture(instance: Node) -> Dictionary:
 		{
 			"hp": 24,
 			"max_hp": 24,
-			"deck_cards": ["loaded_toss", "gate_gambit", "crank_reload"],
+			"deck_cards": ["loaded_toss", "prism_sight", "crank_reload"],
 			"relics": [],
 			"hand_size": 3,
 			"heal_bonus": 0,
 		}
 	)
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["loaded_toss", "gate_gambit", "crank_reload"]
+	deck["hand"] = ["loaded_toss", "prism_sight", "crank_reload"]
 	deck["draw"] = ["quick_stab", "brace", "whirlwind_slash", "patch_up"]
 	deck["discard"] = []
 	deck["burned"] = []

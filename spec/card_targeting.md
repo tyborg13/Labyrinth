@@ -8,6 +8,14 @@ Numbered steps, Skip and the separate Cancel button are retired for every card, 
 
 Damaging Push/Pull accepts visible enemies at any distance up to printed range. When no displacement direction exists, the hit still resolves and movement is zero. Pure zero-damage displacement still needs a legal move. Walls, Umbra, explicit force directions and the shared large-footprint targeting rule remain enforced.
 
+## Card pool overhaul additions (wave 1)
+
+- **Facing-aimed areas** (`"aim": "facing"`, range 1: Cleaver Sweep, Grave Cleave, Spear Thrust, Flame Jet). The player picks any adjacent visible floor tile, occupied or empty. The pattern is authored facing +x with offset `(0, 0)` on the chosen tile, and rotates to the cardinal direction from the hero to that tile; it is anchored on the chosen tile rather than centered on it. There is no Rotate button. `CombatEngine.aoe_tiles_for_player_action`, legality, hover preview and commit all derive the orientation from the same tile. A `surface_pattern` rider uses the same facing frame (Flame Jet leaves Fire only on `[2, 0]`). Physical facing areas use the melee swing and sound. Card chips draw the pattern from the hero.
+- **Outcrops** (`{"type": "outcrop", "range": R, "health": H}`: Raise Stone, Geode, Plant Pavise, Raise the Anvil). One visible, in-sight tile within range. Each raised tile must be empty floor (`CombatTerrainRules.is_empty_floor`) and must keep every floor tile connected (`GuardianCombatRules.preserves_routes`); a tile that would seal any floor away is not offered. Outcrops are 3-health `crag_outcrop` terrain owned by the hero: they block movement and sight, can be attacked, and leave Rubble. `outcrop_tiles_for_player_action` also accepts an optional `pattern`/`rotate` (Earthen Rampart, wave 2): every legal pattern tile rises, re-checking routes after each one. Rotate UI for pattern outcrops is not wired yet.
+- **Blink then required adjacent force** (Kestrel Dive, Spur Vault) is a supported one-click approach, like Move then a required melee/push/pull: clicking the enemy blinks next to it and resolves the push.
+- **Range-0 Light** (Censer Swing, Sun Flash, Blessed Salve) targets only the hero's tile. Vision and Truesight never take a target.
+- Authored `"_allow_sideways_force": true` (Crosswind) lets a push leave in any open cardinal direction, as the Quarry Winch mode does.
+
 ## Findings
 
 The September 29 audit covered all 159 authored cards: 31 with no targeted action, 112 with one targeted action, and 16 with a combined move/attack decision. The 96 cards with multiple effects could still recreate the legacy strip during resolution, even when their target input already completed in one click. A shared fix is needed; no card-stat or art rewrite is necessary.

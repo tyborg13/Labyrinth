@@ -30,8 +30,8 @@ func _initialize() -> void:
 	ProgressionStore.set_storage_path("user://labyrinth_progression_elemental_aoe_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_elemental_aoe_probe.save")
 	ProgressionStore.clear_saved_run()
-	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "travel")
-	await _capture_card("cinderburst", AttackFxLibrary.STYLE_DEFAULT, false, "impact")
+	await _capture_card("nail_bomb", AttackFxLibrary.STYLE_DEFAULT, false, "travel")
+	await _capture_card("nail_bomb", AttackFxLibrary.STYLE_DEFAULT, false, "impact")
 	# Capture short authored animations from independent casts so screenshot
 	# readback cannot consume the later impact proof state. Keep the original
 	# progress thresholds and semantic assertions for both casts.

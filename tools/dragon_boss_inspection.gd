@@ -86,8 +86,8 @@ static func _loadout(state: Dictionary, options: Dictionary, depth: int) -> void
 		if depth >= 20: state["equipped_equipment"]["trinket"] = "clockwork_arrowhead"
 		state["collected_equipment"] = state["equipped_equipment"].values()
 	if str(options.get("attuned_magic", "")).is_empty():
-		state["attuned_magic_cards"] = ["chain_bolt", "stone_plate", "frostbolt", "cinderburst", "root_snare", "gust_step"]
-		if skirmisher: state["attuned_magic_cards"] = ["chain_bolt", "stone_plate", "frostbolt", "cinderburst", "dawnstep", "gust_step"]
+		state["attuned_magic_cards"] = ["chain_bolt", "stone_plate", "frostbolt", "molten_reach", "root_snare", "gust_step"]
+		if skirmisher: state["attuned_magic_cards"] = ["chain_bolt", "stone_plate", "frostbolt", "molten_reach", "dawnstep", "gust_step"]
 		if depth >= 12: state["attuned_magic_cards"][4] = "reprise"
 		if depth >= 20: state["attuned_magic_cards"][0] = "storm_beacon"
 	if str(options.get("relics", "")).is_empty():

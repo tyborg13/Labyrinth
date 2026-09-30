@@ -60,7 +60,7 @@ func _capture_states() -> void:
 	await _capture_aoe_idle_reference(instance)
 	await _capture_aoe_card(
 		instance,
-		"cinderburst",
+		"nail_bomb",
 		"10_center_cross.png",
 		_aimed_tiles([Vector2i(0, 0), Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)])
 	)
@@ -124,7 +124,7 @@ func _capture_single_target_reference(instance: Node) -> void:
 
 
 func _capture_aoe_idle_reference(instance: Node) -> void:
-	await _install_combat_fixture(instance, "cinderburst", 9905)
+	await _install_combat_fixture(instance, "nail_bomb", 9905)
 	await _arm_printed_card(instance)
 	instance.call("_on_board_tile_hovered", Vector2i(-1, -1))
 	await _settle()
@@ -323,9 +323,13 @@ func _assert_complete_aimed_pattern_inventory() -> void:
 			var action: Dictionary = action_var as Dictionary
 			if str(action.get("type", "")) != "aoe" or int(action.get("range", 0)) <= 0:
 				continue
+			# Facing-aimed sweeps (Cleaver Sweep, Flame Jet) pick an adjacent tile,
+			# not a ranged center; this probe covers ranged centers only.
+			if str(action.get("aim", "")) == "facing":
+				continue
 			observed[_pattern_signature(action)] = true
 	var expected: Dictionary = {}
-	for card_id: String in ["cinderburst", "rime_shard", "thunderline", "squall_shot", "wildfire_halo"]:
+	for card_id: String in ["nail_bomb", "rime_shard", "thunderline", "squall_shot", "wildfire_halo"]:
 		for action_var: Variant in GameData.card_def(card_id).get("actions", []):
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue

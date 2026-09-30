@@ -200,8 +200,8 @@ static func _test_authored_scenario_kill_refund(expect: Callable) -> void:
 	state = _resolve_test_card(combat, state, GuidedCombatScenario.REFUND_CARD_ID, INVALID_TILE)
 	expect.call(
 		combat.cards_remaining_this_turn(state) == 0
-		and int((state.get("player", {}) as Dictionary).get("block", 0)) == 8,
-		"Brace should spend the refunded play through normal card resolution and grant its real 8 Block"
+		and int((state.get("player", {}) as Dictionary).get("block", 0)) == 6,
+		"Brace should spend the refunded play through normal card resolution and grant its real 6 Block"
 	)
 	var support_before: Dictionary = _enemy_for_id(state, GuidedCombatScenario.SUPPORT_ENEMY_ID)
 	var support_actions: Array = (support_before.get("intent", {}) as Dictionary).get("actions", []) as Array

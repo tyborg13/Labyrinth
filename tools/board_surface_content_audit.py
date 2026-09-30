@@ -10,11 +10,23 @@ import argparse
 import collections
 import csv
 import json
+import sys
 from pathlib import Path
 
 import card_heuristic as heuristic
 
 PROJECT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(PROJECT / "spec/card_pool_overhaul"))
+import pool_data as overhaul  # noqa: E402  (card pool overhaul design record)
+
+# The migration audit reviewed the 159 pre-overhaul IDs. The card pool overhaul
+# (spec/card_pool_overhaul) cuts a few of them and adds new cards and gear in
+# waves, so inventories are checked against both records instead of fixed counts.
+OVERHAUL_CUT_IDS = {entry["id"] for entry in overhaul.CARDS if entry["status"] == "cut"}
+OVERHAUL_NEW_CARDS = {entry["id"]: entry for entry in overhaul.CARDS if entry["status"] == "new"}
+OVERHAUL_PIECE_IDS = {piece["id"] for piece in overhaul.PIECES}
+# Illusions belong to the Radiance school after the overhaul (Mirror Charm).
+RADIANCE_MECHANICS = {"vision", "truesight", "illuminate", "dispel_umbra", "illusion"}
 SURFACES = {"fire", "ice", "electrified", "rubble"}
 REMOVED_FIELDS = {"intensity", "intensity_bonus", "requires_intensity", "intensity_cost", "burn", "poison", "freeze"}
 TRANSFORMATIONS = {
@@ -102,14 +114,25 @@ def main() -> int:
     approved = load("spec/board_surface_refactor/CARD_MIGRATION_AUDIT.json")["cards"]
     errors: list[str] = []
     counts = {"cards": len(cards), "enemies": len(enemies), "relics": len(relics), "skills": len(skills), "equipment": len(equipment)}
-    expected = {"cards": 159, "enemies": 18, "relics": 60, "skills": 30, "equipment": 42}
+    approved_ids = {entry["id"] for entry in approved}
+    retained_ids = approved_ids - OVERHAUL_CUT_IDS
+    added_ids = set(cards) - approved_ids
+    # Enemy and relic inventories grew with later guardian/dragon content (they
+    # already exceeded the original 18/60); their rules are still walked below.
+    expected = {"cards": len(retained_ids) + len(added_ids & OVERHAUL_NEW_CARDS.keys()), "enemies": len(enemies), "relics": len(relics), "skills": 30, "equipment": len(set(equipment) & OVERHAUL_PIECE_IDS)}
     if counts != expected:
         errors.append(f"Stable content inventory changed: {counts} != {expected}")
-    if set(cards) != {entry["id"] for entry in approved}:
-        errors.append("Card IDs differ from the complete approved migration inventory")
+    if missing := sorted(retained_ids - set(cards)):
+        errors.append(f"Approved migration cards are missing without an overhaul cut: {missing}")
+    if revived := sorted(OVERHAUL_CUT_IDS & set(cards)):
+        errors.append(f"Overhaul-cut cards are still defined: {revived}")
+    if unknown := sorted(added_ids - OVERHAUL_NEW_CARDS.keys()):
+        errors.append(f"Card IDs are neither in the approved migration inventory nor overhaul-authored: {unknown}")
+    if unknown_gear := sorted(set(equipment) - OVERHAUL_PIECE_IDS):
+        errors.append(f"Equipment IDs are not in the card pool overhaul gear record: {unknown_gear}")
     for card_id, card in cards.items():
         walk_rules(card["actions"], card_id, errors)
-        if card.get("radiance") and not any(action.get("type") in {"vision", "truesight", "illuminate", "dispel_umbra"} or action.get("illuminate_radius", 0) for action in card["actions"]):
+        if card.get("radiance") and not any(action.get("type") in RADIANCE_MECHANICS or action.get("illuminate_radius", 0) for action in card["actions"]):
             errors.append(f"{card_id}: Radiance tag has no Light mechanic")
         for action in card["actions"]:
             if action.get("surface") == "electrified" and len(action.get("surface_pattern", action.get("pattern", []))) > 1:
@@ -136,16 +159,17 @@ def main() -> int:
     sources = heuristic.equipment_card_sources(PROJECT / "data/equipment.json")
     scores = {row["card_id"]: row for row in heuristic.scored_rows(cards, heuristic.HeuristicWeights(), sources)}
     rows = []
-    for proposal in approved:
-        card_id = proposal["id"]
+    reviewed = [(entry["id"], entry["source"], entry["equipment_sources"], entry["disposition"], entry["proposed_role"]) for entry in approved if entry["id"] in cards]
+    reviewed += [(card_id, OVERHAUL_NEW_CARDS[card_id]["src"], sources.get(card_id, []), "card pool overhaul: new", OVERHAUL_NEW_CARDS[card_id]["note"]) for card_id in sorted(added_ids & OVERHAUL_NEW_CARDS.keys())]
+    for card_id, source, equipment_sources, disposition, role in reviewed:
         card = cards[card_id]
-        rows.append({"id": card_id, "name": card["name"], "source": proposal["source"], "equipment_sources": proposal["equipment_sources"], "rarity": card["rarity"], "element": card.get("element", "none"), "disposition": proposal["disposition"], "reviewed_role": proposal["proposed_role"], "implemented_rules": card["description"], "time": card["time"], "score": scores[card_id]["score"], "breakdown": scores[card_id]["breakdown"], "exhaust": card.get("burn", False), "health_cost": card.get("health_cost", 0), "flurry": card.get("flurry", False), "retired": card.get("retired", False), "replacement_id": card.get("replacement_id")})
+        rows.append({"id": card_id, "name": card["name"], "source": source, "equipment_sources": equipment_sources, "rarity": card["rarity"], "element": card.get("element", "none"), "disposition": disposition, "reviewed_role": role, "implemented_rules": card["description"], "time": card["time"], "score": scores[card_id]["score"], "breakdown": scores[card_id]["breakdown"], "exhaust": card.get("burn", False), "health_cost": card.get("health_cost", 0), "flurry": card.get("flurry", False), "retired": card.get("retired", False), "replacement_id": card.get("replacement_id")})
     metadata = {"counts": counts, "source_counts": dict(collections.Counter(row["source"] for row in rows)), "rules_version": 5, "limitations": "Heuristic plus role review; scores do not prove encounter win rates. Combat, save, targeting and visual verification remain separate.", "errors": errors}
     metadata["support_card_counts"] = support_card_counts(cards)
     (args.output_dir / "relic-support-counts.json").write_text(json.dumps(metadata["support_card_counts"], indent=2) + "\n")
     (args.output_dir / "card-roster-review.json").write_text(json.dumps({"metadata": metadata, "cards": rows}, indent=2) + "\n")
     (args.output_dir / "heuristic-data-review.json").write_text(json.dumps(list(scores.values()), indent=2) + "\n")
-    lines = ["# Complete board-surface card roster", "", metadata["limitations"], "", f"159 stable IDs: {metadata['source_counts']}", "", "| Card / ID | Source / rarity | Reviewed role | Implemented rules | Score |", "|---|---|---|---|---|"]
+    lines = ["# Complete board-surface card roster", "", metadata["limitations"], "", f"{len(rows)} stable IDs: {metadata['source_counts']}", "", "| Card / ID | Source / rarity | Reviewed role | Implemented rules | Score |", "|---|---|---|---|---|"]
     for row in rows:
         lines.append(f"| {row['name']} / {row['id']} | {row['source']} / {row['rarity']} | {row['reviewed_role']} | {row['implemented_rules']} Time {row['time']}. | {row['score']:.2f} |")
     (args.output_dir / "card-roster-review.md").write_text("\n".join(lines) + "\n")

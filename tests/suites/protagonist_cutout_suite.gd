@@ -117,7 +117,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var scene: Node = load("res://scripts/run_scene.gd").new()
 	for card_id: String in ["whirlwind_slash", "grave_cleave", "tombsplitter", "sweeping_haft"]:
 		var action: Dictionary = GameData.card_def(card_id)["actions"][0]
-		expect.call(AttackFxLibrary.protagonist_uses_melee_motion(action), card_id + " triggers the cutout swing through its self-centered AoE action")
+		expect.call(AttackFxLibrary.protagonist_uses_melee_motion(action), card_id + " triggers the cutout swing through its self-centered or facing-aimed AoE action")
 	for action: Dictionary in [{"type": "ranged", "range": 3}, {"type": "aoe", "range": 4}, {"type": "block"}]:
 		expect.call(not AttackFxLibrary.protagonist_uses_melee_motion(action), "Ranged, targeted AoE and defensive actions do not trigger the sword swing")
 	var sweep: Dictionary = {"kind": "aoe", "action_type": "aoe", "range": 0, "protagonist_melee": true, "from": Vector2i(3, 3), "to": Vector2i(3, 3)}

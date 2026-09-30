@@ -203,6 +203,16 @@
       ]
     },
     {
+      "id": "combat:outcrops",
+      "section": "combat",
+      "title": "Outcrops",
+      "icon": "raise_terrain",
+      "body": [
+        "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
+        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away."
+      ]
+    },
+    {
       "id": "combat:lightning_strikes",
       "section": "combat",
       "title": "Lightning Strikes",

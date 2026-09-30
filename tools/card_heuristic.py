@@ -327,6 +327,11 @@ class HeuristicWeights:
     kill_card_play_value: float = 0.45
     illusion_health_per_point: float = 0.48
     illusion_range_per_tile: float = 0.12
+    # Player-raised outcrops: breakable cover and route denial, not guaranteed
+    # prevented damage. Half the time an outcrop lands where it absorbs a hit
+    # or blocks a lane; extra pattern tiles use surface-style retention.
+    outcrop_health_per_point: float = 0.90
+    outcrop_availability: float = 0.50
     illuminate_radius_per_tile: float = 0.55
     illuminate_duration_per_activation: float = 0.25
     illuminate_range_per_tile: float = 0.06
@@ -699,6 +704,16 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             card_plays = int(action.get("amount", 0))
             breakdown.flow += card_plays * weights.card_play_per_point * action_scale
             has_card_play = True
+            continue
+
+        if action_type == "outcrop":
+            pattern = action.get("pattern", [])
+            tiles = len(pattern) if isinstance(pattern, list) and pattern else 1
+            effective_tiles = 1 + max(0, tiles - 1) * weights.surface_extra_tile_retention
+            breakdown.defense += (
+                int(action.get("health", 3)) * weights.outcrop_health_per_point * weights.outcrop_availability * effective_tiles * action_scale
+            )
+            has_defense = True
             continue
 
         if action_type == "illusion":

@@ -72,6 +72,7 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"surface_relocate": "keyword:surface_relocate",
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
+	"outcrop": "combat:outcrops",
 	"raise_terrain": "combat:worldspines",
 	"terrain_burst": "combat:worldspines",
 	"cinder_marks": "combat:cinder_marks",

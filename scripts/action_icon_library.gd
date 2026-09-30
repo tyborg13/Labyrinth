@@ -416,6 +416,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"move": "move",
 	"move_away": "retreat",
 	"move_toward": "move",
+	"outcrop": "raise_terrain",
 	"pull": "pull",
 	"push": "push",
 	"raise_terrain": "raise_terrain",
@@ -469,7 +470,7 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 					has_ranged_attack = true
 				else:
 					has_melee_attack = true
-			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain":
+			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain", "outcrop":
 				has_block = true
 			"illusion":
 				has_illusion = true
@@ -827,8 +828,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"aoe":
-			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 else "melee"), action, options)
-			if int(action.get("range", 0)) > 0:
+			# A facing-aimed area starts on an adjacent tile, like a melee strike:
+			# the pattern token carries its reach, so no range chip is shown.
+			var aims_facing: bool = str(action.get("aim", "")) == "facing"
+			# A zero-damage area (Caltrops) is a status/ground placement, like a
+			# zero-damage push: it shows no damage chip unless something adds damage.
+			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
+				_append_damage_token(tokens, _damage_icon_for_action(action, "ranged" if int(action.get("range", 0)) > 0 and not aims_facing else "melee"), action, options)
+			if int(action.get("range", 0)) > 0 and not aims_facing:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			if str(action.get("committed_shape", action.get("guardian_shape", ""))).is_empty(): tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
@@ -837,7 +844,9 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if int(action.get("range", 0)) > 1:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
-			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0))))
+			# Authored sideways force (Crosswind) may push in any open direction.
+			var push_tooltip: String = "Push %d in any open direction." % int(action.get("amount", 0)) if bool(action.get("_allow_sideways_force", false)) else ""
+			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", push_tooltip))
 		"pull":
 			_append_optional_hit_token(tokens, action, options)
 			if int(action.get("range", 0)) > 1:
@@ -881,8 +890,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
 		"illuminate":
-			tokens.append(_token_for_action_field(action, "illuminate", "radius", int(action.get("radius", action.get("amount", 1))), "neutral", "Light radius in tiles."))
-			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Light placement range."))
+			var light_range: int = int(action.get("range", 0))
+			tokens.append(_token_for_action_field(action, "illuminate", "radius", int(action.get("radius", action.get("amount", 1))), "neutral", "Light radius in tiles." if light_range > 0 else "Light radius in tiles, centered on you."))
+			# Range-0 Light is created on the hero's own tile; no placement chip.
+			if light_range > 0:
+				tokens.append(_token_for_action_field(action, "range", "range", light_range, "neutral", "Light placement range."))
 			var light_duration: int = int(action.get("duration", 1))
 			tokens.append(token_for("time", "∞" if light_duration < 0 else light_duration, "neutral", "Player turns this light remains."))
 		"vision":
@@ -905,6 +917,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if action.has("guardian_cap") or action.has("summon_cap"): summon_text += " Up to %d living." % int(action.get("summon_cap", action.get("guardian_cap", 0)))
 			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
 			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
+		"outcrop":
+			tokens.append(_token_for_action_field(action, "raise_terrain", "health", int(action.get("health", 0)), "neutral", "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed."))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Outcrop placement range."))
+			if (action.get("pattern", []) as Array).size() > 1:
+				tokens.append(_aoe_pattern_token(action))
 		"raise_terrain":
 			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
 			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))
@@ -936,7 +953,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
 		elif action.has("surface_tiles_limit"): tokens.append(text_token("%d nearest tile%s" % [int(action["surface_tiles_limit"]), "" if int(action["surface_tiles_limit"]) == 1 else "s"], "neutral", "Places ground on the nearest affected tiles, beginning at the dragon."))
 		if action.has("surface_pattern") and not _same_pattern(action.get("surface_pattern", []), action.get("pattern", [])):
-			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0))}))
+			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0)), "aim": str(action.get("aim", ""))}))
 	if action_type in ["move", "move_toward", "move_away", "blink", "melee", "ranged", "aoe", "push", "pull"]:
 		_append_illuminate_rider_tokens(tokens, action)
 	if not str(action.get("clear_surface", "")).is_empty():
@@ -1022,6 +1039,20 @@ static func _append_optional_hit_token(tokens: Array, action: Dictionary, option
 	))
 
 static func _aoe_pattern_token(action: Dictionary) -> Dictionary:
+	if str(action.get("aim", "")) == "facing":
+		# Facing patterns are authored from the chosen adjacent tile at (0, 0),
+		# facing +x. Draw them from the hero so the card shows the real reach.
+		var from_hero: Array = []
+		for offset_var: Variant in action.get("pattern", []):
+			if typeof(offset_var) == TYPE_ARRAY and (offset_var as Array).size() >= 2:
+				from_hero.append([int((offset_var as Array)[0]) + 1, int((offset_var as Array)[1])])
+		return {
+			"kind": "aoe_pattern",
+			"icon": "aoe_pattern",
+			"pattern": from_hero,
+			"show_origin": true,
+			"tooltip": "Area pattern\nRed tiles are hit relative to you, facing the adjacent tile you choose."
+		}
 	return {
 		"kind": "aoe_pattern",
 		"icon": "aoe_pattern",

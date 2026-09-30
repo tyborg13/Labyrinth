@@ -23967,7 +23967,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -8.0
 				}]
 			}, 0.0, true)
-		"surface", "consume_surface":
+		"surface", "consume_surface", "outcrop":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_surface_change(before_state, after_state, base_presentation)
 		"melee", "ranged", "aoe", "push", "pull", "detonate":
@@ -26682,7 +26682,7 @@ func _room_hover_hint() -> String:
 	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
-		"move", "blink", "illusion", "illuminate":
+		"move", "blink", "illusion", "illuminate", "outcrop":
 			return "Tile"
 		"aoe":
 			return "Tile" if int(action.get("range", 0)) > 0 else "Resolve"

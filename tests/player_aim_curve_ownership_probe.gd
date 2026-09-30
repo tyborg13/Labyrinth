@@ -46,7 +46,7 @@ func _capture_states() -> void:
 		settings["ui_scale"] = 1.0
 		settings["reduced_motion"] = reduced_motion
 		instance.set("_settings", settings)
-		for card_id: String in ["cinderburst", "bone_dart", "updraft"]:
+		for card_id: String in ["nail_bomb", "bone_dart", "updraft"]:
 			await _capture_player_case(instance, card_id, reduced_motion)
 		await _capture_enemy_case(instance, reduced_motion)
 	instance.queue_free()
@@ -66,7 +66,7 @@ func _capture_states() -> void:
 func _capture_player_case(instance: Node, card_id: String, reduced_motion: bool) -> void:
 	await _install_combat_fixture(instance, card_id, 9811)
 	await _arm_printed_card(instance)
-	var target := Vector2i(4, 4) if card_id == "cinderburst" else Vector2i(5, 4)
+	var target := Vector2i(4, 4) if card_id == "nail_bomb" else Vector2i(5, 4)
 	var board: Control = instance.get("board_view") as Control
 	var point: Vector2 = board.get_global_transform() * (board.call("world_position_for_tile", target) as Vector2)
 	instance.call("_sync_click_targeting_arrow", point)
@@ -80,7 +80,7 @@ func _capture_player_case(instance: Node, card_id: String, reduced_motion: bool)
 	_expect(bool(effect.get("preview", false)), label + " must produce a legal preview through real card selection")
 	_expect(not bool(effect.get("target_curve_visible", true)), label + " production payload must yield the board curve")
 	_expect(not (effect.get("damage_preview", {}) as Dictionary).is_empty() or card_id == "updraft", label + " must keep damage evidence")
-	if card_id == "cinderburst":
+	if card_id == "nail_bomb":
 		_expect((presentation.get("focus_tiles", []) as Array).size() == 5, label + " must retain the full cross footprint")
 	for action_type: String in ["ranged", "aoe", "push", "pull"]:
 		_expect(not bool(instance.call("_player_preview_target_curve_visible", action_type)), label + " active hand arrow must own " + action_type + " aim")

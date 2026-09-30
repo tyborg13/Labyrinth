@@ -21,6 +21,13 @@ EXPECTED_ITEM_CARD_IDS = {
     "pitch_firebomb",
     "smoke_bomb",
     "storm_jar",
+    # Card pool overhaul wave 1 (spec/card_pool_overhaul/card_defs.py).
+    "bitter_tonic",
+    "caltrops",
+    "glacier_salts",
+    "lamp_oil",
+    "mirror_charm",
+    "seers_candle",
 }
 
 

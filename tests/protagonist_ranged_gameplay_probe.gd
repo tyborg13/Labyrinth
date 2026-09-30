@@ -35,9 +35,9 @@ func _initialize() -> void:
 	for index: int in range(directions.size()):
 		await _play_ranged("guiding_flare", "cast_" + _direction_name(index), directions[index], 37)
 		await _play_ranged("pale_spark", "shoot_" + _direction_name(index), directions[index], 37)
-	for entry: Array in [["root_snare",38],["razor_gale",38],["spark_dart",36],["frostbolt",36]]:
+	for entry: Array in [["root_snare",39],["razor_gale",38],["spark_dart",36],["frostbolt",36]]:
 		await _play_ranged(entry[0], entry[0], Vector2i(2,0), entry[1])
-	await _play_ranged("cinderburst", "physical_targeted_aoe", Vector2i(2,0), 33)
+	await _play_ranged("nail_bomb", "physical_targeted_aoe", Vector2i(2,0), 36)
 	await _play_ranged("guiding_flare", "reduced_cast", Vector2i(0,-2), 37, true)
 	await _play_ranged("pale_spark", "reduced_shoot", Vector2i(-2,0), 37, true)
 	# The same selection/activation handlers serve pointer and controller input.

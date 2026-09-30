@@ -215,7 +215,7 @@ func _capture_authored_guided_run(active_progression: Dictionary) -> void:
 	await instance.call("_on_board_tile_clicked", _player_tile(instance))
 	await _settle_ui()
 	var brace_state: Dictionary = instance.get("_combat_state") as Dictionary
-	_assert(int((brace_state.get("player", {}) as Dictionary).get("block", 0)) == 8, "Brace should grant its real 8 Block")
+	_assert(int((brace_state.get("player", {}) as Dictionary).get("block", 0)) == 6, "Brace should grant its real 6 Block")
 	_assert(int(combat.call("cards_remaining_this_turn", brace_state)) == 0, "Brace should spend the refunded play")
 	_assert_prompt(instance, ContextualCombatTutorial.PHASE_TURN_CLOCK, true, "read the Turn Clock")
 	await _save_root_screenshot("%s/16_turn_clock.png" % OUTPUT_DIR)

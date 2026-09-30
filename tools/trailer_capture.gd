@@ -164,7 +164,7 @@ func _ensure_combat_hand() -> void:
 		return
 	var deck: Dictionary = (_run_scene._combat_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = ["sidestep_slash", "quick_stab", "bone_dart", "brace", "shadow_step"]
-	deck["draw"] = ["lantern_shot", "guarded_step", "ember_jab", "patch_up"]
+	deck["draw"] = ["lantern_shot", "guarded_step", "backhand_nick", "patch_up"]
 	deck["discard"] = []
 	_run_scene._combat_state["deck"] = deck
 	_run_scene._combat_state["cards_played_this_turn"] = 0
@@ -238,7 +238,7 @@ func _force_reward_showcase() -> void:
 	var state: Dictionary = _run_scene._run_state.duplicate(true)
 	state["mode"] = "reward"
 	state["pending_reward"] = {
-		"cards": ["cinderburst", "threaded_path", "rallying_breath"],
+		"cards": ["molten_reach", "threaded_path", "rallying_breath"],
 		"heal_amount": RunEngineScript.REWARD_HEAL,
 		"ember_amount": 9
 	}

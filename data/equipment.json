@@ -457,7 +457,7 @@
     "cards": [
       "windlass_volley",
       "crank_reload",
-      "far_draw"
+      "pinning_quarrel"
     ]
   },
   "war_dancer_sash": {
@@ -469,6 +469,48 @@
     "cards": [
       "blade_dance",
       "gathering_rhythm"
+    ]
+  },
+  "glacial_bulwark": {
+    "name": "Glacial Bulwark",
+    "slot": "offhand",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/glacial_bulwark.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "hoarfrost_wall",
+      "cold_shoulder"
+    ]
+  },
+  "pilgrim_vestments": {
+    "name": "Pilgrim Vestments",
+    "slot": "armor",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/pilgrim_vestments.png",
+    "accent": "#8f9499",
+    "cards": [
+      "vigil",
+      "blessed_salve"
+    ]
+  },
+  "geode_charm": {
+    "name": "Geode Charm",
+    "slot": "trinket",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/geode_charm.png",
+    "accent": "#8f9499",
+    "cards": [
+      "geode"
+    ]
+  },
+  "doppel_doll": {
+    "name": "Doppel Doll",
+    "slot": "trinket",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/doppel_doll.png",
+    "accent": "#8f9499",
+    "cards": [
+      "straw_double"
     ]
   }
 }

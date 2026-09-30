@@ -335,6 +335,12 @@ These are the current default weights used by `tools/card_heuristic.py`:
   playability, and target count
 - Illusion health: `0.48` per point
 - Illusion placement range: `0.12` per tile
+- Player-raised outcrop (`outcrop` action): `0.90` per outcrop health point,
+  times `0.50` availability (it absorbs a hit or blocks a useful lane about half
+  the time), scored as defense. Extra pattern tiles use the `0.45` surface
+  extra-tile retention. A plain 3-health outcrop is worth `1.35`. Placement
+  range, the Rubble left on destruction and facing-aimed (`"aim": "facing"`)
+  areas receive no separate value.
 - Illuminate: `0.55` per light radius, `0.25` per activation of duration, and
   `0.06` per placement-range tile
 - An attack-carried Illuminate rider uses the same radius and duration values,

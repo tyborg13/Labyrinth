@@ -59,8 +59,9 @@ static func run_visible_terrain(expect: Callable) -> void:
 	var spire := Vector2i(3, 4)
 	expect.call(combat.valid_targets_for_player_action(state, {"type":"melee", "range":1, "damage":5}).has(spire), "Ordinary melee retains its terrain target")
 	expect.call(combat.valid_targets_for_player_action(state, {"type":"ranged", "range":3, "damage":4}).has(spire), "Ordinary ranged retains its terrain target")
-	var hook: Dictionary = (combat.card_play_actions("cleaver_hook", state)[0] as Dictionary)
-	expect.call(not combat.valid_targets_for_player_action(state, hook).has(spire), "Enemy-only force attacks must not gain terrain targets")
+	# Hurricane Palm is an adjacent standalone push (Cleaver Hook became a melee Sunder).
+	var hook: Dictionary = (combat.card_play_actions("hurricane_palm", state)[0] as Dictionary)
+	expect.call(str(hook.get("type", "")) == "push" and not combat.valid_targets_for_player_action(state, hook).has(spire), "Enemy-only force attacks must not gain terrain targets")
 	scene.free()
 
 
@@ -200,7 +201,7 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			covered_melee_cards += 1
 		run_scene.free()
 
-	expect.call(covered_card_ids.size() == 16, "Current card data should expose all 16 move-then-attack cards to shortcut coverage")
+	expect.call(covered_card_ids.size() == 18, "Current card data should expose all 18 move/blink-then-attack cards to shortcut coverage")
 	expect.call(covered_melee_cards == 12, "Current card data should expose all 12 move-then-melee cards to prepared-runtime shortcut coverage")
 	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push", "pull"]), "Combined movement cards use melee or directed displacement follow-ups")
 
@@ -245,7 +246,9 @@ static func _test_every_card_has_one_player_target_decision(expect: Callable) ->
 		if targeted_indices.size() == 2:
 			var move_action: Dictionary = actions[targeted_indices[0]] as Dictionary
 			var attack_action: Dictionary = actions[targeted_indices[1]] as Dictionary
-			expect.call(str(move_action.get("type", "")) == "move", "%s multi-action targeting should start with ordinary movement" % card_id)
+			# Blink counts as movement: Kestrel Dive and Spur Vault blink, then
+			# commit one required adjacent push from the same enemy click.
+			expect.call(str(move_action.get("type", "")) in MOVEMENT_TYPES, "%s multi-action targeting should start with movement (Move or Blink)" % card_id)
 			expect.call(str(attack_action.get("type", "")) in ["melee", "push", "pull"] and (int(attack_action.get("range", 0)) == 1 or str(attack_action.get("type", "")) == "pull"), "%s multi-action targeting should finish with one enemy click" % card_id)
 			expect.call(bool(attack_action.get("required", false)), "%s enemy shortcut should commit its follow-up attack when the enemy is selected" % card_id)
 		if bool(card.get("flurry", false)):

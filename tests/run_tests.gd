@@ -108,6 +108,7 @@ func _initialize() -> void:
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/ground_targeting_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/card_pool_overhaul_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/combat_outcome_feedback_suite.gd").run(Callable(self, "_assert"))
 	PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
@@ -753,7 +754,7 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 			_assert(icon_path.begins_with("res://assets/art/equipment/"), "%s starter equipment should use custom equipment art, not reused relic art" % equipment_id)
 	for slot: String in GameData.equipment_slots():
 		_assert(int(slot_counts.get(slot, 0)) >= 3, "%s slot should have multiple equipment options" % slot.capitalize())
-	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "far_draw"], "Windlass Repeater should package a Flurry payoff with draw/play setup")
+	_assert(GameData.equipment_cards("windlass_repeater") == ["windlass_volley", "crank_reload", "pinning_quarrel"], "Windlass Repeater should package a Flurry payoff with draw/play setup and its Pinning Quarrel shot")
 	_assert(GameData.equipment_cards("war_dancer_sash") == ["blade_dance", "gathering_rhythm"], "War-Dancer Sash should package a melee Flurry payoff with rhythm setup")
 	var rhythm_actions: Array = GameData.card_def("gathering_rhythm").get("actions", [])
 	_assert(rhythm_actions.size() == 3 and int((rhythm_actions[2] as Dictionary).get("amount", 0)) == 2, "Gathering Rhythm should grant 2 card plays for a larger Flurry setup turn")
@@ -6782,7 +6783,8 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
 	_assert(ActionIcons.tooltip("illusion").contains("stationary copy"), "Illusion tooltip should explain the decoy")
-	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("gate_gambit"))
+	# Borrowed Spark exhausts and costs health (Gate Gambit was cut in the card pool overhaul).
+	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("borrowed_spark"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
 	var cost_row: Array = cost_rows[0] as Array
 	_assert(str((cost_row[0] as Dictionary).get("icon", "")) == "exhaust", "Exhausting cards should use the exhaust cost icon")
@@ -8350,7 +8352,7 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert(int(run_state.get("hand_size", 0)) == 5, "Debug boss fixture should keep the normal hand UI footprint")
 	_assert((run_state.get("attuned_magic_cards", []) as Array).size() == GameData.magic_loadout_limit(), "Debug boss fixture should obey the attuned magic cap")
 	_assert((run_state.get("magic_inventory", []) as Array).size() > 0, "Debug boss fixture should keep extra progressed cards in reserve magic")
-	_assert((run_state.get("deck_cards", []) as Array).has("cinderburst"), "Debug boss fixture should still grant progressed attuned magic")
+	_assert((run_state.get("deck_cards", []) as Array).has("molten_reach"), "Debug boss fixture should still grant progressed attuned magic")
 	var found_boss: Dictionary = {}
 	for enemy_var: Variant in combat_state.get("enemies", []):
 		var enemy: Dictionary = enemy_var
@@ -12581,7 +12583,7 @@ func _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants() -> void:
 	var state: Dictionary = combat.create_combat(44010, layout, {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["cinderburst"],
+		"deck_cards": ["molten_reach"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
@@ -12613,7 +12615,7 @@ func _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants() -> void:
 	_assert((resolved_state.get("traps", []) as Array).is_empty(), "AOE should trigger and consume a concealed trap inside the pattern")
 
 	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["cinderburst"]
+	deck["hand"] = ["molten_reach"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -12732,12 +12734,20 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 		"daybreak",
 		"ember_rain",
 		"trapdoor",
-		"firebrand_volley",
 		"icebound_chains",
 		"spark_dart",
 		"spark_focus",
 		"threaded_path",
-		"root_snare"
+		"beacon",
+		"seekers_mark",
+		"break_the_veil",
+		"censer_swing",
+		"incense_haze",
+		"sun_flash",
+		"vigil",
+		"blessed_salve",
+		"mirror_charm",
+		"seers_candle"
 	]:
 		var card: Dictionary = GameData.card_def(card_id)
 		_assert(not card.is_empty(), "%s should load" % card_id)
@@ -12782,10 +12792,12 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	var lantern_segments: Array = card_widget.call("_summary_token_segments", lantern_target_row)
 	_assert(lantern_segments.size() == 1 or (lantern_segments.size() == 2 and (lantern_segments[1] as Array).size() == 2), "A compact Light rider stays together, either on the attack row or its paired continuation")
 	card_widget.size = Vector2(250.0, 352.0)
-	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("root_snare").get("actions", []))
+	# Guiding Flare replaces Root Snare (which lost its Light rider in the card
+	# pool overhaul) as the five-token attack row that must wrap once.
+	var root_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("guiding_flare").get("actions", []))
 	var root_attack_row: Array = root_rows[0] as Array
 	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
-	_assert(root_attack_row.size() == 5 and root_segments.size() == 2, "Root Snare retains attack, range, Rubble and both Light values across two rows")
+	_assert(root_attack_row.size() == 5 and root_segments.size() == 2, "Guiding Flare retains attack, range, Fire and both Light values across two rows")
 	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
 	var squall_attack_row: Array = squall_rows[0] as Array
 	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)

@@ -8,6 +8,10 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const Ground = preload("res://scripts/board_surface_rules.gd")
 
+# Explicit range-4 identities (spec/reach_balance.md). The card pool overhaul
+# added Shiver Shot, Pinning Quarrel, Yank and Skybreak Current.
+const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current"]
+
 static func run(expect: Callable) -> void:
 	_test_reach_contract(expect)
 	_test_approach_cadence_and_commitment(expect)
@@ -21,8 +25,8 @@ static func _test_reach_contract(expect: Callable) -> void:
 		if bool(cards[card_id].get("retired", false)): continue
 		for action: Dictionary in cards[card_id]["actions"]:
 			if str(action["type"]) in ["ranged", "push", "pull", "aoe", "surface", "illusion", "detonate"]:
-				var ceiling: int = 4 if card_id in ["stormstring_shot", "hush_of_winter"] else 3
-				expect.call(int(action.get("range", 0)) <= ceiling, "%s keeps ordinary reach short except the two named long shots" % card_id)
+				var ceiling: int = 4 if card_id in LONG_SHOT_CARD_IDS else 3
+				expect.call(int(action.get("range", 0)) <= ceiling, "%s keeps ordinary reach short except the named long shots" % card_id)
 			if str(action["type"]) == "move":
 				expect.call(int(action["range"]) <= 3, "%s walking cannot cross most of a room" % card_id)
 
@@ -94,7 +98,9 @@ static func _test_player_reach_and_cover(expect: Callable) -> void:
 	var state: Dictionary = Base._state(Vector2i(1, 4), [Base._enemy("crawler", 1, Vector2i(4, 4))])
 	var poke: Dictionary = Data.card_def("pale_spark")["actions"][0]
 	var shot: Dictionary = Data.card_def("dull_bolt")["actions"][0]
-	expect.call(not combat.valid_targets_for_player_action(state, poke).has(Vector2i(4, 4)), "Range-two starter poke cannot hit three away")
+	expect.call(combat.valid_targets_for_player_action(state, poke).has(Vector2i(4, 4)), "Range-three starter poke reaches three away")
+	var far_state: Dictionary = Base._state(Vector2i(1, 4), [Base._enemy("crawler", 1, Vector2i(5, 4))])
+	expect.call(not combat.valid_targets_for_player_action(far_state, poke).has(Vector2i(5, 4)), "Range-three starter poke cannot hit four away")
 	expect.call(combat.valid_targets_for_player_action(state, shot).has(Vector2i(4, 4)), "Dedicated range-three starter has a distinct legal target")
 	state["terrain"] = [{"id": "crate", "pos": Vector2i(2, 4), "hp": 3, "max_hp": 3}]
 	expect.call(combat.valid_targets_for_player_action(state, shot).has(Vector2i(4, 4)), "Crates still block movement but do not block shots")

@@ -29,6 +29,7 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:targeting": "targeting",
     "combat:fatigue": "fatigue",
     "combat:traps": "traps",
+    "combat:outcrops": "raise_terrain",
     "combat:lightning_strikes": "lightning_strikes",
     "combat:summons": "summon_minions",
     "combat:umbra": "umbra",
@@ -44,6 +45,7 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
 ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
+    frozenset({"outcrop", "raise_terrain"}),
 }
 
 EXPECTED_OBJECTIVE_ICONS = {

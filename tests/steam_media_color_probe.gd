@@ -40,7 +40,7 @@ func _capture_native_color() -> void:
 	settings["reduced_motion"] = true
 	instance.set("_settings", settings)
 	_resolve_contextual_prompts(instance)
-	await _install_combat_fixture(instance, "cinderburst", 9905)
+	await _install_combat_fixture(instance, "nail_bomb", 9905)
 	var layer := CanvasLayer.new()
 	layer.layer = 128
 	_capture_viewport.add_child(layer)

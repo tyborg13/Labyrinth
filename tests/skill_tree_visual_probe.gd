@@ -266,7 +266,7 @@ func _capture_combat_surfaces(
 		"patch_up",
 		"bone_dart",
 		"frostbolt",
-		"ember_jab",
+		"backhand_nick",
 	])
 	var combat_state: Dictionary = combat_engine.create_combat(93471 + viewport_size.y, layout, {
 		"hp": 24,
@@ -287,7 +287,7 @@ func _capture_combat_surfaces(
 	# Instinct targets legal floor; it needs no particular card in hand.
 	deck["hand"] = ["patch_up", "crimson_draught", "rime_shard", "quick_stab"]
 	deck["discard"] = ["pale_spark"]
-	deck["draw"] = ["patch_up", "frostbolt", "ember_jab"]
+	deck["draw"] = ["patch_up", "frostbolt", "backhand_nick"]
 	combat_state["deck"] = deck
 	combat_state["banked_play_active"] = 1
 	combat_state["banked_play_spent_this_activation"] = 0

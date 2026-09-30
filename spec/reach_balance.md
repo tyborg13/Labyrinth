@@ -19,8 +19,10 @@ and move-2 melee. HP, base initiative, existing intent Time, room generation,
 objectives, rewards, fatigue and player damage/Time are unchanged.
 
 The player retains two independent movement tiles without a card or Time cost.
-Ordinary pokes and rich utility attacks use range 2, dedicated shots use range 3,
-and Stormstring Shot/Hush of Winter retain explicit range-4 identities. Targeted
+Ordinary pokes and rich utility attacks use range 2, dedicated shots (including the
+Pale Spark starter since the card pool overhaul) use range 3, and Stormstring Shot,
+Hush of Winter, Shiver Shot, Pinning Quarrel, Yank and Skybreak Current retain
+explicit range-4 identities. Targeted
 AOE centers use range 2–3; preserve pattern shapes and inspect the affected union.
 Offensive movement is 1–2, except Iron Wheel's move-3 charge. Pure movement is 2–3;
 Trapdoor and exhausting Voidsilk Molt retain premium blink 4. Illusion and surface

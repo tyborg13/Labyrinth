@@ -6,11 +6,33 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 var _failures: Array[String]
 var _checks: int = 0
 
+# The board-surface migration reviewed 159 card IDs and 42 equipment sources.
+# The card pool overhaul (spec/card_pool_overhaul) cuts these reviewed IDs and
+# adds cards and gear in waves, so inventories are derived from the live data:
+# every reviewed ID survives unless the overhaul cut it, and every equipment
+# card exists.
+const MIGRATION_AUDIT_PATH := "res://spec/board_surface_refactor/CARD_MIGRATION_AUDIT.json"
+const OVERHAUL_CUT_CARD_IDS: Array[String] = ["ember_jab", "cinderburst", "gate_gambit"]
+
 func _initialize() -> void:
-	_check(GameData.cards().size() == 159, "All 159 stable card definitions remain")
-	_check(GameData.enemies().size() == 18, "All 18 enemies remain")
-	_check(GameData.relics().size() == 60, "All 60 relics remain")
-	_check(GameData.equipment().size() == 42, "All 42 equipment sources remain")
+	var audit: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MIGRATION_AUDIT_PATH))
+	var reviewed_ids: Array = (audit.get("cards", []) as Array).map(func(entry: Variant) -> String: return str((entry as Dictionary).get("id", "")))
+	_check(reviewed_ids.size() == 159, "The migration audit still records its 159 reviewed card IDs")
+	for card_id_var: Variant in reviewed_ids:
+		var card_id: String = str(card_id_var)
+		if OVERHAUL_CUT_CARD_IDS.has(card_id):
+			_check(not GameData.cards().has(card_id), "Overhaul-cut %s stays removed" % card_id)
+		else:
+			_check(GameData.cards().has(card_id), "Reviewed card %s remains defined" % card_id)
+	_check(GameData.cards().size() >= reviewed_ids.size() - OVERHAUL_CUT_CARD_IDS.size(), "The card pool never shrinks below the reviewed IDs minus overhaul cuts")
+	# Guardian and dragon content grew these past the migration's 18/60 before
+	# the overhaul; keep them as floors so earlier content cannot vanish.
+	_check(GameData.enemies().size() >= 18, "All 18 original enemies remain")
+	_check(GameData.relics().size() >= 60, "All 60 original relics remain")
+	_check(GameData.equipment().size() >= 42, "All 42 original equipment sources remain")
+	for equipment_id: String in GameData.equipment():
+		for card_id_var: Variant in GameData.equipment_cards(equipment_id):
+			_check(GameData.cards().has(str(card_id_var)), "%s grants existing card %s" % [equipment_id, str(card_id_var)])
 	_check(SkillTreeLibrary.definitions().size() == 30, "All skill IDs remain")
 	_check(SkillTreeLibrary.visible_ids().size() == 29, "Exactly 29 skills are active")
 	_check(SkillTreeLibrary.validation_errors().is_empty(), "Skill graph and board-targeting schema validate: %s" % [str(SkillTreeLibrary.validation_errors())])
@@ -47,7 +69,7 @@ func _initialize() -> void:
 		_check(not str(relic["description"]).contains("{"), "%s has fully resolved rules numbers" % relic_id)
 		_scan_rules(relic.get("effects", []), relic_id)
 	if _failures.is_empty():
-		print("BOARD_SURFACE_DATA_PASS checks=%d cards=159 relics=60 equipment=42 enemies=18 active_skills=29" % _checks)
+		print("BOARD_SURFACE_DATA_PASS checks=%d cards=%d relics=%d equipment=%d enemies=%d active_skills=29" % [_checks, GameData.cards().size(), GameData.relics().size(), GameData.equipment().size(), GameData.enemies().size()])
 		quit(0)
 	else:
 		for failure: String in _failures:

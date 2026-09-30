@@ -128,6 +128,10 @@ static func entry(sfx_id: String) -> Dictionary:
 	return result
 
 static func category_for_action(action: Dictionary) -> String:
+	# A physical facing-aimed area (Cleaver Sweep, Spear Thrust) starts on the
+	# tile beside the hero: it is a weapon swing, not a cast.
+	if str(action.get("type", "")) == "aoe" and str(action.get("aim", "")) == "facing" and str(action.get("element", "none")) in ["", "none"]:
+		return "melee"
 	return category_for_kind(str(action.get("type", "")), int(action.get("range", 0)))
 
 static func category_for_kind(kind: String, attack_range: int = 0) -> String:

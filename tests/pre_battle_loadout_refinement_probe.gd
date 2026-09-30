@@ -171,7 +171,7 @@ func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 		_check_objects(panel, instance.get("_run_state") as Dictionary, "long_duplicate" if duplicates else "six_long_names")
 		await _snap("long_duplicate" if duplicates else "six_long_names")
 	var art_outliers: Dictionary = _refinement_variant(state, "large")
-	var outlier_cards: Array = ["cinderburst", "gate_gambit", "ricochet_knife", "spark_focus", "cinderline_tempo", "grave_dust_satchel"]
+	var outlier_cards: Array = ["molten_reach", "prism_sight", "ricochet_knife", "spark_focus", "cinderline_tempo", "grave_dust_satchel"]
 	art_outliers["attuned_magic_cards"] = outlier_cards
 	art_outliers["deck_cards"] = GameData.compile_deck_cards(art_outliers["equipped_equipment"], outlier_cards, art_outliers["equipped_items"])
 	instance.call("_load_run_state", art_outliers)

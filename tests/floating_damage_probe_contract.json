@@ -107,7 +107,7 @@
       ]
     },
     {
-      "pattern": "*gate_gambit_draw_play_overlap.png",
+      "pattern": "*prism_sight_truesight_block_overlap.png",
       "width": 1920,
       "height": 1080,
       "regions": [
@@ -115,7 +115,7 @@
       ]
     },
     {
-      "pattern": "*gate_gambit_play_block_overlap.png",
+      "pattern": "*prism_sight_block_draw_overlap.png",
       "width": 1920,
       "height": 1080,
       "regions": [

@@ -342,15 +342,15 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_REFUND_CARD: {
 		"id": PHASE_SELECT_REFUND_CARD, "lesson": 6, "lesson_total": 10,
 		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Play Brace",
-		"pointer_text": "Click the glowing Brace to spend the refunded play and gain 8 Block.",
-		"controller_text": "Select the glowing Brace to spend the refunded play and gain 8 Block.",
+		"pointer_text": "Click the glowing Brace to spend the refunded play and gain 6 Block.",
+		"controller_text": "Select the glowing Brace to spend the refunded play and gain 6 Block.",
 		"controller_action": "controller_accept", "action_label": "Play", "attention_pulse": true,
 	},
 	PHASE_FINISH_REFUND_CARD: {
 		"id": PHASE_FINISH_REFUND_CARD, "lesson": 6, "lesson_total": 10,
 		"icon": "card_play", "kicker": "REFUNDED PLAY", "title": "Raise Your Guard",
-		"pointer_text": "Confirm the glowing action to gain 8 Block.",
-		"controller_text": "Confirm the glowing action to gain 8 Block.",
+		"pointer_text": "Confirm the glowing action to gain 6 Block.",
+		"controller_text": "Confirm the glowing action to gain 6 Block.",
 		"controller_action": "controller_accept", "action_label": "Resolve", "attention_pulse": true,
 	},
 	PHASE_TURN_CLOCK: {

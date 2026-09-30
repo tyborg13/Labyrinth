@@ -4,14 +4,19 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
+# Card pool overhaul wave 1: Firebrand Volley and Root Snare lost their Light
+# riders and Radiance tag; Beacon, Seeker's Mark and Break the Veil (reward),
+# Censer Swing, Incense Haze, Sun Flash, Vigil and Blessed Salve (gear), and
+# Mirror Charm and Seer's Candle (items) joined the school.
 const RADIANCE_CARD_IDS: Array[String] = [
 	"lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon",
-	"glowstone_ward", "daybreak", "trapdoor", "ember_rain", "firebrand_volley",
-	"icebound_chains", "spark_dart", "spark_focus", "threaded_path", "root_snare"
+	"glowstone_ward", "daybreak", "trapdoor", "ember_rain",
+	"icebound_chains", "spark_dart", "spark_focus", "threaded_path",
+	"beacon", "seekers_mark", "break_the_veil", "censer_swing", "incense_haze",
+	"sun_flash", "vigil", "blessed_salve", "mirror_charm", "seers_candle"
 ]
 const ATTACK_LIGHT_RIDER_CARD_IDS: Array[String] = [
-	"lantern_shot", "guiding_flare", "storm_beacon", "ember_rain",
-	"firebrand_volley", "spark_dart", "root_snare"
+	"lantern_shot", "guiding_flare", "storm_beacon", "ember_rain", "spark_dart"
 ]
 
 static func run(expect: Callable) -> void:
@@ -27,13 +32,13 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	tagged_ids.sort()
 	var expected_ids: Array[String] = RADIANCE_CARD_IDS.duplicate()
 	expected_ids.sort()
-	expect.call(tagged_ids == expected_ids, "The card pool should expose exactly the approved 15 Radiance-tagged cards")
+	expect.call(tagged_ids == expected_ids, "The card pool should expose exactly the approved %d Radiance-tagged cards" % RADIANCE_CARD_IDS.size())
 	var reward_radiance_count: int = 0
 	for rarity_cards_var: Variant in GameData.reward_card_pool_by_rarity("", true).values():
 		for card_id_var: Variant in rarity_cards_var as Array:
 			if bool(GameData.card_def(str(card_id_var)).get("radiance", false)):
 				reward_radiance_count += 1
-	expect.call(reward_radiance_count == 14, "The ordinary reward pool should contain 14 Radiance cards after the rider pass")
+	expect.call(reward_radiance_count == 15, "The ordinary reward pool should contain 15 Radiance cards after the card pool overhaul")
 	for card_id: String in ["dawnstep", "prism_sight", "trapdoor", "icebound_chains", "spark_focus"]:
 		var found_duration: bool = false
 		for action_var: Variant in GameData.card_def(card_id).get("actions", []):

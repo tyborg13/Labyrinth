@@ -93,7 +93,7 @@ static func prepare_for_run(run_state: Dictionary, combat_state: Dictionary) -> 
 	]
 	var deck: Dictionary = (next_state.get("deck", {}) as Dictionary).duplicate(true)
 	deck["hand"] = [PREVIEW_CARD_ID, KILL_CARD_ID, REFUND_CARD_ID, "guarded_step", "hamstring_shot"]
-	deck["draw"] = ["shadow_step", "dull_bolt", "ember_jab", "guarded_step", "quick_stab", "brace"]
+	deck["draw"] = ["shadow_step", "dull_bolt", "backhand_nick", "guarded_step", "quick_stab", "brace"]
 	deck["discard"] = []
 	deck["burned"] = []
 	deck["consumed"] = []

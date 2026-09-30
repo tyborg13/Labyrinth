@@ -201,7 +201,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"iron_wheel",
 		"ricochet_knife",
 		"warded_advance",
-		"cinderburst",
+		"molten_reach",
 		"chain_bolt",
 		"static_lash",
 		"volt_surge",

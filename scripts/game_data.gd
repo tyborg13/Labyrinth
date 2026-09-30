@@ -631,7 +631,7 @@ static func action_field_uses_fixed_point(action_type: String, field: String) ->
 	if field == "amount":
 		return action_type in ["block", "stoneskin", "heal", "heal_self", "heal_ally", "guard_ally"]
 	if field == "health":
-		return action_type in ["illusion", "raise_terrain"]
+		return action_type in ["illusion", "raise_terrain", "outcrop"]
 	return false
 
 static func scaled_action_field_delta(action_type: String, field: String, amount: int) -> int:
@@ -1070,7 +1070,7 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate"] or (action_type in ["aoe", "surface", "detonate", "consume_surface"] and int(action.get("range", 0)) > 0):
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop"] or (action_type in ["aoe", "surface", "detonate", "consume_surface"] and int(action.get("range", 0)) > 0):
 			has_targeted_action = true
 			break
 	if not has_targeted_action:

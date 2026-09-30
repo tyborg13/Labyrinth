@@ -21,6 +21,7 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 
 - `move` and `move_toward` are both the player-facing Move action.
 - `heal` and `heal_self` are both the player-facing Heal action.
+- `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
 - `move_away` uses Retreat, which is its own icon identity. Ally-targeted Guard and Heal actions also retain their own identities.
 
 ## Acceptance proof

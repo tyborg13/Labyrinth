@@ -33,7 +33,7 @@ static func run(expect: Callable) -> void:
 	expect.call(int(earth.get("outcrop_health",0))==3,"Gauntlet modifies ranged Earth action")
 	expect.call(not (engine.card_play_actions("pale_spark",state)[0] as Dictionary).has("outcrop_health"),"Gauntlet leaves other elements unchanged")
 	var direct: Dictionary = engine.apply_player_action(state,earth,Vector2i(3,1))
-	expect.call(direct["terrain"].is_empty() and direct["enemies"][0]["hp"]==98,"Occupied Earth target retains ordinary spell outcome")
+	expect.call(direct["terrain"].is_empty() and direct["enemies"][0]["hp"]==int(state["enemies"][0]["hp"])-int(earth["damage"]) and int(earth["damage"])>0,"Occupied Earth target retains ordinary spell outcome")
 	state["enemies"][0]["hp"]=1
 	direct=engine.apply_player_action(state,earth,Vector2i(3,1))
 	expect.call(direct["terrain"].is_empty(),"Killing an enemy does not turn its occupied target into an outcrop")
