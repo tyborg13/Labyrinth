@@ -4,23 +4,11 @@ const PORTRAIT_SIZE := 128
 const ICON_SIZE := 64
 
 # Turn-order and pre-battle portraits: an exact 1:1, 128x128 cut of each
-# unit's current in-game art (cutout rest bakes and guardian sprites), centred
-# on the head and shoulders. No rescaling keeps pixel art crisp. The rail shows
+# unit's current in-game art (cutout rest bakes), centred on the head and
+# shoulders. Guardian portraits are dedicated painted busts
+# (spec/guardian_combats/approved_assets.md) and are not generated here. No rescaling keeps pixel art crisp. The rail shows
 # the middle 128x96 band of each portrait, so "focus" is the centre of the bust.
 const PORTRAITS := [
-	{"key": "ash_hound", "source": "res://assets/units/ash_hound.png", "out": "res://assets/art/portraits/guardians/ash_hound_portrait.png", "focus": Vector2i(72, 148)},
-	{"key": "ashen_reaver", "source": "res://assets/units/ashen_reaver.png", "out": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png", "focus": Vector2i(136, 64)},
-	{"key": "bell_tender", "source": "res://assets/units/bell_tender.png", "out": "res://assets/art/portraits/guardians/bell_tender_portrait.png", "focus": Vector2i(118, 86)},
-	{"key": "craghide", "source": "res://assets/units/craghide.png", "out": "res://assets/art/portraits/guardians/craghide_portrait.png", "focus": Vector2i(78, 158)},
-	{"key": "gallows_roc", "source": "res://assets/units/gallows_roc.png", "out": "res://assets/art/portraits/guardians/gallows_roc_portrait.png", "focus": Vector2i(98, 96)},
-	{"key": "last_lamplighter", "source": "res://assets/units/last_lamplighter.png", "out": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png", "focus": Vector2i(140, 62)},
-	{"key": "rime_spitter", "source": "res://assets/units/rime_spitter.png", "out": "res://assets/art/portraits/guardians/rime_spitter_portrait.png", "focus": Vector2i(64, 148)},
-	{"key": "rime_whelp", "source": "res://assets/units/rime_whelp.png", "out": "res://assets/art/portraits/guardians/rime_whelp_portrait.png", "focus": Vector2i(66, 138)},
-	{"key": "rimejaw", "source": "res://assets/units/rimejaw.png", "out": "res://assets/art/portraits/guardians/rimejaw_portrait.png", "focus": Vector2i(62, 140)},
-	{"key": "roc_fledgling", "source": "res://assets/units/roc_fledgling.png", "out": "res://assets/art/portraits/guardians/roc_fledgling_portrait.png", "focus": Vector2i(90, 110)},
-	{"key": "stoneback_mite", "source": "res://assets/units/stoneback_mite.png", "out": "res://assets/art/portraits/guardians/stoneback_mite_portrait.png", "focus": Vector2i(96, 168)},
-	{"key": "storm_cantor", "source": "res://assets/units/storm_cantor.png", "out": "res://assets/art/portraits/guardians/storm_cantor_portrait.png", "focus": Vector2i(128, 64)},
-	{"key": "wick_shade", "source": "res://assets/units/wick_shade.png", "out": "res://assets/art/portraits/guardians/wick_shade_portrait.png", "focus": Vector2i(104, 62)},
 	{"key": "player", "source": "res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png", "out": "res://assets/art/portraits/player_reaver.png", "focus": Vector2i(125, 60)},
 	{"key": "crawler", "source": "res://assets/units/crawler_cutout/front/rest.png", "out": "res://assets/art/portraits/tunnel_crawler.png", "focus": Vector2i(84, 116)},
 	{"key": "acolyte", "source": "res://assets/units/acolyte_cutout/front/rest.png", "out": "res://assets/art/portraits/dust_acolyte.png", "focus": Vector2i(110, 74)},

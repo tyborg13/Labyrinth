@@ -69,14 +69,15 @@ floor shadows); the former navy button bodies clashed with it.
   (`tests/relic_offer_fit_probe.gd` checks every relic).
 - **Initiative rail** (`scripts/turn_order_ink.gd`): a painted, Expedition 33
   style column. Each actor sits on a hand-painted dry-brush stroke
-  (`assets/art/ui/turn_order_ink/`, generated with Codex and converted by
-  `tools/process_turn_order_brushes.py`) whose variant, tilt and mirroring are
+  (`assets/art/ui/turn_order_ink/`; Codex-generated originals, prompt and
+  hashes in `spec/assets/turn_order_ink/README.md`) whose variant, tilt and mirroring are
   fixed per actor so the column never looks stamped out. Strokes are gold for
   the acting unit, teal for allies and crimson for enemies. The portrait is cut
   into a slanted, slightly ragged window with a painted highlight edge, and the
-  time value is a heavy outlined numeral painted onto the stroke. Portraits are
-  exact 1:1 head-and-shoulder crops of each unit's current in-game art, rebuilt
-  by `tools/build_turn_order_assets.gd`.
+  time value is a heavy outlined numeral painted onto the stroke. Enemy and
+  player portraits are exact 1:1 head-and-shoulder crops of each unit's current
+  in-game art, rebuilt by `tools/build_turn_order_assets.gd`; guardians keep
+  their dedicated painted busts.
 - **Status placard** (`CombatBoardView._draw_status_text`): room states such as
   "Relic", "Choose Door" and "Victory" in gold with flanking fading rules; the
   top HUD scrim thins toward the centre so the placard stays bright.

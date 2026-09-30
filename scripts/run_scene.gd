@@ -13588,6 +13588,7 @@ func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slo
 	label.size = Vector2(width, slot_size.y)
 	label.position = Vector2(-width + 2.0, slot_size.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))
 	return label
+
 func _turn_order_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.035, 0.025, 0.86)
