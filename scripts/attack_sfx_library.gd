@@ -16,42 +16,42 @@ const SFX: Dictionary = {
 	MELEE_SFX_ID: {
 		"path": "res://assets/audio/sfx/attack_melee_sword_first.wav",
 		"duration": 0.68,
-		"volume_db": -4.0
+		"volume_db": -5.5
 	},
 	RANGED_SFX_ID: {
 		"path": "res://assets/audio/sfx/attack_ranged_bow.wav",
 		"duration": 0.72,
-		"volume_db": -2.0
+		"volume_db": -1.0
 	},
 	BLOCK_SFX_ID: {
 		"path": "res://assets/audio/sfx/action_block.wav",
 		"duration": 0.50,
-		"volume_db": -3.0
+		"volume_db": -4.5
 	},
 	"attack.elemental.fire": {
 		"path": "res://assets/audio/sfx/elemental/fire_attack.wav",
 		"duration": 2.0,
-		"volume_db": -3.0
+		"volume_db": -6.5
 	},
 	"attack.elemental.earth": {
 		"path": "res://assets/audio/sfx/elemental/earth_attack.wav",
 		"duration": 1.0,
-		"volume_db": -2.0
+		"volume_db": -3.5
 	},
 	"attack.elemental.air": {
 		"path": "res://assets/audio/sfx/elemental/air_attack.wav",
 		"duration": 2.0,
-		"volume_db": -2.0
+		"volume_db": 0.0
 	},
 	"attack.elemental.lightning": {
 		"path": "res://assets/audio/sfx/elemental/lightning_attack.wav",
 		"duration": 1.0,
-		"volume_db": -2.0
+		"volume_db": -3.0
 	},
 	"attack.elemental.ice": {
 		"path": "res://assets/audio/sfx/elemental/ice_attack.wav",
 		"duration": 2.0,
-		"volume_db": -2.0
+		"volume_db": 0.0
 	}
 }
 

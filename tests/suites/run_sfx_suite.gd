@@ -13,10 +13,10 @@ const EXPECTED_DURATIONS: Dictionary = {
 }
 
 const EXPECTED_VOLUME_DB: Dictionary = {
-	RunSfxLibrary.DOOR_OPEN_ID: -10.0,
+	RunSfxLibrary.DOOR_OPEN_ID: -5.0,
 	RunSfxLibrary.CAMPFIRE_LOOP_ID: -4.0,
 	RunSfxLibrary.REWARD_ACCEPTED_ID: -12.0,
-	RunSfxLibrary.VICTORY_RESOLUTION_ID: -7.0
+	RunSfxLibrary.VICTORY_RESOLUTION_ID: -3.0
 }
 
 static func run(tree: SceneTree, expect: Callable) -> void:
@@ -41,7 +41,9 @@ static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 
 	var ambient: Dictionary = RunSfxLibrary.ambient_entry_for_mode("campfire")
 	expect.call(str(ambient.get("id", "")) == RunSfxLibrary.CAMPFIRE_LOOP_ID and bool(ambient.get("loop", false)), "Campfire mode should own the looping fire ambience")
-	expect.call(RunSfxLibrary.ambient_entry_for_mode("room").is_empty(), "Fire ambience should not continue outside campfire mode")
+	expect.call(str(RunSfxLibrary.ambient_entry_for_mode("room").get("id", "")) != RunSfxLibrary.CAMPFIRE_LOOP_ID, "Fire ambience should not continue outside campfire mode")
+	expect.call(str(RunSfxLibrary.ambient_entry_for_mode("combat").get("id", "")) == RunSfxLibrary.DUNGEON_AMBIENCE_ID, "Combat halls should carry the quiet stone-hall ambience bed")
+	expect.call(RunSfxLibrary.ambient_entry_for_mode("victory").is_empty(), "Terminal screens should leave ambience to the music")
 	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.DOOR_OPEN_ID).get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Door creak should use the room-reverberated world SFX path")
 	expect.call(str(ambient.get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Campfire ambience should use the room-reverberated world SFX path")
 	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.REWARD_ACCEPTED_ID).get("bus", "")) == SettingsStore.UI_SFX_BUS, "Reward acceptance should stay dry on the UI SFX path")

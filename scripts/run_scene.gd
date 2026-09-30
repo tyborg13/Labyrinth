@@ -1176,7 +1176,7 @@ const DRAW_STAGGER_SECONDS: float = 0.16
 const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/card_draw_deal.wav",
 	"duration": 0.29,
-	"volume_db": 0.0,
+	"volume_db": -2.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const CARD_PLAY_SFX_ENTRY: Dictionary = {
@@ -1188,21 +1188,27 @@ const CARD_PLAY_SFX_ENTRY: Dictionary = {
 const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/reward_card_flip.wav",
 	"duration": 0.28,
-	"volume_db": 0.0,
+	"volume_db": -1.5,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/item_equip.wav",
 	"duration": 0.53,
-	"volume_db": 0.0,
+	"volume_db": -1.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/relic_choices_open.wav",
 	"duration": 2.45,
-	"volume_db": 0.0,
+	"volume_db": -2.5,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const SFX_DEFAULT_PITCH_VARIANCE: float = 0.035
+const SFX_PITCH_VARIANCE_MAX_LENGTH: float = 1.25
+const AMBIENT_FADE_FLOOR_DB: float = -36.0
+const AMBIENT_FADE_IN_SECONDS: float = 1.8
+const MUSIC_CROSSFADE_IN_SECONDS: float = 1.1
+const MUSIC_CROSSFADE_OUT_SECONDS: float = 1.4
 const CARD_PLAY_SECONDS: float = 0.23
 const CARD_PLAY_HOLD_SECONDS: float = 0.04
 const CARD_PILE_SECONDS: float = 0.24
@@ -1931,6 +1937,10 @@ var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _sfx_pitch_rng := RandomNumberGenerator.new()
+var _ambient_fade_tween: Tween
+var _music_outgoing_player: AudioStreamPlayer
+var _music_outgoing_tween: Tween
 var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
@@ -3862,6 +3872,9 @@ func _shutdown_audio() -> void:
 	if _music_player != null:
 		_music_player.stop()
 		_music_player.stream = null
+	if _music_outgoing_tween != null and _music_outgoing_tween.is_valid():
+		_music_outgoing_tween.kill()
+	_release_outgoing_music()
 	for player_var: Variant in _sfx_players:
 		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
 		if not is_instance_valid(player):
@@ -11582,6 +11595,7 @@ func _refresh_ui(
 		_animation_lock = false
 		if queue_hand_ready_wave_on_unlock:
 			_queue_hand_ready_wave("player_turn_start")
+			_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.TURN_START_ID))
 		_refresh_card_play_meter()
 		_refresh_player_movement_meter()
 		_refresh_choice_bar()
@@ -23130,6 +23144,8 @@ func _animate_card_play_reward_and_complete(displayed_card_plays: int, completio
 
 
 func _animate_ember_reward(_source_tile: Vector2i, amount: int, from_count: int, to_count: int) -> void:
+	if amount > 0:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.EMBER_GAIN_ID))
 	await EmberRewardFeedback.play(
 		self,
 		_card_fx_layer,
@@ -25224,12 +25240,25 @@ func _play_sfx(entry: Dictionary) -> float:
 	player.stream = resource
 	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
 	player.volume_db = float(entry.get("volume_db", 0.0))
+	player.pitch_scale = _sfx_pitch_for_entry(entry, resource)
 	player.play()
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
 		return minf(duration, maxf(0.0, resource.get_length()))
 	return maxf(0.0, resource.get_length())
+
+# Repeated one-shots (card draws, hits, clicks) get a small random pitch drift
+# so a hand of five draws or a flurry of strikes never sounds machine-gunned.
+# Long stingers keep their authored pitch. The private generator never touches
+# gameplay randomness.
+func _sfx_pitch_for_entry(entry: Dictionary, resource: AudioStream) -> float:
+	var variance: float = float(entry.get("pitch_variance", -1.0))
+	if variance < 0.0:
+		variance = SFX_DEFAULT_PITCH_VARIANCE if resource.get_length() <= SFX_PITCH_VARIANCE_MAX_LENGTH else 0.0
+	if variance <= 0.0:
+		return 1.0
+	return 1.0 + _sfx_pitch_rng.randf_range(-variance, variance)
 
 func _play_trap_sfx(traps: Array) -> void:
 	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
@@ -25265,8 +25294,16 @@ func _update_ambient_sfx_for_context(mode: String) -> void:
 	_ensure_ambient_sfx_player()
 	_ambient_sfx_player.stream = _looping_audio_stream(resource)
 	_ambient_sfx_player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
-	_ambient_sfx_player.volume_db = float(entry.get("volume_db", 0.0))
+	var ambient_target_db: float = float(entry.get("volume_db", 0.0))
+	_ambient_sfx_player.volume_db = ambient_target_db
 	_ambient_sfx_player.play()
+	# Beds swell in under the room rather than snapping on with the scene cut.
+	if _ambient_fade_tween != null and _ambient_fade_tween.is_valid():
+		_ambient_fade_tween.kill()
+	if is_inside_tree():
+		_ambient_sfx_player.volume_db = AMBIENT_FADE_FLOOR_DB
+		_ambient_fade_tween = create_tween()
+		_ambient_fade_tween.tween_property(_ambient_sfx_player, "volume_db", ambient_target_db, AMBIENT_FADE_IN_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _ensure_ambient_sfx_player() -> void:
 	if _ambient_sfx_player != null:
@@ -25373,7 +25410,7 @@ func _update_music_for_context(room: Dictionary) -> void:
 			break
 	var entry: Dictionary = MusicLibrary.entry_for_context(mode, room, _combat_state, planning_open)
 	if not _initial_music_deferred and _music_player != null and _music_player.playing and not entry.is_empty():
-		_transition_music(entry, 0.25, 0.65)
+		_transition_music(entry, 0.25, 0.65, true)
 	else:
 		_play_music(entry)
 
@@ -25423,7 +25460,7 @@ func _start_terminal_defeat_music_if_needed(
 		DEATH_MUSIC_FADE_IN_SECONDS
 	)
 
-func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_seconds: float) -> void:
+func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_seconds: float, overlap: bool = false) -> void:
 	var track_id: String = str(entry.get("id", ""))
 	if track_id.is_empty() or track_id == _active_music_id:
 		return
@@ -25447,6 +25484,9 @@ func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_secon
 			maxf(0.0, fade_in_seconds)
 		)
 		return
+	if overlap:
+		_crossfade_music(track_id, resource, target_volume_linear)
+		return
 	_music_tween = create_tween().set_ignore_time_scale(true)
 	_music_tween.tween_property(
 		_music_player,
@@ -25461,6 +25501,43 @@ func _transition_music(entry: Dictionary, fade_out_seconds: float, fade_in_secon
 		target_volume_linear,
 		maxf(0.0, fade_in_seconds)
 	)
+
+# Ordinary context changes (room -> combat -> reward) overlap the outgoing and
+# incoming cues instead of dipping to silence between them. The outgoing cue
+# keeps its playback position on a second voice while the primary player starts
+# the new track; terminal death keeps its deliberate sequential fade.
+func _crossfade_music(track_id: String, resource: AudioStream, target_volume_linear: float) -> void:
+	_ensure_music_outgoing_player()
+	if _music_outgoing_tween != null and _music_outgoing_tween.is_valid():
+		_music_outgoing_tween.kill()
+	var outgoing_position: float = _music_player.get_playback_position()
+	_music_outgoing_player.stop()
+	_music_outgoing_player.stream = _music_player.stream
+	_music_outgoing_player.volume_linear = _music_player.volume_linear
+	_music_outgoing_player.play(outgoing_position)
+	_music_player.stop()
+	_music_player.stream = resource
+	_music_player.volume_linear = 0.0
+	_music_player.play()
+	_music_tween = create_tween().set_ignore_time_scale(true)
+	_music_tween.tween_property(_music_player, "volume_linear", target_volume_linear, MUSIC_CROSSFADE_IN_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	_music_outgoing_tween = create_tween().set_ignore_time_scale(true)
+	_music_outgoing_tween.tween_property(_music_outgoing_player, "volume_linear", 0.0, MUSIC_CROSSFADE_OUT_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	_music_outgoing_tween.tween_callback(_release_outgoing_music)
+
+func _ensure_music_outgoing_player() -> void:
+	if _music_outgoing_player != null:
+		return
+	_music_outgoing_player = AudioStreamPlayer.new()
+	_music_outgoing_player.name = "MusicOutgoingPlayer"
+	_music_outgoing_player.bus = SettingsStore.MUSIC_BUS
+	add_child(_music_outgoing_player)
+
+func _release_outgoing_music() -> void:
+	if _music_outgoing_player == null:
+		return
+	_music_outgoing_player.stop()
+	_music_outgoing_player.stream = null
 
 func _start_transitioned_music(track_id: String, resource: AudioStream) -> void:
 	if _music_player == null or _active_music_id != track_id:
@@ -28063,6 +28140,7 @@ func _on_pass_turn_pressed() -> void:
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	_guided_tutorial_pass_pending = _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_PASS_TURN
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.PASS_COMMIT_ID))
 	await _resolve_enemy_round()
 	if _guided_tutorial_pass_pending:
 		_guided_tutorial_pass_pending = false
@@ -28085,6 +28163,8 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 func _open_menu_overlay() -> void:
 	if _menu_scrim == null:
 		return
+	if not _menu_scrim.visible:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_card_upgrade_overlay()
@@ -28099,6 +28179,8 @@ func _open_menu_overlay() -> void:
 
 func _close_menu_overlay() -> void:
 	if _menu_scrim != null:
+		if _menu_scrim.visible:
+			_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_CLOSE_ID))
 		_menu_scrim.visible = false
 	if _settings_panel != null:
 		_settings_panel.visible = false
@@ -28150,6 +28232,8 @@ func _open_grimoire_overlay() -> void:
 	_reset_grimoire_search()
 	_select_first_unread_grimoire_entry()
 	_rebuild_grimoire_overlay(true)
+	if not _grimoire_scrim.visible:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
 	_grimoire_scrim.visible = true
 	_grimoire_scrim.move_to_front()
 	_update_performance_telemetry_context()
@@ -28166,6 +28250,7 @@ func _close_grimoire_overlay() -> void:
 	_reset_grimoire_search()
 	if not was_visible:
 		return
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_CLOSE_ID))
 	_run_state = GrimoireLibrary.clear_unread(_run_state)
 	_persist_grimoire_progression_from_run()
 	_refresh_grimoire_badge()
