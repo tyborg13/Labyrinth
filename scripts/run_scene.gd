@@ -44,7 +44,7 @@ const UiPalette = preload("res://scripts/ui_palette.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const HudSeatScrimScript = preload("res://scripts/hud_seat_scrim.gd")
 const TurnBannerScript = preload("res://scripts/turn_banner.gd")
-const TurnOrderPlate = preload("res://scripts/turn_order_plate.gd")
+const TurnOrderInk = preload("res://scripts/turn_order_ink.gd")
 const GildedRule = preload("res://scripts/ui_gilded_rule.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
@@ -1199,7 +1199,7 @@ const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
-const TURN_ORDER_PLATE_ART_HOOK: String = "gilded_plate_v1"
+const TURN_ORDER_INK_ART_HOOK: String = "ink_brush_v3"
 const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/resource_meter_frame.png"
 const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame.png"
 const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame_hover.png"
@@ -13363,8 +13363,32 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
-	frame.set_meta("turn_order_art_hook", TURN_ORDER_PLATE_ART_HOOK)
+	frame.set_meta("turn_order_art_hook", TURN_ORDER_INK_ART_HOOK)
 	frame.set_meta("turn_order_team", str(entry.get("team", "enemy")))
+	var team_name: String = str(entry.get("team", "enemy"))
+	var projected_entry: bool = _turn_order_is_card_preview_projection(entry)
+	var ink_key: String = _turn_order_actor_key(entry)
+	# Painted stroke behind the actor. It bleeds past the slot (widest on the
+	# left, where the time is painted) and keeps its variant and tilt per actor.
+	var backing := TextureRect.new()
+	backing.name = "TurnOrderBrushBacking"
+	var brush: Texture2D = TurnOrderInk.brush_texture(active, ink_key)
+	var backing_rect: Rect2 = TurnOrderInk.brush_rect(slot_size, brush)
+	backing.position = backing_rect.position
+	backing.size = backing_rect.size
+	backing.pivot_offset = backing_rect.size * 0.5
+	backing.rotation_degrees = TurnOrderInk.brush_tilt_degrees(ink_key, active)
+	backing.flip_h = TurnOrderInk.brush_flipped(ink_key, active)
+	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backing.stretch_mode = TextureRect.STRETCH_SCALE
+	backing.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	backing.clip_contents = false
+	backing.texture = brush
+	backing.modulate = TurnOrderInk.ink_color(team_name, active, projected_entry)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Drawn beneath every portrait in the rail so a neighbour's stroke never
+	# covers a face; the slot panel stays the frame's first child.
+	backing.z_index = -1
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -13373,35 +13397,27 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _turn_order_slot_style(entry, active))
 	frame.add_child(panel)
-	var team_name: String = str(entry.get("team", "enemy"))
-	var projected_entry: bool = _turn_order_is_card_preview_projection(entry)
-	var plate := TurnOrderPlate.new()
-	plate.name = "TurnOrderPlate"
-	plate.set_anchors_preset(Control.PRESET_FULL_RECT)
-	plate.anchor_right = 1.0
-	plate.anchor_bottom = 1.0
-	plate.clip_contents = false
-	plate.configure(TurnOrderPlate.LAYER_FILL, team_name, active, projected_entry)
-	panel.add_child(plate)
+	frame.add_child(backing)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	# The portrait sits just inside the tile's hairline rim.
-	var side_inset: int = 2
-	var top_inset: int = 2
-	var bottom_inset: int = 2
+	var side_inset: int = 0
+	var top_inset: int = 0
+	var bottom_inset: int = 0
 	margin.add_theme_constant_override("margin_left", side_inset)
 	margin.add_theme_constant_override("margin_top", top_inset)
 	margin.add_theme_constant_override("margin_right", side_inset)
 	margin.add_theme_constant_override("margin_bottom", bottom_inset)
 	panel.add_child(margin)
-	var portrait_crop := Control.new()
+	# The slanted, slightly ragged window is the mask; only the portrait inside
+	# it is drawn.
+	var portrait_crop := TurnOrderInk.PortraitMask.new()
 	portrait_crop.name = "TurnOrderPortraitCrop"
+	portrait_crop.skew = TurnOrderInk.SKEW_RATIO
 	portrait_crop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	portrait_crop.anchor_right = 1.0
 	portrait_crop.anchor_bottom = 1.0
-	portrait_crop.clip_contents = true
 	portrait_crop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(portrait_crop)
 	var portrait := TextureRect.new()
@@ -13421,14 +13437,16 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
-	var rim := TurnOrderPlate.new()
-	rim.name = "TurnOrderPlateRim"
-	rim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	rim.anchor_right = 1.0
-	rim.anchor_bottom = 1.0
-	rim.z_index = 6
-	rim.configure(TurnOrderPlate.LAYER_RIM, team_name, active, projected_entry)
-	frame.add_child(rim)
+	var edge := TurnOrderInk.SlashEdge.new()
+	edge.name = "TurnOrderSlashEdge"
+	edge.skew = TurnOrderInk.SKEW_RATIO
+	edge.color = Color(1.0, 0.95, 0.82, 0.85) if active else Color(UiPalette.TEXT, 0.30)
+	edge.width = 2.5 if active else 1.2
+	edge.set_anchors_preset(Control.PRESET_FULL_RECT)
+	edge.anchor_right = 1.0
+	edge.anchor_bottom = 1.0
+	edge.z_index = 6
+	frame.add_child(edge)
 	var health_bar: SegmentedHealthBar = _turn_order_health_bar(entry, slot_size)
 	if health_bar != null:
 		frame.add_child(health_bar)
@@ -13460,12 +13478,14 @@ func _turn_order_health_bar(entry: Dictionary, slot_size: Vector2) -> SegmentedH
 	var max_hp: int = maxi(1, int(entry.get("max_hp", 1)))
 	var health_bar := SegmentedHealthBar.new()
 	health_bar.name = "TurnOrderHealthBar"
+	# Sit on the slanted window's bottom edge, which ends short of the right side.
+	var slant: float = slot_size.x * TurnOrderInk.SKEW_RATIO
 	health_bar.position = Vector2(
 		TURN_ORDER_HEALTH_BAR_SIDE_INSET,
 		slot_size.y - TURN_ORDER_HEALTH_BAR_HEIGHT - TURN_ORDER_HEALTH_BAR_BOTTOM_INSET
 	)
 	health_bar.custom_minimum_size = Vector2(
-		maxf(1.0, slot_size.x - TURN_ORDER_HEALTH_BAR_SIDE_INSET * 2.0),
+		maxf(1.0, slot_size.x - slant - TURN_ORDER_HEALTH_BAR_SIDE_INSET * 2.0),
 		TURN_ORDER_HEALTH_BAR_HEIGHT
 	)
 	health_bar.size = health_bar.custom_minimum_size
@@ -13544,31 +13564,30 @@ func _turn_order_projection_badge_style() -> StyleBoxFlat:
 	return style
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slot_size: Vector2) -> Control:
-	var badge := PanelContainer.new()
-	badge.name = "TurnOrderTimeMedallion"
-	# A round medallion straddling the tile's upper-right corner reads as the
-	# actor's place on the clock without covering the portrait's face.
-	var diameter: float = 26.0 if active else 23.0
-	var badge_size := Vector2(maxf(diameter, 12.0 + float(text.length()) * 9.0), diameter)
-	badge.position = Vector2(slot_size.x - badge_size.x + 7.0, -2.0)
-	badge.custom_minimum_size = badge_size
-	badge.size = badge_size
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.z_index = 8
-	badge.add_theme_stylebox_override("panel", _turn_order_number_badge_style(entry, active))
+	# The time is painted straight onto the stroke's left end, like a brushed
+	# numeral, instead of sitting in a box, in heavy outlined ivory on every
+	# stroke; the active actor's numeral is simply larger.
 	var label := Label.new()
+	label.name = "TurnOrderTimeNumeral"
 	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font", UiTypography.ui_font())
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY if active else UiTypography.SIZE_SMALL)
-	label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT if active else UiPalette.TEXT)
-	label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
-	label.add_theme_constant_override("outline_size", 3)
-	badge.add_child(label)
-	return badge
-
+	label.z_index = 8
+	label.add_theme_font_override("font", UiTypography.display_font())
+	var font_size: int = 30 if active else 22
+	UiTypography.set_label_size(label, font_size)
+	var projection: bool = _turn_order_is_card_preview_projection(entry) and not active
+	label.add_theme_color_override("font_color", Color("fff4dc") if active else (Color("f4c968") if projection else UiPalette.TEXT))
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 0.95))
+	label.add_theme_constant_override("outline_size", 7 if active else 5)
+	# Right-aligned against the portrait so the numeral lands on the stroke's
+	# loaded body rather than its frayed tip.
+	var width: float = TurnOrderInk.BLEED_LEFT
+	# Vertically centred on the stroke's painted band, not the whole slot.
+	label.size = Vector2(width, slot_size.y)
+	label.position = Vector2(-width + 2.0, slot_size.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))
+	return label
 func _turn_order_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.035, 0.025, 0.86)
@@ -13609,23 +13628,6 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.shadow_color = Color.TRANSPARENT
 	style.shadow_size = 0
 	style.shadow_offset = Vector2.ZERO
-	return style
-
-func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var team: String = str(entry.get("team", "enemy"))
-	var accent: Color = UiPalette.ALLY if team == "player" else UiPalette.DANGER
-	style.bg_color = Color(UiPalette.INK_0, 0.96)
-	style.border_color = UiPalette.GOLD_BRIGHT if active else accent.lerp(UiPalette.GOLD_DIM, 0.45)
-	if _turn_order_is_card_preview_projection(entry) and not active:
-		style.bg_color = Color(0.055, 0.075, 0.090, 0.96)
-		style.border_color = Color("f4c968")
-	style.set_border_width_all(2 if active else 1)
-	style.set_corner_radius_all(13)
-	style.anti_aliasing = true
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
-	style.shadow_size = 3
-	style.shadow_offset = Vector2(0.0, 1.0)
 	return style
 
 func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:

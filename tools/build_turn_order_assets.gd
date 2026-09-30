@@ -1,105 +1,45 @@
 extends SceneTree
 
 const PORTRAIT_SIZE := 128
-const PORTRAIT_FIT := 124
 const ICON_SIZE := 64
 
+# Turn-order and pre-battle portraits: an exact 1:1, 128x128 cut of each
+# unit's current in-game art (cutout rest bakes and guardian sprites), centred
+# on the head and shoulders. No rescaling keeps pixel art crisp. The rail shows
+# the middle 128x96 band of each portrait, so "focus" is the centre of the bust.
 const PORTRAITS := [
-	{
-		"source": "res://assets/placeholders/units/player_reaver.png",
-		"out": "res://assets/art/portraits/player_reaver.png",
-		"crop": Rect2i(72, 8, 108, 112)
-	},
-	{
-		"source": "res://assets/placeholders/units/crawler_anime_trial.png",
-		"out": "res://assets/art/portraits/tunnel_crawler.png",
-		"crop": Rect2i(35, 52, 125, 115)
-	},
-	{
-		"source": "res://assets/placeholders/units/acolyte_anime_trial.png",
-		"out": "res://assets/art/portraits/dust_acolyte.png",
-		"crop": Rect2i(48, 24, 150, 128)
-	},
-	{
-		"source": "res://assets/placeholders/units/acolyte_anime_trial.png",
-		"out": "res://assets/art/portraits/veilbound_acolyte.png",
-		"crop": Rect2i(76, 26, 96, 105)
-	},
-	{
-		"source": "res://assets/placeholders/units/harrier_anime_trial.png",
-		"out": "res://assets/art/portraits/bone_harrier.png",
-		"crop": Rect2i(61, 25, 110, 115)
-	},
-	{
-		"source": "res://assets/placeholders/units/warden_anime_trial.png",
-		"out": "res://assets/art/portraits/stone_warden.png",
-		"crop": Rect2i(70, 17, 110, 115)
-	},
-	{
-		"source": "res://assets/placeholders/units/zekarion.png",
-		"out": "res://assets/art/portraits/zekarion.png",
-		"crop": Rect2i(22, 25, 125, 125)
-	},
-	{
-		"source": "res://assets/placeholders/units/lightning_wisp.png",
-		"out": "res://assets/art/portraits/lightning_wisp.png",
-		"crop": Rect2i(73, 65, 112, 130)
-	},
-	{
-		"source": "res://assets/art/enemies/bile_bloomer.png",
-		"out": "res://assets/art/portraits/bile_bloomer.png",
-		"crop": Rect2i(55, 8, 145, 135)
-	},
-	{
-		"source": "res://assets/art/enemies/chainbound_gaoler.png",
-		"out": "res://assets/art/portraits/chainbound_gaoler.png",
-		"crop": Rect2i(72, 10, 105, 115)
-	},
-	{
-		"source": "res://assets/art/enemies/grave_surgeon.png",
-		"out": "res://assets/art/portraits/grave_surgeon.png",
-		"crop": Rect2i(60, 20, 115, 120)
-	},
-	{
-		"source": "res://assets/art/enemies/frostglass_lancer.png",
-		"out": "res://assets/art/portraits/frostglass_lancer.png",
-		"crop": Rect2i(65, 18, 105, 120)
-	},
-	{
-		"source": "res://assets/art/enemies/cinder_ooze.png",
-		"out": "res://assets/art/portraits/cinder_ooze.png",
-		"crop": Rect2i(25, 55, 165, 135)
-	},
-	{
-		"source": "res://assets/art/enemies/cinder_droplet.png",
-		"out": "res://assets/art/portraits/cinder_droplet.png",
-		"crop": Rect2i(54, 70, 150, 130)
-	},
-	{
-		"source": "res://assets/art/enemies/iskaldra.png",
-		"out": "res://assets/art/portraits/iskaldra.png",
-		"crop": Rect2i(42, 65, 125, 125)
-	},
-	{
-		"source": "res://assets/art/enemies/noctyrax.png",
-		"out": "res://assets/art/portraits/noctyrax.png",
-		"crop": Rect2i(55, 55, 130, 125)
-	},
-	{
-		"source": "res://assets/art/enemies/tharokh.png",
-		"out": "res://assets/art/portraits/tharokh.png",
-		"crop": Rect2i(35, 55, 130, 125)
-	},
-	{
-		"source": "res://assets/art/enemies/vaeloryx.png",
-		"out": "res://assets/art/portraits/vaeloryx.png",
-		"crop": Rect2i(45, 42, 130, 125)
-	},
-	{
-		"source": "res://assets/art/enemies/vyraketh.png",
-		"out": "res://assets/art/portraits/vyraketh.png",
-		"crop": Rect2i(40, 55, 130, 125)
-	}
+	{"key": "ash_hound", "source": "res://assets/units/ash_hound.png", "out": "res://assets/art/portraits/guardians/ash_hound_portrait.png", "focus": Vector2i(72, 148)},
+	{"key": "ashen_reaver", "source": "res://assets/units/ashen_reaver.png", "out": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png", "focus": Vector2i(136, 64)},
+	{"key": "bell_tender", "source": "res://assets/units/bell_tender.png", "out": "res://assets/art/portraits/guardians/bell_tender_portrait.png", "focus": Vector2i(118, 86)},
+	{"key": "craghide", "source": "res://assets/units/craghide.png", "out": "res://assets/art/portraits/guardians/craghide_portrait.png", "focus": Vector2i(78, 158)},
+	{"key": "gallows_roc", "source": "res://assets/units/gallows_roc.png", "out": "res://assets/art/portraits/guardians/gallows_roc_portrait.png", "focus": Vector2i(98, 96)},
+	{"key": "last_lamplighter", "source": "res://assets/units/last_lamplighter.png", "out": "res://assets/art/portraits/guardians/last_lamplighter_portrait.png", "focus": Vector2i(140, 62)},
+	{"key": "rime_spitter", "source": "res://assets/units/rime_spitter.png", "out": "res://assets/art/portraits/guardians/rime_spitter_portrait.png", "focus": Vector2i(64, 148)},
+	{"key": "rime_whelp", "source": "res://assets/units/rime_whelp.png", "out": "res://assets/art/portraits/guardians/rime_whelp_portrait.png", "focus": Vector2i(66, 138)},
+	{"key": "rimejaw", "source": "res://assets/units/rimejaw.png", "out": "res://assets/art/portraits/guardians/rimejaw_portrait.png", "focus": Vector2i(62, 140)},
+	{"key": "roc_fledgling", "source": "res://assets/units/roc_fledgling.png", "out": "res://assets/art/portraits/guardians/roc_fledgling_portrait.png", "focus": Vector2i(90, 110)},
+	{"key": "stoneback_mite", "source": "res://assets/units/stoneback_mite.png", "out": "res://assets/art/portraits/guardians/stoneback_mite_portrait.png", "focus": Vector2i(96, 168)},
+	{"key": "storm_cantor", "source": "res://assets/units/storm_cantor.png", "out": "res://assets/art/portraits/guardians/storm_cantor_portrait.png", "focus": Vector2i(128, 64)},
+	{"key": "wick_shade", "source": "res://assets/units/wick_shade.png", "out": "res://assets/art/portraits/guardians/wick_shade_portrait.png", "focus": Vector2i(104, 62)},
+	{"key": "player", "source": "res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png", "out": "res://assets/art/portraits/player_reaver.png", "focus": Vector2i(125, 60)},
+	{"key": "crawler", "source": "res://assets/units/crawler_cutout/front/rest.png", "out": "res://assets/art/portraits/tunnel_crawler.png", "focus": Vector2i(84, 116)},
+	{"key": "acolyte", "source": "res://assets/units/acolyte_cutout/front/rest.png", "out": "res://assets/art/portraits/dust_acolyte.png", "focus": Vector2i(110, 74)},
+	{"key": "veilbound_acolyte", "source": "res://assets/units/veilbound_acolyte_cutout/front/rest.png", "out": "res://assets/art/portraits/veilbound_acolyte.png", "focus": Vector2i(116, 70)},
+	{"key": "harrier", "source": "res://assets/units/harrier_cutout/front/rest.png", "out": "res://assets/art/portraits/bone_harrier.png", "focus": Vector2i(112, 74)},
+	{"key": "grave_surgeon", "source": "res://assets/units/grave_surgeon_cutout/front/rest.png", "out": "res://assets/art/portraits/grave_surgeon.png", "focus": Vector2i(138, 66)},
+	{"key": "warden", "source": "res://assets/units/stone_warden_cutout/front/rest.png", "out": "res://assets/art/portraits/stone_warden.png", "focus": Vector2i(128, 62)},
+	{"key": "bile_bloomer", "source": "res://assets/units/bile_bloomer_cutout/front/rest.png", "out": "res://assets/art/portraits/bile_bloomer.png", "focus": Vector2i(126, 72)},
+	{"key": "chainbound_gaoler", "source": "res://assets/units/chainbound_gaoler_cutout/front/rest.png", "out": "res://assets/art/portraits/chainbound_gaoler.png", "focus": Vector2i(138, 58)},
+	{"key": "zekarion", "source": "res://assets/units/zekarion_cutout/front/rest.png", "out": "res://assets/art/portraits/zekarion.png", "focus": Vector2i(76, 116)},
+	{"key": "tharokh", "source": "res://assets/units/tharokh_cutout/front/rest.png", "out": "res://assets/art/portraits/tharokh.png", "focus": Vector2i(76, 128)},
+	{"key": "vyraketh", "source": "res://assets/units/vyraketh_cutout/front/rest.png", "out": "res://assets/art/portraits/vyraketh.png", "focus": Vector2i(72, 126)},
+	{"key": "vaeloryx", "source": "res://assets/units/vaeloryx_cutout/front/rest.png", "out": "res://assets/art/portraits/vaeloryx.png", "focus": Vector2i(80, 120)},
+	{"key": "iskaldra", "source": "res://assets/units/iskaldra_cutout/front/rest.png", "out": "res://assets/art/portraits/iskaldra.png", "focus": Vector2i(72, 120)},
+	{"key": "noctyrax", "source": "res://assets/units/noctyrax_cutout/front/rest.png", "out": "res://assets/art/portraits/noctyrax.png", "focus": Vector2i(88, 96)},
+	{"key": "lightning_wisp", "source": "res://assets/units/lightning_wisp_cutout/front/rest.png", "out": "res://assets/art/portraits/lightning_wisp.png", "focus": Vector2i(118, 128)},
+	{"key": "frostglass_lancer", "source": "res://assets/units/frostglass_lancer_cutout/front/rest.png", "out": "res://assets/art/portraits/frostglass_lancer.png", "focus": Vector2i(116, 60)},
+	{"key": "cinder_ooze", "source": "res://assets/units/cinder_ooze_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_ooze.png", "focus": Vector2i(112, 140)},
+	{"key": "cinder_droplet", "source": "res://assets/units/cinder_droplet_cutout/front/rest.png", "out": "res://assets/art/portraits/cinder_droplet.png", "focus": Vector2i(100, 148)},
 ]
 
 func _initialize() -> void:
@@ -125,18 +65,16 @@ func _load_image(res_path: String) -> Image:
 
 func _build_portrait(config: Dictionary) -> void:
 	var source: Image = _load_image(str(config.get("source", "")))
-	var crop: Rect2i = config.get("crop", Rect2i(Vector2i.ZERO, source.get_size()))
-	crop = _clamp_rect(crop, source.get_size())
-	var cutout := Image.create_empty(crop.size.x, crop.size.y, false, Image.FORMAT_RGBA8)
-	cutout.fill(Color(0, 0, 0, 0))
-	cutout.blit_rect(source, crop, Vector2i.ZERO)
-	var scale: float = minf(float(PORTRAIT_FIT) / float(maxi(1, cutout.get_width())), float(PORTRAIT_FIT) / float(maxi(1, cutout.get_height())))
-	var scaled_size := Vector2i(maxi(1, int(roundf(float(cutout.get_width()) * scale))), maxi(1, int(roundf(float(cutout.get_height()) * scale))))
-	cutout.resize(scaled_size.x, scaled_size.y, Image.INTERPOLATE_NEAREST)
+	var focus: Vector2i = config.get("focus", source.get_size() / 2)
+	var half: int = PORTRAIT_SIZE / 2
 	var canvas := Image.create_empty(PORTRAIT_SIZE, PORTRAIT_SIZE, false, Image.FORMAT_RGBA8)
 	canvas.fill(Color(0, 0, 0, 0))
-	var dest := Vector2i((PORTRAIT_SIZE - cutout.get_width()) / 2, (PORTRAIT_SIZE - cutout.get_height()) / 2)
-	canvas.blend_rect(cutout, Rect2i(Vector2i.ZERO, cutout.get_size()), dest)
+	# Copy the source window centred on the bust; any part beyond the sprite's
+	# canvas stays transparent.
+	var window := Rect2i(focus - Vector2i(half, half), Vector2i(PORTRAIT_SIZE, PORTRAIT_SIZE))
+	var clipped: Rect2i = window.intersection(Rect2i(Vector2i.ZERO, source.get_size()))
+	if clipped.size.x > 0 and clipped.size.y > 0:
+		canvas.blit_rect(source, clipped, clipped.position - window.position)
 	var err: Error = canvas.save_png(str(config.get("out", "")))
 	if err != OK:
 		push_error("Could not save portrait %s" % str(config.get("out", "")))

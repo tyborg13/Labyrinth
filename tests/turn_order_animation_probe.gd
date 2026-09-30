@@ -638,26 +638,26 @@ func _assert_vertical_turn_order_geometry(instance: Node) -> void:
 			quit(1)
 			return
 		var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
-		var plate: Control = slot.find_child("TurnOrderPlate", true, false) as Control
-		var rim: Control = slot.find_child("TurnOrderPlateRim", true, false) as Control
+		var backing: TextureRect = slot.find_child("TurnOrderBrushBacking", true, false) as TextureRect
+		var edge: Control = slot.find_child("TurnOrderSlashEdge", true, false) as Control
 		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
 		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
-		if portrait_crop == null or plate == null or rim == null or str(slot.get_meta("turn_order_art_hook", "")) != "gilded_plate_v1" or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
-			push_error("Turn entry should pair its portrait with the shared gilded tile and no raster frame-art host.")
+		if portrait_crop == null or backing == null or backing.texture == null or edge == null or str(slot.get_meta("turn_order_art_hook", "")) != "ink_brush_v3" or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
+			push_error("Turn entry should pair its portrait with a painted ink stroke and no raster frame-art host.")
 			quit(1)
 			return
-		if slot.clip_contents or slot_panel == null or slot_panel.clip_contents or plate.clip_contents:
-			push_error("Turn-entry tile glow must sit beneath a fully non-clipping control chain.")
+		if slot.clip_contents or slot_panel == null or slot_panel.clip_contents or backing.clip_contents:
+			push_error("Turn-entry ink stroke must sit beneath a fully non-clipping control chain.")
 			quit(1)
 			return
 		var team: String = str(slot.get_meta("turn_order_team", "enemy"))
-		var team_color: Color = plate.call("team_color")
-		if (team == "player" and team_color.g <= team_color.r) or (team != "player" and team_color.r <= team_color.b):
-			push_error("Turn-entry tiles should distinguish allied teal from enemy crimson.")
+		var active_slot: bool = slots.find(slot) == 0
+		if not active_slot and ((team == "player" and backing.modulate.g <= backing.modulate.r) or (team != "player" and backing.modulate.r <= backing.modulate.b)):
+			push_error("Queued ink strokes should read as teal allies and crimson enemies.")
 			quit(1)
 			return
-		if rim.z_index <= portrait_crop.z_index:
-			push_error("Turn-entry rim should draw above the portrait sprite.")
+		if edge.z_index <= portrait_crop.z_index:
+			push_error("Turn-entry painted edge should draw above the portrait sprite.")
 			quit(1)
 			return
 		if slot_style == null or slot_style.bg_color.a > 0.001 or slot_style.border_color.a > 0.001 or slot_style.shadow_size > 0:

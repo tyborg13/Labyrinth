@@ -855,13 +855,13 @@ func _assert_dense_turn_order_rail(instance: Node) -> void:
 		_assert(slot.size.x >= 74.0 and slot.size.y >= 55.0, "Dense initiative entries must remain readable portrait controls")
 		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
 		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
-		var plate: Control = slot.find_child("TurnOrderPlate", true, false) as Control
-		_assert(plate != null and str(slot.get_meta("turn_order_art_hook", "")) == "gilded_plate_v1", "Dense initiative rail should give every portrait the shared gilded tile")
-		_assert(plate == null or (not slot.clip_contents and slot_panel != null and not slot_panel.clip_contents and not plate.clip_contents), "Dense initiative tile glow should not be cut off by a clipping ancestor")
+		var backing: TextureRect = slot.find_child("TurnOrderBrushBacking", true, false) as TextureRect
+		_assert(backing != null and backing.texture != null and str(slot.get_meta("turn_order_art_hook", "")) == "ink_brush_v3", "Dense initiative rail should give every portrait a painted ink stroke")
+		_assert(backing == null or (not slot.clip_contents and slot_panel != null and not slot_panel.clip_contents and not backing.clip_contents), "Dense initiative ink strokes should not be cut off by a clipping ancestor")
 		_assert(slot.find_child("TurnOrderActiveFrameArtHost", true, false) == null and slot.find_child("TurnOrderQueuedFrameArtHost", true, false) == null, "Dense initiative rail should not reintroduce rectangular frame art")
 		var team: String = str(slot.get_meta("turn_order_team", "enemy"))
-		var team_color: Color = plate.call("team_color") if plate != null else Color.BLACK
-		_assert(plate == null or (team == "player" and team_color.g > team_color.r) or (team != "player" and team_color.r > team_color.b), "Dense initiative tiles should distinguish allied teal from enemy crimson")
+		var ink: Color = backing.modulate if backing != null else Color.BLACK
+		_assert(backing == null or slots.find(slot) == 0 or (team == "player" and ink.g > ink.r) or (team != "player" and ink.r > ink.b), "Dense initiative strokes should distinguish allied teal from enemy crimson ink")
 		_assert(slot_style != null and slot_style.bg_color.a <= 0.001 and slot_style.border_color.a <= 0.001 and slot_style.shadow_size == 0, "Dense initiative slot surfaces should be transparent and borderless")
 		rail_bottom = maxf(rail_bottom, slot.get_global_rect().end.y)
 	var meter: Control = instance.get("_play_meter") as Control
