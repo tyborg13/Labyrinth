@@ -83,6 +83,12 @@ floor shadows); the former navy button bodies clashed with it.
   "Relic", "Choose Door" and "Victory" in gold with flanking fading rules; the
   top HUD scrim thins toward the centre so the placard stays bright.
 
+- **Cards** keep their authored bronze-and-wood frames and 16:9 art windows. A
+  soft offset copy of the illustration seats the ragged art window into the
+  parchment; the name is inked by rarity (brown common, blue rare, violet epic,
+  amber legendary) with a matching glow on the frame's rarity gem; titles fit
+  the full painted nameplate up to 19 px (`tests/card_rarity_polish_probe.gd`).
+
 ## Combat composition
 
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm

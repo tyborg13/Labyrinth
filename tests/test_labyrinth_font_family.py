@@ -170,7 +170,7 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
 
         card_source = (ROOT / "scripts" / "card_widget.gd").read_text(encoding="utf-8")
         self.assertIn("const TITLE_FIT_RELIEF: int = 1", card_source)
-        self.assertIn("const TITLE_MAX_RENDER_SIZE: int = 17", card_source)
+        self.assertIn("const TITLE_MAX_RENDER_SIZE: int = 19", card_source)
         self.assertIn("var font: Font = UiTypographyScript.ui_font()", card_source)
         self.assertIn("20 if size.x <= 42.0 else 23", card_source)
         self.assertIn("_scaled_card_font_size(13, 8)", card_source)

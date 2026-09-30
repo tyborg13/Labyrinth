@@ -73,9 +73,25 @@ const SUMMARY_SEGMENT_VALUE_RATIO: float = 0.58
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
+const ART_SHADOW_OFFSET := Vector2(1.5, 3.0)
+const ART_SHADOW_COLOR := Color(0.16, 0.08, 0.03, 0.42)
+const RARITY_TITLE_INK := {
+	"starter": Color("39271b"),
+	"common": Color("39271b"),
+	"uncommon": Color("1f4e7a"),
+	"rare": Color("1f4e7a"),
+	"epic": Color("5a2682"),
+	"legendary": Color("8a4308"),
+}
+const RARITY_GEM_GLOW := {
+	"uncommon": Color(0.35, 0.62, 1.0, 0.9),
+	"rare": Color(0.35, 0.62, 1.0, 0.9),
+	"epic": Color(0.72, 0.42, 1.0, 0.9),
+	"legendary": Color(1.0, 0.66, 0.25, 1.0),
+}
 const TITLE_FIT_RELIEF: int = 1
-const TITLE_MAX_RENDER_SIZE: int = 17
-const TITLE_NAMEPLATE_WIDTH_RATIO: float = 0.500
+const TITLE_MAX_RENDER_SIZE: int = 19
+const TITLE_NAMEPLATE_WIDTH_RATIO: float = 0.560
 const HAND_TITLE_WIDTH_MAX: float = 236.0
 const ELEMENT_FRAME_BAND: int = 42
 const ELEMENT_FRAME_VALUE_MAX: float = 0.58
@@ -377,6 +393,36 @@ class TimeCostBadge:
 	func _polar_point(center: Vector2, angle: float, length: float) -> Vector2:
 		return center + Vector2(cos(angle), sin(angle)) * length
 
+class RarityGemGlow:
+	extends Control
+
+	const GEM_CENTER_RATIO := Vector2(0.5, 0.957)
+	const GLOW_RADIUS_RATIO: float = 0.085
+	var _glow: Color = Color.TRANSPARENT
+
+	func _init() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		set_anchors_preset(Control.PRESET_FULL_RECT)
+		var additive := CanvasItemMaterial.new()
+		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
+		material = additive
+		visible = false
+
+	func set_glow(color: Color) -> void:
+		_glow = color
+		visible = color.a > 0.0
+		queue_redraw()
+
+	func _draw() -> void:
+		if _glow.a <= 0.0 or size.x <= 0.0:
+			return
+		var center: Vector2 = size * GEM_CENTER_RATIO
+		var radius: float = size.x * GLOW_RADIUS_RATIO
+		for index: int in range(6):
+			var t: float = float(index + 1) / 6.0
+			draw_circle(center, radius * t, Color(_glow, _glow.a * (1.0 - t) * 0.55))
+
+
 class DebossedRoleEmblem:
 	extends Control
 
@@ -517,6 +563,8 @@ var _frame_reflection: CardFrameReflection
 var _frame_reflection_material: ShaderMaterial
 var _frame_reflection_progress: float = 1.0
 var _material_highlighted: bool = false
+var _art_shadow: TextureRect
+var _rarity_gem_glow: Control
 
 func _ready() -> void:
 	set_process(false)
@@ -529,6 +577,7 @@ func _ready() -> void:
 	text = ""
 	art_frame.clip_contents = true
 	art_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_ensure_art_shadow()
 	var ui_font: Font = UiTypography.ui_font()
 	if ui_font != null:
 		title_label.add_theme_font_override("font", ui_font)
@@ -830,6 +879,9 @@ func _apply_configuration_content() -> void:
 	footer_label.text = ""
 	footer_label.visible = false
 	art_rect.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
+	if _art_shadow != null:
+		_art_shadow.texture = art_rect.texture
+	_apply_rarity_presentation(str(card.get("rarity", "common")))
 	_apply_interaction_configuration(card, true)
 
 func _apply_interaction_configuration(card: Dictionary = {}, refresh_frame_style: bool = false) -> void:
@@ -1126,6 +1178,36 @@ func _sync_role_emblem_geometry() -> void:
 	_role_emblem.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_role_emblem.layout_scale = _card_layout_scale()
 	_role_emblem.queue_redraw()
+
+# A soft, offset copy of the illustration beneath it seats the ragged art window
+# into the parchment instead of leaving it pasted flat on top.
+func _ensure_art_shadow() -> void:
+	if _art_shadow != null or art_frame == null:
+		return
+	_art_shadow = TextureRect.new()
+	_art_shadow.name = "ArtShadow"
+	_art_shadow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_art_shadow.expand_mode = art_rect.expand_mode
+	_art_shadow.stretch_mode = art_rect.stretch_mode
+	_art_shadow.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_art_shadow.offset_left = ART_SHADOW_OFFSET.x
+	_art_shadow.offset_top = ART_SHADOW_OFFSET.y
+	_art_shadow.offset_right = ART_SHADOW_OFFSET.x
+	_art_shadow.offset_bottom = ART_SHADOW_OFFSET.y
+	_art_shadow.self_modulate = ART_SHADOW_COLOR
+	art_frame.add_child(_art_shadow)
+	art_frame.move_child(_art_shadow, art_rect.get_index())
+
+# Rarity reads from the name ink and a soft glow on the frame's rarity gem;
+# commons and starters keep the plain brown ink.
+func _apply_rarity_presentation(rarity: String) -> void:
+	var ink: Color = RARITY_TITLE_INK.get(rarity, RARITY_TITLE_INK["common"]) as Color
+	title_label.add_theme_color_override("font_color", ink)
+	if _rarity_gem_glow == null:
+		_rarity_gem_glow = RarityGemGlow.new()
+		_rarity_gem_glow.name = "RarityGemGlow"
+		add_child(_rarity_gem_glow)
+	_rarity_gem_glow.set_glow(RARITY_GEM_GLOW.get(rarity, Color.TRANSPARENT) as Color)
 
 func _refresh_role_emblem(card: Dictionary) -> void:
 	_ensure_role_emblem()
