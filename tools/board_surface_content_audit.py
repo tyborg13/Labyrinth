@@ -119,12 +119,13 @@ def main() -> int:
     added_ids = set(cards) - approved_ids
     # Enemy and relic inventories grew with later guardian/dragon content (they
     # already exceeded the original 18/60); their rules are still walked below.
-    expected = {"cards": len(retained_ids) + len(added_ids & OVERHAUL_NEW_CARDS.keys()), "enemies": len(enemies), "relics": len(relics), "skills": 30, "equipment": len(set(equipment) & OVERHAUL_PIECE_IDS)}
+    retired_cuts = {cid for cid in OVERHAUL_CUT_IDS & set(cards) if cards[cid].get("retired") and cards[cid].get("replacement_id") in cards}
+    expected = {"cards": len(retained_ids) + len(added_ids & OVERHAUL_NEW_CARDS.keys()) + len(retired_cuts), "enemies": len(enemies), "relics": len(relics), "skills": 30, "equipment": len(set(equipment) & OVERHAUL_PIECE_IDS)}
     if counts != expected:
         errors.append(f"Stable content inventory changed: {counts} != {expected}")
     if missing := sorted(retained_ids - set(cards)):
         errors.append(f"Approved migration cards are missing without an overhaul cut: {missing}")
-    if revived := sorted(OVERHAUL_CUT_IDS & set(cards)):
+    if revived := sorted((OVERHAUL_CUT_IDS & set(cards)) - retired_cuts):
         errors.append(f"Overhaul-cut cards are still defined: {revived}")
     if unknown := sorted(added_ids - OVERHAUL_NEW_CARDS.keys()):
         errors.append(f"Card IDs are neither in the approved migration inventory nor overhaul-authored: {unknown}")

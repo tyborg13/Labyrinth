@@ -21,7 +21,9 @@ func _initialize() -> void:
 	for card_id_var: Variant in reviewed_ids:
 		var card_id: String = str(card_id_var)
 		if OVERHAUL_CUT_CARD_IDS.has(card_id):
-			_check(not GameData.cards().has(card_id), "Overhaul-cut %s stays removed" % card_id)
+			var cut_entry: Dictionary = GameData.cards().get(card_id, {})
+			var retired_to_live: bool = bool(cut_entry.get("retired", false)) and GameData.cards().has(str(cut_entry.get("replacement_id", "")))
+			_check(cut_entry.is_empty() or retired_to_live, "Overhaul-cut %s is removed or retired to a live replacement" % card_id)
 		else:
 			_check(GameData.cards().has(card_id), "Reviewed card %s remains defined" % card_id)
 	_check(GameData.cards().size() >= reviewed_ids.size() - OVERHAUL_CUT_CARD_IDS.size(), "The card pool never shrinks below the reviewed IDs minus overhaul cuts")

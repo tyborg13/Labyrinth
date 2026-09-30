@@ -95,7 +95,7 @@ card("cinderline_tempo", "Cinderline Tempo", M, F, "common", 3,
 card("kindle", "Kindle", M, F, "common", 2,
      "Place Fire on a tile within range 3. Draw 1.",
      note="The cheapest Fire setup. Lets a hand holding only a Detonate still function.")
-card("flame_jet", "Flame Jet", M, F, "common", 4,
+card("flame_jet", "Flame Jet", M, F, "common", 3,
      "Deal 4 to the first 3 tiles in a line from you (rotatable). Leave Fire on the farthest tile.",
      note="A close-range line, a shape Fire lacked. The far tile becomes the next Detonate anchor.")
 card("scorch", "Scorch", M, F, "common", 4,
@@ -597,7 +597,7 @@ piece("hunting_spear", "Hunting Spear", "weapon", "common",
       "Reach, a brace against charges, and one throw.",
       ["spear_thrust", "brace_the_spear", "hurl_spear"], "new")
 card("spear_thrust", "Spear Thrust", G, N, "common", 4,
-     "Strike the first 2 tiles in a line from you for 5 (rotatable).", impl=0)
+     "Strike the first 2 tiles in a line from you for 6 (rotatable).", impl=0)
 card("brace_the_spear", "Brace the Spear", G, N, "common", 3,
      "Gain 3 Block. Retaliate 5.")
 card("hurl_spear", "Hurl Spear", G, N, "common", 4,
@@ -629,7 +629,7 @@ card("couched_lance", "Couched Lance", G, N, "rare", 4,
 card("joust", "Joust", G, N, "rare", 5,
      "Move up to 4 in a straight line, then strike for 6.", impl=2)
 card("unhorse", "Unhorse", G, N, "rare", 4,
-     "Strike for 4 and Push 2.")
+     "Strike for 5 and Push 2.")
 
 piece("rimebite_hatchet", "Rimebite Hatchet", "weapon", "epic",
       "Ice melee. Chill up close, then cash in the Freeze.",
@@ -1149,4 +1149,4 @@ card("thunderstone", "Thunderstone", IT, L, "epic", 4,
 card("smelling_salts", "Smelling Salts", IT, N, "common", 3,
      "Remove Immobilize, Shock and Chilled from yourself. Move 2.", costs=C, impl=2)
 card("seers_candle", "Seer's Candle", IT, R, "rare", 3,
-     "Gain Truesight and 2 Vision for 3 turns.", costs=C, impl=0)
+     "Gain Truesight and 2 Vision for 2 turns.", costs=C, impl=0)

@@ -64,9 +64,10 @@ def main():
         cards[cid] = entry
 
     for cid in CUTS:
-        if cid in cards:
-            del cards[cid]
-            changes["cut"] += 1
+        entry = card_defs.RETIRED[cid]
+        if cards.get(cid) != entry:
+            cards[cid] = entry
+            changes["retired"] += 1
 
     # Gear pieces.
     by_card_owner = {}

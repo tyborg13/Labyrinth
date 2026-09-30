@@ -27,6 +27,8 @@ static func run(expect: Callable) -> void:
 static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 	var tagged_ids: Array[String]
 	for card_id: String in GameData.cards():
+		if bool((GameData.cards()[card_id] as Dictionary).get("retired", false)):
+			continue
 		if bool(GameData.card_def(card_id).get("radiance", false)):
 			tagged_ids.append(card_id)
 	tagged_ids.sort()

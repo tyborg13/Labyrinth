@@ -179,7 +179,7 @@ card("cinderline_tempo", "Cinderline Tempo", "common", 3,
      [ranged(2, 2, FIRE), act("detonate", damage=6, range=0, pattern=[[0, 0]], rotate=False, target="previous_target", element="fire")],
      "Deal 2 at range 2, then Detonate 6 at the impact.", FIRE)
 card("kindle", "Kindle", "common", 2, [surface("fire", 3), draw(1)], "Place Fire on a tile within range 3, then draw 1.", FIRE)
-card("flame_jet", "Flame Jet", "common", 4,
+card("flame_jet", "Flame Jet", "common", 3,
      [aoe(4, 1, LINE3, FIRE, aim="facing", surface="fire", surface_pattern=[[2, 0]])],
      "Deal 4 to the first 3 tiles in a line from you, then leave Fire on the farthest tile.", FIRE)
 card("scorch", "Scorch", "common", 4,
@@ -461,8 +461,8 @@ gear("haft_shove", "Haft Shove", "common", 3, [push(2, 2, 1)], "Strike an adjace
 gear("overhead_smash", "Overhead Smash", "common", 7, [melee(12)],
      "Strike an adjacent enemy for 12. Empower (+2 Time): Stagger 4.", wave=2,
      empower={"cost": {"time": 2}, "mods": [m(0, set={"stagger": 4})]})
-gear("spear_thrust", "Spear Thrust", "common", 4, [aoe(5, 1, LINE2, aim="facing")],
-     "Strike the first two tiles in a line from you for 5.")
+gear("spear_thrust", "Spear Thrust", "common", 4, [aoe(6, 1, LINE2, aim="facing")],
+     "Strike the first two tiles in a line from you for 6.")
 gear("brace_the_spear", "Brace the Spear", "common", 3, [block(3), act("retaliate", amount=5)],
      "Gain 3 Block and Retaliate 5 until your next turn.", wave=3)
 gear("hurl_spear", "Hurl Spear", "common", 4, [ranged(6, 4)],
@@ -483,7 +483,7 @@ gear("couched_lance", "Couched Lance", "rare", 4, [melee(4, 2, scale_bonus={"per
      "Strike at reach 2 for 4, plus 1 for each tile you moved this turn (maximum 5 more).", wave=2)
 gear("joust", "Joust", "rare", 5, [move(4, straight_line=True), melee(6, required=True)],
      "Move up to 4 in a straight line, then strike for 6.", wave=4)
-gear("unhorse", "Unhorse", "rare", 4, [push(2, 4, 1)], "Strike an adjacent enemy for 4 and push 2.")
+gear("unhorse", "Unhorse", "rare", 4, [push(2, 5, 1)], "Strike an adjacent enemy for 5 and push 2.")
 gear("rime_hack", "Rime Hack", "epic", 4, [melee(5, 1, ICE, surface="ice")], "Strike for 5 Ice damage, then leave Ice beneath the target.", ICE)
 gear("frozen_bite", "Frozen Bite", "epic", 3,
      [melee(4, 1, ICE, on_result={"when": "froze", "rewards": [{"type": "card_play", "amount": 1}]})],
@@ -647,5 +647,106 @@ card("thunderstone", "Thunderstone", "epic", 4, [ranged(5, 99, LIGHTNING, ignore
      "Consume. Deal 5 Lightning damage to any enemy you can see, ignoring line of sight. Stagger 2.", LIGHTNING, item=True, wave=4)
 card("smelling_salts", "Smelling Salts", "common", 3, [act("cleanse", statuses=["immobilize", "shock", "chilled"]), move(2)],
      "Consume. Remove Immobilize, Shock and Chilled from yourself, then move 2.", item=True, wave=4)
-card("seers_candle", "Seer's Candle", "rare", 3, [act("truesight", duration=3), act("vision", amount=2, duration=3)],
-     "Consume. Gain Truesight and 2 Vision for 3 turns.", item=True, radiance=True)
+card("seers_candle", "Seer's Candle", "rare", 3, [act("truesight", duration=2), act("vision", amount=2, duration=2)],
+     "Consume. Gain Truesight and 2 Vision for 2 turns.", item=True, radiance=True)
+
+
+# Cut cards stay as retired entries so saves that still hold them resolve to a live replacement.
+RETIRED = {
+ "ember_jab": {
+  "name": "Measured Cut",
+  "rarity": "common",
+  "burn": False,
+  "health_cost": 0,
+  "time": 3,
+  "description": "Strike for 5, then draw 1.",
+  "accent": "#bb5e34",
+  "art_path": "res://assets/art/cards/ember_jab.png",
+  "reward_pool": False,
+  "actions": [
+   {
+    "type": "melee",
+    "damage": 5,
+    "range": 1,
+    "element": "none"
+   },
+   {
+    "type": "draw",
+    "amount": 1
+   }
+  ],
+  "retired": True,
+  "replacement_id": "backhand_nick"
+ },
+ "cinderburst": {
+  "name": "Shrapnel Burst",
+  "rarity": "rare",
+  "burn": False,
+  "health_cost": 0,
+  "time": 6,
+  "description": "Deal 7 in a cross pattern at range 3.",
+  "accent": "#cb6a39",
+  "art_path": "res://assets/art/cards/cinderburst.png",
+  "actions": [
+   {
+    "type": "aoe",
+    "damage": 7,
+    "range": 3,
+    "pattern": [
+     [
+      0,
+      0
+     ],
+     [
+      1,
+      0
+     ],
+     [
+      -1,
+      0
+     ],
+     [
+      0,
+      1
+     ],
+     [
+      0,
+      -1
+     ]
+    ],
+    "rotate": False,
+    "element": "none"
+   }
+  ],
+  "reward_pool": False,
+  "retired": True,
+  "replacement_id": "ember_rain"
+ },
+ "gate_gambit": {
+  "name": "Gate Gambit",
+  "rarity": "epic",
+  "burn": True,
+  "health_cost": 1,
+  "time": 8,
+  "description": "Exhaust. Lose 1 health. Draw 3, gain 2 card plays, and gain 3 block.",
+  "accent": "#8f6da8",
+  "art_path": "res://assets/art/cards/gate_gambit.png",
+  "actions": [
+   {
+    "type": "draw",
+    "amount": 3
+   },
+   {
+    "type": "card_play",
+    "amount": 2
+   },
+   {
+    "type": "block",
+    "amount": 3
+   }
+  ],
+  "reward_pool": False,
+  "retired": True,
+  "replacement_id": "trapdoor"
+ }
+}

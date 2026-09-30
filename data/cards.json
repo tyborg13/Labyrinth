@@ -4671,7 +4671,7 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
+    "time": 3,
     "description": "Deal 4 to the first 3 tiles in a line from you, then leave Fire on the farthest tile.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/flame_jet.png",
@@ -5324,7 +5324,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Consume. Gain Truesight and 2 Vision for 3 turns.",
+    "description": "Consume. Gain Truesight and 2 Vision for 2 turns.",
     "accent": "#e6c56c",
     "art_path": "res://assets/art/cards/seers_candle.png",
     "radiance": true,
@@ -5335,12 +5335,12 @@
     "actions": [
       {
         "type": "truesight",
-        "duration": 3
+        "duration": 2
       },
       {
         "type": "vision",
         "amount": 2,
-        "duration": 3
+        "duration": 2
       }
     ]
   },
@@ -5415,14 +5415,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike the first two tiles in a line from you for 5.",
+    "description": "Strike the first two tiles in a line from you for 6.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/spear_thrust.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 5,
+        "damage": 6,
         "range": 1,
         "pattern": [
           [
@@ -5536,14 +5536,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Strike an adjacent enemy for 4 and push 2.",
+    "description": "Strike an adjacent enemy for 5 and push 2.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/unhorse.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "push",
-        "damage": 4,
+        "damage": 5,
         "range": 1,
         "amount": 2,
         "element": "none"
@@ -5592,5 +5592,101 @@
         "element": "none"
       }
     ]
+  },
+  "ember_jab": {
+    "name": "Measured Cut",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Strike for 5, then draw 1.",
+    "accent": "#bb5e34",
+    "art_path": "res://assets/art/cards/ember_jab.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 1,
+        "element": "none"
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ],
+    "retired": true,
+    "replacement_id": "backhand_nick"
+  },
+  "cinderburst": {
+    "name": "Shrapnel Burst",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Deal 7 in a cross pattern at range 3.",
+    "accent": "#cb6a39",
+    "art_path": "res://assets/art/cards/cinderburst.png",
+    "actions": [
+      {
+        "type": "aoe",
+        "damage": 7,
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "element": "none"
+      }
+    ],
+    "reward_pool": false,
+    "retired": true,
+    "replacement_id": "ember_rain"
+  },
+  "gate_gambit": {
+    "name": "Gate Gambit",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 1,
+    "time": 8,
+    "description": "Exhaust. Lose 1 health. Draw 3, gain 2 card plays, and gain 3 block.",
+    "accent": "#8f6da8",
+    "art_path": "res://assets/art/cards/gate_gambit.png",
+    "actions": [
+      {
+        "type": "draw",
+        "amount": 3
+      },
+      {
+        "type": "card_play",
+        "amount": 2
+      },
+      {
+        "type": "block",
+        "amount": 3
+      }
+    ],
+    "reward_pool": false,
+    "retired": true,
+    "replacement_id": "trapdoor"
   }
 }
