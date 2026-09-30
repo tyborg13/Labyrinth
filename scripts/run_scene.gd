@@ -555,81 +555,6 @@ class CardArtBadgeBacking:
 		var t: float = clampf((value - edge0) / maxf(edge1 - edge0, 0.0001), 0.0, 1.0)
 		return t * t * (3.0 - 2.0 * t)
 
-class FatigueEdgeOverlay:
-	extends Control
-
-	const WEB_LINE_COLOR: Color = Color(0.96, 0.06, 0.04, 0.70)
-	const WEB_GLOW_COLOR: Color = Color(0.58, 0.0, 0.0, 0.30)
-	const EDGE_WASH_COLOR: Color = Color(0.52, 0.0, 0.0, 0.14)
-
-	var progress: float = -1.0:
-		set(value):
-			progress = value
-			visible = progress >= 0.0
-			queue_redraw()
-
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		visible = false
-
-	func _draw() -> void:
-		if progress < 0.0 or size.x <= 0.0 or size.y <= 0.0:
-			return
-		var t: float = clampf(progress, 0.0, 1.0)
-		var pulse: float = sin(t * PI)
-		if pulse <= 0.001:
-			return
-		var wash_color: Color = EDGE_WASH_COLOR
-		wash_color.a *= pulse
-		var edge_thickness: float = lerpf(18.0, 46.0, pulse)
-		draw_rect(Rect2(Vector2.ZERO, Vector2(size.x, edge_thickness)), wash_color, true)
-		draw_rect(Rect2(Vector2(0.0, size.y - edge_thickness), Vector2(size.x, edge_thickness)), wash_color, true)
-		draw_rect(Rect2(Vector2.ZERO, Vector2(edge_thickness, size.y)), wash_color, true)
-		draw_rect(Rect2(Vector2(size.x - edge_thickness, 0.0), Vector2(edge_thickness, size.y)), wash_color, true)
-
-		var line_color: Color = WEB_LINE_COLOR
-		line_color.a *= pulse
-		var glow_color: Color = WEB_GLOW_COLOR
-		glow_color.a *= pulse
-		var reach: float = minf(size.x, size.y) * lerpf(0.10, 0.27, pulse)
-		_draw_corner_web(Vector2.ZERO, Vector2(1.0, 1.0), reach, line_color, glow_color)
-		_draw_corner_web(Vector2(size.x, 0.0), Vector2(-1.0, 1.0), reach, line_color, glow_color)
-		_draw_corner_web(Vector2(0.0, size.y), Vector2(1.0, -1.0), reach, line_color, glow_color)
-		_draw_corner_web(size, Vector2(-1.0, -1.0), reach, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x * 0.20, 0.0), Vector2(0.12, 1.0), reach * 0.62, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x * 0.78, size.y), Vector2(-0.18, -1.0), reach * 0.58, line_color, glow_color)
-		_draw_edge_strand(Vector2(0.0, size.y * 0.36), Vector2(1.0, -0.12), reach * 0.66, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x, size.y * 0.62), Vector2(-1.0, 0.16), reach * 0.60, line_color, glow_color)
-
-	func _draw_corner_web(origin: Vector2, direction: Vector2, reach: float, line_color: Color, glow_color: Color) -> void:
-		var endpoints: Array = [
-			origin + Vector2(direction.x * reach, 0.0),
-			origin + Vector2(direction.x * reach * 0.78, direction.y * reach * 0.28),
-			origin + Vector2(direction.x * reach * 0.50, direction.y * reach * 0.64),
-			origin + Vector2(0.0, direction.y * reach)
-		]
-		for endpoint_var: Variant in endpoints:
-			var endpoint: Vector2 = endpoint_var
-			draw_line(origin, endpoint, glow_color, 4.0, true)
-			draw_line(origin, endpoint, line_color, 1.3, true)
-		for ring_var: Variant in [0.34, 0.58, 0.82]:
-			var ring: float = float(ring_var)
-			var points := PackedVector2Array()
-			for endpoint_var: Variant in endpoints:
-				var endpoint: Vector2 = endpoint_var
-				points.append(origin.lerp(endpoint, ring))
-			draw_polyline(points, glow_color, 3.0, true)
-			draw_polyline(points, line_color, 1.1, true)
-
-	func _draw_edge_strand(start: Vector2, direction: Vector2, length: float, line_color: Color, glow_color: Color) -> void:
-		var points := PackedVector2Array()
-		points.append(start)
-		points.append(start + Vector2(direction.x * length * 0.34, direction.y * length * 0.34) + Vector2(direction.y, -direction.x) * 7.0)
-		points.append(start + Vector2(direction.x * length * 0.68, direction.y * length * 0.68) - Vector2(direction.y, -direction.x) * 5.0)
-		points.append(start + direction * length)
-		draw_polyline(points, glow_color, 4.0, true)
-		draw_polyline(points, line_color, 1.2, true)
-
 class RelicChoiceSparkleLayer:
 	extends Control
 
@@ -1232,8 +1157,6 @@ const ENEMY_DEATH_FALLBACK_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_FALLBACK_FRAMES: int = 16
 const TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS: float = 0.065
 const IMPACT_DECAL_MAX_TILES: int = 7
-const FATIGUE_EDGE_LINGER_SECONDS: float = 0.18
-const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
@@ -1938,7 +1861,6 @@ var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
 var _equipment_fx_layer: Control
-var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _ambient_sfx_player: AudioStreamPlayer
@@ -4254,7 +4176,6 @@ func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
 	_build_card_focus_tooltip_stack()
 	_build_equipment_fx_layer()
-	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
 	_build_dialogue_overlay()
 	_build_pinned_tooltip_overlay()
@@ -6909,16 +6830,6 @@ func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer.z_index = 1300
 	_equipment_fx_layer.z_as_relative = false
 	ui_root.add_child(_equipment_fx_layer)
-
-func _build_fatigue_edge_overlay() -> void:
-	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
-	_fatigue_edge_overlay.name = "FatigueEdgeOverlay"
-	_fatigue_edge_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_fatigue_edge_overlay.anchor_right = 1.0
-	_fatigue_edge_overlay.anchor_bottom = 1.0
-	_fatigue_edge_overlay.z_index = 210
-	_fatigue_edge_overlay.z_as_relative = false
-	ui_root.add_child(_fatigue_edge_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -11482,7 +11393,6 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_defeat_lost_amount = 0
 	if _run_end_recap != null:
 		_run_end_recap.reset()
-	_set_fatigue_edge_progress(-1.0)
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
@@ -23732,8 +23642,6 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 	var state_validated_for_animation: bool = false
 	while true:
 		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
-		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
-		_set_fatigue_edge_progress(minf(t, FATIGUE_EDGE_HOLD_PROGRESS))
 		_render_board_state(
 			display_state,
 			_fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds),
@@ -23743,21 +23651,7 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
-	var linger_started_usec: int = Time.get_ticks_usec()
-	while true:
-		var linger_elapsed: float = float(Time.get_ticks_usec() - linger_started_usec) / 1000000.0
-		var linger_t: float = clampf(linger_elapsed / FATIGUE_EDGE_LINGER_SECONDS, 0.0, 1.0)
-		_set_fatigue_edge_progress(lerpf(FATIGUE_EDGE_HOLD_PROGRESS, 1.0, linger_t))
-		if linger_t >= 1.0:
-			break
-		await get_tree().process_frame
-	_set_fatigue_edge_progress(-1.0)
 	_render_board_state(display_state, {}, state_validated_for_animation)
-
-func _set_fatigue_edge_progress(progress: float) -> void:
-	if _fatigue_edge_overlay == null:
-		return
-	_fatigue_edge_overlay.progress = progress
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	_begin_player_popup_timeline()
@@ -28219,7 +28113,6 @@ func _on_pass_turn_pressed() -> void:
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	_guided_tutorial_pass_pending = _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_PASS_TURN
-	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.PASS_COMMIT_ID))
 	await _resolve_enemy_round()
 	if _guided_tutorial_pass_pending:
 		_guided_tutorial_pass_pending = false

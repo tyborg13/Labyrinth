@@ -123,7 +123,7 @@ class LabyrinthFontFamilyTests(unittest.TestCase):
     def test_shared_typography_maps_every_role_to_the_intended_cut(self) -> None:
         source = (ROOT / "scripts" / "ui_typography.gd").read_text(encoding="utf-8")
         self.assertIn('DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Display.tres"', source)
-        self.assertIn('UI_FONT_PATH: String = "res://fonts/cinzel/Cinzel-Bold.tres"', source)
+        self.assertIn('UI_FONT_PATH: String = "res://fonts/LabyrinthCrumble-UI.tres"', source)
         self.assertIn('TEXT_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Text.tres"', source)
         self.assertIn("ROLE_HERO, ROLE_BANNER", source)
         self.assertIn("ROLE_SECTION, ROLE_TITLE", source)

@@ -7938,7 +7938,7 @@ func _test_ui_typography_system() -> void:
 	var ui_font: Font = UiTypography.ui_font()
 	var text_font: Font = UiTypography.text_font()
 	_assert(display_font != null and display_font.resource_path.ends_with("LabyrinthCrumble-Display.tres"), "Hero roles should use the expressive Labyrinth Crumble display cut")
-	_assert(ui_font != null and ui_font.resource_path.ends_with("Cinzel-Bold.tres"), "Headings and controls should use the inscriptional Cinzel capitals")
+	_assert(ui_font != null and ui_font.resource_path.ends_with("LabyrinthCrumble-UI.tres"), "Headings and controls should use the restrained Labyrinth Crumble UI cut")
 	_assert(text_font != null and text_font.resource_path.ends_with("LabyrinthCrumble-Text.tres"), "Body roles should use the clean Labyrinth Crumble text cut")
 
 func _test_main_scenes_instantiate() -> void:
@@ -9529,15 +9529,9 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	_assert((fatigue_presentation.get("impact_actor_keys", []) as Array).has("player"), "Fatigue visual should drive the player's damage impact animation")
 	_assert(float(fatigue_presentation.get("impact_strength", 0.0)) > 1.0, "Fatigue visual should boost the player damage impact so it reads on the player sprite")
 	_assert((fatigue_presentation.get("floating_texts", []) as Array).size() >= 2, "Fatigue damage presentation should show both damage number and fatigue text")
-	var overlay: Control = instance.get("_fatigue_edge_overlay") as Control
-	_assert(overlay != null, "RunScene should build a full-screen fatigue edge overlay")
-	if overlay != null:
-		instance.call("_set_fatigue_edge_progress", 0.5)
-		await process_frame
-		_assert(overlay.visible, "Fatigue edge overlay should appear while the pulse is active")
-		instance.call("_set_fatigue_edge_progress", -1.0)
-		await process_frame
-		_assert(not overlay.visible, "Fatigue edge overlay should hide after the pulse")
+	# Fatigue shares the ordinary player-hit feedback (crimson edge flush and
+	# board kick) instead of a separate web overlay.
+	_assert(instance.get("_fatigue_edge_overlay") == null, "Fatigue should not build a separate edge overlay")
 
 	instance.queue_free()
 	await process_frame

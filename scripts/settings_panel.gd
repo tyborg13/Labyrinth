@@ -7,7 +7,7 @@ signal settings_changed(settings: Dictionary)
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
-const UI_FONT = preload("res://fonts/cinzel/Cinzel-Bold.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
 const PANEL_MINIMUM_SIZE := Vector2(820.0, 720.0)

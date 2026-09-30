@@ -28,13 +28,6 @@ RATE = 44100
 # Each cue: source recording, ffmpeg filter chain, output name, peak ceiling.
 CUES = [
     {
-        # Pass/end turn: the card take, slowed into a heavier, deliberate slap.
-        "name": "pass_turn_commit.wav",
-        "source": "card_play_take.wav",
-        "filter": "asetrate={rate}*0.74,aresample={rate},lowpass=f=4200,afade=t=out:st=0.16:d=0.14",
-        "peak_db": -2.0,
-    },
-    {
         # Menu open: the deal swish slowed into a page being turned.
         "name": "menu_page_open.wav",
         "source": "card_draw_deal.wav",
@@ -93,19 +86,17 @@ def _stereo_decode(path: Path, filter_chain: str) -> np.ndarray:
 
 
 def build_ambience() -> np.ndarray:
-    """Distant torch crackle over a low stone-hall rumble, looped seamlessly."""
+    """A barely-there stone-hall room tone, looped seamlessly.
+
+    Only the campfire's low body is used, slowed and low-passed into a rumble;
+    the crackle is left out so ordinary rooms never sound like a fire.
+    """
     source = SFX / AMBIENCE_SOURCE
     total = AMBIENCE_SECONDS + AMBIENCE_CROSSFADE
-    # Crackle: only the snaps and hiss of the campfire, far away and dark.
-    crackle = _stereo_decode(source, f"atrim=6:{6 + total},highpass=f=1400,lowpass=f=7800,volume=-4dB")
-    # Rumble: the fire's body slowed to 60% and filtered into a hall drone.
     rumble = _stereo_decode(source, f"atrim=20:{20 + total * 0.6 + 1.0},asetrate={RATE}*0.6,aresample={RATE},lowpass=f=240,highpass=f=35")
     frames = int(total * RATE)
-    crackle = crackle[:frames]
     rumble = rumble[:frames]
-    rumble = rumble / max(1e-9, float(np.sqrt(np.mean(rumble ** 2)))) * 0.060
-    crackle = crackle / max(1e-9, float(np.sqrt(np.mean(crackle ** 2)))) * 0.022
-    bed = rumble + crackle
+    bed = rumble / max(1e-9, float(np.sqrt(np.mean(rumble ** 2)))) * 0.060
     loop_frames = int(AMBIENCE_SECONDS * RATE)
     fade_frames = int(AMBIENCE_CROSSFADE * RATE)
     head = bed[:loop_frames].copy()

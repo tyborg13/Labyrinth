@@ -1,5 +1,7 @@
 extends SceneTree
 
+const RunSceneScript = preload("res://scripts/run_scene.gd")
+
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -72,6 +74,8 @@ func _capture_states() -> void:
 		var ambient_player: AudioStreamPlayer = instance.get("_ambient_sfx_player") as AudioStreamPlayer
 		_assert(ambient_player != null and ambient_player.playing, "Campfire proof should capture the active fire ambience")
 		if ambient_player != null and ambient_player.stream is AudioStreamWAV:
+			# Room beds swell in; the approved level is where the swell settles.
+			await create_timer(float(RunSceneScript.AMBIENT_FADE_IN_SECONDS) + 0.2).timeout
 			_assert(is_equal_approx(ambient_player.volume_db, -4.0), "Campfire ambience should retain its existing mix level")
 			_assert((ambient_player.stream as AudioStreamWAV).loop_mode == AudioStreamWAV.LOOP_FORWARD, "Campfire proof should use the sample-accurate loop stream")
 		else:

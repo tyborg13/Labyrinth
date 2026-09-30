@@ -4,10 +4,7 @@ class_name UiTypography
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 
 const DISPLAY_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Display.tres"
-# Headings, labels and controls use Cinzel's inscriptional capitals; body and
-# rules text keep the highly legible Labyrinth Crumble text cut.
-const UI_FONT_PATH: String = "res://fonts/cinzel/Cinzel-Bold.tres"
-const HEAVY_UI_FONT_PATH: String = "res://fonts/cinzel/Cinzel-Black.tres"
+const UI_FONT_PATH: String = "res://fonts/LabyrinthCrumble-UI.tres"
 const TEXT_FONT_PATH: String = "res://fonts/LabyrinthCrumble-Text.tres"
 const STONE_TEXT_SHADER_CODE: String = """
 shader_type canvas_item;
@@ -100,7 +97,7 @@ static func ui_font() -> Font:
 	return AssetLoader.load_font(UI_FONT_PATH)
 
 static func heavy_ui_font() -> Font:
-	return AssetLoader.load_font(HEAVY_UI_FONT_PATH)
+	return display_font()
 
 static var _eyebrow_font: FontVariation
 

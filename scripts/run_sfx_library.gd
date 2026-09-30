@@ -15,7 +15,6 @@ const HEARTH_RECOVER_ID: String = "run.ember_hearth_recover"
 const HEARTH_STRENGTH_ID: String = "run.ember_hearth_strength"
 const HEARTH_DEPART_ID: String = "run.ember_hearth_depart"
 
-const PASS_COMMIT_ID: String = "run.pass_turn_commit"
 const MENU_OPEN_ID: String = "run.menu_page_open"
 const MENU_CLOSE_ID: String = "run.menu_page_close"
 const DUNGEON_AMBIENCE_ID: String = "run.dungeon_hall_ambience"
@@ -81,12 +80,6 @@ const SFX: Dictionary = {
 		"volume_db": -12.0,
 		"bus": SettingsStore.UI_SFX_BUS
 	},
-	PASS_COMMIT_ID: {
-		"path": "res://assets/audio/sfx/ui/pass_turn_commit.wav",
-		"trimmed_duration": 0.300,
-		"volume_db": -2.0,
-		"bus": SettingsStore.UI_SFX_BUS
-	},
 	MENU_OPEN_ID: {
 		"path": "res://assets/audio/sfx/ui/menu_page_open.wav",
 		"trimmed_duration": 0.363,
@@ -102,7 +95,7 @@ const SFX: Dictionary = {
 	DUNGEON_AMBIENCE_ID: {
 		"path": "res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav",
 		"trimmed_duration": 48.0,
-		"volume_db": -6.0,
+		"volume_db": -12.0,
 		"bus": SettingsStore.WORLD_SFX_BUS,
 		"loop": true
 	},

@@ -127,6 +127,8 @@ func _run() -> void:
 	await _settle(0.5)
 	_expect(underlay.offset == Vector2.ZERO, "The camera settles when the impact ends")
 
+	await _fatigue_uses_hit_feedback(instance, atmosphere, underlay)
+
 	instance.call("_open_menu_overlay")
 	await _settle(0.25)
 	await _save("07_pause_menu")
@@ -137,6 +139,26 @@ func _run() -> void:
 	await _settle(0.2)
 	await _boss_banner_yields()
 	_finish()
+
+# Fatigue damage shares the ordinary player-hit feedback: crimson edge flush and
+# board kick, with no separate web overlay.
+func _fatigue_uses_hit_feedback(instance: Node, atmosphere: Node, underlay: CanvasLayer) -> void:
+	var state: Dictionary = instance.get("_combat_state")
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	var events: Array[Dictionary] = []
+	events.append({"amount": 2, "tile": player_tile})
+	instance.call("_animate_fatigue_damage", state, events)
+	var flush_seen: bool = false
+	for frame: int in range(90):
+		await process_frame
+		var hurt: float = float((atmosphere.get("_material") as ShaderMaterial).get_shader_parameter("hurt"))
+		if hurt > 0.3 and not flush_seen:
+			flush_seen = true
+			await _save("06b_fatigue_hit")
+	_expect(flush_seen, "Fatigue damage should flush the screen edge like any player hit")
+	_expect(instance.get_node_or_null("UiLayer/UiRoot/FatigueEdgeOverlay") == null, "Fatigue should not draw a separate web overlay")
+	await _settle(0.6)
+	_expect(underlay.offset == Vector2.ZERO, "The board settles after fatigue damage")
 
 # Drive real Pass -> enemy round -> player turn cycles until an enemy actually
 # damages the player, sampling every rendered frame for shake, flush and any

@@ -15,9 +15,10 @@ interface frames them quietly and consistently.
 3. **One primary action per screen.** The advancing action (End Turn / PASS,
    Start, the selected option) is an ember-bronze plate with a warm halo;
    everything else is a quieter ink plate.
-4. **Type carries hierarchy.** Cinzel capitals for headings, labels and
-   buttons; the Labyrinth Crumble text cut for rules and body copy; Crumble
-   Display for the logo, big banners and heavy numerals (card values, damage).
+4. **Type carries hierarchy.** The Labyrinth Crumble family throughout: the UI
+   cut for headings, labels and buttons (letter-spaced for eyebrows), the text
+   cut for rules and body copy, and Display for the logo, banners and damage
+   numerals. Card values use the text cut at a larger size in dark ink.
 5. **Colour is semantic.** Gold marks what can be touched, crimson is danger and
    enemy health, teal is allied health, violet is reserved for the Umbra, and
    ember marks new or highlighted things.
@@ -37,10 +38,11 @@ floor shadows); the former navy button bodies clashed with it.
 
 ## Typography (`scripts/ui_typography.gd`)
 
-- `ui_font()` is Cinzel Bold (`fonts/cinzel/`, SIL OFL 1.1). Cinzel lacks
-  ←, →, ↻ and ◆, which fall back to the Labyrinth Crumble UI cut.
-- `eyebrow_font()` / `apply_eyebrow()` give letter-spaced small capitals for
-  kickers and section eyebrows ("DEPTH 1", "OBJECTIVE", speaker names).
+- `ui_font()` is the Labyrinth Crumble UI cut. After play-testing, the owner
+  preferred it over Cinzel everywhere; Cinzel (`fonts/cinzel/`, SIL OFL 1.1)
+  stays in the repository for selective, deliberate use.
+- `eyebrow_font()` / `apply_eyebrow()` give letter-spaced capitals for kickers
+  and section eyebrows ("DEPTH 1", "OBJECTIVE", speaker names).
 - Captions keep the 14 px readability floor.
 
 ## Components
@@ -62,7 +64,8 @@ floor shadows); the former navy button bodies clashed with it.
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm
   light pool that follows the board, a vignette, and sparse ember motes (off
   under reduced motion). It also carries the brief crimson edge flush when the
-  player is hit.
+  player is hit, including fatigue damage (which no longer draws its own web
+  overlay).
 - The left dock stacks objective, card plays and movement on one flush right
   edge beside the hand; PASS mirrors it on the right.
 - Impacts kick the board layer only (never the HUD) and a short
@@ -77,15 +80,16 @@ floor shadows); the former navy button bodies clashed with it.
 - Short one-shots (≤1.25 s) receive a small random pitch drift (±3.5 %); UI
   hover/click ticks drift ±3–4.5 %. Stingers keep their authored pitch.
 - New cues are derived from shipped recordings by `tools/generate_ui_cue_sfx.py`:
-  menu page open/close, the pass/end-turn commit, and a quiet stone-hall
-  ambience bed (campfire loop filtered into distant crackle over a low rumble)
-  that plays in room, combat, pre-battle, reward, treasure and event modes.
+  menu page open/close, and a barely-there stone-hall room tone (the campfire
+  loop's low body only, slowed and low-passed, no crackle; playback −12 dB)
+  for room, combat, pre-battle, reward, treasure and event modes. Pressing Pass
+  plays only the shared button click; card sounds are reserved for cards.
 - Preserved owner-auditioned decisions: card draw (0 dB, ~9–11 dB under
   impacts), reward-card flip (no gain boost), door −10 dB, victory −7 dB,
   accepted reward −12 dB, hover tick −17 dB, the 8 %/4 % reverbs, and the
   no-overlap music transition.
-- **Changed and awaiting audition:** `card_play_take.wav` (+13 dB then limited;
-  it measured ~−37 dB RMS and was nearly inaudible), `item_equip.wav`
+- **Changed:** `card_play_take.wav` (+13 dB then limited; it measured ~−37 dB
+  RMS and was nearly inaudible — owner approved the louder play after testing), `item_equip.wav`
   (+6 dB then limited, playback −1 dB), relic-choices-open playback −2.5 dB,
   and combat hit playback levels (melee −5.5, ranged −1, block −4.5, fire −6.5,
   earth −3.5, air 0, lightning −3, ice 0 dB; previously −4/−2/−3/−3/−2/−2/−2/−2)

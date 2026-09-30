@@ -15,7 +15,7 @@ const TITLE_MOTE_COUNT: int = 42
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
-const UI_FONT = preload("res://fonts/cinzel/Cinzel-Bold.tres")
+const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 
 const TITLE_LINE_TEXTS := ["ESCAPE", "THE", "UMBRA"]
@@ -30,7 +30,7 @@ const TITLE_SMALL_LINE_MIN_SIZE: int = 28
 const TITLE_LINE_SPACING: int = -8
 const TITLE_LINE_VERTICAL_PADDING: float = 38.0
 const TITLE_TO_MENU_EXTRA_GAP: float = 14.0
-const MENU_FONT_SIZE: int = 30
+const MENU_FONT_SIZE: int = 34
 const MENU_BUTTON_HEIGHT: float = 78.0
 const MENU_BUTTON_HEIGHT_COMPACT: float = 64.0
 const MENU_BUTTON_MIN_WIDTH: float = 380.0

@@ -1328,8 +1328,6 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	label.tooltip_text = tooltip
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	if not conditional:
-		label.add_theme_font_override("font", UiTypography.display_font())
 	UiTypography.set_label_size(label, label_size)
 	label.add_theme_color_override("font_color", _token_value_color(token, conditional))
 	label.add_theme_color_override("font_outline_color", _token_outline_color(conditional))
