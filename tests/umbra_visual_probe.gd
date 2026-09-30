@@ -646,7 +646,7 @@ func _save_root_screenshot(output_path: String) -> void:
 	var image: Image = root.get_viewport().get_texture().get_image()
 	if image.get_size() != Vector2i(1920, 1080):
 		# Native Metal exposes the Retina backing texture on macOS. Downsample the
-		# real render to the single review resolution required by the UI rubric.
+		# real render to the single 1920x1080 review resolution.
 		image.resize(1920, 1080, Image.INTERPOLATE_LANCZOS)
 	_assert(image.save_png(output_path) == OK, "Could not save %s" % output_path)
 
