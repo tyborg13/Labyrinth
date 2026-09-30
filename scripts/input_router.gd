@@ -19,6 +19,7 @@ const ACTION_HAND_BUMPERS: StringName = &"controller_hand_bumpers"
 const ACTION_MENU: StringName = &"controller_menu"
 const ACTION_MAP: StringName = &"controller_map"
 const ACTION_MAP_ZOOM: StringName = &"controller_map_zoom"
+const ACTION_EMPOWER: StringName = &"controller_empower"
 
 const JOYSTICK_ACTIVITY_THRESHOLD: float = 0.42
 const POINTER_ACTIVITY_THRESHOLD: float = 2.0
@@ -174,6 +175,8 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 			return "▣"
 		ACTION_MAP_ZOOM:
 			return "L2·R2" if family == FAMILY_STEAM_DECK else "LT·RT"
+		ACTION_EMPOWER:
+			return "R3" if family == FAMILY_STEAM_DECK else "RS"
 		&"controller_move":
 			return "LS"
 		&"controller_dpad":
@@ -252,6 +255,7 @@ static func ensure_input_map() -> void:
 	_ensure_button_action(ACTION_HAND_NEXT, JOY_BUTTON_RIGHT_SHOULDER)
 	_ensure_button_action(ACTION_MENU, JOY_BUTTON_START)
 	_ensure_button_action(ACTION_MAP, JOY_BUTTON_BACK)
+	_ensure_button_action(ACTION_EMPOWER, JOY_BUTTON_RIGHT_STICK)
 	_ensure_button_action(&"ui_accept", JOY_BUTTON_A)
 	_ensure_button_action(&"ui_cancel", JOY_BUTTON_B)
 	_ensure_button_action(&"ui_left", JOY_BUTTON_DPAD_LEFT)

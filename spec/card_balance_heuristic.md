@@ -312,7 +312,7 @@ not guaranteed to stay clear.
 
 The total score is:
 
-`EV = offense + control + defense + flow + surfaces + mobility + radiance + synergy + tempo + flurry_compression_bonus - surface_fuel_cost - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
+`EV = offense + control + defense + flow + surfaces + mobility + radiance + synergy + tempo + flurry_compression_bonus + follow_up + empower - surface_fuel_cost - health_cost - exhaust_card_penalty - flurry_commitment_penalty`
 
 Interpret the result as a relative `health saved equivalent` score.
 
@@ -386,6 +386,19 @@ These are the current default weights used by `tools/card_heuristic.py`:
 - Collision opportunity: `0.30` per forced-movement tile (`2` damage per lost
   tile x about `0.33` collision availability x the `0.45` damage weight, for
   target plus blocker), applied like the hazard value and scaled by playability
+- Stagger: `0.30` per point of delay, scaled by attack playability and target
+  multiplier (below Time's `0.45`, because it delays one enemy rather than
+  every other actor; the 6-per-turn cap and dragon halving are not modeled)
+- State bonus (`state_bonus`): the damage delta over the printed hit plus
+  Stagger at `0.30`/pt, scaled by expected condition availability: target in
+  Light `0.40`, Frozen `0.30`, at or below half health `0.45`
+- Scale bonus (`scale_bonus`): the damage delta from expected points, capped at
+  the card's `max`: `2.5` Stoneskin, or `1.5` independently moved tiles plus the
+  card's own earlier Move/Blink range
+- Follow-up: `0.55 ×` the score of the bonus, where the bonus score is the card
+  scored with its mods/appends applied minus the printed card
+- Empower: `0.5 × max(0, bonus_score − cost_value)` with the same bonus score,
+  and cost `0.45` per Time, `1.0` per health, `0.55` for Exhaust
 
 Synergy bonuses:
 

@@ -378,6 +378,19 @@ class HeuristicWeights:
     baseline_card_time: float = 5.0
     # Calibrated against early enemy first/repeat cycles of roughly 11-20 initiative.
     time_delta_value: float = 0.45
+    # Card keywords (spec/card_keywords.md). Stagger delays one enemy turn; it is
+    # priced below Time (0.45/pt) because it moves one enemy, not every actor.
+    stagger_value_per_point: float = 0.30
+    state_bonus_light_availability: float = 0.40
+    state_bonus_frozen_availability: float = 0.30
+    state_bonus_half_hp_availability: float = 0.45
+    scale_stoneskin_expected_points: float = 2.5
+    scale_tiles_moved_expected_independent: float = 1.5
+    follow_up_bonus_share: float = 0.55
+    empower_bonus_share: float = 0.50
+    empower_time_cost_per_point: float = 0.45
+    empower_health_cost_per_point: float = 1.00
+    empower_exhaust_cost: float = 0.55
 
 
 @dataclass
@@ -396,6 +409,8 @@ class ScoreBreakdown:
     flurry_compression_bonus: float = 0.0
     flurry_commitment_penalty: float = 0.0
     tempo: float = 0.0
+    follow_up: float = 0.0
+    empower: float = 0.0
     total: float = 0.0
 
 
@@ -494,6 +509,59 @@ def surface_availability(condition: dict[str, Any], prepared: set[str], weights:
     if kind in prepared:
         return 0.80  # Earlier painting is available, but target/footprint must overlap.
     return base
+
+
+def state_bonus_availability(state: str, weights: HeuristicWeights) -> float:
+    return {
+        "light": weights.state_bonus_light_availability,
+        "frozen": weights.state_bonus_frozen_availability,
+        "half_hp": weights.state_bonus_half_hp_availability,
+    }.get(state, 0.0)
+
+
+def expected_scale_bonus(scale_bonus: dict[str, Any], card_move_tiles: float, weights: HeuristicWeights) -> float:
+    per = str(scale_bonus.get("per", ""))
+    if per == "stoneskin":
+        expected = weights.scale_stoneskin_expected_points
+    elif per == "tiles_moved":
+        expected = weights.scale_tiles_moved_expected_independent + card_move_tiles
+    else:
+        expected = 0.0
+    expected *= int(scale_bonus.get("damage", 1))
+    if "max" in scale_bonus:
+        expected = min(float(int(scale_bonus.get("max", 0))), expected)
+    return max(0.0, expected)
+
+
+def apply_keyword_mods(actions: list[dict[str, Any]], spec: dict[str, Any]) -> list[dict[str, Any]]:
+    """Mirror scripts/card_keyword_rules.gd: add increments, set overrides, append extras."""
+    result = [dict(action) for action in actions]
+    for mod in spec.get("mods", []) or []:
+        index = int(mod.get("action", -1))
+        if not 0 <= index < len(actions):
+            continue
+        action = result[index]
+        for field, amount in (mod.get("add", {}) or {}).items():
+            action[field] = int(action.get(field, 0)) + int(amount)
+        for field, value in (mod.get("set", {}) or {}).items():
+            action[field] = value
+    result.extend(dict(action) for action in spec.get("append", []) or [])
+    return result
+
+
+def keyword_bonus_value(card_id: str, card: dict[str, Any], spec: dict[str, Any], weights: HeuristicWeights) -> float:
+    base = {key: value for key, value in card.items() if key not in {"follow_up", "empower"}}
+    boosted = dict(base)
+    boosted["actions"] = apply_keyword_mods(list(base.get("actions", [])), spec)
+    return score_card(card_id + ":keyword_bonus", boosted, weights).total - score_card(card_id + ":keyword_base", base, weights).total
+
+
+def empower_cost_value(cost: dict[str, Any], weights: HeuristicWeights) -> float:
+    value = int(cost.get("time", 0)) * weights.empower_time_cost_per_point
+    value += int(cost.get("health", 0)) * weights.empower_health_cost_per_point
+    if bool(cost.get("exhaust", False)):
+        value += weights.empower_exhaust_cost
+    return value
 
 
 def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) -> ScoreBreakdown:
@@ -640,6 +708,23 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if bool(action.get("immobilize", False)):
                 breakdown.control += weights.immobilize_value * playability * targets * action_scale
                 has_status = True
+
+            stagger = int(action.get("stagger", 0))
+            if stagger > 0:
+                breakdown.control += stagger * weights.stagger_value_per_point * playability * targets * action_scale
+                has_status = True
+
+            for state_bonus in action.get("state_bonus", []) or []:
+                availability = state_bonus_availability(str(state_bonus.get("state", "")), weights) * action_scale
+                bonus_damage = int(state_bonus.get("damage", 0))
+                if bonus_damage:
+                    breakdown.offense += max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability
+                breakdown.control += int(state_bonus.get("stagger", 0)) * weights.stagger_value_per_point * playability * targets * availability
+
+            scale_bonus = action.get("scale_bonus", {}) or {}
+            if scale_bonus:
+                expected = expected_scale_bonus(scale_bonus, move_tiles + blink_tiles, weights)
+                breakdown.offense += max(0.0, immediate_damage_value(damage + expected, playability, targets, weights) - base_damage_value) * action_scale
 
             push = int(action.get("push", 0))
             if action_type == "push":
@@ -819,6 +904,14 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     card_time = max(1, min(10, int(card.get("time", weights.baseline_card_time))))
     breakdown.tempo = (weights.baseline_card_time - card_time) * weights.time_delta_value
 
+    if isinstance(card.get("follow_up"), dict):
+        bonus = keyword_bonus_value(card_id, card, card["follow_up"], weights)
+        breakdown.follow_up = weights.follow_up_bonus_share * max(0.0, bonus)
+    if isinstance(card.get("empower"), dict):
+        bonus = keyword_bonus_value(card_id, card, card["empower"], weights)
+        cost = empower_cost_value(card["empower"].get("cost", {}), weights)
+        breakdown.empower = weights.empower_bonus_share * max(0.0, bonus - cost)
+
     breakdown.total = round(
         breakdown.offense
         + breakdown.control
@@ -830,6 +923,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         + breakdown.synergy
         + breakdown.tempo
         + breakdown.flurry_compression_bonus
+        + breakdown.follow_up
+        + breakdown.empower
         - breakdown.surface_fuel_cost
         - breakdown.health_cost
         - breakdown.burn_card_penalty
@@ -1098,6 +1193,8 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"exhaust_penalty={breakdown['burn_card_penalty']:.2f}",
                         f"flurry_compression={breakdown['flurry_compression_bonus']:.2f}",
                         f"flurry_commitment={breakdown['flurry_commitment_penalty']:.2f}",
+                        f"follow_up={breakdown['follow_up']:.2f}",
+                        f"empower={breakdown['empower']:.2f}",
                     ]
                 )
             )

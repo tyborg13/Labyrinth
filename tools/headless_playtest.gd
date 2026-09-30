@@ -2107,7 +2107,7 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 	var triggered_traps: Array[Dictionary] = _triggered_traps_between(before_state, resolved_state)
 	var surface_events: Array[Dictionary] = _combat_engine._surface_events_since(before_state, resolved_state)
 	var collisions: Dictionary = _combat_engine.force_collision_summary(surface_events)
-	return {
+	var payload: Dictionary = {
 		"play_mode": "printed",
 		"forced_collisions": int(collisions.get("count", 0)),
 		"collision_damage_dealt": int(collisions.get("damage", 0)),
@@ -2154,6 +2154,8 @@ func _card_play_payload(card_id: String, before_state: Dictionary, resolved_stat
 		"selected_targets": targets.duplicate(true),
 		"actions": actions.duplicate(true)
 	}
+	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
+	return payload
 
 func _analytics_comparable_actions(actions: Array) -> Array:
 	var result: Array = []

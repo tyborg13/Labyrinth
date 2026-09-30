@@ -44,6 +44,7 @@ const BoardSurfacePresentation = preload("res://scripts/board_surface_presentati
 const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
 const SurfaceAimFlow = preload("res://scripts/surface_aim_flow.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
+const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
@@ -2395,6 +2396,10 @@ func _input(event: InputEvent) -> void:
 			board_view.call("_clear_hover_for_navigation")
 			_on_board_tile_hovered(INVALID_TARGET_TILE)
 		_sync_click_targeting_arrow(pointer_position)
+	if _selected_card_index >= 0 and _is_empower_shortcut_event(event) and not _controller_modal_visible() and _empower_toggle_available():
+		get_viewport().set_input_as_handled()
+		await _toggle_pending_empower()
+		return
 	if _selected_card_index >= 0 and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")) and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
 		_rotate_aoe_aim(-1 if event.is_action_pressed("ui_left") else 1)
 		get_viewport().set_input_as_handled()
@@ -2598,6 +2603,11 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_move_card_mode(1 if mode_direction.x > 0.0 or mode_direction.y > 0.0 else -1)
 			return true
 		return false
+	if event.is_action_pressed(InputRouterScript.ACTION_EMPOWER):
+		if _empower_toggle_available():
+			await _toggle_pending_empower()
+		_refresh_controller_interface()
+		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _player_movement_selected:
 			await _on_cancel_requested()
@@ -3739,6 +3749,8 @@ func _refresh_controller_prompts() -> void:
 				"action": InputRouterScript.ACTION_CANCEL,
 				"label": "Cancel",
 			})
+		if _empower_toggle_available():
+			prompts.append({"action": InputRouterScript.ACTION_EMPOWER, "label": "Unempower" if _selected_card_empowered() else "Empower"})
 		prompts.append({"action": &"controller_move", "label": "Move"})
 		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
 		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Skip Step" if _current_action_can_skip() else "Pass"})
@@ -13047,11 +13059,13 @@ func _refresh_turn_order_bar() -> void:
 		_set_turn_order_visible(false)
 		return
 	_refresh_boss_health_overlay(_board_display_state(), _board_presentation)
-	var source_signature: String = "%d|%d|%d|%d" % [
+	var source_signature: String = "%d|%d|%d|%d|%d|%s" % [
 		_combat_preview_revision,
 		_selected_card_index,
 		_hovered_card_index,
-		1 if _animation_lock else 0
+		1 if _animation_lock else 0,
+		1 if _selected_card_empowered() else 0,
+		str(_turn_order_stagger_preview_delays())
 	]
 	if source_signature == _turn_order_source_signature:
 		return
@@ -13067,14 +13081,18 @@ func _refresh_turn_order_bar() -> void:
 
 func _turn_order_display_state() -> Dictionary:
 	var preview: Dictionary = _turn_order_card_time_preview()
-	if preview.is_empty():
+	var stagger_delays: Dictionary = _turn_order_stagger_preview_delays()
+	if preview.is_empty() and stagger_delays.is_empty():
 		return _combat_state
 	# The turn-order projection only reads nested combat data. A shallow shell is
-	# sufficient for its two transient top-level fields and avoids cloning the
+	# sufficient for its transient top-level fields and avoids cloning the
 	# complete combat snapshot on every hover/UI refresh.
 	var state: Dictionary = _combat_state.duplicate()
-	state["turn_order_preview_time_delta"] = int(preview.get("time", 0))
-	state["turn_order_preview_card_name"] = str(preview.get("name", ""))
+	if not preview.is_empty():
+		state["turn_order_preview_time_delta"] = int(preview.get("time", 0))
+		state["turn_order_preview_card_name"] = str(preview.get("name", ""))
+	if not stagger_delays.is_empty():
+		state[CardKeywordRules.PREVIEW_DELAYS_KEY] = stagger_delays
 	return state
 
 func _turn_order_card_time_preview() -> Dictionary:
@@ -13089,8 +13107,9 @@ func _turn_order_card_time_preview() -> Dictionary:
 	if card_id.is_empty():
 		return {}
 	var card: Dictionary = _card_def(card_id, _combat_state)
+	var empower_time: int = CardKeywordRules.empower_time_surcharge(_preview_combat_state, card_id, card) if index == _selected_card_index else 0
 	return {
-		"time": _combat_engine.card_time_cost_from_def(card),
+		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
 		"name": str(card.get("name", card_id))
 	}
 
@@ -13401,6 +13420,8 @@ func _turn_order_clock_badge_text(entry: Dictionary) -> String:
 	return str(_turn_order_relative_time(entry))
 
 func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
+	if int(entry.get("stagger_preview", 0)) > 0:
+		return true
 	return (
 		bool(entry.get("projected", false))
 		and str(entry.get("kind", "")) == "player"
@@ -13484,6 +13505,8 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Cont
 	return badge
 
 func _turn_order_projection_badge_text(entry: Dictionary) -> String:
+	if int(entry.get("stagger_preview", 0)) > 0:
+		return "Stagger +%d" % int(entry.get("stagger_preview", 0))
 	var preview_time: int = int(entry.get("projected_time_cost", 0))
 	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 	if card_name.is_empty():
@@ -13608,6 +13631,8 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		lines.append("Clock %d" % clock)
 	if bool(entry.get("projected", false)):
 		lines.append("Projected next turn")
+	if int(entry.get("stagger_preview", 0)) > 0:
+		lines.append("Staggered +%d by this card" % int(entry.get("stagger_preview", 0)))
 	if entry.has("hp") and entry.has("max_hp") and not bool(entry.get("hidden_by_umbra", false)):
 		lines.append("Health %d/%d" % [int(entry.get("hp", 0)), int(entry.get("max_hp", 1))])
 	var base: int = int(entry.get("base_initiative", 0))
@@ -14048,9 +14073,12 @@ func _animate_turn_order_alongside_defeats(
 	before_state: Dictionary,
 	after_state: Dictionary,
 	base_presentation: Dictionary = {},
-	skip_terrain_destruction: bool = false
+	skip_terrain_destruction: bool = false,
+	order_before_state: Dictionary = {}
 ) -> void:
-	var before_order: Array[Dictionary] = _turn_order_entries_from_state(before_state)
+	# The rail may start from a different projection (for example, before this
+	# card's Stagger) so its motion shows the delay landing.
+	var before_order: Array[Dictionary] = _turn_order_entries_from_state(order_before_state if not order_before_state.is_empty() else before_state)
 	var after_order: Array[Dictionary] = _turn_order_entries_from_state(after_state)
 	var order_changed: bool = _turn_order_motion_signature(before_order) != _turn_order_motion_signature(after_order)
 	var defeated_actor_keys: Dictionary = _turn_order_defeated_actor_keys(before_state, after_state)
@@ -14226,6 +14254,16 @@ func _action_step_tracker_state() -> Dictionary:
 			"selected_targets": choice_targets
 		}
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size():
+		# A targetless card's confirmation stage keeps the host only for Empower.
+		if _pending_card_requires_confirmation() and _empower_toggle_available():
+			return {
+				"active": true,
+				"mode": "confirmation",
+				"card_id": _card_id_for_hand_index(_selected_card_index),
+				"actions": _pending_actions,
+				"action_index": _pending_actions.size(),
+				"selected_targets": _pending_selected_targets
+			}
 		return {}
 	return {
 		"active": true,
@@ -14544,9 +14582,13 @@ func _build_action_context_commands(tracker_state: Dictionary) -> void:
 	if context_mode == "drag":
 		_update_drag_overlay_hover(_drag_hover_zone)
 		return
+	if context_mode == "confirmation":
+		_add_empower_command()
+		return
 	if context_mode not in ["selection", "choice"]:
 		return
 	var alongside_mode_tabs: bool = context_mode == "choice"
+	_add_empower_command()
 	_add_surface_relic_commands()
 	if _current_action_supports_rotation():
 		_add_action_context_button("Rotate", _on_rotate_action_context_pressed, "Rotate area", alongside_mode_tabs)
@@ -17584,6 +17626,7 @@ func _refresh_hand_panel() -> void:
 		hash(_combat_skill_card_selection_indices),
 	]
 	signature += "|controller_hand:%d:%d" % [1 if _controller_is_active() else 0, 1 if _controller_hand_focused else 0]
+	signature += "|empowered:%d" % (1 if _selected_card_empowered() else 0)
 	if signature == _hand_panel_signature:
 		return
 	_hand_panel_signature = signature
@@ -19253,7 +19296,7 @@ func _active_card_preview() -> Dictionary:
 		return _sanitize_preview_for_umbra_information(_card_preview_for_index(_hovered_card_index))
 	return {}
 
-func _card_preview_for_index(index: int) -> Dictionary:
+func _card_preview_for_index(index: int, play_mode: String = "play") -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	if _combat_state.is_empty():
@@ -19263,12 +19306,12 @@ func _card_preview_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
 		return {}
-	var cache_key: String = _card_preview_cache_key(index)
+	var cache_key: String = _card_preview_cache_key(index, play_mode)
 	if _card_preview_cache.has(cache_key):
 		_record_runtime_performance_phase("card_preview_cache_hit", performance_phase_started)
 		return _card_preview_cache.get(cache_key, {}) as Dictionary
 	var card_id: String = str(hand[index])
-	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, "play")
+	var prepared_state: Dictionary = _combat_engine.prepare_player_card(_combat_state, index, play_mode)
 	performance_phase_started = _record_runtime_performance_phase("card_preview_prepare", performance_phase_started)
 	var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
 	performance_phase_started = _record_runtime_performance_phase("card_preview_actions", performance_phase_started)
@@ -19492,23 +19535,33 @@ func _card_widget_display_for_index(index: int) -> Dictionary:
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
 		return {}
-	var cache_key: String = _card_preview_cache_key(index, "display")
+	# A selected card shows its Empower bonus while the toggle is on.
+	var empowered_display: bool = index == _selected_card_index and _selected_card_empowered()
+	var cache_key: String = _card_preview_cache_key(index, "display_empowered" if empowered_display else "display")
 	if _card_widget_display_cache.has(cache_key):
 		return _card_widget_display_cache.get(cache_key, {}) as Dictionary
-	var display: Dictionary = _card_widget_display(str(hand[index]), _combat_state)
+	var display_state: Dictionary = _combat_state
+	if empowered_display:
+		display_state = _combat_state.duplicate(false)
+		display_state[CardKeywordRules.PLAY_MODIFIERS_KEY] = (_preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary).duplicate(true)
+	var display: Dictionary = _card_widget_display(str(hand[index]), display_state)
 	_card_widget_display_cache[cache_key] = display
 	return display
 
 func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	var card: Dictionary = _card_def(card_id, state)
+	# Follow-up / Empower values are shown honestly once they apply.
+	var keyword_state: Dictionary = CardKeywordRules.play_modifiers(state, card_id, card)
 	var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 	var modifier_lines: PackedStringArray = []
 	# Display simulation replaces only turn_flags (with its own copy). It never
 	# mutates the board, decks or history: retain those read-only references.
 	var preview_state: Dictionary = state.duplicate(false)
 	var previous_action_row_index: int = -1
-	for action_var: Variant in card.get("actions", []):
+	for action_var: Variant in CardKeywordRules.actions_with_modifiers(card, keyword_state):
 		var action: Dictionary = action_var
+		if action.has(CardKeywordRules.KEYWORD_APPENDED_FLAG):
+			continue # Shown once, in its active Follow-up / Empower segment.
 		var action_type: String = str(action.get("type", ""))
 		var row: Array = []
 		match action_type:
@@ -19539,6 +19592,8 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 		if not bonus_row.is_empty():
 			summary_rows.append(bonus_row)
+		summary_rows.append_array(ActionIcons.keyword_rider_rows(action))
+	summary_rows.append_array(ActionIcons.keyword_rows_for_card(card, keyword_state))
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = str(card.get("description", ""))
@@ -21854,6 +21909,8 @@ func _refresh_board_hover_presentation() -> void:
 		var stage_refresh_needed: bool = _board_hover_stage_refresh_needed(presented_tile)
 		if stage_refresh_needed:
 			_refresh_stage_view()
+		if _selected_card_index >= 0:
+			_refresh_turn_order_bar() # Stagger targets preview their delayed slot.
 		performance_phase_started = _record_runtime_performance_phase("hover_stage_refresh_total", performance_phase_started)
 		var action_context_can_change: bool = _pass_preview_hover_can_change()
 		if _pending_flow_has_force_aim() and _force_aim_rotation_available() != _force_aim_rotate_shown:
@@ -22635,7 +22692,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		committed_combat_state,
 		GameData.card_element(card_id)
 	)
-	await _animate_turn_order_alongside_defeats(pre_commit_combat_state, committed_combat_state)
+	await _animate_turn_order_alongside_defeats(pre_commit_combat_state, committed_combat_state, {}, false, _turn_order_state_before_card_stagger(previous_combat_state, pre_commit_combat_state))
 	var outcome: String = _combat_engine.combat_outcome(committed_combat_state)
 	var transition_combat_state: Dictionary = committed_combat_state.duplicate(true)
 	if outcome == "victory":
@@ -26821,6 +26878,7 @@ func _player_action_label(card_id: String, _action: Dictionary, _state: Dictiona
 
 func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	floats.append_array(_stagger_floating_texts(before_state, after_state))
 	for event: Dictionary in _surface_events_between(before_state,after_state):
 		if str(event.get("kind","")) != "crystal_mantle_broken": continue
 		var remaining: int = int(event.get("layers_remaining",0))
@@ -33561,7 +33619,7 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 			break
 	var played_surface_events: Array[Dictionary] = _surface_events_between(before_state, resolved_state)
 	var collisions: Dictionary = _combat_engine.force_collision_summary(played_surface_events)
-	return {
+	var payload: Dictionary = {
 		"play_mode": play_mode,
 		"rules_version": BoardSurfaceRules.RULES_VERSION,
 		"surface_events": played_surface_events,
@@ -33638,6 +33696,9 @@ func _analytics_card_play_payload(card_id: String, before_state: Dictionary, res
 		"selected_targets": _vector2i_array(selected_targets),
 		"actions": actions.duplicate(true)
 	}
+	# Additive keyword fields: follow_up_active, empowered, empower_cost, stagger_applied.
+	payload.merge(_combat_engine.card_keyword_play_summary(card_id, before_state, resolved_state, actions))
+	return payload
 
 func _analytics_actions_without_runtime_orientation(actions: Array) -> Array:
 	var result: Array = []
@@ -34200,6 +34261,139 @@ func _commit_surface_skill_tile(tile: Vector2i) -> void:
 	await _animate_surface_change(before, next)
 	_animation_lock = false
 	_commit_combat_skill_state(next, skill_id, true)
+
+# ---------------------------------------------------------------- Card keywords
+# Empower is an optional extra cost chosen before the card's first board decision
+# (or at a targetless card's confirmation). The flag lives on the prepared
+# preview state, separate from technique modes, and toggling rebuilds the preview
+# from the card's start so automatic actions resolve with the bonus.
+func _selected_card_empowered() -> bool:
+	if _selected_card_index < 0 or _preview_combat_state.is_empty():
+		return false
+	var modifiers: Dictionary = _preview_combat_state.get(CardKeywordRules.PLAY_MODIFIERS_KEY, {}) as Dictionary
+	return bool(modifiers.get("empowered", false)) and str(modifiers.get("card_id", "")) == _card_id_for_hand_index(_selected_card_index)
+
+func _selected_card_empower_cost() -> Dictionary:
+	if _selected_card_index < 0 or _combat_state.is_empty():
+		return {}
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	if card_id.is_empty() or not CardKeywordRules.card_id_may_have_keywords(card_id):
+		return {}
+	return CardKeywordRules.empower_cost(_card_def(card_id, _combat_state))
+
+func _empower_toggle_available() -> bool:
+	if _animation_lock or _selected_card_index < 0 or _pending_umbra_commit_locked or _drag_card_index >= 0 or _preview_combat_state.is_empty():
+		return false
+	if _selected_card_empower_cost().is_empty():
+		return false
+	for tile: Vector2i in _pending_selected_targets:
+		if tile.x >= 0:
+			return false
+	return true
+
+func _empower_command_text(active: bool) -> String:
+	var cost_label: String = CardKeywordRules.empower_cost_label(_selected_card_empower_cost())
+	var text: String = "Empower: %s" % cost_label if cost_label == "Exhaust" else "Empower %s" % cost_label
+	return ("✓ " if active else "") + text
+
+func _empower_command_tooltip() -> String:
+	var card_id: String = _card_id_for_hand_index(_selected_card_index)
+	var card: Dictionary = _card_def(card_id, _combat_state)
+	var bonus_text: String = ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
+	return "Empower (%s): %s.\nThe cost is paid when the card finishes. Press E (controller: right stick)." % [CardKeywordRules.empower_cost_label(_selected_card_empower_cost()), bonus_text]
+
+func _add_empower_command() -> void:
+	if not _empower_toggle_available() or _action_context_command_bar == null:
+		return
+	var active: bool = _selected_card_empowered()
+	_add_action_context_button(_empower_command_text(active), _on_empower_command_pressed, _empower_command_tooltip(), true)
+	var button: Node = _action_context_command_bar.get_child(_action_context_command_bar.get_child_count() - 1)
+	button.name = "ActionContextEmpower"
+	button.set_meta("empower_active", active)
+	if button is BaseButton:
+		(button as BaseButton).toggle_mode = true
+		(button as BaseButton).set_pressed_no_signal(active)
+
+func _on_empower_command_pressed() -> void:
+	await _toggle_pending_empower()
+
+func _toggle_pending_empower() -> void:
+	if not _empower_toggle_available():
+		return
+	var index: int = _selected_card_index
+	var next_mode: String = "play" if _selected_card_empowered() else "empower"
+	var preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_for_index(index, next_mode))
+	if not bool(preview.get("playable", false)):
+		_show_combat_log_message("Empower has no legal play right now.")
+		return
+	await _begin_card_preview(index, preview, _selected_card_label_override)
+	if _controller_is_active() and _targeted_card_aiming_active():
+		_controller_enter_board(true)
+	_refresh_controller_prompts()
+
+func _is_empower_shortcut_event(event: InputEvent) -> bool:
+	if not (event is InputEventKey):
+		return false
+	var key_event: InputEventKey = event
+	if not key_event.pressed or key_event.echo:
+		return false
+	if key_event.alt_pressed or key_event.ctrl_pressed or key_event.meta_pressed or key_event.shift_pressed:
+		return false
+	return key_event.keycode == KEY_E or key_event.physical_keycode == KEY_E
+
+# Stagger delays for the selected card: the hovered target's resolved preview,
+# or the card's already-resolved automatic actions. Hidden enemies never move.
+func _turn_order_stagger_preview_delays() -> Dictionary:
+	if _animation_lock or _selected_card_index < 0 or _combat_state.is_empty() or _preview_combat_state.is_empty():
+		return {}
+	var resolved: Dictionary = _cached_hover_resolved_preview_state()
+	if resolved.is_empty():
+		resolved = _preview_combat_state
+	var delays: Dictionary = _combat_engine.stagger_delays_between(_combat_state, resolved)
+	if delays.is_empty():
+		return delays
+	var visible: Array = _combat_engine.visible_enemy_ids(_combat_state)
+	var result: Dictionary = {}
+	for enemy_id_var: Variant in delays.keys():
+		if int(delays[enemy_id_var]) > 0 and visible.has(int(enemy_id_var)):
+			result[int(enemy_id_var)] = int(delays[enemy_id_var])
+	return result
+
+func _turn_order_state_before_card_stagger(before_card_state: Dictionary, resolved_state: Dictionary) -> Dictionary:
+	var delays: Dictionary = _combat_engine.stagger_delays_between(before_card_state, resolved_state)
+	if delays.is_empty():
+		return {}
+	var reverted: Dictionary = {}
+	for enemy_id_var: Variant in delays.keys():
+		reverted[int(enemy_id_var)] = -int(delays[enemy_id_var])
+	var state: Dictionary = resolved_state.duplicate(false)
+	state[CardKeywordRules.PREVIEW_DELAYS_KEY] = reverted
+	return state
+
+func _stagger_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
+	var floats: Array[Dictionary]
+	var delays: Dictionary = _combat_engine.stagger_delays_between(before_state, after_state)
+	if delays.is_empty():
+		return floats
+	for enemy_var: Variant in after_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = enemy_var
+		var delay: int = int(delays.get(int(enemy.get("id", -1)), 0))
+		if delay <= 0 or int(enemy.get("hp", 0)) <= 0:
+			continue
+		floats.append({
+			"tile": enemy.get("pos", Vector2i.ZERO),
+			"text": "Stagger +%d" % delay,
+			"color": Color("f0cf7a"),
+			"offset": -30.0,
+			"width": 150.0,
+			"icon": "stagger",
+			"icon_tint": Color("fff3cf"),
+			"icon_fill": Color(0.16, 0.10, 0.04, 0.94),
+			"icon_border": Color("d6aa5e")
+		})
+	return floats
 
 func _add_surface_relic_commands() -> void:
 	if _selected_card_index < 0 or _pending_action_index >= _pending_actions.size() or _pending_umbra_commit_locked:
