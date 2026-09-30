@@ -71,8 +71,9 @@ floor shadows); the former navy button bodies clashed with it.
   style column. Each actor sits on a hand-painted dry-brush stroke
   (`assets/art/ui/turn_order_ink/`; Codex-generated originals, prompt and
   hashes in `spec/assets/turn_order_ink/README.md`) whose variant, tilt and mirroring are
-  fixed per actor so the column never looks stamped out. Strokes are gold for
-  the acting unit, teal for allies and crimson for enemies. The portrait is cut
+  fixed per actor so the column never looks stamped out. Strokes are muted
+  bronze-gold for the acting unit, deep teal for allies and oxblood for
+  enemies, dark enough to sit with the HUD's bronzes and reds. The portrait is cut
   into a slanted, slightly ragged window with a painted highlight edge, and the
   time value is a heavy outlined numeral painted onto the stroke. Enemy and
   player portraits are exact 1:1 head-and-shoulder crops of each unit's current

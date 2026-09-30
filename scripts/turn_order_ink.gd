@@ -13,9 +13,11 @@ const BRUSH_DIR: String = "res://assets/art/ui/turn_order_ink/"
 const QUEUE_BRUSHES: Array[String] = ["brush_a.png", "brush_b.png", "brush_c.png", "brush_d.png"]
 const HERO_BRUSH: String = "brush_hero.png"
 
-const ACTIVE_INK := Color(0.86, 0.60, 0.25, 0.97)
-const ALLY_INK := Color(0.16, 0.40, 0.42, 0.92)
-const ENEMY_INK := Color(0.50, 0.11, 0.10, 0.92)
+# Muted, darker inks sit with the bronze, oxblood and near-black of the HUD
+# while staying clearly visible behind each portrait.
+const ACTIVE_INK := Color(0.70, 0.49, 0.22, 0.95)
+const ALLY_INK := Color(0.13, 0.30, 0.32, 0.90)
+const ENEMY_INK := Color(0.40, 0.10, 0.09, 0.90)
 const PROJECTED_ALPHA: float = 0.72
 
 # The stroke bleeds past the portrait: generously to the left where the time
