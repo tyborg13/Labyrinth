@@ -725,7 +725,7 @@ thorns), `thorns`, `hp_loss`, `block_loss`, `stoneskin_loss`, `bleed`, `shock`, 
 (`source_kind: "retaliate"`, `player_card: false`). Kills keep their ordinary
 `actor_death` record with that source; no card play is granted. The presentation step
 that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"`,
-`trigger: "retaliate"`, `action_type: "retaliate"`; analysis should prefer the surface
-event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
+`trigger: "retaliate"`, `action_type: "retaliate"` (kind `status_damage`, or `status`
+when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.

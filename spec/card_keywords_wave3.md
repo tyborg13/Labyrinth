@@ -14,8 +14,9 @@ Action `{"type": "retaliate", "amount": N, "bleed"?: n, "shock"?: 1, "push"?: n}
   `bleed` add, `shock` and `push` take the maximum.
 - Trigger: an enemy attack in `_resolve_board_attack` whose hit on the player carried at
   least 1 damage before defenses (Block-absorbed hits count), when the action is `melee`
-  or the attacker's footprint is adjacent to the player. Once per enemy attack. Ranged
-  hits from distance, illusion hits and zero-damage shoves never trigger it.
+  or the attacker's footprint was adjacent to the tile where the player was struck
+  (judged before any knockback). Once per enemy attack. Ranged hits from distance,
+  illusion hits and zero-damage shoves never trigger it.
 - Effect: `amount` as non-direct damage (`_damage_enemy(..., false, false)`: Block and
   Stoneskin absorb; no Chill/Freeze multiplier, no Crystal Mantle, no Expose use), then
   the riders through `_apply_action_keywords_to_enemy` with source = the player: Bleed
@@ -104,7 +105,8 @@ SurfaceRelicRules, GuardianRelicRules, `card_def_for_progression`,
   icon, tooltip = card name + rules text).
 - An enemy strike that triggers Retaliate animates from the attacker's pre-push tile,
   then a `status_damage` step labelled `Retaliate` carries `enemy_losses` and
-  `enemies_after` so the attacker's loss floats and applies.
+  `enemies_after` so the attacker's loss floats and applies (a rider-only Retaliate
+  uses a `status` step with `enemy_after`).
 
 ## Heuristic values
 

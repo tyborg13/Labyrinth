@@ -274,7 +274,7 @@ static func display_action(state: Dictionary, action: Dictionary) -> Dictionary:
 		return action
 	var result: Dictionary = action.duplicate(true)
 	var modifiers: Dictionary = (result.get("_modifiers", {}) as Dictionary).duplicate(true) if typeof(result.get("_modifiers", null)) == TYPE_DICTIONARY else {}
-	var source: String = ", ".join(PackedStringArray(bonus.get("sources", []))).strip_edges()
+	var source: String = ", ".join(PackedStringArray(bonus.get("sources", []) as Array)).strip_edges()
 	if source.is_empty():
 		source = "Next attack"
 	if int(bonus.get("chain", 0)) > 0:

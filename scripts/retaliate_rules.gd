@@ -55,10 +55,10 @@ static func totals(state: Dictionary, effects: Array) -> Dictionary:
 	total["active"] = int(total["amount"]) > 0 or int(total["bleed"]) > 0 or int(total["shock"]) > 0 or int(total["push"]) > 0
 	return total
 
-static func is_melee_hit(engine: RefCounted, state: Dictionary, attacker: Dictionary, action: Dictionary) -> bool:
+static func is_melee_hit(engine: RefCounted, state: Dictionary, attacker: Dictionary, action: Dictionary, struck_tile: Vector2i = Vector2i(-999999, -999999)) -> bool:
 	if str(action.get("type", "")) == "melee":
 		return true
-	var player_pos: Vector2i = (state.get("player", {}) as Dictionary).get("pos", Vector2i(-999, -999))
+	var player_pos: Vector2i = struck_tile if struck_tile != Vector2i(-999999, -999999) else (state.get("player", {}) as Dictionary).get("pos", Vector2i(-999, -999))
 	var origin: Vector2i = action.get("_origin_tile", attacker.get("pos", Vector2i(-999, -999)))
 	for tile: Vector2i in engine._enemy_footprint_tiles(attacker):
 		if Paths.manhattan(tile, player_pos) <= 1:
@@ -67,7 +67,7 @@ static func is_melee_hit(engine: RefCounted, state: Dictionary, attacker: Dictio
 
 ## Hooked after the enemy->player hit loop in CombatEngine._resolve_board_attack,
 ## inside its damage batch so deaths flush with this context.
-static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, action: Dictionary) -> Dictionary:
+static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: int, action: Dictionary, struck_tile: Vector2i = Vector2i(-999999, -999999)) -> Dictionary:
 	var player: Dictionary = state.get("player", {}) as Dictionary
 	if int(player.get("hp", 0)) <= 0:
 		return state
@@ -78,7 +78,7 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 	if index < 0:
 		return state
 	var before: Dictionary = engine._normalized_enemy((state.get("enemies", []) as Array)[index])
-	if int(before.get("hp", 0)) <= 0 or not is_melee_hit(engine, state, before, action):
+	if int(before.get("hp", 0)) <= 0 or not is_melee_hit(engine, state, before, action, struck_tile):
 		return state
 	var previous_context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	var context: Dictionary = {"actor_kind": "player", "actor_id": -1, "source_kind": "retaliate", "player_card": false, "causal_owner": "player", "target_enemy_id": attacker_id}
@@ -157,6 +157,22 @@ static func presentation_steps(engine: RefCounted, before_state: Dictionary, aft
 		var losses: Array[Dictionary] = []
 		if hp_loss > 0 or block_loss > 0 or stoneskin_loss > 0:
 			losses.append({"key": str(event.get("actor_key", "")), "kind": "enemy", "id": enemy_id, "tile": after_enemy.get("pos", before_values.get("pos", Vector2i.ZERO)), "hp_loss": hp_loss, "block_loss": block_loss, "stoneskin_loss": stoneskin_loss, "amount": hp_loss + block_loss + stoneskin_loss})
+		if losses.is_empty():
+			# Riders only (e.g. a zero-damage Retaliate that pushes): a status
+			# step names the effect and applies the moved/afflicted attacker.
+			steps.append({
+				"kind": "status",
+				"label": "Retaliate",
+				"text": "Retaliate",
+				"trigger": "retaliate",
+				"action_type": "retaliate",
+				"actor_key": str(event.get("actor_key", "")),
+				"actor_name": str(Data.enemy_def(str(after_enemy.get("type", ""))).get("name", "Enemy")) if not after_enemy.is_empty() else "Enemy",
+				"tile": after_enemy.get("pos", before_values.get("pos", Vector2i.ZERO)),
+				"enemy_after": after_enemy.duplicate(true),
+				"retaliate": event.duplicate(true)
+			})
+			continue
 		steps.append({
 			"kind": "status_damage",
 			"label": "Retaliate",
@@ -189,10 +205,14 @@ static func player_badges(state: Dictionary, effects: Array) -> Array[Dictionary
 		riders.append("Shock")
 	if int(total["push"]) > 0:
 		riders.append("Push %d" % int(total["push"]))
-	var lines: PackedStringArray = ["Retaliate %d" % int(total["amount"])]
-	var effect_text: String = "Enemies that hit you in melee take %d" % int(total["amount"])
+	var lines: PackedStringArray = ["Retaliate %d" % int(total["amount"]) if int(total["amount"]) > 0 else "Retaliate"]
+	var effect_text: String = "Enemies that hit you in melee"
+	if int(total["amount"]) > 0:
+		effect_text += " take %d" % int(total["amount"])
+		if not riders.is_empty():
+			effect_text += " and"
 	if not riders.is_empty():
-		effect_text += " and suffer %s" % ", ".join(riders)
+		effect_text += " suffer %s" % ", ".join(riders)
 	lines.append(effect_text + ".")
 	var has_card_retaliate: bool = typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY and not (state[STATE_KEY] as Dictionary).is_empty()
 	var has_thorns: bool = not RiteRules.effects_of_type(effects, "thorns").is_empty()

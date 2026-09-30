@@ -120,7 +120,7 @@ const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
 # expansion on the engine instead of deep-copying every effect for every target,
 # preview, status hook, and death hook.
 var _relic_effect_cache_ids: Array = []
-var _relic_effect_cache_rites: Array = []
+var _relic_effect_cache_rites: String = ""
 var _relic_effect_cache: Array[Dictionary] = []
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
@@ -9327,7 +9327,7 @@ func _attack_bonus_for_current_turn_from_effects(state: Dictionary, relic_effect
 func _move_bonus_for_current_turn(state: Dictionary) -> int:
 	if bool((state.get("turn_flags", {}) as Dictionary).get("first_move_bonus_used", false)):
 		return 0
-	return GameData.stat_bonus_from_relics(state.get("relics", []), "first_move_bonus")
+	return GameData.stat_bonus_from_state(state, "first_move_bonus")
 
 func _move_range_for_action(state: Dictionary, action: Dictionary) -> int:
 	var move_range: int = maxi(0, int(action.get("range", 0)))
@@ -10205,13 +10205,14 @@ func _relic_once_key(effect: Dictionary, suffix: String, element_id: String, inc
 
 func _relic_effects(state: Dictionary) -> Array[Dictionary]:
 	var relic_ids: Array = state.get("relics", []) as Array
-	var rites: Array = RiteRules.active_rites(state)
+	# Active Rites are combat-scoped relic effects and share the same cache,
+	# keyed by their ordered card ids rather than a deep comparison.
+	var rites: String = RiteRules.signature(state)
 	# Array equality checks the complete ordered inputs without allocating a
 	# string key for every rules query. Own the key so in-place edits invalidate.
-	# Active Rites are combat-scoped relic effects and share the same cache.
 	if relic_ids != _relic_effect_cache_ids or rites != _relic_effect_cache_rites:
 		_relic_effect_cache_ids = relic_ids.duplicate(true)
-		_relic_effect_cache_rites = rites.duplicate(true)
+		_relic_effect_cache_rites = rites
 		_relic_effect_cache = GameData.relic_effects_for_state(state)
 	return _relic_effect_cache
 
@@ -10736,6 +10737,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
 	var affected: Array[int]
 	var player_struck: bool = false
+	var struck_player_tile: Vector2i = INVALID_TILE
 	var native_trace: Array = []
 	var relay: Dictionary = action.get("_ranged_relay",{}) as Dictionary
 	if not relay.is_empty():
@@ -10794,7 +10796,10 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				hit_origin = _closest_enemy_tile_to(_surface_actor(state,"enemy",actor_id),hit["to"])
 				hit_action["force_direction"] = _cardinal_direction(hit["to"]-hit_origin) * (1 if int(hit_action.get("push",0))>0 else -1)
 			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
-			player_struck = player_struck or (actor_kind == "enemy" and str(hit["kind"]) == "player" and int(hit_action.get("damage", 0)) > 0)
+			if not player_struck and actor_kind == "enemy" and str(hit["kind"]) == "player" and int(hit_action.get("damage", 0)) > 0:
+				# Retaliate judges melee range where the strike landed, before knockback.
+				player_struck = true
+				struck_player_tile = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 			state = _apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
 		if bool(hit.get("hidden_direct", false)):
 			continue
@@ -10822,7 +10827,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		CombatTerrainRules.raise_outcrop(self, state, target, int(action["outcrop_health"]), _surface_source(state, action))
 	if player_struck:
 		# Once per enemy attack, inside the batch so Retaliate deaths flush here.
-		state = RetaliateRules.after_enemy_hit(self, state, actor_id, resolved)
+		state = RetaliateRules.after_enemy_hit(self, state, actor_id, resolved, struck_player_tile)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = _flush_surface_deaths(state)

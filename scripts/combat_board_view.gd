@@ -3480,6 +3480,10 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"traps": source_state.get("traps", []),
 		"surfaces": source_state.get("surfaces", {}),
 		"relics": source_state.get("relics", []),
+		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
+		"retaliate": source_state.get("retaliate", {}),
+		"active_rites": source_state.get("active_rites", []),
+		"turn_flags": source_state.get("turn_flags", {}),
 		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
 		"room_element": source_state.get("room_element", ElementData.NONE),

@@ -490,6 +490,7 @@ var _interactive: bool = true
 var _printed_playable: bool = true
 var _interaction_state_dirty: bool = true
 var _card_override: Dictionary = {}
+var _desc_text_inset: StyleBoxEmpty
 var _summary_bbcode: String = ""
 var _summary_rows: Array = []
 var _modifier_tooltip_lines: PackedStringArray = []
@@ -927,6 +928,14 @@ func _apply_scaled_node_metrics() -> void:
 	details_vbox.add_theme_constant_override("separation", _scaled_card_int(5, 1))
 	if _summary_icon_box != null:
 		_summary_icon_box.add_theme_constant_override("separation", _scaled_card_int(5, 1))
+	# Rules-text cards (Rites) keep their words on the parchment, inside the
+	# frame border that the outer and details margins alone do not clear.
+	if _desc_text_inset == null:
+		_desc_text_inset = StyleBoxEmpty.new()
+		desc_label.add_theme_stylebox_override("normal", _desc_text_inset)
+		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_desc_text_inset.content_margin_left = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
+	_desc_text_inset.content_margin_right = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
 
 func _card_layout_scale() -> float:
 	var card_size: Vector2 = size

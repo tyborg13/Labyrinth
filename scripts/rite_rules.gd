@@ -11,6 +11,7 @@ class_name RiteRules
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
 const ACTIVE_KEY: String = "active_rites"
+const SIGNATURE_KEY: String = "active_rites_signature"
 const RELIC_ID_PREFIX: String = "rite:"
 const ATTACK_ACTION_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull", "detonate"]
 const TARGET_STATE_CONDITIONS: Array = ["target_in_light", "target_surface", "target_status"]
@@ -38,7 +39,24 @@ static func start(state: Dictionary, card_id: String, card: Dictionary) -> bool:
 		"effects": (rite.get("effects", []) as Array).duplicate(true)
 	})
 	state[ACTIVE_KEY] = rites
+	state[SIGNATURE_KEY] = _computed_signature(rites)
 	return true
+
+## Cheap identity for relic-effect caches. Rite effects derive from the ordered
+## card ids, so the joined ids identify them without a deep comparison.
+static func signature(state: Dictionary) -> String:
+	if not state.has(ACTIVE_KEY):
+		return ""
+	if state.has(SIGNATURE_KEY):
+		return str(state[SIGNATURE_KEY])
+	return _computed_signature(active_rites(state))
+
+static func _computed_signature(rites: Array) -> String:
+	var ids: PackedStringArray = []
+	for rite_var: Variant in rites:
+		if typeof(rite_var) == TYPE_DICTIONARY:
+			ids.append(str((rite_var as Dictionary).get("card_id", "")))
+	return "|".join(ids)
 
 ## Relic-shaped effects for every active Rite. `relic_id` is unique and stable
 ## per authored effect (rite:<card_id>:<n>), so once/counter flags never collide
@@ -216,6 +234,6 @@ static func hud_entries(state: Dictionary) -> Array[Dictionary]:
 		result.append({
 			"card_id": str(rite.get("card_id", "")),
 			"icon": "rite",
-			"tooltip": "%s\n%s\nRite: lasts for the rest of this combat." % [str(rite.get("name", "")), str(rite.get("description", ""))]
+			"tooltip": "%s\n%s\nRite: Exhaust. Lasts for the rest of this combat." % [str(rite.get("name", "")), str(rite.get("description", ""))]
 		})
 	return result

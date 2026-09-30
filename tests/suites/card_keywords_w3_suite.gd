@@ -15,6 +15,7 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
+const RunSceneScript = preload("res://scripts/run_scene.gd")
 
 const NO_TARGET: Vector2i = Vector2i(-1, -1)
 const PLAYER_TILE: Vector2i = Vector2i(2, 4)
@@ -23,6 +24,7 @@ const ADJACENT_TILE: Vector2i = Vector2i(3, 4)
 const FIXTURES: Dictionary = {
 	"w3_fx_retaliate": {"actions": [{"type": "block", "amount": 2}, {"type": "retaliate", "amount": 4}], "time": 3},
 	"w3_fx_retaliate_riders": {"actions": [{"type": "retaliate", "amount": 2, "bleed": 1, "shock": 1, "push": 2}], "time": 3},
+	"w3_fx_retaliate_push_only": {"actions": [{"type": "retaliate", "amount": 0, "push": 2}], "time": 5},
 	"w3_fx_retaliate_bleed": {"actions": [{"type": "retaliate", "amount": 1, "bleed": 2, "push": 1}], "time": 3},
 	"w3_fx_quicken": {"actions": [{"type": "draw", "amount": 1}, {"type": "quicken", "amount": 2}], "time": 2},
 	"w3_fx_quicken_first": {"actions": [{"type": "quicken", "amount": 2}], "time": 3},
@@ -54,6 +56,9 @@ const FIXTURES: Dictionary = {
 }
 
 static func run(expect: Callable) -> void:
+	# Warm catalog caches built from GameData.cards() before fixtures exist, so
+	# the injected cards never leak into later suites through a cached catalog.
+	GrimoireLibrary.entry_map()
 	_install_fixtures()
 	var engine: CombatEngine = CombatEngine.new()
 	_test_retaliate_melee_block_first(engine, expect)
@@ -77,6 +82,7 @@ static func run(expect: Callable) -> void:
 	_test_rites_are_combat_scoped(engine, expect)
 	_test_rites_visible_to_relic_rule_readers(engine, expect)
 	_test_presentation_contracts(engine, expect)
+	_test_run_scene_hand_display(engine, expect)
 	_remove_fixtures()
 
 # ------------------------------------------------------------------ fixtures
@@ -189,6 +195,10 @@ static func _test_retaliate_ignores_ranged(engine: CombatEngine, expect: Callabl
 	var adjacent: Dictionary = _play(engine, _state(engine), "w3_fx_retaliate")
 	var adjacent_after: Dictionary = _enemy_strike(engine, adjacent, {"type": "ranged", "damage": 3, "range": 4})
 	expect.call(int(_enemy(adjacent_after).get("hp", 0)) == 16, "Any attack made from an adjacent tile counts as melee for Retaliate")
+	var shove: Dictionary = _enemy_strike(engine, adjacent, {"type": "push", "amount": 2, "damage": 2, "range": 1})
+	expect.call(Vector2i(_player(shove).get("pos", PLAYER_TILE)) != PLAYER_TILE and int(_enemy(shove).get("hp", 0)) == 16, "An adjacent shove that knocks the player away still triggers Retaliate")
+	var nudge: Dictionary = _enemy_strike(engine, adjacent, {"type": "push", "amount": 1, "damage": 0, "range": 1})
+	expect.call(int(_enemy(nudge).get("hp", 0)) == 20, "A zero-damage shove does not trigger Retaliate")
 
 static func _test_retaliate_stacking_and_riders(engine: CombatEngine, expect: Callable) -> void:
 	var state: Dictionary = _state(engine)
@@ -248,6 +258,11 @@ static func _test_retaliate_presentation_steps(engine: CombatEngine, expect: Cal
 	expect.call(not attack_step.is_empty() and Vector2i(attack_step.get("from", Vector2i.ZERO)) == ADJACENT_TILE, "The enemy strike animates from where it stood before Retaliate pushed it")
 	expect.call(str(retaliate_step.get("kind", "")) == "status_damage" and not (retaliate_step.get("enemy_losses", []) as Array).is_empty(), "Retaliate should add a status_damage step carrying the attacker's losses for floating text")
 	expect.call(retaliate_step.has("enemies_after") and int(((retaliate_step["enemies_after"] as Array)[0] as Dictionary).get("hp", 0)) == 18, "The Retaliate step should carry the attacker's after-state for animation")
+	var push_only: Dictionary = _play(engine, _state(engine), "w3_fx_retaliate_push_only")
+	var pushed: Dictionary = _enemy_strike(engine, push_only, _melee(3))
+	var push_steps: Array[Dictionary] = RetaliateRules.presentation_steps(engine, push_only, pushed)
+	expect.call(Vector2i(_enemy(pushed).get("pos", Vector2i.ZERO)) == Vector2i(5, 4) and int(_enemy(pushed).get("hp", 0)) == 20, "A zero-damage Retaliate still pushes the attacker")
+	expect.call(push_steps.size() == 1 and str(push_steps[0].get("kind", "")) == "status" and Vector2i((push_steps[0].get("enemy_after", {}) as Dictionary).get("pos", Vector2i.ZERO)) == Vector2i(5, 4), "A rider-only Retaliate presents as a status step carrying the moved attacker")
 
 # -------------------------------------------------------------------- Quicken
 
@@ -465,3 +480,25 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	expect.call(hud.size() == 1 and str(hud[0].get("icon", "")) == "rite" and str(hud[0].get("tooltip", "")).contains("Fire tiles deal 2 more"), "Active Rites expose HUD entries with the card name and rules text")
 	var playable_actions: Array = engine.card_play_actions("w3_fx_rite_pyre", _state(engine))
 	expect.call(playable_actions.size() == 1 and str((playable_actions[0] as Dictionary).get("type", "")) == "rite" and not engine.player_action_needs_target(playable_actions[0] as Dictionary), "A Rite card resolves as one targetless step so it is playable")
+
+static func _token_with_icon(rows: Array, icon: String) -> Dictionary:
+	for row_var: Variant in rows:
+		for token_var: Variant in row_var as Array:
+			if typeof(token_var) == TYPE_DICTIONARY and str((token_var as Dictionary).get("icon", "")) == icon:
+				return token_var as Dictionary
+	return {}
+
+static func _test_run_scene_hand_display(engine: CombatEngine, expect: Callable) -> void:
+	var scene: Node = RunSceneScript.new()
+	var buffed: Dictionary = _play(engine, _play(engine, _state(engine), "w3_fx_buff"), "w3_fx_lightning_chain")
+	var strike_display: Dictionary = scene.call("_card_widget_display", "w3_fx_strike", buffed)
+	var melee_token: Dictionary = _token_with_icon(strike_display.get("summary_rows", []) as Array, "melee")
+	expect.call(int(melee_token.get("value", 0)) == 6 and str(melee_token.get("tone", "")) == "bonus", "The hand row shows the pending next-attack damage as a bonus")
+	var bolt_display: Dictionary = scene.call("_card_widget_display", "w3_fx_bolt", buffed)
+	var chain_token: Dictionary = _token_with_icon(bolt_display.get("summary_rows", []) as Array, "chain")
+	expect.call(int(chain_token.get("value", 0)) == 2 and ActionIcons.token_is_modified(chain_token), "The hand row shows Chain granted by a pending Lightning buff")
+	var rite_display: Dictionary = scene.call("_card_widget_display", "w3_fx_rite_thorns", _state(engine))
+	expect.call((rite_display.get("summary_rows", []) as Array).is_empty() and str(rite_display.get("summary_bbcode", "")).ends_with("Health cost 2."), "A Rite card in hand shows its rules text with the health cost")
+	var retaliate_display: Dictionary = scene.call("_card_widget_display", "w3_fx_retaliate_riders", _state(engine))
+	expect.call(not _token_with_icon(retaliate_display.get("summary_rows", []) as Array, "retaliate").is_empty(), "A Retaliate card in hand shows the Retaliate token")
+	scene.free()
