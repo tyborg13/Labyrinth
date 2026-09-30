@@ -462,7 +462,7 @@ func _add_victory_stat_metric(host: GridContainer, spec: Dictionary) -> void:
 	var heading := _label("Victory%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
 	heading.text = str(spec.get("label", stat_id.to_upper()))
 	heading.add_theme_font_override("font", UiTypography.eyebrow_font())
-	UiTypography.set_label_size(heading, UiTypography.SIZE_CAPTION - 2)
+	UiTypography.set_label_size(heading, UiTypography.SIZE_CAPTION)
 	box.add_child(heading)
 	var value := _label("Victory%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
 	value.add_theme_font_override("font", UI_FONT)

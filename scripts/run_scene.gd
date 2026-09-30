@@ -6618,18 +6618,18 @@ func _build_context_choice_overlay() -> void:
 	_context_choice_overlay.visible = false
 	_context_choice_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var overlay_style := StyleBoxFlat.new()
-	overlay_style.bg_color = Color(0.10, 0.065, 0.045, 0.88)
-	overlay_style.border_color = Color(0.88, 0.63, 0.32, 0.72)
-	overlay_style.border_width_left = 2
-	overlay_style.border_width_top = 2
-	overlay_style.border_width_right = 2
-	overlay_style.border_width_bottom = 2
+	overlay_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.border_width_left = 0
+	overlay_style.border_width_top = 0
+	overlay_style.border_width_right = 0
+	overlay_style.border_width_bottom = 0
 	overlay_style.corner_radius_top_left = 8
 	overlay_style.corner_radius_top_right = 8
 	overlay_style.corner_radius_bottom_right = 8
 	overlay_style.corner_radius_bottom_left = 8
-	overlay_style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
-	overlay_style.shadow_size = 12
+	overlay_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.shadow_size = 0
 	overlay_style.content_margin_left = 12
 	overlay_style.content_margin_top = 10
 	overlay_style.content_margin_right = 12
@@ -8178,7 +8178,7 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_hint_label = Label.new()
 	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dialogue_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_eyebrow(_dialogue_hint_label, UiTypography.SIZE_CAPTION - 1, UiPalette.TEXT_3)
+	UiTypography.apply_eyebrow(_dialogue_hint_label, UiTypography.SIZE_CAPTION, UiPalette.TEXT_3)
 	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_footer.add_child(_dialogue_hint_label)
 
@@ -12988,10 +12988,18 @@ func _combat_objective_hud_target_rect() -> Rect2:
 		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
 		if play_meter_rect.size.y > 0.0:
 			# One aligned left dock: the objective sits directly above the
-			# card-play and movement meters, centered on the same column.
+			# card-play and movement meters and shares their right edge, so the
+			# column reads as one flush stack beside the hand.
 			var root_origin: Vector2 = ui_root.get_global_rect().position
 			top = play_meter_rect.position.y - root_origin.y - hud_height - COMBAT_OBJECTIVE_DOCK_GAP
-			left = play_meter_rect.get_center().x - root_origin.x - hud_width * 0.5
+			var right_edge: float = play_meter_rect.end.x - root_origin.x
+			var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+			if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0:
+				var board_top: float = board_bounds.position.y - root_origin.y
+				var board_bottom: float = board_bounds.end.y - root_origin.y
+				if top < board_bottom and top + hud_height > board_top:
+					right_edge = minf(right_edge, board_bounds.position.x - root_origin.x - COMBAT_OBJECTIVE_DOCK_GAP)
+			left = right_edge - hud_width
 	left = clampf(left, UiTypography.SAFE_MARGIN, maxf(UiTypography.SAFE_MARGIN, viewport_size.x - hud_width - UiTypography.SAFE_MARGIN))
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
 	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
@@ -29426,16 +29434,15 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	panel.name = "%sChip" % chip_name
 	panel.custom_minimum_size = Vector2(minimum_width, 36.0 if _progression_summary_compact else 44.0)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.042, 0.052, 0.96)
-	style.border_color = accent.darkened(0.14)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.border_blend = true
+	style.bg_color = Color(UiPalette.INK_1, 0.96)
+	style.border_color = UiPalette.GOLD_DIM
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
 	style.shadow_color = Color(0.005, 0.004, 0.008, 0.42)
 	style.shadow_size = 3
 	style.shadow_offset = Vector2(0.0, 2.0)
 	panel.add_theme_stylebox_override("panel", style)
-	_ui_skin.apply_menu_finish(panel, "chip", accent)
+	_ui_skin.apply_menu_finish(panel, "chip", UiPalette.GOLD)
 	row.add_child(panel)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)

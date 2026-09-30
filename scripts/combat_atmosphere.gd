@@ -21,16 +21,21 @@ uniform float vignette_strength = 0.80;
 uniform float vignette_inner = 0.30;
 uniform float vignette_outer = 1.02;
 uniform float aspect = 1.7778;
+uniform float hurt = 0.0;
+uniform vec4 hurt_color : source_color = vec4(0.55, 0.05, 0.03, 1.0);
 
 void fragment() {
 	vec2 q = (UV - vec2(0.5)) * 2.0;
 	float edge = length(q * vec2(1.0, 0.92)) / 1.36;
 	float vignette = smoothstep(vignette_inner, vignette_outer, edge) * vignette_strength;
+	float hurt_edge = smoothstep(0.42, 1.05, edge) * hurt;
+	vignette = max(vignette, hurt_edge * 0.85);
+	vec3 vignette_tint = mix(vignette_color.rgb, hurt_color.rgb, clamp(hurt_edge * 1.4, 0.0, 1.0));
 	vec2 pc = (UV - pool_center) / pool_radius;
 	pc.x *= 1.0;
 	float pool = exp(-dot(pc, pc) * 1.45) * pool_strength;
 	vec3 glow = pool_color.rgb * pool;
-	COLOR = vec4(glow * (1.0 - vignette) + vignette_color.rgb * vignette, vignette);
+	COLOR = vec4(glow * (1.0 - vignette) + vignette_tint * vignette, vignette);
 }
 """
 
@@ -59,7 +64,7 @@ func _ready() -> void:
 	_material.shader = shader
 	_shade.material = _material
 	add_child(_shade)
-	_motes = _build_motes()
+	_motes = build_motes(MOTE_COUNT)
 	add_child(_motes)
 	resized.connect(_on_resized)
 	_on_resized()
@@ -70,6 +75,10 @@ func set_motion_enabled(enabled: bool) -> void:
 	if _motes != null:
 		_motes.emitting = enabled and is_visible_in_tree()
 		_motes.visible = enabled
+
+func set_hurt(strength: float) -> void:
+	if _material != null:
+		_material.set_shader_parameter("hurt", clampf(strength, 0.0, 1.0))
 
 func set_pool_strength(strength: float) -> void:
 	if _material != null:
@@ -100,10 +109,10 @@ func _sync_pool_to_board() -> void:
 		center = Vector2(clampf(local_center.x / size.x, 0.2, 0.8), clampf(local_center.y / size.y, 0.2, 0.8))
 	_material.set_shader_parameter("pool_center", center)
 
-func _build_motes() -> CPUParticles2D:
+static func build_motes(count: int) -> CPUParticles2D:
 	var motes := CPUParticles2D.new()
 	motes.name = "AtmosphereMotes"
-	motes.amount = MOTE_COUNT
+	motes.amount = count
 	motes.lifetime = MOTE_LIFETIME
 	motes.preprocess = MOTE_LIFETIME
 	motes.randomness = 1.0

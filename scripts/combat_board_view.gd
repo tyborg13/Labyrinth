@@ -8695,13 +8695,16 @@ func _update_impact_camera_shake() -> void:
 	if layer == null:
 		return
 	var impact_keys: Array = presentation.get("impact_actor_keys", []) as Array
+	var progress: float = clampf(float(presentation.get("impact_progress", 1.0)), 0.0, 1.0)
+	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	var player_hit: bool = impact_keys.has("player")
+	var atmosphere: Node = layer.get_node_or_null("CombatAtmosphere")
+	if atmosphere != null:
+		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(strength, 1.2) if player_hit else 0.0)
 	if impact_keys.is_empty() or bool(presentation.get("reduced_motion", false)):
 		if layer.offset != Vector2.ZERO:
 			layer.offset = Vector2.ZERO
 		return
-	var progress: float = clampf(float(presentation.get("impact_progress", 1.0)), 0.0, 1.0)
-	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
-	var player_hit: bool = impact_keys.has("player")
 	var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if player_hit else IMPACT_CAMERA_SHAKE_PX) * strength
 	var decay: float = pow(1.0 - progress, 2.0)
 	if decay <= 0.001:
@@ -12036,7 +12039,7 @@ func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
 		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
 		if tile.x < 0:
 			continue
-		var font: Font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else default_font
+		var font: Font = UiTypography.display_font() if FloatingCombatText.is_damage_entry(entry) else default_font
 		if font == null:
 			font = default_font
 		var label_width: float = _floating_text_rendered_width(entry, font)
