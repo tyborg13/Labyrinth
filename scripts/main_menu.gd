@@ -313,7 +313,18 @@ func _install_title_motes() -> void:
 	add_child(_title_motes)
 	move_child(_title_motes, global_scrim.get_index() + 1)
 	_layout_title_motes()
-	var reduced: bool = SettingsStore.applied_reduced_motion_enabled()
+	_apply_title_motes_motion(SettingsStore.applied_reduced_motion_enabled())
+	if settings_panel != null and settings_panel.has_signal("settings_changed"):
+		var on_changed := Callable(self, "_on_title_settings_changed")
+		if not settings_panel.is_connected("settings_changed", on_changed):
+			settings_panel.connect("settings_changed", on_changed)
+
+func _on_title_settings_changed(settings: Dictionary) -> void:
+	_apply_title_motes_motion(SettingsStore.reduced_motion_enabled(settings))
+
+func _apply_title_motes_motion(reduced: bool) -> void:
+	if _title_motes == null:
+		return
 	_title_motes.emitting = not reduced
 	_title_motes.visible = not reduced
 

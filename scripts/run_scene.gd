@@ -1181,7 +1181,7 @@ const DRAW_STAGGER_SECONDS: float = 0.16
 const CARD_DRAW_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/card_draw_deal.wav",
 	"duration": 0.29,
-	"volume_db": -2.0,
+	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const CARD_PLAY_SFX_ENTRY: Dictionary = {
@@ -1193,7 +1193,7 @@ const CARD_PLAY_SFX_ENTRY: Dictionary = {
 const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/reward_card_flip.wav",
 	"duration": 0.28,
-	"volume_db": -1.5,
+	"volume_db": 0.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
@@ -3911,12 +3911,21 @@ func _install_scene_atmosphere() -> void:
 func _show_turn_banner(player_turn: bool) -> void:
 	if _turn_banner == null or not _turn_banner.is_inside_tree():
 		return
+	# The boss health bar and enemy action labels own the top-centre band; the
+	# phase banner is a courtesy cue and always yields to them.
+	if _turn_banner_blocked():
+		return
 	_turn_banner.call(
 		"show_banner",
 		"YOUR TURN" if player_turn else "ENEMY TURN",
 		UiPalette.GOLD if player_turn else UiPalette.DANGER_BRIGHT,
 		_reduced_motion_enabled()
 	)
+
+func _turn_banner_blocked() -> bool:
+	if _boss_health_overlay != null and _boss_health_overlay.is_visible_in_tree():
+		return true
+	return action_banner != null and action_banner.is_visible_in_tree() and not action_banner.text.is_empty()
 
 func _finalize_performance_telemetry_scene(reason: String) -> void:
 	if _performance_telemetry_finalized:
@@ -5093,7 +5102,6 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.connect("interaction_changed", _refresh_controller_prompts)
 	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
-	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
 	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
 	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
@@ -26717,6 +26725,8 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
+	if not text.is_empty() and _turn_banner != null and _turn_banner.visible:
+		_turn_banner.call("dismiss", _reduced_motion_enabled())
 	_layout_action_banner()
 
 func _layout_action_banner() -> void:

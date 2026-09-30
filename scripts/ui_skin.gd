@@ -352,7 +352,6 @@ func apply_outer_panel_frame(panel: PanelContainer, variant: String = SURFACE_DI
 	apply_surface_finish(panel, variant)
 	panel.set_meta("surface_variant", variant)
 	panel.set_meta("panel_outer_frame_only", true)
-	panel.set_meta("panel_frame_scale", 0.14)
 	var ornament: Node2D = _ensure_outer_panel_ornament(panel, variant)
 	if ornament != null:
 		panel.move_child(ornament, panel.get_child_count() - 1)

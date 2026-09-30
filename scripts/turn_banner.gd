@@ -71,6 +71,16 @@ func show_banner(text: String, accent: Color, reduced_motion: bool) -> void:
 	_tween.chain().tween_property(self, "modulate:a", 0.0, FADE_OUT_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	_tween.chain().tween_callback(hide)
 
+# Yield immediately to more specific information (e.g. an enemy action label).
+func dismiss(_reduced_motion: bool = false) -> void:
+	if not visible:
+		return
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	# Hide at once: the incoming action label is the more specific information
+	# and should never share the band with the fading banner.
+	hide()
+
 func _set_reveal(value: float) -> void:
 	_reveal = clampf(value, 0.0, 1.0)
 	if _label != null:

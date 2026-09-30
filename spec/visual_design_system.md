@@ -71,11 +71,22 @@ floor shadows); the former navy button bodies clashed with it.
 
 ## Audio mix notes
 
-- A gentle SFX glue compressor and a Master hard limiter keep stacked impacts
-  from clipping (`SettingsStore`).
-- Short one-shots receive a small random pitch drift; stingers keep their
-  authored pitch.
-- New cues are derived from shipped recordings by `tools/generate_ui_cue_sfx.py`
-  (menu page open/close, pass commit, the quiet stone-hall ambience bed).
-- Owner-approved levels (door, victory, reward, hover) and the no-overlap music
-  transition rule are preserved.
+- A gentle SFX glue compressor (threshold −16 dB, 2.5:1, no makeup gain) and a
+  Master hard limiter (−0.8 dB ceiling) keep stacked impacts from clipping
+  (`SettingsStore`). The compressor only acts on the loudest peaks.
+- Short one-shots (≤1.25 s) receive a small random pitch drift (±3.5 %); UI
+  hover/click ticks drift ±3–4.5 %. Stingers keep their authored pitch.
+- New cues are derived from shipped recordings by `tools/generate_ui_cue_sfx.py`:
+  menu page open/close, the pass/end-turn commit, and a quiet stone-hall
+  ambience bed (campfire loop filtered into distant crackle over a low rumble)
+  that plays in room, combat, pre-battle, reward, treasure and event modes.
+- Preserved owner-auditioned decisions: card draw (0 dB, ~9–11 dB under
+  impacts), reward-card flip (no gain boost), door −10 dB, victory −7 dB,
+  accepted reward −12 dB, hover tick −17 dB, the 8 %/4 % reverbs, and the
+  no-overlap music transition.
+- **Changed and awaiting audition:** `card_play_take.wav` (+13 dB then limited;
+  it measured ~−37 dB RMS and was nearly inaudible), `item_equip.wav`
+  (+6 dB then limited, playback −1 dB), relic-choices-open playback −2.5 dB,
+  and combat hit playback levels (melee −5.5, ranged −1, block −4.5, fire −6.5,
+  earth −3.5, air 0, lightning −3, ice 0 dB; previously −4/−2/−3/−3/−2/−2/−2/−2)
+  to even out their measured loudness.

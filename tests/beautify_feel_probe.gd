@@ -8,6 +8,9 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const BossFactory = preload("res://tools/dragon_boss_inspection.gd")
+const DEFAULT_CLEAR_GREY := Color8(77, 77, 77)
 
 const OUTPUT_DIR: String = "user://probes/beautify_feel_v1"
 
@@ -103,22 +106,25 @@ func _run() -> void:
 	board_view.set("presentation", presentation)
 	board_view.call("_update_impact_camera_shake")
 	await process_frame
+	await process_frame
 	await _save("06_player_hit_kick")
 	_expect(underlay.offset != Vector2.ZERO, "A player hit should kick the board layer")
+	_expect(not _edges_show_clear_colour("06_player_hit_kick"), "A camera kick must never uncover the default clear colour at the screen edge")
 	var hurt: float = float((atmosphere.get("_material") as ShaderMaterial).get_shader_parameter("hurt")) if atmosphere != null else 0.0
 	_expect(hurt > 0.3, "A player hit should flush the screen edge crimson")
 	var ui_layer: CanvasLayer = instance.get_node("UiLayer") as CanvasLayer
 	_expect(ui_layer.offset == Vector2.ZERO, "The HUD must never shake")
+	# Apply one kick sample directly under reduced motion: the live scene may
+	# resubmit its own presentation between frames.
 	presentation["reduced_motion"] = true
 	board_view.set("presentation", presentation)
-	board_view.call("_update_impact_camera_shake")
-	await process_frame
+	board_view.call("_apply_camera_kick", 0.1)
 	_expect(underlay.offset == Vector2.ZERO, "Reduced motion keeps the camera still")
 	presentation["impact_actor_keys"] = []
 	presentation["reduced_motion"] = false
 	board_view.set("presentation", presentation)
 	board_view.call("_update_impact_camera_shake")
-	await process_frame
+	await _settle(0.5)
 	_expect(underlay.offset == Vector2.ZERO, "The camera settles when the impact ends")
 
 	instance.call("_open_menu_overlay")
@@ -126,7 +132,110 @@ func _run() -> void:
 	await _save("07_pause_menu")
 	instance.call("_close_menu_overlay")
 	await _settle(0.2)
+	await _real_enemy_rounds(instance, atmosphere, underlay)
+	instance.queue_free()
+	await _settle(0.2)
+	await _boss_banner_yields()
 	_finish()
+
+# Drive real Pass -> enemy round -> player turn cycles until an enemy actually
+# damages the player, sampling every rendered frame for shake, flush and any
+# overlap between the phase banner and the enemy action label.
+func _real_enemy_rounds(instance: Node, atmosphere: Node, underlay: CanvasLayer) -> void:
+	var combat := CombatEngine.new()
+	var banner: Control = instance.get("_turn_banner") as Control
+	var banner_label: Control = banner.get_node("TurnBannerLabel") as Control
+	var action_label: Control = instance.get("action_banner") as Control
+	var start_hp: int = int(((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("hp", 0))
+	var enemy_banner_seen: bool = false
+	var player_banner_seen: bool = false
+	var real_hit_seen: bool = false
+	var peak_offset: float = 0.0
+	var overlap_frames: int = 0
+	for round_index: int in range(6):
+		var state: Dictionary = instance.get("_combat_state")
+		if combat.combat_outcome(state) != "" or not combat.is_player_turn(state):
+			break
+		instance.call("_on_pass_turn_pressed")
+		var frames: int = 0
+		while frames < 2400:
+			await process_frame
+			frames += 1
+			peak_offset = maxf(peak_offset, underlay.offset.length())
+			if banner.visible and banner_label.text == "ENEMY TURN":
+				if not enemy_banner_seen:
+					enemy_banner_seen = true
+					await _save("08_real_enemy_turn")
+			if banner.visible and action_label.is_visible_in_tree() and not (action_label as Label).text.is_empty():
+				if banner_label.get_global_rect().intersects(action_label.get_global_rect()):
+					overlap_frames += 1
+			var hurt: float = float((atmosphere.get("_material") as ShaderMaterial).get_shader_parameter("hurt"))
+			if hurt > 0.3 and not real_hit_seen:
+				real_hit_seen = true
+				await _save("09_real_player_hit")
+				_expect(not _edges_show_clear_colour("09_real_player_hit"), "A real enemy hit must not uncover the screen edge")
+			if not bool(instance.get("_animation_lock")) and combat.is_player_turn(instance.get("_combat_state")):
+				break
+		for settle_frame: int in range(30):
+			await process_frame
+			if banner.visible and banner_label.text == "YOUR TURN" and not player_banner_seen:
+				player_banner_seen = true
+				await _save("10_real_your_turn")
+		var hp: int = int(((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).get("hp", 0))
+		if real_hit_seen and hp < start_hp:
+			break
+	await _settle(1.6)
+	_expect(enemy_banner_seen, "A real Pass should raise the ENEMY TURN banner")
+	_expect(player_banner_seen, "The real hand-back should raise the YOUR TURN banner")
+	_expect(real_hit_seen, "The real enemy rounds should land at least one hit on the player")
+	_expect(peak_offset > 0.5, "Real hits should kick the board layer")
+	_expect(overlap_frames == 0, "The phase banner must never overlap an enemy action label (%d frames)" % overlap_frames)
+	_expect(underlay.offset == Vector2.ZERO, "The board layer returns to rest after a real impact sequence")
+	var hurt_after: float = float((atmosphere.get("_material") as ShaderMaterial).get_shader_parameter("hurt"))
+	_expect(is_zero_approx(hurt_after), "The crimson flush clears after a real impact sequence")
+	for name: String in ["BaseBackdrop", "BoardBackdrop", "CombatAtmosphere"]:
+		var backdrop: Control = underlay.get_node_or_null(name) as Control
+		_expect(backdrop != null and backdrop.position == Vector2.ZERO, "%s returns to rest after shaking" % name)
+
+# In boss fights the boss health bar owns the top band; banners stand down.
+func _boss_banner_yields() -> void:
+	var run_engine := RunEngine.new()
+	var combat := CombatEngine.new()
+	var options := {"dragon_id": "zekarion", "dragon_depth": 20}
+	var state: Dictionary = BossFactory.build(run_engine, combat, run_engine.create_new_run(BossFactory.seed_for_options(options), ProgressionStore.default_data()), options)
+	ProgressionStore.save_data(state["progression"])
+	ProgressionStore.save_run_state(state)
+	var boss_scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	_viewport.add_child(boss_scene)
+	await process_frame
+	boss_scene.set("_progression", state["progression"])
+	boss_scene.call("_load_run_state", state)
+	await _settle(0.4)
+	if bool(boss_scene.get("_dialogue_active")):
+		boss_scene.call("_close_dialogue")
+	boss_scene.call("_refresh_ui")
+	await _settle(1.2)
+	var boss_overlay: Control = boss_scene.get("_boss_health_overlay") as Control
+	_expect(boss_overlay != null and boss_overlay.is_visible_in_tree(), "Boss proof should show the boss health bar")
+	boss_scene.call("_show_turn_banner", false)
+	await _settle(0.3)
+	await _save("11_boss_combat")
+	var banner: Control = boss_scene.get("_turn_banner") as Control
+	_expect(banner != null and not banner.visible, "Phase banners stand down while the boss health bar owns the top band")
+	boss_scene.queue_free()
+	await process_frame
+
+func _edges_show_clear_colour(label: String) -> bool:
+	var image: Image = Image.load_from_file(ProjectSettings.globalize_path("%s/%s.png" % [OUTPUT_DIR, label]))
+	if image == null:
+		return true
+	var hits: int = 0
+	for y: int in range(0, image.get_height(), 8):
+		for x: int in [0, 1, 2, 3, 4, 5, 6, image.get_width() - 7, image.get_width() - 1]:
+			var pixel: Color = image.get_pixel(x, y)
+			if absf(pixel.r - DEFAULT_CLEAR_GREY.r) < 0.02 and absf(pixel.g - DEFAULT_CLEAR_GREY.g) < 0.02 and absf(pixel.b - DEFAULT_CLEAR_GREY.b) < 0.02:
+				hits += 1
+	return hits > 4
 
 func _assert_left_dock(instance: Node) -> void:
 	var hud: Control = instance.get("_combat_objective_hud") as Control

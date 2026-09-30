@@ -49,7 +49,8 @@ const SFX_GLUE_THRESHOLD_DB: float = -16.0
 const SFX_GLUE_RATIO: float = 2.5
 const SFX_GLUE_ATTACK_US: float = 6000.0
 const SFX_GLUE_RELEASE_MS: float = 140.0
-const SFX_GLUE_GAIN_DB: float = 1.5
+# No makeup gain: owner-auditioned cue levels stay where they were set.
+const SFX_GLUE_GAIN_DB: float = 0.0
 const MASTER_LIMITER_CEILING_DB: float = -0.8
 const MASTER_LIMITER_RELEASE_S: float = 0.12
 

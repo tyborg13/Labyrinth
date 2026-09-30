@@ -165,12 +165,6 @@ func _material_is_pressed(state: String) -> bool:
 		return _button.get_draw_mode() in [BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED]
 	return state == STATE_PRESSED
 
-func _draw_rivet(center: Vector2, radius: float, accent: Color, state: String) -> void:
-	var strength: float = 0.24 if state == STATE_DISABLED else 0.72
-	draw_circle(center + Vector2(0.0, 0.7), radius + 0.6, Color(0.015, 0.012, 0.01, strength))
-	draw_circle(center, radius, Color(accent, strength * 0.75))
-	draw_circle(center + Vector2(-0.3, -0.4), radius * 0.43, Color(accent.lerp(Color("fff0c7"), 0.55), strength))
-
 func _draw_engagement_glint(accent: Color) -> void:
 	var envelope: float = sin(_glint_progress * PI)
 	var center_x: float = lerpf(8.0, size.x - 8.0, smoothstep(0.0, 1.0, _glint_progress))

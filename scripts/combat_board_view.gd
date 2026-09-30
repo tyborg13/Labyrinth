@@ -510,6 +510,13 @@ var presentation: Dictionary = {}
 const IMPACT_CAMERA_SHAKE_PX: float = 3.0
 const IMPACT_CAMERA_SHAKE_PLAYER_PX: float = 5.5
 const IMPACT_CAMERA_SHAKE_OSCILLATIONS: float = 3.5
+const IMPACT_SHAKE_STATIC_LAYER_NODES: Array[String] = ["BaseBackdrop", "BoardBackdrop", "CombatAtmosphere"]
+const IMPACT_CAMERA_KICK_SECONDS: float = 0.42
+var _camera_kick_tween: Tween
+var _camera_kick_keys: Array = []
+var _camera_kick_last_progress: float = 1.0
+var _camera_kick_player: bool = false
+var _camera_kick_strength: float = 1.0
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
@@ -8687,31 +8694,54 @@ func _unit_impact_strength(unit: Dictionary) -> float:
 	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
 	return clampf(1.0 - progress, 0.0, 1.0) * strength
 
-# A short, decaying camera kick on the whole board layer (never the HUD) sells
-# the weight of a hit. It follows the existing impact timeline exactly, so it
-# needs no extra timers, and reduced motion keeps the camera perfectly still.
+# A short, decaying camera kick on the board layer (never the HUD) sells the
+# weight of a hit. Each new impact (its rising edge in the presentation) starts
+# one tween-driven kick, so every attack path is covered and the camera always
+# settles to rest even if submissions stop mid-impact. Reduced motion keeps the
+# camera still; a player hit also flushes the screen edge crimson.
 func _update_impact_camera_shake() -> void:
+	var impact_keys: Array = (presentation.get("impact_actor_keys", []) as Array).duplicate()
+	var has_progress: bool = presentation.has("impact_progress")
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	var new_impact: bool = not impact_keys.is_empty() and (
+		_camera_kick_keys.is_empty()
+		or impact_keys != _camera_kick_keys
+		or (has_progress and progress + 0.001 < _camera_kick_last_progress)
+	)
+	_camera_kick_keys = impact_keys
+	_camera_kick_last_progress = progress if has_progress else 0.0
+	if not new_impact:
+		return
+	_camera_kick_player = impact_keys.has("player")
+	_camera_kick_strength = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	if _camera_kick_tween != null and _camera_kick_tween.is_valid():
+		_camera_kick_tween.kill()
+	if not is_inside_tree():
+		return
+	_camera_kick_tween = create_tween()
+	_camera_kick_tween.tween_method(_apply_camera_kick, 0.0, 1.0, IMPACT_CAMERA_KICK_SECONDS)
+
+func _apply_camera_kick(progress: float) -> void:
 	var layer: CanvasLayer = get_parent() as CanvasLayer
 	if layer == null:
 		return
-	var impact_keys: Array = presentation.get("impact_actor_keys", []) as Array
-	var progress: float = clampf(float(presentation.get("impact_progress", 1.0)), 0.0, 1.0)
-	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
-	var player_hit: bool = impact_keys.has("player")
 	var atmosphere: Node = layer.get_node_or_null("CombatAtmosphere")
 	if atmosphere != null:
-		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(strength, 1.2) if player_hit else 0.0)
-	if impact_keys.is_empty() or bool(presentation.get("reduced_motion", false)):
-		if layer.offset != Vector2.ZERO:
-			layer.offset = Vector2.ZERO
-		return
-	var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if player_hit else IMPACT_CAMERA_SHAKE_PX) * strength
+		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(_camera_kick_strength, 1.2) if _camera_kick_player else 0.0)
+	var offset := Vector2.ZERO
 	var decay: float = pow(1.0 - progress, 2.0)
-	if decay <= 0.001:
-		layer.offset = Vector2.ZERO
-		return
-	var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
-	layer.offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
+	if decay > 0.001 and not bool(presentation.get("reduced_motion", false)):
+		var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if _camera_kick_player else IMPACT_CAMERA_SHAKE_PX) * _camera_kick_strength
+		var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
+		offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
+	if layer.offset != offset:
+		layer.offset = offset
+	# The hall art, base fill and atmosphere stay locked to the screen while the
+	# board jolts against them, so a kick can never uncover the window edge.
+	for backdrop_name: String in IMPACT_SHAKE_STATIC_LAYER_NODES:
+		var backdrop: Control = layer.get_node_or_null(backdrop_name) as Control
+		if backdrop != null and backdrop.position != -offset:
+			backdrop.position = -offset
 
 func _unit_impact_shake_strength(unit: Dictionary) -> float:
 	if bool(presentation.get("reduced_motion", false)):
