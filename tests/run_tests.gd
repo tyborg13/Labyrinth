@@ -2577,12 +2577,16 @@ func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	# Collision damage scales with distance, so distance relics also extend
 	# keyword Push/Pull riders on attacks (spec/forced_movement.md).
 	var tailwind_skybreak: Dictionary = GameData.card_def_for_progression("skybreak_current", {"relics": ["tailwind_fletching"]})
-	var skybreak_attack: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[0]
-	_assert(int(skybreak_attack.get("range", 0)) == 3, "Tailwind should leave ranged Air range unchanged")
-	_assert(int(skybreak_attack.get("push", 0)) == 3, "Tailwind should increase existing push on Air ranged attacks")
-	_assert(int(skybreak_attack.get("damage", 0)) == 6, "Tailwind's damage bonus stays on standalone Push/Pull actions")
+	var skybreak_push: Dictionary = (tailwind_skybreak.get("actions", []) as Array)[0]
+	_assert(int(skybreak_push.get("range", 0)) == 4, "Tailwind should leave standalone Air push range unchanged")
+	_assert(int(skybreak_push.get("amount", 0)) == 6 and int(skybreak_push.get("damage", 0)) == 5, "Tailwind adds distance and damage to standalone Air Push")
+	var tailwind_slipstream: Dictionary = GameData.card_def_for_progression("slipstream_cut", {"relics": ["tailwind_fletching"]})
+	var slipstream_attack: Dictionary = (tailwind_slipstream.get("actions", []) as Array)[1]
+	_assert(int(slipstream_attack.get("range", 0)) == 1, "Tailwind should leave melee Air range unchanged")
+	_assert(int(slipstream_attack.get("push", 0)) == 2, "Tailwind should increase existing push on Air attacks")
+	_assert(int(slipstream_attack.get("damage", 0)) == 5, "Tailwind's damage bonus stays on standalone Push/Pull actions")
 	var skybreak_push_token: Dictionary = {}
-	for token_var: Variant in ActionIcons.tokens_for_action(skybreak_attack):
+	for token_var: Variant in ActionIcons.tokens_for_action(slipstream_attack):
 		if str((token_var as Dictionary).get("icon", "")) == "push":
 			skybreak_push_token = token_var as Dictionary
 	_assert(ActionIcons.token_tooltip(skybreak_push_token).contains("Tailwind Fletching"), "Relic-modified push tokens should name Tailwind in their tooltip")
@@ -2600,15 +2604,15 @@ func _test_tailwind_fletching_modifies_existing_forced_movement() -> void:
 	_assert(str(updraft_push_token.get("icon", "")) == "push", "Forced movement cards should render push after the hit")
 	_assert(ActionIcons.token_is_modified(updraft_push_token) and ActionIcons.token_tooltip(updraft_push_token).contains("Tailwind Fletching"), "Relic-modified forced movement should carry a dynamic token marker")
 	var combat: CombatEngine = CombatEngine.new()
-	var state: Dictionary = combat.create_combat(2571, _simple_room_layout(), {"hp": 24, "max_hp": 24, "deck_cards": ["updraft", "skybreak_current"], "relics": ["tailwind_fletching", "anchor_chain"], "hand_size": 2})
+	var state: Dictionary = combat.create_combat(2571, _simple_room_layout(), {"hp": 24, "max_hp": 24, "deck_cards": ["updraft", "slipstream_cut"], "relics": ["tailwind_fletching", "anchor_chain"], "hand_size": 2})
 	state["player"]["block"] = 2
 	var stacked_updraft: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("updraft", state)[0])
 	_assert(int(stacked_updraft.get("amount", 0)) == 4, "Multiple relics should stack on the same forced-movement number")
-	var stacked_skybreak: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("skybreak_current", state)[0])
-	_assert(int(stacked_skybreak.get("push", 0)) == 4, "Anchor Chain should also extend keyword Push on attacks while the player has Block")
+	var stacked_slipstream: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("slipstream_cut", state)[1])
+	_assert(int(stacked_slipstream.get("push", 0)) == 3, "Anchor Chain should also extend keyword Push on attacks while the player has Block")
 	state["player"]["block"] = 0
-	var unguarded: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("skybreak_current", state)[0])
-	_assert(int(unguarded.get("push", 0)) == 3, "Anchor Chain's keyword extension needs Block")
+	var unguarded: Dictionary = combat.call("_resolved_surface_action", state, combat.card_play_actions("slipstream_cut", state)[1])
+	_assert(int(unguarded.get("push", 0)) == 2, "Anchor Chain's keyword extension needs Block")
 
 func _test_pierce_ignores_defenses() -> void:
 	var combat: CombatEngine = CombatEngine.new()
