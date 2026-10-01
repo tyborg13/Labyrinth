@@ -14721,7 +14721,7 @@ func _current_action_supports_rotation() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	return str(action.get("type", "")) in ["aoe", "surface", "detonate"] and _combat_engine.player_action_needs_orientation(action)
+	return str(action.get("type", "")) in ["aoe", "surface", "detonate", "meteor_marks"] and _combat_engine.player_action_needs_orientation(action)
 
 func _on_rotate_action_context_pressed() -> void:
 	if not _current_action_supports_rotation() and not _force_aim_rotation_available():
@@ -14766,7 +14766,7 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
 			target_text = "DIRECTION"
 			target_tone = "valid"
-		elif str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) > 0:
+		elif str(action.get("type", "")) in ["aoe", "meteor_marks"] and int(action.get("range", 0)) > 0:
 			verb_text = "AIM AREA"
 			var aoe_target_state: Dictionary = _action_context_target_state()
 			target_text = str(aoe_target_state.get("text", ""))
@@ -15116,6 +15116,15 @@ func _action_step_action_name(action: Dictionary) -> String:
 			return "Crystal Mantle"
 		"umbra_eclipse":
 			return "Last Eclipse"
+		# Wave-4 surface family names while their icons are shared placeholders.
+		"convert_surface":
+			return "Convert Ground"
+		"discharge":
+			return "Discharge"
+		"all_enemies":
+			return "Sweeping Strike"
+		"meteor_marks":
+			return "Meteorfall"
 	var icon_key: String = _action_step_icon_key(action)
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
 
@@ -15995,7 +16004,7 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if not shortcut_plan.is_empty():
 		return _pass_preview_confirmed_shortcut_state(preview, shortcut_plan, _hovered_board_tile)
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	if str(action.get("type", "")) in ["aoe", "surface", "detonate"]:
+	if str(action.get("type", "")) in ["aoe", "surface", "detonate", "meteor_marks"]:
 		action = _action_with_aoe_aim_orientation(action)
 	elif _target_needs_force_orientation(action, _hovered_board_tile):
 		action = _shortcut_action_with_default_force_direction(_preview_combat_state, action, _hovered_board_tile)
@@ -19303,7 +19312,7 @@ func _active_card_preview() -> Dictionary:
 			if orientation_pending:
 				action = _pending_oriented_action()
 				target_tiles = _vector2i_array([_pending_orientation_target_tile])
-			elif str(action.get("type", "")) == "aoe":
+			elif str(action.get("type", "")) in ["aoe", "meteor_marks"]:
 				action = _action_with_aoe_aim_orientation(action)
 			if target_tiles.has(_hovered_board_tile):
 				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
@@ -19614,7 +19623,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		# Pending next-attack Pierce/Chain shows on the attack that will use it.
 		action = TempoRules.display_action(preview_state, action)
 		match action_type:
-			"melee", "ranged", "aoe", "detonate":
+			"melee", "ranged", "aoe", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
@@ -20340,7 +20349,7 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	if not shortcut_plan.is_empty():
 		var path_tiles: Array[Vector2i] = _vector2i_array(shortcut_plan.get("path_tiles", []))
 		return path_tiles if not path_tiles.is_empty() else _vector2i_array([_hovered_board_tile])
-	if action_type == "aoe" and _aoe_hover_can_show_pattern(preview.get("state", {}), action, _hovered_board_tile):
+	if action_type in ["aoe", "meteor_marks"] and _aoe_hover_can_show_pattern(preview.get("state", {}), action, _hovered_board_tile):
 		return _aoe_tiles_for_action(preview.get("state", {}), action, _hovered_board_tile)
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
@@ -21370,12 +21379,12 @@ func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index:
 	return {}
 
 func _aoe_tiles_for_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = INVALID_TARGET_TILE) -> Array[Vector2i]:
-	if str(action.get("type", "")) != "aoe":
+	if str(action.get("type", "")) not in ["aoe", "meteor_marks"]:
 		return []
 	return _combat_engine.aoe_tiles_for_player_action(state, action, target_tile)
 
 func _aoe_hover_can_show_pattern(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
-	if str(action.get("type", "")) != "aoe":
+	if str(action.get("type", "")) not in ["aoe", "meteor_marks"]:
 		return false
 	if target_tile.x < 0:
 		return false
@@ -21395,10 +21404,10 @@ func _orientation_pending() -> bool:
 func _current_action_is_aimed_aoe() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
-	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) in ["aoe", "surface", "detonate"]
+	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) in ["aoe", "surface", "detonate", "meteor_marks"]
 
 func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
-	if str(action.get("type", "")) not in ["aoe", "surface", "detonate"]:
+	if str(action.get("type", "")) not in ["aoe", "surface", "detonate", "meteor_marks"]:
 		return action
 	var oriented: Dictionary = action.duplicate(true)
 	if _combat_engine.player_action_needs_orientation(action):
@@ -21640,7 +21649,7 @@ func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) 
 	return _target_needs_force_orientation_in_state(_preview_combat_state, action, target_tile)
 
 func _target_needs_force_orientation_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
-	if str(action.get("type", "")) == "aoe":
+	if str(action.get("type", "")) in ["aoe", "meteor_marks"]:
 		return false
 	if action.has("force_direction"):
 		return false
@@ -22138,7 +22147,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var action: Dictionary = _combat_engine.action_with_automatic_origin(_preview_combat_state, _pending_actions[_pending_action_index], tile)
 	_pending_actions[_pending_action_index] = action
 	var previous_action_index: int = _pending_action_index
-	if str(action.get("type", "")) == "aoe":
+	if str(action.get("type", "")) in ["aoe", "meteor_marks"]:
 		action = _action_with_aoe_aim_orientation(action)
 		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
 			return
@@ -24201,9 +24210,12 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -8.0
 				}]
 			}, 0.0, true)
-		"surface", "consume_surface", "outcrop":
+		"surface", "consume_surface", "outcrop", "surface_adjacent_enemies", "convert_surface", "discharge", "meteor_marks":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_surface_change(before_state, after_state, base_presentation)
+		"all_enemies":
+			# Losses follow as the secondary enemy-loss beat for every struck foe.
+			_set_action_banner(_player_action_label(card_id, action, before_state))
 		"melee", "ranged", "aoe", "push", "pull", "detonate":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
@@ -26993,7 +27005,8 @@ func _secondary_player_action_enemy_loss_presentation(
 	)
 
 func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
-	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate", "force_area", "swap"]:
+	# Convert and Discharge float their losses with the surface change.
+	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate", "force_area", "swap", "convert_surface", "discharge"]:
 		return true
 	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
 
@@ -34623,9 +34636,10 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	# including fully absorbed hits; movement already has its own player chips.
 	result["friendly_damage_chips"] = _friendly_damage_preview_chips(state, losses, str(action.get("type", "")) in ["move", "blink"])
 	for event: Dictionary in result.get("surface_preview_events", []):
-		if str(event.get("kind", "")) == "detonate":
+		# Discharge and Frost Circuit outline their struck area like a Detonate.
+		if str(event.get("kind", "")) in ["detonate", "surface_discharge", "surface_converted"]:
 			var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
-			for blast_tile: Vector2i in _vector2i_array(event.get("tiles", [])):
+			for blast_tile: Vector2i in _vector2i_array(event.get("area", event.get("tiles", []))):
 				if not focus.has(blast_tile): focus.append(blast_tile)
 			result["focus_tiles"] = focus
 			result["focus_color"] = Color(0.95, 0.62, 0.37, 0.22)

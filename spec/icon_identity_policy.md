@@ -26,6 +26,9 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `force_area` (Gale Ward, Vortex, Cyclone Seal and other area forces) is the player-facing Push applied to every enemy in an area; `ActionIcons.action_icon_key` returns the Pull icon when the area pulls.
 - `mantle` (player Crystal Mantle cards) and `frost_armor` (Iskaldra's intent) are the same Crystal Mantle layers.
 - `convert_block_to_stoneskin` (Shrug Off) is a Stoneskin gain paid for with Block.
+- `meteor_marks` (the Meteorfall card) and `cinder_marks` (the dragon's Meteorfall intent) are both Meteorfall: marked tiles that are struck later and become Fire. The `combat:cinder_marks` topic teaches both.
+- `surface_adjacent_enemies` (Wards: leave a surface under each adjacent enemy) is the player-facing Shape Ground action, like `surface`.
+- Interim placeholders pending purpose-built icons (see [the surface family spec](card_mechanics_surfaces.md)): `convert_surface` (Frost Circuit, turn connected Ice into Electrified) shows Shape Ground; `discharge` (remove an Electrified network to strike around it) shows Consume Ground, like `consume_surface`; `all_enemies` (strike each visible enemy matching a condition) shows Area Attack, like `aoe`. The card rows also show the source and result surface icons, so the concept stays legible.
 
 ## Pending purpose-built icons
 

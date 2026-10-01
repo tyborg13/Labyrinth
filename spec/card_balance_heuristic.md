@@ -816,3 +816,33 @@ tests `tests/test_card_heuristic_maneuver.py`):
   availability. Blink riders: `destination_requires_light` keeps `0.60` and
   `destination_adjacent_to` `0.85` of the Blink's tiles; `illusion_at_origin` is
   an illusion of that health; `if_no_adjacent_enemies` rewards at `0.60`.
+
+### Wave-4 surface family
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_surfaces.md`):
+
+- `surface_adjacent_enemies`: the surface's per-tile value over `0.90` expected adjacent
+  enemy tiles (`+1` tile with `include_self`, extra tiles at the usual `0.45` retention).
+- `consume` rider: bonus damage is the damage-value difference at the surface's setup
+  availability (`0.50`, or `0.80` after an earlier painter), plus a `0.35` fuel cost at the
+  same availability. `required` scales the whole attack by that availability instead.
+- Detonate: availability and fuel use `detonate_surface` (Rubble for Magma Vent);
+  `spare_player` drops the `0.45` shared-hazard cost; `leave_surface` adds the surface value of
+  a five-tile cross at the Detonate's availability.
+- `convert_surface`: at Ice availability, `damage` over `1.20` expected targets, Shock at
+  `2.5 x 1.20` targets, the value of two connected Electrified tiles, minus fuel for `2` Ice
+  tiles. `discharge`: at Electrified availability, `damage` over `1.60` targets, minus fuel
+  for a `2`-tile network.
+- `consume_surface` `per_tile` rewards expect `2` tiles removed (capped at `max`); fuel cost
+  uses the same expected count.
+- `on_result`: the reward list's board-independent value (no Time or synergy terms) at
+  `0.30` (froze) or `0.35` (killed) availability, times the attack's playability.
+- `frozen_splash`: `N x 0.45 x 0.80` expected neighbors at `0.30` Frozen availability.
+- `all_enemies`: targetless (playability `1.0`); expected targets `0.90` on Fire, `0.80`
+  Chilled, `1.00` in Light, `0.80` on Electrified (`+0.20` after an earlier painter of that
+  surface, `x0.85` with a printed range). Expose per target; an Ice strike on `chilled`
+  adds a full Freeze per target.
+- `ignore_los`: `+0.08` playability (capped at `1.0`). `shock_all_hits` adds nothing: Shock is
+  already priced per expected target, including Chain and conduction.
+- `meteor_marks`: damage at the range playability `x 0.55` delayed hit rate over the area
+  target multiplier, plus the full surface value of the marked pattern.

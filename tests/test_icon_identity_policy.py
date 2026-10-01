@@ -45,6 +45,9 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:stances": "immobilize",
     "combat:cleanse": "heal",
     "combat:petrify": "stoneskin",
+    # Wave-4 family A topics.
+    "combat:surface_techniques": "surface_consume",
+    "combat:sweeping_strikes": "aoe",
 }
 
 # These are one player-facing concept despite differing engine direction/target
@@ -53,9 +56,18 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),
+    # Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
     frozenset({"push", "force_area"}),
     frozenset({"frost_armor", "mantle"}),
     frozenset({"stoneskin", "convert_block_to_stoneskin"}),
+    # Wave-4 surface family (spec/card_mechanics_surfaces.md). meteor_marks is the
+    # player's Meteorfall, the same marked-tiles-then-Fire concept as the dragon's.
+    frozenset({"cinder_marks", "meteor_marks"}),
+    # Placeholders until purpose-built icons exist (convert_surface, discharge,
+    # all_enemies); each still names the concept the player sees on the card.
+    frozenset({"surface", "surface_adjacent_enemies", "convert_surface"}),
+    frozenset({"consume_surface", "discharge"}),
+    frozenset({"aoe", "all_enemies"}),
 }
 
 # Temporary placeholders: these action types borrow an existing icon until a
