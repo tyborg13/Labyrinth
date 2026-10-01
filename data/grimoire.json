@@ -791,7 +791,7 @@
       "id": "combat:swap",
       "section": "combat",
       "title": "Swap",
-      "icon": "blink",
+      "icon": "swap",
       "body": [
         "Swap places with a visible one-tile enemy or one of your illusions within range and line of sight. Large enemies cannot be swapped.",
         "Both of you arrive normally: surfaces and traps trigger for each, and you collect loot on your new tile. A swap is not a Push or Pull, so nothing collides and Anchored does not stop it."
@@ -801,7 +801,7 @@
       "id": "combat:stances",
       "section": "combat",
       "title": "Stances",
-      "icon": "immobilize",
+      "icon": "anchored",
       "body": [
         "Skate: this turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
         "Rooted: for the rest of this turn you can't Move or Blink, including your own movement.",
@@ -814,7 +814,7 @@
       "id": "combat:cleanse",
       "section": "combat",
       "title": "Cleanse",
-      "icon": "heal",
+      "icon": "cleanse",
       "body": [
         "Cleanse removes the listed statuses from you at once: Bleed, Immobilize, Chilled or Shock. Removing Immobilize or Shock frees you for the rest of this turn, and a Shock cleanse can be played while Shocked.",
         "Removing Chilled while standing on Ice keeps you unchilled until you next enter Ice or start a turn on it."
@@ -824,7 +824,7 @@
       "id": "combat:petrify",
       "section": "combat",
       "title": "Petrify",
-      "icon": "stoneskin",
+      "icon": "petrify",
       "body": [
         "A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.",
         "Petrify also gives the enemy Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."
@@ -1011,7 +1011,7 @@
       "id": "combat:sweeping_strikes",
       "section": "combat",
       "title": "Sweeping Strikes",
-      "icon": "aoe",
+      "icon": "all_enemies",
       "body": [
         "Some cards strike every enemy you can see that meets a condition: standing on Fire or Electrified ground, Chilled, or in Light. There is no target to choose, and an enemy hidden by the Umbra is never hit.",
         "Each strike is a direct hit of the card's element, so an Ice strike Freezes a Chilled enemy. The card can be played only while at least one enemy qualifies."

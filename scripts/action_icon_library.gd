@@ -151,6 +151,20 @@ const KEYWORDS: Dictionary = {
 	"quicken": {"label": "Quicken", "description": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.", "path": "%s/quicken.png" % ICON_ROOT},
 	"rite": {"label": "Rite", "description": "Rite: Exhaust. Lasts for the rest of this combat.", "path": "%s/rite.png" % ICON_ROOT},
 	"next_attack": {"label": "Next Attack", "description": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.", "path": "%s/stat_might.png" % ICON_ROOT},
+	# Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
+	"swap": {"label": "Swap", "description": "Swap places with a visible one-tile enemy or one of your illusions. Both of you arrive normally; nothing collides, and Anchored does not stop it.", "path": "%s/swap.png" % ICON_ROOT},
+	"petrify": {"label": "Petrify", "description": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.", "path": "%s/petrify.png" % ICON_ROOT},
+	"cleanse": {"label": "Cleanse", "description": "Removes the listed statuses from you: Bleed, Immobilize, Chilled or Shock.", "path": "%s/cleanse.png" % ICON_ROOT},
+	"skate": {"label": "Skate", "description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you.", "path": "%s/skate.png" % ICON_ROOT},
+	"anchored": {"label": "Anchored", "description": "Until your next turn, you can't be pushed or pulled: Push and Pull move you 0 tiles and never collide.", "path": "%s/anchored.png" % ICON_ROOT},
+	"fireproof": {"label": "Fireproof", "description": "Fire doesn't damage you this turn.", "path": "%s/fireproof.png" % ICON_ROOT},
+	# Wave-4 surface family (spec/card_mechanics_surfaces.md).
+	"surface_convert": {"label": "Convert Ground", "description": "Turns the chosen surface tile, and every tile of it connected to it when shown, into another surface. Each enemy on a converted tile takes the damage.", "path": "%s/surface_convert.png" % ICON_ROOT},
+	"discharge": {"label": "Discharge", "description": "Removes a connected Electrified network. Each enemy on it or next to it takes the damage once.", "path": "%s/discharge.png" % ICON_ROOT},
+	"all_enemies": {"label": "Sweeping Strike", "description": "Hits every enemy you can see that meets the shown condition. There is no target to choose, and enemies hidden by the Umbra are never hit.", "path": "%s/all_enemies.png" % ICON_ROOT},
+	# Wave-4 illusion family (spec/card_mechanics_illusions_terrain.md).
+	"illusion_swap": {"label": "Swap Illusion", "description": "You and one of your illusions trade tiles. Both of you trigger the ground and traps where you land. Immobilize prevents it.", "path": "%s/illusion_swap.png" % ICON_ROOT},
+	"shatter_illusion": {"label": "Shatter Illusion", "description": "Destroys one of your illusions to blast each enemy next to it.", "path": "%s/shatter_illusion.png" % ICON_ROOT},
 	"freeze": {
 		"label": "Freeze",
 		"description": "Skips the next turn and takes triple attack damage.",
@@ -401,22 +415,20 @@ const SKILL_ICONS: Dictionary = {
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
 	"aoe": "aoe",
-	# Wave-4 surface family placeholders (spec/card_mechanics_surfaces.md):
-	# convert_surface and discharge await purpose-built icons; all_enemies
-	# shares Area Attack until its own "each matching enemy" icon exists.
-	"all_enemies": "aoe",
+	# Wave-4 surface family (spec/card_mechanics_surfaces.md). Wards are the
+	# Shape Ground action placed under each adjacent enemy.
+	"all_enemies": "all_enemies",
 	"surface": "surface",
 	"surface_adjacent_enemies": "surface",
-	"convert_surface": "surface",
+	"convert_surface": "surface_convert",
 	"detonate": "detonate",
 	"consume_surface": "surface_consume",
-	"discharge": "surface_consume",
+	"discharge": "discharge",
 	"surface_relocate": "surface_relocate",
 	"blink": "blink",
 	"block": "block",
-	# Card pool wave 4 (spec/card_mechanics_illusions_terrain.md). Empty Husk's
-	# swap is a Blink to your illusion's tile; Shattered Reflection uses the
-	# Area Attack identity until a purpose-built shatter icon exists.
+	# Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
+	# Worldbreak burst terrain exactly like the Worldspine pulse.
 	"burst_terrain": "terrain_burst",
 	"card_play": "card_play",
 	"cinder_marks": "cinder_marks",
@@ -424,7 +436,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"meteor_marks": "cinder_marks",
 	"consume": "consume",
 	"detonate_cinders": "detonate_cinders",
-	"destroy_illusion": "aoe",
+	"destroy_illusion": "shatter_illusion",
 	"dispel_umbra": "dispel_umbra",
 	"draw": "draw",
 	"exhaust": "exhaust",
@@ -437,7 +449,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"health_cost": "health_cost",
 	"illuminate": "illuminate",
 	"illusion": "illusion",
-	"illusion_swap": "blink",
+	"illusion_swap": "illusion_swap",
 	"lightning_strikes": "lightning_strikes",
 	"melee": "melee",
 	"move": "move",
@@ -464,19 +476,20 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"force_area": "push",
 	"mantle": "frost_armor",
 	"convert_block_to_stoneskin": "stoneskin",
-	# Placeholders pending purpose-built icons (spec/icon_identity_policy.md).
-	"swap": "blink",
-	"self_flag": "immobilize",
-	"cleanse": "heal",
-	"petrify": "stoneskin",
+	"swap": "swap",
+	"cleanse": "cleanse",
+	"petrify": "petrify",
 }
 
-## Per-flag placeholder icons for self_flag actions and player badges.
+## `self_flag` has no single identity: each flag resolves here, for card rows,
+## action steps and the player's status badges alike. `no_move` (Rooted: you
+## can't Move or Blink) is the exact Immobilize concept. Keep this dictionary
+## parseable by tests/test_icon_identity_policy.py.
 const SELF_FLAG_ICON_KEYS: Dictionary = {
-	"ice_skate": "surface_ice",
+	"ice_skate": "skate",
 	"no_move": "immobilize",
-	"anchored": "immobilize",
-	"fire_immune_turn": "surface_fire",
+	"anchored": "anchored",
+	"fire_immune_turn": "fireproof",
 }
 
 const CARD_ROLE_EMBLEM_PATHS: Dictionary = {
@@ -496,10 +509,19 @@ static func action_icon_key(action: Dictionary) -> String:
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "force_area" and int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0:
 		return "pull"
-	if action_type == "self_flag" and SELF_FLAG_ICON_KEYS.has(str(action.get("flag", ""))):
-		return str(SELF_FLAG_ICON_KEYS[str(action.get("flag", ""))])
+	if action_type == "self_flag":
+		return str(SELF_FLAG_ICON_KEYS.get(str(action.get("flag", "")), ""))
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
+## Outcrop kinds that are thrown at enemies rather than raised as cover.
+const OFFENSIVE_OUTCROP_KINDS: Array = ["powder_keg", "worldspine"]
+## Self flags that defend in place; the others (Skate, Fireproof) are movement stances.
+const DEFENSIVE_SELF_FLAGS: Array = ["no_move", "anchored"]
+
+## One watermark per card. Primary roles win in the order ranged attack, melee
+## attack, block, illusion, mobility. Setup riders (Next Attack, Cleanse, wards,
+## Quicken) choose a role only when the card has no primary role, so Capacitor
+## stays a shield and Smelling Salts stays a boot.
 static func card_role_emblem_key(card: Dictionary) -> String:
 	var authored_role: String = str(card.get("role_emblem", ""))
 	if CARD_ROLE_EMBLEM_PATHS.has(authored_role):
@@ -509,27 +531,43 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 	var has_block: bool = false
 	var has_illusion: bool = false
 	var has_mobility: bool = false
+	var setup_attack: bool = false
+	var setup_block: bool = false
+	var setup_mobility: bool = false
 	for action_var: Variant in card.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
+		if action_type == "outcrop" and str(action.get("kind", "")) in OFFENSIVE_OUTCROP_KINDS:
+			action_type = "offensive_outcrop"
 		match action_type:
-			"ranged":
+			"ranged", "all_enemies":
 				has_ranged_attack = true
 			"melee", "terrain_burst":
 				has_melee_attack = true
-			"aoe", "push", "pull", "lightning_strikes", "cinder_marks", "gale_force", "umbra_eclipse", "burst_terrain", "destroy_illusion":
+			"aoe", "push", "pull", "lightning_strikes", "cinder_marks", "gale_force", "umbra_eclipse", "burst_terrain", "destroy_illusion", "meteor_marks", "discharge", "convert_surface", "force_area", "petrify", "offensive_outcrop":
 				if int(action.get("range", 0)) > 1:
 					has_ranged_attack = true
 				else:
 					has_melee_attack = true
-			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain", "outcrop":
+			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain", "outcrop", "mantle", "retaliate", "convert_block_to_stoneskin":
 				has_block = true
 			"illusion", "illusion_swap":
 				has_illusion = true
-			"move", "move_toward", "move_away", "blink":
+			"move", "move_toward", "move_away", "blink", "swap":
 				has_mobility = true
+			"self_flag":
+				if str(action.get("flag", "")) in DEFENSIVE_SELF_FLAGS:
+					has_block = true
+				else:
+					has_mobility = true
+			"next_attack":
+				setup_attack = true
+			"cleanse", "surface_adjacent_enemies":
+				setup_block = true
+			"quicken":
+				setup_mobility = true
 	if has_ranged_attack:
 		return "attack_ranged"
 	if has_melee_attack:
@@ -539,6 +577,12 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 	if has_illusion:
 		return "illusion"
 	if has_mobility:
+		return "mobility"
+	if setup_attack:
+		return "attack_melee"
+	if setup_block:
+		return "block"
+	if setup_mobility:
 		return "mobility"
 	return ""
 
@@ -1154,7 +1198,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nChoose a %s tile within this range and line of sight." % label(surface_icon_key(from_kind))))
 			_append_keyword_tokens(tokens, action)
 		"discharge":
-			tokens.append(token_for("surface_consume", null, "neutral", "Discharge\nRemoves a connected Electrified network. Each enemy on it or next to it takes the damage once."))
+			tokens.append(token_for("discharge"))
 			tokens.append(surface_token("electrified"))
 			_append_damage_token(tokens, "aoe", action, options)
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nChoose an Electrified tile within this range and line of sight."))
@@ -1162,7 +1206,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"all_enemies":
 			tokens.append(selector_token(str(action.get("selector", ""))))
 			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
-				_append_damage_token(tokens, "aoe", action, options)
+				_append_damage_token(tokens, "all_enemies", action, options)
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nOnly enemies within this distance of you."))
 			_append_keyword_tokens(tokens, action)
@@ -1194,7 +1238,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_illusion_placement_tokens(tokens, action)
 			_append_illusion_trait_tokens(tokens, action)
 		"illusion_swap":
-			tokens.append(token_for("blink", null, "neutral", "Swap places with one of your illusions%s. Both of you trigger the ground and traps where you land." % ("" if int(action.get("range", 0)) >= 20 else " within range %d" % int(action.get("range", 0)))))
+			tokens.append(token_for("illusion_swap", null, "neutral", "Swap Illusion\nSwap places with one of your illusions%s. Both of you trigger the ground and traps where you land." % ("" if int(action.get("range", 0)) >= 20 else " within range %d" % int(action.get("range", 0)))))
 			if int(action.get("range", 0)) < 20:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Swap range."))
 			else:
@@ -1202,7 +1246,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if bool(action.get("transfer_block", false)):
 				tokens.append(token_for("block", "→", "neutral", "The illusion gains all your Block as extra health. You lose that Block."))
 		"destroy_illusion":
-			tokens.append(token_for("illusion", null, "neutral", "Destroy one of your illusions within range. It counts as destroyed for illusion effects."))
+			tokens.append(token_for("shatter_illusion", null, "neutral", "Shatter Illusion\nDestroy one of your illusions within range. It counts as destroyed for illusion effects."))
 			_append_damage_token(tokens, "aoe", action, options)
 			tokens.append(text_token("next to it", "neutral", "Hits each enemy on the four tiles next to the destroyed illusion."))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range to the illusion you destroy."))
@@ -1365,20 +1409,19 @@ static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
 			if int(action.get("expose", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "expose", "expose", int(action.get("expose", 0))))
 		"swap":
-			tokens.append(token_for("blink", null, "neutral", "Swap\nSwap places with a one-tile enemy or one of your illusions. Both arrive normally; nothing collides."))
-			tokens.append(text_token("Swap", "neutral", "Swap places with an enemy or illusion."))
+			tokens.append(token_for("swap", null, "neutral", "Swap\nSwap places with a one-tile enemy or one of your illusions. Both arrive normally; nothing collides."))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 		"self_flag":
 			var flag: String = str(action.get("flag", ""))
 			var text: Array = SELF_FLAG_TEXT.get(flag, [flag.capitalize(), flag.capitalize()]) as Array
-			tokens.append(token_for(str(SELF_FLAG_ICON_KEYS.get(flag, "immobilize")), null, "neutral", str(text[1])))
-			tokens.append(text_token(str(text[0]), "neutral", str(text[1])))
+			var flag_icon: String = action_icon_key(action)
+			tokens.append(token_for(flag_icon, null, "neutral", str(text[1])) if not flag_icon.is_empty() else text_token(str(text[0]), "neutral", str(text[1])))
 		"cleanse":
 			var names: PackedStringArray = PackedStringArray()
 			for status_var: Variant in action.get("statuses", []):
 				names.append(str(CLEANSE_STATUS_LABELS.get(str(status_var), str(status_var).capitalize())))
 			var detail: String = "Cleanse\nRemove %s from yourself." % ", ".join(names)
-			tokens.append(text_token("Cleanse", "neutral", detail))
+			tokens.append(token_for("cleanse", null, "neutral", detail))
 			for status_var: Variant in action.get("statuses", []):
 				var key: String = str(status_var)
 				if KEYWORDS.has(key):
@@ -1391,8 +1434,7 @@ static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
 			tokens.append(_token_for_action_field(action, "frost_armor", "amount", int(action.get("amount", 0)), "neutral", "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it."))
 		"petrify":
 			var petrify_tip: String = "Petrify\nThe enemy skips its next turn (it still costs its Time) and gains this much Block, which lasts through your next turn. Dragons are immune."
-			tokens.append(token_for("stoneskin", null, "neutral", petrify_tip))
-			tokens.append(text_token("Petrify", "neutral", petrify_tip))
+			tokens.append(token_for("petrify", null, "neutral", petrify_tip))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			tokens.append(_token_for_action_field(action, "block", "block", int(action.get("block", 0)), "neutral", "The enemy gains this much Block."))
 
@@ -1526,7 +1568,9 @@ static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"ranged":
 			return "ranged"
-		"convert_surface", "discharge", "all_enemies", "meteor_marks":
+		"all_enemies":
+			return "all_enemies"
+		"convert_surface", "discharge", "meteor_marks":
 			return "aoe"
 		"aoe":
 			return "ranged" if int(action.get("range", 0)) > 0 else "melee"

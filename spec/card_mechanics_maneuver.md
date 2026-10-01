@@ -154,12 +154,18 @@ enemy attack still builds its step and animates; the floating text reads
 ## UI, icons and grimoire
 
 Icons (`ActionIcons.ACTION_ICON_ALIASES`): `force_area` → Push (Pull when it
-pulls), `mantle` → Crystal Mantle, `convert_block_to_stoneskin` → Stoneskin.
-Placeholders pending purpose-built icons (see the icon identity policy): `swap`
-(Blink), `self_flag` (per flag: Ice, Immobilize, Fire), `cleanse` (Heal),
-`petrify` (Stoneskin); card rows add a text label beside each placeholder.
-Grimoire: `combat:area_force`, `combat:swap`, `combat:stances`,
+pulls), `mantle` → Crystal Mantle, `convert_block_to_stoneskin` → Stoneskin,
+and the purpose-built `swap`, `cleanse` and `petrify`. `self_flag` resolves per
+flag through `ActionIcons.SELF_FLAG_ICON_KEYS` (Skate, Anchored, Fireproof;
+Rooted uses the exact Immobilize icon), shared by card rows, action steps (named
+by the flag label) and the player's stance badges. The enemy Petrify badge uses
+the Petrify icon. See the [icon identity policy](icon_identity_policy.md).
+Grimoire: `combat:area_force`, `combat:swap`, `combat:stances` (Anchored icon),
 `combat:cleanse`, `combat:petrify`, and the extended `combat:crystal_armor`.
+Card role emblems: Swap and Skate/Fireproof are mobility; Rooted/Anchored,
+Crystal Mantle and Shrug Off are block; Petrify and area forces follow the
+attack range rule; Cleanse chooses block only when nothing else on the card has
+a role.
 
 ## Analytics
 
@@ -177,7 +183,5 @@ See "Wave-4 movement, forces, flags, Petrify and Mantle" in the
 
 ## Deferred
 
-- Purpose-built icons for Swap, Petrify, Cleanse, Skate, Anchored, Fireproof
-  (and a Rooted review).
 - Area forces animate as a single result beat (collision flash and damage
   floats), not per-enemy slides.

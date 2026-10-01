@@ -15,6 +15,7 @@ const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const DragonBosses = preload("res://scripts/dragon_boss_library.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 const INVALID: Vector2i = Vector2i(-1, -1)
 const DIRECTIONS: Array = [Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)]
@@ -25,16 +26,16 @@ const FLAG_NO_MOVE: String = "no_move"
 const FLAG_ANCHORED: String = "anchored"
 const FLAG_FIRE_IMMUNE: String = "fire_immune_turn"
 const FLAG_ORDER: Array = [FLAG_NO_MOVE, FLAG_ANCHORED, FLAG_ICE_SKATE, FLAG_FIRE_IMMUNE]
-## Placeholder badge icons are existing keyword keys; purpose-built icons are
-## listed in spec/icon_identity_policy.md ("Pending purpose-built icons").
+## Badge icons resolve through ActionIcons.SELF_FLAG_ICON_KEYS, the same
+## identity the card rows and action steps use (spec/icon_identity_policy.md).
 const FLAG_INFO: Dictionary = {
-	"ice_skate": {"label": "Skate", "icon": "surface_ice", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
+	"ice_skate": {"label": "Skate", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
 		"description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you."},
-	"no_move": {"label": "Rooted", "icon": "immobilize", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
+	"no_move": {"label": "Rooted", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
 		"description": "You can't Move or Blink for the rest of this turn."},
-	"anchored": {"label": "Anchored", "icon": "immobilize", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
+	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
 		"description": "Until your next turn, you can't be pushed or pulled. Push and Pull against you move you 0 tiles and never collide."},
-	"fire_immune_turn": {"label": "Fireproof", "icon": "surface_fire", "expires": "activation", "fill": "5a2a1c", "border": "ffb38a",
+	"fire_immune_turn": {"label": "Fireproof", "expires": "activation", "fill": "5a2a1c", "border": "ffb38a",
 		"description": "Fire doesn't damage you this turn."}
 }
 const CLEANSE_LABELS: Dictionary = {"bleed": "Bleed", "immobilize": "Immobilize", "chilled": "Chilled", "shock": "Shock"}
@@ -133,7 +134,7 @@ static func player_badges(state: Dictionary) -> Array[Dictionary]:
 		if not sources.is_empty():
 			tooltip += "\nFrom: %s" % _joined(sources)
 		badges.append({
-			"icon": str(info.get("icon", "")),
+			"icon": str(ActionIcons.SELF_FLAG_ICON_KEYS.get(flag, "")),
 			"count": 0,
 			"fill": Color(str(info.get("fill", "333333"))),
 			"border": Color(str(info.get("border", "ffffff"))),

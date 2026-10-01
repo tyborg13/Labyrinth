@@ -584,9 +584,33 @@ static func _test_preview_equals_resolution(engine: CombatEngine, expect: Callab
 # ------------------------------------------------------------------ icons, rows, grimoire
 
 static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable) -> void:
-	for action_type: String in ["force_area", "swap", "self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify"]:
+	for action_type: String in ["force_area", "swap", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify"]:
 		var key: String = str(ActionIcons.ACTION_ICON_ALIASES.get(action_type, ""))
 		expect.call(not key.is_empty() and ActionIcons.KEYWORDS.has(key), "%s maps to a registered icon" % action_type)
+	for pair: Array in [["swap", "swap"], ["cleanse", "cleanse"], ["petrify", "petrify"]]:
+		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s uses its purpose-built %s icon" % [pair[0], pair[1]])
+	var flag_icons: Dictionary = {"ice_skate": "skate", "no_move": "immobilize", "anchored": "anchored", "fire_immune_turn": "fireproof"}
+	for flag: String in ManeuverRules.FLAG_ORDER:
+		var flag_key: String = ActionIcons.action_icon_key({"type": "self_flag", "flag": flag})
+		expect.call(flag_key == str(flag_icons.get(flag, "")) and ActionIcons.KEYWORDS.has(flag_key), "self_flag %s resolves to its registered %s icon" % [flag, str(flag_icons.get(flag, ""))])
+	var flagged: Dictionary = _state(engine, [])
+	for flag: String in ManeuverRules.FLAG_ORDER:
+		ManeuverRules.gain_flag(flagged, {"flag": flag}, "Probe")
+	var badge_icons: Array = []
+	for badge: Dictionary in ManeuverRules.player_badges(flagged):
+		badge_icons.append(str(badge.get("icon", "")))
+	expect.call(badge_icons == ["immobilize", "anchored", "skate", "fireproof"], "Player stance badges share the card-row self_flag icons")
+	var skate_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_skate", 0))
+	expect.call(skate_row.size() == 1 and str((skate_row[0] as Dictionary).get("icon", "")) == "skate", "A self_flag row is its purpose-built icon alone, with no placeholder label")
+	var petrify_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_petrify", 0))
+	expect.call(str((petrify_row[0] as Dictionary).get("icon", "")) == "petrify" and str((petrify_row[1] as Dictionary).get("kind", "")) != "text", "Petrify leads with its own icon and no placeholder label")
+	var role_cases: Dictionary = {
+		"w4b_changing_winds": "mobility", "w4b_petrify": "attack_ranged", "w4b_skate": "mobility", "w4b_rooted_stance": "block",
+		"w4b_windbreak": "block", "w4b_unpick": "block", "w4b_smelling_salts": "mobility", "w4b_crystal_mantle": "block",
+		"w4b_shrug_off": "block", "w4b_vortex": "attack_ranged", "w4b_bottled_gale": "attack_melee",
+	}
+	for card_id: String in role_cases.keys():
+		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(card_id)) == str(role_cases[card_id]), "%s uses the %s role emblem" % [card_id, str(role_cases[card_id])])
 	expect.call(ActionIcons.action_icon_key(_action(engine, "w4b_vortex")) == "pull", "A pulling area shows the Pull icon")
 	expect.call(ActionIcons.action_icon_key(_action(engine, "w4b_gale_ward", 1)) == "push", "A pushing area shows the Push icon")
 	for card_id: String in FIXTURES.keys():

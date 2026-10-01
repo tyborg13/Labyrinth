@@ -256,6 +256,16 @@ const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 		"order": "row_major",
 		"ping_pong": false,
 		"frame_seconds": 0.065
+	},
+	# The powder keg shares the wooden box's 128px framing, so it splinters
+	# with the box sheet; its burst feedback is drawn separately.
+	"powder_keg": {
+		"path": "res://assets/art/tiles/wooden_box_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
 	}
 }
 const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
@@ -480,6 +490,8 @@ const IMPACT_DECAL_FADE_PROGRESS: float = 0.72
 const IMPACT_DECAL_MAX_ALPHA: float = 0.72
 const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
+## Where powder_keg.png draws its lit fuse spark, as a fraction of the sprite.
+const POWDER_KEG_FUSE_ANCHOR: Vector2 = Vector2(0.64, 0.13)
 const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
 const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
 const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
@@ -7681,9 +7693,9 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
-		_draw_world_texture(texture, terrain_rect, _terrain_kind_tint(str(terrain.get("kind", "")), tint))
-	if str(terrain.get("kind", "")) == "powder_keg":
-		_draw_powder_keg_mark(terrain_rect, tint.a)
+		_draw_world_texture(texture, terrain_rect, tint)
+	if terrain_kind == "powder_keg":
+		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7696,7 +7708,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 		return
 	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
-	var tint: Color = _terrain_kind_tint(str(terrain.get("kind", "")), _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries))
+	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
 	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a,0.58)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
@@ -7709,30 +7721,19 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
 
-# Card terrain without purpose-built art reuses an existing prop: a player
-# Worldspine is Tharokh's spire; a powder keg is a tinted, marked wooden box
-# (dedicated keg art is still needed: assets/art/tiles/powder_keg.png).
+# A player Worldspine reuses Tharokh's spire art.
 func _terrain_art_kind(terrain_kind: String) -> String:
-	match terrain_kind:
-		"worldspine":
-			return "dragon_spire"
-		"powder_keg":
-			return "wooden_box"
+	if terrain_kind == "worldspine":
+		return "dragon_spire"
 	return terrain_kind
 
-func _terrain_kind_tint(terrain_kind: String, tint: Color) -> Color:
-	if terrain_kind == "powder_keg":
-		return Color(tint.r * 1.0, tint.g * 0.62, tint.b * 0.48, tint.a)
-	return tint
-
-func _draw_powder_keg_mark(terrain_rect: Rect2, opacity: float) -> void:
-	# A fuse ember over the keg so it never reads as an ordinary crate.
-	var center: Vector2 = Vector2(terrain_rect.get_center().x, terrain_rect.position.y + terrain_rect.size.y * 0.30)
-	var radius: float = maxf(3.0, terrain_rect.size.x * 0.13)
-	draw_circle(center, radius * 1.45, Color(0.96, 0.42, 0.16, 0.30 * opacity))
-	draw_circle(center, radius, Color(1.0, 0.62, 0.22, 0.92 * opacity))
-	draw_circle(center, radius * 0.45, Color(1.0, 0.92, 0.62, opacity))
-	draw_line(center + Vector2(0.0, radius), center + Vector2(radius * 0.6, radius * 2.3), Color(0.24, 0.16, 0.10, opacity), maxf(1.5, radius * 0.35), true)
+func _draw_powder_keg_fuse_glow(terrain_rect: Rect2, opacity: float) -> void:
+	# A soft warning halo on the art's lit fuse keeps the keg readable as a
+	# bomb at small board zoom and under Umbra dimming.
+	var center: Vector2 = terrain_rect.position + terrain_rect.size * POWDER_KEG_FUSE_ANCHOR
+	var radius: float = maxf(2.5, terrain_rect.size.x * 0.07)
+	draw_circle(center, radius * 2.0, Color(1.0, 0.46, 0.14, 0.16 * opacity))
+	draw_circle(center, radius * 1.2, Color(1.0, 0.62, 0.24, 0.28 * opacity))
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
 	if terrain_kind == "dragon_spire":
@@ -13876,6 +13877,7 @@ func _load_loot_and_terrain_assets() -> void:
 		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
+		"powder_keg": AssetLoader.load_texture("res://assets/art/tiles/powder_keg.png"),
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
 	}
 	_terrain_destruction_frames_by_kind.clear()
@@ -15983,9 +15985,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
 		})
 	if int(unit.get("petrify", 0)) > 0:
-		# Placeholder icon pending purpose-built Petrify art (spec/icon_identity_policy.md).
 		badges.append({
-			"icon": "stoneskin",
+			"icon": "petrify",
 			"count": 0,
 			"fill": Color("4b4639"),
 			"border": Color("d8cfb4"),

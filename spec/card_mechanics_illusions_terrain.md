@@ -112,11 +112,15 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
 ## Presentation, icons, Grimoire
 
 - Icons (`ActionIconLibrary.ACTION_ICON_ALIASES`): `burst_terrain` → `terrain_burst`;
-  `illusion_swap` → `blink`; `destroy_illusion` → `aoe` (placeholder). Purpose-built icons
-  still needed: `illusion_swap` (two figures exchanging places) and `shatter_illusion` (a
-  breaking mirror figure). See [icon identity policy](icon_identity_policy.md).
-- Powder keg art reuses the wooden box tinted ember-red with a fuse mark; dedicated art is
-  still needed (`assets/art/tiles/powder_keg.png`, plus a destruction sheet).
+  purpose-built `illusion_swap` → `illusion_swap` (Swap Illusion) and `destroy_illusion` →
+  `shatter_illusion` (Shatter Illusion), each leading its card row. See
+  [icon identity policy](icon_identity_policy.md).
+- Card role emblems: powder kegs and Worldspines are offensive outcrops and follow the
+  attack range rule; crag outcrops stay block; Empty Husk is illusion.
+- Powder kegs draw `assets/art/tiles/powder_keg.png` (the wooden box's 128px framing) with
+  a soft warning glow on its lit fuse, and break apart with the wooden box destruction
+  sheet (`TERRAIN_DESTRUCTION_SHEET_LAYOUTS.powder_keg`); the burst's fire impact is
+  unchanged.
 - Grimoire: `illusion_swap`, `destroy_illusion` → `keyword:illusion`; `burst_terrain` →
   `combat:outcrops` (bodies cover the new options); `expose_adjacent` → `keyword:expose`;
   `surface_ring` teaches its surface.

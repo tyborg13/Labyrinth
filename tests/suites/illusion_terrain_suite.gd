@@ -665,7 +665,7 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 		for action_var: Variant in (FIXTURES[card_id] as Dictionary)["actions"]:
 			var row: Array = ActionIcons.tokens_for_action(action_var as Dictionary)
 			expect.call(not row.is_empty(), "%s renders an icon row for %s" % [card_id, str((action_var as Dictionary).get("type", ""))])
-	for pair: Array in [["burst_terrain", "terrain_burst"], ["illusion_swap", "blink"], ["destroy_illusion", "aoe"]]:
+	for pair: Array in [["burst_terrain", "terrain_burst"], ["illusion_swap", "illusion_swap"], ["destroy_illusion", "shatter_illusion"]]:
 		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s resolves through ACTION_ICON_ALIASES" % pair[0])
 	var keg_row: Array = ActionIcons.tokens_for_action((FIXTURES["w4c_fx_powder_keg"] as Dictionary)["actions"][0])
 	expect.call(_row_has_icon(keg_row, "detonate"), "The keg row shows its burst")
@@ -674,6 +674,8 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	var refraction_row: Array = ActionIcons.tokens_for_action((FIXTURES["w4c_fx_refraction"] as Dictionary)["actions"][0])
 	expect.call(_row_has_icon(refraction_row, "illusion"), "Refraction shows its illusion rider")
 	expect.call(ActionIcons.card_role_emblem_key(GameData.card_def("w4c_fx_rockburst")) == "attack_ranged" and ActionIcons.card_role_emblem_key(GameData.card_def("w4c_fx_worldbreak")) == "attack_melee", "Terrain bursts are attacks for the role emblem")
+	for role_pair: Array in [["w4c_fx_powder_keg", "attack_ranged"], ["w4c_fx_worldspine", "attack_ranged"], ["w4c_fx_rampart", "block"], ["w4c_fx_empty_husk", "illusion"]]:
+		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(str(role_pair[0]))) == str(role_pair[1]), "%s uses the %s role emblem" % [str(role_pair[0]), str(role_pair[1])])
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4c_fx_rockburst")).has("combat:outcrops"), "Burst cards unlock the Outcrops topic")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4c_fx_empty_husk")).has("keyword:illusion"), "Swap cards unlock the Illusion entry")
 	expect.call(GrimoireLibrary.entry_ids_for_card_def(GameData.card_def("w4c_fx_mirror_feint")).has("keyword:expose"), "Mirror Feint unlocks Expose")

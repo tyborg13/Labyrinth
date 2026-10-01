@@ -23,29 +23,43 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `heal` and `heal_self` are both the player-facing Heal action.
 - `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
 - `burst_terrain` (Rockburst, Worldbreak) and `terrain_burst` (Tharokh's Worldspine pulse) are both the player-facing Terrain Burst: standing terrain erupts and hits the tiles around it.
-- `illusion_swap` (Empty Husk) and `blink` are both a teleport that lands without crossing the tiles between and triggers the destination's ground and traps; the swap's destination is one of your illusions. A purpose-built swap icon (`illusion_swap`) is still requested.
-- `destroy_illusion` (Shattered Reflection) temporarily shares Area Attack (`aoe`): it is a blast on the tiles around the shattered illusion. This is a placeholder until a purpose-built `shatter_illusion` icon exists; replace the alias then.
 - `move_away` uses Retreat, which is its own icon identity. Ally-targeted Guard and Heal actions also retain their own identities.
 - `force_area` (Gale Ward, Vortex, Cyclone Seal and other area forces) is the player-facing Push applied to every enemy in an area; `ActionIcons.action_icon_key` returns the Pull icon when the area pulls.
 - `mantle` (player Crystal Mantle cards) and `frost_armor` (Iskaldra's intent) are the same Crystal Mantle layers.
 - `convert_block_to_stoneskin` (Shrug Off) is a Stoneskin gain paid for with Block.
 - `meteor_marks` (the Meteorfall card) and `cinder_marks` (the dragon's Meteorfall intent) are both Meteorfall: marked tiles that are struck later and become Fire. The `combat:cinder_marks` topic teaches both.
 - `surface_adjacent_enemies` (Wards: leave a surface under each adjacent enemy) is the player-facing Shape Ground action, like `surface`.
-- Interim placeholders pending purpose-built icons (see [the surface family spec](card_mechanics_surfaces.md)): `convert_surface` (Frost Circuit, turn connected Ice into Electrified) shows Shape Ground; `discharge` (remove an Electrified network to strike around it) shows Consume Ground, like `consume_surface`; `all_enemies` (strike each visible enemy matching a condition) shows Area Attack, like `aoe`. The card rows also show the source and result surface icons, so the concept stays legible.
+- `self_flag` has no single icon. `ActionIconLibrary.SELF_FLAG_ICON_KEYS` resolves each flag for card rows, action steps and the player's stance badges: `ice_skate` → Skate, `anchored` → Anchored, `fire_immune_turn` → Fireproof. `no_move` (Rooted: you can't Move or Blink) is the exact Immobilize concept and uses the Immobilize icon; the test lists it in `ALLOWED_EXACT_SELF_FLAG_ALIASES`.
+
+## Wave-4 purpose-built identities
+
+Each wave-4 action that once borrowed an existing icon now owns one. Card rows
+show the icon alone, without the interim text labels.
+
+| Action type or flag | Icon key | Concept |
+| --- | --- | --- |
+| `swap` | `swap` | Swap places with an enemy or one of your illusions |
+| `petrify` | `petrify` | Skips its next turn and gains Block |
+| `cleanse` | `cleanse` | Remove your own statuses |
+| `self_flag: ice_skate` | `skate` | Ice costs no movement and doesn't Chill |
+| `self_flag: anchored` | `anchored` | Can't be pushed or pulled |
+| `self_flag: fire_immune_turn` | `fireproof` | Fire doesn't damage you this turn |
+| `convert_surface` | `surface_convert` | Convert Ground: connected surface becomes another |
+| `discharge` | `discharge` | Remove an Electrified network to strike around it |
+| `all_enemies` | `all_enemies` | Sweeping Strike: every visible enemy matching a condition |
+| `illusion_swap` | `illusion_swap` | Trade tiles with one of your illusions |
+| `destroy_illusion` | `shatter_illusion` | Shatter an illusion to blast around it |
+
+Grimoire topics use the new icons where the icon is the topic's concept:
+`combat:swap`, `combat:cleanse`, `combat:petrify`, `combat:sweeping_strikes`, and
+`combat:stances` (Anchored, the stance that reads as holding your ground).
+`combat:surface_techniques` keeps Consume Ground, its first and broadest technique.
 
 ## Pending purpose-built icons
 
-These wave-4 action types temporarily borrow an existing icon; each needs its own art before release. The test lists them in `PENDING_ICON_PLACEHOLDER_ALIASES` and excludes them from the exact-alias groups. Card rows add a text label beside the borrowed icon.
-
-| Needed icon (concept) | Key to add | Placeholder now |
-| --- | --- | --- |
-| Swap places with an enemy or illusion | `swap` | `blink` |
-| Petrify (skips next turn, gains Block) | `petrify` | `stoneskin` |
-| Cleanse (remove your own statuses) | `cleanse` | `heal` |
-| Skate (Ice costs no movement, no Chill) | `skate` | `surface_ice` (via `self_flag` → `immobilize` alias) |
-| Anchored (can't be pushed or pulled) | `anchored` | `immobilize` |
-| Fireproof (Fire doesn't damage you this turn) | `fireproof` | `surface_fire` |
-| Rooted (can't Move or Blink this turn) | `rooted` or reuse `immobilize` after review | `immobilize` |
+None. A future action type that must ship before its art may borrow an icon
+only through `PENDING_ICON_PLACEHOLDER_ALIASES` in the test, with a row here
+naming the needed key and the borrowed one.
 
 ## Acceptance proof
 

@@ -624,6 +624,12 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 		expect.call(not ActionIcons.action_icon_key(action).is_empty(), "%s resolves through ACTION_ICON_ALIASES" % str(action.get("type", "")))
 		expect.call(not ActionIcons.tokens_for_action(action).is_empty(), "%s renders icon tokens" % str(action.get("type", "")))
 	expect.call(ActionIcons.action_icon_key({"type": "meteor_marks"}) == "cinder_marks", "Meteorfall shares the dragon Meteorfall identity")
+	for pair: Array in [["convert_surface", "surface_convert"], ["discharge", "discharge"], ["all_enemies", "all_enemies"]]:
+		expect.call(ActionIcons.action_icon_key({"type": pair[0]}) == pair[1], "%s uses its purpose-built %s icon" % [pair[0], pair[1]])
+	var discharge_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_discharge"))
+	expect.call(str((discharge_row[0] as Dictionary).get("icon", "")) == "discharge", "Discharge rows lead with the Discharge icon")
+	for role_pair: Array in [["w4a_fx_stoke", "attack_ranged"], ["w4a_fx_discharge", "attack_ranged"], ["w4a_fx_frost_circuit", "attack_ranged"], ["w4a_fx_meteorfall", "attack_ranged"], ["w4a_fx_ember_ward", "block"], ["w4a_fx_rime_step", "mobility"]]:
+		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(str(role_pair[0]))) == str(role_pair[1]), "%s uses the %s role emblem" % [str(role_pair[0]), str(role_pair[1])])
 	var ward_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_ember_ward", 1))
 	expect.call(str((ward_row[0] as Dictionary).get("icon", "")) == "surface_fire", "Ward rows lead with the placed surface")
 	var stoke_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4a_fx_stoke"))
@@ -656,7 +662,7 @@ static func _test_run_scene_contracts(engine: CombatEngine, expect: Callable) ->
 	var scene: Node = RunSceneScript.new()
 	var state: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 4))])
 	var stoke_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_stoke", state)
-	expect.call(int(_token_with_icon(stoke_display.get("summary_rows", []) as Array, "aoe").get("value", 0)) == 3, "The hand row shows the selector damage")
+	expect.call(int(_token_with_icon(stoke_display.get("summary_rows", []) as Array, "all_enemies").get("value", 0)) == 3, "The hand row shows the selector damage")
 	var discharge_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_discharge", state)
 	expect.call(int(_token_with_icon(discharge_display.get("summary_rows", []) as Array, "aoe").get("value", 0)) == 4, "The hand row shows Discharge damage")
 	var meteor_display: Dictionary = scene.call("_card_widget_display", "w4a_fx_meteorfall", state)
@@ -668,7 +674,7 @@ static func _test_run_scene_contracts(engine: CombatEngine, expect: Callable) ->
 	var hover_tiles: Array = scene.call("_aoe_tiles_for_action", state, aimed, Vector2i(4, 5))
 	var committed: Dictionary = engine.apply_player_action(state, aimed, Vector2i(4, 5))
 	expect.call(_typed_tiles(hover_tiles) == SurfaceCardRules.meteor_mark_tiles(engine, committed), "The hover footprint equals the committed marks")
-	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Meteorfall" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Discharge", "Action context names the new steps rather than their placeholder icons")
+	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Meteorfall" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Discharge", "Action context names the new steps")
 	scene.free()
 
 static func _same_tiles(actual: Array, expected: Array) -> bool:

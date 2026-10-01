@@ -63,19 +63,22 @@ an empty tile is a legal area target and riders and surfaces apply as for any ar
 
 - Icons (`ActionIconLibrary.ACTION_ICON_ALIASES`, groups in the icon policy test):
   `meteor_marks` → `cinder_marks` (the same Meteorfall concept as the dragon's);
-  `surface_adjacent_enemies` → `surface`. Placeholders awaiting purpose-built icons:
-  `convert_surface` → `surface` (needed key `surface_convert`), `discharge` →
-  `surface_consume` (needed key `discharge`), `all_enemies` → `aoe` (needed key `all_enemies`).
+  `surface_adjacent_enemies` → `surface`; purpose-built `convert_surface` →
+  `surface_convert` (Convert Ground), `discharge` → `discharge`, `all_enemies` →
+  `all_enemies` (Sweeping Strike).
 - Card rows: wards show the placed surface; convert shows source → result surfaces, damage,
-  range, Shock; discharge shows Consume Ground + Electrified, damage, range; selectors lead with
-  an "Each on [surface]:" condition token; meteor shows the Meteorfall mark, damage, range,
+  range, Shock; discharge shows the Discharge icon + Electrified, damage, range; selectors lead with
+  an "Each on [surface]:" condition token and show their damage on the Sweeping Strike icon; meteor shows the Meteorfall mark, damage, range,
   pattern and the surface left. Rider rows: consume ("Target on/Only Target on/Each hit on
   [surface]:" + bonus + Consume Ground), on_result ("if it Freezes:/if it kills:" + rewards),
   frozen_splash ("if Target Frozen:" + splash). Unlimited `ignore_los` range shows as `∞`.
   Detonate rows add the fuel surface, the surface left and "spares you".
 - Hand rows (`RunScene._card_widget_display`) show final damage for the new damage types.
-  The action context names the steps Convert Ground, Discharge, Sweeping Strike and
-  Meteorfall rather than their shared icon labels.
+  The action context names the steps by their icon labels (Convert Ground, Discharge,
+  Sweeping Strike); Meteorfall keeps its card name over the shared Kindle Ground label.
+- Card role emblems: selectors, Discharge, Convert Ground and Meteorfall follow the
+  attack range rule (all ranged at their printed ranges); Wards choose block only when
+  nothing else on the card has a role, so Rime Step stays mobility.
 - Meteorfall uses the Area aim: Rotate button, keys and controller bumpers; the hover footprint
   (`_aoe_tiles_for_action`) equals the marked tiles. `CombatBoardView` draws each marked tile
   (ember fill, ring, Meteorfall icon, tooltip with the incoming damage) from combat state, so
@@ -86,8 +89,8 @@ an empty tile is a legal area target and riders and surfaces apply as for any ar
   beside ordinary Fire. `card_targeting_audit_suite.state_for` seeds a Chilled enemy on
   Ice and Rubble, an enemy on Electrified ground and Light so every family card is playable
   in the one-click audit.
-- Grimoire: `combat:surface_techniques` (consume, convert, discharge, wards),
-  `combat:sweeping_strikes` (selectors), `combat:cinder_marks` (now also the Meteorfall card),
+- Grimoire: `combat:surface_techniques` (consume, convert, discharge, wards; Consume
+  Ground icon), `combat:sweeping_strikes` (selectors; Sweeping Strike icon), `combat:cinder_marks` (now also the Meteorfall card),
   `keyword:surface_electrified` (convert, discharge), `keyword:freeze` (`frozen_splash`),
   `keyword:detonate` (`detonate_surface`, `leave_surface`), `keyword:surface` (wards).
 
@@ -106,7 +109,6 @@ Scored by `tools/card_heuristic.py`; values in the
 
 ## Deferred
 
-- Purpose-built icons for `convert_surface`, `discharge` and `all_enemies`.
 - Enemy AI does not yet avoid tiles under the player's Meteorfall marks, and the
   TURN END risk forecast (which stops before the player's turn starts) does not count a
   mark landing on the hero's own tile.

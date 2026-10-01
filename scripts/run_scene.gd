@@ -15121,15 +15121,12 @@ func _action_step_action_name(action: Dictionary) -> String:
 			return "Crystal Mantle"
 		"umbra_eclipse":
 			return "Last Eclipse"
-		# Wave-4 surface family names while their icons are shared placeholders.
-		"convert_surface":
-			return "Convert Ground"
-		"discharge":
-			return "Discharge"
-		"all_enemies":
-			return "Sweeping Strike"
+		# The player's Meteorfall shares the dragon's mark icon (Kindle Ground).
 		"meteor_marks":
 			return "Meteorfall"
+		# Rooted is the Immobilize icon; name the stance, not the status.
+		"self_flag":
+			return ManeuverRules.flag_label(str(action.get("flag", "")))
 	var icon_key: String = _action_step_icon_key(action)
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
 
