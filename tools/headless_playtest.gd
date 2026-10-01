@@ -13,6 +13,7 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 
 const INVALID_TARGET_TILE: Vector2i = Vector2i(-1, -1)
 const SHORTCUT_ATTACK_TYPES: Array = ["melee", "ranged", "aoe", "push", "pull"]
@@ -1926,6 +1927,8 @@ func _log_card_played(card_id: String, instance_id: String, before_state: Dictio
 	var payload: Dictionary = _card_play_payload(card_id, before_state, resolved_state, actions, targets)
 	# Additive wave-3 keyword fields, identical to RunScene's card_played payload.
 	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
+	# Additive wave-4 family B fields, identical to RunScene's card_played payload.
+	payload.merge(ManeuverRules.analytics_fields(before_state, resolved_state), true)
 	_analytics_store.write_event("card_played", _analytics_context(before_state, card_id, instance_id), payload)
 
 func _log_enemy_status_ticks(phase: Dictionary, combat_state: Dictionary) -> void:

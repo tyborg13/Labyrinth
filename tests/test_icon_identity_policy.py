@@ -38,6 +38,13 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:hollow_gale": "gale_force",
     "combat:crystal_armor": "frost_armor",
     "combat:boss_eclipse": "umbra_eclipse",
+    # Wave-4 family B topics; swap/stances/cleanse/petrify use placeholder icons
+    # pending purpose-built art (spec/icon_identity_policy.md).
+    "combat:area_force": "push",
+    "combat:swap": "blink",
+    "combat:stances": "immobilize",
+    "combat:cleanse": "heal",
+    "combat:petrify": "stoneskin",
 }
 
 # These are one player-facing concept despite differing engine direction/target
@@ -46,6 +53,19 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),
+    frozenset({"push", "force_area"}),
+    frozenset({"frost_armor", "mantle"}),
+    frozenset({"stoneskin", "convert_block_to_stoneskin"}),
+}
+
+# Temporary placeholders: these action types borrow an existing icon until a
+# purpose-built one exists (spec/icon_identity_policy.md, "Pending
+# purpose-built icons"). They are excluded from the exact-alias groups above.
+PENDING_ICON_PLACEHOLDER_ALIASES = {
+    "swap": "blink",
+    "self_flag": "immobilize",
+    "cleanse": "heal",
+    "petrify": "stoneskin",
 }
 
 EXPECTED_OBJECTIVE_ICONS = {
@@ -227,8 +247,12 @@ class IconIdentityPolicyTests(unittest.TestCase):
         for action_type, icon_key in aliases.items():
             self.assertIn(icon_key, registry, f"{action_type} maps to an unregistered icon key: {icon_key}")
 
+        for action_type, icon_key in PENDING_ICON_PLACEHOLDER_ALIASES.items():
+            self.assertEqual(aliases.get(action_type), icon_key, f"{action_type} placeholder must stay documented")
         action_types_by_icon: dict[str, set[str]] = {}
         for action_type, icon_key in aliases.items():
+            if action_type in PENDING_ICON_PLACEHOLDER_ALIASES:
+                continue
             action_types_by_icon.setdefault(icon_key, set()).add(action_type)
         actual_shared_groups = {
             frozenset(action_types)

@@ -443,6 +443,25 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"truesight": "truesight",
 	"umbra_eclipse": "umbra_eclipse",
 	"vision": "vision",
+	# Wave-4 family B (spec/card_mechanics_maneuver.md). Exact concepts:
+	# force_area is Push (or Pull, see action_icon_key) on an area; mantle is
+	# Crystal Mantle; convert_block_to_stoneskin is a Stoneskin gain.
+	"force_area": "push",
+	"mantle": "frost_armor",
+	"convert_block_to_stoneskin": "stoneskin",
+	# Placeholders pending purpose-built icons (spec/icon_identity_policy.md).
+	"swap": "blink",
+	"self_flag": "immobilize",
+	"cleanse": "heal",
+	"petrify": "stoneskin",
+}
+
+## Per-flag placeholder icons for self_flag actions and player badges.
+const SELF_FLAG_ICON_KEYS: Dictionary = {
+	"ice_skate": "surface_ice",
+	"no_move": "immobilize",
+	"anchored": "immobilize",
+	"fire_immune_turn": "surface_fire",
 }
 
 const CARD_ROLE_EMBLEM_PATHS: Dictionary = {
@@ -460,6 +479,10 @@ static func all_icon_keys() -> Array:
 
 static func action_icon_key(action: Dictionary) -> String:
 	var action_type: String = str(action.get("type", ""))
+	if action_type == "force_area" and int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0:
+		return "pull"
+	if action_type == "self_flag" and SELF_FLAG_ICON_KEYS.has(str(action.get("flag", ""))):
+		return str(SELF_FLAG_ICON_KEYS[str(action.get("flag", ""))])
 	return str(ACTION_ICON_ALIASES.get(action_type, ""))
 
 static func card_role_emblem_key(card: Dictionary) -> String:
@@ -1115,6 +1138,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "quicken", "amount", int(action.get("amount", 0)), "neutral", "Quicken %d\nYour next card this turn costs %d less Time (minimum 1)." % [int(action.get("amount", 0)), int(action.get("amount", 0))]))
 		"next_attack":
 			_append_next_attack_tokens(tokens, action)
+		"force_area", "swap", "self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
+			_append_maneuver_tokens(tokens, action)
+	if action_type in ["move", "blink", "push", "pull", "aoe"]:
+		_append_maneuver_rider_tokens(tokens, action)
 	if int(action.get("outcrop_health", 0)) > 0:
 		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
 	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
@@ -1132,6 +1159,106 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		tokens.push_front(surface_condition_token(requirement))
 	return tokens
 
+
+const SELF_FLAG_TEXT: Dictionary = {
+	"ice_skate": ["Skate", "Skate\nThis turn, moving onto Ice costs no movement and Ice doesn't Chill you."],
+	"no_move": ["Rooted", "Rooted\nYou can't Move or Blink for the rest of this turn."],
+	"anchored": ["Anchored", "Anchored\nUntil your next turn, you can't be pushed or pulled."],
+	"fire_immune_turn": ["Fireproof", "Fireproof\nFire doesn't damage you this turn."],
+}
+const CLEANSE_STATUS_LABELS: Dictionary = {"bleed": "Bleed", "immobilize": "Immobilize", "chilled": "Chilled", "shock": "Shock"}
+
+## Wave-4 family B action rows (spec/card_mechanics_maneuver.md).
+static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
+	match str(action.get("type", "")):
+		"force_area":
+			var pulling: bool = int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0
+			var amount: int = int(action.get("pull" if pulling else "push", 0))
+			var on_target: bool = str(action.get("center", "self")) == "target"
+			var radius: int = int(action.get("radius", 1))
+			var where: String = "the chosen tile" if on_target else "you"
+			var verb: String = "Pull each enemy within %d of %s %d toward it." % [radius, where, amount] if pulling else "Push each enemy within %d of %s %d away from it." % [radius, where, amount]
+			if not str(action.get("consume_center", "")).is_empty():
+				tokens.append(token_for("surface_consume", null, "neutral", "Consumes this surface on the chosen tile first."))
+				tokens.append(surface_token(str(action.get("consume_center", ""))))
+			if on_target:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Choose a tile within this range."))
+			tokens.append(_token_for_action_field(action, "pull" if pulling else "push", "pull" if pulling else "push", amount, "neutral", verb + " Each moves along its own straight line; stopped lines collide."))
+			tokens.append(text_token("within %d" % radius, "neutral", verb))
+			if int(action.get("expose", 0)) > 0:
+				tokens.append(_token_for_action_field(action, "expose", "expose", int(action.get("expose", 0))))
+		"swap":
+			tokens.append(token_for("blink", null, "neutral", "Swap\nSwap places with a one-tile enemy or one of your illusions. Both arrive normally; nothing collides."))
+			tokens.append(text_token("Swap", "neutral", "Swap places with an enemy or illusion."))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
+		"self_flag":
+			var flag: String = str(action.get("flag", ""))
+			var text: Array = SELF_FLAG_TEXT.get(flag, [flag.capitalize(), flag.capitalize()]) as Array
+			tokens.append(token_for(str(SELF_FLAG_ICON_KEYS.get(flag, "immobilize")), null, "neutral", str(text[1])))
+			tokens.append(text_token(str(text[0]), "neutral", str(text[1])))
+		"cleanse":
+			var names: PackedStringArray = PackedStringArray()
+			for status_var: Variant in action.get("statuses", []):
+				names.append(str(CLEANSE_STATUS_LABELS.get(str(status_var), str(status_var).capitalize())))
+			var detail: String = "Cleanse\nRemove %s from yourself." % ", ".join(names)
+			tokens.append(text_token("Cleanse", "neutral", detail))
+			for status_var: Variant in action.get("statuses", []):
+				var key: String = str(status_var)
+				if KEYWORDS.has(key):
+					tokens.append(token_for(key, null, "neutral", detail))
+		"convert_block_to_stoneskin":
+			tokens.append(token_for("block", null, "neutral", "Turn all your Block into Stoneskin."))
+			tokens.append(text_token("→", "neutral", "Turn all your Block into Stoneskin."))
+			tokens.append(token_for("stoneskin", null, "neutral", "Turn all your Block into Stoneskin."))
+		"mantle":
+			tokens.append(_token_for_action_field(action, "frost_armor", "amount", int(action.get("amount", 0)), "neutral", "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it."))
+		"petrify":
+			var petrify_tip: String = "Petrify\nThe enemy skips its next turn (it still costs its Time) and gains this much Block, which lasts through your next turn. Dragons are immune."
+			tokens.append(token_for("stoneskin", null, "neutral", petrify_tip))
+			tokens.append(text_token("Petrify", "neutral", petrify_tip))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
+			tokens.append(_token_for_action_field(action, "block", "block", int(action.get("block", 0)), "neutral", "The enemy gains this much Block."))
+
+static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> void:
+	if str(action.get("force_mode", "")) == "from_center":
+		tokens.append(text_token("from center", "neutral", "Each enemy is pushed away from the pattern's center; the enemy on the center is pushed away from you."))
+	if bool(action.get("straight_line", false)):
+		tokens.append(text_token("straight line", "neutral", "Move along one clear straight line."))
+	if not str(action.get("trail_surface", "")).is_empty():
+		var moving_self: bool = str(action.get("type", "")) == "move"
+		tokens.append(surface_token(str(action.get("trail_surface", "")), "Leaves this surface on each tile you leave." if moving_self else "Leaves this surface on each tile the target passes through."))
+		tokens.append(text_token("trail"))
+	if not str(action.get("origin_surface", "")).is_empty():
+		tokens.append(surface_token(str(action.get("origin_surface", "")), "Leaves this surface on the tile you started on."))
+		tokens.append(text_token("start tile"))
+	if int(action.get("block_per_tile", 0)) > 0:
+		tokens.append(token_for("block", int(action.get("block_per_tile", 0)), "neutral", "Gain this much Block for each tile you move."))
+		tokens.append(text_token("per tile"))
+	var trail_light: Variant = action.get("trail_light", null)
+	if typeof(trail_light) == TYPE_DICTIONARY:
+		tokens.append(token_for("illuminate", int((trail_light as Dictionary).get("radius", 1)), "neutral", "Creates Light on each tile you enter. Radius in tiles."))
+		tokens.append(token_for("time", int((trail_light as Dictionary).get("duration", 2)), "neutral", "Turns this Light lasts."))
+	if bool(action.get("destination_requires_light", false)):
+		tokens.append(text_token("into Light", "neutral", "The destination must be in Light."))
+	var adjacent_to: Array = action.get("destination_adjacent_to", []) as Array
+	if not adjacent_to.is_empty():
+		tokens.append(text_token("beside foe/terrain" if adjacent_to.has("terrain") else "beside a foe", "neutral", "The destination must be next to an enemy, outcrop or crate." if adjacent_to.has("terrain") else "The destination must be next to an enemy."))
+	if int(action.get("illusion_at_origin", 0)) > 0:
+		tokens.append(token_for("illusion", int(action.get("illusion_at_origin", 0)), "neutral", "Leaves an illusion with this much health where you stood."))
+	var started: Variant = action.get("if_started_on_surface", null)
+	if typeof(started) == TYPE_DICTIONARY:
+		var surface_kind: String = str((started as Dictionary).get("surface", ""))
+		var condition: Dictionary = text_token("if started on %s:" % label(surface_icon_key(surface_kind)), "neutral", "Applies if you started this turn on %s." % label(surface_icon_key(surface_kind)))
+		tokens.append(condition)
+		for reward_var: Variant in (started as Dictionary).get("rewards", []):
+			if typeof(reward_var) == TYPE_DICTIONARY:
+				tokens.append_array(tokens_for_action(reward_var as Dictionary))
+	var lonely: Variant = action.get("if_no_adjacent_enemies", null)
+	if typeof(lonely) == TYPE_ARRAY and not (lonely as Array).is_empty():
+		tokens.append(text_token("if no foe adjacent:", "neutral", "Applies if no enemy is next to you after the Blink."))
+		for reward_var: Variant in lonely as Array:
+			if typeof(reward_var) == TYPE_DICTIONARY:
+				tokens.append_array(tokens_for_action(reward_var as Dictionary))
 
 static func _append_retaliate_tokens(tokens: Array, action: Dictionary) -> void:
 	var amount: int = int(action.get("amount", 0))

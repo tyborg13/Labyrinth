@@ -60,6 +60,7 @@ const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
@@ -13437,6 +13438,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 		frame.add_child(health_bar)
 	if _turn_order_is_card_preview_projection(entry):
 		frame.add_child(_turn_order_projection_badge(entry, slot_size))
+	elif bool(entry.get("petrified", false)):
+		# Petrify: this queued activation is skipped but keeps its Time.
+		var skip_badge: Control = _turn_order_projection_badge(entry, slot_size)
+		skip_badge.name = "PetrifiedSkipBadge"
+		frame.add_child(skip_badge)
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active, slot_size))
@@ -13538,6 +13544,8 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Cont
 func _turn_order_projection_badge_text(entry: Dictionary) -> String:
 	if int(entry.get("stagger_preview", 0)) > 0:
 		return "Stagger +%d" % int(entry.get("stagger_preview", 0))
+	if bool(entry.get("petrified", false)) and not bool(entry.get("projected", false)):
+		return "Skips"
 	var preview_time: int = int(entry.get("projected_time_cost", 0))
 	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 	if card_name.is_empty():
@@ -13664,6 +13672,8 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		lines.append("Projected next turn")
 	if int(entry.get("stagger_preview", 0)) > 0:
 		lines.append("Staggered +%d by this card" % int(entry.get("stagger_preview", 0)))
+	if bool(entry.get("petrified", false)):
+		lines.append("Petrified: skips this turn (still costs its Time)")
 	if entry.has("hp") and entry.has("max_hp") and not bool(entry.get("hidden_by_umbra", false)):
 		lines.append("Health %d/%d" % [int(entry.get("hp", 0)), int(entry.get("max_hp", 1))])
 	var base: int = int(entry.get("base_initiative", 0))
@@ -13756,7 +13766,7 @@ func _turn_order_entry_key(entry: Dictionary) -> String:
 func _turn_order_signature(entries: Array[Dictionary]) -> String:
 	var parts: Array[String] = []
 	for entry: Dictionary in entries:
-		parts.append("%s:%s:%d:%d:%s:%s:%s:%d:%d" % [
+		parts.append("%s:%s:%d:%d:%s:%s:%s:%d:%d:%s" % [
 			_turn_order_entry_key(entry),
 			str(bool(entry.get("active", false))),
 			int(entry.get("eta", -1)),
@@ -13765,7 +13775,8 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			str(entry.get("type", "")),
 			str(entry.get("pos", Vector2i.ZERO)),
 			int(entry.get("hp", -1)),
-			int(entry.get("max_hp", -1))
+			int(entry.get("max_hp", -1)),
+			"P" if bool(entry.get("petrified", false)) else ""
 		])
 	return "|".join(parts)
 
@@ -14221,7 +14232,8 @@ func _refresh_player_movement_meter() -> void:
 		and _combat_engine.player_has_movement_target(_combat_state)
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
-		_movement_meter.tooltip_text = "Movement unavailable: there is no legal destination."
+		var rooted_reason: String = ManeuverRules.movement_block_reason(_combat_state)
+		_movement_meter.tooltip_text = rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination."
 	_movement_meter.modulate = Color.WHITE if enabled else Color(1.0, 1.0, 1.0, 0.42)
 	if _player_movement_selected:
 		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
@@ -18491,6 +18503,8 @@ func _refresh_stage_view() -> void:
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
+		if _pending_card_requires_confirmation():
+			_append_confirmation_force_preview(presentation)
 		var guided_intent_focus_active: bool = (
 			_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT
 			and _state_has_visible_enemy_at_tile(display_state, _guided_tutorial_intent_enemy_tile)
@@ -20333,6 +20347,10 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return []
 	if action_type in ["move", "blink"]:
 		return _path_tiles_for_preview(preview)
+	if action_type == "force_area":
+		# The whole radius around the hovered center; paths and ghosts come from
+		# the forced-displacement forecast.
+		return ManeuverRules.force_area_tiles(preview.get("state", {}), action, _hovered_board_tile)
 	return _vector2i_array([_hovered_board_tile])
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
@@ -24326,6 +24344,26 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						final_feedback_elapsed_seconds,
 						true
 					)
+		"force_area", "swap":
+			# Area forces and swaps resolve through the shared mover; the surface
+			# beat flashes collisions and floats their damage on the result.
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_surface_change(before_state, after_state, base_presentation)
+		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var maneuver_tile: Vector2i = player_after_tile
+			if action_type == "petrify" and target_tile.x >= 0:
+				maneuver_tile = target_tile
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"floating_texts": [{
+					"tile": maneuver_tile,
+					"text": ManeuverRules.presentation_text(before_state, after_state, action),
+					"color": Color("d6edff"),
+					"offset": -6.0
+				}]
+			}), 0.0, true)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -26365,6 +26403,16 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				"offset": 0.0,
 				"width": 112.0
 			})
+		if int(loss.get("mantle_loss", 0)) > 0:
+			var mantle_left: int = int(loss.get("mantle_remaining", 0))
+			floats.append({
+				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player")), "reaction": "block",
+				"text": "Mantle %d → %d" % [mantle_left + int(loss.get("mantle_loss", 0)), mantle_left],
+				"color": Color("b9f3ff"),
+				"offset": -24.0,
+				"width": 140.0
+			})
 		if int(loss.get("defiance_restored", 0)) > 0:
 			floats.append({
 				"tile": tile,
@@ -26542,6 +26590,10 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 		match str(loss.get("kind", "")):
 			"player":
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
+				if int(loss.get("mantle_loss", 0)) > 0:
+					var mantle_player: Dictionary = state.get("player", {})
+					mantle_player["frost_armor"] = maxi(0, int(loss.get("mantle_remaining", 0)))
+					state["player"] = mantle_player
 				var restored_hp: int = maxi(0, int(loss.get("defiance_restored", 0)))
 				if restored_hp > 0:
 					var player: Dictionary = state.get("player", {})
@@ -26941,7 +26993,7 @@ func _secondary_player_action_enemy_loss_presentation(
 	)
 
 func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
-	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
+	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate", "force_area", "swap"]:
 		return true
 	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
 
@@ -33550,6 +33602,8 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 	var payload: Dictionary = _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets)
 	# Additive wave-3 keyword fields: quicken_spent, next_attack_bonus_used, rite_started.
 	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
+	# Additive wave-4 family B fields (spec/analytics.md).
+	payload.merge(ManeuverRules.analytics_fields(before_state, resolved_state), true)
 	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), payload)
 
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
@@ -34655,6 +34709,17 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		result["preview_units"] = previews
 	if not markers.is_empty():
 		result["collision_markers"] = markers
+
+func _append_confirmation_force_preview(presentation: Dictionary) -> void:
+	# A targetless card (Gale Ward, Unsealed Gale, Waning Pulse) is shown on its
+	# resolved board; add the same straight-line paths and collision markers the
+	# hover forecast draws. Ghosts are omitted because the board already shows
+	# each enemy at its landing tile.
+	var forced: Dictionary = {}
+	_append_forced_displacement_preview(forced, _combat_state, _pending_card_known_forecast_state())
+	for key: String in ["displacement_paths", "collision_markers"]:
+		if forced.has(key):
+			presentation[key] = forced[key]
 
 func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
 	var chips: Array = []

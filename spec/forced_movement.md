@@ -53,6 +53,18 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   kind/key, `blocker_kind`/`blocker_key`, per-party `damage`, `blockers` and
   `total_damage`.
 
+## Several targets at once
+
+- When one effect moves several enemies (area forces, Squall's from-center
+  AOE), each moves along its own default line from that effect's source and
+  they resolve one at a time: pushes farthest from the source first, pulls
+  nearest first, ties by enemy id. An earlier mover can therefore clear a lane
+  (pushes) or become a blocker (pulls) for a later one; collisions follow the
+  ordinary rules.
+- Area forces have no Rotate. Details: [wave-4 family B](card_mechanics_maneuver.md).
+- Anchored (Windbreak) makes forced movement against the hero 0 tiles with no
+  collision until the hero's next turn.
+
 ## Targeting
 
 A Push/Pull target is legal when it is a visible enemy within range (and line

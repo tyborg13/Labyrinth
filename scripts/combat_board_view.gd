@@ -68,6 +68,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -3484,6 +3485,8 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"retaliate": source_state.get("retaliate", {}),
 		"active_rites": source_state.get("active_rites", []),
 		"turn_flags": source_state.get("turn_flags", {}),
+		# Player self-flag badges (Skate, Rooted, Anchored, Fireproof).
+		ManeuverRules.FLAGS_KEY: source_state.get(ManeuverRules.FLAGS_KEY, {}),
 		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
 		"room_element": source_state.get("room_element", ElementData.NONE),
@@ -7779,6 +7782,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
+			"frost_armor": int(player.get("frost_armor", 0)),
 			"keyword_badges": _player_keyword_badges(),
 		})
 	for illusion_var: Variant in combat_state.get("illusions", []):
@@ -7861,6 +7865,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
+			"petrify": int(enemy.get("petrify", 0)),
 		}
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
@@ -15916,6 +15921,16 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"border": Color("b9f3ff"),
 			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
 		})
+	if int(unit.get("petrify", 0)) > 0:
+		# Placeholder icon pending purpose-built Petrify art (spec/icon_identity_policy.md).
+		badges.append({
+			"icon": "stoneskin",
+			"count": 0,
+			"fill": Color("4b4639"),
+			"border": Color("d8cfb4"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "Petrified\nSkips its next turn; the skipped turn still costs its Time. Its Petrify Block lasts through your next turn."
+		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
 			"icon": "shock",
@@ -15946,6 +15961,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 func _player_keyword_badges() -> Array[Dictionary]:
 	var badges: Array[Dictionary] = RetaliateRules.player_badges(combat_state, RiteRules.effects(combat_state))
 	badges.append_array(TempoRules.player_badges(combat_state))
+	badges.append_array(ManeuverRules.player_badges(combat_state))
 	return badges
 
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:

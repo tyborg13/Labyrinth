@@ -720,6 +720,22 @@ separate analytics.
 
 Worldroot automatic origin selection is part of the same card commit: the chosen Rubble origin is consumed by the ordinary surface event path. It does not add an origin-pick event or a second card play. Cancelling a drag revokes commit input before snapback animation, so a concurrent release emits no card-play event.
 
+### Wave-4 family B (area forces, Swap, self flags, Cleanse, Petrify, Mantle)
+
+`card_played` gains additive fields, identical in RunScene and
+`tools/headless_playtest.gd` (`ManeuverRules.analytics_fields(before, resolved)`):
+`self_flags_gained` (flag ids newly active: `ice_skate`, `no_move`, `anchored`,
+`fire_immune_turn`), `statuses_cleansed` (player statuses removed),
+`mantle_gained` (Crystal Mantle layers added), `petrified_enemy_ids`,
+`swapped_with` (`enemy`, `illusion` or null) and `force_area_displaced` (enemies
+an area force moved). The append-only `surface_event` stream adds `force_area`
+(`center`, `radius`, `force`, `amount`, `expose`, `consumed`, per-enemy `from`/`to`),
+`swap` (`from`, `to`, `other_kind`, `other_key`), `petrified` (`enemy_id`,
+`block`), `statuses_cleansed` (`statuses`), `mantle_gained` (`amount`, `layers`),
+and `crystal_mantle_broken` with `actor_kind: player`. Area-force and Squall
+collisions use the existing `force_collision` event. Existing fields keep their
+meaning.
+
 ### Wave-3 card keywords (Retaliate, Quicken, next attack, Rites)
 
 `card_played` gains three additive fields, identical in RunScene and

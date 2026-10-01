@@ -82,7 +82,14 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"umbra_eclipse": "combat:boss_eclipse",
 	"retaliate": "keyword:retaliate",
 	"quicken": "keyword:quicken",
-	"next_attack": "keyword:next_attack"
+	"next_attack": "keyword:next_attack",
+	"force_area": "combat:area_force",
+	"swap": "combat:swap",
+	"self_flag": "combat:stances",
+	"cleanse": "combat:cleanse",
+	"convert_block_to_stoneskin": "keyword:stoneskin",
+	"mantle": "combat:crystal_armor",
+	"petrify": "combat:petrify"
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
@@ -97,7 +104,12 @@ const ACTION_FIELD_ENTRY_IDS := {
 	"pierce": "keyword:pierce",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
-	"stagger": "keyword:stagger"
+	"stagger": "keyword:stagger",
+	"force_mode": "combat:area_force",
+	"trail_light": "keyword:illuminate",
+	"destination_requires_light": "keyword:illuminate",
+	"illusion_at_origin": "keyword:illusion",
+	"block_per_tile": "keyword:block"
 }
 
 const LINKED_ENTRY_IDS := {
@@ -756,6 +768,8 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
 		_collect_surface_entry_ids(str(action.get("surface", "")), wanted)
+		for surface_field: String in ["trail_surface", "origin_surface", "consume_center"]:
+			_collect_surface_entry_ids(str(action.get(surface_field, "")), wanted)
 		if str(action.get("element", "")) == "ice" and action_type in ["melee", "ranged", "aoe"]:
 			wanted["keyword:chilled"] = true
 			wanted["keyword:freeze"] = true

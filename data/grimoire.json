@@ -772,6 +772,60 @@
       ]
     },
     {
+      "id": "combat:area_force",
+      "section": "combat",
+      "title": "Gusts and Vortices",
+      "icon": "push",
+      "body": [
+        "An area force pushes or pulls every enemy within its radius of a center: you, or a tile you choose. Each enemy moves along its own straight line away from (Push) or toward (Pull) the center, using the normal Push and Pull rules. An enemy standing on a Pull's center stays put.",
+        "Pushes resolve farthest from the center first; pulls resolve nearest first. A stopped line collides as usual: 2 damage per lost tile to the mover and to what stopped it.",
+        "Squall pushes each enemy in its cross away from the cross's center; the enemy on the center itself is pushed away from you."
+      ]
+    },
+    {
+      "id": "combat:swap",
+      "section": "combat",
+      "title": "Swap",
+      "icon": "blink",
+      "body": [
+        "Swap places with a visible one-tile enemy or one of your illusions within range and line of sight. Large enemies cannot be swapped.",
+        "Both of you arrive normally: surfaces and traps trigger for each, and you collect loot on your new tile. A swap is not a Push or Pull, so nothing collides and Anchored does not stop it."
+      ]
+    },
+    {
+      "id": "combat:stances",
+      "section": "combat",
+      "title": "Stances",
+      "icon": "immobilize",
+      "body": [
+        "Skate: this turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+        "Rooted: for the rest of this turn you can't Move or Blink, including your own movement.",
+        "Anchored: until your next turn, Push and Pull against you move you 0 tiles and never collide.",
+        "Fireproof: Fire doesn't damage you this turn.",
+        "Active stances appear as badges on your character."
+      ]
+    },
+    {
+      "id": "combat:cleanse",
+      "section": "combat",
+      "title": "Cleanse",
+      "icon": "heal",
+      "body": [
+        "Cleanse removes the listed statuses from you at once: Bleed, Immobilize, Chilled or Shock. Removing Immobilize or Shock frees you for the rest of this turn, and a Shock cleanse can be played while Shocked.",
+        "Removing Chilled while standing on Ice keeps you unchilled until you next enter Ice or start a turn on it."
+      ]
+    },
+    {
+      "id": "combat:petrify",
+      "section": "combat",
+      "title": "Petrify",
+      "icon": "stoneskin",
+      "body": [
+        "A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.",
+        "Petrify also gives the enemy Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."
+      ]
+    },
+    {
       "id": "combat:crystal_armor",
       "section": "combat",
       "title": "Crystal Mantle",
@@ -779,7 +833,8 @@
       "body": [
         "Each direct damaging hit breaks one Crystal Mantle layer instead of damaging health. Cheap hits can clear layers before a heavy strike.",
         "Each remaining layer extends Shatterstorm by one tile. Break layers during its warning to shrink the danger; the burst consumes the layers that remain.",
-        "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus."
+        "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus.",
+        "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it. Your layers last until broken or the combat ends."
       ]
     },
     {

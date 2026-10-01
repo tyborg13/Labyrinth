@@ -780,3 +780,39 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
   their ordinary reward values; target-in-Light damage `amount x 0.45 x 0.50`
   lit attacks; thorns at the Retaliate values. A player Light aura is scored as
   Illuminate with the radius and a 3-activation duration.
+
+### Wave-4 movement, forces, flags, Petrify and Mantle
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_maneuver.md`;
+tests `tests/test_card_heuristic_maneuver.py`):
+
+- `force_area`: each tile of Push is `0.28 + 0.24 + 0.30` (push, displacement
+  hazard, collision) and each tile of Pull `0.14 + 0.24 + 0.30`; there is no
+  directed `0.03` bonus because an area has no Rotate. Expected targets are
+  `min(2.5, 0.60 + 0.45 x radius)`. A tile-centered area uses ranged
+  playability for its range; a self-centered one uses
+  `min(0.95, 0.45 + 0.15 x radius)` availability. Expose adds `0.32` per point
+  per target. `consume_center` scales the area by the `0.50` setup availability
+  and costs `0.35 x 0.50` fuel.
+- Squall's `force_mode: from_center` is priced like the AOE's Push rider.
+- Swap: `0.25` mobility per range tile plus `0.60` control (repositioning an
+  enemy) at ranged playability.
+- `trail_surface` on Push/Pull adds the surface per tile moved (with the usual
+  extra-tile retention) at the attack's playability; on Move it covers
+  `0.67 x range` tiles. `origin_surface` is one tile. Both use the `0.50` setup
+  availability.
+- Self flags: Skate `+0.45` mobility, Rooted `-0.50` mobility, Anchored `+0.60`
+  defense, Fireproof `+0.50` defense.
+- Cleanse `0.35` defense per listed status; Block to Stoneskin expects `4` Block
+  converted at `0.40 - 0.25` per point.
+- Mantle `1.60` defense per layer (a layer cancels one whole direct hit after
+  Block and lasts until broken).
+- Petrify `3.60` control (a skipped activation, about Stagger of one enemy
+  cycle, `12 x 0.30`) at ranged playability, minus `block x 0.25 x 0.50` for the
+  Block it grants the enemy.
+- Move riders: `block_per_tile` prices `0.67 x range` tiles of Block;
+  `straight_line` keeps `0.75` of the Move's tiles; `trail_light` is Illuminate
+  with `1 + 0.35` per extra lit tile; `if_started_on_surface` rewards at `0.25`
+  availability. Blink riders: `destination_requires_light` keeps `0.60` and
+  `destination_adjacent_to` `0.85` of the Blink's tiles; `illusion_at_origin` is
+  an illusion of that health; `if_no_adjacent_enemies` rewards at `0.60`.

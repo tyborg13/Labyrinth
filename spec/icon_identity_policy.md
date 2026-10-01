@@ -23,6 +23,23 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `heal` and `heal_self` are both the player-facing Heal action.
 - `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
 - `move_away` uses Retreat, which is its own icon identity. Ally-targeted Guard and Heal actions also retain their own identities.
+- `force_area` (Gale Ward, Vortex, Cyclone Seal and other area forces) is the player-facing Push applied to every enemy in an area; `ActionIcons.action_icon_key` returns the Pull icon when the area pulls.
+- `mantle` (player Crystal Mantle cards) and `frost_armor` (Iskaldra's intent) are the same Crystal Mantle layers.
+- `convert_block_to_stoneskin` (Shrug Off) is a Stoneskin gain paid for with Block.
+
+## Pending purpose-built icons
+
+These wave-4 action types temporarily borrow an existing icon; each needs its own art before release. The test lists them in `PENDING_ICON_PLACEHOLDER_ALIASES` and excludes them from the exact-alias groups. Card rows add a text label beside the borrowed icon.
+
+| Needed icon (concept) | Key to add | Placeholder now |
+| --- | --- | --- |
+| Swap places with an enemy or illusion | `swap` | `blink` |
+| Petrify (skips next turn, gains Block) | `petrify` | `stoneskin` |
+| Cleanse (remove your own statuses) | `cleanse` | `heal` |
+| Skate (Ice costs no movement, no Chill) | `skate` | `surface_ice` (via `self_flag` → `immobilize` alias) |
+| Anchored (can't be pushed or pulled) | `anchored` | `immobilize` |
+| Fireproof (Fire doesn't damage you this turn) | `fireproof` | `surface_fire` |
+| Rooted (can't Move or Blink this turn) | `rooted` or reuse `immobilize` after review | `immobilize` |
 
 ## Acceptance proof
 

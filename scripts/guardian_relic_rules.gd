@@ -5,6 +5,7 @@ const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const GuardianRules = preload("res://scripts/guardian_combat_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const INVALID := Vector2i(-1,-1)
 
 static func amount(state: Dictionary, effect_type: String) -> int:
@@ -35,6 +36,8 @@ static func overlap(unit: Dictionary, crosses: Dictionary) -> int:
 	return result
 
 static func ice_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i, previous_direction: Vector2i) -> int:
+	# Skate: a step onto Ice costs nothing (stacks with, and supersedes, Winter's Spur).
+	if ManeuverRules.skate_step_cost(state,unit,to) >= 0: return 0
 	var cost: int = Surfaces.movement_step_cost(state,unit,from,to)
 	if not unit.has("id") and amount(state,"ice_stride")>0 and previous_direction==to-from and Surfaces.has_surface(state,from,"ice") and Surfaces.has_surface(state,to,"ice"):
 		cost-=1

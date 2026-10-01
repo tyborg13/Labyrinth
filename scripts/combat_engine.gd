@@ -18,6 +18,7 @@ const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -883,6 +884,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 		_assign_enemy_intent(state, enemy_index, rng)
 	state["rng_state"] = rng.state
 	state = _initialize_initiative_queue(state)
+	ManeuverRules.record_activation_start(state)
 	state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
 	return state
@@ -960,7 +962,9 @@ func player_action_needs_target(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0
-	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop"]
+	if action_type == "force_area":
+		return ManeuverRules.force_area_targets_tile(action)
+	return action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop", "swap", "petrify"]
 
 func player_action_needs_orientation(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
@@ -968,6 +972,9 @@ func player_action_needs_orientation(action: Dictionary) -> bool:
 		return int(action.get("range", 0)) > 0 and _aoe_pattern_variants(action).size() > 1
 	if action_type == "outcrop":
 		return action.has("pattern") and _aoe_pattern_variants(action).size() > 1
+	if action_type == "force_area":
+		# Each enemy in the area takes its own default line; there is no Rotate.
+		return false
 	return _action_has_forced_movement(action)
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
@@ -978,9 +985,13 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if bool(restrictions.get("frozen", false)):
 		return false
 	if bool(restrictions.get("shocked", false)):
-		if action_type not in ["move", "blink"]:
+		if action_type not in ["move", "blink"] and not ManeuverRules.resolves_while_shocked(action):
 			return false
 	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink"]:
+		return false
+	if ManeuverRules.movement_blocked(state, action):
+		return false
+	if action_type == "force_area" and not ManeuverRules.force_area_can_resolve(self, state, action):
 		return false
 	return true
 
@@ -1028,7 +1039,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 			if accepted_limit == 1:
 				stop_after_reaching = func(tile: Vector2i) -> bool:
 					return tile != player_pos and _player_action_target_is_accepted(state, action, tile, accept_target)
-			var navigation: Dictionary = _unit_movement_navigation(state, player, move_range, occupied, minimum, stop_after_reaching)
+			var navigation: Dictionary = _player_move_navigation(state, resolved_action, player, move_range, occupied, minimum, stop_after_reaching)
 			for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
 				if tile != player_pos:
 					targets.append(tile)
@@ -1044,7 +1055,15 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 					continue
 				if not is_tile_visible_to_player(state, tile, visible_lookup):
 					continue
+				if not ManeuverRules.blink_destination_allowed(self, state, resolved_action, tile, visible_lookup):
+					continue
 				targets.append(tile)
+		"force_area":
+			targets = ManeuverRules.force_area_targets(self, state, resolved_action)
+		"swap":
+			targets = ManeuverRules.swap_targets(self, state, resolved_action)
+		"petrify":
+			targets = ManeuverRules.petrify_targets(self, state, resolved_action)
 		"illusion":
 			occupied = _occupied_actor_tiles(state)
 			occupied[player_pos] = true
@@ -1128,8 +1147,10 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 			if aoe_range <= 0:
 				var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, true)
 				var pattern_specs: Array[Dictionary] = _aoe_pattern_specs_for_legality(action, false)
-				if action.has("surface") or _aoe_pattern_specs_hit_attackable(player_pos, pattern_specs, attackable_tiles):
-					targets.append(player_pos)
+				# A follow-up area at the previous target is centered there (Cyclone Seal).
+				var aoe_center: Vector2i = _previous_target_tile(state, action) if str(action.get("target", "")) == "previous_target" else player_pos
+				if action.has("surface") or _aoe_pattern_specs_hit_attackable(aoe_center, pattern_specs, attackable_tiles):
+					targets.append(aoe_center)
 			else:
 				for tile: Vector2i in PathUtils.diamond_tiles(player_pos, aoe_range, state.get("grid", [])):
 					if tile == player_pos:
@@ -1276,6 +1297,9 @@ func path_for_player_action(state: Dictionary, action: Dictionary, target_tile: 
 			var move_range: int = _move_range_for_action(state, action)
 			var navigation_state: Dictionary = state.duplicate(false)
 			navigation_state["_movement_minimum_progress"] = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
+			if bool(action.get("straight_line", false)):
+				var line: Dictionary = ManeuverRules.straight_line_navigation(self, state, _normalized_player(state.get("player", {})), move_range, _known_actor_tiles_for_player(state), bool(navigation_state["_movement_minimum_progress"]))
+				return _vector2i_values((line.get("paths", {}) as Dictionary).get(target_tile, []))
 			return _actual_player_movement_path(navigation_state, player_pos, target_tile, move_range)
 		"blink":
 			if target_tile.x >= 0:
@@ -1295,12 +1319,18 @@ func movement_plan_for_player_action(state: Dictionary, action: Dictionary, _pre
 	for tile: Vector2i in visible:
 		hidden.erase(tile)
 	var minimum: bool = not bool(action.get("_movement_pool", false)) or player_movement_remaining(state) == player_movement_capacity(state)
-	var navigation: Dictionary = _unit_movement_navigation(state, player, budget, occupied, minimum)
+	var navigation: Dictionary = _player_move_navigation(state, action, player, budget, occupied, minimum)
 	var targets: Array[Vector2i]
 	for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
 		if tile != player.get("pos", INVALID_TILE):
 			targets.append(tile)
 	return {"start": player.get("pos", INVALID_TILE), "range": budget, "target_tiles": targets, "paths": navigation.get("paths", {}), "costs": navigation.get("costs", {}), "hidden_enemy_tiles": hidden, "_source_state": state, "_source_action": action}
+
+func _player_move_navigation(state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
+	# Joust's straight_line rider limits a card Move to one clear cardinal line.
+	if bool(action.get("straight_line", false)):
+		return ManeuverRules.straight_line_navigation(self, state, player, budget, occupied, minimum, stop_after_reaching)
+	return _unit_movement_navigation(state, player, budget, occupied, minimum, stop_after_reaching)
 
 func path_from_player_movement_plan(plan: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var paths: Dictionary = plan.get("paths", {})
@@ -1339,7 +1369,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	SurfaceRelicRules.configure(next_state)
 	action = _resolved_surface_action(next_state, action)
 	if str(action.get("target", "")) == "previous_target":
-		target_tile = next_state.get("last_action_target", INVALID_TILE)
+		target_tile = _previous_target_tile(next_state, action)
 	elif str(action.get("target", "")) == "player":
 		target_tile = (next_state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 	action = action_with_automatic_origin(next_state, action, target_tile)
@@ -1367,6 +1397,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	next_state = SurfaceRelicRules.before_action(self, next_state, payment_action, target_tile)
 	if target_tile != INVALID_TILE and target_tile.x >= 0:
 		next_state["last_action_target"] = target_tile
+		_record_last_action_target_actor(next_state, target_tile)
 	if not bool(action.get("_movement_pool", false)):
 		_snapshot_pending_card_payment(next_state)
 	TempoRules.consume_next_attack(next_state, action)
@@ -1396,6 +1427,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				next_state = _place_action_surface(next_state, resolved_action, target_tile)
 				next_state = _trigger_blink_relics(next_state, PathUtils.manhattan(blink_origin, target_tile))
 				next_state = _dispel_illusion_at_player(next_state)
+				next_state = ManeuverRules.after_player_blink(self, next_state, resolved_action, blink_origin)
 				var afterimage_id: String = SkillTreeLibrary.skill_id_for_effect("blink_illusion")
 				if skill_is_ready(next_state, afterimage_id):
 					var afterimage_effect: Dictionary = SkillTreeLibrary.effect(afterimage_id)
@@ -1478,6 +1510,24 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			TempoRules.gain_next_attack(next_state, resolved_action, _action_card_name(resolved_action))
 		"rite":
 			pass # finish_player_card starts the Rite when the card is committed.
+		"force_area":
+			next_state = ManeuverRules.apply_force_area(self, next_state, resolved_action, target_tile)
+		"swap":
+			if target_is_valid:
+				next_state = ManeuverRules.apply_swap(self, next_state, resolved_action, target_tile)
+				CardKeywordRules.record_tiles_moved(next_state, PathUtils.manhattan(player_pos, target_tile))
+		"self_flag":
+			ManeuverRules.gain_flag(next_state, resolved_action, _action_card_name(resolved_action))
+			_log(next_state, "%s." % ManeuverRules.flag_label(str(resolved_action.get("flag", ""))))
+		"cleanse":
+			next_state = ManeuverRules.apply_cleanse(self, next_state, resolved_action)
+		"convert_block_to_stoneskin":
+			next_state = ManeuverRules.apply_convert_block_to_stoneskin(self, next_state)
+		"mantle":
+			ManeuverRules.gain_mantle(next_state, maxi(0, int(resolved_action.get("amount", 0))))
+		"petrify":
+			if target_is_valid:
+				next_state = ManeuverRules.apply_petrify(self, next_state, resolved_action, target_tile)
 	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and action.has("surface"):
 		next_state = _place_action_surface(next_state, action, target_tile)
 	if action.has("clear_surface"):
@@ -1487,6 +1537,29 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
+
+func _previous_target_tile(state: Dictionary, action: Dictionary) -> Vector2i:
+	# A follow-up strike at the previous target follows the enemy that was
+	# targeted, so Sleet Squall's Ice hit lands where its Push left the foe.
+	# Tile-based follow-ups (Detonate, surfaces) keep the impact tile.
+	var tile: Vector2i = state.get("last_action_target", INVALID_TILE)
+	if str(action.get("type", "")) in ["detonate", "surface", "consume_surface"]:
+		return tile
+	var actor: Dictionary = state.get("last_action_target_actor", {}) as Dictionary if typeof(state.get("last_action_target_actor", null)) == TYPE_DICTIONARY else {}
+	if actor.is_empty() or actor.get("tile", INVALID_TILE) != tile:
+		return tile
+	var enemy: Dictionary = _surface_actor(state, "enemy", int(actor.get("enemy_id", -1)))
+	if enemy.is_empty() or int(enemy.get("hp", 0)) <= 0:
+		return tile
+	return enemy.get("pos", tile) + (actor.get("offset", Vector2i.ZERO) as Vector2i)
+
+func _record_last_action_target_actor(state: Dictionary, tile: Vector2i) -> void:
+	var index: int = _enemy_index_at_tile(state, tile)
+	if index < 0:
+		state.erase("last_action_target_actor")
+		return
+	var enemy: Dictionary = (state.get("enemies", []) as Array)[index] as Dictionary
+	state["last_action_target_actor"] = {"enemy_id": int(enemy.get("id", -1)), "offset": tile - (enemy.get("pos", tile) as Vector2i), "tile": tile}
 
 func _apply_player_move_along_path(
 	next_state: Dictionary,
@@ -1498,6 +1571,7 @@ func _apply_player_move_along_path(
 ) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var loot_before: int = _unclaimed_loot_count(next_state)
+	resolved_action = ManeuverRules.move_action_with_trail_light(resolved_action)
 	var performance_phase_started: int = _record_runtime_performance_phase("move_path_loot_before", performance_total_started)
 	next_state = _trigger_player_bleed_for_action(next_state, resolved_action)
 	if combat_outcome(next_state) == "defeat":
@@ -1527,6 +1601,7 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
 	var painting_path: Array[Vector2i] = resolved_path if bool(resolved_action.get("surface_path", false)) else _vector2i_values([resolved_endpoint])
 	next_state = _place_action_surface(next_state, resolved_action, resolved_endpoint, painting_path)
+	next_state = ManeuverRules.after_player_move(self, next_state, resolved_action, resolved_path)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	_record_runtime_performance_phase("move_path_log", performance_phase_started)
 	_record_runtime_performance_phase("move_path_total", performance_total_started)
@@ -1866,6 +1941,7 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 		if (entry_var as Dictionary).has("stagger_preview"):
 			entry["stagger_preview"] = int((entry_var as Dictionary).get("stagger_preview", 0))
 		result.append(_umbra_presented_turn_order_entry(state, entry, projection_context))
+	ManeuverRules.mark_petrified_turn_entries(self, state, result)
 	_record_runtime_performance_phase("current_turn_order_present", performance_phase_started)
 	_record_runtime_performance_phase("current_turn_order_total", performance_total_started)
 	return result
@@ -1930,6 +2006,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 		_erase_skill_flag(next_state, "guard_carry_armed")
 	next_state = _trigger_activation_end_relics(next_state)
 	TempoRules.expire_activation(next_state)
+	ManeuverRules.expire_flags(next_state, "activation")
 	next_state = _clear_player_bleed_after_turn(next_state)
 	var scheduled_time: int = (
 		int(next_state.get("initiative_clock", 0))
@@ -2211,7 +2288,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	var turn_time_cost: int = _enemy_intent_time_cost(intent)
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_setup: Dictionary = next_state.duplicate(true)
-	enemy["block"] = 0
+	if not ManeuverRules.keeps_block_at_turn_start(enemy):
+		enemy["block"] = 0
 	(next_state.get("enemies", []) as Array)[enemy_index] = enemy
 	var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
 	# _resolve_enemy_start_of_turn mutates the resolver-owned state and returns
@@ -2244,7 +2322,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			steps.append(skip_refresh_step)
 		_record_runtime_performance_phase("enemy_turn_skipped_complete_total", performance_phase_started)
 		_record_runtime_performance_phase("enemy_turn_total", performance_total_started)
-		return {"state": next_state, "steps": steps, "time_cost": 0}
+		# A Petrified turn still costs its intent's Time; a Frozen one returns sooner.
+		return {"state": next_state, "steps": steps, "time_cost": turn_time_cost if bool(turn_setup.get("petrified", false)) else 0}
 	var shocked: bool = bool(turn_setup.get("shocked", false))
 	var immobilized: bool = bool(turn_setup.get("immobilized", false))
 	enemy = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
@@ -2341,7 +2420,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	var enemy_definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
-	var frozen: bool = int(enemy.get("freeze", 0)) > 0
+	var frozen: bool = int(enemy.get("freeze", 0)) > 0 or ManeuverRules.is_petrified(enemy)
 	var shocked: bool = int(enemy.get("shock", 0)) > 0
 	var immobilized: bool = bool(enemy.get("immobilize", false))
 	var plan: Dictionary = enemy_intent_plan(state, enemy_index, intent, frozen or immobilized, frozen or shocked)
@@ -2414,7 +2493,8 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = _normalized_enemy((next_state.get("enemies", []) as Array)[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
-		enemy["block"] = 0
+		if not ManeuverRules.keeps_block_at_turn_start(enemy):
+			enemy["block"] = 0
 		(next_state.get("enemies", []) as Array)[enemy_index] = enemy
 		var before_turn_setup: Dictionary = next_state.duplicate(true)
 		var turn_setup: Dictionary = _resolve_enemy_start_of_turn(next_state, enemy_index)
@@ -2498,6 +2578,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	player["block"] = 0
 	next_state["player"] = player
 	RetaliateRules.clear(next_state)
+	ManeuverRules.expire_flags(next_state, "next_turn")
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["player_turn_time_spent"] = 0
 	next_state["cards_played_this_turn"] = 0
@@ -2518,6 +2599,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state = _resolve_player_start_of_turn(next_state)
 	if combat_outcome(next_state) != "":
 		return next_state
+	ManeuverRules.record_activation_start(next_state)
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
 	next_state = RiteRules.apply_player_turn_start(self, next_state)
 	if combat_outcome(next_state) != "":
@@ -3380,7 +3462,10 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			defiance_remaining_after = int(event.get("charges_after", defiance_remaining_after))
 	var player_block_loss: int = maxi(0, int(before_player.get("block", 0)) - int(after_player.get("block", 0)))
 	var player_stoneskin_loss: int = maxi(0, int(before_player.get("stoneskin", 0)) - int(after_player.get("stoneskin", 0)))
-	if player_hp_loss > 0 or player_block_loss > 0 or player_stoneskin_loss > 0:
+	# A hit fully absorbed by Crystal Mantle is still a hit: report the layer so
+	# the attack step (and its animation) exists.
+	var player_mantle_loss: int = maxi(0, int(before_player.get(ManeuverRules.MANTLE_FIELD, 0)) - int(after_player.get(ManeuverRules.MANTLE_FIELD, 0)))
+	if player_hp_loss > 0 or player_block_loss > 0 or player_stoneskin_loss > 0 or player_mantle_loss > 0:
 		var player_loss: Dictionary = {
 			"key": "player",
 			"kind": "player",
@@ -3390,6 +3475,9 @@ func _actor_target_losses(before_state: Dictionary, after_state: Dictionary) -> 
 			"stoneskin_loss": player_stoneskin_loss,
 			"amount": player_hp_loss + player_block_loss + player_stoneskin_loss
 		}
+		if player_mantle_loss > 0:
+			player_loss["mantle_loss"] = player_mantle_loss
+			player_loss["mantle_remaining"] = int(after_player.get(ManeuverRules.MANTLE_FIELD, 0))
 		if defiance_restored > 0:
 			player_loss["defiance_restored"] = defiance_restored
 			player_loss["defiance_remaining"] = defiance_remaining_after
@@ -4274,6 +4362,11 @@ func _damage_player(
 			remaining *= BoardSurfaceRules.FROZEN_MULTIPLIER
 		elif bool(player.get("chilled", false)):
 			remaining += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
+	if apply_freeze_multiplier and ManeuverRules.absorb_player_hit(next_state, player, remaining, cause):
+		# Crystal Mantle breaks a layer instead of the hit reaching Block or health.
+		next_state["player"] = player
+		_log(next_state, "Your Crystal Mantle shatters a blow.")
+		return next_state
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
 		var applied_to_block: int = mini(block_amount, remaining)
@@ -5648,10 +5741,13 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 			next_state = _trigger_status_relics(next_state, status_id, action)
 			next_state = _surface_status_light(next_state, status_id, enemy.get("pos", INVALID_TILE))
 	if int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0:
+		var trail_from: Vector2i = _surface_actor(next_state, "enemy", int(enemy.get("id", -1))).get("pos", INVALID_TILE)
 		if trigger_player_relics and GuardianRelicRules.amount(next_state, "force_enemy_line") > 0:
-			return GuardianRelicRules.force_group(self, next_state, enemy_index, action, source_pos)
+			next_state = GuardianRelicRules.force_group(self, next_state, enemy_index, action, source_pos)
+			return ManeuverRules.paint_force_trail(self, next_state, int(enemy.get("id", -1)), trail_from, action)
 		var pushing: bool = int(action.get("push", 0)) > 0
 		next_state = _force_move_enemy_from(next_state, enemy_index, action, source_pos, pushing, int(action.get("push", 0)) if pushing else int(action.get("pull", 0)))
+		next_state = ManeuverRules.paint_force_trail(self, next_state, int(enemy.get("id", -1)), trail_from, action)
 	return next_state
 
 func _apply_action_keywords_to_player(state: Dictionary, action: Dictionary, source_pos: Vector2i) -> Dictionary:
@@ -6346,6 +6442,10 @@ func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vect
 	var step_direction: Vector2i = _cardinal_direction(direction)
 	if step_direction == Vector2i.ZERO or amount <= 0:
 		return state
+	if kind == "player" and ManeuverRules.player_anchored(state):
+		# Windbreak: forced movement against an Anchored hero has 0 distance and
+		# never collides.
+		return state
 	var moved: int = 0
 	var contact: Dictionary = {}
 	for _step: int in range(amount):
@@ -6920,30 +7020,34 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 	var enemy: Dictionary = _normalized_enemy((state.get("enemies", []) as Array)[enemy_index])
 	(state.get("enemies", []) as Array)[enemy_index] = enemy
 	var frozen: bool = int(enemy.get("freeze", 0)) > 0
+	var petrified: bool = ManeuverRules.is_petrified(enemy)
 	var before: Dictionary = state.duplicate(true)
 	var old_context: Dictionary = state.get("damage_context", {}) as Dictionary
 	state["damage_context"] = {"source_kind": "surface_fire", "player_card": false, "phase": "activation_start"}
 	state = _surface_contact(state, "enemy", int(enemy.get("id", -1)), INVALID_TILE, true)
 	state["damage_context"] = old_context
 	enemy = (state.get("enemies", []) as Array)[enemy_index]
-	var shocked: bool = not frozen and int(enemy.get("shock", 0)) > 0
-	var immobilized: bool = not frozen and bool(enemy.get("immobilize", false))
+	var held: bool = frozen or petrified
+	var shocked: bool = not held and int(enemy.get("shock", 0)) > 0
+	var immobilized: bool = not held and bool(enemy.get("immobilize", false))
 	if frozen:
 		enemy["freeze"] = 0
 	elif shocked:
 		enemy["shock"] = maxi(0, int(enemy.get("shock", 0)) - 1)
+	if petrified:
+		enemy[ManeuverRules.PETRIFY_FIELD] = 0
 	if immobilized:
 		enemy["immobilize"] = false
 	var steps: Array[Dictionary] = []
 	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
 		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": RiteRules.surface_tile_damage(_relic_effects(state), "fire", "enemy", GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE), {}, GameData.FIXED_POINT_SCALE)}, before, state))
-	if frozen or shocked or immobilized:
-		var label: String = "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
+	if held or shocked or immobilized:
+		var label: String = "Petrified" if petrified else "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
 		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label})
 	for step: Dictionary in steps:
 		step["surfaces_after"] = (state.get("surfaces", {}) as Dictionary).duplicate(true)
 		step["surface_events"] = _surface_events_since(before, state)
-	return {"state": state, "steps": steps, "skip_all": frozen or int(enemy.get("hp", 0)) <= 0, "shocked": shocked, "immobilized": immobilized}
+	return {"state": state, "steps": steps, "skip_all": held or int(enemy.get("hp", 0)) <= 0, "shocked": shocked, "immobilized": immobilized, "petrified": petrified}
 
 func _resolve_player_start_of_turn(state: Dictionary) -> Dictionary:
 	var player: Dictionary = state.get("player", {}) as Dictionary
@@ -10698,6 +10802,8 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 	if entered_fire:
 		# Rites may raise Fire damage or make the player immune to it.
 		fire_amount = RiteRules.surface_tile_damage(_relic_effects(state), "fire", actor_kind, GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE), fire_source, GameData.FIXED_POINT_SCALE)
+		if actor_kind == "player" and ManeuverRules.player_fire_immune(state):
+			fire_amount = 0
 	if entered_fire and fire_amount > 0:
 		var amount: int = fire_amount
 		var before_hp: int = int(unit.get("hp", 0))
@@ -10716,6 +10822,8 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 		state["damage_context"] = context_before
 		BoardSurfaceRules.record_event(state, {"kind": "surface_damage", "surface": "fire", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE), "amount": amount, "health_lost": maxi(0, before_hp - int(_surface_actor(state, actor_kind, actor_id).get("hp", 0))), "trigger": "start" if start else "entry", "source": fire_context})
 	unit = _surface_actor(state, actor_kind, actor_id)
+	if actor_kind == "player" and ManeuverRules.player_skating(state):
+		entered_ice = false # Skate: Ice doesn't Chill you this turn.
 	if int(unit.get("hp", 0)) > 0 and entered_ice and int(unit.get("freeze", 0)) <= 0 and not bool(unit.get("chilled", false)):
 		unit["chilled"] = true
 		BoardSurfaceRules.record_event(state, {"kind": "status_applied", "surface": "ice", "status": "chilled", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE)})
@@ -10777,13 +10885,14 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 					blocked[anchor] = true
 					break
 	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.movement_step_cost(state, unit, from, to)
-	var fire_harmless: bool = not unit.has("id") and RiteRules.player_immune_to_surface(_relic_effects(state), "fire")
+	var fire_harmless: bool = not unit.has("id") and (RiteRules.player_immune_to_surface(_relic_effects(state), "fire") or ManeuverRules.player_fire_immune(state))
+	var ice_harmless: bool = not unit.has("id") and ManeuverRules.player_skating(state)
 	var hazard_cost: Callable = func(to: Vector2i) -> int:
 		var harm: int = 0
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, to):
 			if BoardSurfaceRules.element_at(state, tile) == "fire" and not fire_harmless:
 				harm = maxi(harm, BoardSurfaceRules.FIRE_ENTRY_DAMAGE + BoardSurfaceRules.FIRE_START_DAMAGE)
-			elif BoardSurfaceRules.element_at(state, tile) == "ice":
+			elif BoardSurfaceRules.element_at(state, tile) == "ice" and not ice_harmless:
 				harm = maxi(harm, BoardSurfaceRules.CHILLED_BONUS)
 			var trap_index: int = _trap_index_at_tile(state, tile)
 			if trap_index >= 0:
@@ -10791,7 +10900,8 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 		return harm
 	var pickup_scores: Dictionary = _preferred_pickup_scores(state) if not unit.has("id") else {}
 	var pickup_score: Callable = func(tile: Vector2i) -> int: return int(pickup_scores.get(tile, 0))
-	if not unit.has("id") and GuardianRelicRules.amount(state,"ice_stride") > 0:
+	if not unit.has("id") and (GuardianRelicRules.amount(state,"ice_stride") > 0 or ManeuverRules.player_skating(state)):
+		# Winter's Spur and Skate both make some Ice steps cheaper than one tile.
 		return GuardianRelicRules.ice_navigation(state,unit,budget,blocked,hazard_cost,minimum_progress,pickup_score,stop_after_reaching)
 	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score, stop_after_reaching)
 
@@ -11007,8 +11117,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	var impact: Array[Vector2i] = supplied_impact.duplicate()
 	if impact.is_empty():
 		if str(action.get("type", "")) == "aoe":
-			var center: Vector2i = target if int(action.get("range", 0)) > 0 else origin
-			impact = _best_aoe_tiles_for_target(state, action, center, actor_kind != "player")
+			impact = _best_aoe_tiles_for_target(state, action, _board_aoe_center(action, target, origin), actor_kind != "player")
 		else:
 			impact.append(target)
 	var route_action: Dictionary = resolved.duplicate(true)
@@ -11045,7 +11154,12 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		if capture_states: relay_hit["state"] = state.duplicate(true)
 		native_trace.append(relay_hit)
 	performance_started = _record_runtime_performance_phase("board_attack_conduction", performance_started)
-	for hit: Dictionary in plan["hits"]:
+	# Squall: every enemy in the pattern is pushed away from its center (the one
+	# on the center away from the attacker), farthest first.
+	var from_center: bool = actor_kind == "player" and ManeuverRules.uses_from_center(action)
+	var aoe_center: Vector2i = _board_aoe_center(action, target, origin)
+	var ordered_hits: Array = ManeuverRules.order_from_center_hits(self, plan["hits"] as Array, aoe_center) if from_center else plan["hits"] as Array
+	for hit: Dictionary in ordered_hits:
 		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
 		if not relay.is_empty() and hit["from"] == hit["to"]:
 			trace_hit["from"] = relay["relay"]
@@ -11091,7 +11205,10 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			# The aimed line belongs to the primary target; Chain hops push from
 			# their hop origin along their own default line.
 			if hit["from"] != hit["to"]: hit_action.erase("force_direction")
-			state = _apply_action_keywords_to_enemy(state, index, hit_action, origin if hit["from"] == hit["to"] else hit["from"])
+			var force_source: Vector2i = origin if hit["from"] == hit["to"] else hit["from"]
+			if from_center:
+				force_source = ManeuverRules.from_center_source(self, state, int(hit["id"]), aoe_center, origin)
+			state = _apply_action_keywords_to_enemy(state, index, hit_action, force_source)
 			_apply_stagger_to_enemy(state, int(hit["id"]), int(hit_action.get("stagger", 0)))
 			_mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
@@ -11126,7 +11243,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			terrain_targets.assign(terrain_targets.filter(func(index: int) -> bool: return int(state["terrain"][index].get("owner_id",-1)) != actor_id))
 		state = _damage_terrain_indices(state, terrain_targets, int(resolved.get("damage", 0)))
 	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, impact))
-	state = _place_action_surface(state, resolved, origin if str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) <= 0 else target, impact)
+	state = _place_action_surface(state, resolved, _board_aoe_center(action, target, origin) if str(action.get("type", "")) == "aoe" else target, impact)
 	if actor_kind == "player" and not affected.is_empty():
 		state = _trigger_direct_attack_surface(state, resolved, target)
 	if raise_outcrop:
@@ -11144,6 +11261,13 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	trace["chain_hits"] = native_trace if capture_route else []
 	_record_runtime_performance_phase("board_attack_finish_total", performance_started)
 	return state
+
+func _board_aoe_center(action: Dictionary, target: Vector2i, origin: Vector2i) -> Vector2i:
+	# A ranged area centers on its target; a range-0 area on its origin, unless
+	# it follows up at the previous target (Cyclone Seal's blast).
+	if int(action.get("range", 0)) > 0 or (str(action.get("target", "")) == "previous_target" and target.x >= 0):
+		return target
+	return origin
 
 func _trigger_direct_attack_surface(state: Dictionary, action: Dictionary, target: Vector2i) -> Dictionary:
 	# The attack resolver supplies a real enemy hit, including an absorbed hit.
