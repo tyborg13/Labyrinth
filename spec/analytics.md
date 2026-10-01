@@ -719,3 +719,25 @@ continue through local append-only JSONL. Forecast and presentation do not appen
 separate analytics.
 
 Worldroot automatic origin selection is part of the same card commit: the chosen Rubble origin is consumed by the ordinary surface event path. It does not add an origin-pick event or a second card play. Cancelling a drag revokes commit input before snapback animation, so a concurrent release emits no card-play event.
+
+### Wave-3 card keywords (Retaliate, Quicken, next attack, Rites)
+
+`card_played` gains three additive fields, identical in RunScene and
+`tools/headless_playtest.gd` (`TempoRules.analytics_fields` on the committed state):
+`quicken_spent` (int, Time removed from this card by pending Quicken; Rite discounts are
+not counted), `next_attack_bonus_used` (`{action_type, damage, chain, pierce, sources}`
+for the buffs this card's attack spent, else null) and `rite_started` (the card id when
+the card began a combat-scoped Rite, else null). Existing fields keep their meaning;
+`card_time` and `turn_time_spent_*` already report the discounted Time.
+
+Retaliate uses the existing append-only `surface_event` stream. `retaliate_triggered`
+records `enemy_id`, `actor_key`, `attack_type`, `damage` (total Retaliate including Rite
+thorns), `thorns`, `hp_loss`, `block_loss`, `stoneskin_loss`, `bleed`, `shock`, `push`,
+`from`/`to` tiles, `killed`, `attacker_before`, `sources` and a player `source`
+(`source_kind: "retaliate"`, `player_card: false`). Kills keep their ordinary
+`actor_death` record with that source; no card play is granted. The presentation step
+that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"`,
+`trigger: "retaliate"`, `action_type: "retaliate"` (kind `status_damage`, or `status`
+when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
+`damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
+keyed by `relic_id` `rite:<card_id>:<n>`.

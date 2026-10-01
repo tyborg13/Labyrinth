@@ -2,6 +2,8 @@ extends RefCounted
 class_name GameData
 
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
+const RiteRules = preload("res://scripts/rite_rules.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
 
 const ElementData = preload("res://scripts/element_data.gd")
 
@@ -131,8 +133,13 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	# Run-scoped relics may still transform cards for the current attempt.
 	var card: Dictionary = _raw_card_def(card_id)
 	card = _scale_card_fixed_point(card)
-	card = _apply_relic_card_effects(card, progression.get("relics", []))
-	card = DragonTrophyRules.card_with_time_reserve(card, progression, relic_effects_for_ids(progression.get("relics", [])))
+	# Combat states also carry active Rites; they read exactly like relics.
+	var effects: Array[Dictionary] = relic_effects_for_state(progression)
+	card = _apply_relic_card_effect_list(card, effects)
+	# Quicken and Rite discounts precede the Hourglass reserve, so the reserve
+	# only pays whatever Time remains above the minimum of 1.
+	card = TempoRules.card_with_time_discount(card, progression, effects)
+	card = DragonTrophyRules.card_with_time_reserve(card, progression, effects)
 	card = _tag_card_actions_for_combat(card)
 	return card
 
@@ -406,6 +413,14 @@ static func relic_effects_for_ids(relic_ids_list: Array) -> Array[Dictionary]:
 		result.append_array(relic_effects(str(relic_id_var)))
 	return result
 
+## Relic effects plus the combat-scoped Rite effects (combat states only). Every
+## rules reader that accepts a state should use this rather than relic ids.
+static func relic_effects_for_state(state: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = relic_effects_for_ids(state.get("relics", []) as Array)
+	if state.has(RiteRules.ACTIVE_KEY):
+		result.append_array(RiteRules.effects(state))
+	return result
+
 static func upgrade_ids() -> Array:
 	return upgrades().keys()
 
@@ -611,8 +626,14 @@ static func progression_level_total_cost(level: int) -> int:
 	return total
 
 static func stat_bonus_from_relics(relic_ids_list: Array, effect_key: String) -> int:
+	return _stat_bonus_from_effects(relic_effects_for_ids(relic_ids_list), effect_key)
+
+static func stat_bonus_from_state(state: Dictionary, effect_key: String) -> int:
+	return _stat_bonus_from_effects(relic_effects_for_state(state), effect_key)
+
+static func _stat_bonus_from_effects(effects: Array[Dictionary], effect_key: String) -> int:
 	var total: int = 0
-	for effect: Dictionary in relic_effects_for_ids(relic_ids_list):
+	for effect: Dictionary in effects:
 		if str(effect.get("type", "")) == effect_key:
 			total += int(effect.get("value", 0))
 	if effect_key in FIXED_RELIC_STAT_BONUS_KEYS:
@@ -1115,10 +1136,13 @@ static func _apply_card_mods(card: Dictionary, mods: Array) -> Dictionary:
 	return next_card
 
 static func _apply_relic_card_effects(card: Dictionary, relic_ids_list: Array) -> Dictionary:
-	var next_card: Dictionary = card.duplicate(true)
 	if relic_ids_list.is_empty():
-		return next_card
-	for effect: Dictionary in relic_effects_for_ids(relic_ids_list):
+		return card.duplicate(true)
+	return _apply_relic_card_effect_list(card, relic_effects_for_ids(relic_ids_list))
+
+static func _apply_relic_card_effect_list(card: Dictionary, effects: Array[Dictionary]) -> Dictionary:
+	var next_card: Dictionary = card.duplicate(true)
+	for effect: Dictionary in effects:
 		match str(effect.get("type", "")):
 			"card_action_mod":
 				next_card = _apply_relic_action_mod(next_card, effect)
@@ -1214,6 +1238,8 @@ static func _relic_modifier_label(effect: Dictionary, field: String, before_valu
 	return "%+d %s" % [amount, field.replace("_", " ")]
 
 static func _relic_effect_source_name(effect: Dictionary) -> String:
+	if effect.has("source_name"):
+		return str(effect["source_name"])
 	var relic_id: String = str(effect.get("relic_id", ""))
 	var relic: Dictionary = relic_def(relic_id)
 	return str(relic.get("name", relic_id))

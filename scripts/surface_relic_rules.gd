@@ -15,7 +15,7 @@ static func configure(state: Dictionary) -> void:
 	state["surface_rule_overrides"] = overrides
 
 static func effects(state: Dictionary) -> Array[Dictionary]:
-	return GameData.relic_effects_for_ids(state.get("relics", []) as Array)
+	return GameData.relic_effects_for_state(state)
 
 static func effect(state: Dictionary, effect_type: String) -> Dictionary:
 	for entry: Dictionary in effects(state):

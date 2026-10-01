@@ -15,6 +15,9 @@ const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
+const RiteRules = preload("res://scripts/rite_rules.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
+const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -119,6 +122,7 @@ const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
 # expansion on the engine instead of deep-copying every effect for every target,
 # preview, status hook, and death hook.
 var _relic_effect_cache_ids: Array = []
+var _relic_effect_cache_rites: String = ""
 var _relic_effect_cache: Array[Dictionary] = []
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
@@ -361,6 +365,10 @@ func _effective_light_sources(state: Dictionary) -> Array[Dictionary]:
 	for brazier: Dictionary in state.get("guardian_braziers", []):
 		if bool(brazier.get("lit", true)):
 			result.append({"id":"brazier:%s" % brazier["id"],"pos":brazier["pos"],"radius":2,"remaining_activations":-1})
+	var player_aura: int = RiteRules.player_light_radius(_relic_effects(state))
+	var player_tile: Vector2i = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
+	if player_aura > 0 and player_tile != INVALID_TILE:
+		result.append({"id": "player_aura", "pos": player_tile, "radius": player_aura, "remaining_activations": -1, "tethered": true})
 	var contributors: Array[Dictionary] = _illusion_light_contributors(state)
 	var aura_radius: int = _illusion_light_radius_from_contributors(contributors)
 	if aura_radius <= 0:
@@ -906,6 +914,9 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = CardKeywordRules.actions_for_play(card, card_id, state)
+	if RiteRules.is_rite_card(card):
+		# A Rite resolves as one targetless step; finish_player_card starts it.
+		printed_actions.append({"type": "rite", "_card_element": GameData.card_element_from_def(card)})
 	# Stamp once before Flurry expands the printed sequence. The card identity is
 	# source metadata, independent of the selected target, repeat, or later actor.
 	for action_var: Variant in printed_actions:
@@ -1358,6 +1369,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		next_state["last_action_target"] = target_tile
 	if not bool(action.get("_movement_pool", false)):
 		_snapshot_pending_card_payment(next_state)
+	TempoRules.consume_next_attack(next_state, action)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	var action_type: String = str(action.get("type", ""))
@@ -1456,6 +1468,16 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		"outcrop":
 			if target_is_valid:
 				next_state = _raise_player_outcrops(next_state, resolved_action, target_tile)
+		"retaliate":
+			RetaliateRules.gain(next_state, resolved_action, _action_card_name(resolved_action))
+			_log(next_state, "Retaliate %d until your next turn." % int(resolved_action.get("amount", 0)))
+		"quicken":
+			TempoRules.gain_quicken(next_state, resolved_action)
+			_log(next_state, "Quicken %d: the next card costs less Time." % int(resolved_action.get("amount", 0)))
+		"next_attack":
+			TempoRules.gain_next_attack(next_state, resolved_action, _action_card_name(resolved_action))
+		"rite":
+			pass # finish_player_card starts the Rite when the card is committed.
 	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and action.has("surface"):
 		next_state = _place_action_surface(next_state, action, target_tile)
 	if action.has("clear_surface"):
@@ -1647,7 +1669,9 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	hand.remove_at(hand_index)
 	var deck: Dictionary = next_state.get("deck", {}).duplicate(true)
 	deck["hand"] = hand
-	var card: Dictionary = card_def(card_id, next_state)
+	# Price from the Quicken pending when this card began, never from Quicken
+	# the card granted itself.
+	var card: Dictionary = card_def(card_id, TempoRules.pricing_state(next_state))
 	# An opted-in Empower cost is paid with the card's own costs, after effects.
 	var empower_payment: Dictionary = CardKeywordRules.empower_payment(next_state, card_id, card)
 	next_state.erase(CardKeywordRules.PLAY_MODIFIERS_KEY)
@@ -1727,10 +1751,19 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		used_banked_play,
 		cards_played_before
 	)
+	# A Rite begins after its own payment and card-play triggers.
+	var rite_started: bool = RiteRules.start(next_state, card_id, card)
+	if rite_started:
+		_log(next_state, "%s begins. It lasts for the rest of this combat." % str(card.get("name", card_id)))
+	TempoRules.finish_card(next_state, card_id, card, payment_snapshot, rite_started)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
 	return next_state
+
+func _action_card_name(action: Dictionary) -> String:
+	var card_id: String = str(action.get("_card_id", ""))
+	return str(GameData.card_def(card_id).get("name", card_id)) if not card_id.is_empty() else ""
 
 func _card_play_capacity_without_banked(state: Dictionary) -> int:
 	return (
@@ -1745,7 +1778,8 @@ func _snapshot_pending_card_payment(state: Dictionary) -> void:
 	var budget: Dictionary = card_play_budget(state)
 	state["pending_card_payment"] = {
 		"ordinary_remaining": int(budget.get("ordinary_remaining", 0)),
-		"banked_remaining": int(budget.get("banked_remaining", 0))
+		"banked_remaining": int(budget.get("banked_remaining", 0)),
+		TempoRules.PAYMENT_QUICKEN_KEY: TempoRules.quicken_pending(state)
 	}
 
 func _card_payment_uses_banked_play(snapshot: Dictionary, state: Dictionary, plays_spent: int) -> bool:
@@ -1895,6 +1929,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 			_mark_skill_used(next_state, guard_id, "%s carries remaining block forward as stoneskin." % SkillTreeLibrary.display_name(guard_id))
 		_erase_skill_flag(next_state, "guard_carry_armed")
 	next_state = _trigger_activation_end_relics(next_state)
+	TempoRules.expire_activation(next_state)
 	next_state = _clear_player_bleed_after_turn(next_state)
 	var scheduled_time: int = (
 		int(next_state.get("initiative_clock", 0))
@@ -2266,6 +2301,8 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			performance_phase_started = _record_runtime_performance_phase("enemy_turn_action_umbra_mark", performance_phase_started)
 			if not step.is_empty():
 				steps.append(step)
+			for retaliate_step: Dictionary in RetaliateRules.presentation_steps(self, before_state, next_state):
+				steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
 			_record_runtime_performance_phase("enemy_turn_action_append", performance_phase_started)
 			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -2432,6 +2469,8 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var step: Dictionary = _umbra_marked_enemy_action_step(before_state, next_state, _enemy_action_step(before_state, next_state, enemy_index, action, action_context), enemy_id, enemy_hidden_before)
 				if not step.is_empty():
 					steps.append(step)
+				for retaliate_step: Dictionary in RetaliateRules.presentation_steps(self, before_state, next_state):
+					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
 		if combat_outcome(next_state) == "":
 			var post_turn_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -2458,6 +2497,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	player["block"] = 0
 	next_state["player"] = player
+	RetaliateRules.clear(next_state)
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["player_turn_time_spent"] = 0
 	next_state["cards_played_this_turn"] = 0
@@ -2479,6 +2519,9 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
+	next_state = RiteRules.apply_player_turn_start(self, next_state)
+	if combat_outcome(next_state) != "":
+		return next_state
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
@@ -2487,7 +2530,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 func player_movement_capacity(state: Dictionary) -> int:
 	return maxi(
 		0,
-		BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(state.get("relics", []), "movement_pool_bonus")
+		BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_state(state, "movement_pool_bonus")
 	)
 
 func player_movement_remaining(state: Dictionary) -> int:
@@ -2769,6 +2812,8 @@ func damage_modifiers_for_player_action(state: Dictionary, action: Dictionary) -
 	var scale_modifier: Dictionary = CardKeywordRules.scale_bonus_modifier(state, action)
 	if not scale_modifier.is_empty():
 		modifiers.append(scale_modifier)
+	for modifier: Dictionary in TempoRules.damage_modifiers(state, action):
+		modifiers.append(modifier)
 	return modifiers
 
 func enemy_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
@@ -5332,6 +5377,8 @@ func _resolved_surface_action(state: Dictionary, action: Dictionary) -> Dictiona
 		for field: String in SURFACE_BONUS_FIELDS:
 			if bonus.has(field):
 				resolved[field] = int(resolved.get(field, 0)) + int(bonus[field])
+	if not action.has("_enemy_id"):
+		TempoRules.apply_next_attack_in_place(state, resolved)
 	return resolved if action.has("_enemy_id") else _action_with_player_state_relic_modifiers(state, resolved)
 
 func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictionary) -> Dictionary:
@@ -6044,6 +6091,9 @@ func _light_source_covers_tile(state: Dictionary, tile: Vector2i) -> bool:
 	for brazier: Dictionary in state.get("guardian_braziers", []):
 		if bool(brazier.get("lit", true)) and PathUtils.manhattan(brazier["pos"], tile) <= 2:
 			return true
+	var player_aura: int = RiteRules.player_light_radius(_relic_effects(state))
+	if player_aura > 0 and PathUtils.manhattan((state.get("player", {}) as Dictionary).get("pos", INVALID_TILE), tile) <= player_aura:
+		return true
 	var aura_radius: int = _illusion_light_radius(state)
 	if aura_radius > 0:
 		for illusion: Dictionary in _live_illusions(state):
@@ -6886,7 +6936,7 @@ func _resolve_enemy_start_of_turn(state: Dictionary, enemy_index: int) -> Dictio
 		enemy["immobilize"] = false
 	var steps: Array[Dictionary] = []
 	if BoardSurfaceRules.unit_on(before, (before.get("enemies", []) as Array)[enemy_index], "fire"):
-		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE)}, before, state))
+		steps.append(_enemy_status_damage_step({"kind": "status_damage", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": "Fire", "text": "Fire", "amount": RiteRules.surface_tile_damage(_relic_effects(state), "fire", "enemy", GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE), {}, GameData.FIXED_POINT_SCALE)}, before, state))
 	if frozen or shocked or immobilized:
 		var label: String = "Frozen" if frozen else ("Shocked" if shocked else "Immobilized")
 		steps.append({"kind": "status", "actor_key": _enemy_key(enemy), "actor_name": _enemy_display_name(enemy), "tile": enemy.get("pos", INVALID_TILE), "label": label, "text": label})
@@ -9577,7 +9627,7 @@ func _attack_bonus_for_current_turn_from_effects(state: Dictionary, relic_effect
 func _move_bonus_for_current_turn(state: Dictionary) -> int:
 	if bool((state.get("turn_flags", {}) as Dictionary).get("first_move_bonus_used", false)):
 		return 0
-	return GameData.stat_bonus_from_relics(state.get("relics", []), "first_move_bonus")
+	return GameData.stat_bonus_from_state(state, "first_move_bonus")
 
 func _move_range_for_action(state: Dictionary, action: Dictionary) -> int:
 	var move_range: int = maxi(0, int(action.get("range", 0)))
@@ -10067,6 +10117,9 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 					continue
 				_mark_relic_once(next_state, effect, "status_count_reward", status_id)
 				queued_resolutions.append({"type": "rewards", "effect": effect})
+			"status_applied_reward":
+				# Rite of Hoarfrost: every successful application pays out.
+				queued_resolutions.append({"type": "rewards", "effect": effect})
 	for resolution: Dictionary in queued_resolutions:
 		match str(resolution.get("type", "")):
 			"card_play":
@@ -10452,14 +10505,20 @@ func _relic_once_key(effect: Dictionary, suffix: String, element_id: String, inc
 
 func _relic_effects(state: Dictionary) -> Array[Dictionary]:
 	var relic_ids: Array = state.get("relics", []) as Array
+	# Active Rites are combat-scoped relic effects and share the same cache,
+	# keyed by their ordered card ids rather than a deep comparison.
+	var rites: String = RiteRules.signature(state)
 	# Array equality checks the complete ordered inputs without allocating a
 	# string key for every rules query. Own the key so in-place edits invalidate.
-	if relic_ids != _relic_effect_cache_ids:
+	if relic_ids != _relic_effect_cache_ids or rites != _relic_effect_cache_rites:
 		_relic_effect_cache_ids = relic_ids.duplicate(true)
-		_relic_effect_cache = GameData.relic_effects_for_ids(relic_ids)
+		_relic_effect_cache_rites = rites
+		_relic_effect_cache = GameData.relic_effects_for_state(state)
 	return _relic_effect_cache
 
 func _relic_effect_source_name(effect: Dictionary) -> String:
+	if effect.has("source_name"):
+		return str(effect["source_name"])
 	var relic_id: String = str(effect.get("relic_id", ""))
 	return str(GameData.relic_def(relic_id).get("name", relic_id))
 
@@ -10635,8 +10694,12 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 			entered_fire = true
 		if BoardSurfaceRules.element_at(state, tile) == "ice" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "ice"):
 			entered_ice = true
+	var fire_amount: int = 0
 	if entered_fire:
-		var amount: int = GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE)
+		# Rites may raise Fire damage or make the player immune to it.
+		fire_amount = RiteRules.surface_tile_damage(_relic_effects(state), "fire", actor_kind, GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE), fire_source, GameData.FIXED_POINT_SCALE)
+	if entered_fire and fire_amount > 0:
+		var amount: int = fire_amount
 		var before_hp: int = int(unit.get("hp", 0))
 		var context_before: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 		state["damage_context"] = context_before.duplicate(true)
@@ -10714,10 +10777,11 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 					blocked[anchor] = true
 					break
 	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.movement_step_cost(state, unit, from, to)
+	var fire_harmless: bool = not unit.has("id") and RiteRules.player_immune_to_surface(_relic_effects(state), "fire")
 	var hazard_cost: Callable = func(to: Vector2i) -> int:
 		var harm: int = 0
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, to):
-			if BoardSurfaceRules.element_at(state, tile) == "fire":
+			if BoardSurfaceRules.element_at(state, tile) == "fire" and not fire_harmless:
 				harm = maxi(harm, BoardSurfaceRules.FIRE_ENTRY_DAMAGE + BoardSurfaceRules.FIRE_START_DAMAGE)
 			elif BoardSurfaceRules.element_at(state, tile) == "ice":
 				harm = maxi(harm, BoardSurfaceRules.CHILLED_BONUS)
@@ -10972,6 +11036,8 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	for tile: Vector2i in _sorted_tiles_from_lookup(consumed):
 		BoardSurfaceRules.remove(state, tile, "elemental", str(consumed[tile]))
 	var affected: Array[int]
+	var player_struck: bool = false
+	var struck_player_tile: Vector2i = INVALID_TILE
 	var native_trace: Array = []
 	var relay: Dictionary = action.get("_ranged_relay",{}) as Dictionary
 	if not relay.is_empty():
@@ -11036,6 +11102,10 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				# enemy Push/Pull; the ordinary straight-line resolver picks the line.
 				hit_origin = _closest_enemy_tile_to(_surface_actor(state,"enemy",actor_id),hit["to"])
 			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
+			if not player_struck and actor_kind == "enemy" and str(hit["kind"]) == "player" and int(hit_action.get("damage", 0)) > 0:
+				# Retaliate judges melee range where the strike landed, before knockback.
+				player_struck = true
+				struck_player_tile = (state.get("player", {}) as Dictionary).get("pos", INVALID_TILE)
 			state = _apply_action_keywords_to_target(state, hit, hit_action, hit_origin)
 		if bool(hit.get("hidden_direct", false)):
 			continue
@@ -11061,6 +11131,9 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		state = _trigger_direct_attack_surface(state, resolved, target)
 	if raise_outcrop:
 		CombatTerrainRules.raise_outcrop(self, state, target, int(action["outcrop_health"]), _surface_source(state, action))
+	if player_struck:
+		# Once per enemy attack, inside the batch so Retaliate deaths flush here.
+		state = RetaliateRules.after_enemy_hit(self, state, actor_id, resolved, struck_player_tile)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = _flush_surface_deaths(state)
@@ -11330,6 +11403,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
+	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not step.is_empty():
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
 		step["surface_events"] = _surface_events_since(before_state, after_state)

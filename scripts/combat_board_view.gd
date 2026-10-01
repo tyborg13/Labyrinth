@@ -65,6 +65,9 @@ const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
+const RiteRules = preload("res://scripts/rite_rules.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -3477,6 +3480,10 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		"traps": source_state.get("traps", []),
 		"surfaces": source_state.get("surfaces", {}),
 		"relics": source_state.get("relics", []),
+		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
+		"retaliate": source_state.get("retaliate", {}),
+		"active_rites": source_state.get("active_rites", []),
+		"turn_flags": source_state.get("turn_flags", {}),
 		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
 		"room_element": source_state.get("room_element", ElementData.NONE),
@@ -7772,6 +7779,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
+			"keyword_badges": _player_keyword_badges(),
 		})
 	for illusion_var: Variant in combat_state.get("illusions", []):
 		if typeof(illusion_var) != TYPE_DICTIONARY:
@@ -15922,6 +15930,9 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": STATUS_IMMOBILIZE,
 			"border": STATUS_IMMOBILIZE.lightened(0.20)
 		})
+	for keyword_badge_var: Variant in unit.get("keyword_badges", []):
+		if typeof(keyword_badge_var) == TYPE_DICTIONARY:
+			badges.append(keyword_badge_var as Dictionary)
 	var predicted: Dictionary = (presentation.get("surface_status_preview", {}) as Dictionary).get(str(unit.get("key", "")), {}) as Dictionary
 	if not predicted.is_empty():
 		var frozen: bool = int(predicted.get("freeze", 0)) > 0
@@ -15929,6 +15940,12 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		if frozen or chilled:
 			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
 
+	return badges
+
+## Retaliate (incl. Rite thorns), pending Quicken and next-attack buffs.
+func _player_keyword_badges() -> Array[Dictionary]:
+	var badges: Array[Dictionary] = RetaliateRules.player_badges(combat_state, RiteRules.effects(combat_state))
+	badges.append_array(TempoRules.player_badges(combat_state))
 	return badges
 
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:

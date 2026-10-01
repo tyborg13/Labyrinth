@@ -490,6 +490,7 @@ var _interactive: bool = true
 var _printed_playable: bool = true
 var _interaction_state_dirty: bool = true
 var _card_override: Dictionary = {}
+var _desc_text_inset: StyleBoxEmpty
 var _summary_bbcode: String = ""
 var _summary_rows: Array = []
 var _modifier_tooltip_lines: PackedStringArray = []
@@ -927,6 +928,14 @@ func _apply_scaled_node_metrics() -> void:
 	details_vbox.add_theme_constant_override("separation", _scaled_card_int(5, 1))
 	if _summary_icon_box != null:
 		_summary_icon_box.add_theme_constant_override("separation", _scaled_card_int(5, 1))
+	# Rules-text cards (Rites) keep their words on the parchment, inside the
+	# frame border that the outer and details margins alone do not clear.
+	if _desc_text_inset == null:
+		_desc_text_inset = StyleBoxEmpty.new()
+		desc_label.add_theme_stylebox_override("normal", _desc_text_inset)
+		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_desc_text_inset.content_margin_left = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
+	_desc_text_inset.content_margin_right = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
 
 func _card_layout_scale() -> float:
 	var card_size: Vector2 = size
@@ -1147,6 +1156,8 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",time_cost)) - time_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
+	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
+	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 
@@ -1169,7 +1180,7 @@ func _refresh_summary_display(card: Dictionary) -> void:
 		rows = ActionIcons.rows_for_card(card)
 	if rows.is_empty():
 		desc_label.visible = true
-		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else str(card.get("description", ""))
+		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else ActionIcons.card_rules_text(card)
 		if _summary_icon_box != null:
 			_summary_icon_box.visible = false
 			_clear_children(_summary_icon_box)

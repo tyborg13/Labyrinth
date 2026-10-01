@@ -79,7 +79,10 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"detonate_cinders": "combat:cinder_marks",
 	"gale_force": "combat:hollow_gale",
 	"frost_armor": "combat:crystal_armor",
-	"umbra_eclipse": "combat:boss_eclipse"
+	"umbra_eclipse": "combat:boss_eclipse",
+	"retaliate": "keyword:retaliate",
+	"quicken": "keyword:quicken",
+	"next_attack": "keyword:next_attack"
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
@@ -635,6 +638,8 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 			wanted["keyword:exhaust"] = true
 		if int(keyword_cost.get("health", 0)) > 0:
 			wanted["keyword:health_cost"] = true
+	if typeof(card.get("rite", null)) == TYPE_DICTIONARY and not (card["rite"] as Dictionary).is_empty():
+		wanted["keyword:rite"] = true
 	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
@@ -833,7 +838,9 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	if not facts.is_empty():
 		body.append(". ".join(facts) + ".")
 	var notes: Array = []
-	if bool(card.get("burn", false)):
+	if typeof(card.get("rite", null)) == TYPE_DICTIONARY and not (card["rite"] as Dictionary).is_empty():
+		notes.append("Rite: Exhaust. Lasts for the rest of this combat")
+	elif bool(card.get("burn", false)):
 		notes.append("Exhausts for the rest of combat after use")
 	if bool(card.get("consume_on_play", false)):
 		notes.append("Consumed after use")
