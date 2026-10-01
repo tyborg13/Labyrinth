@@ -742,7 +742,8 @@ meaning.
 `tools/headless_playtest.gd` (`TempoRules.analytics_fields` on the committed state):
 `quicken_spent` (int, Time removed from this card by pending Quicken; Rite discounts are
 not counted), `next_attack_bonus_used` (`{action_type, damage, chain, pierce, sources}`
-for the buffs this card's attack spent, else null) and `rite_started` (the card id when
+for the buffs this card's attack spent, else null; a zero-damage push/pull never spends
+them, so `action_type` names the damaging hit) and `rite_started` (the card id when
 the card began a combat-scoped Rite, else null). Existing fields keep their meaning;
 `card_time` and `turn_time_spent_*` already report the discounted Time.
 

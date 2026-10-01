@@ -604,6 +604,19 @@ static func _test_icons_rows_and_grimoire(engine: CombatEngine, expect: Callable
 	expect.call(skate_row.size() == 1 and str((skate_row[0] as Dictionary).get("icon", "")) == "skate", "A self_flag row is its purpose-built icon alone, with no placeholder label")
 	var petrify_row: Array = ActionIcons.tokens_for_action(_action(engine, "w4b_petrify", 0))
 	expect.call(str((petrify_row[0] as Dictionary).get("icon", "")) == "petrify" and str((petrify_row[1] as Dictionary).get("kind", "")) != "text", "Petrify leads with its own icon and no placeholder label")
+	var petrify_text: Array = []
+	var foe_block_index: int = -1
+	for token_index: int in range(petrify_row.size()):
+		var petrify_token: Dictionary = petrify_row[token_index] as Dictionary
+		if str(petrify_token.get("kind", "")) == "text":
+			petrify_text.append(str(petrify_token.get("value", "")))
+		elif str(petrify_token.get("icon", "")) == "block":
+			foe_block_index = token_index
+	var foe_block_token: Dictionary = {}
+	if foe_block_index >= 0:
+		foe_block_token = petrify_row[foe_block_index] as Dictionary
+	expect.call(petrify_text.has("skips turn") and foe_block_index > 0 and str((petrify_row[foe_block_index - 1] as Dictionary).get("value", "")) == "foe gains", "Petrify's row names the skipped turn and marks the shield as the foe's Block")
+	expect.call(int(foe_block_token.get("value", 0)) == 8 and str(foe_block_token.get("recipient", "")) == "enemy" and str(foe_block_token.get("row_group", "")) == "foe_block" and ActionIcons.token_tooltip(foe_block_token).contains("not you"), "The foe's Block token keeps its marker on the same line and says the enemy gains it")
 	var role_cases: Dictionary = {
 		"w4b_changing_winds": "mobility", "w4b_petrify": "attack_ranged", "w4b_skate": "mobility", "w4b_rooted_stance": "block",
 		"w4b_windbreak": "block", "w4b_unpick": "block", "w4b_smelling_salts": "mobility", "w4b_crystal_mantle": "block",

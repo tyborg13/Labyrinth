@@ -102,7 +102,7 @@ func _capture_states() -> void:
 func _capture_single_target_reference(instance: Node) -> void:
 	await _install_combat_fixture(instance, "bone_dart", 9900)
 	await _arm_printed_card(instance)
-	instance.call("_on_board_tile_hovered", Vector2i(5, 4))
+	_hover_tile(instance, Vector2i(5, 4))
 	await _settle()
 	var board: Control = instance.get_node_or_null(BOARD_PATH) as Control
 	_expect(board != null, "Single-target reference should expose the production combat board")
@@ -124,7 +124,7 @@ func _capture_aoe_idle_reference(instance: Node) -> void:
 	await _settle()
 	_assert_aoe_legal_centers_visible(instance, "before hover")
 	await _save_screenshot("%s/05_legal_aoe_centers.png" % OUTPUT_DIR)
-	instance.call("_on_board_tile_hovered", AIM_TILE)
+	_hover_tile(instance, AIM_TILE)
 	await _settle()
 	var board: Control = instance.get_node_or_null(BOARD_PATH) as Control
 	_expect(
@@ -167,13 +167,13 @@ func _capture_aoe_card(
 ) -> void:
 	await _install_combat_fixture(instance, card_id, 9910 + card_id.length())
 	await _arm_printed_card(instance)
-	instance.call("_on_board_tile_hovered", AIM_TILE)
+	_hover_tile(instance, AIM_TILE)
 	await _settle()
 	_assert_aoe_preview(instance, card_id, east_tiles, "east")
 	await _save_screenshot("%s/%s" % [OUTPUT_DIR, east_file])
 	if not north_file.is_empty():
 		instance.call("_rotate_aoe_aim", -1)
-		instance.call("_on_board_tile_hovered", AIM_TILE)
+		_hover_tile(instance, AIM_TILE)
 		await _settle()
 		_assert_aoe_preview(instance, card_id, north_tiles, "north")
 		await _save_screenshot("%s/%s" % [OUTPUT_DIR, north_file])
@@ -215,9 +215,17 @@ func _assert_aoe_preview(instance: Node, card_id: String, expected_tiles: Array,
 		"%s %s should keep every legal center visible beneath the focused footprint" % [card_id, direction]
 	)
 	_expect(not bool(presentation.get("pulse_attack_tiles", false)), "%s %s legal centers should remain static" % [card_id, direction])
+	# The other legal centers must stay discoverable around the footprint. Count
+	# centers outside it rather than comparing set sizes: a wide pattern at short
+	# range (Wildfire Halo: 13 tiles, range 2) legitimately has fewer centers
+	# than footprint tiles.
+	var centers_outside_footprint: int = 0
+	for center_var: Variant in legal_targets:
+		if not expected_tiles.has(center_var):
+			centers_outside_footprint += 1
 	_expect(
-		legal_targets.has(AIM_TILE) and legal_targets.size() > expected_tiles.size(),
-		"%s %s should keep a larger legal-center set behind the focused footprint" % [card_id, direction]
+		legal_targets.has(AIM_TILE) and centers_outside_footprint > 0,
+		"%s %s should keep legal centers visible beyond the focused footprint" % [card_id, direction]
 	)
 	_expect(
 		(instance.get("_pending_target_tiles") as Array).has(AIM_TILE),
@@ -287,6 +295,13 @@ func _install_combat_fixture(instance: Node, card_id: String, seed: int) -> void
 	instance.call("_refresh_ui")
 	_resolve_contextual_prompts(instance)
 	await _settle()
+
+
+# Hover a tile as the pointer would. The shared targeting arrow follows the
+# pointer, which this SubViewport otherwise leaves at its top-left origin.
+func _hover_tile(instance: Node, tile: Vector2i) -> void:
+	instance.call("_on_board_tile_hovered", tile)
+	instance.call("_sync_click_targeting_arrow", instance.call("_controller_board_point", tile))
 
 
 func _arm_printed_card(instance: Node) -> void:

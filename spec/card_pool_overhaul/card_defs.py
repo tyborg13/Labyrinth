@@ -306,8 +306,8 @@ card("tempest_form", "Tempest Form", "legendary", 5, [],
      "Rite: your cards cost 1 less Time (minimum 1).", LIGHTNING, wave=3, burn=True,
      rite={"effects": [{"type": "card_time_discount", "amount": 1}]})
 card("skybolt", "Skybolt", "legendary", 7,
-     [ranged(8, 99, LIGHTNING, ignore_los=True, shock=1, shock_all_hits=True)],
-     "Deal 8 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
+     [ranged(7, 99, LIGHTNING, ignore_los=True, shock=1, shock_all_hits=True)],
+     "Deal 7 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
      LIGHTNING, wave=4)
 
 # =============================================================================== AIR
@@ -489,13 +489,13 @@ gear("rime_hack", "Rime Hack", "epic", 4, [melee(5, 1, ICE, surface="ice")], "St
 gear("frozen_bite", "Frozen Bite", "epic", 3,
      [melee(4, 1, ICE, on_result={"when": "froze", "rewards": [{"type": "card_play", "amount": 1}]})],
      "Strike for 4 Ice damage. If this Freezes the target, gain 1 card play.", ICE, wave=4)
-gear("shatter_swing", "Shatter Swing", "epic", 6, [melee(8, frozen_splash=4)],
+gear("shatter_swing", "Shatter Swing", "epic", 5, [melee(8, frozen_splash=4)],
      "Strike for 8. If the target is Frozen, also deal 4 to each enemy next to it.", wave=4)
 gear("lash", "Lash", "rare", 3, [pull(1, 4, 3, AIR)], "Lash an enemy at reach 3 for 4 and pull 1.", AIR)
 gear("crack_the_whip", "Crack the Whip", "rare", 3, [melee(3, 3, AIR, stagger=2)], "Strike at reach 3 for 3 and Stagger 2.", AIR, wave=2)
 gear("snare_coil", "Snare Coil", "rare", 5, [pull(3, 2, 3, immobilize=True)], "Pull 3 at range 3 for 2, then immobilize.")
-gear("fault_strike", "Fault Strike", "legendary", 6, [melee(9, 1, EARTH, surface="rubble", surface_pattern=[[0, 0], [1, 0], [2, 0]], surface_follows_facing=True)],
-     "Strike for 9, then leave Rubble on the target's tile and the two tiles behind it.", EARTH, wave=4)
+gear("fault_strike", "Fault Strike", "legendary", 6, [melee(11, 1, EARTH, surface="rubble", surface_pattern=[[0, 0], [1, 0], [2, 0]], surface_follows_facing=True)],
+     "Strike for 11, then leave Rubble on the target's tile and the two tiles behind it.", EARTH, wave=4)
 gear("raise_the_anvil", "Raise the Anvil", "legendary", 3, [act("outcrop", range=1, health=3), stoneskin(4)],
      "Raise an outcrop next to you, then gain 4 Stoneskin.", EARTH)
 gear("worldbreak", "Worldbreak", "legendary", 6, [act("burst_terrain", range=1, owned_outcrop_only=True, line_damage=10, line_length=3, stagger=2)],

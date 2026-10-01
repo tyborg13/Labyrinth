@@ -154,11 +154,26 @@ static func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", "none")))
 	return element_id if not element_id.is_empty() else "none"
 
+## A push/pull (or push/pull-only area) that deals no damage is forced
+## movement, not an attack: it neither receives nor spends a next-attack buff,
+## which waits for the card's later damaging hit (Sleet Squall's Ice hit) or
+## the next card. Reads the resolver's copy, so surface bonuses that add
+## damage still make it an attack.
+static func is_forced_movement_only(action: Dictionary) -> bool:
+	if int(action.get("damage", 0)) > 0:
+		return false
+	match str(action.get("type", "")):
+		"push", "pull":
+			return true
+		"aoe":
+			return int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0
+	return false
+
 static func eligible_buffs(state: Dictionary, action: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if action.has("_enemy_id") or bool(action.get("_movement_pool", false)):
 		return result
-	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES:
+	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES or is_forced_movement_only(action):
 		return result
 	var played: int = int(state.get("cards_played_this_turn", 0))
 	var element_id: String = _action_element(action)

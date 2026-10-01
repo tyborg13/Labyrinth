@@ -138,7 +138,10 @@ time-cost-0 return). The Block therefore lasts through the player's following
 turn and clears at the enemy's next real activation. It is not Freeze: no damage
 multiplier, no Chill, and Freeze immunity does not apply. Threat previews treat
 it like Freeze. UI: enemy badge, turn-order `Skips` marker and tooltip line,
-status step `Petrified`. Event `petrified {enemy_id, block}`.
+status step `Petrified`. Event `petrified {enemy_id, block}`. Card row: Petrify icon,
+range, `skips turn`, then `foe gains` + Block kept together (`row_group: foe_block`,
+token `recipient: "enemy"`) so the shield never reads as the hero's Block; at
+native size the `foe gains` pair wraps to a `↳` continuation line.
 
 ## Crystal Mantle for the hero (`mantle`)
 

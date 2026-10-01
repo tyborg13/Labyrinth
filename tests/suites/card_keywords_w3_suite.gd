@@ -42,6 +42,8 @@ const FIXTURES: Dictionary = {
 	"w3_fx_shot": {"actions": [{"type": "ranged", "damage": 2, "range": 4, "element": "none"}], "time": 3},
 	"w3_fx_push": {"element": "earth", "actions": [{"type": "push", "amount": 1, "damage": 0, "range": 1, "element": "earth"}], "time": 3},
 	"w3_fx_melee_push": {"actions": [{"type": "melee", "damage": 1, "range": 1, "element": "none", "push": 1}], "time": 3},
+	# Sleet Squall's shape: a zero-damage push, then an Ice hit on the moved target.
+	"w3_fx_sleet": {"element": "ice", "actions": [{"type": "push", "damage": 0, "range": 3, "amount": 2, "element": "ice"}, {"type": "ranged", "damage": 3, "range": 3, "element": "ice", "target": "previous_target"}], "time": 5},
 	"w3_fx_ice_strike": {"element": "ice", "actions": [{"type": "melee", "damage": 2, "range": 1, "element": "ice"}], "time": 3},
 	"w3_fx_rite_pyre": {"burn": true, "actions": [], "time": 5, "description": "Rite: your Fire tiles deal 2 more damage.", "rite": {"effects": [{"type": "surface_damage_bonus", "surface": "fire", "amount": 2}]}},
 	"w3_fx_rite_salamander": {"burn": true, "actions": [], "time": 6, "rite": {"effects": [{"type": "surface_immunity", "surface": "fire"}, {"type": "turn_start_on_surface", "surface": "fire", "rewards": [{"type": "stoneskin", "amount": 3}, {"type": "draw", "amount": 1}]}]}},
@@ -72,6 +74,7 @@ static func run(expect: Callable) -> void:
 	_test_next_attack_consumption(engine, expect)
 	_test_next_attack_element_and_pierce(engine, expect)
 	_test_next_attack_per_tile_moved(engine, expect)
+	_test_next_attack_skips_forced_movement(engine, expect)
 	_test_rite_fire(engine, expect)
 	_test_rite_freeze_reward(engine, expect)
 	_test_rite_turn_start_effects(engine, expect)
@@ -352,6 +355,43 @@ static func _test_next_attack_per_tile_moved(engine: CombatEngine, expect: Calla
 	flags[TempoRules.TILES_MOVED_KEY] = 9
 	state["turn_flags"] = flags
 	expect.call(engine.final_damage_for_player_action(state, strike) == 7, "per_tile_moved respects its maximum")
+
+static func _test_next_attack_skips_forced_movement(engine: CombatEngine, expect: Callable) -> void:
+	var buffed: Dictionary = _play(engine, _state(engine, Vector2i(4, 4)), "w3_fx_buff")
+	var preview_actions: Array = engine.card_play_actions("w3_fx_sleet", buffed)
+	var push: Dictionary = preview_actions[0] as Dictionary
+	var push_modifiers: Array[Dictionary] = engine.damage_modifiers_for_player_action(buffed, push)
+	expect.call(engine.final_damage_for_player_action(buffed, push) == 0 and not push_modifiers.any(func(entry: Dictionary) -> bool: return str(entry.get("kind", "")) == "next_attack"), "A zero-damage push neither previews nor lists the pending next-attack bonus")
+	expect.call(engine.final_damage_for_player_action(buffed, preview_actions[1] as Dictionary) == 6, "The card's later Ice hit previews the bonus")
+	# Resolve Sleet Squall one action at a time, like a committed hand play.
+	var working: Dictionary = buffed.duplicate(true)
+	var deck: Dictionary = working["deck"] as Dictionary
+	var hand: Array = (deck.get("hand", []) as Array).duplicate()
+	hand.push_front("w3_fx_sleet")
+	deck["hand"] = hand
+	working["deck"] = deck
+	working = engine.prepare_player_card(working, 0, "play")
+	var actions: Array = engine.card_play_actions("w3_fx_sleet", working)
+	working = engine.apply_player_action(working, actions[0] as Dictionary, Vector2i(4, 4))
+	expect.call(_enemy(working).get("pos", Vector2i.ZERO) == Vector2i(6, 4) and int(_enemy(working).get("hp", 0)) == 20, "The zero-damage push moves the enemy without dealing the next-attack bonus")
+	expect.call(TempoRules.next_attack_buffs(working).size() == 1, "The zero-damage push does not spend the next-attack buff")
+	var hit: Dictionary = actions[1] as Dictionary
+	working = engine.apply_player_action(working, hit, Vector2i(4, 4) if engine.player_action_needs_target(hit) else NO_TARGET)
+	var sleet: Dictionary = engine.finish_player_card(working, 0, engine.card_plays_spent_for_actions(actions), {"play_mode": "play"})
+	expect.call(int(_enemy(sleet).get("hp", 0)) == 14 and TempoRules.next_attack_buffs(sleet).is_empty(), "The buff carries to the card's Ice hit (3 + 3) and is spent there")
+	var used: Variant = TempoRules.analytics_fields(sleet, "w3_fx_sleet").get("next_attack_bonus_used", null)
+	expect.call(typeof(used) == TYPE_DICTIONARY and str((used as Dictionary).get("action_type", "")) == "ranged", "card_played analytics attribute the bonus to the Ice hit, not the push")
+	# A push-only card leaves the buff for the next card's attack.
+	var pushed: Dictionary = _play(engine, _play(engine, _state(engine), "w3_fx_buff"), "w3_fx_push", ADJACENT_TILE)
+	expect.call(int(_enemy(pushed).get("hp", 0)) == 20 and TempoRules.next_attack_buffs(pushed).size() == 1, "A zero-damage push card leaves the buff pending")
+	var shot: Dictionary = _play(engine, pushed, "w3_fx_shot", _enemy(pushed).get("pos", Vector2i.ZERO))
+	expect.call(int(_enemy(shot).get("hp", 0)) == 15 and TempoRules.next_attack_buffs(shot).is_empty(), "The next card's attack receives and spends the carried buff")
+	# The hand row keeps the bonus on the Ice hit rather than the push.
+	var scene: Node = RunSceneScript.new()
+	var display: Dictionary = scene.call("_card_widget_display", "w3_fx_sleet", buffed)
+	var ranged_token: Dictionary = _token_with_icon(display.get("summary_rows", []) as Array, "ranged")
+	expect.call(int(ranged_token.get("value", 0)) == 6 and str(ranged_token.get("tone", "")) == "bonus", "The hand display shows the next-attack bonus on the Ice hit")
+	scene.free()
 
 # ---------------------------------------------------------------------- Rites
 

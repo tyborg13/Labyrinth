@@ -7,6 +7,7 @@ extends SceneTree
 #                                native (250) and reward (292) sizes, built
 #                                with RunScene's own scaled card slots
 #   LABYRINTH_POLISH_TAG=<name>  fresh versioned output folder
+#   LABYRINTH_POLISH_IDS=a,b     limit either mode to these card ids
 # Every rendered card is also audited: each summary leaf (icon, value, label,
 # rules text) must sit on the parchment, inside the frame border, and no chip
 # may print a float ("4.0") or an empty row.
@@ -41,6 +42,7 @@ var _sheet_nodes: Array[Node] = []
 var _output_dir: String = ""
 var _audit: Array[Dictionary] = []
 var _failed: bool = false
+var _focus_ids: Array[String] = []
 
 
 func _initialize() -> void:
@@ -72,15 +74,21 @@ func _initialize() -> void:
 		push_error("Card polish probe requires a real renderer")
 		quit(1)
 		return
+	var requested_ids: Array[String] = _requested_card_ids()
+	_focus_ids = FOCUS_CARD_IDS.duplicate()
+	if not requested_ids.is_empty():
+		_focus_ids = requested_ids
 	if mode == "all":
 		var live_ids: Array[String] = _live_card_ids()
+		if not requested_ids.is_empty():
+			live_ids = requested_ids
 		var per_sheet: int = 12
 		var sheet_count: int = ceili(float(live_ids.size()) / float(per_sheet))
 		for sheet_index: int in range(sheet_count):
 			await _capture_native_sheet(live_ids, sheet_index, per_sheet, sheet_count)
 	else:
 		var per_sheet: int = 4
-		var sheet_count: int = ceili(float(FOCUS_CARD_IDS.size()) / float(per_sheet))
+		var sheet_count: int = ceili(float(_focus_ids.size()) / float(per_sheet))
 		for sheet_index: int in range(sheet_count):
 			await _capture_focus_sheet(sheet_index, per_sheet, sheet_count)
 	_write_audit()
@@ -97,6 +105,18 @@ func _live_card_ids() -> Array[String]:
 			continue
 		ids.append(str(card_id_var))
 	ids.sort()
+	return ids
+
+
+func _requested_card_ids() -> Array[String]:
+	var ids: Array[String] = []
+	for id_text: String in OS.get_environment("LABYRINTH_POLISH_IDS").split(",", false):
+		var card_id: String = id_text.strip_edges()
+		if GameData.cards().has(card_id):
+			ids.append(card_id)
+		elif not card_id.is_empty():
+			push_error("Unknown card id %s" % card_id)
+			_failed = true
 	return ids
 
 
@@ -175,13 +195,13 @@ func _capture_focus_sheet(sheet_index: int, per_sheet: int, sheet_count: int) ->
 	_sheet_background("RITE AND CONDITION CARDS · %d/%d · HAND 172 / 208 · REWARD 292 (RUNSCENE SCALED SLOTS)" % [sheet_index + 1, sheet_count])
 	var widgets: Array[Dictionary] = []
 	var start_index: int = sheet_index * per_sheet
-	var end_index: int = mini(start_index + per_sheet, FOCUS_CARD_IDS.size())
+	var end_index: int = mini(start_index + per_sheet, _focus_ids.size())
 	for card_index: int in range(start_index, end_index):
 		var local_index: int = card_index - start_index
 		var group_x: float = 120.0 + float(local_index % 2) * 880.0
 		var group_y: float = 70.0 + float(local_index / 2) * 500.0
 		var cursor_x: float = group_x
-		var card_id: String = FOCUS_CARD_IDS[card_index]
+		var card_id: String = _focus_ids[card_index]
 		for width: float in FOCUS_WIDTHS:
 			var card_size: Vector2 = _run_scene.call("_card_size_from_width", width)
 			var widget: CardWidget = _configured_widget(card_id)

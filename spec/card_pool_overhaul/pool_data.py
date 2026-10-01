@@ -270,7 +270,7 @@ card("tempest_form", "Tempest Form", M, L, "legendary", 5,
      "Rite: your cards cost 1 less Time (minimum 1).", costs=["Rite"], impl=2,
      note="Build-around for the turn clock. Pays for itself in about three turns, so it is strongest in long fights.")
 card("skybolt", "Skybolt", M, L, "legendary", 7,
-     "Deal 8 Lightning to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
+     "Deal 7 Lightning to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
      impl=2, note="Zekarion's strike in the player's hand. The only card that ignores sight lines.")
 
 # ---------------------------------------------------------------------------
@@ -638,7 +638,7 @@ card("rime_hack", "Rime Hack", G, I, "epic", 4,
      "Strike for 5 Ice. Leave Ice beneath the target.", impl=0)
 card("frozen_bite", "Frozen Bite", G, I, "epic", 3,
      "Strike for 4 Ice. If this Freezes the target, gain 1 card play.", impl=2)
-card("shatter_swing", "Shatter Swing", G, I, "epic", 6,
+card("shatter_swing", "Shatter Swing", G, I, "epic", 5,
      "Strike for 8. If the target is Frozen, also deal 4 to each enemy adjacent to it.", impl=2)
 
 piece("galewhip", "Galewhip", "weapon", "rare",
@@ -655,7 +655,7 @@ piece("worldbreaker", "Worldbreaker", "weapon", "legendary",
       "Earth legendary. Raise stone, then break it into projectiles.",
       ["fault_strike", "raise_the_anvil", "worldbreak"], "new", element="earth")
 card("fault_strike", "Fault Strike", G, E, "legendary", 6,
-     "Strike for 9. Leave Rubble on the target's tile and the 2 tiles behind it.", impl=2)
+     "Strike for 11. Leave Rubble on the target's tile and the 2 tiles behind it.", impl=2)
 card("raise_the_anvil", "Raise the Anvil", G, E, "legendary", 3,
      "Raise an outcrop adjacent to you. Gain 4 Stoneskin.")
 card("worldbreak", "Worldbreak", G, E, "legendary", 6,

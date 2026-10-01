@@ -1493,10 +1493,22 @@ static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
 		"mantle":
 			tokens.append(_token_for_action_field(action, "frost_armor", "amount", int(action.get("amount", 0)), "neutral", "Crystal Mantle\nEach direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it."))
 		"petrify":
-			var petrify_tip: String = "Petrify\nThe enemy skips its next turn (it still costs its Time) and gains this much Block, which lasts through your next turn. Dragons are immune."
+			var petrify_tip: String = "Petrify\nThe enemy skips its next turn (it still costs its Time) and gains Block, which lasts through your next turn. Dragons are immune."
 			tokens.append(token_for("petrify", null, "neutral", petrify_tip))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
-			tokens.append(_token_for_action_field(action, "block", "block", int(action.get("block", 0)), "neutral", "The enemy gains this much Block."))
+			tokens.append(text_token("skips turn", "neutral", petrify_tip))
+			# The Block goes to the petrified enemy, not the hero: a "foe gains"
+			# marker travels with the shield so it never reads as your Block.
+			var foe_block: int = int(action.get("block", 0))
+			if foe_block > 0:
+				var foe_block_tip: String = "Block for the foe\nThe petrified enemy gains this much Block, not you. It lasts through your next turn."
+				var foe_marker: Dictionary = text_token("foe gains", "neutral", foe_block_tip)
+				foe_marker["row_group"] = "foe_block"
+				tokens.append(foe_marker)
+				var foe_block_token: Dictionary = _token_for_action_field(action, "block", "block", foe_block, "neutral", foe_block_tip)
+				foe_block_token["row_group"] = "foe_block"
+				foe_block_token["recipient"] = "enemy"
+				tokens.append(foe_block_token)
 
 static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> void:
 	if str(action.get("force_mode", "")) == "from_center":

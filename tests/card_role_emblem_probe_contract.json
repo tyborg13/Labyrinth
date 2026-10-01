@@ -47,7 +47,7 @@
       "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]
     },
     {
-      "pattern": "*card_role_emblem_mirror_feint_*.png",
+      "pattern": "*card_role_emblem_hall_of_mirrors_*.png",
       "width": 250,
       "height": 352,
       "regions": [{"rect": [18, 190, 214, 140], "min_luma_range": 10, "min_luma_stdev": 2}]

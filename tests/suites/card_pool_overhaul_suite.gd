@@ -773,7 +773,11 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	Surface.place(hearth, Vector2i(3, 4), "fire")
 	var burned: Dictionary = _play_first(combat, hearth, [])
 	expect.call(_hp(burned, 1) == 32 and int((burned.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Immolation detonates the adjacent Fire for 8 and spares the hero")
-	for pair: Array in [["vortex", "pull=2"], ["discharge", "aoe=5"], ["skybolt", "ranged=8"]]:
+	# Skybolt's damage is still being tuned: read it from data, and require the
+	# chip and the printed rules text to agree with it.
+	var skybolt_damage: int = int(((GameData.card_def("skybolt").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))
+	expect.call(skybolt_damage > 0 and str(GameData.card_def("skybolt").get("description", "")).begins_with("Deal %d " % skybolt_damage), "Skybolt's rules text prints its data damage %d" % skybolt_damage)
+	for pair: Array in [["vortex", "pull=2"], ["discharge", "aoe=5"], ["skybolt", "ranged=%d" % skybolt_damage]]:
 		expect.call(_row_values(str(pair[0])).has(str(pair[1])), "%s shows its tuned %s chip: %s" % [str(pair[0]), str(pair[1]), str(_row_values(str(pair[0])))])
 	var keg: Dictionary = (GameData.card_def("powder_keg").get("actions", []) as Array)[0]
 	expect.call(int(keg.get("burst_damage", 0)) == 6 and str(GameData.card_def("powder_keg").get("description", "")).contains("deals 6"), "Powder Keg bursts for 6, as printed")

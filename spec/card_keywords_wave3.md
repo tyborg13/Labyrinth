@@ -50,7 +50,10 @@ Action `{"type": "next_attack", "damage"?: n, "pierce"?: true, "chain"?: n,
 
 - Stored in `turn_flags.next_attack_buffs` with `granted_at = cards_played_this_turn`; a
   buff is eligible only for an attack action (melee/ranged/aoe/push/pull/detonate) of a
-  later card, and with `element` only for an attack of that element.
+  later card, and with `element` only for an attack of that element. A push/pull (or a
+  push/pull-only area) that deals no damage is forced movement, not an attack
+  (`TempoRules.is_forced_movement_only`): it neither receives nor spends the buff, which
+  waits for the card's later damaging hit (Sleet Squall's Ice hit) or the next card.
 - Applied in `CombatEngine._resolved_surface_action` (so final damage, hover previews,
   hand rows and resolution agree): eligible buffs stack additively into `damage`,
   `chain` and `pierce`, marked `_next_attack_bonus`; `_apply_player_action` consumes them
