@@ -124,6 +124,16 @@ func _check_stingers(instance: Node) -> void:
 	instance.call("_shutdown_audio")
 	if duck != null:
 		_assert(is_equal_approx(duck.volume_db, 0.0), "Leaving the run scene should restore the score to unity")
+	var victory_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID)))
+	_assert(victory_length > 4.0, "The victory cue should start before a rare-find reveal")
+	instance.call("_fade_out_sfx", RunSfxLibrary.VICTORY_RESOLUTION_ID, 0.2)
+	await create_timer(0.4).timeout
+	var victory_still_playing: bool = false
+	for player_var: Variant in instance.get("_sfx_players") as Array:
+		var sfx_player: AudioStreamPlayer = player_var as AudioStreamPlayer
+		if sfx_player != null and sfx_player.playing and str(sfx_player.get_meta("sfx_id", "")) == RunSfxLibrary.VICTORY_RESOLUTION_ID:
+			victory_still_playing = true
+	_assert(not victory_still_playing, "A rare-find fanfare should fade the victory cue out instead of stacking on it")
 	var level_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
 	_assert(level_length > 2.5 and level_length < 4.5, "After audio shutdown a new stinger should be free to play")
 	instance.call("_shutdown_audio")

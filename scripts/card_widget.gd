@@ -1195,8 +1195,14 @@ func _ensure_art_shadow() -> void:
 	_art_shadow.offset_right = ART_SHADOW_OFFSET.x
 	_art_shadow.offset_bottom = ART_SHADOW_OFFSET.y
 	_art_shadow.self_modulate = ART_SHADOW_COLOR
-	art_frame.add_child(_art_shadow)
-	art_frame.move_child(_art_shadow, art_rect.get_index())
+	# ArtFrame is a container that refits its children, so the shadow lives in a
+	# plain full-rect holder where its offset survives layout.
+	var holder := Control.new()
+	holder.name = "ArtShadowHolder"
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.add_child(_art_shadow)
+	art_frame.add_child(holder)
+	art_frame.move_child(holder, art_rect.get_index())
 
 # Rarity reads from the name ink and a soft glow on the frame's rarity gem;
 # commons and starters keep the plain brown ink.
@@ -1708,7 +1714,8 @@ func _base_title_size() -> int:
 		return _scaled_card_font_size(17, 8)
 	if width <= HAND_TITLE_WIDTH_MAX:
 		return _scaled_card_font_size(18, 9)
-	return _scaled_card_font_size(19, 9)
+	# Fit relief takes one step off, so full-size cards render at the 19 px cap.
+	return _scaled_card_font_size(20, 9)
 
 func _queue_title_refit() -> void:
 	if is_node_ready():

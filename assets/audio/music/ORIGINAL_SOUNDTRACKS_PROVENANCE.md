@@ -50,9 +50,10 @@ the four tracks above, the production Oggs are byte-for-byte copies of the
 verified previews, and the source package keeps its own provenance. The themes
 are -20 LUFS loops played at the -5.5 dB combat gain. The stingers are -18 LUFS
 one-shots on the dry UI SFX path. When the level-up overlay opens, a rare
-reward is revealed, or a dragon falls, a stinger plays while a `MusicDuck`
-amplify stage on the Music bus dips the score by 9 dB beneath it and then
-recovers. The owner has not yet auditioned them. Approval turns the manifest
+reward with an epic or legendary card is revealed, or a dragon falls, a
+stinger plays while a `MusicDuck` amplify stage on the Music bus dips the score
+by 9 dB beneath it and then recovers. Stingers never stack, and a rare-find
+stinger fades out the ordinary victory cue's tail. The owner has not yet auditioned them. Approval turns the manifest
 `status` to `approved_for_game_integration`.
 
 Inspection and hearing the mix in play are the next step; this integration does

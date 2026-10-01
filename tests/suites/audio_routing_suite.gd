@@ -69,6 +69,10 @@ static func run(expect: Callable) -> void:
 	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
 	expect.call(duck != null and is_equal_approx(duck.volume_db, 0.0), "The music duck stage should rest at unity gain")
 	expect.call(AudioServer.get_bus_effect(music_index, 0) == duck, "The music duck should sit ahead of the music reverb so the tail dips with the score")
+	var foreign_amplify := AudioEffectAmplify.new()
+	AudioServer.add_bus_effect(music_index, foreign_amplify, 0)
+	expect.call(SettingsStore.music_duck_effect() == duck, "The duck lookup should find its own named stage, not another amplify on the Music bus")
+	AudioServer.remove_bus_effect(music_index, 0)
 
 	for stinger_id: String in [RunSfxLibrary.STINGER_LEVEL_UP_ID, RunSfxLibrary.STINGER_RARE_REWARD_ID, RunSfxLibrary.STINGER_BOSS_DEFEATED_ID]:
 		var stinger: Dictionary = RunSfxLibrary.SFX.get(stinger_id, {})

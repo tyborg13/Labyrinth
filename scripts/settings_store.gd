@@ -165,7 +165,11 @@ static func music_duck_effect() -> AudioEffectAmplify:
 	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)
 	if bus_index < 0:
 		return null
-	return _find_bus_effect(bus_index, "AudioEffectAmplify") as AudioEffectAmplify
+	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
+		var effect: AudioEffect = AudioServer.get_bus_effect(bus_index, effect_index)
+		if effect is AudioEffectAmplify and effect.resource_name == MUSIC_DUCK_EFFECT_NAME:
+			return effect as AudioEffectAmplify
+	return null
 
 static func _ensure_music_duck() -> void:
 	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)

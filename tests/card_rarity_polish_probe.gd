@@ -89,6 +89,15 @@ func _initialize() -> void:
 		if shadow == null or shadow.texture == null:
 			push_error("%s should seat its art with a shadow copy" % card_id)
 			failures += 1
+		else:
+			var art: TextureRect = widget.find_child("Art", true, false) as TextureRect
+			var shadow_offset: Vector2 = shadow.get_global_rect().position - art.get_global_rect().position
+			if not shadow_offset.is_equal_approx(CardWidget.ART_SHADOW_OFFSET) or not shadow.size.is_equal_approx(art.size):
+				push_error("%s art shadow should sit offset by %s beneath the art, got %s" % [card_id, CardWidget.ART_SHADOW_OFFSET, shadow_offset])
+				failures += 1
+		if card_id == "quick_stab" and title.get_theme_font_size("font_size") != CardWidget.TITLE_MAX_RENDER_SIZE:
+			push_error("A short full-size card name should render at %d px, got %d" % [CardWidget.TITLE_MAX_RENDER_SIZE, title.get_theme_font_size("font_size")])
+			failures += 1
 		if glow == null or glow.visible != (rarity in ["uncommon", "rare", "epic", "legendary"]):
 			push_error("%s rarity gem glow should appear only above common" % card_id)
 			failures += 1
