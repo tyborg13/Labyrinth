@@ -511,12 +511,12 @@ static func _test_wave3_reactive_and_tempo_cards(expect: Callable) -> void:
 static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var card: Dictionary = GameData.card_def("thorn_crown_pact")
-	expect.call(ActionIcons.card_is_rite(card) and ActionIcons.card_rules_text(card).contains("Health cost 2"), "Thorn Crown Pact renders Rite text with its health cost")
+	expect.call(ActionIcons.card_is_rite(card) and ActionIcons.card_rules_text(card).contains("Health cost %d" % int(card.get("health_cost", 0))), "Thorn Crown Pact renders Rite text with its health cost")
 	var state: Dictionary = _queued_state(combat, ["thorn_crown_pact"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
 	var started: Array = _card_actions(combat, state)["actions"]
 	expect.call(started.size() == 1 and str((started[0] as Dictionary).get("type", "")) == "rite" and not combat.player_action_needs_target(started[0] as Dictionary), "A Rite plays as one targetless step")
 	var after: Dictionary = _play_first(combat, state, [])
-	expect.call(int((after.get("player", {}) as Dictionary).get("hp", 0)) == 28 and int(after.get("player_turn_time_spent", 0)) == 5, "Thorn Crown Pact pays 2 health and 5 Time")
+	expect.call(int((after.get("player", {}) as Dictionary).get("hp", 0)) == 30 - int(card.get("health_cost", 0)) and int(after.get("player_turn_time_spent", 0)) == int(card.get("time", 0)), "Thorn Crown Pact pays its printed health cost and Time")
 	expect.call(((after.get("deck", {}) as Dictionary).get("burned", []) as Array).has("thorn_crown_pact") and RiteRules.active_rites(after).size() == 1, "The Rite exhausts and stays active for the combat")
 	var struck: Dictionary = combat._resolve_enemy_action(after.duplicate(true), 0, {"type": "melee", "damage": 3, "range": 1})
 	expect.call(_hp(struck, 1) == 37 and int(((struck.get("enemies", []) as Array)[0] as Dictionary).get("bleed", 0)) == 1, "Thorns answer every melee hit with 3 and Bleed 1")
@@ -533,7 +533,7 @@ static func _test_wave3_thorn_crown_pact(expect: Callable) -> void:
 	var enemy_burn: int = 40 - _hp(combat._surface_contact(enemy_fire, "enemy", 1, CombatEngine.INVALID_TILE, true), 1)
 	expect.call(own_burn == enemy_burn + 2 and enemy_burn > 0, "Rite of the Pyre adds 2 to the hero's Fire only (%d vs %d)" % [own_burn, enemy_burn])
 	var tempest: Dictionary = _play_first(combat, _queued_state(combat, ["tempest_form", "overhead_smash"], [{"id": 1, "type": "crawler", "pos": Vector2i(6, 4), "hp": 40, "max_hp": 40}]), [])
-	expect.call(combat.card_time_cost("overhead_smash", tempest) == 6 and int(tempest.get("player_turn_time_spent", 0)) == 6, "Tempest Form discounts later cards, never itself")
+	expect.call(combat.card_time_cost("overhead_smash", tempest) == int(GameData.card_def("overhead_smash").get("time", 0)) - 1 and int(tempest.get("player_turn_time_spent", 0)) == int(GameData.card_def("tempest_form").get("time", 0)), "Tempest Form discounts later cards, never itself")
 
 
 static func _test_wave23_grimoire_unlocks(expect: Callable) -> void:

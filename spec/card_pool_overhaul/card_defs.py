@@ -207,7 +207,7 @@ card("immolation", "Immolation", "epic", 5,
 card("pyroclasm", "Pyroclasm", "epic", 7,
      [ranged(9, 3, FIRE, consume={"surface": "fire", "bonus_damage": 6})],
      "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.", FIRE, wave=4)
-card("rite_of_the_pyre", "Rite of the Pyre", "epic", 5, [],
+card("rite_of_the_pyre", "Rite of the Pyre", "epic", 4, [],
      "Rite: your Fire tiles deal 2 more damage.", FIRE, wave=3, burn=True,
      rite={"effects": [{"type": "surface_damage_bonus", "surface": "fire", "amount": 2, "owner": "player"}]})
 card("meteorfall", "Meteorfall", "epic", 7,
@@ -302,7 +302,7 @@ card("rite_of_the_storm", "Rite of the Storm", "epic", 5, [],
      "Rite: at the start of each of your turns, deal 2 Lightning damage to each enemy standing on Electrified.", LIGHTNING,
      wave=3, burn=True,
      rite={"effects": [{"type": "turn_start_surface_pulse", "surface": "electrified", "damage": 2, "element": "lightning"}]})
-card("tempest_form", "Tempest Form", "legendary", 6, [],
+card("tempest_form", "Tempest Form", "legendary", 5, [],
      "Rite: your cards cost 1 less Time (minimum 1).", LIGHTNING, wave=3, burn=True,
      rite={"effects": [{"type": "card_time_discount", "amount": 1}]})
 card("skybolt", "Skybolt", "legendary", 6,
@@ -338,7 +338,7 @@ card("vortex", "Vortex", "epic", 5, [act("force_area", center="target", range=3,
      "Choose a tile within range 3. Pull each enemy within 2 of it 1 tile toward it.", AIR, wave=4)
 card("eye_of_the_storm", "Eye of the Storm", "epic", 5, [block(6), act("retaliate", amount=0, push=2)],
      "Gain 6 Block. Until your next turn, enemies that hit you in melee are pushed 2.", AIR, wave=3)
-card("rite_of_tailwinds", "Rite of Tailwinds", "epic", 4, [],
+card("rite_of_tailwinds", "Rite of Tailwinds", "epic", 3, [],
      "Rite: gain 1 extra independent movement each turn. Your Push and Pull move targets 1 tile farther.", AIR, wave=3, burn=True,
      rite={"effects": [{"type": "independent_movement_bonus", "amount": 1},
                        {"type": "forced_movement_bonus", "amount": 1}]})
@@ -456,7 +456,7 @@ gear("forked_nock", "Forked Nock", "rare", 5, [ranged(3, 3, LIGHTNING, chain=2, 
 gear("sweeping_haft", "Sweeping Haft", "epic", 4, [aoe(6, 0, DIAG, sunder=3)],
      "Strike the four diagonal tiles for 6 and Sunder 3.")
 gear("pinning_quarrel", "Pinning Quarrel", "rare", 5, [ranged(4, 4, immobilize=True)], "Deal 4 at range 4 and immobilize.")
-gear("crushing_blow", "Crushing Blow", "common", 6, [melee(8, stagger=3)], "Strike an adjacent enemy for 8 and Stagger 3.", wave=2)
+gear("crushing_blow", "Crushing Blow", "common", 5, [melee(8, stagger=3)], "Strike an adjacent enemy for 8 and Stagger 3.", wave=2)
 gear("haft_shove", "Haft Shove", "common", 3, [push(2, 2, 1)], "Strike an adjacent enemy for 2 and push 2.")
 gear("overhead_smash", "Overhead Smash", "common", 7, [melee(12)],
      "Strike an adjacent enemy for 12. Empower (+2 Time): Stagger 4.", wave=2,
@@ -465,7 +465,7 @@ gear("spear_thrust", "Spear Thrust", "common", 4, [aoe(6, 1, LINE2, aim="facing"
      "Strike the first two tiles in a line from you for 6.")
 gear("brace_the_spear", "Brace the Spear", "common", 3, [block(3), act("retaliate", amount=5)],
      "Gain 3 Block and Retaliate 5 until your next turn.", wave=3)
-gear("hurl_spear", "Hurl Spear", "common", 4, [ranged(6, 4)],
+gear("hurl_spear", "Hurl Spear", "common", 5, [ranged(6, 4)],
      "Deal 6 at range 4. Empower (Exhaust): deal 4 more and immobilize.", wave=2,
      empower={"cost": {"exhaust": True}, "mods": [m(0, add={"damage": 4}, set={"immobilize": True})]})
 gear("ricochet_knife", "Ricochet Knife", "common", 3, [ranged(5, 2), draw(1)], "Deal 5 at range 2, then draw 1.")
@@ -601,7 +601,7 @@ gear("unsealed_gale", "Unsealed Gale", "legendary", 6, [act("force_area", center
 gear("borrowed_spark", "Borrowed Spark", "epic", 4, [surface("fire", 3, LINE2, rotate=True), draw(2), plays(1)],
      "Exhaust. Place a two-tile Fire line at range 3, draw 2, and gain 1 play.", FIRE, burn=True, health_cost=1)
 gear("thorn_crown_pact", "Thorn Crown Pact", "legendary", 5, [],
-     "Rite: enemies that hit you in melee take 3 and Bleed 1.", wave=3, burn=True, health_cost=2,
+     "Rite: enemies that hit you in melee take 3 and Bleed 1.", wave=3, burn=True, health_cost=1,
      rite={"effects": [{"type": "thorns", "damage": 3, "bleed": 1}]})
 gear("royal_bramble", "Royal Bramble", "legendary", 5, [pull(2, 4, 2, bleed=2)],
      "Pull 2 at range 2 for 4 and Bleed 2. Empower (1 HP): Expose 4 and Sunder 4.", wave=2,

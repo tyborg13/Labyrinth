@@ -129,7 +129,7 @@ card("immolation", "Immolation", M, F, "epic", 5,
 card("pyroclasm", "Pyroclasm", M, F, "epic", 7,
      "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.", impl=2,
      note="Fire's single-target nuke, conditional on the element's own setup.")
-card("rite_of_the_pyre", "Rite of the Pyre", M, F, "epic", 5,
+card("rite_of_the_pyre", "Rite of the Pyre", M, F, "epic", 4,
      "Rite: your Fire tiles deal 2 more damage.", costs=["Rite"],
      note="Fire's engine piece. Every painter after this one is worth more.")
 card("meteorfall", "Meteorfall", M, F, "epic", 7,
@@ -266,7 +266,7 @@ card("ball_lightning", "Ball Lightning", M, L, "epic", 4,
 card("rite_of_the_storm", "Rite of the Storm", M, L, "epic", 5,
      "Rite: at the start of each of your turns, deal 2 Lightning to each enemy standing on Electrified.",
      costs=["Rite"], impl=2, note="Makes wiring worth doing even on turns you don't attack.")
-card("tempest_form", "Tempest Form", M, L, "legendary", 6,
+card("tempest_form", "Tempest Form", M, L, "legendary", 5,
      "Rite: your cards cost 1 less Time (minimum 1).", costs=["Rite"], impl=2,
      note="Build-around for the turn clock. Pays for itself in about three turns, so it is strongest in long fights.")
 card("skybolt", "Skybolt", M, L, "legendary", 6,
@@ -329,7 +329,7 @@ card("vortex", "Vortex", M, A, "epic", 5,
 card("eye_of_the_storm", "Eye of the Storm", M, A, "epic", 5,
      "Gain 6 Block. Until your next turn, enemies that hit you in melee are Pushed 2.",
      note="A Retaliate variant: the answer to being surrounded.")
-card("rite_of_tailwinds", "Rite of Tailwinds", M, A, "epic", 4,
+card("rite_of_tailwinds", "Rite of Tailwinds", M, A, "epic", 3,
      "Rite: gain 1 extra independent movement each turn. Your Push and Pull move targets 1 tile farther.",
      costs=["Rite"], impl=2)
 card("skybreak_current", "Skybreak Current", M, A, "legendary", 7,
@@ -585,7 +585,7 @@ card("pinning_quarrel", "Pinning Quarrel", G, N, "rare", 5,
 piece("war_maul", "War Maul", "weapon", "common",
       "Blunt force. Stagger, and shoves into walls.",
       ["crushing_blow", "haft_shove", "overhead_smash"], "new")
-card("crushing_blow", "Crushing Blow", G, N, "common", 6,
+card("crushing_blow", "Crushing Blow", G, N, "common", 5,
      "Strike for 8. Stagger 3.")
 card("haft_shove", "Haft Shove", G, N, "common", 3,
      "Strike for 2 and Push 2.",
@@ -600,7 +600,7 @@ card("spear_thrust", "Spear Thrust", G, N, "common", 4,
      "Strike the first 2 tiles in a line from you for 6 (rotatable).", impl=0)
 card("brace_the_spear", "Brace the Spear", G, N, "common", 3,
      "Gain 3 Block. Retaliate 5.")
-card("hurl_spear", "Hurl Spear", G, N, "common", 4,
+card("hurl_spear", "Hurl Spear", G, N, "common", 5,
      "Deal 6 at range 4. Empower (Exhaust): +4 and Immobilize.")
 
 piece("tinkers_knives", "Tinker's Knives", "weapon", "common",
@@ -1052,8 +1052,8 @@ piece("crown_of_thorns", "Crown of Thorns", "trinket", "legendary",
       "Blood legendary. Bleed them, and bleed for it.",
       ["thorn_crown_pact", "royal_bramble"], "rework")
 card("thorn_crown_pact", "Thorn Crown Pact", G, N, "legendary", 5,
-     "Rite: enemies that hit you in melee take 3 and Bleed 1. Health cost 2.", "rework",
-     costs=["Rite", "HP 2"], impl=2,
+     "Rite: enemies that hit you in melee take 3 and Bleed 1. Health cost 1.", "rework",
+     costs=["Rite", "HP 1"], impl=2,
      note="Was a grab bag of Stoneskin, Pierce, Bleed and Sunder. Now one permanent thorn aura, bought with blood.")
 card("royal_bramble", "Royal Bramble", G, N, "legendary", 5,
      "Pull 2 at range 2 for 4. Bleed 2. Empower (1 HP): Expose 4 and Sunder 4.", "rework",
