@@ -155,6 +155,9 @@ const RANGED_PREVIEW_ACCENT_WIDTH: float = 1.8
 const RANGED_PREVIEW_OUTLINE_ALPHA: float = 0.28
 const RANGED_PREVIEW_SECONDARY_ALPHA: float = 0.26
 const RANGED_PREVIEW_ACCENT_ALPHA: float = 0.82
+const COLLISION_MARKER_ICON_RATIO: float = 0.44
+const COLLISION_MARKER_FILL: Color = Color(0.17, 0.06, 0.04, 0.94)
+const COLLISION_MARKER_RING: Color = Color("ef8b62")
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
 const MOVE_RISK_CHIP_HEIGHT: float = 18.0
 const MOVE_RISK_CHIP_GAP: float = 3.0
@@ -8650,14 +8653,29 @@ func _draw_collision_markers() -> void:
 		var blocked: Vector2i = marker.get("blocked_tile", Vector2i(-1, -1))
 		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 			continue
-		var contact: Vector2 = _tile_center(tile).lerp(_tile_center(blocked), 0.5) if blocked.x > -900 else _tile_center(tile)
-		var icon_size: float = clampf(_tile_width() * 0.36, 26.0, 46.0)
-		var center: Vector2 = contact - Vector2(0.0, _tile_height() * 0.62)
+		# Lean onto the blocker so the landing ghost stays readable.
+		var contact: Vector2 = _tile_center(tile).lerp(_tile_center(blocked), 0.58) if blocked.x > -900 else _tile_center(tile)
+		var icon_size: float = clampf(_tile_width() * COLLISION_MARKER_ICON_RATIO, 34.0, 60.0)
+		var radius: float = icon_size * 0.62
+		var center: Vector2 = contact - Vector2(0.0, _tile_height() * 0.44)
 		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
-		draw_circle(center, icon_size * 0.56, Color(0.05, 0.03, 0.02, 0.62))
+		# Danger medallion in the movement-risk chip palette: an opaque backing and
+		# ember ring keep the icon legible over any floor, unit or prop.
+		draw_circle(center + Vector2(0.0, 2.0), radius + 3.0, Color(0.0, 0.0, 0.0, 0.42))
+		draw_circle(center, radius, COLLISION_MARKER_FILL)
+		draw_arc(center, radius - 1.0, 0.0, TAU, 40, COLLISION_MARKER_RING, 2.5, true)
 		var damage: int = int(marker.get("damage", 0))
 		var tooltip: String = "Collision: %d damage to the target and to what stops it." % damage if str(marker.get("blocker_kind", "")) != "wall" else "Collision: %d damage to the target. Walls take nothing." % damage
 		_draw_keyword_icon("collision", rect, tooltip)
+		var font: Font = get_theme_default_font()
+		if damage > 0 and font != null:
+			# Per-party collision damage, like a card token's value.
+			var text: String = str(damage)
+			var font_size: int = int(round(clampf(icon_size * 0.42, 15.0, 24.0)))
+			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+			var baseline := Vector2(center.x + radius * 0.52, center.y + radius * 0.98)
+			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
+			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
 
 func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:

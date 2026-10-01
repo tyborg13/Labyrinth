@@ -70,7 +70,9 @@ least one tile of travel, or a collision.
   left/right and controller LB/RB cycle the aim. There is no separate
   direction step.
 - The hover preview draws each displaced enemy's straight path and a ghost at
-  its landing tile, plus the collision icon at the contact edge. Collision
+  its landing tile, plus the collision marker at the contact edge (leaning onto
+  the blocker): the collision icon on a dark danger medallion with an ember
+  ring, sized with the tile, and the per-party collision damage beside it. Collision
   damage on both parties appears through the ordinary simulated damage
   preview. At commit the same event drives the board feedback flash.
 

@@ -12,6 +12,8 @@ const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
+const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 
 const PLAYER_TILE := Vector2i(2, 4)
@@ -78,6 +80,7 @@ static func run(expect: Callable) -> void:
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
 	install_fixtures()
+	await _test_live_time_badge_surcharge(tree, expect)
 	await _test_live_targetless_empower_confirmation(tree, expect)
 	await _test_live_targeted_empower_and_stagger_preview(tree, expect)
 	remove_fixtures()
@@ -436,6 +439,16 @@ static func _test_icon_rows_and_grimoire(expect: Callable) -> void:
 	expect.call(str(((frozen_rows[frozen_rows.size() - 1] as Array)[0] as Dictionary).get("icon", "")) == "freeze", "The Frozen condition uses the Freeze icon")
 	var execute_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_execute_strike").get("actions", []))
 	expect.call(str(((execute_rows[execute_rows.size() - 1] as Array)[0] as Dictionary).get("icon", "")) == "health", "The half-health condition uses the Health icon")
+	# Card faces use compact condition labels; plain text and tooltips keep the full condition.
+	var light_condition: Dictionary = light_row[0] as Dictionary
+	expect.call(str(light_condition.get("prefix", "")) == "in" and ActionIcons.plain_text_for_tokens(light_row).begins_with("if Target in Light:") and ActionIcons.token_tooltip(light_condition).begins_with("If Target in Light"), "The Light condition reads 'in [Light]:' on the card face and keeps its full text")
+	expect.call(str(((frozen_rows[frozen_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "vs" and str(((execute_rows[execute_rows.size() - 1] as Array)[0] as Dictionary).get("prefix", "")) == "≤½", "Frozen reads 'vs [Freeze]:' and half health '≤½ [Health]:' on the card face")
+	var ground_row: Array = ActionIcons.tokens_for_surface_bonus({"type": "melee", "damage": 11, "range": 1, "surface_bonus": {"surface": "rubble", "subject": "target", "present": true, "damage": 4}})
+	expect.call(str((ground_row[0] as Dictionary).get("prefix", "")) == "on" and ActionIcons.plain_text_for_tokens(ground_row).begins_with("Target on Rubble:"), "A target ground condition reads 'on [ground]:' and keeps 'Target on' in its text")
+	expect.call(str((ground_row[1] as Dictionary).get("icon", "")) == "melee", "A melee ground bonus repeats the melee damage icon")
+	var guard_row: Array = ActionIcons.tokens_for_surface_bonus({"type": "block", "amount": 6, "surface_bonus": {"surface": "electrified", "subject": "player", "present": true, "amount": 3}})
+	expect.call(str((guard_row[0] as Dictionary).get("prefix", "")) == "on" and str((guard_row[0] as Dictionary).get("tooltip", "")).begins_with("if on Electrified"), "A self ground condition reads 'on [ground]:' and names the subject in its tooltip")
+	expect.call(str((ActionIcons.tokens_for_surface_bonus({"type": "ranged", "damage": 4, "range": 3, "surface_bonus": {"surface": "fire", "subject": "target", "damage": 3}})[1] as Dictionary).get("icon", "")) == "ranged", "A ranged ground bonus keeps the ranged damage icon")
 	var scale_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("kwtest_stonefist").get("actions", []))
 	var scale_token: Dictionary = (scale_rows[scale_rows.size() - 1] as Array)[0]
 	expect.call(str(scale_token.get("icon", "")) == "stoneskin" and str(scale_token.get("suffix", "")) == "+1 each (max 6)", "A scale bonus shows its icon and '+1 each (max N)'")
@@ -483,11 +496,38 @@ static func _test_hand_display_rows(expect: Callable) -> void:
 	empowered_state[CardKeywordRules.PLAY_MODIFIERS_KEY] = {"card_id": "kwtest_empower_health", "follow_up": false, "empowered": true}
 	var empowered_rows: Array = (scene.call("_card_widget_display", "kwtest_empower_health", empowered_state) as Dictionary).get("summary_rows", [])
 	expect.call(_first_damage_value(empowered_rows) == 8 and bool((_segment(empowered_rows, "empower")[0] as Dictionary).get("active", false)), "An Empowered selection shows its bonus damage and an active segment")
+	var time_state: Dictionary = _state(combat, ["kwtest_empower_time"])
+	expect.call(not (scene.call("_card_widget_display", "kwtest_empower_time", time_state) as Dictionary).has("time_surcharge"), "An Empower +Time card shows no surcharge while Empower is off")
+	time_state[CardKeywordRules.PLAY_MODIFIERS_KEY] = {"card_id": "kwtest_empower_time", "follow_up": false, "empowered": true}
+	var time_display: Dictionary = scene.call("_card_widget_display", "kwtest_empower_time", time_state)
+	expect.call(int(time_display.get("time_surcharge", 0)) == 2, "A toggled Empower +Time carries its surcharge to the card display")
+
 	var armored: Dictionary = state.duplicate(true)
 	(armored["player"] as Dictionary)["stoneskin"] = 3
 	var scale_rows: Array = (scene.call("_card_widget_display", "kwtest_stonefist", armored) as Dictionary).get("summary_rows", [])
 	expect.call(_first_damage_value(scale_rows) == 8, "The hand shows the current Stoneskin-scaled damage")
 	scene.free()
+
+# The selected card's own Time badge adds a toggled Empower +Time, like the
+# turn-order preview, and names the surcharge in its detail.
+static func _test_live_time_badge_surcharge(tree: SceneTree, expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var scene: Node = RunSceneScript.new()
+	var state: Dictionary = _state(combat, ["kwtest_empower_time"])
+	state[CardKeywordRules.PLAY_MODIFIERS_KEY] = {"card_id": "kwtest_empower_time", "follow_up": false, "empowered": true}
+	var display: Dictionary = scene.call("_card_widget_display", "kwtest_empower_time", state)
+	scene.free()
+	var widget: CardWidget = CardWidgetScene.instantiate()
+	widget.configure("kwtest_empower_time", true, false, true, false, false, true, GameData.card_def("kwtest_empower_time"))
+	tree.root.add_child(widget)
+	await tree.process_frame
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
+	var badge: Control = widget.get("_time_badge") as Control
+	expect.call(badge != null and int(badge.get("value")) == 6 and str(badge.tooltip_text).contains("Empower: +2"), "The selected card's Time badge shows printed Time plus the Empower surcharge")
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+	expect.call(badge != null and int(badge.get("value")) == 4 and not str(badge.tooltip_text).contains("Empower"), "Clearing the surcharge restores the printed Time badge")
+	widget.queue_free()
+	await tree.process_frame
 
 static func _first_damage_value(rows: Array) -> int:
 	for row_var: Variant in rows:

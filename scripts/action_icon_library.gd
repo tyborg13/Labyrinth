@@ -556,7 +556,7 @@ static func tooltip_entries_for_rows(
 				var keyword_condition: bool = token.has("state_condition") or token.has("scale_bonus")
 				_append_tooltip_entry(entries, seen, surface_key, token_tooltip(token) if keyword_condition else tooltip(surface_key))
 				continue
-			if str(token.get("kind", "")) == "text":
+			if str(token.get("kind", "")) in ["text", "rules_text"]:
 				continue
 			var icon_key: String = str(token.get("icon", ""))
 			if str(token.get("kind", "")) == "aoe_pattern":
@@ -798,6 +798,7 @@ static func rows_for_card(card: Dictionary, options_by_index: Array = []) -> Arr
 	var rows: Array = cost_rows_for_card(card)
 	rows.append_array(rows_for_actions(card.get("actions", []), options_by_index))
 	rows.append_array(keyword_rows_for_card(card))
+	rows.append_array(rules_text_rows_for_card(card))
 	return rows
 
 # Card-level Follow-up / Empower segments: keyword icon, Empower cost, then the
@@ -904,14 +905,17 @@ static func keyword_rider_rows(action: Dictionary) -> Array:
 		rows.append([scale_bonus_token(action)])
 	return rows
 
+# `prefix` is the compact card-face label beside the condition icon, short
+# enough to keep the condition and its bonus on one hand-card row; `text` keeps
+# the full condition for plain-text summaries, and `tooltip` the exact rule.
 const STATE_CONDITION_COPY: Dictionary = {
-	"light": {"icon": "illuminate", "prefix": "if Target in", "text": "if Target in Light:", "tooltip": "If Target in Light\nApplies if the target stands in Light."},
-	"frozen": {"icon": "freeze", "prefix": "if Target", "text": "if Target Frozen:", "tooltip": "If Target Frozen\nApplies if the target is Frozen before the hit."},
-	"half_hp": {"icon": "health", "prefix": "if Target ≤½", "text": "if Target at half health:", "tooltip": "If Target at Half Health\nApplies if the target is at or below half health before the hit."},
+	"light": {"icon": "illuminate", "prefix": "in", "text": "if Target in Light:", "tooltip": "If Target in Light\nApplies if the target stands in Light."},
+	"frozen": {"icon": "freeze", "prefix": "vs", "text": "if Target Frozen:", "tooltip": "If Target Frozen\nApplies if the target is Frozen before the hit."},
+	"half_hp": {"icon": "health", "prefix": "≤½", "text": "if Target at half health:", "tooltip": "If Target at Half Health\nApplies if the target is at or below half health before the hit."},
 }
 
 static func state_condition_token(condition: String) -> Dictionary:
-	var copy: Dictionary = STATE_CONDITION_COPY.get(condition, {"icon": "targeting", "prefix": "if", "tooltip": condition}) as Dictionary
+	var copy: Dictionary = STATE_CONDITION_COPY.get(condition, {"icon": "targeting", "prefix": "vs", "tooltip": condition}) as Dictionary
 	var token: Dictionary = text_token(str(copy.get("text", "if %s:" % condition)), "neutral", str(copy.get("tooltip", "")))
 	token["kind"] = "surface_condition"
 	token["icon"] = str(copy.get("icon", "targeting"))
@@ -936,8 +940,8 @@ static func scale_bonus_token(action: Dictionary) -> Dictionary:
 static func card_is_rite(card: Dictionary) -> bool:
 	return typeof(card.get("rite", null)) == TYPE_DICTIONARY and not (card["rite"] as Dictionary).is_empty()
 
-## Rules text for a card shown without icon rows. A Rite card is always shown
-## as its text ("Rite:" already means Exhaust); its health cost is appended.
+## Complete rules text for a card ("Rite:" already means Exhaust); a Rite's
+## health cost is appended. Tooltips and plain-text surfaces use this.
 static func card_rules_text(card: Dictionary) -> String:
 	var text: String = str(card.get("description", ""))
 	var health_cost: int = int(card.get("health_cost", 0))
@@ -945,11 +949,43 @@ static func card_rules_text(card: Dictionary) -> String:
 		text = "%s Health cost %d." % [text.strip_edges(), health_cost]
 	return text
 
-static func cost_rows_for_card(card: Dictionary) -> Array:
-	if card_is_rite(card) and (card.get("actions", []) as Array).is_empty():
+## A Rite's card face: the cost row (labelled `rite` keyword and health cost)
+## carries "Rite:" and the cost, so the rules text below starts at the effect.
+static func rite_face_rules_text(card: Dictionary) -> String:
+	var text: String = str(card.get("description", "")).strip_edges()
+	if text.to_lower().begins_with("rite:"):
+		text = text.substr(5).strip_edges()
+	if not text.is_empty():
+		text = text.substr(0, 1).to_upper() + text.substr(1)
+	return text
+
+static func rite_label_token() -> Dictionary:
+	# Condition-style keyword label: the unfamiliar Rite icon is named beside it.
+	var token: Dictionary = text_token(label("rite"), "neutral", tooltip("rite"))
+	token["kind"] = "surface_condition"
+	token["icon"] = "rite"
+	token["prefix"] = ""
+	token["suffix"] = label("rite")
+	token["keyword_label"] = "rite"
+	return token
+
+static func rules_text_token(text: String) -> Dictionary:
+	var token: Dictionary = text_token(text)
+	token["kind"] = "rules_text"
+	return token
+
+## Rows after the cost row for a card whose effect is rules text (a Rite).
+static func rules_text_rows_for_card(card: Dictionary) -> Array:
+	if not card_is_rite(card):
 		return []
+	var text: String = rite_face_rules_text(card)
+	return [[rules_text_token(text)]] if not text.is_empty() else []
+
+static func cost_rows_for_card(card: Dictionary) -> Array:
 	var row: Array = []
-	if bool(card.get("burn", false)):
+	if card_is_rite(card):
+		row.append(rite_label_token())
+	elif bool(card.get("burn", false)):
 		row.append(token_for("exhaust"))
 	if bool(card.get("consume_on_play", false)):
 		row.append(token_for("consume"))
@@ -1199,7 +1235,9 @@ static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
 		"ranged":
 			return "ranged"
 		"aoe":
-			return "ranged" if int(action.get("range", 0)) > 0 else "melee"
+			return "ranged" if int(action.get("range", 0)) > 0 and str(action.get("aim", "")) != "facing" else "melee"
+		"detonate":
+			return "detonate"
 		_:
 			return "melee"
 
@@ -1212,7 +1250,7 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 		if str(token.get("kind", "")) == "aoe_pattern":
 			parts.append("Area")
 			continue
-		if str(token.get("kind", "")) in ["text", "surface_condition"]:
+		if str(token.get("kind", "")) in ["text", "surface_condition", "rules_text"]:
 			parts.append(token_value_text(token))
 			continue
 		var value_text: String = token_value_text(token)
@@ -1369,13 +1407,17 @@ static func surface_condition_token(condition: Dictionary) -> Dictionary:
 	var subject: String = str(condition.get("subject", "target"))
 	if subject == "conducted" and kind.is_empty():
 		return text_token("Conducted hits:", "neutral", "Applies only to hits carried by a conductive connection.")
-	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", "on" if bool(condition.get("present", true)) else "off"]
+	var placement: String = "on" if bool(condition.get("present", true)) else "off"
+	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", placement]
 	var suffix: String = "consumed:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
 	var condition_text: String = ("%s %s %s" % [prefix, label(surface_icon_key(kind)), suffix]).replace(" :", ":")
 	var token: Dictionary = text_token(condition_text, "neutral", condition_text)
 	token["kind"] = "surface_condition"
 	token["icon"] = surface_icon_key(kind)
-	token["prefix"] = prefix
+	# Ground conditions read "on [Fire]:" on the face so the condition and its
+	# bonus share one hand-card row; the subject ("Target on Fire:", "if on
+	# Electrified:") stays in the plain text and the hover tooltip.
+	token["prefix"] = placement if subject in ["target", "player"] else prefix
 	token["suffix"] = suffix
 	token["surface_condition"] = condition.duplicate(true)
 	return token
@@ -1387,7 +1429,8 @@ static func tokens_for_surface_bonus(action: Dictionary) -> Array:
 	for key: String in ["damage", "amount", "shock", "push", "pull", "chain"]:
 		var amount: int = int(bonus.get(key, 0))
 		if amount == 0: continue
-		var icon: String = _damage_icon_for_action(action, "ranged") if key == "damage" else action_icon_key(action) if key == "amount" else key
+		# The bonus chip repeats the attack's own damage icon (melee, ranged, Pierce).
+		var icon: String = _damage_icon_for_action(action, _damage_bonus_fallback_icon(action)) if key == "damage" else action_icon_key(action) if key == "amount" else key
 		tokens.append(token_for(icon, "%+d" % amount, "condition"))
 	return tokens
 

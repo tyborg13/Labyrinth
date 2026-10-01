@@ -2,7 +2,8 @@ extends "res://tests/aoe_targeting_preview_probe.gd"
 
 # Real-renderer proof for straight-line Push previews (spec/forced_movement.md):
 # default line, Rotate to the alternate line, collision icon and commit result.
-const FORCE_OUTPUT := "user://probes/forced_movement_preview"
+# LABYRINTH_PROBE_TAG keeps before/after captures in fresh versioned folders.
+var FORCE_OUTPUT: String = "user://probes/forced_movement_preview" + ("_" + OS.get_environment("LABYRINTH_PROBE_TAG").strip_edges() if not OS.get_environment("LABYRINTH_PROBE_TAG").strip_edges().is_empty() else "")
 const FORCE_TARGET := Vector2i(4, 5)
 
 var _metrics: Dictionary = {}

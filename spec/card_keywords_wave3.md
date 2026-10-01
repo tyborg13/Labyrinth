@@ -100,8 +100,13 @@ SurfaceRelicRules, GuardianRelicRules, `card_def_for_progression`,
   surfaces; movement and Push/Pull bonuses; Light aura or Light payoff).
 - Next-attack, Retaliate and Quicken amounts are valued by the upgrade pricer
   (`GameData._action_value`), so their stat upgrades always add value.
-- Rite cards render their rules text (`ActionIcons.card_rules_text`, which appends the
-  health cost) instead of icon rows; the card focus tooltips lead with the Rite keyword.
+- Rite cards lead with a keyword row (the `rite` icon labelled "Rite", tooltip "Rite:
+  Exhaust. Lasts for the rest of this combat.", then the health-cost token when the card
+  has one), followed by a `rules_text` row: the description without its "Rite:" prefix
+  (`ActionIcons.rite_face_rules_text`), in the card text font, wrapped inside the
+  parchment. The face lends a little art height to that text instead of shrinking it.
+  `ActionIcons.card_rules_text` keeps the complete text (with "Health cost N.") for
+  plain-text surfaces; the card focus tooltips lead with the Rite keyword.
 - Time badge detail adds `Rite: -N` and `Quickened: -N`.
 - Player board badges: Retaliate (amount, tooltip lists riders and sources), Quicken
   (pending amount), Next attack (total bonus, tooltip per buff).

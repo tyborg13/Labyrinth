@@ -75,7 +75,8 @@ Data: card field `empower: {"cost": {"time": N} | {"health": N} | {"exhaust": tr
   right-stick press (`controller_empower`, glyph `RS` / `R3`), listed in the
   controller prompt bar. Toggling rebuilds the preview from the card's start, so
   earlier automatic actions resolve with the bonus. The turn-order Time preview
-  includes the `+Time` cost. The card's rows show an Empower segment
+  and the selected card's own Time badge include the `+Time` cost (badge detail
+  `Empower: +N`, beside `Rite: -N` / `Quickened: -N`). The card's rows show an Empower segment
   (`empower` icon, cost token, bonus tokens).
 
 ## State bonuses
@@ -87,7 +88,11 @@ Data: action field `state_bonus: [{"state": "light"|"frozen"|"half_hp", "damage"
   `frozen` = `freeze > 0`; `half_hp` = `hp * 2 <= max_hp`. Matching bonuses add
   to the hit's `damage`/`stagger`.
 - UI: a condition row using the surface-condition token style (icon
-  `illuminate`, `freeze` or `health`) followed by the bonus tokens. A Light or
+  `illuminate`, `freeze` or `health`) followed by the bonus tokens. The card
+  face uses compact labels so the condition and its bonus share one hand-card
+  row: `in [Light]:`, `vs [Frozen]:`, `≤½ [Health]:` (ground conditions read
+  `on [ground]:`); plain text and the hover tooltip keep the full condition
+  ("if Target in Light:"). Bonus chips repeat the attack's own damage icon. A Light or
   Frozen condition also unlocks the `keyword:illuminate` / `keyword:freeze`
   Grimoire entry, and a Light payoff counts as a Radiance mechanic. The hand
   shows printed damage; the hover preview shows the exact bonus for the target.

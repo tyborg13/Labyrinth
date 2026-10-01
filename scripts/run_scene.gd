@@ -9162,7 +9162,7 @@ func _spawn_card_proxy(card_id: String, rect: Rect2) -> Control:
 	_reset_card_proxy_widget_transients(widget)
 	widget.configure(card_id, false, false, true, false, false, true, _card_def(card_id, _combat_state))
 	var display: Dictionary = _card_widget_display(card_id, _combat_state)
-	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+	widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
 	# CardWidget configuration can resolve a previously stretched reusable child
 	# against its parent a second time. Pin proxy widgets to their native rect after
 	# every configure so reuse cannot grow 250x352 into 500x704.
@@ -17792,7 +17792,7 @@ func _refresh_hand_panel() -> void:
 			# and its neighbors move as one readable composition.
 			widget.set_hover_pose(0.0, 1.0)
 			widget.set_native_tooltips_enabled(false)
-			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+			widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
 			var ready_wave_delay: float = _ready_wave_delay_for_hand_index(index, options)
 			if ready_wave_delay >= 0.0:
 				widget.set_meta("ready_wave_token", _hand_ready_wave_token)
@@ -17874,7 +17874,7 @@ func _update_existing_hand_interaction_state() -> bool:
 		var options: Dictionary = _card_playability_for_index(index)
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_options_total", performance_phase_started)
 		var display: Dictionary = _card_widget_display_for_index(index)
-		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []))
+		widget.set_display_overrides(str(display.get("summary_bbcode", "")), display.get("modifier_lines", []), display.get("summary_rows", []), int(display.get("time_surcharge", 0)))
 		performance_phase_started = _record_runtime_performance_phase("hand_interaction_display_total", performance_phase_started)
 		var dimmed: bool = active_hand_index >= 0 and active_hand_index != index
 		var usable: bool = bool(options.get("any_playable", false)) and not _animation_lock
@@ -19629,14 +19629,21 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 			summary_rows.append(bonus_row)
 		summary_rows.append_array(ActionIcons.keyword_rider_rows(action))
 	summary_rows.append_array(ActionIcons.keyword_rows_for_card(card, keyword_state))
+	summary_rows.append_array(ActionIcons.rules_text_rows_for_card(card))
 	var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 	if summary_text.is_empty():
 		summary_text = ActionIcons.card_rules_text(card)
-	return {
+	var display: Dictionary = {
 		"summary_bbcode": summary_text,
 		"summary_rows": summary_rows,
 		"modifier_lines": modifier_lines
 	}
+	# A toggled Empower +Time shows on the card's own Time badge, matching the
+	# turn-order rail's preview (and its tooltip names the surcharge).
+	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card)
+	if time_surcharge > 0:
+		display["time_surcharge"] = time_surcharge
+	return display
 
 func _damage_tone_base_excluding_modifiers(
 	final_damage: int,

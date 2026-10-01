@@ -82,7 +82,9 @@ func _test_cards() -> void:
 		canvas.add_child(slot)
 		slot.add_child(widget)
 		widget.call("configure", id, false, false, true, false, false, true, card)
-		if id in ["firebrand_volley", "storm_beacon"]:
+		# Firebrand Volley lost its Light rider in the card pool overhaul; only an
+		# attack that still pairs ground with Light needs the two-row split.
+		if id in ["firebrand_volley", "storm_beacon"] and int(((card.get("actions", []) as Array)[0] as Dictionary).get("illuminate_radius", 0)) > 0:
 			var tokens: Array = Icons.tokens_for_action((card.get("actions", []) as Array)[0])
 			var segments: Array = widget.call("_summary_token_segments", tokens)
 			_expect(segments.size() == 2, "Ground-and-Light attacks use two compact rows")

@@ -68,6 +68,10 @@ const ART_MAX_HEIGHT: float = 118.0
 const DETAILS_MIN_HEIGHT: float = 92.0
 const DETAILS_MAX_HEIGHT: float = 142.0
 const SUMMARY_VERTICAL_PADDING: float = 10.0
+const SUMMARY_COMFORT_INSET: float = 6.0
+const RULES_FACE_MAX_ICON: float = 24.0
+const RULES_FACE_ART_RELIEF: float = 18.0
+const RULES_TEXT_INSET: float = 10.0
 const FLURRY_ICON_WIDTH_SCALE: float = 1.80
 const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
@@ -493,6 +497,8 @@ var _card_override: Dictionary = {}
 var _desc_text_inset: StyleBoxEmpty
 var _summary_bbcode: String = ""
 var _summary_rows: Array = []
+var _time_surcharge: int = 0
+var _rules_text_face: bool = false
 var _modifier_tooltip_lines: PackedStringArray = []
 var _left_pressed: bool = false
 var _drag_emitted: bool = false
@@ -692,11 +698,19 @@ func set_interaction_state(
 	if is_node_ready():
 		_apply_interaction_configuration()
 
-func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = [], summary_rows: Array = []) -> void:
+## `time_surcharge` is extra Time the current play adds (a toggled Empower
+## +Time cost); the badge shows the total and names the surcharge in its detail.
+## Every call resets it, so pooled widgets never keep another card's surcharge.
+func set_display_overrides(summary_bbcode: String = "", modifier_lines: Array = [], summary_rows: Array = [], time_surcharge: int = 0) -> void:
 	var next_rows: Array = summary_rows.duplicate(true)
 	var next_modifier_lines := PackedStringArray()
 	for line_var: Variant in modifier_lines:
 		next_modifier_lines.append(str(line_var))
+	var next_surcharge: int = maxi(0, time_surcharge)
+	var surcharge_changed: bool = next_surcharge != _time_surcharge
+	_time_surcharge = next_surcharge
+	if surcharge_changed and is_node_ready():
+		_refresh_time_badge(_display_card_def())
 	if _summary_bbcode == summary_bbcode and _summary_rows == next_rows and _modifier_tooltip_lines == next_modifier_lines:
 		return
 	_summary_bbcode = summary_bbcode
@@ -886,6 +900,12 @@ func _update_layout_metrics() -> void:
 	var details_target: float = width * (0.62 if compact else 0.56)
 	var art_height: float = clampf(width * 0.46, art_min_height, art_max_height)
 	var details_height: float = clampf(details_target, details_min_height, details_max_height)
+	if _rules_text_face:
+		# A Rite's rules text is its content (type is never shrunk to fit), and
+		# the parchment narrows toward its torn lower edge: lend it art height.
+		var relief: float = minf(_scaled_card_value(RULES_FACE_ART_RELIEF, 0.0), art_height - art_min_height)
+		art_height -= relief
+		details_height += relief
 	var available_body_height: float = maxf(112.0 * layout_scale, height - _scaled_card_value(CARD_VERTICAL_CHROME, 42.0))
 	var body_overflow: float = art_height + details_height - available_body_height
 	if body_overflow > 0.0:
@@ -1151,13 +1171,15 @@ func _ensure_time_badge() -> void:
 
 func _refresh_time_badge(card: Dictionary) -> void:
 	_ensure_time_badge()
-	var time_cost: int = maxi(1, int(card.get("time", 5)))
+	var printed_cost: int = maxi(1, int(card.get("time", 5)))
+	var time_cost: int = printed_cost + _time_surcharge
 	_time_badge.visible = time_cost > 0
 	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
-	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",time_cost)) - time_cost)
+	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
+	if _time_surcharge > 0: detail += "\nEmpower: +%d" % _time_surcharge
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 
@@ -1179,6 +1201,9 @@ func _refresh_summary_display(card: Dictionary) -> void:
 	if rows.is_empty() and _summary_bbcode.is_empty():
 		rows = ActionIcons.rows_for_card(card)
 	if rows.is_empty():
+		if _rules_text_face:
+			_rules_text_face = false
+			_update_layout_metrics()
 		desc_label.visible = true
 		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else ActionIcons.card_rules_text(card)
 		if _summary_icon_box != null:
@@ -1188,6 +1213,10 @@ func _refresh_summary_display(card: Dictionary) -> void:
 	desc_label.visible = false
 	desc_label.text = ""
 	_summary_icon_box.visible = true
+	var rules_face: bool = _rows_have_rules_text(rows)
+	if rules_face != _rules_text_face:
+		_rules_text_face = rules_face
+		_update_layout_metrics()
 	_render_summary_icon_rows(rows)
 
 func _render_summary_icon_rows(rows: Array) -> void:
@@ -1280,12 +1309,16 @@ func _add_token_to_summary_row(row: HBoxContainer, token: Dictionary, icon_size:
 		pattern_view.setup(token.get("pattern", []), bool(token.get("show_origin", false)), tooltip, _aoe_pattern_scale(icon_size))
 		row.add_child(pattern_view)
 		return
+	if str(token.get("kind", "")) == "rules_text":
+		row.add_child(_summary_rules_label(ActionIcons.token_value_text(token)))
+		return
 	if str(token.get("kind", "")) == "surface_condition":
 		var condition_group := HBoxContainer.new()
 		condition_group.name = "SurfaceCondition"
 		condition_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		condition_group.add_theme_constant_override("separation", 3)
-		condition_group.add_child(_summary_value_label(str(token.get("prefix", "if")), tooltip, label_size, token))
+		if not str(token.get("prefix", "if")).is_empty():
+			condition_group.add_child(_summary_value_label(str(token.get("prefix", "if")), tooltip, label_size, token))
 		var surface_icon := TextureRect.new()
 		surface_icon.custom_minimum_size = Vector2(icon_size, icon_size)
 		surface_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -1347,6 +1380,45 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 	label.add_theme_constant_override("shadow_offset_y", 0)
 	return label
 
+# Rules text under a Rite's keyword row: the card's text font and size, wrapped
+# inside the same parchment inset the plain description used.
+func _summary_rules_label(text: String) -> Label:
+	var label := Label.new()
+	label.name = "SummaryRulesText"
+	label.text = text
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.custom_minimum_size = Vector2(_rules_text_width(), 0.0)
+	var text_font: Font = UiTypography.text_font()
+	if text_font != null:
+		label.add_theme_font_override("font", text_font)
+	UiTypography.set_label_size(label, _rules_text_font_size())
+	# RichTextLabel line rhythm (no extra Label line spacing), as before.
+	label.add_theme_constant_override("line_spacing", 0)
+	label.add_theme_color_override("font_color", Color("503d2c"))
+	label.set_meta("summary_rules_text", true)
+	return label
+
+func _rules_text_font_size() -> int:
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	return _scaled_card_font_size(14 if width <= COMPACT_CARD_WIDTH else 16, 9)
+
+func _rules_text_width() -> float:
+	# Local widget units, the description's established inset (162 of 250):
+	# the frame border plus the parchment's shaded rim on both sides.
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	if width <= 0.0:
+		width = BASE_CARD_SIZE.x
+	return maxf(_scaled_card_value(60.0, 30.0), width - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN + RULES_TEXT_INSET, 16.0))
+
+func _rules_text_height(text: String) -> float:
+	var font: Font = UiTypography.text_font()
+	var font_size: int = UiTypography.scaled_size(self, _rules_text_font_size())
+	if font == null:
+		return float(font_size) * 1.3 * ceilf(float(text.length()) * float(font_size) * 0.5 / maxf(1.0, _rules_text_width()))
+	return font.get_multiline_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, _rules_text_width(), font_size).y
+
 func _add_token_modifier_marker(token_group: Control, tooltip: String, label_size: int, conditional: bool, layout: Dictionary) -> void:
 	var marker := Label.new()
 	marker.text = "+"
@@ -1381,26 +1453,44 @@ func _summary_layout_metrics(rendered_rows: Array, row_groups: Array = []) -> Di
 	var available_width: float = _summary_available_width()
 	var base_candidates: Array = [32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0, 18.0, 16.0] if compact else [34.0, 32.0, 30.0, 28.0, 26.0, 24.0, 22.0, 20.0]
 	var icon_candidates: Array = []
+	# A rules-text face (Rite) keeps its keyword row modest and the same on
+	# every Rite: the text below is the card's content, not the row.
+	var rules_text_face: bool = _rows_have_rules_text(rendered_rows)
 	for candidate_var: Variant in base_candidates:
-		icon_candidates.append(_scaled_card_value(float(candidate_var), 10.0))
+		if rules_text_face and float(candidate_var) > RULES_FACE_MAX_ICON and not icon_candidates.is_empty():
+			continue
+		icon_candidates.append(_scaled_card_value(minf(float(candidate_var), RULES_FACE_MAX_ICON) if rules_text_face else float(candidate_var), 10.0))
 	var row_count: int = maxi(1, rendered_rows.size())
 	var minimum_label_size: int = _summary_min_label_size()
-	for candidate_var: Variant in icon_candidates:
-		var icon_size: float = float(candidate_var)
-		var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
-		var row_gap: int = _summary_row_gap(icon_size, row_count)
-		if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_width:
-			return {
-				"icon_size": icon_size,
-				"label_size": label_size,
-				"row_gap": row_gap
-			}
+	# First keep every row clear of the parchment's shaded rim beside the frame;
+	# only a row that cannot fit that way may use the full width to the border.
+	var comfortable_width: float = minf(available_width, _summary_parchment_width() - 2.0 * _scaled_card_value(SUMMARY_COMFORT_INSET, 2.0))
+	for width_limit: float in [comfortable_width, available_width]:
+		for candidate_var: Variant in icon_candidates:
+			var icon_size: float = float(candidate_var)
+			var label_size: int = maxi(minimum_label_size, int(round(icon_size * 0.58)))
+			var row_gap: int = _summary_row_gap(icon_size, row_count)
+			if _summary_height_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= available_height and _summary_width_estimate(rendered_rows, icon_size, label_size, row_gap, row_groups) <= width_limit:
+				return {
+					"icon_size": icon_size,
+					"label_size": label_size,
+					"row_gap": row_gap
+				}
 	var fallback_icon: float = float(icon_candidates[icon_candidates.size() - 1])
 	return {
 		"icon_size": fallback_icon,
 		"label_size": maxi(minimum_label_size, int(round(fallback_icon * 0.58))),
 		"row_gap": _summary_row_gap(fallback_icon, row_count)
 	}
+
+func _rows_have_rules_text(rendered_rows: Array) -> bool:
+	for segment_var: Variant in rendered_rows:
+		if typeof(segment_var) != TYPE_ARRAY:
+			continue
+		for token_var: Variant in segment_var as Array:
+			if typeof(token_var) == TYPE_DICTIONARY and str((token_var as Dictionary).get("kind", "")) == "rules_text":
+				return true
+	return false
 
 func _summary_row_gap(icon_size: float, row_count: int) -> int:
 	var base_gap: int = 4 if icon_size <= _scaled_card_value(22.0, 10.0) else 5 if icon_size <= _scaled_card_value(26.0, 12.0) else 6
@@ -1418,6 +1508,13 @@ func _summary_available_width() -> float:
 	# The frame occupies both edges. Keep glyphs and their outline on parchment.
 	return maxf(_scaled_card_value(52.0, 28.0), _card_visual_width() - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - 6.0)
 
+func _summary_parchment_width() -> float:
+	# The same frame-border limit in this widget's own (unscaled) layout units.
+	var width: float = size.x if size.x > 0.0 else custom_minimum_size.x
+	if width <= 0.0:
+		width = BASE_CARD_SIZE.x
+	return maxf(_scaled_card_value(52.0, 28.0), width - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN, 14.0) - 6.0)
+
 func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size: int, row_gap: int, row_groups: Array = []) -> float:
 	var label_height: float = _summary_text_height(label_size)
 	var total_height: float = 0.0
@@ -1430,6 +1527,9 @@ func _summary_height_estimate(rendered_rows: Array, icon_size: float, label_size
 				var token: Dictionary = token_var
 				if str(token.get("kind", "")) == "aoe_pattern":
 					row_height = maxf(row_height, _summary_pattern_size(token, icon_size).y)
+					continue
+				if str(token.get("kind", "")) == "rules_text":
+					row_height = _rules_text_height(ActionIcons.token_value_text(token))
 					continue
 				row_height = maxf(row_height, (_summary_token_layout(token, icon_size, label_size).get("size", Vector2.ZERO) as Vector2).y)
 		total_height += row_height
@@ -1491,8 +1591,11 @@ func _summary_segment_width_estimate(segment: Array, icon_size: float, label_siz
 			child_width += _summary_pattern_size(token, icon_size).x
 			child_count += 1
 			continue
+		if str(token.get("kind", "")) == "rules_text":
+			continue # Wraps at its own fixed width; never widens an icon row.
 		if str(token.get("kind", "")) == "surface_condition":
-			child_width += _summary_text_width(str(token.get("prefix", "if")), label_size) + icon_size + _summary_text_width(str(token.get("suffix", ":")), label_size) + 6.0
+			var condition_prefix: String = str(token.get("prefix", "if"))
+			child_width += _summary_text_width(condition_prefix, label_size) + icon_size + _summary_text_width(str(token.get("suffix", ":")), label_size) + (6.0 if not condition_prefix.is_empty() else 3.0)
 		elif str(token.get("kind", "")) == "text":
 			child_width += _summary_text_width(ActionIcons.token_value_text(token), label_size)
 		else:

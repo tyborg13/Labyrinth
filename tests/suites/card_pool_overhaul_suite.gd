@@ -647,7 +647,12 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 		var display: Dictionary = scene.call("_card_widget_display", card_id, state)
 		var rows: Array = display.get("summary_rows", [])
 		if ActionIcons.card_is_rite(card):
-			expect.call(rows.is_empty() and str(display.get("summary_bbcode", "")) == ActionIcons.card_rules_text(card) and str(card.get("description", "")).begins_with("Rite:"), "%s shows its Rite rules text in the hand" % card_id)
+			var rite_row: Array = rows[0] as Array if not rows.is_empty() else []
+			var health_shown: bool = false
+			for token_var: Variant in rite_row:
+				health_shown = health_shown or str((token_var as Dictionary).get("icon", "")) == "health_cost"
+			expect.call(rows.size() == 2 and not rite_row.is_empty() and str((rite_row[0] as Dictionary).get("icon", "")) == "rite" and health_shown == (int(card.get("health_cost", 0)) > 0) and str(card.get("description", "")).begins_with("Rite:"), "%s shows its Rite keyword row in the hand" % card_id)
+			expect.call(rows.size() == 2 and str(((rows[1] as Array)[0] as Dictionary).get("kind", "")) == "rules_text" and str(((rows[1] as Array)[0] as Dictionary).get("value", "")) == ActionIcons.rite_face_rules_text(card), "%s shows its Rite rules text below the keyword row" % card_id)
 			continue
 		expect.call(not rows.is_empty(), "%s shows icon rows in the hand" % card_id)
 		var keyword_segments: Array[String]
