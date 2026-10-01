@@ -118,6 +118,9 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 					changed=true
 					break
 	group.sort()
+	# Only a pull line that closes the gap stops level with its source; a
+	# redirected (Quarry Winch) line travels its full distance.
+	var level_direction: Vector2i = engine._force_level_stop_direction(target,target["pos"],direction,source_tiles,pushing)
 	for member_index: int in group: moved_ids[int(state["enemies"][member_index]["id"])] = true
 	for step: int in range(distance):
 		var group_tiles: Dictionary = {}
@@ -131,7 +134,7 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 			if int(member.get("hp",0))<=0: return state
 			origins[member_index]=member["pos"]
 			# A pulled line also stops once it is level with its source.
-			if not pushing and engine._force_pull_is_level(member,member["pos"],direction,source_tiles): return state
+			if level_direction!=Vector2i.ZERO and engine._force_pull_is_level(member,member["pos"],direction,source_tiles): return state
 			var blockers: Array[Dictionary]
 			var blocked_tile: Vector2i = Vector2i(-99999,-99999)
 			for tile: Vector2i in Surfaces.footprint_tiles(member,member["pos"]+direction):

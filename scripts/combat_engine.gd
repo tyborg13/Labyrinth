@@ -2529,22 +2529,24 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
 		"projected_attack_element": str((plan.get("attack_action", {}) as Dictionary).get("element", enemy_definition.get("element", ElementData.NONE))),
 		"projected_attack_from": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
-		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE),
-		"projected_player_force": _projected_player_force(state, enemy_index, plan)
+		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE)
 	}
 
-func _projected_player_force(state: Dictionary, enemy_index: int, plan: Dictionary) -> Dictionary:
-	# Intent cue: the straight line an enemy's planned Push or Pull would move
-	# the hero if the hero stays put, measured by the real mover on a copy with
-	# the enemy at its projected destination (spec/forced_movement.md).
-	var action: Dictionary = plan.get("attack_action", {}) as Dictionary
+func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary) -> Dictionary:
+	# Intent cue for one focused enemy: the straight line its planned Push or
+	# Pull (from `enemy_threat_tiles`) would move the hero if the hero stays put,
+	# measured by the real mover on a copy with the enemy at its projected
+	# destination. The caller passes the player's known state, so blockers
+	# hidden in the Umbra never shape the line (spec/forced_movement.md).
+	var action: Dictionary = threat.get("projected_attack_action", {}) as Dictionary
 	var amount: int = _forced_movement_amount(action)
-	if amount <= 0 or str(plan.get("target_key", "")) != "player":
+	var enemy_index: int = _enemy_index_for_id(state, enemy_id)
+	if amount <= 0 or enemy_index < 0 or str(threat.get("projected_target_key", "")) != "player":
 		return {}
 	var trial: Dictionary = state.duplicate(true)
 	var enemies: Array = trial.get("enemies", []) as Array
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
-	enemy["pos"] = plan.get("destination", enemy.get("pos", INVALID_TILE))
+	enemy["pos"] = threat.get("projected_destination", enemy.get("pos", INVALID_TILE))
 	enemies[enemy_index] = enemy
 	var forced_action: Dictionary = action.duplicate(true)
 	forced_action["_enemy_id"] = int(enemy.get("id", -1))
@@ -6505,9 +6507,10 @@ func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Ve
 	if unit.is_empty() or direction == Vector2i.ZERO:
 		return anchors
 	var anchor: Vector2i = unit.get("pos", INVALID_TILE)
+	var level_direction: Vector2i = _force_level_stop_direction(unit, anchor, direction, source_tiles, pushing)
 	for _step: int in range(maxi(0, amount)):
 		anchor += direction
-		if not _force_step_contact(state, kind, id, unit, anchor, source_tiles, pushing, direction).is_empty():
+		if not _force_step_contact(state, kind, id, unit, anchor, source_tiles, pushing, level_direction).is_empty():
 			break
 		anchors.append(anchor)
 	return anchors
@@ -6537,12 +6540,14 @@ func _force_blocker_at(state: Dictionary, tile: Vector2i, mover_kind: String, mo
 		return {"kind": "illusion", "id": int(illusion.get("id", -1)), "key": _illusion_key(illusion), "tile": tile}
 	return {}
 
-func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Dictionary, anchor: Vector2i, source_tiles: Dictionary, pushing: bool, direction: Vector2i = Vector2i.ZERO) -> Dictionary:
-	# {} = free step; {"source": true} = a pull reached its source (or drew
-	# level with it) and stops without colliding; otherwise the blocked tile and
-	# each distinct blocker.
+func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Dictionary, anchor: Vector2i, source_tiles: Dictionary, pushing: bool, level_direction: Vector2i = Vector2i.ZERO) -> Dictionary:
+	# {} = free step; {"source": true} = a pull reached its source (or, on a
+	# line that closes the gap, drew level with it) and stops without colliding;
+	# otherwise the blocked tile and each distinct blocker. `level_direction`
+	# comes from `_force_level_stop_direction` (ZERO for pushes and redirects).
 	var tiles: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit, anchor)
 	if not pushing:
+		var direction: Vector2i = level_direction
 		if direction != Vector2i.ZERO and _force_pull_is_level(unit, anchor - direction, direction, source_tiles):
 			return {"source": true, "level": true, "blocked_tile": anchor}
 		for tile: Vector2i in tiles:
@@ -6564,6 +6569,14 @@ func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Diction
 	if blockers.is_empty():
 		return {}
 	return {"blocked_tile": blocked_tile, "blockers": blockers}
+
+func _force_level_stop_direction(unit: Dictionary, start_anchor: Vector2i, direction: Vector2i, source_tiles: Dictionary, pushing: bool) -> Vector2i:
+	# The level stop belongs to a pull line that closes the gap to its source
+	# when it starts. A redirected line (Quarry Winch: sideways or away) never
+	# closes it, so it travels its full straight distance like any other line.
+	if pushing or direction == Vector2i.ZERO or _force_pull_is_level(unit, start_anchor, direction, source_tiles):
+		return Vector2i.ZERO
+	return direction
 
 func _force_pull_is_level(unit: Dictionary, from_anchor: Vector2i, direction: Vector2i, source_tiles: Dictionary) -> bool:
 	# A Pull only travels while it closes the gap to its source along its line.
@@ -6622,13 +6635,15 @@ func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vect
 		return state
 	var moved: int = 0
 	var contact: Dictionary = {}
+	var start_unit: Dictionary = _force_unit(state, kind, id)
+	var level_direction: Vector2i = _force_level_stop_direction(start_unit, start_unit.get("pos", INVALID_TILE), step_direction, source_tiles, pushing) if not start_unit.is_empty() else Vector2i.ZERO
 	for _step: int in range(amount):
 		var unit: Dictionary = _force_unit(state, kind, id)
 		if unit.is_empty() or int(unit.get("hp", 0)) <= 0:
 			# Defeated on the way: it stops there and nothing collides.
 			return state
 		var current: Vector2i = unit.get("pos", INVALID_TILE)
-		contact = _force_step_contact(state, kind, id, unit, current + step_direction, source_tiles, pushing, step_direction)
+		contact = _force_step_contact(state, kind, id, unit, current + step_direction, source_tiles, pushing, level_direction)
 		if not contact.is_empty():
 			break
 		state = _force_place_actor(state, kind, id, current + step_direction)
@@ -6721,7 +6736,8 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	var direction: Vector2i = _resolved_force_direction(state, "enemy", int(enemy.get("id", -1)), action, source_pos, pushing, amount, source_tiles)
 	if direction == Vector2i.ZERO:
 		return false
-	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing, direction)
+	var level_direction: Vector2i = _force_level_stop_direction(enemy, enemy.get("pos", INVALID_TILE), direction, source_tiles, pushing)
+	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing, level_direction)
 	return not bool(contact.get("source", false))
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:

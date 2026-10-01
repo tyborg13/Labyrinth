@@ -238,7 +238,8 @@ static func force_area_has_effect(engine: RefCounted, state: Dictionary, action:
 		var direction: Vector2i = engine._resolved_force_direction(state, "enemy", id, rider, center, pushing, amount, source_tiles)
 		if direction == Vector2i.ZERO:
 			continue
-		var contact: Dictionary = engine._force_step_contact(state, "enemy", id, unit, unit.get("pos", INVALID) + direction, source_tiles, pushing, direction)
+		var level_direction: Vector2i = engine._force_level_stop_direction(unit, unit.get("pos", INVALID), direction, source_tiles, pushing)
+		var contact: Dictionary = engine._force_step_contact(state, "enemy", id, unit, unit.get("pos", INVALID) + direction, source_tiles, pushing, level_direction)
 		if not bool(contact.get("source", false)):
 			return true
 	return false

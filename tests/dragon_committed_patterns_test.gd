@@ -266,7 +266,9 @@ func _test_worldspine_approach_flank() -> void:
 	expect(combat._dragon_spires(state).size()==4,"Stonewake's own attack must preserve its declared four-spire field")
 	state["player"]["pos"] = Vector2i(3,4)
 	var boss_hp: int = int(state["enemies"][0]["hp"])
-	var sweep: Dictionary = preload("res://scripts/game_data.gd").card_def("needle_flurry")["actions"][0]
+	# An inline self-centered ring strike: the live Cleaver Sweep became a
+	# facing-aimed arc in the card pool overhaul and no longer targets the hero's tile.
+	var sweep: Dictionary = {"type":"aoe","damage":6,"range":0,"pattern":[[0,-1],[1,0],[0,1],[-1,0]],"rotate":false,"element":"none"}
 	state = combat.apply_player_action(state,sweep,state["player"]["pos"])
 	expect(int(state["enemies"][0]["hp"])<boss_hp and not combat._dragon_spires(state).is_empty(),"One stationary boss Sweep must not incidentally clear the entire field")
 	# Inspect actual field geometry apart from the independent live shot. A

@@ -18614,7 +18614,7 @@ func _refresh_stage_view() -> void:
 					else:
 						presentation.erase("projected_destination")
 					presentation["projected_attack_tiles"] = _vector2i_array(focused_threat.get("projected_attack", []))
-					_append_enemy_force_intent_preview(presentation, focused_threat)
+					_append_enemy_force_intent_preview(presentation, focused_threat, intent_preview_state)
 					if focused_threat.has("enemy_key"):
 						presentation["focus_actor_keys"] = [str(focused_threat.get("enemy_key", ""))]
 						presentation["focus_actor_color"] = Color("f2ddb2")
@@ -34873,12 +34873,18 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 	if not markers.is_empty():
 		result["collision_markers"] = markers
 
-func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictionary) -> void:
+func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictionary, state: Dictionary) -> void:
 	# A focused enemy whose planned attack Pushes or Pulls the hero shows the
-	# hero's straight line and any collision, drawn like a card's forecast.
-	var force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
+	# hero's straight line, landing ring and any collision, drawn like a card's
+	# forecast. Only what the player can see shapes the line.
+	var enemy_id: int = int(str(threat.get("enemy_key", "")).trim_prefix("enemy_")) if str(threat.get("enemy_key", "")).begins_with("enemy_") else -1
+	if enemy_id < 0 or str(threat.get("projected_target_key", "")) != "player" or (threat.get("projected_attack_action", {}) as Dictionary).is_empty():
+		return
+	var force: Dictionary = _combat_engine.projected_player_force(_surface_preview_information_state(state), enemy_id, threat)
 	if force.is_empty():
 		return
+	# The board view rings the landing tile from the focused threat.
+	threat["projected_player_force"] = force
 	var path: Array[Vector2i] = _vector2i_array(force.get("path", []))
 	if path.size() >= 2:
 		var paths: Array = (presentation.get("displacement_paths", []) as Array).duplicate()

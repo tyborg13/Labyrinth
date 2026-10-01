@@ -38,7 +38,9 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
 - A Pull only travels while it closes the gap to its source along its line.
   It simply stops, with no collision, when it reaches its source (any tile of
   the source actor) or draws level with it on the travel axis; it never
-  slides past the puller.
+  slides past the puller. A redirected pull line (Quarry Winch: sideways or
+  away) never closes the gap, so the level stop does not apply and it travels
+  its full straight distance like a push.
 - Collision damage is non-direct, like Fire ground: Block and Stoneskin absorb
   it; Chilled, Frozen and Expose do not add to it (Expose is not consumed),
   Crystal Mantle does not break and no on-hit riders apply.
@@ -72,11 +74,14 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
 
 ## Enemy intent preview
 
-`enemy_threat_tiles` adds `projected_player_force {path, destination,
-collision}` when an intent's planned attack Pushes or Pulls the hero,
-measured by the real mover on a copy with the enemy at its projected
-destination and the hero in place. Focusing that enemy draws the hero's
-straight line, rings the landing tile and shows the collision marker.
+`projected_player_force(state, enemy_id, threat)` returns `{path,
+destination, collision}` when an intent's planned attack (from
+`enemy_threat_tiles`) Pushes or Pulls the hero, measured by the real mover on
+a copy with the enemy at its projected destination and the hero in place.
+The run scene computes it only for the focused enemy and passes the player's
+known state (`_surface_preview_information_state`), so enemies, terrain and
+traps hidden in the Umbra never shape the line. Focusing that enemy draws the
+hero's straight line, rings the landing tile and shows the collision marker.
 
 ## Targeting
 

@@ -129,39 +129,49 @@ func _test_relay_force_chain() -> void:
 	var engine := Combat.new()
 	# Razor Gale supplies Push; Brightglass Lens supplies Chain on the lit
 	# primary. This bent Stormroad route has a different Push direction from
-	# the player's direct origin, so preview equality alone is insufficient.
-	for followup: Vector2i in [Vector2i(6,3), Vector2i(4,1)]:
+	# the player's direct origin, so preview equality alone is insufficient:
+	# from the relay (4,1) the primary is pushed straight down to (4,4), while a
+	# push from the player at (2,1) (an exact diagonal) would default to (5,3).
+	# Chain 1 from the displaced primary: (4,5) is in reach only from (4,4);
+	# (5,3) would be in reach only from the primary's original tile.
+	for followup: Vector2i in [Vector2i(5,3), Vector2i(4,5)]:
 		var state: Dictionary = Fixtures.fixture(engine,["stormroad_coil","ember_lens"])
-		state["player"]["pos"] = Vector2i(1,2)
+		state["player"]["pos"] = Vector2i(2,1)
 		state["enemies"].append(Base.enemy(2,followup))
-		Surface.place(state,Vector2i(2,3),"electrified")
+		Surface.place(state,Vector2i(4,1),"electrified")
 		state = engine._create_umbra_light_source(state,Vector2i(4,3),{"radius":1,"duration":2})
 		var action: Dictionary = (engine.card_def("razor_gale",state)["actions"][0] as Dictionary).duplicate(true)
 		var damage: int = int(action["damage"])
 		var before: Dictionary = state.duplicate(true)
 		var preview: Dictionary = engine.surface_preview_for_player_action(state,action,Vector2i(4,3))
 		var actual: Dictionary = engine.apply_player_action(state,action,Vector2i(4,3))
-		var legal_followup: bool = followup == Vector2i(4,1)
+		var legal_followup: bool = followup == Vector2i(4,5)
 		expect(state == before and preview["state"] == actual,"Bent relay Push plus Chain preview equals commit without mutating source")
-		expect(actual["enemies"][0]["pos"] == Vector2i(4,2) and int(actual["enemies"][0]["hp"]) == 1000-damage,"Bent relay pushes primary away from delivery tile, not player")
+		var player_line: Vector2i = engine.resolved_force_direction_for_player_action(state,{"type":"push","amount":1,"damage":0,"range":4},Vector2i(4,3))
+		if legal_followup:
+			# With the lane at (5,3) open, the player's diagonal default is horizontal.
+			expect(player_line == Vector2i(1,0),"A push from the player's own tile would take a different line: %s" % str(player_line))
+		expect(actual["enemies"][0]["pos"] == Vector2i(4,4) and int(actual["enemies"][0]["hp"]) == 1000-damage,"Bent relay pushes primary away from delivery tile, not player")
 		expect(int(actual["enemies"][1]["hp"]) == 1000-(damage if legal_followup else 0),"Chain hits only enemies within reach of the actual pushed primary")
 		var trace: Array = preview["chain_hits"]
 		expect(trace.size() == (3 if legal_followup else 2),"Bent relay route contains exactly the legal actor hops")
 		if legal_followup and trace.size() == 3:
-			expect(trace[2]["from"] == Vector2i(4,2) and trace[2]["to"] == Vector2i(4,1),"Chain animation begins at primary's actual displaced position")
+			expect(trace[2]["from"] == Vector2i(4,4) and trace[2]["to"] == Vector2i(4,5),"Chain animation begins at primary's actual displaced position")
 	# A directly reachable target ignores available relays and preserves the
 	# existing player-origin Push and Chain result, with or without ownership.
 	var direct_reference: Dictionary = {}
 	for has_coil: bool in [false,true]:
 		var state: Dictionary = Fixtures.fixture(engine,["ember_lens"])
 		if has_coil: state["relics"].append("stormroad_coil")
-		state["enemies"].append(Base.enemy(2,Vector2i(4,1)))
+		# The player's straight push from (2,3) moves the primary to (5,3); the
+		# follow-up at (6,3) is in Chain reach only from there.
+		state["enemies"].append(Base.enemy(2,Vector2i(6,3)))
 		Surface.place(state,Vector2i(2,2),"electrified")
 		state = engine._create_umbra_light_source(state,Vector2i(4,3),{"radius":1,"duration":2})
 		var action: Dictionary = (engine.card_def("razor_gale",state)["actions"][0] as Dictionary).duplicate(true)
 		var preview: Dictionary = engine.surface_preview_for_player_action(state,action,Vector2i(4,3))
 		var actual: Dictionary = engine.apply_player_action(state,action,Vector2i(4,3))
-		expect(preview["state"] == actual and actual["enemies"][0]["pos"] == Vector2i(4,2),"Direct Push and Chain retain player-origin preview/commit parity")
+		expect(preview["state"] == actual and actual["enemies"][0]["pos"] == Vector2i(5,3),"Direct Push and Chain retain player-origin preview/commit parity")
 		expect(int(actual["enemies"][1]["hp"]) == 1000-int(action["damage"]),"Direct Push still chains from its displaced primary")
 		var used_relay: bool = false
 		for event: Dictionary in actual.get("surface_events",[]):
