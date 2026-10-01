@@ -1,7 +1,7 @@
 {
-  "approval": "Pending: dragon bosses each get their own theme (guardians keep Thorns in the Dark); level-up, rare-reward and boss-defeated moments get short stingers that briefly duck the score.",
+  "approval": "Pending: dragon bosses each get their own theme (guardians keep Thorns in the Dark); Noctyrax uses v02 take A pending the owner's A/B choice; level-up, rare-reward and boss-defeated moments get darker v02 stingers that briefly duck the score. Themes 01-05 were liked by the owner on 2026-09-30.",
   "approved_by": null,
-  "date": "2026-09-30",
+  "date": "2026-10-01",
   "source_kind": "original_authored_symbolic_composition",
   "status": "awaiting_owner_audition",
   "tracks": [
@@ -66,52 +66,52 @@
       "version": "v01"
     },
     {
-      "asset": "assets/audio/music/dragon_themes/noctyrax_theme_v01.ogg",
-      "flac_sha256": "53dc9b9b52865822525356d0ea194e4bd3b5c8e28ddd3060fa9f59f56ff647bd",
+      "asset": "assets/audio/music/dragon_themes/noctyrax_theme_v02.ogg",
+      "flac_sha256": "5cd0698121ffc2957b274d30ed923235bdceec0e3fd4571fb180aef010c6d2ba",
       "id": "boss.noctyrax_last_eclipse",
       "loop": true,
-      "midi_sha256": "f6d6ea6307706172e8994d0a425a4ce43d4b75711596eb5dc5ac89bb074ffc7f",
-      "ogg_sha256": "c51a211cf96b3e71993d819de5948dbf7e9af07161edc1ecd47da07cf099167c",
-      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/06_noctyrax_the_last_eclipse",
-      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
-      "title": "Noctyrax, the Last Eclipse",
-      "version": "v01"
+      "midi_sha256": "1bb9c19bcee18cedf5fa3a8dcb90168fd32867e3f799ba5d4ed996784c3814e5",
+      "ogg_sha256": "6c655d4caacc7d093d70596a2b4bdbbe1ce1f03b31d7f835b50ef83b1d944ff6",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/06a_noctyrax_the_last_eclipse_take_a",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Noctyrax, the Last Eclipse (take A: Eclipse Requiem)",
+      "version": "v02"
     },
     {
-      "asset": "assets/audio/music/stingers/level_up_v01.ogg",
-      "flac_sha256": "42107f77620d36b02f0902890a454ef6b65a8c9bab60b447305fc90c32c2e9e0",
+      "asset": "assets/audio/music/stingers/level_up_v02.ogg",
+      "flac_sha256": "37b9cfbf79efb89981556cfb5e26721b5744c09236249fdbdc48c719ac618cb1",
       "id": "run.stinger_level_up",
       "loop": false,
-      "midi_sha256": "def010f64ce7ffd99ceb04a4c4d98476793831c2c3979d933f7a163d44ce40bc",
-      "ogg_sha256": "7e6b0dde430e359dc2b318895ffaf1d8c43d526364020206fe1761123fa0a5d0",
-      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/07_stinger_level_up",
-      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
-      "title": "Level Up",
-      "version": "v01"
+      "midi_sha256": "3ffe5d76f7beb15fcb20f79b426070e28a71db42825d73dee7df57705fe73fc0",
+      "ogg_sha256": "84cbe0bc1ba2345b370ad67329fb0dcbfffe144ce137161a04ba67d32e66c42f",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/07_stinger_level_up",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Level Up (v02)",
+      "version": "v02"
     },
     {
-      "asset": "assets/audio/music/stingers/rare_reward_v01.ogg",
-      "flac_sha256": "43d3120056fdc063b71286d3cb426aea7c02b9d223a0651dfe3a9b74751480a3",
+      "asset": "assets/audio/music/stingers/rare_reward_v02.ogg",
+      "flac_sha256": "2c3f88a466ae693219af9ff574665f56ca3a3bc552408367fb5465556d5855c7",
       "id": "run.stinger_rare_reward",
       "loop": false,
-      "midi_sha256": "ed51bb0fe4233cafcb7e23b5195301dc87bc7ecbe1ab6fb5c4bdd2d0cf511c0e",
-      "ogg_sha256": "8fe2427aa84ebf59904dd6149825a097a118355c0500e87fb5b7ad0d11f997af",
-      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/08_stinger_rare_reward",
-      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
-      "title": "Rare Reward",
-      "version": "v01"
+      "midi_sha256": "25670c80910344826abe6be81b4c13f536d8ef88b24ea6e8aac773feb74e6a2d",
+      "ogg_sha256": "29dd12923e81ef5bf283c322592e8db2de3731345560069cd8febeda9fd0804c",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/08_stinger_rare_reward",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Rare Reward (v02)",
+      "version": "v02"
     },
     {
-      "asset": "assets/audio/music/stingers/boss_defeated_v01.ogg",
-      "flac_sha256": "953f32d6f930080df1fcc5b46ea82ad2d8d09efc66420bf7550897f304106b8d",
+      "asset": "assets/audio/music/stingers/boss_defeated_v02.ogg",
+      "flac_sha256": "25a9fee22cac4713c0f8c828c9595f98d8af98cd936f5048be38bc37b2db45eb",
       "id": "run.stinger_boss_defeated",
       "loop": false,
-      "midi_sha256": "e838984b4e9d12aae093e6b8f6092e88cbd20a731ca8ff10b6e4d2cb48180693",
-      "ogg_sha256": "9ee653cd31f6b0645b743e8acd90ad4e437bdb97182dbfd8f339a66a775e135a",
-      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/09_stinger_boss_defeated",
-      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
-      "title": "Boss Defeated",
-      "version": "v01"
+      "midi_sha256": "2e5cfc5fa0d1238dd543a455dce2f57041bedae80e49e4ef416dcb68f214d240",
+      "ogg_sha256": "78cffcbbfb7d912618efd7fa49be892bd0d9f599b7da7d4c7ae85ffad5793b8b",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/09_stinger_boss_defeated",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Boss Defeated (v02)",
+      "version": "v02"
     }
   ]
 }

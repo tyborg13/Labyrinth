@@ -45,7 +45,10 @@ remain active. Context changes use a short sequential 0.25-second fade-out and
 
 `DRAGON_THEMES_AND_STINGERS_AUDITION.json` records six looping dragon boss
 themes and three one-shot stingers from
-`output/original_soundtracks/dragon_themes_and_stingers/versions/v01`. As with
+`output/original_soundtracks/dragon_themes_and_stingers/versions/v01` and `v02`.
+After the first audition the owner kept themes 01–05 (v01) and asked for a more
+epic final-boss theme and darker stingers: Noctyrax plays v02 take A ("Eclipse
+Requiem") pending an A/B choice against take B, and the stingers are v02. As with
 the four tracks above, the production Oggs are byte-for-byte copies of the
 verified previews, and the source package keeps its own provenance. The themes
 are -20 LUFS loops played at the -5.5 dB combat gain. The stingers are -18 LUFS

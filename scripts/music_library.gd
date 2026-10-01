@@ -32,6 +32,10 @@ const DRAGON_THEME_TRACK_IDS: Dictionary = {
 	"noctyrax": "boss.noctyrax_last_eclipse",
 }
 const DRAGON_THEME_VOLUME_DB: float = -5.5
+# Themes are v01 unless a dragon has a later approved take.
+const DRAGON_THEME_VERSIONS: Dictionary = {
+	"noctyrax": "v02",
+}
 
 const TRACKS: Dictionary = {
 	LANTERNS_TRACK_ID: {
@@ -132,7 +136,7 @@ static func entry(track_id: String) -> Dictionary:
 		if DRAGON_THEME_TRACK_IDS[dragon_id] == track_id:
 			return {
 				"id": track_id,
-				"path": "res://assets/audio/music/dragon_themes/%s_theme_v01.ogg" % dragon_id,
+				"path": "res://assets/audio/music/dragon_themes/%s_theme_%s.ogg" % [dragon_id, str(DRAGON_THEME_VERSIONS.get(dragon_id, "v01"))],
 				"volume_db": DRAGON_THEME_VOLUME_DB,
 				"loop": true,
 			}

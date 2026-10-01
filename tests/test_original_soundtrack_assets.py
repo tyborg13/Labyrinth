@@ -38,9 +38,10 @@ class OriginalSoundtrackAssets(unittest.TestCase):
         self.assertIn(audition['status'], {'awaiting_owner_audition', 'approved_for_game_integration'})
         self.assertEqual(sum(1 for t in audition['tracks'] if t['loop']), 6)
         self.assertEqual(sum(1 for t in audition['tracks'] if not t['loop']), 3)
-        manifest = json.loads((ROOT / audition['tracks'][0]['source_manifest']).read_text())
-        for rel, expected in manifest['inputs_sha256'].items():
-            self.assertEqual(sha(ROOT / rel), expected, rel)
+        for manifest_path in sorted({t['source_manifest'] for t in audition['tracks']}):
+            manifest = json.loads((ROOT / manifest_path).read_text())
+            for rel, expected in manifest['inputs_sha256'].items():
+                self.assertEqual(sha(ROOT / rel), expected, rel)
         for track in audition['tracks']:
             source = ROOT / track['source']
             render = json.loads((source / 'render.json').read_text())
