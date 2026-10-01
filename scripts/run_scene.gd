@@ -14709,7 +14709,7 @@ func _current_action_supports_rotation() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	return str(action.get("type", "")) in ["aoe", "surface", "detonate"] and _combat_engine.player_action_needs_orientation(action)
+	return _action_uses_aoe_aim(action) and _combat_engine.player_action_needs_orientation(action)
 
 func _on_rotate_action_context_pressed() -> void:
 	if not _current_action_supports_rotation() and not _force_aim_rotation_available():
@@ -15983,7 +15983,7 @@ func _pass_preview_confirmed_hover_state() -> Dictionary:
 	if not shortcut_plan.is_empty():
 		return _pass_preview_confirmed_shortcut_state(preview, shortcut_plan, _hovered_board_tile)
 	var action: Dictionary = _pending_actions[_pending_action_index]
-	if str(action.get("type", "")) in ["aoe", "surface", "detonate"]:
+	if _action_uses_aoe_aim(action):
 		action = _action_with_aoe_aim_orientation(action)
 	elif _target_needs_force_orientation(action, _hovered_board_tile):
 		action = _shortcut_action_with_default_force_direction(_preview_combat_state, action, _hovered_board_tile)
@@ -19289,7 +19289,7 @@ func _active_card_preview() -> Dictionary:
 			if orientation_pending:
 				action = _pending_oriented_action()
 				target_tiles = _vector2i_array([_pending_orientation_target_tile])
-			elif str(action.get("type", "")) == "aoe":
+			elif str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
 				action = _action_with_aoe_aim_orientation(action)
 			if target_tiles.has(_hovered_board_tile):
 				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
@@ -20333,6 +20333,9 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		return []
 	if action_type in ["move", "blink"]:
 		return _path_tiles_for_preview(preview)
+	if action_type == "outcrop" and action.has("pattern"):
+		# A patterned raise highlights every tile that will rise for this aim.
+		return _combat_engine.outcrop_tiles_for_player_action(preview.get("state", {}), action, _hovered_board_tile)
 	return _vector2i_array([_hovered_board_tile])
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
@@ -21377,10 +21380,18 @@ func _orientation_pending() -> bool:
 func _current_action_is_aimed_aoe() -> bool:
 	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size():
 		return false
-	return str((_pending_actions[_pending_action_index] as Dictionary).get("type", "")) in ["aoe", "surface", "detonate"]
+	return _action_uses_aoe_aim(_pending_actions[_pending_action_index] as Dictionary)
+
+# Areas, surfaces and Detonate share the area aim; a patterned, rotatable
+# outcrop raise (Earthen Rampart) uses the same Rotate, keys, bumpers and drag.
+func _action_uses_aoe_aim(action: Dictionary) -> bool:
+	var action_type: String = str(action.get("type", ""))
+	if action_type in ["aoe", "surface", "detonate"]:
+		return true
+	return action_type == "outcrop" and _combat_engine.player_action_needs_orientation(action)
 
 func _action_with_aoe_aim_orientation(action: Dictionary) -> Dictionary:
-	if str(action.get("type", "")) not in ["aoe", "surface", "detonate"]:
+	if not _action_uses_aoe_aim(action):
 		return action
 	var oriented: Dictionary = action.duplicate(true)
 	if _combat_engine.player_action_needs_orientation(action):
@@ -22120,7 +22131,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var action: Dictionary = _combat_engine.action_with_automatic_origin(_preview_combat_state, _pending_actions[_pending_action_index], tile)
 	_pending_actions[_pending_action_index] = action
 	var previous_action_index: int = _pending_action_index
-	if str(action.get("type", "")) == "aoe":
+	if str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
 		action = _action_with_aoe_aim_orientation(action)
 		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
 			return
@@ -22566,7 +22577,7 @@ func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dicti
 		var target_tile: Vector2i = _last_resolved_pending_target()
 		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
 		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
-			if str(action.get("type", "")) == "aoe":
+			if str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
 				action = _action_with_aoe_aim_orientation(action)
 			elif _combat_engine.player_action_needs_orientation(action):
 				action = _shortcut_action_with_default_force_direction(state, action, target_tile)

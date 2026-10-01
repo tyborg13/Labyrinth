@@ -95,7 +95,11 @@ SurfaceRelicRules, GuardianRelicRules, `card_def_for_progression`,
 - Icons (`ActionIconLibrary.KEYWORDS`, aliases in `ACTION_ICON_ALIASES`): `retaliate`,
   `quicken`, `rite`, and `next_attack` (the unused Might art, `stat_might.png`, pending a
   purpose-built icon). Grimoire: `keyword:retaliate`, `keyword:quicken`,
-  `keyword:next_attack`, `keyword:rite`.
+  `keyword:next_attack`, `keyword:rite`. A Rite card also unlocks the entries its
+  effects lean on (Thorns: Retaliate and its riders; reward types; status rewards;
+  surfaces; movement and Push/Pull bonuses; Light aura or Light payoff).
+- Next-attack, Retaliate and Quicken amounts are valued by the upgrade pricer
+  (`GameData._action_value`), so their stat upgrades always add value.
 - Rite cards render their rules text (`ActionIcons.card_rules_text`, which appends the
   health cost) instead of icon rows; the card focus tooltips lead with the Rite keyword.
 - Time badge detail adds `Rite: -N` and `Quickened: -N`.

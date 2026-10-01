@@ -934,8 +934,8 @@ func _apply_scaled_node_metrics() -> void:
 		_desc_text_inset = StyleBoxEmpty.new()
 		desc_label.add_theme_stylebox_override("normal", _desc_text_inset)
 		desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_desc_text_inset.content_margin_left = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
-	_desc_text_inset.content_margin_right = _scaled_card_value(CARD_FRAME_MARGIN - 20.0, 4.0)
+	_desc_text_inset.content_margin_left = _scaled_card_value(CARD_FRAME_MARGIN - 13.0, 4.0)
+	_desc_text_inset.content_margin_right = _scaled_card_value(CARD_FRAME_MARGIN - 13.0, 4.0)
 
 func _card_layout_scale() -> float:
 	var card_size: Vector2 = size

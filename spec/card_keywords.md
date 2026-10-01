@@ -51,7 +51,8 @@ Data: card field `follow_up: {"mods": [{"action": i, "add": {...}, "set": {...}}
 - UI: a Follow-up segment row (`follow_up` icon, then the bonus tokens, e.g.
   damage `+3`, draw `1`). In combat, while active, the hand shows the boosted
   values, marks the segment active (`✓`, bonus tone) and does not duplicate
-  appended actions as separate rows.
+  appended actions as separate rows. Numeric `set` values print as whole numbers
+  (JSON loads them as floats).
 
 ## Empower
 
@@ -86,7 +87,9 @@ Data: action field `state_bonus: [{"state": "light"|"frozen"|"half_hp", "damage"
   `frozen` = `freeze > 0`; `half_hp` = `hp * 2 <= max_hp`. Matching bonuses add
   to the hit's `damage`/`stagger`.
 - UI: a condition row using the surface-condition token style (icon
-  `illuminate`, `freeze` or `health`) followed by the bonus tokens. The hand
+  `illuminate`, `freeze` or `health`) followed by the bonus tokens. A Light or
+  Frozen condition also unlocks the `keyword:illuminate` / `keyword:freeze`
+  Grimoire entry, and a Light payoff counts as a Radiance mechanic. The hand
   shows printed damage; the hover preview shows the exact bonus for the target.
 
 ## Scale bonuses
@@ -99,7 +102,8 @@ Data: action field `scale_bonus: {"per": "stoneskin"|"tiles_moved", "damage": 1,
 - Tiles moved (`turn_flags.tiles_moved`) counts independent movement and card
   Move by tiles entered, and Blink by Manhattan distance. It resets each turn.
 - UI: condition-style token with the `stoneskin` or `move` icon and
-  `+1 each (max N)`; in combat the hand shows the current scaled damage and
+  `+1 each (max N)` (and the matching `keyword:stoneskin` / `keyword:move`
+  Grimoire unlock); in combat the hand shows the current scaled damage and
   lists the bonus as a damage modifier.
 
 ## Heuristic

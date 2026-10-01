@@ -32,25 +32,39 @@ func _initialize() -> void:
 	var card_count: int = 0
 	var action_count: int = 0
 	for id: String in GameData.cards():
-		var state: Dictionary = Fixture.fixture(engine)
-		state["deck"]["hand"] = [id]
-		for tile: Vector2i in [Vector2i(2,3),Vector2i(4,3),Vector2i(3,3)]:
-			Rules.place(state,tile,"rubble")
-			Rules.place(state,tile,"fire")
-		for action: Dictionary in engine.card_play_actions(id,state):
-			var target: Vector2i = state["player"]["pos"]
-			if engine.player_action_needs_target(action):
-				var legal: Array[Vector2i] = engine.valid_targets_for_player_action(state,action)
-				if legal.is_empty():
-					continue
-				target = legal.front()
-			var before: Dictionary = state.duplicate(true)
-			var preview: Dictionary = engine.resolve_player_action_for_presentation(state,action,target)
-			var actual: Dictionary = engine.apply_player_action(state,action,target)
-			if actual != preview.get("state",{}) or state != before:
-				failures.append("Card preview/ownership mismatch: %s/%s" % [id,action.get("type","")])
-			state = actual
-			action_count += 1
+		var card: Dictionary = GameData.card_def(id)
+		# Follow-up and Empower cards also resolve their boosted actions.
+		var variants: Array[String]
+		variants.append("play")
+		if card.has("follow_up"):
+			variants.append("follow_up")
+		if card.has("empower"):
+			variants.append("empower")
+		for variant: String in variants:
+			var state: Dictionary = Fixture.fixture(engine)
+			state["deck"]["hand"] = [id]
+			for tile: Vector2i in [Vector2i(2,3),Vector2i(4,3),Vector2i(3,3)]:
+				Rules.place(state,tile,"rubble")
+				Rules.place(state,tile,"fire")
+			if variant == "follow_up":
+				state["cards_played_this_turn"] = 1
+			state = engine.prepare_player_card(state,0,"empower" if variant == "empower" else "play")
+			for action: Dictionary in engine.card_play_actions(id,state):
+				var target: Vector2i = state["player"]["pos"]
+				if engine.player_action_needs_target(action):
+					var legal: Array[Vector2i] = engine.valid_targets_for_player_action(state,action)
+					if legal.is_empty():
+						continue
+					target = legal.front()
+				var before: Dictionary = state.duplicate(true)
+				var preview: Dictionary = engine.resolve_player_action_for_presentation(state,action,target)
+				var actual: Dictionary = engine.apply_player_action(state,action,target)
+				if actual != preview.get("state",{}) or state != before:
+					failures.append("Card preview/ownership mismatch: %s/%s (%s)" % [id,action.get("type",""),variant])
+				if variant != "play" and not bool(action.get("_follow_up_active" if variant == "follow_up" else "_empowered", false)):
+					failures.append("Card keyword variant did not apply: %s (%s)" % [id,variant])
+				state = actual
+				action_count += 1
 		card_count += 1
 	for message: String in failures:
 		push_error(message)

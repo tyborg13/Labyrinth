@@ -320,8 +320,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_SELECT_KILL_TARGET: {
 		"id": PHASE_SELECT_KILL_TARGET, "lesson": 5, "lesson_total": 10,
 		"icon": "", "kicker": "LETHAL", "title": "Strike the Wounded Crawler",
-		"pointer_text": "Click the glowing crawler. Quick Stab deals the final 9 damage.",
-		"controller_text": "Select the glowing crawler. Quick Stab deals the final 9 damage.",
+		"pointer_text": "Click the glowing crawler. Follow-up adds 3 after Pale Spark, so Quick Stab deals 9.",
+		"controller_text": "Select the glowing crawler. Follow-up adds 3 after Pale Spark, so Quick Stab deals 9.",
 		"controller_action": "controller_accept", "action_label": "Target", "attention_pulse": true,
 	},
 	PHASE_FINISH_KILL_CARD: {

@@ -209,7 +209,7 @@ card("pyroclasm", "Pyroclasm", "epic", 7,
      "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.", FIRE, wave=4)
 card("rite_of_the_pyre", "Rite of the Pyre", "epic", 5, [],
      "Rite: your Fire tiles deal 2 more damage.", FIRE, wave=3, burn=True,
-     rite={"effects": [{"type": "surface_damage_bonus", "surface": "fire", "amount": 2}]})
+     rite={"effects": [{"type": "surface_damage_bonus", "surface": "fire", "amount": 2, "owner": "player"}]})
 card("meteorfall", "Meteorfall", "epic", 7,
      [act("meteor_marks", range=4, pattern=LINE3, rotate=True, damage=8, surface="fire", element="fire")],
      "Mark a three-tile line within range 4. At the start of your next turn, each marked tile takes 8 and becomes Fire.", FIRE, wave=4)
@@ -535,7 +535,7 @@ gear("yank", "Yank", "common", 4, [pull(3, 2, 4)], "Pull 3 at range 4 for 2.")
 # =============================================================================== GEAR: armor
 gear("glassbone_guard", "Glassbone Guard", "rare", 4, [stoneskin(6), draw(1)], "Gain 6 Stoneskin, then draw 1.", health_cost=1)
 gear("undertaker_stand", "Undertaker Stand", "epic", 6, [block(8), act("retaliate", amount=5)],
-     "Gain 8 Block and Retaliate 5.", wave=3, role_emblem="block")
+     "Gain 8 Block and Retaliate 5.", wave=3)
 gear("threadbare_guard", "Unpick", "common", 2, [act("cleanse", statuses=["bleed", "immobilize", "chilled"]), block(4), draw(1)],
      "Remove Bleed, Immobilize and Chilled from yourself, gain 4 Block, then draw 1.", wave=4)
 gear("voidsilk_molt", "Voidsilk Molt", "legendary", 4, [blink(3, illusion_at_origin=4), draw(1)],

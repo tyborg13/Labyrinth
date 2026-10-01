@@ -1294,6 +1294,7 @@ def print_text(rows: list[dict[str, Any]], show_breakdown: bool, show_source: bo
                         f"flurry_commitment={breakdown['flurry_commitment_penalty']:.2f}",
                         f"follow_up={breakdown['follow_up']:.2f}",
                         f"empower={breakdown['empower']:.2f}",
+                        f"rite={breakdown['rite']:.2f}",
                     ]
                 )
             )

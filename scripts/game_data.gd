@@ -1491,6 +1491,20 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(3 if truesight_duration < 0 else maxi(1, truesight_duration)) * 2.2
 		"dispel_umbra":
 			value += float(int(action.get("amount", 1))) * 2.4
+		# Wave-3 tempo and reactive actions (spec/card_keywords_wave3.md). Their
+		# bonuses are conditional, so they price below a printed hit.
+		"next_attack":
+			value += float(int(action.get("damage", 0))) * 0.85
+			if bool(action.get("pierce", false)):
+				value += 1.1
+			var per_tile: Variant = action.get("per_tile_moved", {})
+			if typeof(per_tile) == TYPE_DICTIONARY:
+				value += float(int((per_tile as Dictionary).get("max", 0))) * 0.5
+		"retaliate":
+			value += float(int(action.get("amount", 0))) * 0.55
+			value += float(int(action.get("push", 0))) * 0.4
+		"quicken":
+			value += float(int(action.get("amount", 0))) * 0.6
 	value += float(int(action.get("bleed", 0))) * 1.05
 	value += float(int(action.get("expose", 0))) * 0.95
 	value += float(int(action.get("sunder", 0))) * 0.70

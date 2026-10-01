@@ -857,6 +857,9 @@ static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, t
 					if typeof(value) == TYPE_BOOL:
 						if bool(value):
 							tokens.append(token_for(_keyword_field_icon(action, field), null, tone))
+					elif typeof(value) in [TYPE_INT, TYPE_FLOAT]:
+						# JSON numbers load as floats; card chips print whole numbers.
+						tokens.append(token_for(_keyword_field_icon(action, field), str(int(value)), tone))
 					else:
 						tokens.append(token_for(_keyword_field_icon(action, field), str(value), tone))
 	for appended_var: Variant in spec.get("append", []):
@@ -987,7 +990,10 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"ranged":
-			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
+			# A zero-damage throw (Throwing Net) only carries statuses, like a
+			# zero-damage area: no 0 damage chip unless something adds damage.
+			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
+				_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
 		"aoe":

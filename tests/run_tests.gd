@@ -416,6 +416,7 @@ func _initialize() -> void:
 	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/card_pool_overhaul_suite.gd").run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
 	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
@@ -1720,7 +1721,12 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	})
 	heavy_state = combat.finish_player_card(heavy_state, 0)
 	var heavy_order: Array[Dictionary] = combat.current_turn_order(combat.finish_player_activation(heavy_state), 3)
-	_assert(int(GameData.card_def("bloody_lunge").get("time", 0)) == 8, "Bloody Lunge should anchor the heavy end of the starter card time scale")
+	var heaviest_other_starter_time: int = 0
+	for starter_id: String in GameData.cards():
+		var starter_def: Dictionary = GameData.cards()[starter_id] as Dictionary
+		if bool(starter_def.get("starter", false)) and starter_id != "bloody_lunge":
+			heaviest_other_starter_time = maxi(heaviest_other_starter_time, int(starter_def.get("time", 0)))
+	_assert(int(GameData.card_def("bloody_lunge").get("time", 0)) == 6 and heaviest_other_starter_time < 6, "Bloody Lunge should anchor the heavy end of the starter card time scale")
 	_assert(str(heavy_order[0].get("kind", "")) == "enemy", "A heavy starter card should let fast enemies act before the player returns")
 
 	var standard_state: Dictionary = combat.create_combat(15136, _simple_room_layout(), {
@@ -1763,13 +1769,13 @@ func _test_card_time_scale_changes_player_reentry_order() -> void:
 	var slow_state: Dictionary = combat.create_combat(15137, slow_layout, {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["bloody_lunge", "grave_sprint"],
+		"deck_cards": ["bloody_lunge", "tombsplitter"],
 		"relics": [],
 		"hand_size": 2,
 		"heal_bonus": 0
 	})
 	var slow_deck: Dictionary = (slow_state.get("deck", {}) as Dictionary).duplicate(true)
-	slow_deck["hand"] = ["bloody_lunge", "grave_sprint"]
+	slow_deck["hand"] = ["bloody_lunge", "tombsplitter"]
 	slow_deck["draw"] = []
 	slow_deck["discard"] = []
 	slow_state["deck"] = slow_deck
@@ -1904,20 +1910,20 @@ func _test_flurry_repeats_and_spends_snapshotted_card_plays() -> void:
 	var cost_state: Dictionary = combat.create_combat(15113, _simple_room_layout(), {
 		"hp": 24,
 		"max_hp": 24,
-		"deck_cards": ["bloody_lunge"],
+		"deck_cards": ["glassbone_guard"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	var cost_deck: Dictionary = (cost_state.get("deck", {}) as Dictionary).duplicate(true)
-	cost_deck["hand"] = ["bloody_lunge"]
+	cost_deck["hand"] = ["glassbone_guard"]
 	cost_deck["draw"] = []
 	cost_deck["discard"] = []
 	cost_state["deck"] = cost_deck
 	cost_state["player"] = {"pos": Vector2i(2, 4), "hp": 24, "max_hp": 24, "block": 0, "stoneskin": 0}
 	cost_state = combat.finish_player_card(cost_state, 0, 2)
 	_assert(int((cost_state.get("player", {}) as Dictionary).get("hp", 0)) == 22, "A two-copy Flurry commit should pay a printed health cost for both copies")
-	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 8, "A two-copy Flurry commit should still pay the printed Time only once")
+	_assert(int(cost_state.get("player_turn_time_spent", 0)) == 4, "A two-copy Flurry commit should still pay the printed Time only once")
 
 func _test_starting_deck_uses_hamstring_shot_over_bone_dart() -> void:
 	var valid_card_rarities: Dictionary = {
@@ -7811,7 +7817,8 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 	_assert(not loaded.has("stats") and not loaded.has("unspent_stat_points"), "The live progression profile should not retain retired stat allocation fields")
 	var unchanged_card: Dictionary = GameData.card_def_for_progression("quick_stab", loaded)
 	var unchanged_action: Dictionary = (unchanged_card.get("actions", []) as Array)[0]
-	_assert(int(unchanged_action.get("damage", 0)) == 9, "Learning a skill should not disguise a permanent raw damage increase")
+	var printed_stab_damage: int = int(((GameData.card_def("quick_stab").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))
+	_assert(printed_stab_damage == 6 and int(unchanged_action.get("damage", 0)) == printed_stab_damage, "Learning a skill should not disguise a permanent raw damage increase")
 	loaded = ProgressionStore.set_embers(loaded, 42)
 	var combat: CombatEngine = CombatEngine.new()
 	var combat_state: Dictionary = combat.create_combat(9, _simple_room_layout(), {
@@ -7824,7 +7831,7 @@ func _test_progression_save_and_purchase(default_progression: Dictionary) -> voi
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
-	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == 9, "Combat should keep card damage unchanged when it receives a skill snapshot")
+	_assert(int(((combat.card_def("quick_stab", combat_state).get("actions", []) as Array)[0] as Dictionary).get("damage", 0)) == printed_stab_damage, "Combat should keep card damage unchanged when it receives a skill snapshot")
 	var run_engine: RunEngine = RunEngine.new()
 	var run_state: Dictionary = run_engine.create_new_run(9, loaded)
 	_assert(run_engine.held_embers(run_state) == 42, "New runs should carry the current held ember count")
@@ -8698,7 +8705,8 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var attack_enemies: Array = attack_hover_state.get("enemies", [])
 	if not attack_enemies.is_empty():
 		var attack_enemy: Dictionary = (attack_enemies[0] as Dictionary).duplicate(true)
-		attack_enemy["hp"] = 8
+		# Quick Stab is this turn's first card, so it deals its printed 6 without Follow-up.
+		attack_enemy["hp"] = 6
 		attack_enemy["max_hp"] = 8
 		attack_enemies[0] = attack_enemy
 		attack_hover_state["enemies"] = attack_enemies
@@ -8728,7 +8736,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert_action_context_risk(instance, "-5 HP", "danger", "selected attack hover cleared")
 	live_state = instance.get("_combat_state")
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Selected attack pass preview should not commit the selected card")
-	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 8, "Selected attack hover should not damage the live enemy")
+	_assert(int(((live_state.get("enemies", []) as Array)[0] as Dictionary).get("hp", 0)) == 6, "Selected attack hover should not damage the live enemy")
 
 	instance.queue_free()
 	await process_frame

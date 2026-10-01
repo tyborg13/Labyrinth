@@ -512,5 +512,173 @@
     "cards": [
       "straw_double"
     ]
+  },
+  "war_maul": {
+    "name": "War Maul",
+    "slot": "weapon",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/war_maul.png",
+    "accent": "#8f9499",
+    "cards": [
+      "crushing_blow",
+      "haft_shove",
+      "overhead_smash"
+    ]
+  },
+  "hunting_spear": {
+    "name": "Hunting Spear",
+    "slot": "weapon",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/hunting_spear.png",
+    "accent": "#8f9499",
+    "cards": [
+      "spear_thrust",
+      "brace_the_spear",
+      "hurl_spear"
+    ]
+  },
+  "tinkers_knives": {
+    "name": "Tinker's Knives",
+    "slot": "weapon",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/tinkers_knives.png",
+    "accent": "#8f9499",
+    "cards": [
+      "ricochet_knife",
+      "fan_of_knives",
+      "palm_blade"
+    ]
+  },
+  "dawnlight_censer": {
+    "name": "Dawnlight Censer",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/dawnlight_censer.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "censer_swing",
+      "hallowed_strike",
+      "incense_haze"
+    ]
+  },
+  "galewhip": {
+    "name": "Galewhip",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/galewhip.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "lash",
+      "crack_the_whip",
+      "snare_coil"
+    ]
+  },
+  "parrying_dagger": {
+    "name": "Parrying Dagger",
+    "slot": "offhand",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/parrying_dagger.png",
+    "accent": "#8f9499",
+    "cards": [
+      "deflect",
+      "main_gauche"
+    ]
+  },
+  "sunward_targe": {
+    "name": "Sunward Targe",
+    "slot": "offhand",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/sunward_targe.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "sun_flash",
+      "blinding_bash"
+    ]
+  },
+  "basalt_pavise": {
+    "name": "Basalt Pavise",
+    "slot": "offhand",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/basalt_pavise.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "plant_pavise",
+      "stonewall_stance"
+    ]
+  },
+  "thornmail": {
+    "name": "Thornmail",
+    "slot": "armor",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/thornmail.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "barbed_mail",
+      "bristle"
+    ]
+  },
+  "stormweave_robe": {
+    "name": "Stormweave Robe",
+    "slot": "armor",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/stormweave_robe.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "static_mantle",
+      "galvanize"
+    ]
+  },
+  "ironshod_sabatons": {
+    "name": "Ironshod Sabatons",
+    "slot": "boots",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/ironshod_sabatons.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "iron_wheel",
+      "headlong"
+    ]
+  },
+  "monks_wraps": {
+    "name": "Monk's Wraps",
+    "slot": "boots",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/monks_wraps.png",
+    "accent": "#8f9499",
+    "cards": [
+      "flowing_step",
+      "palm_strike"
+    ]
+  },
+  "stormglass_orb": {
+    "name": "Stormglass Orb",
+    "slot": "trinket",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/stormglass_orb.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "charged_orb"
+    ]
+  },
+  "gamblers_watch": {
+    "name": "Gambler's Watch",
+    "slot": "trinket",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/gamblers_watch.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "stolen_moment",
+      "reprise"
+    ]
+  },
+  "oathstone": {
+    "name": "Oathstone",
+    "slot": "trinket",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/oathstone.png",
+    "accent": "#8f9499",
+    "cards": [
+      "sworn_oath"
+    ]
   }
 }

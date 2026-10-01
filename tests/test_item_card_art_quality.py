@@ -28,6 +28,10 @@ EXPECTED_ITEM_CARD_IDS = {
     "lamp_oil",
     "mirror_charm",
     "seers_candle",
+    # Waves 2 and 3.
+    "hourglass_sand",
+    "throwing_net",
+    "whetstone",
 }
 
 

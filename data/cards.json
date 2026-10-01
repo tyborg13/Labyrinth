@@ -5,15 +5,25 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "starter": true,
-    "description": "Strike an adjacent enemy for 9.",
+    "description": "Strike an adjacent enemy for 6. Follow-up: deal 3 more.",
     "accent": "#b74d3d",
     "art_path": "res://assets/art/cards/quick_stab.png",
     "reward_pool": false,
+    "starter": true,
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 3
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "melee",
-        "damage": 9,
+        "damage": 6,
         "range": 1,
         "element": "none"
       }
@@ -258,13 +268,26 @@
     "name": "Bloody Lunge",
     "rarity": "common",
     "burn": false,
-    "health_cost": 1,
-    "time": 8,
-    "starter": true,
-    "description": "Lose 1 health. Move 2, then strike for 12.",
+    "health_cost": 0,
+    "time": 6,
+    "description": "Move 2, then strike for 9. Empower (1 HP): deal 4 more.",
     "accent": "#8e2f2f",
     "art_path": "res://assets/art/cards/bloody_lunge.png",
     "reward_pool": false,
+    "starter": true,
+    "empower": {
+      "cost": {
+        "health": 1
+      },
+      "mods": [
+        {
+          "action": 1,
+          "add": {
+            "damage": 4
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "move",
@@ -272,10 +295,10 @@
       },
       {
         "type": "melee",
-        "damage": 12,
+        "damage": 9,
         "range": 1,
-        "required": true,
-        "element": "none"
+        "element": "none",
+        "required": true
       }
     ]
   },
@@ -471,13 +494,14 @@
   },
   "iron_wheel": {
     "name": "Iron Wheel",
-    "rarity": "common",
+    "rarity": "rare",
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Move 3, then strike for 8.",
+    "description": "Move 3, then strike for 4, plus 1 for each tile you moved this turn (maximum 5 more).",
     "accent": "#8c6b4e",
     "art_path": "res://assets/art/cards/iron_wheel.png",
+    "reward_pool": false,
     "actions": [
       {
         "type": "move",
@@ -485,10 +509,15 @@
       },
       {
         "type": "melee",
-        "damage": 8,
+        "damage": 4,
         "range": 1,
+        "element": "none",
         "required": true,
-        "element": "none"
+        "scale_bonus": {
+          "per": "tiles_moved",
+          "damage": 1,
+          "max": 5
+        }
       }
     ]
   },
@@ -623,14 +652,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Gain 5 block, then draw 1.",
+    "description": "Gain 4 Block and Retaliate 3, then draw 1.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/battle_rhythm.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "block",
-        "amount": 5
+        "amount": 4
+      },
+      {
+        "type": "retaliate",
+        "amount": 3
       },
       {
         "type": "draw",
@@ -663,16 +696,32 @@
     "name": "Blood Price",
     "rarity": "epic",
     "burn": false,
-    "health_cost": 1,
+    "health_cost": 0,
     "time": 6,
-    "description": "Spend 1 health. Strike an adjacent enemy for 16.",
+    "description": "Strike an adjacent enemy for 12. Empower (2 HP): deal 8 more and Pierce.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/blood_price.png",
     "reward_pool": false,
+    "empower": {
+      "cost": {
+        "health": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 8
+          },
+          "set": {
+            "pierce": true
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "melee",
-        "damage": 16,
+        "damage": 12,
         "range": 1,
         "element": "none"
       }
@@ -709,18 +758,28 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Pierce an adjacent enemy for 7.",
+    "time": 3,
+    "description": "Pierce an adjacent enemy for 5. Follow-up: deal 4 more.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/bodkin_arrow.png",
     "reward_pool": false,
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 4
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "melee",
-        "damage": 7,
+        "damage": 5,
         "range": 1,
-        "pierce": true,
-        "element": "none"
+        "element": "none",
+        "pierce": true
       }
     ]
   },
@@ -824,19 +883,19 @@
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
-    "time": 5,
-    "description": "Blink 3, then gain 5 block.",
+    "time": 4,
+    "description": "Blink 4. Your next attack this turn deals 3 more.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/shadow_gate.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "blink",
-        "range": 3
+        "range": 4
       },
       {
-        "type": "block",
-        "amount": 5
+        "type": "next_attack",
+        "damage": 3
       }
     ]
   },
@@ -949,10 +1008,76 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Deal 2 in a cross at range 2, then leave Fire in the pattern.",
+    "time": 5,
+    "description": "Deal 2 in a cross at range 2, then leave Fire in the pattern. Empower (Exhaust): the pattern becomes a radius-2 diamond.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/cinder_bloom.png",
+    "empower": {
+      "cost": {
+        "exhaust": true
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                0,
+                -1
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                -2
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1
+              ]
+            ]
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "aoe",
@@ -981,8 +1106,8 @@
           ]
         ],
         "rotate": false,
-        "surface": "fire",
-        "element": "fire"
+        "element": "fire",
+        "surface": "fire"
       }
     ]
   },
@@ -1431,10 +1556,44 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 7,
-    "description": "Pierce a three-tile line for 5 Ice damage at range 2.",
+    "time": 6,
+    "description": "Pierce a three-tile line for 5 Ice damage at range 2. Empower (+2 Time): the line is five tiles.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/shatterline.png",
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "aoe",
@@ -1455,8 +1614,8 @@
           ]
         ],
         "rotate": true,
-        "pierce": true,
-        "element": "ice"
+        "element": "ice",
+        "pierce": true
       }
     ]
   },
@@ -1540,17 +1699,30 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 5,
-    "description": "Deal 4 Lightning damage with Chain 2 at range 3.",
+    "time": 4,
+    "description": "Deal 4 Lightning damage with Chain 2 at range 3. Empower (+2 Time): Chain 4.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/chain_bolt.png",
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "chain": 4
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "ranged",
         "damage": 4,
         "range": 3,
-        "chain": 2,
-        "element": "lightning"
+        "element": "lightning",
+        "chain": 2
       }
     ]
   },
@@ -2131,7 +2303,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact.",
+    "description": "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact and Stagger 3.",
     "accent": "#89a15b",
     "art_path": "res://assets/art/cards/tectonic_maul.png",
     "actions": [
@@ -2143,6 +2315,7 @@
         "type": "melee",
         "damage": 11,
         "range": 1,
+        "element": "earth",
         "required": true,
         "surface": "rubble",
         "surface_pattern": [
@@ -2167,13 +2340,13 @@
             -1
           ]
         ],
+        "stagger": 3,
         "surface_bonus": {
           "surface": "rubble",
           "subject": "target",
           "present": true,
           "damage": 4
-        },
-        "element": "earth"
+        }
       }
     ]
   },
@@ -2202,8 +2375,8 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 5,
-    "description": "Move 2, strike an adjacent enemy for 5, then gain 4 block.",
+    "time": 4,
+    "description": "Move 2, then strike for 5. Retaliate 4 until your next turn.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/riposte_lunge.png",
     "reward_pool": false,
@@ -2216,11 +2389,11 @@
         "type": "melee",
         "damage": 5,
         "range": 1,
-        "required": true,
-        "element": "none"
+        "element": "none",
+        "required": true
       },
       {
-        "type": "block",
+        "type": "retaliate",
         "amount": 4
       }
     ]
@@ -2380,18 +2553,18 @@
     "burn": false,
     "health_cost": 0,
     "time": 6,
-    "description": "Gain 10 block and 2 stoneskin.",
+    "description": "Gain 8 Block and Retaliate 5.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/undertaker_stand.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "block",
-        "amount": 10
+        "amount": 8
       },
       {
-        "type": "stoneskin",
-        "amount": 2
+        "type": "retaliate",
+        "amount": 5
       }
     ]
   },
@@ -2493,16 +2666,17 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Deal 5 at range 2, then draw 1.",
+    "description": "Deal 4 at range 3 and Stagger 2, then draw 1.",
     "accent": "#4b84d8",
     "art_path": "res://assets/art/cards/clockwork_mark.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "ranged",
-        "damage": 5,
-        "range": 2,
-        "element": "none"
+        "damage": 4,
+        "range": 3,
+        "element": "none",
+        "stagger": 2
       },
       {
         "type": "draw",
@@ -2560,16 +2734,22 @@
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Strike an adjacent enemy for 12.",
+    "description": "Strike an adjacent enemy for 10, or 15 if it is at or below half health.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/butcher_chop.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "melee",
-        "damage": 12,
+        "damage": 10,
         "range": 1,
-        "element": "none"
+        "element": "none",
+        "state_bonus": [
+          {
+            "state": "half_hp",
+            "damage": 5
+          }
+        ]
       }
     ]
   },
@@ -2579,35 +2759,29 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Strike all adjacent tiles for 10.",
+    "description": "Strike the first two tiles in a line from you for 12 and Stagger 3.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/tombsplitter.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "aoe",
-        "damage": 10,
-        "range": 0,
+        "damage": 12,
+        "range": 1,
         "pattern": [
           [
             0,
-            -1
+            0
           ],
           [
             1,
             0
-          ],
-          [
-            0,
-            1
-          ],
-          [
-            -1,
-            0
           ]
         ],
         "rotate": false,
-        "element": "none"
+        "element": "none",
+        "aim": "facing",
+        "stagger": 3
       }
     ]
   },
@@ -3048,23 +3222,19 @@
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 4,
-    "description": "Gain 4 block, then bash for 3, push 1, and bleed 1.",
+    "time": 3,
+    "description": "Gain 5 Block and Retaliate 3.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/spike_check.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "block",
-        "amount": 4
+        "amount": 5
       },
       {
-        "type": "push",
-        "damage": 3,
-        "range": 1,
-        "amount": 1,
-        "bleed": 1,
-        "element": "none"
+        "type": "retaliate",
+        "amount": 3
       }
     ]
   },
@@ -3468,12 +3638,12 @@
     ]
   },
   "heel_hook": {
-    "name": "Heel Hook",
+    "name": "Heel Stomp",
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Move 2, then trip for 4, immobilize, and expose 2.",
+    "description": "Move 2, then stomp an adjacent enemy for 4 and Stagger 2.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/heel_hook.png",
     "reward_pool": false,
@@ -3486,10 +3656,9 @@
         "type": "melee",
         "damage": 4,
         "range": 1,
-        "immobilize": true,
-        "expose": 2,
+        "element": "none",
         "required": true,
-        "element": "none"
+        "stagger": 2
       }
     ]
   },
@@ -3523,7 +3692,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 2,
-    "description": "Move 2 and leave Electrified where you arrive.",
+    "description": "Move 2 and leave Electrified where you arrive. Quicken 1.",
     "accent": "#cfb347",
     "art_path": "res://assets/art/cards/spur_spark.png",
     "reward_pool": false,
@@ -3532,6 +3701,10 @@
         "type": "move",
         "range": 2,
         "surface": "electrified"
+      },
+      {
+        "type": "quicken",
+        "amount": 1
       }
     ]
   },
@@ -3819,49 +3992,56 @@
   "thorn_crown_pact": {
     "name": "Thorn Crown Pact",
     "rarity": "legendary",
-    "burn": false,
-    "health_cost": 1,
-    "time": 7,
-    "description": "Lose 1 health. Gain 5 Stoneskin, then Pierce for 6 at range 2, Bleed 1 and Sunder 2.",
+    "burn": true,
+    "health_cost": 2,
+    "time": 5,
+    "description": "Rite: enemies that hit you in melee take 3 and Bleed 1.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/thorn_crown_pact.png",
     "reward_pool": false,
-    "actions": [
-      {
-        "type": "stoneskin",
-        "amount": 5
-      },
-      {
-        "type": "ranged",
-        "damage": 6,
-        "range": 2,
-        "pierce": true,
-        "bleed": 1,
-        "sunder": 2,
-        "element": "none"
-      }
-    ]
+    "rite": {
+      "effects": [
+        {
+          "type": "thorns",
+          "damage": 3,
+          "bleed": 1
+        }
+      ]
+    },
+    "actions": []
   },
   "royal_bramble": {
     "name": "Royal Bramble",
     "rarity": "legendary",
     "burn": false,
-    "health_cost": 1,
-    "time": 6,
-    "description": "Lose 1 health. Pull 2 at range 2 for 4, bleed 1, expose 4, and sunder 4.",
+    "health_cost": 0,
+    "time": 5,
+    "description": "Pull 2 at range 2 for 4 and Bleed 2. Empower (1 HP): Expose 4 and Sunder 4.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/royal_bramble.png",
     "reward_pool": false,
+    "empower": {
+      "cost": {
+        "health": 1
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "expose": 4,
+            "sunder": 4
+          }
+        }
+      ]
+    },
     "actions": [
       {
         "type": "pull",
         "damage": 4,
         "range": 2,
         "amount": 2,
-        "bleed": 1,
-        "expose": 4,
-        "sunder": 4,
-        "element": "none"
+        "element": "none",
+        "bleed": 2
       }
     ]
   },
@@ -5688,5 +5868,1308 @@
     "reward_pool": false,
     "retired": true,
     "replacement_id": "trapdoor"
+  },
+  "arc_flash": {
+    "name": "Arc Flash",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Deal 3 Lightning damage at range 3. Follow-up: Chain 2.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/arc_flash.png",
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "chain": 2
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 3,
+        "element": "lightning"
+      }
+    ]
+  },
+  "barbed_mail": {
+    "name": "Barbed Mail",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 5 Block and Retaliate 3 with Bleed 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/barbed_mail.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "retaliate",
+        "amount": 3,
+        "bleed": 1
+      }
+    ]
+  },
+  "blinding_bash": {
+    "name": "Blinding Bash",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Bash an adjacent enemy for 4. If it stands in Light, Stagger 3.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/blinding_bash.png",
+    "radiance": true,
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "element": "none",
+        "state_bonus": [
+          {
+            "state": "light",
+            "stagger": 3
+          }
+        ]
+      }
+    ]
+  },
+  "brace_the_spear": {
+    "name": "Brace the Spear",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 3 Block and Retaliate 5 until your next turn.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/brace_the_spear.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 3
+      },
+      {
+        "type": "retaliate",
+        "amount": 5
+      }
+    ]
+  },
+  "bristle": {
+    "name": "Bristle",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Gain 3 Stoneskin and Retaliate 2.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/bristle.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "stoneskin",
+        "amount": 3
+      },
+      {
+        "type": "retaliate",
+        "amount": 2
+      }
+    ]
+  },
+  "capacitor": {
+    "name": "Capacitor",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Gain 4 Block. Your next Lightning attack this turn gains Chain 2.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/capacitor.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 4
+      },
+      {
+        "type": "next_attack",
+        "element": "lightning",
+        "chain": 2
+      }
+    ]
+  },
+  "charged_orb": {
+    "name": "Charged Orb",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Quicken 2. Your next Lightning attack this turn gains Chain 1.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/charged_orb.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "quicken",
+        "amount": 2
+      },
+      {
+        "type": "next_attack",
+        "element": "lightning",
+        "chain": 1
+      }
+    ]
+  },
+  "couched_lance": {
+    "name": "Couched Lance",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Strike at reach 2 for 4, plus 1 for each tile you moved this turn (maximum 5 more).",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/couched_lance.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 2,
+        "element": "none",
+        "scale_bonus": {
+          "per": "tiles_moved",
+          "damage": 1,
+          "max": 5
+        }
+      }
+    ]
+  },
+  "crack_the_whip": {
+    "name": "Crack the Whip",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Strike at reach 3 for 3 and Stagger 2.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/crack_the_whip.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 3,
+        "range": 3,
+        "element": "air",
+        "stagger": 2
+      }
+    ]
+  },
+  "crushing_blow": {
+    "name": "Crushing Blow",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Strike an adjacent enemy for 8 and Stagger 3.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/crushing_blow.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 8,
+        "range": 1,
+        "element": "none",
+        "stagger": 3
+      }
+    ]
+  },
+  "dazzle": {
+    "name": "Dazzle",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Deal 2 at range 3. If the target stands in Light, Stagger 3.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/dazzle.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 2,
+        "range": 3,
+        "element": "none",
+        "state_bonus": [
+          {
+            "state": "light",
+            "stagger": 3
+          }
+        ]
+      }
+    ]
+  },
+  "deflect": {
+    "name": "Deflect",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Gain 3 Block and Retaliate 4.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/deflect.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 3
+      },
+      {
+        "type": "retaliate",
+        "amount": 4
+      }
+    ]
+  },
+  "earthen_rampart": {
+    "name": "Earthen Rampart",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Raise outcrops on a three-tile line within range 2, then gain 3 Stoneskin. Empower (Exhaust): the line is five tiles.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/earthen_rampart.png",
+    "empower": {
+      "cost": {
+        "exhaust": true
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                3,
+                0
+              ],
+              [
+                4,
+                0
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "outcrop",
+        "range": 2,
+        "health": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true
+      },
+      {
+        "type": "stoneskin",
+        "amount": 3
+      }
+    ]
+  },
+  "eye_of_the_storm": {
+    "name": "Eye of the Storm",
+    "element": "air",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Gain 6 Block. Until your next turn, enemies that hit you in melee are pushed 2.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/eye_of_the_storm.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "retaliate",
+        "amount": 0,
+        "push": 2
+      }
+    ]
+  },
+  "flowing_step": {
+    "name": "Flowing Step",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 1,
+    "description": "Move 2. Follow-up: draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/flowing_step.png",
+    "reward_pool": false,
+    "follow_up": {
+      "mods": [],
+      "append": [
+        {
+          "type": "draw",
+          "amount": 1
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "move",
+        "range": 2
+      }
+    ]
+  },
+  "galvanize": {
+    "name": "Galvanize",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 1,
+    "description": "Draw 1. Quicken 2: your next card this turn costs 2 less Time.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/galvanize.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "quicken",
+        "amount": 2
+      }
+    ]
+  },
+  "hallowed_strike": {
+    "name": "Hallowed Strike",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Strike an adjacent enemy for 6, or 10 if it stands in Light.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/hallowed_strike.png",
+    "radiance": true,
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1,
+        "element": "none",
+        "state_bonus": [
+          {
+            "state": "light",
+            "damage": 4
+          }
+        ]
+      }
+    ]
+  },
+  "headlong": {
+    "name": "Headlong",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 4. Your next attack this turn deals 1 more for each tile you moved this turn (maximum 4).",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/headlong.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 4
+      },
+      {
+        "type": "next_attack",
+        "per_tile_moved": {
+          "damage": 1,
+          "max": 4
+        }
+      }
+    ]
+  },
+  "hourglass_sand": {
+    "name": "Hourglass Sand",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Consume. Quicken 4: your next card this turn costs 4 less Time. Draw 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/hourglass_sand.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/hourglass_sand.png",
+    "actions": [
+      {
+        "type": "quicken",
+        "amount": 4
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ]
+  },
+  "hurl_spear": {
+    "name": "Hurl Spear",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 6 at range 4. Empower (Exhaust): deal 4 more and immobilize.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/hurl_spear.png",
+    "reward_pool": false,
+    "empower": {
+      "cost": {
+        "exhaust": true
+      },
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 4
+          },
+          "set": {
+            "immobilize": true
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 4,
+        "element": "none"
+      }
+    ]
+  },
+  "main_gauche": {
+    "name": "Main-Gauche",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Strike an adjacent enemy for 3. Follow-up: deal 3 more and draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/main_gauche.png",
+    "reward_pool": false,
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 3
+          }
+        }
+      ],
+      "append": [
+        {
+          "type": "draw",
+          "amount": 1
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 3,
+        "range": 1,
+        "element": "none"
+      }
+    ]
+  },
+  "mirror_image": {
+    "name": "Mirror Image",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Create a 3-health illusion within range 3, then draw 1. Empower (+2 Time): 5 health instead.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/mirror_image.png",
+    "radiance": true,
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "health": 5
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ]
+  },
+  "overclock": {
+    "name": "Overclock",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Draw 1 and gain 1 card play. Empower (1 HP): draw 2 instead.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/overclock.png",
+    "empower": {
+      "cost": {
+        "health": 1
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "amount": 2
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "draw",
+        "amount": 1
+      },
+      {
+        "type": "card_play",
+        "amount": 1
+      }
+    ]
+  },
+  "overhead_smash": {
+    "name": "Overhead Smash",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Strike an adjacent enemy for 12. Empower (+2 Time): Stagger 4.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/overhead_smash.png",
+    "reward_pool": false,
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "stagger": 4
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 12,
+        "range": 1,
+        "element": "none"
+      }
+    ]
+  },
+  "palm_blade": {
+    "name": "Palm Blade",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Strike an adjacent enemy for 4. Follow-up: draw 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/palm_blade.png",
+    "reward_pool": false,
+    "follow_up": {
+      "mods": [],
+      "append": [
+        {
+          "type": "draw",
+          "amount": 1
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "element": "none"
+      }
+    ]
+  },
+  "palm_strike": {
+    "name": "Palm Strike",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Strike an adjacent enemy for 4. Follow-up: deal 3 more and push 1.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/palm_strike.png",
+    "reward_pool": false,
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 3
+          },
+          "set": {
+            "push": 1
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "element": "none"
+      }
+    ]
+  },
+  "rimefang": {
+    "name": "Rimefang",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 4 Ice damage at range 2. Follow-up: deal 3 more and leave Ice.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/rimefang.png",
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "damage": 3
+          },
+          "set": {
+            "surface": "ice"
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 2,
+        "element": "ice"
+      }
+    ]
+  },
+  "rite_of_hoarfrost": {
+    "name": "Rite of Hoarfrost",
+    "element": "ice",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Rite: whenever you Freeze an enemy, gain 3 Block and draw 1.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/rite_of_hoarfrost.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "status_applied_reward",
+          "status": "freeze",
+          "rewards": [
+            {
+              "type": "block",
+              "amount": 3
+            },
+            {
+              "type": "draw",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    "actions": []
+  },
+  "rite_of_noon": {
+    "name": "Rite of Noon",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Rite: you radiate radius-2 Light, and your attacks deal 2 more to enemies in Light.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/rite_of_noon.png",
+    "radiance": true,
+    "rite": {
+      "effects": [
+        {
+          "type": "player_light_aura",
+          "radius": 2
+        },
+        {
+          "type": "target_state_action_mod",
+          "conditions": {
+            "target_in_light": true
+          },
+          "add": {
+            "damage": 2
+          }
+        }
+      ]
+    },
+    "actions": []
+  },
+  "rite_of_tailwinds": {
+    "name": "Rite of Tailwinds",
+    "element": "air",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Rite: gain 1 extra independent movement each turn. Your Push and Pull move targets 1 tile farther.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/rite_of_tailwinds.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "independent_movement_bonus",
+          "amount": 1
+        },
+        {
+          "type": "forced_movement_bonus",
+          "amount": 1
+        }
+      ]
+    },
+    "actions": []
+  },
+  "rite_of_the_mountain": {
+    "name": "Rite of the Mountain",
+    "element": "earth",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Rite: at the start of each of your turns, gain 3 Stoneskin.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/rite_of_the_mountain.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "turn_start_reward",
+          "rewards": [
+            {
+              "type": "stoneskin",
+              "amount": 3
+            }
+          ]
+        }
+      ]
+    },
+    "actions": []
+  },
+  "rite_of_the_pyre": {
+    "name": "Rite of the Pyre",
+    "element": "fire",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Rite: your Fire tiles deal 2 more damage.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/rite_of_the_pyre.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "surface_damage_bonus",
+          "surface": "fire",
+          "amount": 2,
+          "owner": "player"
+        }
+      ]
+    },
+    "actions": []
+  },
+  "rite_of_the_storm": {
+    "name": "Rite of the Storm",
+    "element": "lightning",
+    "rarity": "epic",
+    "burn": true,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Rite: at the start of each of your turns, deal 2 Lightning damage to each enemy standing on Electrified.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/rite_of_the_storm.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "turn_start_surface_pulse",
+          "surface": "electrified",
+          "damage": 2,
+          "element": "lightning"
+        }
+      ]
+    },
+    "actions": []
+  },
+  "salamander_heart": {
+    "name": "Salamander Heart",
+    "element": "fire",
+    "rarity": "legendary",
+    "burn": true,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Rite: you ignore Fire damage. At the start of your turn, if you stand on Fire, gain 3 Stoneskin and draw 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/salamander_heart.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "surface_immunity",
+          "surface": "fire"
+        },
+        {
+          "type": "turn_start_on_surface",
+          "surface": "fire",
+          "rewards": [
+            {
+              "type": "stoneskin",
+              "amount": 3
+            },
+            {
+              "type": "draw",
+              "amount": 1
+            }
+          ]
+        }
+      ]
+    },
+    "actions": []
+  },
+  "static_mantle": {
+    "name": "Static Mantle",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Gain 5 Block. Until your next turn, enemies that hit you in melee are Shocked.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/static_mantle.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "retaliate",
+        "amount": 0,
+        "shock": 1
+      }
+    ]
+  },
+  "static_rush": {
+    "name": "Static Rush",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 2. Quicken 2: your next card this turn costs 2 less Time.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/static_rush.png",
+    "actions": [
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "quicken",
+        "amount": 2
+      }
+    ]
+  },
+  "stolen_moment": {
+    "name": "Stolen Moment",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 1,
+    "description": "Quicken 3: your next card this turn costs 3 less Time. Draw 1.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/stolen_moment.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "quicken",
+        "amount": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ]
+  },
+  "stonefist": {
+    "name": "Stonefist",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Strike for 5, plus 1 for each Stoneskin you have (maximum 6 more).",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/stonefist.png",
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 5,
+        "range": 1,
+        "element": "earth",
+        "scale_bonus": {
+          "per": "stoneskin",
+          "damage": 1,
+          "max": 6
+        }
+      }
+    ]
+  },
+  "stonewall_stance": {
+    "name": "Stonewall Stance",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 4 Stoneskin. Follow-up: gain 3 more.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/stonewall_stance.png",
+    "reward_pool": false,
+    "follow_up": {
+      "mods": [
+        {
+          "action": 0,
+          "add": {
+            "amount": 3
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "stoneskin",
+        "amount": 4
+      }
+    ]
+  },
+  "sunlance": {
+    "name": "Sunlance",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 4 at range 4. Deal 3 more if the target stands in Light.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/sunlance.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 4,
+        "element": "none",
+        "state_bonus": [
+          {
+            "state": "light",
+            "damage": 3
+          }
+        ]
+      }
+    ]
+  },
+  "sworn_oath": {
+    "name": "Sworn Oath",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Gain 3 Block. Your next attack this turn deals 3 more.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/sworn_oath.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 3
+      },
+      {
+        "type": "next_attack",
+        "damage": 3
+      }
+    ]
+  },
+  "tempest_form": {
+    "name": "Tempest Form",
+    "element": "lightning",
+    "rarity": "legendary",
+    "burn": true,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Rite: your cards cost 1 less Time (minimum 1).",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/tempest_form.png",
+    "rite": {
+      "effects": [
+        {
+          "type": "card_time_discount",
+          "amount": 1
+        }
+      ]
+    },
+    "actions": []
+  },
+  "throwing_net": {
+    "name": "Throwing Net",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Consume. Immobilize an enemy within range 3 and Stagger 3.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/throwing_net.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/throwing_net.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 0,
+        "range": 3,
+        "element": "none",
+        "immobilize": true,
+        "stagger": 3
+      }
+    ]
+  },
+  "tremor": {
+    "name": "Tremor",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 3 to each enemy within 2 tiles of you and Stagger 2. Empower (+2 Time): Stagger 4.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/tremor.png",
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "stagger": 4
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "aoe",
+        "damage": 3,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            -1,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "element": "earth",
+        "stagger": 2
+      }
+    ]
+  },
+  "whetstone": {
+    "name": "Whetstone",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Consume. Your next attack this turn deals 4 more and Pierces.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/whetstone.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/whetstone.png",
+    "actions": [
+      {
+        "type": "next_attack",
+        "damage": 4,
+        "pierce": true
+      }
+    ]
+  },
+  "wind_shear": {
+    "name": "Wind Shear",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 3 along a three-tile line at range 2 and push each target 1 away from you. Empower (+2 Time): push 2 instead.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/wind_shear.png",
+    "empower": {
+      "cost": {
+        "time": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "push": 2
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "aoe",
+        "damage": 3,
+        "range": 2,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true,
+        "element": "air",
+        "push": 1
+      }
+    ]
   }
 }

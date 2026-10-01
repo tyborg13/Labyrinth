@@ -9,8 +9,10 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const Ground = preload("res://scripts/board_surface_rules.gd")
 
 # Explicit range-4 identities (spec/reach_balance.md). The card pool overhaul
-# added Shiver Shot, Pinning Quarrel, Yank and Skybreak Current.
-const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current"]
+# added Shiver Shot, Pinning Quarrel, Yank and Skybreak Current, then Sunlance
+# and Hurl Spear (wave 2). Headlong (wave 3) is the one move-4 dash.
+const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current", "sunlance", "hurl_spear"]
+const LONG_MOVE_CARD_IDS: Array[String] = ["headlong"]
 
 static func run(expect: Callable) -> void:
 	_test_reach_contract(expect)
@@ -28,7 +30,7 @@ static func _test_reach_contract(expect: Callable) -> void:
 				var ceiling: int = 4 if card_id in LONG_SHOT_CARD_IDS else 3
 				expect.call(int(action.get("range", 0)) <= ceiling, "%s keeps ordinary reach short except the named long shots" % card_id)
 			if str(action["type"]) == "move":
-				expect.call(int(action["range"]) <= 3, "%s walking cannot cross most of a room" % card_id)
+				expect.call(int(action["range"]) <= (4 if card_id in LONG_MOVE_CARD_IDS else 3), "%s walking cannot cross most of a room" % card_id)
 
 	for enemy_type: String in ["crawler", "acolyte", "harrier", "warden", "cinder_ooze", "bile_bloomer", "chainbound_gaoler", "grave_surgeon", "frostglass_lancer", "lightning_wisp", "veilbound_acolyte", "cinder_droplet"]:
 		for intent: Dictionary in Data.enemy_def(enemy_type)["intents"]:

@@ -640,7 +640,37 @@ static func _collect_entry_ids_for_card_def(card: Dictionary, wanted: Dictionary
 			wanted["keyword:health_cost"] = true
 	if typeof(card.get("rite", null)) == TYPE_DICTIONARY and not (card["rite"] as Dictionary).is_empty():
 		wanted["keyword:rite"] = true
+		_collect_rite_entry_ids((card["rite"] as Dictionary).get("effects", []), wanted)
 	_collect_entry_ids_for_actions(card.get("actions", []), wanted)
+
+# A Rite's lasting effects teach the rules they lean on (spec/card_keywords_wave3.md).
+static func _collect_rite_entry_ids(effects: Variant, wanted: Dictionary) -> void:
+	if typeof(effects) != TYPE_ARRAY:
+		return
+	for effect_var: Variant in effects:
+		if typeof(effect_var) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = effect_var
+		match str(effect.get("type", "")):
+			"thorns":
+				wanted["keyword:retaliate"] = true
+			"status_applied_reward":
+				var status_entry: String = str(ACTION_FIELD_ENTRY_IDS.get(str(effect.get("status", "")), ""))
+				if not status_entry.is_empty():
+					wanted[status_entry] = true
+			"independent_movement_bonus":
+				wanted["keyword:move"] = true
+			"forced_movement_bonus":
+				for entry_id: String in ["keyword:push", "keyword:pull", "keyword:collision"]:
+					wanted[entry_id] = true
+			"player_light_aura":
+				wanted["keyword:illuminate"] = true
+			"target_state_action_mod":
+				if bool((effect.get("conditions", {}) as Dictionary).get("target_in_light", false)):
+					wanted["keyword:illuminate"] = true
+		_collect_surface_entry_ids(str(effect.get("surface", "")), wanted)
+		_collect_entry_ids_for_actions(effect.get("rewards", []), wanted)
+		_collect_nested_action_entry_ids(effect, wanted)
 
 static func entry_ids_for_enemy_types(enemy_types: Variant) -> Array[String]:
 	if typeof(enemy_types) != TYPE_ARRAY:
@@ -761,6 +791,21 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 			wanted["keyword:freeze"] = true
 		if int(action.get("illuminate_radius", 0)) > 0:
 			wanted["keyword:illuminate"] = true
+		# Per-hit state and scale bonuses teach the condition they read.
+		for bonus_var: Variant in (action.get("state_bonus", []) if typeof(action.get("state_bonus", [])) == TYPE_ARRAY else []):
+			if typeof(bonus_var) != TYPE_DICTIONARY:
+				continue
+			match str((bonus_var as Dictionary).get("state", "")):
+				"light":
+					wanted["keyword:illuminate"] = true
+				"frozen":
+					wanted["keyword:freeze"] = true
+		if typeof(action.get("scale_bonus", null)) == TYPE_DICTIONARY:
+			match str((action["scale_bonus"] as Dictionary).get("per", "")):
+				"stoneskin":
+					wanted["keyword:stoneskin"] = true
+				"tiles_moved":
+					wanted["keyword:move"] = true
 		if action_type == "summon_minions":
 			var minion_type: String = str(action.get("minion_type", ""))
 			var minion_entry: String = "enemy:%s" % minion_type

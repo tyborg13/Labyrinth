@@ -27,6 +27,23 @@ OVERHAUL_NEW_CARDS = {entry["id"]: entry for entry in overhaul.CARDS if entry["s
 OVERHAUL_PIECE_IDS = {piece["id"] for piece in overhaul.PIECES}
 # Illusions belong to the Radiance school after the overhaul (Mirror Charm).
 RADIANCE_MECHANICS = {"vision", "truesight", "illuminate", "dispel_umbra", "illusion"}
+# Waves 2-3: Light payoffs (a target-in-Light state bonus) and Rites that radiate
+# Light or reward attacks into it are Radiance mechanics too.
+RADIANCE_RITE_EFFECTS = {"player_light_aura"}
+
+
+def has_radiance_mechanic(card: dict) -> bool:
+    for action in card["actions"]:
+        if action.get("type") in RADIANCE_MECHANICS or action.get("illuminate_radius", 0):
+            return True
+        if any(isinstance(bonus, dict) and bonus.get("state") == "light" for bonus in action.get("state_bonus", [])):
+            return True
+    for effect in (card.get("rite") or {}).get("effects", []):
+        if effect.get("type") in RADIANCE_RITE_EFFECTS or (effect.get("conditions") or {}).get("target_in_light"):
+            return True
+    return False
+
+
 SURFACES = {"fire", "ice", "electrified", "rubble"}
 REMOVED_FIELDS = {"intensity", "intensity_bonus", "requires_intensity", "intensity_cost", "burn", "poison", "freeze"}
 TRANSFORMATIONS = {
@@ -133,7 +150,7 @@ def main() -> int:
         errors.append(f"Equipment IDs are not in the card pool overhaul gear record: {unknown_gear}")
     for card_id, card in cards.items():
         walk_rules(card["actions"], card_id, errors)
-        if card.get("radiance") and not any(action.get("type") in RADIANCE_MECHANICS or action.get("illuminate_radius", 0) for action in card["actions"]):
+        if card.get("radiance") and not has_radiance_mechanic(card):
             errors.append(f"{card_id}: Radiance tag has no Light mechanic")
         for action in card["actions"]:
             if action.get("surface") == "electrified" and len(action.get("surface_pattern", action.get("pattern", []))) > 1:
