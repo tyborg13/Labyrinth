@@ -12,7 +12,7 @@ during promotion. Earlier audition source/approval snapshots remain immutable.
 | Pre-battle, map/events, pause/settings, character/loadout, grimoire, card piles, merchant rooms | The Turning Key v02 |
 | Standard combat, including elemental encounters | Ashen Pursuit v03 (violin ensemble) |
 | Guardians/mini-bosses and non-dragon boss-bar enemies | Thorns in the Dark v02 (violin ensemble) |
-| Dragon bosses (Zekarion, Tharokh, Vyraketh, Vaeloryx, Iskaldra, Noctyrax) | Each dragon's own theme v01 (awaiting audition) |
+| Dragon bosses (Zekarion, Tharokh, Vyraketh, Vaeloryx, Iskaldra, Noctyrax) | Each dragon's own theme: v01 for the first five, v02 take A for Noctyrax (awaiting final approval) |
 | Main menu and its submenus | Existing Old Castle v07, unchanged |
 | Defeat | Existing Chopin Funeral March v05, unchanged |
 
@@ -41,7 +41,7 @@ Old Castle remains -6.5 dB and Chopin -7 dB; existing bus volume/reverb controls
 remain active. Context changes use a short sequential 0.25-second fade-out and
 0.65-second fade-in; the existing slower terminal-death transition is retained.
 
-## Dragon themes and stingers (2026-09-30, awaiting audition)
+## Dragon themes and stingers (2026-09-30, revised 2026-10-01)
 
 `DRAGON_THEMES_AND_STINGERS_AUDITION.json` records six looping dragon boss
 themes and three one-shot stingers from
@@ -56,7 +56,7 @@ one-shots on the dry UI SFX path. When the level-up overlay opens, a rare
 reward with an epic or legendary card is revealed, or a dragon falls, a
 stinger plays while a `MusicDuck` amplify stage on the Music bus dips the score
 by 9 dB beneath it and then recovers. Stingers never stack, and a rare-find
-stinger fades out the ordinary victory cue's tail. The owner has not yet auditioned them. Approval turns the manifest
+stinger fades out the ordinary victory cue's tail. v02 awaits the owner's Noctyrax A/B choice and stinger audition. Approval turns the manifest
 `status` to `approved_for_game_integration`.
 
 Inspection and hearing the mix in play are the next step; this integration does
