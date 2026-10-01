@@ -1139,6 +1139,9 @@ const SFX_DEFAULT_PITCH_VARIANCE: float = 0.035
 const SFX_PITCH_VARIANCE_MAX_LENGTH: float = 1.25
 const AMBIENT_FADE_FLOOR_DB: float = -36.0
 const AMBIENT_FADE_IN_SECONDS: float = 1.8
+const MUSIC_DUCK_DB: float = -9.0
+# A stinger may start once the previous one is into its decaying tail.
+const MUSIC_STINGER_TAIL_SECONDS: float = 1.2
 const CARD_PLAY_SECONDS: float = 0.23
 const CARD_PLAY_HOLD_SECONDS: float = 0.04
 const CARD_PILE_SECONDS: float = 0.24
@@ -1872,6 +1875,8 @@ var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
 var _sfx_pitch_rng := RandomNumberGenerator.new()
 var _ambient_fade_tween: Tween
+var _music_duck_tween: Tween
+var _music_stinger_until_msec: int = 0
 var _dialogue_portrait_frame: PanelContainer
 var _dialogue_portrait: TextureRect
 var _combat_atmosphere: Control
@@ -3802,6 +3807,12 @@ func _exit_tree() -> void:
 	_finalize_performance_telemetry_scene("scene_exit")
 
 func _shutdown_audio() -> void:
+	if _music_duck_tween != null and _music_duck_tween.is_valid():
+		_music_duck_tween.kill()
+	_music_stinger_until_msec = 0
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	if duck != null:
+		duck.volume_db = 0.0
 	_music_context_refresh_queued = false
 	_cancel_music_context_settle_wait()
 	_stop_music_tween()
@@ -16481,7 +16492,10 @@ func _play_post_combat_victory(board_state: Dictionary) -> void:
 	_render_board_state(board_state, {})
 	# Let the musical resolution ring through reward selection. Input follows
 	# the visible victory beat instead of waiting for the audio reverb tail.
-	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
+	if not MusicLibrary.dragon_in_fight(_run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)), board_state).is_empty():
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_BOSS_DEFEATED_ID))
+	else:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
 	await PostCombatRewardSequence.play_victory(
 		_post_combat_victory_overlay,
 		_reduced_motion_enabled()
@@ -16516,6 +16530,8 @@ func _play_reward_reveal() -> void:
 			if child is Control:
 				card_slots.append(child as Control)
 	var secondary_actions: Control = find_child("RewardSecondaryActions", true, false) as Control
+	if _reward_offers_rare_find():
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_RARE_REWARD_ID))
 	await PostCombatRewardSequence.play_reward_reveal(
 		stage_root,
 		_relic_choice_banner,
@@ -23007,6 +23023,13 @@ func _play_card_play_sfx() -> void:
 		return
 	_play_sfx(CARD_PLAY_SFX_ENTRY)
 
+func _reward_offers_rare_find() -> bool:
+	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	for card_id_var: Variant in reward_state.get("cards", []):
+		if str(GameData.card_def(str(card_id_var)).get("rarity", "")) in ["epic", "legendary"]:
+			return true
+	return false
+
 func _play_reward_card_flip_sfx() -> void:
 	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
 
@@ -25299,6 +25322,10 @@ func _play_sfx(entry: Dictionary) -> float:
 	var resource: AudioStream = AssetLoader.load_audio_stream(path)
 	if resource == null:
 		return 0.0
+	var is_stinger: bool = bool(entry.get("music_duck", false))
+	if is_stinger and Time.get_ticks_msec() < _music_stinger_until_msec:
+		# Never stack stingers: a dragon kill's fanfare owns the reward reveal.
+		return 0.0
 	var player: AudioStreamPlayer = _acquire_sfx_player()
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
@@ -25309,6 +25336,9 @@ func _play_sfx(entry: Dictionary) -> float:
 	player.pitch_scale = _sfx_pitch_for_entry(entry, resource)
 	if player.is_inside_tree():
 		player.play()
+	if is_stinger:
+		_music_stinger_until_msec = Time.get_ticks_msec() + int(maxf(0.0, resource.get_length() - MUSIC_STINGER_TAIL_SECONDS) * 1000.0)
+		_duck_music_for(resource.get_length())
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
@@ -25326,6 +25356,18 @@ func _sfx_pitch_for_entry(entry: Dictionary, resource: AudioStream) -> float:
 	if variance <= 0.0:
 		return 1.0
 	return 1.0 + _sfx_pitch_rng.randf_range(-variance, variance)
+
+# Dip the score under a musical stinger, then let it swell back.
+func _duck_music_for(seconds: float) -> void:
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	if duck == null or not is_inside_tree():
+		return
+	if _music_duck_tween != null and _music_duck_tween.is_valid():
+		_music_duck_tween.kill()
+	_music_duck_tween = create_tween().set_ignore_time_scale(true)
+	_music_duck_tween.tween_property(duck, "volume_db", MUSIC_DUCK_DB, 0.18)
+	_music_duck_tween.tween_interval(maxf(0.0, seconds - 0.9))
+	_music_duck_tween.tween_property(duck, "volume_db", 0.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _play_trap_sfx(traps: Array) -> void:
 	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
@@ -29166,6 +29208,7 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_persist_committed_boundary("level_up_ack")
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID))
 	if present_feedback:
 		var token: int = _campfire_presentation.generation
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_STRENGTH_ID))

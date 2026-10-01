@@ -33,6 +33,26 @@ class OriginalSoundtrackAssets(unittest.TestCase):
             self.assertEqual(sha(source / 'arrangement.mid'), track['midi_sha256'])
             self.assertIn('loop=true', (ROOT / (track['asset'] + '.import')).read_text())
 
+    def test_dragon_themes_and_stingers_are_exact_copies_of_verified_renders(self):
+        audition = json.loads((MUSIC / 'DRAGON_THEMES_AND_STINGERS_AUDITION.json').read_text())
+        self.assertIn(audition['status'], {'awaiting_owner_audition', 'approved_for_game_integration'})
+        self.assertEqual(sum(1 for t in audition['tracks'] if t['loop']), 6)
+        self.assertEqual(sum(1 for t in audition['tracks'] if not t['loop']), 3)
+        manifest = json.loads((ROOT / audition['tracks'][0]['source_manifest']).read_text())
+        for rel, expected in manifest['inputs_sha256'].items():
+            self.assertEqual(sha(ROOT / rel), expected, rel)
+        for track in audition['tracks']:
+            source = ROOT / track['source']
+            render = json.loads((source / 'render.json').read_text())
+            for name, expected in render['artifacts_sha256'].items():
+                self.assertEqual(sha(source / name), expected, name)
+            self.assertEqual((ROOT / track['asset']).read_bytes(), (source / 'preview.ogg').read_bytes())
+            self.assertEqual(sha(ROOT / track['asset']), track['ogg_sha256'])
+            self.assertEqual(sha(source / 'preview.flac'), track['flac_sha256'])
+            self.assertEqual(sha(source / 'arrangement.mid'), track['midi_sha256'])
+            loop_flag = 'loop=true' if track['loop'] else 'loop=false'
+            self.assertIn(loop_flag, (ROOT / (track['asset'] + '.import')).read_text())
+
     def test_main_menu_and_defeat_remain_exactly_preserved(self):
         for name, expected in {
             'mussorgsky_old_castle_main_menu.ogg': '57fabef2f4298b22ef7477e18b261702152483c9cb7aabe43acd99ece952fdc8',

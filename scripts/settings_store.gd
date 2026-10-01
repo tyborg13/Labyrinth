@@ -53,6 +53,9 @@ const SFX_GLUE_RELEASE_MS: float = 140.0
 const SFX_GLUE_GAIN_DB: float = 0.0
 const MASTER_LIMITER_CEILING_DB: float = -0.8
 const MASTER_LIMITER_RELEASE_S: float = 0.12
+# A neutral gain stage on the Music bus lets stingers dip the score under them
+# without touching the player's volume setting or the score's own fades.
+const MUSIC_DUCK_EFFECT_NAME: String = "MusicDuck"
 
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
@@ -156,6 +159,22 @@ static func ensure_audio_buses() -> void:
 	_ensure_music_reverb()
 	_ensure_sfx_glue_compressor()
 	_ensure_master_limiter()
+	_ensure_music_duck()
+
+static func music_duck_effect() -> AudioEffectAmplify:
+	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)
+	if bus_index < 0:
+		return null
+	return _find_bus_effect(bus_index, "AudioEffectAmplify") as AudioEffectAmplify
+
+static func _ensure_music_duck() -> void:
+	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)
+	if bus_index < 0 or music_duck_effect() != null:
+		return
+	var amplify := AudioEffectAmplify.new()
+	amplify.resource_name = MUSIC_DUCK_EFFECT_NAME
+	amplify.volume_db = 0.0
+	AudioServer.add_bus_effect(bus_index, amplify, 0)
 
 static func _ensure_sfx_glue_compressor() -> void:
 	var bus_index: int = AudioServer.get_bus_index(SFX_BUS)

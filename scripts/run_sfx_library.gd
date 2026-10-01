@@ -18,6 +18,9 @@ const HEARTH_DEPART_ID: String = "run.ember_hearth_depart"
 const MENU_OPEN_ID: String = "run.menu_page_open"
 const MENU_CLOSE_ID: String = "run.menu_page_close"
 const DUNGEON_AMBIENCE_ID: String = "run.dungeon_hall_ambience"
+const STINGER_LEVEL_UP_ID: String = "run.stinger_level_up"
+const STINGER_RARE_REWARD_ID: String = "run.stinger_rare_reward"
+const STINGER_BOSS_DEFEATED_ID: String = "run.stinger_boss_defeated"
 # Modes that sit inside the torch-lit halls get the quiet stone-hall bed. The
 # campfire owns its own fire loop; terminal and menu-like modes stay dry so the
 # music carries them.
@@ -98,6 +101,28 @@ const SFX: Dictionary = {
 		"volume_db": -20.0,
 		"bus": SettingsStore.WORLD_SFX_BUS,
 		"loop": true
+	},
+	# Short musical stingers play as dry UI cues while the score dips beneath them.
+	STINGER_LEVEL_UP_ID: {
+		"path": "res://assets/audio/music/stingers/level_up_v01.ogg",
+		"volume_db": -4.0,
+		"bus": SettingsStore.UI_SFX_BUS,
+		"pitch_variance": 0.0,
+		"music_duck": true
+	},
+	STINGER_RARE_REWARD_ID: {
+		"path": "res://assets/audio/music/stingers/rare_reward_v01.ogg",
+		"volume_db": -4.0,
+		"bus": SettingsStore.UI_SFX_BUS,
+		"pitch_variance": 0.0,
+		"music_duck": true
+	},
+	STINGER_BOSS_DEFEATED_ID: {
+		"path": "res://assets/audio/music/stingers/boss_defeated_v01.ogg",
+		"volume_db": -3.0,
+		"bus": SettingsStore.UI_SFX_BUS,
+		"pitch_variance": 0.0,
+		"music_duck": true
 	},
 	VICTORY_RESOLUTION_ID: {
 		"path": "res://assets/audio/sfx/run/victory_resolution.wav",

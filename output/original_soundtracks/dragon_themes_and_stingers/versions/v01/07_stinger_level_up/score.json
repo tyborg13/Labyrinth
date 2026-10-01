@@ -1,0 +1,373 @@
+{
+  "bars": 2,
+  "beats_per_bar": 4,
+  "bpm": 120,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "G/B | A | D",
+      "triads": [
+        "G",
+        "A",
+        "D"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "D",
+      "triads": [
+        "D"
+      ]
+    }
+  ],
+  "identity": {
+    "gesture": "rising scale into a sustained D major arrival",
+    "use": "character level up"
+  },
+  "key": "D major (IV-V-I)",
+  "kind": "stinger",
+  "lead_instrument": "violin_1",
+  "mix": {
+    "drums": [
+      "drums",
+      -3.0
+    ],
+    "hollow_bass": [
+      "hollow_bass",
+      -1.0
+    ],
+    "lantern_mallet": [
+      "thread_pluck",
+      3.0
+    ],
+    "thread_pluck": [
+      "thread_pluck",
+      2.0
+    ],
+    "viola": [
+      "viola",
+      0.0
+    ],
+    "violin_1": [
+      "violin_1",
+      1.0
+    ],
+    "violin_2": [
+      "violin_2",
+      0.0
+    ]
+  },
+  "mood": "Warm rising flourish: IV-V-I with a chromatic G-G#-A lift into a bright D chord.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 0.95,
+      "instrument": "hollow_bass",
+      "pitch": 47,
+      "velocity": 74
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 58
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.0,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 66
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.5,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 80
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.0,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 70
+    },
+    {
+      "beat": 0.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 55
+    },
+    {
+      "beat": 0.5,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 58
+    },
+    {
+      "beat": 0.5,
+      "duration": 0.5,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 77
+    },
+    {
+      "beat": 0.75,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 67,
+      "velocity": 55
+    },
+    {
+      "beat": 1.0,
+      "duration": 0.95,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 76
+    },
+    {
+      "beat": 1.0,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 58
+    },
+    {
+      "beat": 1.0,
+      "duration": 1.0,
+      "instrument": "viola",
+      "pitch": 64,
+      "velocity": 63
+    },
+    {
+      "beat": 1.0,
+      "duration": 0.5,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 80
+    },
+    {
+      "beat": 1.0,
+      "duration": 1.0,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 67
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 55
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 40
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 64,
+      "velocity": 58
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.25,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 77
+    },
+    {
+      "beat": 1.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 48
+    },
+    {
+      "beat": 1.75,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 69,
+      "velocity": 55
+    },
+    {
+      "beat": 1.75,
+      "duration": 0.25,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 80
+    },
+    {
+      "beat": 2.0,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 2.0,
+      "duration": 2.1,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 84
+    },
+    {
+      "beat": 2.0,
+      "duration": 0.45,
+      "instrument": "lantern_mallet",
+      "pitch": 78,
+      "velocity": 62
+    },
+    {
+      "beat": 2.0,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 58
+    },
+    {
+      "beat": 2.0,
+      "duration": 2.0,
+      "instrument": "viola",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 2.0,
+      "duration": 2.0,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 77
+    },
+    {
+      "beat": 2.0,
+      "duration": 2.0,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 70
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 55
+    },
+    {
+      "beat": 2.5,
+      "duration": 0.45,
+      "instrument": "lantern_mallet",
+      "pitch": 81,
+      "velocity": 59
+    },
+    {
+      "beat": 2.5,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 69,
+      "velocity": 58
+    },
+    {
+      "beat": 2.75,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 74,
+      "velocity": 55
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.2,
+      "instrument": "lantern_mallet",
+      "pitch": 86,
+      "velocity": 62
+    }
+  ],
+  "palette": "Thorns in the Dark v02 string ensemble (violins/viola over pluck, bass, restrained drums)",
+  "patches": {
+    "drums": {
+      "gain": 0.25,
+      "lowpass_hz": 1200,
+      "pan": 0.0,
+      "program": 0,
+      "wet": 0.09
+    },
+    "hollow_bass": {
+      "gain": 0.23,
+      "pan": 0.0,
+      "program": 38,
+      "wet": 0.04
+    },
+    "lantern_mallet": {
+      "gain": 0.125,
+      "lowpass_hz": 4000,
+      "pan": 0.24,
+      "program": 11,
+      "wet": 0.3
+    },
+    "thread_pluck": {
+      "gain": 0.105,
+      "lowpass_hz": 2000,
+      "pan": 0.3,
+      "program": 10,
+      "wet": 0.23
+    },
+    "viola": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0028,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.22,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.27
+    },
+    "violin_1": {
+      "attack_seconds": 0.048,
+      "bow_noise": 0.0038,
+      "lowpass_hz": 3200,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.16,
+      "vibrato_cents": 9,
+      "vibrato_hz": 4.9,
+      "voice": "violin",
+      "wet": 0.24
+    },
+    "violin_2": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0038,
+      "lowpass_hz": 2900,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.22,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.27
+    }
+  },
+  "reverb": {
+    "rt60_seconds": 1.5,
+    "wet": 0.22
+  },
+  "schema_version": 1,
+  "sections": [
+    "0-1 s: rising IV-V run with arpeggiated pluck",
+    "1 s: D major arrival, bell sparkle, natural tail"
+  ],
+  "slug": "07_stinger_level_up",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Level Up",
+  "version": "v01"
+}

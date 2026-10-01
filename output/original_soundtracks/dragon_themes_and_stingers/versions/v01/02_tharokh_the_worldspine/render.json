@@ -1,0 +1,183 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "d7b4cff32def8b9b0eae3361aca4c678e5151e1057eb7990a3bb73d004dedf1f",
+    "preview.flac": "5c4da5563010b9be878b5cf7355cb4c19c2a576acc3a973923b0e40c72f3650d",
+    "preview.mp3": "2beefd5add75cb774e396cf8fef0e9d21137f07bbc3e6995714f041cefd0af76",
+    "preview.ogg": "b741d24775f944367fb1a7e98f2637282959b41e6fedbfa1086ccccd48aeeb0e",
+    "score.json": "742726d92d087656dc3ec7f24cb41d41fd002d0189bd91d2b100768a221b18c0"
+  },
+  "bars": 16,
+  "bpm": 64,
+  "channels": 2,
+  "circular_continuity_before_taper": {
+    "p99_9_adjacent_delta": [
+      0.032954687387077485,
+      0.031095960497061516
+    ],
+    "ratio": [
+      0.05371804371844682,
+      0.04692441952832227
+    ],
+    "wrap_sample_delta": [
+      0.0017702613377867764,
+      0.0014591598960002512
+    ]
+  },
+  "decoded": {
+    "flac": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -20.0,
+      "loudness_range_lu": 1.4,
+      "momentary_max_lufs": -17.6,
+      "sample_peak_dbfs": -7.1,
+      "sample_seam_to_p99_9_ratio": [
+        0.0,
+        0.0
+      ],
+      "seam_profile": {
+        "band_limit_db": 11.269679228963293,
+        "internal_band_distance_db_p50": 3.295433499745402,
+        "internal_band_distance_db_p95": 8.153382463782432,
+        "internal_band_distance_db_p99": 10.207040284057038,
+        "internal_rms_step_db_p50": 0.5059313285142082,
+        "internal_rms_step_db_p95": 3.230102513700663,
+        "internal_rms_step_db_p99": 8.425585900588876,
+        "rms_limit_db": 9.728411261245434,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 8.54044512741219,
+        "seam_band_distance_percentile": 95.39748953974896,
+        "seam_rms_step_db": 7.494463448192839,
+        "seam_rms_step_percentile": 98.33055091819699,
+        "section_boundary_band_distance_db": [
+          10.769679228963293,
+          8.77896744847377,
+          7.3073948631791765
+        ],
+        "section_boundary_rms_step_db": [
+          8.301657998104371,
+          9.228411261245434,
+          8.422724721530027
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -18.9,
+      "true_peak_dbtp": -7.08
+    },
+    "mp3": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -20.26,
+      "loudness_range_lu": 1.3,
+      "momentary_max_lufs": -17.9,
+      "sample_peak_dbfs": -7.3,
+      "short_term_max_lufs": -19.2,
+      "true_peak_dbtp": -7.35
+    },
+    "ogg": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -19.99,
+      "loudness_range_lu": 1.4,
+      "momentary_max_lufs": -17.6,
+      "sample_peak_dbfs": -7.0,
+      "sample_seam_to_p99_9_ratio": [
+        0.18320369304069006,
+        0.17325655147785132
+      ],
+      "seam_profile": {
+        "band_limit_db": 16.53403994730932,
+        "internal_band_distance_db_p50": 3.4056792901104713,
+        "internal_band_distance_db_p95": 8.82396740310691,
+        "internal_band_distance_db_p99": 12.050996955109596,
+        "internal_rms_step_db_p50": 0.4944807846384869,
+        "internal_rms_step_db_p95": 3.2376330456128986,
+        "internal_rms_step_db_p99": 8.352850962577063,
+        "rms_limit_db": 9.74177773572907,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 11.268192316779375,
+        "seam_band_distance_percentile": 97.48953974895397,
+        "seam_rms_step_db": 7.495904029598371,
+        "seam_rms_step_percentile": 98.33055091819699,
+        "section_boundary_band_distance_db": [
+          16.03403994730932,
+          11.223676331004178,
+          7.7137970753661875
+        ],
+        "section_boundary_rms_step_db": [
+          8.31397774591122,
+          9.24177773572907,
+          8.346779174927118
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -18.9,
+      "true_peak_dbtp": -7.04
+    }
+  },
+  "key": "A minor with a Phrygian B-flat (A Phrygian-inflected; E7 cadences)",
+  "kind": "loop_theme",
+  "loop_duration_seconds": 60.0,
+  "loop_method": "periodic overlap-add of every release tail, circular echo/filters, exact bar length, 2 ms endpoint taper (Thorns v02 convention)",
+  "master_gain": 1.3645831365889243,
+  "note_counts": {
+    "bowed_veil": 17,
+    "cello": 55,
+    "drums": 98,
+    "hollow_bass": 64,
+    "thread_pluck": 80,
+    "viola": 100,
+    "violin_1": 35
+  },
+  "pre_master_sample_peak_dbfs": -7.0858224483602426,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "bowed_veil": 1.2867672530296717,
+      "cello": 0.2037042077705718,
+      "drums": 0.8560517117200949,
+      "hollow_bass": 0.8433347577642754,
+      "thread_pluck": 1.25025903021772,
+      "viola": 0.17278259805078627,
+      "violin_1": 0.13931568029453026
+    },
+    "lead_above_middle_lu": 2.6,
+    "lufs_in_matched_mix": {
+      "bowed_veil": -34.29,
+      "cello": -26.95,
+      "drums": -29.39,
+      "hollow_bass": -23.28,
+      "thread_pluck": -37.27,
+      "viola": -29.55,
+      "violin_1": -30.08
+    },
+    "post_master_peak_dbfs": {
+      "bowed_veil": -23.67,
+      "cello": -19.13,
+      "drums": -12.79,
+      "hollow_bass": -14.8,
+      "thread_pluck": -24.23,
+      "viola": -21.82,
+      "violin_1": -24.61
+    },
+    "target_pre_master_lufs": {
+      "bowed_veil": -37.21,
+      "cello": -29.84,
+      "drums": -32.19,
+      "hollow_bass": -26.03,
+      "thread_pluck": -39.92,
+      "viola": -32.34,
+      "violin_1": -32.84
+    }
+  },
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Tharokh, the Worldspine",
+  "version": "v01"
+}

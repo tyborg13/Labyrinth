@@ -19,10 +19,18 @@ static func run(expect: Callable) -> void:
 	for element: String in ["fire", "ice", "lightning", "air", "earth", "none"]:
 		_check(expect, "combat", {"type": "combat", "element": element}, {}, false, Music.ASHEN_PURSUIT_TRACK_ID)
 	for room_type: String in ["boss", "guardian"]:
-		_check(expect, "combat", {"type": room_type, "boss_id": "zekarion"}, {}, false, Music.THORNS_TRACK_ID)
+		_check(expect, "combat", {"type": room_type, "boss_id": "zekarion"}, {}, false, str(Music.DRAGON_THEME_TRACK_IDS["zekarion"]))
 		_check(expect, "pre_battle", {"type": room_type}, {}, false, Music.TURNING_KEY_TRACK_ID)
 		_check(expect, "room", {"type": room_type, "cleared": true}, {}, false, Music.LANTERNS_TRACK_ID)
-	_check(expect, "combat", {"type": "combat"}, {"enemies": [{"type": "tharokh"}]}, false, Music.THORNS_TRACK_ID)
+	_check(expect, "combat", {"type": "combat"}, {"enemies": [{"type": "tharokh"}]}, false, str(Music.DRAGON_THEME_TRACK_IDS["tharokh"]))
+	# Every dragon owns a distinct theme; guardians keep Thorns in the Dark.
+	var dragon_tracks: Dictionary = {}
+	for dragon_id: String in Music.DRAGON_THEME_TRACK_IDS:
+		var dragon_entry: Dictionary = Music.entry_for_context("combat", {"type": "boss", "boss_id": dragon_id}, {})
+		expect.call(str(dragon_entry.get("id", "")) == str(Music.DRAGON_THEME_TRACK_IDS[dragon_id]), "%s should play its own theme" % dragon_id)
+		expect.call(FileAccess.file_exists(str(dragon_entry.get("path", ""))), "%s theme asset should ship" % dragon_id)
+		dragon_tracks[str(dragon_entry.get("path", ""))] = true
+	expect.call(dragon_tracks.size() == Music.DRAGON_THEME_TRACK_IDS.size(), "Dragon themes should be distinct files")
 	_check(expect, "combat", {}, {"room_type": "guardian"}, false, Music.THORNS_TRACK_ID)
 	_check(expect, "pre_battle", {"type": "combat"}, {}, false, Music.TURNING_KEY_TRACK_ID)
 	_check(expect, "room", {"type": "combat", "cleared": false}, {}, false, Music.TURNING_KEY_TRACK_ID)

@@ -1,0 +1,145 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "e838984b4e9d12aae093e6b8f6092e88cbd20a731ca8ff10b6e4d2cb48180693",
+    "preview.flac": "953f32d6f930080df1fcc5b46ea82ad2d8d09efc66420bf7550897f304106b8d",
+    "preview.mp3": "84959f74a03caa8770e93dfb7fb21887495c7519315134d14c8f9ab648a6f481",
+    "preview.ogg": "9ee653cd31f6b0645b743e8acd90ad4e437bdb97182dbfd8f339a66a775e135a",
+    "score.json": "20835a981700ba257abb0e3fb8b46ca6f4fb454f41ff047773a72bb5d221a6e1"
+  },
+  "bars": 3,
+  "bpm": 84,
+  "canvas_final_100ms_rel_peak_db": -68.84581224651832,
+  "channels": 2,
+  "decoded": {
+    "flac": {
+      "duration_seconds": 6.76984375,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -15.5,
+      "sample_peak_dbfs": -5.5,
+      "shape": {
+        "duration_seconds": 6.76984375,
+        "final_10ms_peak_dbfs": -240.0,
+        "final_50ms_rms_dbfs": -101.68693927213323,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -55.42114377964468,
+          -55.373442138431166,
+          -56.95167612887821,
+          -60.80512726267485,
+          -73.40384003237561,
+          -88.49056281974663
+        ],
+        "onset_seconds": 0.00078125
+      },
+      "short_term_max_lufs": -17.5,
+      "true_peak_dbtp": -5.5
+    },
+    "mp3": {
+      "duration_seconds": 6.76984375,
+      "integrated_lufs": -18.2,
+      "momentary_max_lufs": -15.7,
+      "sample_peak_dbfs": -5.8,
+      "shape": {
+        "duration_seconds": 6.76984375,
+        "final_10ms_peak_dbfs": -154.70075702678002,
+        "final_50ms_rms_dbfs": -101.90420435088095,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -55.68535370471248,
+          -55.63941356939375,
+          -57.22417262274077,
+          -61.06868709326149,
+          -73.66454530210702,
+          -88.78119948384979
+        ],
+        "onset_seconds": 0.00078125
+      },
+      "short_term_max_lufs": -17.7,
+      "true_peak_dbtp": -5.8
+    },
+    "ogg": {
+      "duration_seconds": 6.77,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -15.5,
+      "sample_peak_dbfs": -5.4,
+      "shape": {
+        "duration_seconds": 6.77,
+        "final_10ms_peak_dbfs": -106.02060566254497,
+        "final_50ms_rms_dbfs": -102.01412595637102,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -55.45334722746362,
+          -55.35972228874641,
+          -56.979281522939964,
+          -60.81331217930256,
+          -73.42157940819243,
+          -88.53060999388242
+        ],
+        "onset_seconds": 0.00084375
+      },
+      "short_term_max_lufs": -17.5,
+      "true_peak_dbtp": -5.4
+    }
+  },
+  "key": "C major (Aeolian bVI-bVII-I)",
+  "kind": "stinger",
+  "limited_by": "loudness target",
+  "master_gain": 1.5056757963901526,
+  "note_counts": {
+    "drums": 9,
+    "hollow_bass": 3,
+    "lantern_mallet": 3,
+    "thread_pluck": 13,
+    "viola": 3,
+    "violin_1": 5,
+    "violin_2": 3
+  },
+  "reverb": {
+    "rt60_seconds": 2.0,
+    "wet": 0.24
+  },
+  "sample_peak_ceiling_dbfs": -3.0,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "drums": 0.6958249547006053,
+      "hollow_bass": 0.7302978128733654,
+      "lantern_mallet": 0.5242036010084626,
+      "thread_pluck": 0.5970352865838366,
+      "viola": 0.13243415351946644,
+      "violin_1": 0.2142890601120059,
+      "violin_2": 0.14945140423664574
+    },
+    "post_master_peak_dbfs": {
+      "drums": -9.6,
+      "hollow_bass": -13.83,
+      "lantern_mallet": -22.92,
+      "thread_pluck": -23.72,
+      "viola": -23.02,
+      "violin_1": -19.4,
+      "violin_2": -22.4
+    },
+    "target_pre_master_lufs": {
+      "drums": -31.689999999999998,
+      "hollow_bass": -25.53,
+      "lantern_mallet": -35.92,
+      "thread_pluck": -38.92,
+      "viola": -32.84,
+      "violin_1": -28.34,
+      "violin_2": -31.340000000000003
+    }
+  },
+  "tail_method": "linear (non-circular) render, synthetic hall tail, trimmed 50 ms after the tail falls 54 dB below peak, 3 ms fade-in and 350 ms cosine fade over the already-quiet end",
+  "target_integrated_lufs": -18.0,
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Boss Defeated",
+  "version": "v01"
+}

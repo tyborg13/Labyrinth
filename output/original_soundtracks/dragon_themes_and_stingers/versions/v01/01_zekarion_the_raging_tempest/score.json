@@ -1,0 +1,7377 @@
+{
+  "bars": 32,
+  "beats_per_bar": 4,
+  "bpm": 156,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 3,
+      "chord": "D7 (German-sixth colour)",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 4,
+      "chord": "C#7",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 5,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 6,
+      "chord": "Bm",
+      "triads": [
+        "Bm"
+      ]
+    },
+    {
+      "bar": 7,
+      "chord": "G (Neapolitan)",
+      "triads": [
+        "G"
+      ]
+    },
+    {
+      "bar": 8,
+      "chord": "C#7(b9)",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 9,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 10,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 11,
+      "chord": "D7 (German-sixth colour)",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 12,
+      "chord": "C#7",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 13,
+      "chord": "Bm",
+      "triads": [
+        "Bm"
+      ]
+    },
+    {
+      "bar": 14,
+      "chord": "E(add9)",
+      "triads": [
+        "E"
+      ]
+    },
+    {
+      "bar": 15,
+      "chord": "Dmaj7",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 16,
+      "chord": "C#7(b9)",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 17,
+      "chord": "Dmaj7",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 18,
+      "chord": "Dmaj7",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 19,
+      "chord": "E(add9)",
+      "triads": [
+        "E"
+      ]
+    },
+    {
+      "bar": 20,
+      "chord": "E(add9)",
+      "triads": [
+        "E"
+      ]
+    },
+    {
+      "bar": 21,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 22,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 23,
+      "chord": "G (Neapolitan)",
+      "triads": [
+        "G"
+      ]
+    },
+    {
+      "bar": 24,
+      "chord": "C#7(b9)",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 25,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 26,
+      "chord": "F#m",
+      "triads": [
+        "F#m"
+      ]
+    },
+    {
+      "bar": 27,
+      "chord": "D7 (German-sixth colour)",
+      "triads": [
+        "D"
+      ]
+    },
+    {
+      "bar": 28,
+      "chord": "C#7",
+      "triads": [
+        "C#"
+      ]
+    },
+    {
+      "bar": 29,
+      "chord": "Bm",
+      "triads": [
+        "Bm"
+      ]
+    },
+    {
+      "bar": 30,
+      "chord": "G (Neapolitan)",
+      "triads": [
+        "G"
+      ]
+    },
+    {
+      "bar": 31,
+      "chord": "G (Neapolitan)",
+      "triads": [
+        "G"
+      ]
+    },
+    {
+      "bar": 32,
+      "chord": "C#7(b9)",
+      "triads": [
+        "C#"
+      ]
+    }
+  ],
+  "identity": {
+    "dragon": "Zekarion, the Raging Tempest",
+    "element": "lightning",
+    "motif": "F#-C#-G-F# zigzag in dotted sixteenths (3+3+3+3+2+2), the G natural as a flash",
+    "relation_to_thorns": "Same ensemble and minor-key combat pulse; 40 BPM faster, F# not C, syncopated 3+3+2 instead of Thorns' even eighths.",
+    "tonic": "F#"
+  },
+  "key": "F# minor; Phrygian G-natural flashes, German-sixth D7 and C#7(b9) strikes",
+  "kind": "loop_theme",
+  "lead_instrument": "violin_1",
+  "mix": {
+    "bowed_veil": [
+      "bowed_veil",
+      -1.0
+    ],
+    "drums": [
+      "drums",
+      1.0
+    ],
+    "hollow_bass": [
+      "hollow_bass",
+      0.0
+    ],
+    "thread_pluck": [
+      "thread_pluck",
+      1.0
+    ],
+    "viola": [
+      "viola",
+      0.5
+    ],
+    "violin_1": [
+      "violin_1",
+      0.75
+    ],
+    "violin_2": [
+      "violin_2",
+      0.5
+    ]
+  },
+  "mood": "Lightning boss: a jagged dotted-sixteenth zigzag over 3+3+2 stabs, restless tremolo and crackle.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 56
+    },
+    {
+      "beat": 0,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 0,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 0.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 0.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 1.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 1.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 1.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 59
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 63
+    },
+    {
+      "beat": 2.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 2.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 3,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 3,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 78
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 3.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 3.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 3.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 4,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 4,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 4.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 4.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 4.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 78
+    },
+    {
+      "beat": 4.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 4.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 4.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 5.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 5.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 71,
+      "velocity": 78
+    },
+    {
+      "beat": 5.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 5.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 5.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 5.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 5.5,
+      "duration": 2.3,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 5.5,
+      "duration": 2.2,
+      "instrument": "violin_2",
+      "pitch": 66,
+      "velocity": 63
+    },
+    {
+      "beat": 6.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 6.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 7,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 7,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 7.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 7.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 7.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 7.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 8.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 60,
+      "velocity": 56
+    },
+    {
+      "beat": 8,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 8,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 84
+    },
+    {
+      "beat": 8.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 64
+    },
+    {
+      "beat": 8.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 8.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 78
+    },
+    {
+      "beat": 8.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "velocity": 66
+    },
+    {
+      "beat": 8.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 8.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 9.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 9.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 50,
+      "velocity": 70
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 62
+    },
+    {
+      "beat": 9.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 9.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "velocity": 63
+    },
+    {
+      "beat": 10.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 10.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 10.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 11,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 11,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 74
+    },
+    {
+      "beat": 11.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 60
+    },
+    {
+      "beat": 11.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 60,
+      "velocity": 62
+    },
+    {
+      "beat": 11.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 11.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 11.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 11.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 48
+    },
+    {
+      "beat": 11.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 12,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 12,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 12.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 12.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 12.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 78
+    },
+    {
+      "beat": 12.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 12.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 12.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 75
+    },
+    {
+      "beat": 13.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 13.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 13.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 13.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 13.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 13.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 59
+    },
+    {
+      "beat": 13.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 13.5,
+      "duration": 2.2,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 14.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 14.0,
+      "duration": 1.7,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 78
+    },
+    {
+      "beat": 14.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 15,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 54
+    },
+    {
+      "beat": 15,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 44,
+      "velocity": 72
+    },
+    {
+      "beat": 15.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 15.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 15.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "beat": 15.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 15.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 15.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 15.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 64
+    },
+    {
+      "beat": 16.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 56
+    },
+    {
+      "beat": 16,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 16,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 16.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 16.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 16.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 17.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 17.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 17.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 59
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 63
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 18.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 18.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 19,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 19,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 78
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 20.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 20,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 20,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 84
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 64
+    },
+    {
+      "beat": 20.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 20.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 20.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 21.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 21.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 21.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 47,
+      "velocity": 70
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 21.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 21.5,
+      "duration": 2.3,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 21.5,
+      "duration": 2.2,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 22.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 22.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 23,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 23,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 74
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 60
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 48
+    },
+    {
+      "beat": 24.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 24,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 24,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 84
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 24.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 24.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 48
+    },
+    {
+      "beat": 24.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 75
+    },
+    {
+      "beat": 25.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 50
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 25.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 62
+    },
+    {
+      "beat": 25.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 48
+    },
+    {
+      "beat": 26.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 26.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 50
+    },
+    {
+      "beat": 27,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 27,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 74
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 60
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 48
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 28.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 28,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 28,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 28.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 28.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 28.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 29.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 29.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 29.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 29.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 75
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 78
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 75
+    },
+    {
+      "beat": 31,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 54
+    },
+    {
+      "beat": 31,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 44,
+      "velocity": 72
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 62
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.8,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 78
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.8,
+      "instrument": "violin_2",
+      "pitch": 65,
+      "velocity": 66
+    },
+    {
+      "beat": 31.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 48
+    },
+    {
+      "beat": 31.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 64
+    },
+    {
+      "beat": 32.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 56
+    },
+    {
+      "beat": 32,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 32,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 32.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 32.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 32.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 32.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 32.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 33.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 33.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 33.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 33.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 59
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 66
+    },
+    {
+      "beat": 33.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 34.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 34.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 63
+    },
+    {
+      "beat": 34.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 34.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 35,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 35,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 78
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 66
+    },
+    {
+      "beat": 35.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 63
+    },
+    {
+      "beat": 36,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 36,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 36.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 78
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 66
+    },
+    {
+      "beat": 36.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 63
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 37.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 37.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 37.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 37.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 37.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 37.5,
+      "duration": 2.3,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 37.5,
+      "duration": 2.3,
+      "instrument": "violin_2",
+      "pitch": 76,
+      "velocity": 63
+    },
+    {
+      "beat": 37.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 38.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 38.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 39,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 39,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 39.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 60,
+      "velocity": 56
+    },
+    {
+      "beat": 40,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 40,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 84
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 64
+    },
+    {
+      "beat": 40.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 78
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 66
+    },
+    {
+      "beat": 40.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 40.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 40.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 40.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "velocity": 63
+    },
+    {
+      "beat": 41.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 41.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 41.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 50,
+      "velocity": 70
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 62
+    },
+    {
+      "beat": 41.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 41.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 42.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 42.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 42.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 42.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 43,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 43,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 74
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 60
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 60,
+      "velocity": 62
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 43.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 48
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 75
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 44,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 44,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 44.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 78
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 44.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 45.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 45.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 45.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 59
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 75
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 45.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 46.0,
+      "duration": 1.7,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 46.0,
+      "duration": 1.7,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 46.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 47,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 54
+    },
+    {
+      "beat": 47,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 44,
+      "velocity": 72
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 62
+    },
+    {
+      "beat": 47.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 47.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 64
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 48,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 48,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 84
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 64
+    },
+    {
+      "beat": 48.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 66
+    },
+    {
+      "beat": 48.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 48.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 48.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 48.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 63
+    },
+    {
+      "beat": 49.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 49.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 49.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 47,
+      "velocity": 70
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 49.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 66
+    },
+    {
+      "beat": 49.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 50.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 50.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 50.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 50.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 50.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 51,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 51,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 74
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 60
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 51.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 48
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 76,
+      "velocity": 63
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 52,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 52,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 84
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 64
+    },
+    {
+      "beat": 52.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 76,
+      "velocity": 66
+    },
+    {
+      "beat": 52.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 52.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 48
+    },
+    {
+      "beat": 52.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 52.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 63
+    },
+    {
+      "beat": 53.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 53.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 78
+    },
+    {
+      "beat": 53.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 53.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 53.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 52,
+      "velocity": 70
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 62
+    },
+    {
+      "beat": 53.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 59
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 53.5,
+      "duration": 2.3,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 53.5,
+      "duration": 2.3,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 53.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 54.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 48
+    },
+    {
+      "beat": 54.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 54.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 55,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 55,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 47,
+      "velocity": 74
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 60
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 52,
+      "velocity": 62
+    },
+    {
+      "beat": 55.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 55.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 55.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 61,
+      "velocity": 56
+    },
+    {
+      "beat": 56,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 56,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 84
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 64
+    },
+    {
+      "beat": 56.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 78
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 66
+    },
+    {
+      "beat": 56.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 56.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 56.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 56.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 57.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 57.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 57.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 50,
+      "velocity": 70
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 62
+    },
+    {
+      "beat": 57.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 59
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 78
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 57.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 58.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 58.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 58.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 58.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 58.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 59,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 56
+    },
+    {
+      "beat": 59,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 74
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 60
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 66
+    },
+    {
+      "beat": 59.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 63
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 60,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 80
+    },
+    {
+      "beat": 60,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 60.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 78
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 60.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 75
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 61.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 61.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 61.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 59
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 61.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 66
+    },
+    {
+      "beat": 62.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 62.5,
+      "duration": 1.3,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 62.5,
+      "duration": 1.3,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 62.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 63,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 54
+    },
+    {
+      "beat": 63,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 44,
+      "velocity": 72
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 63.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 48
+    },
+    {
+      "beat": 63.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 64
+    },
+    {
+      "beat": 64.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 61,
+      "velocity": 56
+    },
+    {
+      "beat": 64,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 64,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 64.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 46
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 64.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 64.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 64
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 64.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 54
+    },
+    {
+      "beat": 64.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 30
+    },
+    {
+      "beat": 65.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 32
+    },
+    {
+      "beat": 65.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 44
+    },
+    {
+      "beat": 65.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 62
+    },
+    {
+      "beat": 66,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 66,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 48
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 30
+    },
+    {
+      "beat": 66.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 32
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 42
+    },
+    {
+      "beat": 67.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 64
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 30
+    },
+    {
+      "beat": 67.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 68,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 68,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 68.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 46
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 68.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 68.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 54
+    },
+    {
+      "beat": 68.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 30
+    },
+    {
+      "beat": 68.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 62
+    },
+    {
+      "beat": 69.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 32
+    },
+    {
+      "beat": 69.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 44
+    },
+    {
+      "beat": 70,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 70,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 48
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 30
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 60
+    },
+    {
+      "beat": 70.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 32
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 42
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 62
+    },
+    {
+      "beat": 71.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 30
+    },
+    {
+      "beat": 71.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 72.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 72,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 72,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 56
+    },
+    {
+      "beat": 72.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 46
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 72.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 54
+    },
+    {
+      "beat": 72.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 66
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 72.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 58
+    },
+    {
+      "beat": 72.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 30
+    },
+    {
+      "beat": 73.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 32
+    },
+    {
+      "beat": 73.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 44
+    },
+    {
+      "beat": 73.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 75,
+      "velocity": 64
+    },
+    {
+      "beat": 74,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 74,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 48
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 30
+    },
+    {
+      "beat": 74.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 32
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 42
+    },
+    {
+      "beat": 75.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 68
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 30
+    },
+    {
+      "beat": 75.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 76,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 76,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 56
+    },
+    {
+      "beat": 76.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 46
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 76.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 76.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 60
+    },
+    {
+      "beat": 76.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 30
+    },
+    {
+      "beat": 76.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 66
+    },
+    {
+      "beat": 77.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 32
+    },
+    {
+      "beat": 77.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 52,
+      "velocity": 44
+    },
+    {
+      "beat": 78,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 78,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 40,
+      "velocity": 48
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 30
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 75,
+      "velocity": 66
+    },
+    {
+      "beat": 78.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 32
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 42
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 68
+    },
+    {
+      "beat": 79.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 30
+    },
+    {
+      "beat": 79.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 80.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 56
+    },
+    {
+      "beat": 80,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 80,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 64
+    },
+    {
+      "beat": 80.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 80.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 80.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 72
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 80.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 64
+    },
+    {
+      "beat": 80.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 40
+    },
+    {
+      "beat": 81.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 42
+    },
+    {
+      "beat": 81.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 54
+    },
+    {
+      "beat": 81.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 70
+    },
+    {
+      "beat": 82,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 82,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 56
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 40
+    },
+    {
+      "beat": 82.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 42
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 52
+    },
+    {
+      "beat": 83.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 74
+    },
+    {
+      "beat": 83.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 40
+    },
+    {
+      "beat": 83.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 84,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 54
+    },
+    {
+      "beat": 84,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 64
+    },
+    {
+      "beat": 84.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 84.0,
+      "duration": 4.0,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 64
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 84.0,
+      "duration": 4.0,
+      "instrument": "violin_2",
+      "pitch": 76,
+      "velocity": 68
+    },
+    {
+      "beat": 84.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 40
+    },
+    {
+      "beat": 84.5,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 74
+    },
+    {
+      "beat": 85.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 42
+    },
+    {
+      "beat": 85.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 22
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 54
+    },
+    {
+      "beat": 86,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 34
+    },
+    {
+      "beat": 86,
+      "duration": 1.9,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 56
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 40
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 76
+    },
+    {
+      "beat": 86.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 42
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 52
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 76
+    },
+    {
+      "beat": 87.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 40
+    },
+    {
+      "beat": 87.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 88,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 66
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 70
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 55,
+      "velocity": 68
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 88.0,
+      "duration": 3.8,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 82
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 74
+    },
+    {
+      "beat": 88.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 72
+    },
+    {
+      "beat": 88.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 40
+    },
+    {
+      "beat": 89,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 40
+    },
+    {
+      "beat": 89.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 74
+    },
+    {
+      "beat": 89.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 42
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 54
+    },
+    {
+      "beat": 90,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 60
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 78
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 40
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 44
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 80
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 42
+    },
+    {
+      "beat": 91,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 48
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 82
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 52
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 40
+    },
+    {
+      "beat": 92.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 92,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 70
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 56
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 86
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 92.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 43
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 46
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 72
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 40
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 92.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 49
+    },
+    {
+      "beat": 92.75,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 92.75,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 42
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 93.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 55
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 76
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 54
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 75
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 93.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 61
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 64
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 78
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 40
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 78
+    },
+    {
+      "beat": 94.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 67
+    },
+    {
+      "beat": 94.25,
+      "duration": 0.6,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 59
+    },
+    {
+      "beat": 94.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 70
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 80
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 42
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 75
+    },
+    {
+      "beat": 94.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 73
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 76
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 82
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 52
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 78
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 95.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 79
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 82
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 84
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 40
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 75
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 95.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 85
+    },
+    {
+      "beat": 96.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 57,
+      "velocity": 56
+    },
+    {
+      "beat": 96,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 96,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 96.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 96.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 96.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 96.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 96.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 96.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 96.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 96.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 96.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 97,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 97.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 97.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 97.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 97.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 97.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 59
+    },
+    {
+      "beat": 97.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 97.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 66
+    },
+    {
+      "beat": 97.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 98.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 98.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 98.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 98.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 63
+    },
+    {
+      "beat": 98.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 98.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 99,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 70
+    },
+    {
+      "beat": 99,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 99,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 99.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 99.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 62
+    },
+    {
+      "beat": 99.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 78
+    },
+    {
+      "beat": 99.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 66
+    },
+    {
+      "beat": 99.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 99.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 99.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 76,
+      "velocity": 75
+    },
+    {
+      "beat": 99.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 63
+    },
+    {
+      "beat": 99.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 100,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 100,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 84
+    },
+    {
+      "beat": 100.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 64
+    },
+    {
+      "beat": 100.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 100.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 78
+    },
+    {
+      "beat": 100.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 100.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 100.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 100.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 100.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 63
+    },
+    {
+      "beat": 100.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 101,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 101.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 101.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 71,
+      "velocity": 78
+    },
+    {
+      "beat": 101.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 66
+    },
+    {
+      "beat": 101.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 101.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 101.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 101.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "beat": 101.5,
+      "duration": 1.2,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 101.5,
+      "duration": 1.2,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 63
+    },
+    {
+      "beat": 101.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 102.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 102.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 102.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 50
+    },
+    {
+      "beat": 102.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 102.75,
+      "duration": 0.25,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 102.75,
+      "duration": 0.25,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 66
+    },
+    {
+      "beat": 103,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 70
+    },
+    {
+      "beat": 103,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 103,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 74
+    },
+    {
+      "beat": 103.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 60
+    },
+    {
+      "beat": 103.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "beat": 103.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 103.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 103.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 103.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 66,
+      "velocity": 48
+    },
+    {
+      "beat": 103.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 78
+    },
+    {
+      "beat": 103.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 103.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 104.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 60,
+      "velocity": 56
+    },
+    {
+      "beat": 104,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 104,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 84
+    },
+    {
+      "beat": 104.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 64
+    },
+    {
+      "beat": 104.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 60,
+      "velocity": 62
+    },
+    {
+      "beat": 104.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 104.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 104.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 104.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 104.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 104.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 104.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 105,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 105.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 105.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 105.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 50,
+      "velocity": 70
+    },
+    {
+      "beat": 105.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 62
+    },
+    {
+      "beat": 105.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 59
+    },
+    {
+      "beat": 105.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 105.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 66
+    },
+    {
+      "beat": 105.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 106.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 57,
+      "velocity": 48
+    },
+    {
+      "beat": 106.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 106.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 106.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 106.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 50
+    },
+    {
+      "beat": 106.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 107,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 70
+    },
+    {
+      "beat": 107,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 107,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 45,
+      "velocity": 74
+    },
+    {
+      "beat": 107.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 60
+    },
+    {
+      "beat": 107.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 107.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 78
+    },
+    {
+      "beat": 107.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 66
+    },
+    {
+      "beat": 107.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 107.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 60,
+      "velocity": 48
+    },
+    {
+      "beat": 107.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 75
+    },
+    {
+      "beat": 107.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 107.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 108.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 108,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 108,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 108.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 108.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 62
+    },
+    {
+      "beat": 108.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "beat": 108.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 108.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 108.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 108.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 108.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 108.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 109,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 109.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 109.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 109.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 66
+    },
+    {
+      "beat": 109.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 109.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 109.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 109.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 59
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 109.5,
+      "duration": 2.3,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 109.5,
+      "duration": 2.3,
+      "instrument": "violin_2",
+      "pitch": 80,
+      "velocity": 63
+    },
+    {
+      "beat": 109.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 110.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 110.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 110.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 50
+    },
+    {
+      "beat": 111,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 111,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 44,
+      "velocity": 72
+    },
+    {
+      "beat": 111.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 111.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 62
+    },
+    {
+      "beat": 111.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 62
+    },
+    {
+      "beat": 111.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 66
+    },
+    {
+      "beat": 111.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 111.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 48
+    },
+    {
+      "beat": 111.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 72
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 112,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 112,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 84
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 64
+    },
+    {
+      "beat": 112.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 66
+    },
+    {
+      "beat": 112.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 112.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 112.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 112.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 75
+    },
+    {
+      "beat": 112.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 113,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 113.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 113.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 47,
+      "velocity": 70
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 113.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 78
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 66
+    },
+    {
+      "beat": 113.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 114.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 48
+    },
+    {
+      "beat": 114.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 114.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 114.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 63
+    },
+    {
+      "beat": 114.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 50
+    },
+    {
+      "beat": 114.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 115,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 70
+    },
+    {
+      "beat": 115,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 115,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 42,
+      "velocity": 74
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 60
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 62
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 66
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 48
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 75
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 63
+    },
+    {
+      "beat": 115.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 116.0,
+      "duration": 7.9,
+      "instrument": "bowed_veil",
+      "pitch": 59,
+      "velocity": 56
+    },
+    {
+      "beat": 116,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 116,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 84
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 116.0,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 66
+    },
+    {
+      "beat": 116.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 116.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 48
+    },
+    {
+      "beat": 116.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 116.75,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 75
+    },
+    {
+      "beat": 116.75,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 117,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 117.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 50
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 117.5,
+      "duration": 1.4,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 62
+    },
+    {
+      "beat": 117.5,
+      "duration": 1.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.35,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.35,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 66
+    },
+    {
+      "beat": 117.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 118.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 48
+    },
+    {
+      "beat": 118.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 118.25,
+      "duration": 0.6,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 118.25,
+      "duration": 0.6,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 63
+    },
+    {
+      "beat": 118.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 50
+    },
+    {
+      "beat": 118.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 34
+    },
+    {
+      "beat": 119,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 70
+    },
+    {
+      "beat": 119,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 119,
+      "duration": 0.9,
+      "instrument": "hollow_bass",
+      "pitch": 38,
+      "velocity": 74
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 60
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.9,
+      "instrument": "viola",
+      "pitch": 55,
+      "velocity": 62
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 79,
+      "velocity": 78
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 66
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 48
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.4,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.4,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 63
+    },
+    {
+      "beat": 119.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 120,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 90
+    },
+    {
+      "beat": 120,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 56
+    },
+    {
+      "beat": 120,
+      "duration": 0.3,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 86
+    },
+    {
+      "beat": 120,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 120.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 55,
+      "velocity": 62
+    },
+    {
+      "beat": 120.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 78
+    },
+    {
+      "beat": 120.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 66
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 84
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 54
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.3,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 80
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 55,
+      "velocity": 59
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 75
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 63
+    },
+    {
+      "beat": 123,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 84
+    },
+    {
+      "beat": 123,
+      "duration": 0.3,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 82
+    },
+    {
+      "beat": 123,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 50,
+      "velocity": 66
+    },
+    {
+      "beat": 123.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 123.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 78
+    },
+    {
+      "beat": 123.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 79,
+      "velocity": 66
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 66
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.3,
+      "instrument": "hollow_bass",
+      "pitch": 43,
+      "velocity": 78
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 55,
+      "velocity": 62
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 55,
+      "velocity": 59
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 75
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 63
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "bowed_veil",
+      "pitch": 62,
+      "velocity": 56
+    },
+    {
+      "beat": 124,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 86
+    },
+    {
+      "beat": 124,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 84
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 64
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 78
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 124.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 30
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 75
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 124.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 26
+    },
+    {
+      "beat": 125,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 38,
+      "velocity": 50
+    },
+    {
+      "beat": 125,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 76
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 62,
+      "velocity": 62
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 78
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.28,
+      "instrument": "drums",
+      "pitch": 36,
+      "velocity": 72
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.4,
+      "instrument": "hollow_bass",
+      "pitch": 49,
+      "velocity": 72
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 59
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 75
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 125.75,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 32
+    },
+    {
+      "beat": 126,
+      "duration": 1.7,
+      "instrument": "hollow_bass",
+      "pitch": 37,
+      "velocity": 80
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 56,
+      "velocity": 48
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.3,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 62
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.3,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 78
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.3,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 66
+    },
+    {
+      "beat": 126.25,
+      "duration": 0.1,
+      "instrument": "drums",
+      "pitch": 42,
+      "velocity": 28
+    },
+    {
+      "beat": 126.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 50
+    },
+    {
+      "beat": 126.5,
+      "duration": 1.25,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 59
+    },
+    {
+      "beat": 126.5,
+      "duration": 1.25,
+      "instrument": "violin_1",
+      "pitch": 73,
+      "velocity": 75
+    },
+    {
+      "beat": 126.5,
+      "duration": 1.25,
+      "instrument": "violin_2",
+      "pitch": 68,
+      "velocity": 63
+    },
+    {
+      "beat": 127,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 127.0,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 60
+    },
+    {
+      "beat": 127.25,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 62
+    },
+    {
+      "beat": 127.5,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 66
+    },
+    {
+      "beat": 127.5,
+      "duration": 0.25,
+      "instrument": "thread_pluck",
+      "pitch": 62,
+      "velocity": 48
+    },
+    {
+      "beat": 127.75,
+      "duration": 0.2,
+      "instrument": "drums",
+      "pitch": 41,
+      "velocity": 72
+    }
+  ],
+  "palette": "Thorns in the Dark v02 string ensemble (violins/viola over pluck, bass, restrained drums)",
+  "patches": {
+    "bowed_veil": {
+      "gain": 0.065,
+      "lowpass_hz": 1600,
+      "pan": -0.2,
+      "program": 48,
+      "wet": 0.3
+    },
+    "drums": {
+      "gain": 0.25,
+      "lowpass_hz": 1900,
+      "pan": 0.0,
+      "program": 0,
+      "wet": 0.08
+    },
+    "hollow_bass": {
+      "gain": 0.23,
+      "pan": 0.0,
+      "program": 38,
+      "wet": 0.025
+    },
+    "thread_pluck": {
+      "gain": 0.105,
+      "lowpass_hz": 1300,
+      "pan": 0.3,
+      "program": 10,
+      "wet": 0.23
+    },
+    "viola": {
+      "attack_seconds": 0.045,
+      "bow_noise": 0.0028,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.22,
+      "tremolo_depth": 0.6,
+      "tremolo_division": 4,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.27
+    },
+    "violin_1": {
+      "attack_seconds": 0.03,
+      "bow_noise": 0.0045,
+      "lowpass_hz": 3400,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.12,
+      "vibrato_cents": 9,
+      "vibrato_hz": 5.3,
+      "voice": "violin",
+      "wet": 0.24
+    },
+    "violin_2": {
+      "attack_seconds": 0.04,
+      "bow_noise": 0.0038,
+      "lowpass_hz": 2900,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.22,
+      "tremolo_depth": 0.6,
+      "tremolo_division": 4,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.27
+    }
+  },
+  "schema_version": 1,
+  "sections": [
+    "1-8: the zigzag strike over 3+3+2 stabs (F#m-D7-C#7 | F#m-Bm-G-C#7b9)",
+    "9-16: rising answer; second violins shadow the motif in fourths; motif on B minor",
+    "17-24: eye of the storm - augmented motif sequenced D-E-F#m under tremolo, tom roll",
+    "25-32: full strike with crackle and backbeat, tutti Neapolitan stabs, diminished fall"
+  ],
+  "slug": "01_zekarion_the_raging_tempest",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Zekarion, the Raging Tempest",
+  "version": "v01"
+}

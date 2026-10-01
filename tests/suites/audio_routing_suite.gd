@@ -3,6 +3,7 @@ extends RefCounted
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CursorFeedbackScript = preload("res://scripts/cursor_feedback.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 
 static func run(expect: Callable) -> void:
 	SettingsStore.ensure_audio_buses()
@@ -64,6 +65,16 @@ static func run(expect: Callable) -> void:
 	SettingsStore.ensure_audio_buses()
 	expect.call(_reverb_count(world_index) == 1, "Repeated audio setup should not duplicate the world room reverb")
 	expect.call(_reverb_count(music_index) == 1, "Repeated audio setup should not duplicate the music room reverb")
+	expect.call(_effect_count(music_index, "AudioEffectAmplify") == 1, "Repeated audio setup should not duplicate the music duck stage")
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	expect.call(duck != null and is_equal_approx(duck.volume_db, 0.0), "The music duck stage should rest at unity gain")
+	expect.call(AudioServer.get_bus_effect(music_index, 0) == duck, "The music duck should sit ahead of the music reverb so the tail dips with the score")
+
+	for stinger_id: String in [RunSfxLibrary.STINGER_LEVEL_UP_ID, RunSfxLibrary.STINGER_RARE_REWARD_ID, RunSfxLibrary.STINGER_BOSS_DEFEATED_ID]:
+		var stinger: Dictionary = RunSfxLibrary.SFX.get(stinger_id, {})
+		expect.call(str(stinger.get("bus", "")) == SettingsStore.UI_SFX_BUS, "%s should stay dry on the UI path instead of ducking itself on the Music bus" % stinger_id)
+		expect.call(bool(stinger.get("music_duck", false)), "%s should dip the score beneath it" % stinger_id)
+		expect.call(FileAccess.file_exists(str(stinger.get("path", ""))), "%s asset should ship" % stinger_id)
 
 	var run_scene: Node = RunSceneScript.new()
 	var world_player := run_scene.call("_acquire_sfx_player") as AudioStreamPlayer
@@ -86,6 +97,13 @@ static func _reverb_count(bus_index: int) -> int:
 	var count: int = 0
 	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
 		if AudioServer.get_bus_effect(bus_index, effect_index) is AudioEffectReverb:
+			count += 1
+	return count
+
+static func _effect_count(bus_index: int, effect_class: String) -> int:
+	var count: int = 0
+	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
+		if AudioServer.get_bus_effect(bus_index, effect_index).is_class(effect_class):
 			count += 1
 	return count
 
