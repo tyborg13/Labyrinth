@@ -210,18 +210,25 @@ class OriginalCombatEngine:
 class OriginalRunScene:
 	extends RunScene
 
+	# Reference display: an independent deep copy of the preview state, with the
+	# Follow-up / Empower rows (spec/card_keywords.md) and keyword rider rows the
+	# live hand shows; the live path keeps a shallow copy and must match it.
 	func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		var card: Dictionary = _card_def(card_id, state)
+		var keyword_state: Dictionary = CardKeywordRules.play_modifiers(state, card_id, card)
 		var summary_rows: Array = ActionIcons.cost_rows_for_card(card)
 		var modifier_lines: PackedStringArray = []
 		var preview_state: Dictionary = state.duplicate(true)
 		var previous_action_row_index: int = -1
-		for action_var: Variant in card.get("actions", []):
+		for action_var: Variant in CardKeywordRules.actions_with_modifiers(card, keyword_state):
 			var action: Dictionary = action_var
+			if action.has(CardKeywordRules.KEYWORD_APPENDED_FLAG):
+				continue
 			var action_type: String = str(action.get("type", ""))
 			var row: Array = []
+			action = TempoRules.display_action(preview_state, action)
 			match action_type:
-				"melee", "ranged", "aoe", "detonate":
+				"melee", "ranged", "aoe", "detonate", "push", "pull":
 					var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 					var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 					var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
@@ -231,16 +238,6 @@ class OriginalRunScene:
 						"damage_modifiers": attack_visible_modifiers
 					})
 					_consume_preview_damage_modifiers(preview_state, action)
-				"push", "pull":
-					var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
-					var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
-					var shove_visible_modifiers: Array[Dictionary] = shove_damage_modifiers
-					row = ActionIcons.tokens_for_action(action, {
-						"final_damage": shove_final_damage,
-						"tone_base_damage": _damage_tone_base_excluding_modifiers(shove_final_damage, shove_visible_modifiers, action),
-						"damage_modifiers": shove_visible_modifiers
-					})
-					_consume_preview_damage_modifiers(preview_state, action)
 				_:
 					row = ActionIcons.tokens_for_action(action)
 			var annotated_row: Array = row
@@ -248,14 +245,21 @@ class OriginalRunScene:
 			var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
 			if not bonus_row.is_empty():
 				summary_rows.append(bonus_row)
+			summary_rows.append_array(ActionIcons.keyword_rider_rows(action))
+		summary_rows.append_array(ActionIcons.keyword_rows_for_card(card, keyword_state))
+		summary_rows.append_array(ActionIcons.rules_text_rows_for_card(card))
 		var summary_text: String = ActionIcons.plain_text_for_rows(summary_rows)
 		if summary_text.is_empty():
-			summary_text = str(card.get("description", ""))
-		return {
+			summary_text = ActionIcons.card_rules_text(card)
+		var display: Dictionary = {
 			"summary_bbcode": summary_text,
 			"summary_rows": summary_rows,
 			"modifier_lines": modifier_lines
 		}
+		var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card)
+		if time_surcharge > 0:
+			display["time_surcharge"] = time_surcharge
+		return display
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()

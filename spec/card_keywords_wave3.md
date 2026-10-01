@@ -93,8 +93,8 @@ SurfaceRelicRules, GuardianRelicRules, `card_def_for_progression`,
 ## UI contract
 
 - Icons (`ActionIconLibrary.KEYWORDS`, aliases in `ACTION_ICON_ALIASES`): `retaliate`,
-  `quicken`, `rite`, and `next_attack` (the unused Might art, `stat_might.png`, pending a
-  purpose-built icon). Grimoire: `keyword:retaliate`, `keyword:quicken`,
+  `quicken`, `rite`, and `next_attack` (purpose-built `next_attack.png`, a charged blade:
+  the bonus waits on your next attack). Grimoire: `keyword:retaliate`, `keyword:quicken`,
   `keyword:next_attack`, `keyword:rite`. A Rite card also unlocks the entries its
   effects lean on (Thorns: Retaliate and its riders; reward types; status rewards;
   surfaces; movement and Push/Pull bonuses; Light aura or Light payoff).

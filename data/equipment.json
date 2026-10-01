@@ -680,5 +680,128 @@
     "cards": [
       "sworn_oath"
     ]
+  },
+  "tourney_lance": {
+    "name": "Tourney Lance",
+    "slot": "weapon",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/tourney_lance.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "couched_lance",
+      "joust",
+      "unhorse"
+    ]
+  },
+  "rimebite_hatchet": {
+    "name": "Rimebite Hatchet",
+    "slot": "weapon",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/rimebite_hatchet.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "rime_hack",
+      "frozen_bite",
+      "shatter_swing"
+    ]
+  },
+  "worldbreaker": {
+    "name": "Worldbreaker",
+    "slot": "weapon",
+    "rarity": "legendary",
+    "icon_path": "res://assets/art/equipment/worldbreaker.png",
+    "accent": "#d9862f",
+    "cards": [
+      "fault_strike",
+      "raise_the_anvil",
+      "worldbreak"
+    ]
+  },
+  "tower_shield": {
+    "name": "Tower Shield",
+    "slot": "offhand",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/tower_shield.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "shield_wall",
+      "shield_charge"
+    ]
+  },
+  "grapple_hook": {
+    "name": "Grapple Hook",
+    "slot": "offhand",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/grapple_hook.png",
+    "accent": "#8f9499",
+    "cards": [
+      "grapple",
+      "yank"
+    ]
+  },
+  "quarrymail": {
+    "name": "Quarrymail",
+    "slot": "armor",
+    "rarity": "epic",
+    "icon_path": "res://assets/art/equipment/quarrymail.png",
+    "accent": "#9b62d6",
+    "cards": [
+      "quarry_plating",
+      "shrug_off"
+    ]
+  },
+  "gale_cloak": {
+    "name": "Gale Cloak",
+    "slot": "armor",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/gale_cloak.png",
+    "accent": "#8f9499",
+    "cards": [
+      "catch_the_wind",
+      "windbreak"
+    ]
+  },
+  "frostwalkers": {
+    "name": "Frostwalkers",
+    "slot": "boots",
+    "rarity": "common",
+    "icon_path": "res://assets/art/equipment/frostwalkers.png",
+    "accent": "#8f9499",
+    "cards": [
+      "glide",
+      "rime_step"
+    ]
+  },
+  "emberstriders": {
+    "name": "Emberstriders",
+    "slot": "boots",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/emberstriders.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "cinder_trail",
+      "hotfoot"
+    ]
+  },
+  "dawnwalkers": {
+    "name": "Dawnwalkers",
+    "slot": "boots",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/dawnwalkers.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "sunpath_stride",
+      "seek_the_light"
+    ]
+  },
+  "headsmans_coin": {
+    "name": "Headsman's Coin",
+    "slot": "trinket",
+    "rarity": "rare",
+    "icon_path": "res://assets/art/equipment/headsmans_coin.png",
+    "accent": "#4b84d8",
+    "cards": [
+      "headsmans_toll"
+    ]
   }
 }

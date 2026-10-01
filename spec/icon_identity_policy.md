@@ -49,6 +49,7 @@ show the icon alone, without the interim text labels.
 | `all_enemies` | `all_enemies` | Sweeping Strike: every visible enemy matching a condition |
 | `illusion_swap` | `illusion_swap` | Trade tiles with one of your illusions |
 | `destroy_illusion` | `shatter_illusion` | Shatter an illusion to blast around it |
+| `next_attack` (wave 3) | `next_attack` | A charged blade: your next attack this turn gains the bonus (replaced the borrowed Might art, `stat_might.png`) |
 
 Grimoire topics use the new icons where the icon is the topic's concept:
 `combat:swap`, `combat:cleanse`, `combat:petrify`, `combat:sweeping_strikes`, and

@@ -900,30 +900,34 @@
     ]
   },
   "cyclone_seal": {
-    "name": "Force Seal",
-    "rarity": "epic",
+    "name": "Cyclone Seal",
+    "element": "air",
+    "rarity": "legendary",
     "burn": true,
     "health_cost": 0,
     "time": 7,
-    "description": "Exhaust. Deal 8 in a cross pattern at range 3.",
-    "accent": "#9d5a39",
+    "description": "Exhaust. Choose a tile within range 3. Pull every enemy within 3 of it up to 3 tiles toward it, then deal 6 to each enemy next to it.",
+    "accent": "#72bea5",
     "art_path": "res://assets/art/cards/cyclone_seal.png",
     "actions": [
       {
-        "type": "aoe",
-        "damage": 8,
+        "type": "force_area",
+        "center": "target",
         "range": 3,
+        "radius": 3,
+        "pull": 3
+      },
+      {
+        "type": "aoe",
+        "damage": 6,
+        "range": 0,
         "pattern": [
           [
             0,
-            0
+            -1
           ],
           [
             1,
-            0
-          ],
-          [
-            -1,
             0
           ],
           [
@@ -931,12 +935,13 @@
             1
           ],
           [
-            0,
-            -1
+            -1,
+            0
           ]
         ],
         "rotate": false,
-        "element": "none"
+        "element": "air",
+        "target": "previous_target"
       }
     ]
   },
@@ -1533,20 +1538,25 @@
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Deal 6 Ice damage at range 4, then draw 1.",
+    "time": 5,
+    "description": "Deal 5 Ice damage at range 4. If this Freezes the target, draw 2.",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/hush_of_winter.png",
     "actions": [
       {
         "type": "ranged",
-        "damage": 6,
+        "damage": 5,
         "range": 4,
-        "element": "ice"
-      },
-      {
-        "type": "draw",
-        "amount": 1
+        "element": "ice",
+        "on_result": {
+          "when": "froze",
+          "rewards": [
+            {
+              "type": "draw",
+              "amount": 2
+            }
+          ]
+        }
       }
     ]
   },
@@ -1658,14 +1668,14 @@
     "burn": false,
     "health_cost": 0,
     "time": 8,
-    "description": "Deal 10 Ice damage at range 3.",
+    "description": "Deal 4 Ice damage to each Chilled enemy you can see. (This Freezes them.)",
     "accent": "#5fa7d8",
     "art_path": "res://assets/art/cards/white_silence.png",
     "actions": [
       {
-        "type": "ranged",
-        "damage": 10,
-        "range": 3,
+        "type": "all_enemies",
+        "selector": "chilled",
+        "damage": 4,
         "element": "ice"
       }
     ]
@@ -1988,37 +1998,46 @@
     ]
   },
   "squall_shot": {
-    "name": "Squall Shot",
+    "name": "Squall",
     "element": "air",
     "rarity": "rare",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Deal 4 in a rotatable pattern at range 2 and Push 1.",
+    "time": 5,
+    "description": "Deal 2 in a cross at range 3 and push each enemy in it 1 away from the center. The enemy on the center is pushed away from you.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/squall_shot.png",
     "actions": [
       {
         "type": "aoe",
-        "damage": 4,
-        "range": 2,
+        "damage": 2,
+        "range": 3,
         "pattern": [
           [
             0,
             0
           ],
           [
-            2,
+            1,
+            0
+          ],
+          [
+            -1,
             0
           ],
           [
             0,
-            2
+            1
+          ],
+          [
+            0,
+            -1
           ]
         ],
-        "rotate": true,
+        "rotate": false,
+        "element": "air",
         "push": 1,
-        "element": "air"
+        "force_mode": "from_center"
       }
     ]
   },
@@ -2484,12 +2503,11 @@
   },
   "mirror_feint": {
     "name": "Mirror Feint",
-    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Create a 3-health illusion at range 3, then gain 5 block.",
+    "time": 4,
+    "description": "Create a 3-health illusion next to an enemy within range 3. That enemy is Exposed 3.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/mirror_feint.png",
     "reward_pool": false,
@@ -2497,11 +2515,9 @@
       {
         "type": "illusion",
         "health": 3,
-        "range": 3
-      },
-      {
-        "type": "block",
-        "amount": 5
+        "range": 3,
+        "place": "adjacent_to_enemy",
+        "expose_adjacent": 3
       }
     ]
   },
@@ -2686,45 +2702,21 @@
   },
   "unsealed_gale": {
     "name": "Unsealed Gale",
+    "element": "air",
     "rarity": "legendary",
     "burn": true,
     "health_cost": 0,
-    "time": 7,
-    "description": "Exhaust. Deal 7 in a cross pattern at range 3 and push 1.",
-    "accent": "#d9862f",
+    "time": 6,
+    "description": "Exhaust. Push every enemy within 3 of you 3 tiles away.",
+    "accent": "#72bea5",
     "art_path": "res://assets/art/cards/unsealed_gale.png",
     "reward_pool": false,
     "actions": [
       {
-        "type": "aoe",
-        "damage": 7,
-        "range": 3,
-        "amount": 1,
-        "pattern": [
-          [
-            0,
-            0
-          ],
-          [
-            1,
-            0
-          ],
-          [
-            -1,
-            0
-          ],
-          [
-            0,
-            1
-          ],
-          [
-            0,
-            -1
-          ]
-        ],
-        "rotate": false,
-        "push": 1,
-        "element": "none"
+        "type": "force_area",
+        "center": "self",
+        "radius": 3,
+        "push": 3
       }
     ]
   },
@@ -3317,12 +3309,11 @@
   },
   "reflected_threat": {
     "name": "Reflected Threat",
-    "role_emblem": "illusion",
     "rarity": "epic",
     "burn": false,
     "health_cost": 0,
     "time": 5,
-    "description": "Create a 4-health illusion at range 3, then gain 3 block.",
+    "description": "Create a 4-health illusion within range 3. Enemies that damage it take that much damage too.",
     "accent": "#9b62d6",
     "art_path": "res://assets/art/cards/reflected_threat.png",
     "reward_pool": false,
@@ -3330,11 +3321,8 @@
       {
         "type": "illusion",
         "health": 4,
-        "range": 3
-      },
-      {
-        "type": "block",
-        "amount": 3
+        "range": 3,
+        "reflect": true
       }
     ]
   },
@@ -3412,19 +3400,27 @@
     ]
   },
   "threadbare_guard": {
-    "name": "Threadbare Guard",
+    "name": "Unpick",
     "rarity": "common",
     "burn": false,
     "health_cost": 0,
-    "time": 3,
-    "description": "Gain 6 block and draw 1.",
+    "time": 2,
+    "description": "Remove Bleed, Immobilize and Chilled from yourself, gain 4 Block, then draw 1.",
     "accent": "#8f9499",
     "art_path": "res://assets/art/cards/threadbare_guard.png",
     "reward_pool": false,
     "actions": [
       {
+        "type": "cleanse",
+        "statuses": [
+          "bleed",
+          "immobilize",
+          "chilled"
+        ]
+      },
+      {
         "type": "block",
-        "amount": 6
+        "amount": 4
       },
       {
         "type": "draw",
@@ -3567,21 +3563,18 @@
   "voidsilk_molt": {
     "name": "Voidsilk Molt",
     "rarity": "legendary",
-    "burn": true,
+    "burn": false,
     "health_cost": 0,
-    "time": 6,
-    "description": "Exhaust. Blink 4, gain 4 block, then draw 1.",
+    "time": 4,
+    "description": "Blink 3, leaving a 4-health illusion where you stood, then draw 1.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/voidsilk_molt.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "blink",
-        "range": 4
-      },
-      {
-        "type": "block",
-        "amount": 4
+        "range": 3,
+        "illusion_at_origin": 4
       },
       {
         "type": "draw",
@@ -3591,24 +3584,19 @@
   },
   "empty_husk": {
     "name": "Empty Husk",
-    "role_emblem": "illusion",
     "rarity": "legendary",
     "burn": false,
     "health_cost": 0,
-    "time": 5,
-    "description": "Create a 4-health illusion at range 3 and gain 5 block.",
+    "time": 2,
+    "description": "Swap places with one of your illusions. Your Block moves onto it as extra health.",
     "accent": "#d9862f",
     "art_path": "res://assets/art/cards/empty_husk.png",
     "reward_pool": false,
     "actions": [
       {
-        "type": "illusion",
-        "health": 4,
-        "range": 3
-      },
-      {
-        "type": "block",
-        "amount": 5
+        "type": "illusion_swap",
+        "range": 99,
+        "transfer_block": true
       }
     ]
   },
@@ -3715,18 +3703,20 @@
     "burn": false,
     "health_cost": 0,
     "time": 3,
-    "description": "Blink 3, then draw 1.",
+    "description": "Blink 3. If you end with no adjacent enemies, gain 1 card play.",
     "accent": "#72bea5",
     "art_path": "res://assets/art/cards/cloudstep_loop.png",
     "reward_pool": false,
     "actions": [
       {
         "type": "blink",
-        "range": 3
-      },
-      {
-        "type": "draw",
-        "amount": 1
+        "range": 3,
+        "if_no_adjacent_enemies": [
+          {
+            "type": "card_play",
+            "amount": 1
+          }
+        ]
       }
     ]
   },
@@ -7169,6 +7159,1611 @@
         "rotate": true,
         "element": "air",
         "push": 1
+      }
+    ]
+  },
+  "ball_lightning": {
+    "name": "Ball Lightning",
+    "element": "lightning",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Create a 3-health illusion within range 3 and Electrify its tile. Enemies that damage it take 4 Lightning damage and are Shocked.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/ball_lightning.png",
+    "actions": [
+      {
+        "type": "illusion",
+        "health": 3,
+        "range": 3,
+        "surface": "electrified",
+        "on_damaged": {
+          "damage": 4,
+          "element": "lightning",
+          "shock": 1
+        }
+      }
+    ]
+  },
+  "bottled_gale": {
+    "name": "Bottled Gale",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Consume. Push each adjacent enemy 3.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/bottled_gale.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/bottled_gale.png",
+    "actions": [
+      {
+        "type": "force_area",
+        "center": "self",
+        "radius": 1,
+        "push": 3
+      }
+    ]
+  },
+  "catch_the_wind": {
+    "name": "Catch the Wind",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 3 and gain 1 Block for each tile moved.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/catch_the_wind.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 3,
+        "block_per_tile": 1
+      }
+    ]
+  },
+  "changing_winds": {
+    "name": "Changing Winds",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Swap places with a one-tile enemy or one of your illusions within range 3.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/changing_winds.png",
+    "actions": [
+      {
+        "type": "swap",
+        "range": 3,
+        "targets": [
+          "enemy",
+          "illusion"
+        ]
+      }
+    ]
+  },
+  "cinder_trail": {
+    "name": "Cinder Trail",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Move 3, leaving Fire on each tile you leave. Fire doesn't damage you this turn.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/cinder_trail.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "self_flag",
+        "flag": "fire_immune_turn"
+      },
+      {
+        "type": "move",
+        "range": 3,
+        "trail_surface": "fire"
+      }
+    ]
+  },
+  "crystal_mantle": {
+    "name": "Crystal Mantle",
+    "element": "ice",
+    "rarity": "legendary",
+    "burn": true,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Exhaust. Gain 3 Mantle: each direct hit against you breaks one Mantle instead of dealing damage.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/crystal_mantle.png",
+    "actions": [
+      {
+        "type": "mantle",
+        "amount": 3
+      }
+    ]
+  },
+  "discharge": {
+    "name": "Discharge",
+    "element": "lightning",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Choose an Electrified tile within range 4. Deal 5 Lightning damage to each enemy on or next to its connected network, then remove the network.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/discharge.png",
+    "actions": [
+      {
+        "type": "discharge",
+        "range": 4,
+        "damage": 5,
+        "element": "lightning"
+      }
+    ]
+  },
+  "doppelganger": {
+    "name": "Doppelganger",
+    "rarity": "legendary",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 5-health illusion within range 3. While it lives, you may fire ranged attacks from its tile.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/doppelganger.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "illusion",
+        "health": 5,
+        "range": 3,
+        "ranged_origin": true
+      }
+    ]
+  },
+  "dust_devil": {
+    "name": "Dust Devil",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Consume a Rubble tile within range 3. Push each enemy next to it 2 away and Expose 2.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/dust_devil.png",
+    "actions": [
+      {
+        "type": "force_area",
+        "center": "target",
+        "range": 3,
+        "radius": 1,
+        "push": 2,
+        "expose": 2,
+        "consume_center": "rubble"
+      }
+    ]
+  },
+  "ember_ward": {
+    "name": "Ember Ward",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 Block, then leave Fire under each adjacent enemy.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/ember_ward.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "surface_adjacent_enemies",
+        "surface": "fire"
+      }
+    ]
+  },
+  "fan_the_flames": {
+    "name": "Fan the Flames",
+    "element": "air",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Push 2 at range 3 for 2 damage. Leave Fire on each tile the target passes through.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/fan_the_flames.png",
+    "actions": [
+      {
+        "type": "push",
+        "damage": 2,
+        "range": 3,
+        "amount": 2,
+        "element": "air",
+        "trail_surface": "fire"
+      }
+    ]
+  },
+  "fault_strike": {
+    "name": "Fault Strike",
+    "element": "earth",
+    "rarity": "legendary",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Strike for 9, then leave Rubble on the target's tile and the two tiles behind it.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/fault_strike.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 9,
+        "range": 1,
+        "element": "earth",
+        "surface": "rubble",
+        "surface_pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "surface_follows_facing": true
+      }
+    ]
+  },
+  "flash_powder": {
+    "name": "Flash Powder",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Consume. Create radius-3 Light within range 3 for 2 turns. Enemies within 2 of its center are Exposed 2.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/flash_powder.png",
+    "radiance": true,
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/flash_powder.png",
+    "actions": [
+      {
+        "type": "aoe",
+        "damage": 0,
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            -1,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "element": "none",
+        "expose": 2,
+        "illuminate_radius": 3,
+        "illuminate_duration": 2
+      }
+    ]
+  },
+  "flashsteam": {
+    "name": "Flashsteam",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 3 in a cross at range 3. Consume Ice there; enemies that stood on it take 4 more.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/flashsteam.png",
+    "actions": [
+      {
+        "type": "aoe",
+        "damage": 3,
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ],
+        "rotate": false,
+        "element": "fire",
+        "consume": {
+          "surface": "ice",
+          "bonus_damage": 4
+        }
+      }
+    ]
+  },
+  "frost_circuit": {
+    "name": "Frost Circuit",
+    "element": "ice",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Turn an Ice tile within range 3 and all Ice connected to it into Electrified. Deal 2 Lightning damage to each enemy on them and Shock them.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/frost_circuit.png",
+    "actions": [
+      {
+        "type": "convert_surface",
+        "range": 3,
+        "surface": "ice",
+        "to": "electrified",
+        "connected": true,
+        "damage": 2,
+        "element": "lightning",
+        "shock": 1
+      }
+    ]
+  },
+  "frost_heave": {
+    "name": "Frost Heave",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Consume the Ice under an enemy within range 3 to deal 6 to it, immobilize it, and leave Rubble.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/frost_heave.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 6,
+        "range": 3,
+        "element": "earth",
+        "immobilize": true,
+        "surface": "rubble",
+        "consume": {
+          "surface": "ice",
+          "required": true
+        }
+      }
+    ]
+  },
+  "frozen_bite": {
+    "name": "Frozen Bite",
+    "element": "ice",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Strike for 4 Ice damage. If this Freezes the target, gain 1 card play.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/frozen_bite.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 4,
+        "range": 1,
+        "element": "ice",
+        "on_result": {
+          "when": "froze",
+          "rewards": [
+            {
+              "type": "card_play",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "gale_ward": {
+    "name": "Gale Ward",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 Block, then push each adjacent enemy 1.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/gale_ward.png",
+    "role_emblem": "block",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "force_area",
+        "center": "self",
+        "radius": 1,
+        "push": 1
+      }
+    ]
+  },
+  "glide": {
+    "name": "Glide",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 3, leaving Ice on the tile you started on.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/glide.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 3,
+        "origin_surface": "ice"
+      }
+    ]
+  },
+  "grapple": {
+    "name": "Grapple",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Blink to a tile next to an enemy, outcrop or crate within range 4.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/grapple.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "blink",
+        "range": 4,
+        "destination_adjacent_to": [
+          "enemy",
+          "terrain"
+        ]
+      }
+    ]
+  },
+  "grounding": {
+    "name": "Grounding",
+    "element": "earth",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Remove every Electrified tile within 2 of you. Gain 2 Stoneskin per tile removed (maximum 8).",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/grounding.png",
+    "actions": [
+      {
+        "type": "consume_surface",
+        "surface": "electrified",
+        "target": "player",
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            -1,
+            -1
+          ]
+        ],
+        "min_consumed": 1,
+        "rewards": [
+          {
+            "type": "stoneskin",
+            "amount": 2,
+            "per_tile": true,
+            "max": 8
+          }
+        ]
+      }
+    ]
+  },
+  "hall_of_mirrors": {
+    "name": "Hall of Mirrors",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Create a 2-health illusion on each empty tile next to you, then gain 3 Block.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/hall_of_mirrors.png",
+    "radiance": true,
+    "role_emblem": "illusion",
+    "actions": [
+      {
+        "type": "illusion",
+        "health": 2,
+        "range": 0,
+        "place": "ring_around_self"
+      },
+      {
+        "type": "block",
+        "amount": 3
+      }
+    ]
+  },
+  "headsmans_toll": {
+    "name": "Headsman's Toll",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Deal 3 at range 3. If this kills, gain 1 more card play and draw 1.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/headsmans_toll.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 3,
+        "element": "none",
+        "on_result": {
+          "when": "killed",
+          "rewards": [
+            {
+              "type": "card_play",
+              "amount": 1
+            },
+            {
+              "type": "draw",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "hoarfrost_ward": {
+    "name": "Hoarfrost Ward",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 Block, then leave Ice under each adjacent enemy.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/hoarfrost_ward.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "surface_adjacent_enemies",
+        "surface": "ice"
+      }
+    ]
+  },
+  "hotfoot": {
+    "name": "Hotfoot",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 2. If you started your turn on Fire, gain 4 Block and draw 1.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/hotfoot.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 2,
+        "if_started_on_surface": {
+          "surface": "fire",
+          "rewards": [
+            {
+              "type": "block",
+              "amount": 4
+            },
+            {
+              "type": "draw",
+              "amount": 1
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "ice_sculpture": {
+    "name": "Ice Sculpture",
+    "element": "ice",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Create a 4-health illusion within range 3, then leave Ice on each empty tile next to it.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/ice_sculpture.png",
+    "actions": [
+      {
+        "type": "illusion",
+        "health": 4,
+        "range": 3,
+        "surface_ring": "ice"
+      }
+    ]
+  },
+  "immolation": {
+    "name": "Immolation",
+    "element": "fire",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Detonate 8 on every Fire tile within 1 of you, including yours. You take no damage from it. Empower (2 HP): within 2 instead.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/immolation.png",
+    "empower": {
+      "cost": {
+        "health": 2
+      },
+      "mods": [
+        {
+          "action": 0,
+          "set": {
+            "pattern": [
+              [
+                0,
+                0
+              ],
+              [
+                0,
+                -1
+              ],
+              [
+                1,
+                0
+              ],
+              [
+                0,
+                1
+              ],
+              [
+                -1,
+                0
+              ],
+              [
+                1,
+                1
+              ],
+              [
+                1,
+                -1
+              ],
+              [
+                -1,
+                1
+              ],
+              [
+                -1,
+                -1
+              ],
+              [
+                2,
+                0
+              ],
+              [
+                -2,
+                0
+              ],
+              [
+                0,
+                2
+              ],
+              [
+                0,
+                -2
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "actions": [
+      {
+        "type": "detonate",
+        "damage": 8,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "element": "fire",
+        "spare_player": true
+      }
+    ]
+  },
+  "joust": {
+    "name": "Joust",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Move up to 4 in a straight line, then strike for 6.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/joust.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 4,
+        "straight_line": true
+      },
+      {
+        "type": "melee",
+        "damage": 6,
+        "range": 1,
+        "element": "none",
+        "required": true
+      }
+    ]
+  },
+  "magma_vent": {
+    "name": "Magma Vent",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Consume a Rubble tile within range 3 to deal 5 there and to its four neighbors, then leave Fire there.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/magma_vent.png",
+    "actions": [
+      {
+        "type": "detonate",
+        "damage": 5,
+        "range": 3,
+        "pattern": [
+          [
+            0,
+            0
+          ]
+        ],
+        "rotate": false,
+        "element": "fire",
+        "detonate_surface": "rubble",
+        "leave_surface": "fire"
+      }
+    ]
+  },
+  "meteorfall": {
+    "name": "Meteorfall",
+    "element": "fire",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Mark a three-tile line within range 4. At the start of your next turn, each marked tile takes 8 and becomes Fire.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/meteorfall.png",
+    "actions": [
+      {
+        "type": "meteor_marks",
+        "range": 4,
+        "pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "rotate": true,
+        "damage": 8,
+        "surface": "fire",
+        "element": "fire"
+      }
+    ]
+  },
+  "petrify": {
+    "name": "Petrify",
+    "element": "earth",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "An enemy within range 3 (not a dragon) skips its next turn and gains 5 Block.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/petrify.png",
+    "actions": [
+      {
+        "type": "petrify",
+        "range": 3,
+        "block": 5
+      }
+    ]
+  },
+  "plasma_arc": {
+    "name": "Plasma Arc",
+    "element": "lightning",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 3 Lightning damage with Chain 2 at range 3. Enemies hit on Fire take 4 more and the Fire is consumed.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/plasma_arc.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 3,
+        "element": "lightning",
+        "chain": 2,
+        "consume": {
+          "surface": "fire",
+          "bonus_damage": 4,
+          "per_hit": true
+        }
+      }
+    ]
+  },
+  "powder_keg": {
+    "name": "Powder Keg",
+    "element": "fire",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Consume. Place a 3-health keg within range 2. When destroyed, it deals 6 to its tile and each tile next to it.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/powder_keg.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/powder_keg.png",
+    "actions": [
+      {
+        "type": "outcrop",
+        "range": 2,
+        "health": 3,
+        "kind": "powder_keg",
+        "burst_damage": 6
+      }
+    ]
+  },
+  "pyroclasm": {
+    "name": "Pyroclasm",
+    "element": "fire",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/pyroclasm.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 9,
+        "range": 3,
+        "element": "fire",
+        "consume": {
+          "surface": "fire",
+          "bonus_damage": 6
+        }
+      }
+    ]
+  },
+  "refraction": {
+    "name": "Refraction",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Deal 4 at range 3. It also hits each enemy next to one of your illusions.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/refraction.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 4,
+        "range": 3,
+        "element": "none",
+        "also_hits_near_illusions": true
+      }
+    ]
+  },
+  "revealing_glare": {
+    "name": "Revealing Glare",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Each enemy in Light within range 4 is Exposed 3. Draw 1.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/revealing_glare.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "all_enemies",
+        "selector": "in_light",
+        "range": 4,
+        "damage": 0,
+        "expose": 3
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ]
+  },
+  "rime_step": {
+    "name": "Rime Step",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 2, then leave Ice under each adjacent enemy.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/rime_step.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 2
+      },
+      {
+        "type": "surface_adjacent_enemies",
+        "surface": "ice"
+      }
+    ]
+  },
+  "rockburst": {
+    "name": "Rockburst",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Destroy an outcrop or crate within range 3 to deal 6 to each enemy next to it, then leave Rubble in a cross there.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/rockburst.png",
+    "actions": [
+      {
+        "type": "burst_terrain",
+        "range": 3,
+        "damage": 6,
+        "surface": "rubble",
+        "surface_pattern": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            0,
+            -1
+          ]
+        ]
+      }
+    ]
+  },
+  "rooted_stance": {
+    "name": "Rooted Stance",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 6 Stoneskin. You can't Move or Blink for the rest of this turn.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/rooted_stance.png",
+    "actions": [
+      {
+        "type": "stoneskin",
+        "amount": 6
+      },
+      {
+        "type": "self_flag",
+        "flag": "no_move"
+      }
+    ]
+  },
+  "searing_light": {
+    "name": "Searing Light",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 3 to each enemy standing in Light.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/searing_light.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "all_enemies",
+        "selector": "in_light",
+        "damage": 3
+      }
+    ]
+  },
+  "seek_the_light": {
+    "name": "Seek the Light",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Blink to a tile in Light within range 5.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/seek_the_light.png",
+    "radiance": true,
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "blink",
+        "range": 5,
+        "destination_requires_light": true
+      }
+    ]
+  },
+  "shatter": {
+    "name": "Shatter",
+    "element": "ice",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Deal 5 Ice damage at range 3. If the target was Frozen, also deal 5 to each enemy next to it.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/shatter.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 3,
+        "element": "ice",
+        "frozen_splash": 5
+      }
+    ]
+  },
+  "shatter_swing": {
+    "name": "Shatter Swing",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Strike for 8. If the target is Frozen, also deal 4 to each enemy next to it.",
+    "accent": "#9b62d6",
+    "art_path": "res://assets/art/cards/shatter_swing.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "melee",
+        "damage": 8,
+        "range": 1,
+        "element": "none",
+        "frozen_splash": 4
+      }
+    ]
+  },
+  "shattered_reflection": {
+    "name": "Shattered Reflection",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Destroy one of your illusions within range 6 to deal 6 to each enemy next to it and create radius-2 Light there for 2 turns.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/shattered_reflection.png",
+    "radiance": true,
+    "actions": [
+      {
+        "type": "destroy_illusion",
+        "range": 6,
+        "damage": 6,
+        "illuminate_radius": 2,
+        "illuminate_duration": 2
+      }
+    ]
+  },
+  "shield_wall": {
+    "name": "Shield Wall",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 9 Block. You can't Move or Blink for the rest of this turn.",
+    "accent": "#4b84d8",
+    "art_path": "res://assets/art/cards/shield_wall.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 9
+      },
+      {
+        "type": "self_flag",
+        "flag": "no_move"
+      }
+    ]
+  },
+  "shrug_off": {
+    "name": "Shrug Off",
+    "element": "earth",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Turn all your Block into Stoneskin, then draw 1.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/shrug_off.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "convert_block_to_stoneskin"
+      },
+      {
+        "type": "draw",
+        "amount": 1
+      }
+    ]
+  },
+  "skate": {
+    "name": "Skate",
+    "element": "ice",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 2,
+    "description": "Move 3. This turn, Ice costs you no movement and doesn't Chill you.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/skate.png",
+    "actions": [
+      {
+        "type": "self_flag",
+        "flag": "ice_skate"
+      },
+      {
+        "type": "move",
+        "range": 3
+      }
+    ]
+  },
+  "skybolt": {
+    "name": "Skybolt",
+    "element": "lightning",
+    "rarity": "legendary",
+    "burn": false,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Deal 8 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/skybolt.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 8,
+        "range": 99,
+        "element": "lightning",
+        "ignore_los": true,
+        "shock": 1,
+        "shock_all_hits": true
+      }
+    ]
+  },
+  "sleet_squall": {
+    "name": "Sleet Squall",
+    "element": "ice",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Push 2 at range 3, then deal 3 Ice damage to the target.",
+    "accent": "#5fa7d8",
+    "art_path": "res://assets/art/cards/sleet_squall.png",
+    "actions": [
+      {
+        "type": "push",
+        "damage": 0,
+        "range": 3,
+        "amount": 2,
+        "element": "ice"
+      },
+      {
+        "type": "ranged",
+        "damage": 3,
+        "range": 3,
+        "element": "ice",
+        "target": "previous_target"
+      }
+    ]
+  },
+  "smelling_salts": {
+    "name": "Smelling Salts",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Consume. Remove Immobilize, Shock and Chilled from yourself, then move 2.",
+    "accent": "#8f9499",
+    "art_path": "res://assets/art/cards/smelling_salts.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/smelling_salts.png",
+    "actions": [
+      {
+        "type": "cleanse",
+        "statuses": [
+          "immobilize",
+          "shock",
+          "chilled"
+        ]
+      },
+      {
+        "type": "move",
+        "range": 2
+      }
+    ]
+  },
+  "static_ward": {
+    "name": "Static Ward",
+    "element": "lightning",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 Block, then Electrify your tile and the tile of each adjacent enemy.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/static_ward.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "surface_adjacent_enemies",
+        "surface": "electrified",
+        "include_self": true
+      }
+    ]
+  },
+  "stoke": {
+    "name": "Stoke",
+    "element": "fire",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Each enemy you can see that stands on Fire takes 3.",
+    "accent": "#d9623f",
+    "art_path": "res://assets/art/cards/stoke.png",
+    "actions": [
+      {
+        "type": "all_enemies",
+        "selector": "on_fire",
+        "damage": 3,
+        "element": "fire"
+      }
+    ]
+  },
+  "stone_ward": {
+    "name": "Stone Ward",
+    "element": "earth",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 5 Block, then leave Rubble under each adjacent enemy.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/stone_ward.png",
+    "actions": [
+      {
+        "type": "block",
+        "amount": 5
+      },
+      {
+        "type": "surface_adjacent_enemies",
+        "surface": "rubble"
+      }
+    ]
+  },
+  "sunpath_stride": {
+    "name": "Sunpath Stride",
+    "rarity": "rare",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Move 4, leaving radius-1 Light on each tile you enter for 2 turns.",
+    "accent": "#e6c56c",
+    "art_path": "res://assets/art/cards/sunpath_stride.png",
+    "radiance": true,
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "move",
+        "range": 4,
+        "trail_light": {
+          "radius": 1,
+          "duration": 2
+        }
+      }
+    ]
+  },
+  "thunderstone": {
+    "name": "Thunderstone",
+    "element": "lightning",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 4,
+    "description": "Consume. Deal 5 Lightning damage to any enemy you can see, ignoring line of sight. Stagger 2.",
+    "accent": "#cfb347",
+    "art_path": "res://assets/art/cards/thunderstone.png",
+    "item": true,
+    "consume_on_play": true,
+    "reward_pool": false,
+    "icon_path": "res://assets/art/items/thunderstone.png",
+    "actions": [
+      {
+        "type": "ranged",
+        "damage": 5,
+        "range": 99,
+        "element": "lightning",
+        "ignore_los": true,
+        "stagger": 2
+      }
+    ]
+  },
+  "vortex": {
+    "name": "Vortex",
+    "element": "air",
+    "rarity": "epic",
+    "burn": false,
+    "health_cost": 0,
+    "time": 5,
+    "description": "Choose a tile within range 3. Pull each enemy within 2 of it 2 tiles toward it.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/vortex.png",
+    "actions": [
+      {
+        "type": "force_area",
+        "center": "target",
+        "range": 3,
+        "radius": 2,
+        "pull": 2
+      }
+    ]
+  },
+  "windbreak": {
+    "name": "Windbreak",
+    "element": "air",
+    "rarity": "common",
+    "burn": false,
+    "health_cost": 0,
+    "time": 3,
+    "description": "Gain 6 Block. You can't be pushed or pulled until your next turn.",
+    "accent": "#72bea5",
+    "art_path": "res://assets/art/cards/windbreak.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "block",
+        "amount": 6
+      },
+      {
+        "type": "self_flag",
+        "flag": "anchored"
+      }
+    ]
+  },
+  "worldbreak": {
+    "name": "Worldbreak",
+    "element": "earth",
+    "rarity": "legendary",
+    "burn": false,
+    "health_cost": 0,
+    "time": 6,
+    "description": "Destroy an adjacent outcrop you raised to deal 10 to each enemy in the three-tile line beyond it and Stagger 2.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/worldbreak.png",
+    "reward_pool": false,
+    "actions": [
+      {
+        "type": "burst_terrain",
+        "range": 1,
+        "owned_outcrop_only": true,
+        "line_damage": 10,
+        "line_length": 3,
+        "stagger": 2
+      }
+    ]
+  },
+  "worldspine": {
+    "name": "Worldspine",
+    "element": "earth",
+    "rarity": "legendary",
+    "burn": true,
+    "health_cost": 0,
+    "time": 7,
+    "description": "Exhaust. Raise a 4-health Worldspine on each empty tile next to a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
+    "accent": "#89a15b",
+    "art_path": "res://assets/art/cards/worldspine.png",
+    "actions": [
+      {
+        "type": "outcrop",
+        "range": 3,
+        "health": 4,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "around_target": true,
+        "kind": "worldspine",
+        "pulse_damage": 3
       }
     ]
   }

@@ -22,11 +22,13 @@ The player retains two independent movement tiles without a card or Time cost.
 Ordinary pokes and rich utility attacks use range 2, dedicated shots (including the
 Pale Spark starter since the card pool overhaul) use range 3, and Stormstring Shot,
 Hush of Winter, Shiver Shot, Pinning Quarrel, Yank, Skybreak Current, Sunlance and
-Hurl Spear retain explicit range-4 identities. Targeted
+Hurl Spear retain explicit range-4 identities; Skybolt and Thunderstone strike any visible
+enemy, ignoring range and line of sight. Targeted
 AOE centers use range 2–3; preserve pattern shapes and inspect the affected union.
 Offensive movement is 1–2, except Iron Wheel's move-3 charge. Pure movement is 2–3;
-Headlong's move-4 dash and Shadow Gate's blink 4 (gear without an attack of their
-own), Trapdoor and exhausting Voidsilk Molt retain premium 4-tile reach. Illusion and surface
+Headlong's move-4 dash, Joust's straight-line move 4, Sunpath Stride's lit move 4,
+and Shadow Gate's and Grapple's blink 4 (gear without an attack of their own) and Trapdoor
+retain premium 4-tile reach; Seek the Light's blink 5 must land in Light. Illusion and surface
 placement stays within 2–3. True North adds one ranged range during Truesight.
 Sunpath/Gale Tabi's 3+ movement triggers remain attainable.
 

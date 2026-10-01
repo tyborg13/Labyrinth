@@ -10,9 +10,12 @@ const Ground = preload("res://scripts/board_surface_rules.gd")
 
 # Explicit range-4 identities (spec/reach_balance.md). The card pool overhaul
 # added Shiver Shot, Pinning Quarrel, Yank and Skybreak Current, then Sunlance
-# and Hurl Spear (wave 2). Headlong (wave 3) is the one move-4 dash.
+# and Hurl Spear (wave 2). Headlong (wave 3) is a move-4 dash; wave 4 adds
+# Joust's straight-line charge and Sunpath Stride's lit walk, and Skybolt and
+# Thunderstone, which strike any visible enemy (ignore_los, unlimited range).
 const LONG_SHOT_CARD_IDS: Array[String] = ["stormstring_shot", "hush_of_winter", "shiver_shot", "pinning_quarrel", "yank", "skybreak_current", "sunlance", "hurl_spear"]
-const LONG_MOVE_CARD_IDS: Array[String] = ["headlong"]
+const UNLIMITED_SHOT_CARD_IDS: Array[String] = ["skybolt", "thunderstone"]
+const LONG_MOVE_CARD_IDS: Array[String] = ["headlong", "joust", "sunpath_stride"]
 
 static func run(expect: Callable) -> void:
 	_test_reach_contract(expect)
@@ -27,6 +30,8 @@ static func _test_reach_contract(expect: Callable) -> void:
 		if bool(cards[card_id].get("retired", false)): continue
 		for action: Dictionary in cards[card_id]["actions"]:
 			if str(action["type"]) in ["ranged", "push", "pull", "aoe", "surface", "illusion", "detonate"]:
+				if card_id in UNLIMITED_SHOT_CARD_IDS and bool(action.get("ignore_los", false)):
+					continue
 				var ceiling: int = 4 if card_id in LONG_SHOT_CARD_IDS else 3
 				expect.call(int(action.get("range", 0)) <= ceiling, "%s keeps ordinary reach short except the named long shots" % card_id)
 			if str(action["type"]) == "move":

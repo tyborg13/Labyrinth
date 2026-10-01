@@ -32,6 +32,12 @@ EXPECTED_ITEM_CARD_IDS = {
     "hourglass_sand",
     "throwing_net",
     "whetstone",
+    # Wave 4.
+    "bottled_gale",
+    "flash_powder",
+    "powder_keg",
+    "smelling_salts",
+    "thunderstone",
 }
 
 

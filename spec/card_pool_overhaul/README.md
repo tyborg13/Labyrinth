@@ -12,8 +12,14 @@ Implementation lands in waves: (1) data-only clean-up plus the forced-movement r
 boss remixes. Rules that ship are documented in their owning specs
 ([forced movement](../forced_movement.md), [card balance heuristic](../card_balance_heuristic.md)).
 
-Status: waves 1-3 are applied (`apply_pool.py --wave 3`, idempotent): 246 live cards and
-61 gear pieces. Wave-3 data contract notes: Undertaker Stand needs no `role_emblem`
+Status: all four waves are applied (`apply_pool.py --wave 4`, idempotent): 305 live cards
+and 72 gear pieces. Wave-4 data contract notes: Mirror Feint, Reflected Threat and Empty
+Husk are pure illusion cards and drop their `role_emblem` overrides; Hall of Mirrors
+(illusion over Block) and Gale Ward (block over a damage-free shove) author theirs. Flash
+Powder's text states its radius-2 Expose area inside the radius-3 Light. Rules text names
+the implemented limits (Worldbreak: an outcrop you raised; Changing Winds: one-tile
+enemies; Petrify: not dragons; Empty Husk: Block becomes the husk's extra health).
+Earlier status: waves 1-3 gave 246 live cards and 61 gear pieces. Wave-3 data contract notes: Undertaker Stand needs no `role_emblem`
 override (Block + Retaliate already reads as defense), and Rite of the Pyre's
 `surface_damage_bonus` carries `"owner": "player"` so it boosts only the hero's Fire
 ("your Fire tiles"). Real-card coverage lives in `tests/suites/card_pool_overhaul_suite.gd`.

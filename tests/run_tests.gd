@@ -449,7 +449,7 @@ func _initialize() -> void:
 	await _test_run_scene_action_step_tracker_states()
 	await _test_run_scene_move_attack_shortcut_clicks_enemy()
 	await _test_run_scene_aoe_aim_rotates_before_click()
-	await _test_run_scene_squall_preserves_orientation()
+	await _test_run_scene_line_aoe_push_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
 	await _test_run_scene_block_card_skips_dead_move()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
@@ -2313,7 +2313,10 @@ func _test_cards_do_not_define_multiple_player_attacks() -> void:
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue
 			var action: Dictionary = action_var
-			if str(action.get("type", "")) in attack_types:
+			# A follow-up hit on the previous target (Sleet Squall: shove, then
+			# strike the same enemy; spec/card_mechanics_maneuver.md) adds no
+			# second attack decision.
+			if str(action.get("type", "")) in attack_types and str(action.get("target", "")) != "previous_target":
 				attack_count += 1
 		_assert(attack_count <= 1, "%s should not define multiple player attacks" % card_id)
 
@@ -3566,13 +3569,14 @@ func _test_aoe_hits_multiple_targets() -> void:
 	var state: Dictionary = combat.create_combat(4, _aoe_test_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["cyclone_seal"],
+		"deck_cards": ["ember_rain"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
 	})
 	state["player"]["pos"] = Vector2i(2, 4)
-	var action: Dictionary = GameData.card_def("cyclone_seal").get("actions", [])[0]
+	# Ember Rain is a plain range-3 cross; Cyclone Seal became a pull vortex in wave 4.
+	var action: Dictionary = GameData.card_def("ember_rain").get("actions", [])[0]
 	state = combat.apply_player_action(state, action, Vector2i(4, 3))
 	var enemies: Array = state.get("enemies", [])
 	_assert(int((enemies[0] as Dictionary).get("hp", 0)) < int((enemies[0] as Dictionary).get("max_hp", 0)), "AOE should damage the first target")
@@ -3763,11 +3767,13 @@ func _test_elemental_room_rewards_follow_affinity(default_progression: Dictionar
 	var neutral_count: int = 0
 	for card_id_var: Variant in reward_cards:
 		var card_element: String = GameData.card_element(str(card_id_var))
+		# Radiance is a reward school of its own (GameData.reward_card_pool_by_rarity).
+		var radiance: bool = bool(GameData.card_def(str(card_id_var)).get("radiance", false))
 		if card_element == room_element:
 			elemental_count += 1
-		if card_element == "none":
+		if card_element == "none" and not radiance:
 			neutral_count += 1
-		_assert(ElementData.is_elemental(card_element), "Combat card rewards should stay elemental while equipment owns neutral utility")
+		_assert(ElementData.is_elemental(card_element) or radiance, "Combat card rewards should stay elemental or Radiance while equipment owns neutral utility")
 	_assert(elemental_count >= 2, "Elemental combat rewards should favor at least two cards from the room's element")
 	_assert(neutral_count == 0, "Elemental combat rewards should not offer neutral cards")
 
@@ -9998,11 +10004,14 @@ func _test_run_scene_aoe_aim_rotates_before_click() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_squall_preserves_orientation() -> void:
+# Squall became a fixed cross that pushes from its center in wave 4
+# (spec/card_mechanics_maneuver.md); Wind Shear is now the rotatable pushing
+# area whose chosen orientation must survive hover, resolution and analytics.
+func _test_run_scene_line_aoe_push_preserves_orientation() -> void:
 	AnalyticsStore.clear_storage()
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for Squall orientation coverage")
+		_failures.append("Run scene should load for Wind Shear orientation coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -10011,7 +10020,7 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	var combat_state: Dictionary = combat.create_combat(923, _simple_room_layout(), {
 		"hp": 20,
 		"max_hp": 20,
-		"deck_cards": ["squall_shot"],
+		"deck_cards": ["wind_shear"],
 		"relics": [],
 		"hand_size": 1,
 		"heal_bonus": 0
@@ -10020,29 +10029,29 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	combat_state["player"] = {"pos": Vector2i(2, 4), "hp": 20, "max_hp": 20, "block": 0, "stoneskin": 0}
 	combat_state["enemies"] = [
 		{"id": 1, "type": "crawler", "pos": target_tile, "hp": 20, "max_hp": 20, "block": 0},
-		{"id": 2, "type": "harrier", "pos": Vector2i(4, 2), "hp": 20, "max_hp": 20, "block": 0},
-		{"id": 3, "type": "acolyte", "pos": Vector2i(6, 4), "hp": 20, "max_hp": 20, "block": 0},
-		{"id": 4, "type": "crawler", "pos": Vector2i(4, 6), "hp": 20, "max_hp": 20, "block": 0}
+		{"id": 2, "type": "harrier", "pos": Vector2i(4, 3), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 3, "type": "acolyte", "pos": Vector2i(4, 5), "hp": 20, "max_hp": 20, "block": 0},
+		{"id": 4, "type": "crawler", "pos": Vector2i(3, 4), "hp": 20, "max_hp": 20, "block": 0}
 	]
 	var deck: Dictionary = (combat_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["squall_shot"]
+	deck["hand"] = ["wind_shear"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
 	combat_state["deck"] = deck
-	combat_state["analytics"] = {"combat_id": "test_squall_c001"}
+	combat_state["analytics"] = {"combat_id": "test_wind_shear_c001"}
 	var run_state: Dictionary = instance.get("_run_state")
 	run_state["mode"] = "combat"
-	run_state["deck_cards"] = ["squall_shot"]
+	run_state["deck_cards"] = ["wind_shear"]
 	run_state["combat_state"] = combat_state
-	run_state["analytics"] = {"run_id": "test_squall", "combat_counter": 1}
+	run_state["analytics"] = {"run_id": "test_wind_shear", "combat_counter": 1}
 	instance.set("_run_state", run_state)
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_ui")
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
 	await instance.call("_begin_card_preview", 0, preview)
-	_assert(int(instance.get("_pending_action_index")) == 0 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Squall Shot should expose its attackable center through one AOE target step")
-	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Squall should not record a target before its AOE attack commits")
+	_assert(int(instance.get("_pending_action_index")) == 0 and (instance.get("_pending_target_tiles") as Array).has(target_tile), "Wind Shear should expose its attackable anchor through one AOE target step")
+	_assert((instance.get("_pending_selected_targets") as Array).is_empty(), "Wind Shear should not record a target before its AOE attack commits")
 	var board_view: Node = instance.get_node("BoardUnderlay/CombatBoard")
 	instance.call("_on_board_tile_hovered", target_tile)
 	await process_frame # Hover presentation coalesces before the next draw.
@@ -10051,32 +10060,32 @@ func _test_run_scene_squall_preserves_orientation() -> void:
 	await process_frame # Hover presentation coalesces before the next draw.
 	var presentation: Dictionary = board_view.get("presentation")
 	var focus_tiles: Array = presentation.get("focus_tiles", [])
-	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Rotating north should preview Squall's odd pattern around its single AOE target")
+	# Line areas center on the chosen tile: east covers (3..5, 4), north (4, 3..5).
+	_assert(focus_tiles.has(Vector2i(4, 3)) and focus_tiles.has(Vector2i(4, 5)) and not focus_tiles.has(Vector2i(3, 4)), "Rotating north should preview Wind Shear's line around its single AOE target")
 	await instance.call("_on_board_tile_clicked", target_tile)
 	await create_timer(1.5).timeout
 	var final_state: Dictionary = instance.get("_combat_state")
 	var enemies: Array = final_state.get("enemies", [])
 	# The pattern orientation aims the area; each Push still travels its own
 	# straight line away from the hero (spec/forced_movement.md).
-	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4), "North-oriented Squall should push its center target straight away from the hero")
-	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 2), "North-oriented Squall should hit the northern arm and push it along the horizontal diagonal-tie line")
-	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(6, 4) and int((enemies[2] as Dictionary).get("hp", 0)) == int((enemies[0] as Dictionary).get("hp", 0)) - 2, "North-oriented Squall should hit the eastern arm and collide it with the wall")
-	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 6), "North-oriented Squall should leave the old southern arm untouched")
+	_assert((enemies[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 4) and int((enemies[0] as Dictionary).get("hp", 0)) == 17, "North-oriented Wind Shear should hit its anchor and push it straight away from the hero")
+	_assert((enemies[1] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 3) and int((enemies[1] as Dictionary).get("hp", 0)) == 17, "North-oriented Wind Shear should hit the northern end and push it along its own line from the hero")
+	_assert((enemies[2] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 5) and int((enemies[2] as Dictionary).get("hp", 0)) == 17, "North-oriented Wind Shear should hit the southern end and push it along its own line from the hero")
+	_assert(int((enemies[3] as Dictionary).get("hp", 0)) == 20 and (enemies[3] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(3, 4), "North-oriented Wind Shear should leave the old eastern line untouched")
 	var played_events: Array[Dictionary] = _analytics_events_by_type(AnalyticsStore.load_all_events(), "card_played")
-	_assert(((final_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).is_empty(), "Squall should not create Light after its Radiance rider is removed")
-	_assert(not played_events.is_empty(), "Squall should emit card-play analytics")
+	_assert(not played_events.is_empty(), "Wind Shear should emit card-play analytics")
 	if not played_events.is_empty():
 		var payload: Dictionary = (played_events[played_events.size() - 1] as Dictionary).get("payload", {}) as Dictionary
 		var actions: Array = payload.get("actions", []) as Array
 		var aoe_action: Dictionary = actions[0] as Dictionary if not actions.is_empty() else {}
 		var orientation: Dictionary = aoe_action.get("orientation", {}) as Dictionary
-		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Squall analytics should preserve the chosen AOE orientation")
+		_assert(int(orientation.get("x", 99)) == 0 and int(orientation.get("y", 99)) == -1, "Wind Shear analytics should preserve the chosen AOE orientation")
 		var selected_targets: Array = payload.get("selected_targets", []) as Array
 		var aoe_target: Dictionary = selected_targets[0] as Dictionary if selected_targets.size() > 0 else {}
 		_assert(
 			selected_targets.size() == 1
 			and int(aoe_target.get("x", -1)) == 4 and int(aoe_target.get("y", -1)) == 4,
-			"Squall analytics should record one target for its AOE attack"
+			"Wind Shear analytics should record one target for its AOE attack"
 		)
 	instance.queue_free()
 	await process_frame
@@ -10486,9 +10495,12 @@ func _test_card_widget_debossed_role_emblems() -> void:
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("shadow_step")) == "mobility", "Shadow Step should use the mobility emblem for its restored Blink identity")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("dawnstep")) == "mobility", "A movement card with only a visibility rider should use the mobility emblem")
 	_assert(ActionIcons.card_role_emblem_key(GameData.card_def("spark_focus")).is_empty(), "A ground setup card should not inherit a weapon emblem")
-	for illusion_card_id: String in ["mirror_feint", "mirror_flash", "witchglass_double", "reflected_threat", "empty_husk"]:
+	for illusion_card_id: String in ["mirror_flash", "witchglass_double", "hall_of_mirrors"]:
 		_assert(ActionIcons.card_role_emblem_key(GameData.card_def(illusion_card_id)) == "illusion", "%s should preserve its authored illusion-first identity over secondary block or attack actions" % illusion_card_id)
-	for defense_card_id: String in ["undertow_guard", "rimeplate_lock"]:
+	# Wave 4 made these pure illusion cards; they read as illusions without an override.
+	for pure_illusion_card_id: String in ["mirror_feint", "reflected_threat", "empty_husk", "ice_sculpture", "doppelganger"]:
+		_assert(not GameData.card_def(pure_illusion_card_id).has("role_emblem") and ActionIcons.card_role_emblem_key(GameData.card_def(pure_illusion_card_id)) == "illusion", "%s should read as an illusion card from its actions alone" % pure_illusion_card_id)
+	for defense_card_id: String in ["undertow_guard", "rimeplate_lock", "gale_ward"]:
 		_assert(ActionIcons.card_role_emblem_key(GameData.card_def(defense_card_id)) == "block", "%s should preserve its authored defense-first identity over a secondary ranged action" % defense_card_id)
 	var card_scene: PackedScene = load("res://scenes/card_widget.tscn")
 	if card_scene == null:
@@ -12860,10 +12872,12 @@ func _test_radiance_cards_and_icons_are_integrated() -> void:
 	var root_attack_row: Array = root_rows[0] as Array
 	var root_segments: Array = card_widget.call("_summary_token_segments", root_attack_row)
 	_assert(root_attack_row.size() == 5 and root_segments.size() == 2, "Guiding Flare retains attack, range, Fire and both Light values across two rows")
-	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("squall_shot").get("actions", []))
+	# Squall gained a fifth "from center" token in wave 4; Wind Shear is the
+	# four-token pushing area (damage, range, pattern, push).
+	var squall_rows: Array = ActionIcons.rows_for_actions(GameData.card_def("wind_shear").get("actions", []))
 	var squall_attack_row: Array = squall_rows[0] as Array
 	var squall_segments: Array = card_widget.call("_summary_token_segments", squall_attack_row)
-	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Simplified Squall should keep its four fitting AOE tokens on one line")
+	_assert(squall_attack_row.size() == 4 and squall_segments.size() == 1, "Wind Shear should keep its four fitting AOE tokens on one line")
 	var action_group_parent := VBoxContainer.new()
 	card_widget.call("_add_summary_action_group", action_group_parent, root_segments, 28.0, 16, 6)
 	_assert(action_group_parent.get_child_count() == 1 and bool(action_group_parent.get_child(0).get_meta("summary_action_group", false)), "A wrapped action should render inside one action-group container")

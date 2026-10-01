@@ -150,7 +150,11 @@ const KEYWORDS: Dictionary = {
 	"retaliate": {"label": "Retaliate", "description": "Until your next turn, an enemy that hits you in melee takes this much damage (Block and Stoneskin absorb it) and any listed riders. Several Retaliates add up.", "path": "%s/retaliate.png" % ICON_ROOT},
 	"quicken": {"label": "Quicken", "description": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.", "path": "%s/quicken.png" % ICON_ROOT},
 	"rite": {"label": "Rite", "description": "Rite: Exhaust. Lasts for the rest of this combat.", "path": "%s/rite.png" % ICON_ROOT},
-	"next_attack": {"label": "Next Attack", "description": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.", "path": "%s/stat_might.png" % ICON_ROOT},
+	"next_attack": {
+		"label": "Next Attack",
+		"description": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.",
+		"path": "%s/next_attack.png" % ICON_ROOT
+	},
 	# Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
 	"swap": {"label": "Swap", "description": "Swap places with a visible one-tile enemy or one of your illusions. Both of you arrive normally; nothing collides, and Anchored does not stop it.", "path": "%s/swap.png" % ICON_ROOT},
 	"petrify": {"label": "Petrify", "description": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.", "path": "%s/petrify.png" % ICON_ROOT},
@@ -520,8 +524,10 @@ const DEFENSIVE_SELF_FLAGS: Array = ["no_move", "anchored"]
 
 ## One watermark per card. Primary roles win in the order ranged attack, melee
 ## attack, block, illusion, mobility. Setup riders (Next Attack, Cleanse, wards,
-## Quicken) choose a role only when the card has no primary role, so Capacitor
-## stays a shield and Smelling Salts stays a boot.
+## Quicken, Detonate by the attack range rule, a Stoneskin/Block-paying ground
+## consume) choose a role only when the card has no primary role, so Capacitor
+## stays a shield, Smelling Salts stays a boot and Cinder Second stays a shield
+## while Magma Vent and Immolation read as attacks.
 static func card_role_emblem_key(card: Dictionary) -> String:
 	var authored_role: String = str(card.get("role_emblem", ""))
 	if CARD_ROLE_EMBLEM_PATHS.has(authored_role):
@@ -532,6 +538,7 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 	var has_illusion: bool = false
 	var has_mobility: bool = false
 	var setup_attack: bool = false
+	var setup_ranged_attack: bool = false
 	var setup_block: bool = false
 	var setup_mobility: bool = false
 	for action_var: Variant in card.get("actions", []):
@@ -564,6 +571,15 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 					has_mobility = true
 			"next_attack":
 				setup_attack = true
+			"detonate":
+				if int(action.get("range", 0)) > 1:
+					setup_ranged_attack = true
+				else:
+					setup_attack = true
+			"consume_surface":
+				for reward_var: Variant in action.get("rewards", []):
+					if typeof(reward_var) == TYPE_DICTIONARY and str((reward_var as Dictionary).get("type", "")) in ["block", "stoneskin"]:
+						setup_block = true
 			"cleanse", "surface_adjacent_enemies":
 				setup_block = true
 			"quicken":
@@ -578,6 +594,8 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 		return "illusion"
 	if has_mobility:
 		return "mobility"
+	if setup_ranged_attack:
+		return "attack_ranged"
 	if setup_attack:
 		return "attack_melee"
 	if setup_block:

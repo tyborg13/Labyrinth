@@ -30,11 +30,20 @@ RADIANCE_MECHANICS = {"vision", "truesight", "illuminate", "dispel_umbra", "illu
 # Waves 2-3: Light payoffs (a target-in-Light state bonus) and Rites that radiate
 # Light or reward attacks into it are Radiance mechanics too.
 RADIANCE_RITE_EFFECTS = {"player_light_aura"}
+# Wave 4 (spec/card_mechanics_surfaces.md, card_mechanics_maneuver.md,
+# card_mechanics_illusions_terrain.md): illusion actions and payoffs, Light
+# selectors, lit trails and Light-gated Blinks.
+RADIANCE_MECHANICS |= {"illusion_swap", "destroy_illusion"}
+RADIANCE_ACTION_FIELDS = {"also_hits_near_illusions", "trail_light", "destination_requires_light"}
 
 
 def has_radiance_mechanic(card: dict) -> bool:
     for action in card["actions"]:
         if action.get("type") in RADIANCE_MECHANICS or action.get("illuminate_radius", 0):
+            return True
+        if action.get("type") == "all_enemies" and action.get("selector") == "in_light":
+            return True
+        if any(action.get(field) for field in RADIANCE_ACTION_FIELDS):
             return True
         if any(isinstance(bonus, dict) and bonus.get("state") == "light" for bonus in action.get("state_bonus", [])):
             return True

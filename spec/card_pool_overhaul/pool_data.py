@@ -189,7 +189,7 @@ card("sleet_squall", "Sleet Squall", M, I, "rare", 5,
      "Push 2 at range 3, then deal 3 Ice to the target.", impl=2,
      note="Ice + Air bridge. Push first, hit second: a target shoved onto Ice is Chilled on entry, so the hit Freezes it.")
 card("ice_sculpture", "Ice Sculpture", M, I, "rare", 5,
-     "Create a 4-health illusion within range 3. Leave Ice on each tile adjacent to it.", impl=2,
+     "Create a 4-health illusion within range 3. Leave Ice on each empty tile adjacent to it.", impl=2,
      note="A decoy that is also a trap. Enemies that step up to hit it arrive Chilled.")
 card("frost_nova", "Frost Nova", M, I, "epic", 6,
      "Deal 4 Ice to each adjacent enemy. Leave Ice on all 8 tiles around you.", impl=2,
@@ -312,7 +312,7 @@ card("razor_gale", "Razor Gale", M, A, "rare", 4,
      "Flurry. Deal 2 at range 2 and Push 1, once per play spent.", "keep", costs=["Flurry"],
      note="Unchanged. Once the first copy pins the target against something, each later copy also collides.")
 card("changing_winds", "Changing Winds", M, A, "rare", 3,
-     "Swap places with an enemy or illusion within range 3.", impl=2,
+     "Swap places with a one-tile enemy or one of your illusions within range 3.", impl=2,
      note="The positional classic the pool lacked: put them where you were, on your hazards.")
 card("fan_the_flames", "Fan the Flames", M, A, "rare", 4,
      "Push 2 at range 3 for 2. Leave Fire on each tile the target passes through.", impl=2,
@@ -391,7 +391,7 @@ card("spike_mantle", "Spike Mantle", M, E, "epic", 6,
      "Strike all adjacent tiles for 8, or 12 against targets on Rubble. Pierce. Consume adjacent Rubble to gain 4 Stoneskin.",
      "keep")
 card("petrify", "Petrify", M, E, "epic", 5,
-     "An enemy within range 3 skips its next turn and gains 5 Block.", impl=2,
+     "An enemy within range 3 (not a dragon) skips its next turn and gains 5 Block.", impl=2,
      note="A full turn skip, like Freeze, but the target comes back harder to kill.")
 card("rite_of_the_mountain", "Rite of the Mountain", M, E, "epic", 5,
      "Rite: at the start of each of your turns, gain 3 Stoneskin.", costs=["Rite"], impl=2)
@@ -399,7 +399,7 @@ card("tectonic_maul", "Tectonic Maul", M, E, "legendary", 8,
      "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact. Stagger 3.",
      "tweak", note="Adds Stagger 3, so the slowest card in the pool buys some of its Time back.")
 card("worldspine", "Worldspine", M, E, "legendary", 7,
-     "Exhaust. Raise four 4-health Worldspines around a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
+     "Exhaust. Raise a 4-health Worldspine on each empty tile next to a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
      costs=["Exhaust"], impl=2,
      note="Tharokh's spires for the player: a cage around one enemy, or a pulsing wall across the room.")
 
@@ -425,13 +425,13 @@ card("trapdoor", "Trapdoor", M, R, "rare", 4,
 card("ember_rain", "Lantern Rain", M, R, "rare", 5,
      "Deal 3 in a cross at range 3. Create radius-2 Light at the impact for 2 turns.", "keep")
 card("revealing_glare", "Revealing Glare", M, R, "rare", 3,
-     "Expose 3 each enemy in Light within range 4. Draw 1.", impl=2,
+     "Each enemy in Light within range 4 is Exposed 3. Draw 1.", impl=2,
      note="Sets up one big hit on every lit enemy.")
 card("refraction", "Refraction", M, R, "rare", 4,
      "Deal 4 at range 3. It also hits each enemy adjacent to one of your illusions.", impl=2,
      note="Illusions become relays: enemies crowding a decoy all get hit.")
 card("shattered_reflection", "Shattered Reflection", M, R, "rare", 3,
-     "Destroy one of your illusions. Deal 6 to each enemy adjacent to it and create radius-2 Light there for 2 turns.",
+     "Destroy one of your illusions within range 6. Deal 6 to each enemy adjacent to it and create radius-2 Light there for 2 turns.",
      impl=2, note="Spend a decoy once the enemies have gathered around it.")
 card("break_the_veil", "Break the Veil", M, R, "rare", 3,
      "Exhaust. Dispel Umbra 1. Draw 1.", costs=["Exhaust"], impl=0,
@@ -659,7 +659,7 @@ card("fault_strike", "Fault Strike", G, E, "legendary", 6,
 card("raise_the_anvil", "Raise the Anvil", G, E, "legendary", 3,
      "Raise an outcrop adjacent to you. Gain 4 Stoneskin.")
 card("worldbreak", "Worldbreak", G, E, "legendary", 6,
-     "Destroy an adjacent outcrop. Deal 10 to each enemy in the 3-tile line beyond it. Stagger 2.", impl=2)
+     "Destroy an adjacent outcrop you raised. Deal 10 to each enemy in the 3-tile line beyond it. Stagger 2.", impl=2)
 
 # Offhands -----------------------------------------------------------------
 piece("splintered_shield", "Splintered Shield", "offhand", "common",
@@ -845,7 +845,7 @@ card("voidsilk_molt", "Voidsilk Molt", G, N, "legendary", 4,
      "Blink 3, leaving a 4-health illusion where you stood. Draw 1.", "rework", impl=2,
      note="Was an Exhaust blink with Block and draw. Now the husk you leave behind takes the hit meant for you.")
 card("empty_husk", "Empty Husk", G, N, "legendary", 2,
-     "Swap places with one of your illusions. It gains your Block.", "rework", impl=2,
+     "Swap places with one of your illusions. Your Block moves onto it as extra health.", "rework", impl=2,
      note="Was the fifth illusion-plus-Block card. Now the escape half of the Molt pair.")
 
 piece("thornmail", "Thornmail", "armor", "rare",
@@ -1133,7 +1133,7 @@ card("hourglass_sand", "Hourglass Sand", IT, N, "rare", 2,
 card("throwing_net", "Throwing Net", IT, N, "common", 4,
      "Immobilize an enemy within range 3. Stagger 3.", costs=C)
 card("flash_powder", "Flash Powder", IT, R, "common", 3,
-     "Create radius-3 Light within range 3 for 2 turns. Enemies in it are Exposed 2.", costs=C, impl=2)
+     "Create radius-3 Light within range 3 for 2 turns. Enemies within 2 of its center are Exposed 2.", costs=C, impl=2)
 card("whetstone", "Whetstone", IT, N, "common", 2,
      "Your next attack this turn deals 4 more and Pierces.", costs=C, impl=2)
 card("mirror_charm", "Mirror Charm", IT, R, "rare", 3,

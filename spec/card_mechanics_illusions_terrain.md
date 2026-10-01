@@ -116,7 +116,9 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
   `shatter_illusion` (Shatter Illusion), each leading its card row. See
   [icon identity policy](icon_identity_policy.md).
 - Card role emblems: powder kegs and Worldspines are offensive outcrops and follow the
-  attack range rule; crag outcrops stay block; Empty Husk is illusion.
+  attack range rule; crag outcrops stay block; Empty Husk is illusion. Hall of Mirrors
+  authors `role_emblem: "illusion"` over its Block; Mirror Feint, Reflected Threat and
+  Empty Husk are pure illusion cards since wave 4 and need no override.
 - Powder kegs draw `assets/art/tiles/powder_keg.png` (the wooden box's 128px framing) with
   a soft warning glow on its lit fuse, and break apart with the wooden box destruction
   sheet (`TERRAIN_DESTRUCTION_SHEET_LAYOUTS.powder_keg`); the burst's fire impact is

@@ -312,6 +312,15 @@ class IconIdentityPolicyTests(unittest.TestCase):
                 f"{function_name} must consume the central action icon inventory",
             )
 
+    def test_next_attack_owns_its_purpose_built_icon(self) -> None:
+        # Next Attack borrowed the unused Might art until its own charged-blade
+        # icon landed (spec/icon_identity_policy.md, wave-4 identities table).
+        registry = _action_icon_paths()
+        aliases = _action_icon_aliases()
+        self.assertEqual(registry.get("next_attack"), "res://assets/art/icons/next_attack.png")
+        self.assertEqual(aliases.get("next_attack"), "next_attack")
+        self.assertNotIn("res://assets/art/icons/stat_might.png", registry.values(), "No identity borrows the retired Might art")
+
     def test_grimoire_icons_are_registered_and_semantically_exact(self) -> None:
         registry = _action_icon_paths()
         grimoire = json.loads((REPO_ROOT / "data/grimoire.json").read_text(encoding="utf-8"))
@@ -367,13 +376,12 @@ class IconIdentityPolicyTests(unittest.TestCase):
         self.assertEqual(
             authored_roles,
             {
-                "mirror_feint": "illusion",
                 "mirror_flash": "illusion",
                 "witchglass_double": "illusion",
-                "reflected_threat": "illusion",
+                "hall_of_mirrors": "illusion",
                 "undertow_guard": "block",
                 "rimeplate_lock": "block",
-                "empty_husk": "illusion",
+                "gale_ward": "block",
             },
             "Only genuinely ambiguous mixed cards should need an explicit primary-role override",
         )

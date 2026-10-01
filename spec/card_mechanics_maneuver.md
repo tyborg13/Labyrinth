@@ -165,7 +165,8 @@ Grimoire: `combat:area_force`, `combat:swap`, `combat:stances` (Anchored icon),
 Card role emblems: Swap and Skate/Fireproof are mobility; Rooted/Anchored,
 Crystal Mantle and Shrug Off are block; Petrify and area forces follow the
 attack range rule; Cleanse chooses block only when nothing else on the card has
-a role.
+a role. Gale Ward authors `role_emblem: "block"`: its damage-free shove is a rider
+on the Ward's Block, like its Fire, Ice, Rubble and Electrified siblings.
 
 ## Analytics
 

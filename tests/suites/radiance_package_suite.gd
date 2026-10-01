@@ -9,14 +9,18 @@ const GameData = preload("res://scripts/game_data.gd")
 # Censer Swing, Incense Haze, Sun Flash, Vigil and Blessed Salve (gear), and
 # Mirror Charm and Seer's Candle (items) joined the school. Waves 2 and 3 add
 # Sunlance, Mirror Image, Dazzle and Rite of Noon (reward) plus Hallowed Strike
-# and Blinding Bash (gear).
+# and Blinding Bash (gear). Wave 4 adds Revealing Glare, Refraction, Shattered
+# Reflection, Hall of Mirrors, Searing Light and Doppelganger (reward), Sunpath
+# Stride and Seek the Light (gear) and Flash Powder (item).
 const RADIANCE_CARD_IDS: Array[String] = [
 	"lantern_shot", "guiding_flare", "dawnstep", "prism_sight", "storm_beacon",
 	"glowstone_ward", "daybreak", "trapdoor", "ember_rain",
 	"icebound_chains", "spark_dart", "spark_focus", "threaded_path",
 	"beacon", "seekers_mark", "break_the_veil", "censer_swing", "incense_haze",
 	"sun_flash", "vigil", "blessed_salve", "mirror_charm", "seers_candle",
-	"sunlance", "mirror_image", "dazzle", "rite_of_noon", "hallowed_strike", "blinding_bash"
+	"sunlance", "mirror_image", "dazzle", "rite_of_noon", "hallowed_strike", "blinding_bash",
+	"revealing_glare", "refraction", "shattered_reflection", "hall_of_mirrors", "searing_light",
+	"doppelganger", "sunpath_stride", "seek_the_light", "flash_powder"
 ]
 const ATTACK_LIGHT_RIDER_CARD_IDS: Array[String] = [
 	"lantern_shot", "guiding_flare", "storm_beacon", "ember_rain", "spark_dart"
@@ -43,7 +47,7 @@ static func _test_radiance_pool_and_duration_contract(expect: Callable) -> void:
 		for card_id_var: Variant in rarity_cards_var as Array:
 			if bool(GameData.card_def(str(card_id_var)).get("radiance", false)):
 				reward_radiance_count += 1
-	expect.call(reward_radiance_count == 19, "The ordinary reward pool should contain 19 Radiance cards after card pool overhaul wave 3")
+	expect.call(reward_radiance_count == 25, "The ordinary reward pool should contain 25 Radiance cards after card pool overhaul wave 4")
 	for card_id: String in ["dawnstep", "prism_sight", "trapdoor", "icebound_chains", "spark_focus"]:
 		var found_duration: bool = false
 		for action_var: Variant in GameData.card_def(card_id).get("actions", []):

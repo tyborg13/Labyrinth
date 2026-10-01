@@ -5,6 +5,10 @@ extends RefCounted
 # sideways force, and self-centered Radiance actions. Waves 2 and 3: the real
 # keyword cards in data/cards.json (spec/card_keywords.md,
 # spec/card_keywords_wave3.md), and the live Rotate for patterned outcrops.
+# Wave 4: the real surface, maneuver, illusion and terrain cards (hand rows,
+# role emblems, Grimoire unlocks and the tuned numbers; mechanics are proven
+# with fixtures in the card_mechanics_surfaces, maneuver and
+# illusion_terrain suites).
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -35,6 +39,8 @@ static func run(expect: Callable) -> void:
 	_test_wave3_thorn_crown_pact(expect)
 	_test_wave23_grimoire_unlocks(expect)
 	_test_wave23_hand_display(expect)
+	_test_wave4_hand_rows_roles_and_grimoire(expect)
+	_test_wave4_tuned_numbers(expect)
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
@@ -674,3 +680,101 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 	walked["turn_flags"]["tiles_moved"] = 2
 	expect.call(_display_damage((scene.call("_card_widget_display", "couched_lance", walked) as Dictionary).get("summary_rows", [])) == 6, "The hand shows Couched Lance's tiles-moved damage")
 	scene.free()
+
+
+# ---------------------------------------------------------------- wave 4
+
+# The role emblem of every card definition card_defs.py authors for wave 4.
+# Hall of Mirrors and Gale Ward author theirs (spec/card_mechanics_*.md).
+const WAVE4_ROLE_EMBLEMS: Dictionary = {
+	"stoke": "attack_ranged", "ember_ward": "block", "flashsteam": "attack_ranged", "magma_vent": "attack_ranged",
+	"immolation": "attack_melee", "pyroclasm": "attack_ranged", "meteorfall": "attack_ranged", "skate": "mobility",
+	"hoarfrost_ward": "block", "hush_of_winter": "attack_ranged", "frost_circuit": "attack_ranged", "sleet_squall": "attack_ranged",
+	"ice_sculpture": "illusion", "shatter": "attack_ranged", "white_silence": "attack_ranged", "crystal_mantle": "block",
+	"static_ward": "block", "plasma_arc": "attack_ranged", "discharge": "attack_ranged", "ball_lightning": "illusion",
+	"skybolt": "attack_ranged", "gale_ward": "block", "squall_shot": "attack_ranged", "changing_winds": "mobility",
+	"fan_the_flames": "attack_ranged", "dust_devil": "attack_ranged", "vortex": "attack_ranged", "cyclone_seal": "attack_ranged",
+	"stone_ward": "block", "rockburst": "attack_ranged", "rooted_stance": "block", "frost_heave": "attack_ranged",
+	"grounding": "block", "petrify": "attack_ranged", "worldspine": "attack_ranged", "revealing_glare": "attack_ranged",
+	"refraction": "attack_ranged", "shattered_reflection": "attack_ranged", "hall_of_mirrors": "illusion", "searing_light": "attack_ranged",
+	"doppelganger": "illusion", "joust": "attack_melee", "frozen_bite": "attack_melee", "shatter_swing": "attack_melee",
+	"fault_strike": "attack_melee", "worldbreak": "attack_melee", "mirror_feint": "illusion", "reflected_threat": "illusion",
+	"shield_wall": "block", "grapple": "mobility", "threadbare_guard": "block", "voidsilk_molt": "mobility",
+	"empty_husk": "illusion", "shrug_off": "block", "catch_the_wind": "mobility", "windbreak": "block",
+	"cloudstep_loop": "mobility", "glide": "mobility", "rime_step": "mobility", "cinder_trail": "mobility",
+	"hotfoot": "mobility", "sunpath_stride": "mobility", "seek_the_light": "mobility", "unsealed_gale": "attack_melee",
+	"headsmans_toll": "attack_ranged", "powder_keg": "attack_ranged", "flash_powder": "attack_ranged", "bottled_gale": "attack_melee",
+	"thunderstone": "attack_ranged", "smelling_salts": "mobility",
+}
+
+
+static func _test_wave4_hand_rows_roles_and_grimoire(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var scene: Node = RunSceneScript.new()
+	var state: Dictionary = _queued_state(combat, ["quick_stab"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
+	expect.call(WAVE4_ROLE_EMBLEMS.size() == 70, "The wave-4 table covers all 70 new and reworked cards")
+	for card_id: String in WAVE4_ROLE_EMBLEMS:
+		var card: Dictionary = GameData.card_def(card_id)
+		expect.call(not card.is_empty() and not bool(card.get("retired", false)), "%s is a live card" % card_id)
+		var rows: Array = (scene.call("_card_widget_display", card_id, state) as Dictionary).get("summary_rows", [])
+		var icon_tokens: int = 0
+		for row_var: Variant in rows:
+			expect.call(not (row_var as Array).is_empty(), "%s has no empty hand row" % card_id)
+			for token_var: Variant in row_var as Array:
+				var token: Dictionary = token_var
+				if not str(token.get("icon", "")).is_empty():
+					icon_tokens += 1
+				expect.call(not str(token.get("value", "")).ends_with(".0"), "%s hand chip %s prints a whole number" % [card_id, str(token.get("icon", ""))])
+		expect.call(icon_tokens > 0, "%s shows icon rows in the hand" % card_id)
+		expect.call(ActionIcons.card_role_emblem_key(card) == str(WAVE4_ROLE_EMBLEMS[card_id]), "%s uses the %s role emblem (got %s)" % [card_id, str(WAVE4_ROLE_EMBLEMS[card_id]), ActionIcons.card_role_emblem_key(card)])
+	scene.free()
+	var expected: Dictionary = {
+		"stoke": ["combat:sweeping_strikes"],
+		"frost_circuit": ["combat:surface_techniques", "keyword:surface_electrified", "keyword:shock"],
+		"discharge": ["combat:surface_techniques", "keyword:surface_electrified"],
+		"pyroclasm": ["combat:surface_techniques"],
+		"meteorfall": ["combat:cinder_marks"],
+		"vortex": ["combat:area_force"],
+		"changing_winds": ["combat:swap"],
+		"rooted_stance": ["combat:stances", "keyword:stoneskin"],
+		"threadbare_guard": ["combat:cleanse", "keyword:block"],
+		"petrify": ["combat:petrify"],
+		"crystal_mantle": ["combat:crystal_armor"],
+		"empty_husk": ["keyword:illusion"],
+		"mirror_feint": ["keyword:illusion", "keyword:expose"],
+		"shattered_reflection": ["keyword:illusion", "keyword:illuminate"],
+		"rockburst": ["combat:outcrops"],
+		"powder_keg": ["combat:outcrops"],
+		"sleet_squall": ["keyword:push"],
+		"shadow_gate": ["keyword:next_attack", "keyword:blink"],
+	}
+	for card_id: String in expected:
+		var ids: Array[String] = Grimoire.entry_ids_for_card_ids([card_id])
+		for entry_id: String in expected[card_id]:
+			expect.call(ids.has(entry_id) and not Grimoire.entry_def(entry_id).is_empty(), "%s unlocks %s: %s" % [card_id, entry_id, str(ids)])
+
+
+static func _enemy_field(state: Dictionary, enemy_id: int, field: String) -> int:
+	for enemy: Dictionary in state.get("enemies", []):
+		if int(enemy.get("id", -1)) == enemy_id:
+			return int(enemy.get(field, 0))
+	return -1
+
+
+## The live wave-4 numbers that were tuned after the family fixtures were written.
+static func _test_wave4_tuned_numbers(expect: Callable) -> void:
+	var combat := CombatEngine.new()
+	var foe: Array = [{"id": 1, "type": "crawler", "pos": Vector2i(4, 4), "hp": 40, "max_hp": 40}]
+	var mantled: Dictionary = _play_first(combat, _queued_state(combat, ["crystal_mantle"], foe), [])
+	expect.call(int((mantled.get("player", {}) as Dictionary).get("frost_armor", 0)) == 3, "Crystal Mantle grants 3 Mantle layers")
+	var petrified: Dictionary = _play_first(combat, _queued_state(combat, ["petrify"], foe), [Vector2i(4, 4)])
+	expect.call(_enemy_field(petrified, 1, "block") == 5 and _enemy_field(petrified, 1, "petrify") > 0, "Petrify grants its target 5 Block and a skipped turn")
+	var hearth: Dictionary = _queued_state(combat, ["immolation"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
+	Surface.place(hearth, Vector2i(3, 4), "fire")
+	var burned: Dictionary = _play_first(combat, hearth, [])
+	expect.call(_hp(burned, 1) == 32 and int((burned.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Immolation detonates the adjacent Fire for 8 and spares the hero")
+	for pair: Array in [["vortex", "pull=2"], ["discharge", "aoe=5"], ["skybolt", "ranged=8"]]:
+		expect.call(_row_values(str(pair[0])).has(str(pair[1])), "%s shows its tuned %s chip: %s" % [str(pair[0]), str(pair[1]), str(_row_values(str(pair[0])))])
+	var keg: Dictionary = (GameData.card_def("powder_keg").get("actions", []) as Array)[0]
+	expect.call(int(keg.get("burst_damage", 0)) == 6 and str(GameData.card_def("powder_keg").get("description", "")).contains("deals 6"), "Powder Keg bursts for 6, as printed")
+

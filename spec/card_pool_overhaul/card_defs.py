@@ -245,7 +245,7 @@ card("sleet_squall", "Sleet Squall", "rare", 5,
      [push(2, 0, 3, ICE), ranged(3, 3, ICE, target="previous_target")],
      "Push 2 at range 3, then deal 3 Ice damage to the target.", ICE, wave=4)
 card("ice_sculpture", "Ice Sculpture", "rare", 5, [act("illusion", health=4, range=3, surface_ring="ice")],
-     "Create a 4-health illusion within range 3, then leave Ice on each tile around it.", ICE, wave=4)
+     "Create a 4-health illusion within range 3, then leave Ice on each empty tile next to it.", ICE, wave=4)
 card("frost_nova", "Frost Nova", "epic", 6, [aoe(4, 0, ADJ, ICE), surface("ice", 0, RING8)],
      "Deal 4 Ice damage to each adjacent enemy, then leave Ice on all eight tiles around you.", ICE)
 card("shatter", "Shatter", "epic", 5, [ranged(5, 3, ICE, frozen_splash=5)],
@@ -317,7 +317,7 @@ card("crosswind", "Crosswind", "common", 3, [push(2, 3, 3, AIR, _allow_sideways_
      "Deal 3 at range 3 and push 2 in any direction.", AIR)
 card("hurricane_palm", "Hurricane Palm", "common", 4, [push(3, 3, 1, AIR)], "Strike an adjacent enemy for 3 and push 3.", AIR)
 card("gale_ward", "Gale Ward", "common", 3, [block(5), act("force_area", center="self", radius=1, push=1)],
-     "Gain 5 Block, then push each adjacent enemy 1.", AIR, wave=4)
+     "Gain 5 Block, then push each adjacent enemy 1.", AIR, wave=4, role_emblem="block")
 card("wind_shear", "Wind Shear", "common", 5, [aoe(3, 2, LINE3, AIR, rotate=True, push=1)],
      "Deal 3 along a three-tile line at range 2 and push each target 1 away from you. Empower (+2 Time): push 2 instead.", AIR,
      wave=2, empower={"cost": {"time": 2}, "mods": [m(0, set={"push": 2})]})
@@ -326,7 +326,7 @@ card("squall_shot", "Squall", "rare", 5, [aoe(2, 3, CROSS, AIR, push=1, force_mo
      "Deal 2 in a cross at range 3 and push each enemy in it 1 away from the center. The enemy on the center is pushed away from you.",
      AIR, wave=4)
 card("changing_winds", "Changing Winds", "rare", 3, [act("swap", range=3, targets=["enemy", "illusion"])],
-     "Swap places with an enemy or illusion within range 3.", AIR, wave=4)
+     "Swap places with a one-tile enemy or one of your illusions within range 3.", AIR, wave=4)
 card("fan_the_flames", "Fan the Flames", "rare", 4, [push(2, 2, 3, AIR, trail_surface="fire")],
      "Push 2 at range 3 for 2 damage. Leave Fire on each tile the target passes through.", AIR, wave=4)
 card("dust_devil", "Dust Devil", "rare", 4,
@@ -377,7 +377,7 @@ card("grounding", "Grounding", "rare", 3,
           rewards=[{"type": "stoneskin", "amount": 2, "per_tile": True, "max": 8}])],
      "Remove every Electrified tile within 2 of you. Gain 2 Stoneskin per tile removed (maximum 8).", EARTH, wave=4)
 card("petrify", "Petrify", "epic", 5, [act("petrify", range=3, block=5)],
-     "An enemy within range 3 skips its next turn and gains 5 Block.", EARTH, wave=4)
+     "An enemy within range 3 (not a dragon) skips its next turn and gains 5 Block.", EARTH, wave=4)
 card("rite_of_the_mountain", "Rite of the Mountain", "epic", 5, [],
      "Rite: at the start of each of your turns, gain 3 Stoneskin.", EARTH, wave=3, burn=True,
      rite={"effects": [{"type": "turn_start_reward", "rewards": [{"type": "stoneskin", "amount": 3}]}]})
@@ -387,7 +387,7 @@ card("tectonic_maul", "Tectonic Maul", "legendary", 8,
      "Move 1, then strike for 11, or 15 against a target on Rubble. Leave a cross of Rubble at the impact and Stagger 3.", EARTH, wave=2)
 card("worldspine", "Worldspine", "legendary", 7,
      [act("outcrop", range=3, health=4, pattern=ADJ, around_target=True, kind="worldspine", pulse_damage=3)],
-     "Exhaust. Raise four 4-health Worldspines around a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
+     "Exhaust. Raise a 4-health Worldspine on each empty tile next to a tile within range 3. At the start of each of your turns, each enemy next to a Worldspine takes 3.",
      EARTH, wave=4, burn=True)
 
 # =============================================================================== RADIANCE
@@ -403,17 +403,18 @@ card("dazzle", "Dazzle", "common", 3, [ranged(2, 3, state_bonus=[{"state": "ligh
 card("seekers_mark", "Seeker's Mark", "common", 2, [act("truesight", duration=2), draw(1)],
      "Gain Truesight for 2 turns, then draw 1.", radiance=True)
 card("revealing_glare", "Revealing Glare", "rare", 3, [act("all_enemies", selector="in_light", range=4, damage=0, expose=3), draw(1)],
-     "Expose 3 each enemy in Light within range 4, then draw 1.", radiance=True, wave=4)
+     "Each enemy in Light within range 4 is Exposed 3. Draw 1.", radiance=True, wave=4)
 card("refraction", "Refraction", "rare", 4, [ranged(4, 3, also_hits_near_illusions=True)],
      "Deal 4 at range 3. It also hits each enemy next to one of your illusions.", radiance=True, wave=4)
 card("shattered_reflection", "Shattered Reflection", "rare", 3,
      [act("destroy_illusion", range=6, damage=6, illuminate_radius=2, illuminate_duration=2)],
-     "Destroy one of your illusions to deal 6 to each enemy next to it and create radius-2 Light there for 2 turns.",
+     "Destroy one of your illusions within range 6 to deal 6 to each enemy next to it and create radius-2 Light there for 2 turns.",
      radiance=True, wave=4)
 card("break_the_veil", "Break the Veil", "rare", 3, [act("dispel_umbra", amount=1), draw(1)],
      "Exhaust. Reduce the Umbra by 1 stage, then draw 1.", radiance=True, burn=True)
 card("hall_of_mirrors", "Hall of Mirrors", "epic", 6, [act("illusion", health=2, range=0, place="ring_around_self"), block(3)],
-     "Create a 2-health illusion on each empty tile next to you, then gain 3 Block.", radiance=True, wave=4)
+     "Create a 2-health illusion on each empty tile next to you, then gain 3 Block.", radiance=True, wave=4,
+     role_emblem="illusion")
 card("searing_light", "Searing Light", "epic", 5, [act("all_enemies", selector="in_light", damage=3)],
      "Deal 3 to each enemy standing in Light.", radiance=True, wave=4)
 card("rite_of_noon", "Rite of Noon", "epic", 5, [],
@@ -498,16 +499,16 @@ gear("fault_strike", "Fault Strike", "legendary", 6, [melee(9, 1, EARTH, surface
 gear("raise_the_anvil", "Raise the Anvil", "legendary", 3, [act("outcrop", range=1, health=3), stoneskin(4)],
      "Raise an outcrop next to you, then gain 4 Stoneskin.", EARTH)
 gear("worldbreak", "Worldbreak", "legendary", 6, [act("burst_terrain", range=1, owned_outcrop_only=True, line_damage=10, line_length=3, stagger=2)],
-     "Destroy an adjacent outcrop to deal 10 to each enemy in the three-tile line beyond it and Stagger 2.", EARTH, wave=4)
+     "Destroy an adjacent outcrop you raised to deal 10 to each enemy in the three-tile line beyond it and Stagger 2.", EARTH, wave=4)
 
 # =============================================================================== GEAR: offhands
 gear("brace", "Brace", "common", 1, [block(6)], "Gain 6 Block.", starter=True)
 gear("kite_bash", "Kite Bash", "common", 4, [block(6), push(1, 3, 1)], "Gain 6 Block, then bash an adjacent enemy for 3 and push 1.")
 gear("mirror_feint", "Mirror Feint", "epic", 4, [act("illusion", health=3, range=3, place="adjacent_to_enemy", expose_adjacent=3)],
-     "Create a 3-health illusion next to an enemy within range 3. That enemy is Exposed 3.", wave=4, role_emblem="illusion")
+     "Create a 3-health illusion next to an enemy within range 3. That enemy is Exposed 3.", wave=4, role_emblem=None)
 gear("spike_check", "Spike Check", "common", 3, [block(5), act("retaliate", amount=3)], "Gain 5 Block and Retaliate 3.", wave=3)
 gear("reflected_threat", "Reflected Threat", "epic", 5, [act("illusion", health=4, range=3, reflect=True)],
-     "Create a 4-health illusion within range 3. Enemies that damage it take that much damage too.", wave=4, role_emblem="illusion")
+     "Create a 4-health illusion within range 3. Enemies that damage it take that much damage too.", wave=4, role_emblem=None)
 gear("anchor_slam", "Anchor Slam", "legendary", 7, [stoneskin(3), pull(2, 5, 3, sunder=4, immobilize=True)],
      "Gain 3 Stoneskin, then pull 2 at range 3 for 5, Sunder 4, and immobilize.")
 gear("shield_wall", "Shield Wall", "rare", 3, [block(9), act("self_flag", flag="no_move")],
@@ -541,7 +542,7 @@ gear("threadbare_guard", "Unpick", "common", 2, [act("cleanse", statuses=["bleed
 gear("voidsilk_molt", "Voidsilk Molt", "legendary", 4, [blink(3, illusion_at_origin=4), draw(1)],
      "Blink 3, leaving a 4-health illusion where you stood, then draw 1.", wave=4)
 gear("empty_husk", "Empty Husk", "legendary", 2, [act("illusion_swap", range=99, transfer_block=True)],
-     "Swap places with one of your illusions. It gains your Block.", wave=4, role_emblem="illusion")
+     "Swap places with one of your illusions. Your Block moves onto it as extra health.", wave=4, role_emblem=None)
 gear("barbed_mail", "Barbed Mail", "rare", 4, [block(5), act("retaliate", amount=3, bleed=1)],
      "Gain 5 Block and Retaliate 3 with Bleed 1.", wave=3)
 gear("bristle", "Bristle", "rare", 2, [stoneskin(3), act("retaliate", amount=2)], "Gain 3 Stoneskin and Retaliate 2.", wave=3)
@@ -634,7 +635,7 @@ card("hourglass_sand", "Hourglass Sand", "rare", 2, [act("quicken", amount=4), d
 card("throwing_net", "Throwing Net", "common", 4, [ranged(0, 3, immobilize=True, stagger=3)],
      "Consume. Immobilize an enemy within range 3 and Stagger 3.", item=True, wave=2)
 card("flash_powder", "Flash Powder", "common", 3, [aoe(0, 3, DIAMOND2, expose=2, illuminate_radius=3, illuminate_duration=2)],
-     "Consume. Create radius-3 Light within range 3 for 2 turns. Enemies there are Exposed 2.", item=True, radiance=True, wave=4)
+     "Consume. Create radius-3 Light within range 3 for 2 turns. Enemies within 2 of its center are Exposed 2.", item=True, radiance=True, wave=4)
 card("whetstone", "Whetstone", "common", 2, [act("next_attack", damage=4, pierce=True)],
      "Consume. Your next attack this turn deals 4 more and Pierces.", item=True, wave=3)
 card("mirror_charm", "Mirror Charm", "rare", 3, [act("illusion", health=5, range=3)], "Consume. Create a 5-health illusion within range 3.",

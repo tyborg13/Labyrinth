@@ -1507,6 +1507,19 @@ static func _action_value(action: Dictionary) -> float:
 			value += float(int(action.get("push", 0))) * 0.4
 		"quicken":
 			value += float(int(action.get("amount", 0))) * 0.6
+		# Wave-4 damage types (spec/card_mechanics_surfaces.md,
+		# spec/card_mechanics_illusions_terrain.md). Selectors and surface networks
+		# reach several enemies; delayed marks and terrain/illusion blasts need setup.
+		"all_enemies", "convert_surface", "discharge":
+			value += float(int(action.get("damage", 0))) * 1.2
+			value += float(mini(int(action.get("range", 0)), 8)) * 0.2
+		"meteor_marks":
+			value += float(int(action.get("damage", 0))) * 1.0
+			value += float(int(action.get("range", 0))) * 0.25
+			value += float((action.get("pattern", []) as Array).size()) * 0.15
+		"burst_terrain", "destroy_illusion":
+			value += float(int(action.get("damage", 0)) + int(action.get("line_damage", 0))) * 0.95
+			value += float(mini(int(action.get("range", 0)), 8)) * 0.2
 	value += float(int(action.get("bleed", 0))) * 1.05
 	value += float(int(action.get("expose", 0))) * 0.95
 	value += float(int(action.get("sunder", 0))) * 0.70

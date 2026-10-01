@@ -417,7 +417,9 @@ func _capture_squall_orientation(instance: Node, combat: CombatEngine) -> void:
 		_visual_enemy(4, Vector2i(4, 6))
 	]
 	var deck: Dictionary = (squall_state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["squall_shot"]
+	# Wind Shear is the rotatable pushing area since Squall became a fixed
+	# from-center cross in card pool wave 4.
+	deck["hand"] = ["wind_shear"]
 	deck["draw"] = []
 	deck["discard"] = []
 	deck["burned"] = []
@@ -433,7 +435,7 @@ func _capture_squall_orientation(instance: Node, combat: CombatEngine) -> void:
 	var board: Control = instance.get_node(BOARD_PATH) as Control
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var focus_tiles: Array = presentation.get("focus_tiles", []) as Array
-	_assert(focus_tiles.has(Vector2i(4, 2)) and focus_tiles.has(Vector2i(6, 4)) and not focus_tiles.has(Vector2i(4, 6)), "Squall visual fixture should show its north-rotated odd pattern")
+	_assert(focus_tiles.has(Vector2i(4, 3)) and focus_tiles.has(Vector2i(4, 5)) and not focus_tiles.has(Vector2i(5, 4)), "Wind Shear visual fixture should show its north-rotated line")
 	await _save_root_screenshot("%s/card_squall_simplified_orientation_v4.png" % OUTPUT_DIR)
 	instance.call("_reset_card_resolution")
 

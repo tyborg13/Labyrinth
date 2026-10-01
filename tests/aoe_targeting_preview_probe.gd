@@ -80,14 +80,8 @@ func _capture_states() -> void:
 		"31_line3_north.png",
 		_aimed_tiles([Vector2i(0, -1), Vector2i(0, 0), Vector2i(0, 1)])
 	)
-	await _capture_aoe_card(
-		instance,
-		"squall_shot",
-		"40_sparse_corner_east.png",
-		_aimed_tiles([Vector2i(0, 0), Vector2i(2, 0), Vector2i(0, 2)]),
-		"41_sparse_corner_north.png",
-		_aimed_tiles([Vector2i(0, 0), Vector2i(0, -2), Vector2i(2, 0)])
-	)
+	# Squall's sparse rotatable corner became a fixed cross in card pool wave 4
+	# (spec/card_mechanics_maneuver.md), the Shrapnel Bomb pattern above.
 	await _capture_aoe_card(
 		instance,
 		"wildfire_halo",
@@ -329,7 +323,7 @@ func _assert_complete_aimed_pattern_inventory() -> void:
 				continue
 			observed[_pattern_signature(action)] = true
 	var expected: Dictionary = {}
-	for card_id: String in ["nail_bomb", "rime_shard", "thunderline", "squall_shot", "wildfire_halo"]:
+	for card_id: String in ["nail_bomb", "rime_shard", "thunderline", "wildfire_halo"]:
 		for action_var: Variant in GameData.card_def(card_id).get("actions", []):
 			if typeof(action_var) != TYPE_DICTIONARY:
 				continue

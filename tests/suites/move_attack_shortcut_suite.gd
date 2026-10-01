@@ -201,8 +201,9 @@ static func _test_every_move_then_attack_card_builds_enemy_shortcut(expect: Call
 			covered_melee_cards += 1
 		run_scene.free()
 
-	expect.call(covered_card_ids.size() == 18, "Current card data should expose all 18 move/blink-then-attack cards to shortcut coverage")
-	expect.call(covered_melee_cards == 12, "Current card data should expose all 12 move-then-melee cards to prepared-runtime shortcut coverage")
+	# Wave 4 adds Joust (straight-line move 4, then a required strike).
+	expect.call(covered_card_ids.size() == 19, "Current card data should expose all 19 move/blink-then-attack cards to shortcut coverage")
+	expect.call(covered_melee_cards == 13, "Current card data should expose all 13 move-then-melee cards to prepared-runtime shortcut coverage")
 	expect.call(covered_attack_types.keys().all(func(attack_type: Variant) -> bool: return str(attack_type) in ["melee", "push", "pull"]), "Combined movement cards use melee or directed displacement follow-ups")
 
 

@@ -13,7 +13,7 @@ const SAMPLES: Array = [
 	{"card": "shadow_step", "label": "MOBILITY"},
 	{"card": "dawnstep", "label": "MOBILITY"},
 	{"card": "spark_focus", "label": "DENSE RIDERS"},
-	{"card": "mirror_feint", "label": "ILLUSION + BLOCK"},
+	{"card": "hall_of_mirrors", "label": "ILLUSION + BLOCK"},
 	{"card": "rimeplate_lock", "label": "DEFENSE + RANGED"},
 ]
 

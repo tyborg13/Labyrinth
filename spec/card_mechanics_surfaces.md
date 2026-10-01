@@ -78,7 +78,9 @@ an empty tile is a legal area target and riders and surfaces apply as for any ar
   Sweeping Strike); Meteorfall keeps its card name over the shared Kindle Ground label.
 - Card role emblems: selectors, Discharge, Convert Ground and Meteorfall follow the
   attack range rule (all ranged at their printed ranges); Wards choose block only when
-  nothing else on the card has a role, so Rime Step stays mobility.
+  nothing else on the card has a role, so Rime Step stays mobility. Detonate is a setup
+  role by the same range rule (Magma Vent ranged, Immolation melee, Cinder Second keeps
+  its shield), and a ground consume that pays Stoneskin or Block (Grounding) reads as block.
 - Meteorfall uses the Area aim: Rotate button, keys and controller bumpers; the hover footprint
   (`_aoe_tiles_for_action`) equals the marked tiles. `CombatBoardView` draws each marked tile
   (ember fill, ring, Meteorfall icon, tooltip with the incoming damage) from combat state, so
@@ -105,7 +107,10 @@ unchanged; its existing surface and damage fields already cover these plays.
 ## Heuristic
 
 Scored by `tools/card_heuristic.py`; values in the
-[balance heuristic](card_balance_heuristic.md#wave-4-surface-family).
+[balance heuristic](card_balance_heuristic.md#wave-4-surface-family). The campfire
+upgrade pricer (`GameData._action_value`) values the damage of `all_enemies`,
+`convert_surface`, `discharge` and `meteor_marks` (and the illusion/terrain blasts
+`burst_terrain`, `destroy_illusion`), so their Damage upgrades always add value.
 
 ## Deferred
 
