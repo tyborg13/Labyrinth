@@ -846,3 +846,31 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_surfaces.md`)
   already priced per expected target, including Chain and conduction.
 - `meteor_marks`: damage at the range playability `x 0.55` delayed hit rate over the area
   target multiplier, plus the full surface value of the marked pattern.
+
+### Wave-4 illusion and terrain families
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_illusions_terrain.md`);
+the base decoy keeps `0.48` per illusion health point and `0.12` per placement range tile.
+
+- Retorts: an enemy damages a charged illusion before it fades `0.55` of the time.
+  `on_damaged` is the retort damage at that playability with one target (offense) plus
+  `2.5 x shock x 0.55` control; `reflect` is `min(health, 3) x 0.45 x 0.55` offense.
+- `surface_ring`: the surface value of a four-tile cardinal ring at `0.60` retention.
+- `ring_around_self`: `2.5` expected illusions (the extra `1.5` at the health value).
+- `adjacent_to_enemy`: `0.60` control for the flanking placement plus Expose at `0.32`
+  per point.
+- `ranged_origin`: `1.60` control for a second firing position.
+- `illusion_swap`: needs an illusion on the board (`0.55`); a Blink of at most `3` tiles
+  (`0.33` per tile, mobility) plus `transfer_block` as `4` Block points moved onto the
+  illusion at the illusion-health value.
+- `destroy_illusion`: the blast at `0.55` availability (an illusion on the board) and `1.4`
+  expected targets; its Light rider uses the ordinary Illuminate rider value.
+- Refraction (`also_hits_near_illusions`): the hit again at its playability against `0.6`
+  expected extra targets.
+- `burst_terrain`: the blast at `0.70` availability (crates are common) and `1.3` targets;
+  the Worldbreak variant needs your own adjacent outcrop (`0.40`) and hits a line (`1.5`
+  targets); Stagger at `0.30` per point times availability and targets; the surface rider is
+  scored as an ordinary placed surface.
+- Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
+  to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
+

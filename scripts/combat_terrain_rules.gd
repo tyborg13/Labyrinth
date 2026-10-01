@@ -13,12 +13,14 @@ static func is_empty_floor(engine: RefCounted, state: Dictionary, tile: Vector2i
 	return true
 
 # Player spells and enemy raises share one terrain identity and outcome event.
-static func raise_outcrop(engine: RefCounted, state: Dictionary, tile: Vector2i, health: int, source: Dictionary) -> bool:
+# `fields` overrides the default crag outcrop (kind, sight, destroy surface, payloads).
+static func raise_outcrop(engine: RefCounted, state: Dictionary, tile: Vector2i, health: int, source: Dictionary, fields: Dictionary = {}) -> bool:
 	if health <= 0 or not is_empty_floor(engine, state, tile): return false
 	Surfaces.remove(state, tile, "all", "terrain_created")
 	var serial: int = int(state.get("terrain_creation_sequence", 0)) + 1
 	state["terrain_creation_sequence"] = serial
 	var object: Dictionary = {"id": "outcrop_%d" % serial, "kind": "crag_outcrop", "owner_kind": source.get("actor_kind", "player"), "owner_id": source.get("actor_id", -1), "pos": tile, "hp": health, "max_hp": health, "blocks_sight": true, "surface_on_destroy": "rubble"}
+	object.merge(fields, true)
 	if not state.has("terrain"): state["terrain"] = []
 	state["terrain"].append(object)
 	Surfaces.record_event(state, {"kind": "terrain_created", "tile": tile, "terrain_id": object["id"], "terrain_kind": object["kind"], "health": health, "element": "earth", "source": source.duplicate(true)})

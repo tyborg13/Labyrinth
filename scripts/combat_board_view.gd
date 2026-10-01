@@ -69,6 +69,7 @@ const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
+const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -7667,7 +7668,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
-	var terrain_kind: String = str(terrain.get("kind", ""))
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
 	var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
 	if texture == null:
 		return
@@ -7680,7 +7681,9 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
-		_draw_world_texture(texture, terrain_rect, tint)
+		_draw_world_texture(texture, terrain_rect, _terrain_kind_tint(str(terrain.get("kind", "")), tint))
+	if str(terrain.get("kind", "")) == "powder_keg":
+		_draw_powder_keg_mark(terrain_rect, tint.a)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7691,9 +7694,9 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
-	var terrain_kind: String = str(terrain.get("kind", ""))
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
-	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	var tint: Color = _terrain_kind_tint(str(terrain.get("kind", "")), _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries))
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
 	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a,0.58)
 	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
@@ -7705,6 +7708,31 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
+
+# Card terrain without purpose-built art reuses an existing prop: a player
+# Worldspine is Tharokh's spire; a powder keg is a tinted, marked wooden box
+# (dedicated keg art is still needed: assets/art/tiles/powder_keg.png).
+func _terrain_art_kind(terrain_kind: String) -> String:
+	match terrain_kind:
+		"worldspine":
+			return "dragon_spire"
+		"powder_keg":
+			return "wooden_box"
+	return terrain_kind
+
+func _terrain_kind_tint(terrain_kind: String, tint: Color) -> Color:
+	if terrain_kind == "powder_keg":
+		return Color(tint.r * 1.0, tint.g * 0.62, tint.b * 0.48, tint.a)
+	return tint
+
+func _draw_powder_keg_mark(terrain_rect: Rect2, opacity: float) -> void:
+	# A fuse ember over the keg so it never reads as an ordinary crate.
+	var center: Vector2 = Vector2(terrain_rect.get_center().x, terrain_rect.position.y + terrain_rect.size.y * 0.30)
+	var radius: float = maxf(3.0, terrain_rect.size.x * 0.13)
+	draw_circle(center, radius * 1.45, Color(0.96, 0.42, 0.16, 0.30 * opacity))
+	draw_circle(center, radius, Color(1.0, 0.62, 0.22, 0.92 * opacity))
+	draw_circle(center, radius * 0.45, Color(1.0, 0.92, 0.62, opacity))
+	draw_line(center + Vector2(0.0, radius), center + Vector2(radius * 0.6, radius * 2.3), Color(0.24, 0.16, 0.10, opacity), maxf(1.5, radius * 0.35), true)
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
 	if terrain_kind == "dragon_spire":
@@ -7777,7 +7805,7 @@ func _terrain_key(terrain: Dictionary) -> String:
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	var terrain_kind: String = str(terrain.get("kind", ""))
-	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
+	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
 	var text: String = "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
@@ -7785,6 +7813,8 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	]
 
 	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
+	if terrain_kind == "powder_keg": text += "\nWhen destroyed, deals %d to its tile and each tile next to it." % int(terrain.get("burst_damage", 0))
+	if terrain_kind == "worldspine": text += "\nAt the start of your turn, each enemy next to it takes %d." % int(terrain.get("pulse_damage", 0))
 	return text
 
 func _visible_units() -> Array[Dictionary]:
@@ -7836,6 +7866,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(illusion.get("freeze", 0)),
 			"shock": 0,
 			"immobilize": false,
+			"keyword_badges": IllusionCardRules.illusion_badges(illusion),
 		})
 	for preview_var: Variant in presentation.get("preview_units", []):
 		if typeof(preview_var) != TYPE_DICTIONARY:
@@ -14258,14 +14289,14 @@ func _terrain_destruction_frames_for_kind(terrain_kind: String) -> Array[Texture
 	return frames
 
 func _terrain_destruction_frame_count(terrain: Dictionary) -> int:
-	return _terrain_destruction_frames_for_kind(str(terrain.get("kind", ""))).size()
+	return _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", "")))).size()
 
 func _terrain_destruction_frame_seconds(terrain: Dictionary) -> float:
-	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(str(terrain.get("kind", "")), {})
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(_terrain_art_kind(str(terrain.get("kind", ""))), {})
 	return maxf(0.01, float(layout.get("frame_seconds", TERRAIN_DESTRUCTION_FRAME_SECONDS)))
 
 func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
-	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(str(terrain.get("kind", "")))
+	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", ""))))
 	if frames.is_empty():
 		return null
 	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]

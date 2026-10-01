@@ -209,7 +209,9 @@
       "icon": "raise_terrain",
       "body": [
         "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
-        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away."
+        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away. A Worldspine cage is the one exception: it may seal the single tile it surrounds.",
+        "Powder kegs and Worldspines are raised the same way. A keg blocks movement but not sight; when anything destroys it, it deals its damage to its tile and each tile next to it, setting off other kegs. Your Worldspines pulse at the start of each of your turns, hitting each enemy next to one of them once.",
+        "Rockburst and Worldbreak destroy terrain to blast the enemies next to it, or the line beyond an outcrop you raised."
       ]
     },
     {
@@ -405,7 +407,9 @@
       "default": true,
       "icon": "illusion",
       "body": [
-        "Creates a stationary decoy with the displayed Health. Enemies can target it."
+        "Creates a stationary decoy with the displayed Health. Enemies can target it.",
+        "Some illusions carry an effect while they live: enemies that damage a charged illusion take damage back (once per enemy attack), and a Doppelganger lets your ranged attacks fire from its tile. Mirror Feint places its illusion beside an enemy; Hall of Mirrors fills every empty tile next to you.",
+        "Empty Husk swaps you with one of your illusions and moves your Block onto it as extra health. Shattered Reflection destroys one of your illusions to blast each enemy next to it. Both count as normal arrivals and destruction for illusion effects."
       ]
     },
     {

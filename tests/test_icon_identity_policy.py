@@ -65,9 +65,16 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"cinder_marks", "meteor_marks"}),
     # Placeholders until purpose-built icons exist (convert_surface, discharge,
     # all_enemies); each still names the concept the player sees on the card.
+    # Shattered Reflection (destroy_illusion, family C) also borrows Area Attack.
     frozenset({"surface", "surface_adjacent_enemies", "convert_surface"}),
     frozenset({"consume_surface", "discharge"}),
-    frozenset({"aoe", "all_enemies"}),
+    frozenset({"aoe", "all_enemies", "destroy_illusion"}),
+    # Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
+    # Worldbreak burst terrain like the Worldspine pulse; Empty Husk's swap is a
+    # Blink to an illusion's tile. Shattered Reflection borrows Area Attack until
+    # its purpose-built shatter icon exists (grouped with aoe above).
+    frozenset({"burst_terrain", "terrain_burst"}),
+    frozenset({"illusion_swap", "blink"}),
 }
 
 # Temporary placeholders: these action types borrow an existing icon until a

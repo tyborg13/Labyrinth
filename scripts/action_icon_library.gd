@@ -414,12 +414,17 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"surface_relocate": "surface_relocate",
 	"blink": "blink",
 	"block": "block",
+	# Card pool wave 4 (spec/card_mechanics_illusions_terrain.md). Empty Husk's
+	# swap is a Blink to your illusion's tile; Shattered Reflection uses the
+	# Area Attack identity until a purpose-built shatter icon exists.
+	"burst_terrain": "terrain_burst",
 	"card_play": "card_play",
 	"cinder_marks": "cinder_marks",
 	# The Meteorfall card marks tiles exactly like the dragon's Meteorfall.
 	"meteor_marks": "cinder_marks",
 	"consume": "consume",
 	"detonate_cinders": "detonate_cinders",
+	"destroy_illusion": "aoe",
 	"dispel_umbra": "dispel_umbra",
 	"draw": "draw",
 	"exhaust": "exhaust",
@@ -432,6 +437,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"health_cost": "health_cost",
 	"illuminate": "illuminate",
 	"illusion": "illusion",
+	"illusion_swap": "blink",
 	"lightning_strikes": "lightning_strikes",
 	"melee": "melee",
 	"move": "move",
@@ -513,14 +519,14 @@ static func card_role_emblem_key(card: Dictionary) -> String:
 				has_ranged_attack = true
 			"melee", "terrain_burst":
 				has_melee_attack = true
-			"aoe", "push", "pull", "lightning_strikes", "cinder_marks", "gale_force", "umbra_eclipse":
+			"aoe", "push", "pull", "lightning_strikes", "cinder_marks", "gale_force", "umbra_eclipse", "burst_terrain", "destroy_illusion":
 				if int(action.get("range", 0)) > 1:
 					has_ranged_attack = true
 				else:
 					has_melee_attack = true
 			"block", "guard_ally", "stoneskin", "frost_armor", "raise_terrain", "outcrop":
 				has_block = true
-			"illusion":
+			"illusion", "illusion_swap":
 				has_illusion = true
 			"move", "move_toward", "move_away", "blink":
 				has_mobility = true
@@ -1070,6 +1076,8 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(_token_for_action_field(action, "range", "range", "∞" if unlimited else int(action.get("range", 0)), "neutral", "Range\n%s" % ("Any enemy you can see, ignoring range and line of sight." if unlimited else "Ignores line of sight: any enemy you can see within this range.")))
 			else:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
+			if bool(action.get("also_hits_near_illusions", false)):
+				tokens.append(token_for("illusion", "+", "neutral", "Also hits each other enemy next to one of your illusions, once each."))
 			_append_keyword_tokens(tokens, action)
 			if bool(action.get("shock_all_hits", false)):
 				for token_index: int in range(tokens.size()):
@@ -1183,7 +1191,36 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "card_play", "amount", int(action.get("amount", 0))))
 		"illusion":
 			tokens.append(_token_for_action_field(action, "illusion", "health", int(action.get("health", action.get("amount", 0)))))
-			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
+			_append_illusion_placement_tokens(tokens, action)
+			_append_illusion_trait_tokens(tokens, action)
+		"illusion_swap":
+			tokens.append(token_for("blink", null, "neutral", "Swap places with one of your illusions%s. Both of you trigger the ground and traps where you land." % ("" if int(action.get("range", 0)) >= 20 else " within range %d" % int(action.get("range", 0)))))
+			if int(action.get("range", 0)) < 20:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Swap range."))
+			else:
+				tokens.append(text_token("any illusion", "neutral", "Any of your illusions on the board."))
+			if bool(action.get("transfer_block", false)):
+				tokens.append(token_for("block", "→", "neutral", "The illusion gains all your Block as extra health. You lose that Block."))
+		"destroy_illusion":
+			tokens.append(token_for("illusion", null, "neutral", "Destroy one of your illusions within range. It counts as destroyed for illusion effects."))
+			_append_damage_token(tokens, "aoe", action, options)
+			tokens.append(text_token("next to it", "neutral", "Hits each enemy on the four tiles next to the destroyed illusion."))
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range to the illusion you destroy."))
+			_append_illuminate_rider_tokens(tokens, action)
+		"burst_terrain":
+			var owned_only: bool = bool(action.get("owned_outcrop_only", false))
+			var line_length: int = int(action.get("line_length", 0))
+			tokens.append(token_for("terrain_burst", null, "neutral", "Destroy an adjacent outcrop you raised." if owned_only else "Destroy an outcrop, crate or other terrain within range and sight."))
+			var burst_action: Dictionary = action.duplicate(false)
+			burst_action["damage"] = int(action.get("line_damage", action.get("damage", 0))) if owned_only else int(action.get("damage", 0))
+			_append_damage_token(tokens, "aoe", burst_action, options)
+			if owned_only and line_length > 0:
+				tokens.append(text_token("%d-tile line beyond" % line_length, "neutral", "Hits each enemy in the %d tiles beyond the outcrop, away from you." % line_length))
+			else:
+				tokens.append(text_token("next to it", "neutral", "Hits each enemy on the four tiles next to the destroyed terrain."))
+			if int(action.get("range", 0)) > 1:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range to the terrain you destroy."))
+			_append_keyword_tokens(tokens, action)
 		"illuminate":
 			var light_range: int = int(action.get("range", 0))
 			tokens.append(_token_for_action_field(action, "illuminate", "radius", int(action.get("radius", action.get("amount", 1))), "neutral", "Light radius in tiles." if light_range > 0 else "Light radius in tiles, centered on you."))
@@ -1213,10 +1250,20 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("summon_minions", null, "neutral", summon_text))
 			tokens.append(text_token(("%d × " % count if count > 1 else "") + minion_name))
 		"outcrop":
-			tokens.append(_token_for_action_field(action, "raise_terrain", "health", int(action.get("health", 0)), "neutral", "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed."))
+			var outcrop_kind: String = str(action.get("kind", ""))
+			var raise_tooltip: String = "Raises an outcrop with this much health on empty floor. It blocks movement and sight and leaves Rubble when destroyed."
+			if outcrop_kind == "powder_keg":
+				raise_tooltip = "Places a powder keg with this much health on empty floor. It blocks movement, not sight."
+			elif outcrop_kind == "worldspine":
+				raise_tooltip = "Raises a Worldspine with this much health on each empty tile around the target. Spires block movement, not sight, and leave Rubble when destroyed."
+			tokens.append(_token_for_action_field(action, "raise_terrain", "health", int(action.get("health", 0)), "neutral", raise_tooltip))
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Outcrop placement range."))
 			if (action.get("pattern", []) as Array).size() > 1:
 				tokens.append(_aoe_pattern_token(action))
+			if outcrop_kind == "powder_keg":
+				tokens.append(token_for("detonate", int(action.get("burst_damage", 0)), "warning", "When the keg is destroyed by anything, it deals %d to its tile and each tile next to it: you, illusions, enemies and terrain. Kegs set each other off." % int(action.get("burst_damage", 0))))
+			elif outcrop_kind == "worldspine":
+				tokens.append(token_for("terrain_burst", int(action.get("pulse_damage", 0)), "neutral", "At the start of each of your turns, each enemy next to at least one of your Worldspines takes %d." % int(action.get("pulse_damage", 0))))
 		"raise_terrain":
 			tokens.append(_token_for_action_field(action, "raise_terrain", "count", int(action.get("count", 0)), "neutral", "Raises attackable terrain around the arena."))
 			tokens.append(_token_for_action_field(action, "health", "health", int(action.get("health", 0)), "neutral", "Health of each terrain piece."))
@@ -1389,6 +1436,36 @@ static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> 
 		for reward_var: Variant in lonely as Array:
 			if typeof(reward_var) == TYPE_DICTIONARY:
 				tokens.append_array(tokens_for_action(reward_var as Dictionary))
+
+static func _append_illusion_placement_tokens(tokens: Array, action: Dictionary) -> void:
+	match str(action.get("place", "")):
+		"ring_around_self":
+			tokens.append(text_token("each tile next to you", "neutral", "Creates one illusion on each empty tile next to you (up to four)."))
+		"adjacent_to_enemy":
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Choose an enemy within this range."))
+			tokens.append(text_token("next to enemy", "neutral", "The illusion appears on the free tile next to the chosen enemy that is nearest you."))
+			if int(action.get("expose_adjacent", 0)) > 0:
+				tokens.append(token_for("expose", int(action.get("expose_adjacent", 0)), "neutral", "The chosen enemy is Exposed %d." % int(action.get("expose_adjacent", 0))))
+		_:
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
+	var ring_surface: String = str(action.get("surface_ring", ""))
+	if not ring_surface.is_empty():
+		tokens.append(surface_token(ring_surface, "Leaves this surface on each empty tile next to the illusion."))
+		tokens.append(text_token("around it", "neutral", "Each empty tile next to the illusion."))
+
+static func _append_illusion_trait_tokens(tokens: Array, action: Dictionary) -> void:
+	var on_damaged: Dictionary = action.get("on_damaged", {}) as Dictionary if typeof(action.get("on_damaged", null)) == TYPE_DICTIONARY else {}
+	if not on_damaged.is_empty():
+		var element: String = str(on_damaged.get("element", "none"))
+		var element_text: String = " %s" % element.capitalize() if element not in ["", "none"] else ""
+		var shock_text: String = " and are Shocked" if int(on_damaged.get("shock", 0)) > 0 else ""
+		tokens.append(token_for("retaliate", int(on_damaged.get("damage", 0)), "neutral", "Enemies that damage this illusion take %d%s damage%s. Once per enemy attack." % [int(on_damaged.get("damage", 0)), element_text, shock_text]))
+		if int(on_damaged.get("shock", 0)) > 0:
+			tokens.append(token_for("shock", null, "neutral", "Enemies that damage this illusion are Shocked."))
+	if bool(action.get("reflect", false)):
+		tokens.append(token_for("retaliate", "=", "neutral", "Enemies that damage this illusion take that much damage too. Once per enemy attack."))
+	if bool(action.get("ranged_origin", false)):
+		tokens.append(token_for("ranged", null, "neutral", "While this illusion lives, your ranged attacks may fire from its tile."))
 
 static func _append_retaliate_tokens(tokens: Array, action: Dictionary) -> void:
 	var amount: int = int(action.get("amount", 0))

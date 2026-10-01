@@ -463,6 +463,27 @@ class HeuristicWeights:
     selector_range_factor: float = 0.85
     ignore_los_playability_bonus: float = 0.08
     meteor_hit_rate: float = 0.55
+    # Wave-4 illusion and terrain families (spec/card_mechanics_illusions_terrain.md).
+    # A charged decoy pays off only when an enemy actually damages it.
+    illusion_retort_trigger_chance: float = 0.55
+    illusion_reflect_expected_hit: float = 3.0
+    illusion_ring_expected_tiles: float = 2.5
+    illusion_adjacent_placement_value: float = 0.60
+    illusion_surface_ring_retention: float = 0.60
+    ranged_origin_value: float = 1.60
+    illusion_on_board_availability: float = 0.55
+    illusion_swap_expected_tiles: float = 3.0
+    transfer_block_expected_points: float = 4.0
+    destroy_illusion_expected_targets: float = 1.40
+    refraction_expected_extra_targets: float = 0.60
+    burst_terrain_availability: float = 0.70
+    burst_terrain_expected_targets: float = 1.30
+    owned_outcrop_availability: float = 0.40
+    burst_line_expected_targets: float = 1.50
+    powder_keg_detonation_chance: float = 0.45
+    powder_keg_expected_targets: float = 1.40
+    worldspine_expected_pulses: float = 2.0
+    worldspine_pulse_targets: float = 1.20
 
 
 @dataclass
@@ -635,6 +656,32 @@ def empower_cost_value(cost: dict[str, Any], weights: HeuristicWeights) -> float
     if bool(cost.get("exhaust", False)):
         value += weights.empower_exhaust_cost
     return value
+
+
+def illusion_extra_value(action: dict[str, Any], weights: HeuristicWeights) -> dict[str, float]:
+    """Wave-4 illusion options beyond the base health/range decoy value."""
+    out = {"offense": 0.0, "control": 0.0, "defense": 0.0, "surfaces": 0.0}
+    health = int(action.get("health", action.get("amount", 0)))
+    place = str(action.get("place", ""))
+    if place == "ring_around_self":
+        out["defense"] += health * weights.illusion_health_per_point * (weights.illusion_ring_expected_tiles - 1.0)
+    elif place == "adjacent_to_enemy":
+        out["control"] += weights.illusion_adjacent_placement_value
+        out["control"] += int(action.get("expose_adjacent", 0)) * weights.expose_value_per_point
+    ring = surface_kind(action.get("surface_ring", ""))
+    if ring:
+        ring_action = {"surface": ring, "surface_pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]}
+        out["surfaces"] += surface_value(ring_action, weights) * weights.illusion_surface_ring_retention
+    retort = action.get("on_damaged", {}) or {}
+    if retort:
+        out["offense"] += immediate_damage_value(int(retort.get("damage", 0)), weights.illusion_retort_trigger_chance, 1.0, weights)
+        out["control"] += int(retort.get("shock", 0)) * weights.shock_value * weights.illusion_retort_trigger_chance
+    if bool(action.get("reflect", False)):
+        reflected = min(float(health), weights.illusion_reflect_expected_hit)
+        out["offense"] += reflected * weights.damage_per_point * weights.illusion_retort_trigger_chance
+    if bool(action.get("ranged_origin", False)):
+        out["control"] += weights.ranged_origin_value
+    return out
 
 
 def retaliate_value(action: dict[str, Any], weights: HeuristicWeights) -> tuple[float, float]:
@@ -1137,6 +1184,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 breakdown.control += pull * pull_value * playability * targets * action_scale
                 has_push_pull = True
 
+            if bool(action.get("also_hits_near_illusions", False)) and damage > 0:
+                breakdown.offense += immediate_damage_value(damage, playability, weights.refraction_expected_extra_targets, weights) * action_scale
             if action_element == "lightning" and damage > 0:
                 extra = weights.lightning_extra_occupants * weights.lightning_network_availability
                 if int(action.get("chain", 0)) > 0:
@@ -1196,14 +1245,56 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             breakdown.defense += (
                 int(action.get("health", 3)) * weights.outcrop_health_per_point * weights.outcrop_availability * effective_tiles * action_scale
             )
+            kind = str(action.get("kind", ""))
+            if kind == "powder_keg":
+                # A bomb anyone can set off: burst on the keg and its neighbors.
+                breakdown.offense += immediate_damage_value(int(action.get("burst_damage", 0)), weights.powder_keg_detonation_chance, weights.powder_keg_expected_targets, weights) * action_scale
+                has_attack = True
+            elif kind == "worldspine":
+                pulse = int(action.get("pulse_damage", 0))
+                breakdown.offense += pulse * weights.damage_per_point * weights.worldspine_pulse_targets * weights.worldspine_expected_pulses * action_scale
             has_defense = True
             continue
 
         if action_type == "illusion":
-            breakdown.defense += int(action.get("health", action.get("amount", 0))) * weights.illusion_health_per_point * action_scale
+            health = int(action.get("health", action.get("amount", 0)))
+            breakdown.defense += health * weights.illusion_health_per_point * action_scale
             breakdown.control += int(action.get("range", 0)) * weights.illusion_range_per_tile * action_scale
+            for field, value in illusion_extra_value(action, weights).items():
+                setattr(breakdown, field, getattr(breakdown, field) + value * action_scale)
             has_illusion = True
             has_defense = True
+            continue
+
+        if action_type == "illusion_swap":
+            # A blink to one of your illusions (when one is on the board), plus Block moved onto it.
+            availability = weights.illusion_on_board_availability * action_scale
+            tiles = min(float(int(action.get("range", 0))), weights.illusion_swap_expected_tiles)
+            breakdown.mobility += tiles * weights.pure_blink_per_tile * availability
+            if bool(action.get("transfer_block", False)):
+                breakdown.defense += weights.transfer_block_expected_points * weights.illusion_health_per_point * availability
+            has_move = True
+            continue
+
+        if action_type == "destroy_illusion":
+            availability = weights.illusion_on_board_availability * action_scale
+            breakdown.offense += immediate_damage_value(int(action.get("damage", 0)), availability, weights.destroy_illusion_expected_targets, weights)
+            has_attack = True
+            continue
+
+        if action_type == "burst_terrain":
+            owned_only = bool(action.get("owned_outcrop_only", False))
+            availability = (weights.owned_outcrop_availability if owned_only else weights.burst_terrain_availability) * action_scale
+            targets = weights.burst_line_expected_targets if owned_only else weights.burst_terrain_expected_targets
+            damage = int(action.get("line_damage", 0)) if owned_only else int(action.get("damage", 0))
+            breakdown.offense += immediate_damage_value(damage, availability, targets, weights)
+            stagger = int(action.get("stagger", 0))
+            if stagger > 0:
+                breakdown.control += stagger * weights.stagger_value_per_point * availability * targets
+                has_status = True
+            has_attack = True
+            if surface:
+                prepared.add(surface)
             continue
 
         if action_type == "illuminate":
