@@ -28,7 +28,9 @@ static func play(host: Node, before_state: Dictionary, after_state: Dictionary, 
 			"element": "lightning", "chain_index": index, "branches": hit.get("branches", []), "path": hit.get("path", []),
 			"relay": str(hit.get("kind", "")) == "relay",
 		}
-		if bool(hit.get("relay_delivery",false)):
+		if bool(hit.get("relay_delivery",false)) or (index > 0 and str(hit.get("kind", "")) == "refraction"):
+			# A relay delivery or a Refraction beam from an illusion travels like
+			# the card's own shot, not a lightning hop.
 			effect["kind"] = "ranged"
 			effect["action_type"] = "ranged"
 			effect["element"] = initial_effect.get("element", "lightning")

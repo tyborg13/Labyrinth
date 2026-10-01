@@ -60,6 +60,8 @@ const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
+const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
@@ -1240,6 +1242,9 @@ const SHORTCUT_ATTACK_TYPES := ["melee", "ranged", "aoe", "push", "pull", "deton
 const SHORTCUT_DIRECT_ATTACK_TYPES := ["melee", "ranged", "push", "pull"]
 const CARD_WIDGET_BASE_SIZE: Vector2 = Vector2(250.0, 352.0)
 const CARD_ASPECT_RATIO: float = 352.0 / 250.0
+# Pending actions whose pattern follows the shared aim (Rotate, keys, sticks).
+# Patterned outcrops (Earthen Rampart) rotate like areas, and so do Meteorfall
+# marks (meteor_marks).
 const ORIENTATION_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(0, -1),
 	Vector2i(1, 0),
@@ -13437,6 +13442,11 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 		frame.add_child(health_bar)
 	if _turn_order_is_card_preview_projection(entry):
 		frame.add_child(_turn_order_projection_badge(entry, slot_size))
+	elif bool(entry.get("petrified", false)):
+		# Petrify: this queued activation is skipped but keeps its Time.
+		var skip_badge: Control = _turn_order_projection_badge(entry, slot_size)
+		skip_badge.name = "PetrifiedSkipBadge"
+		frame.add_child(skip_badge)
 	var badge_text: String = _turn_order_clock_badge_text(entry)
 	frame.set_meta("turn_order_badge_text", badge_text)
 	frame.add_child(_turn_order_number_badge(badge_text, entry, active, slot_size))
@@ -13538,6 +13548,8 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Cont
 func _turn_order_projection_badge_text(entry: Dictionary) -> String:
 	if int(entry.get("stagger_preview", 0)) > 0:
 		return "Stagger +%d" % int(entry.get("stagger_preview", 0))
+	if bool(entry.get("petrified", false)) and not bool(entry.get("projected", false)):
+		return "Skips"
 	var preview_time: int = int(entry.get("projected_time_cost", 0))
 	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 	if card_name.is_empty():
@@ -13664,6 +13676,8 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		lines.append("Projected next turn")
 	if int(entry.get("stagger_preview", 0)) > 0:
 		lines.append("Staggered +%d by this card" % int(entry.get("stagger_preview", 0)))
+	if bool(entry.get("petrified", false)):
+		lines.append("Petrified: skips this turn (still costs its Time)")
 	if entry.has("hp") and entry.has("max_hp") and not bool(entry.get("hidden_by_umbra", false)):
 		lines.append("Health %d/%d" % [int(entry.get("hp", 0)), int(entry.get("max_hp", 1))])
 	var base: int = int(entry.get("base_initiative", 0))
@@ -13756,7 +13770,7 @@ func _turn_order_entry_key(entry: Dictionary) -> String:
 func _turn_order_signature(entries: Array[Dictionary]) -> String:
 	var parts: Array[String] = []
 	for entry: Dictionary in entries:
-		parts.append("%s:%s:%d:%d:%s:%s:%s:%d:%d" % [
+		parts.append("%s:%s:%d:%d:%s:%s:%s:%d:%d:%s" % [
 			_turn_order_entry_key(entry),
 			str(bool(entry.get("active", false))),
 			int(entry.get("eta", -1)),
@@ -13765,7 +13779,8 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			str(entry.get("type", "")),
 			str(entry.get("pos", Vector2i.ZERO)),
 			int(entry.get("hp", -1)),
-			int(entry.get("max_hp", -1))
+			int(entry.get("max_hp", -1)),
+			"P" if bool(entry.get("petrified", false)) else ""
 		])
 	return "|".join(parts)
 
@@ -14221,7 +14236,8 @@ func _refresh_player_movement_meter() -> void:
 		and _combat_engine.player_has_movement_target(_combat_state)
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
-		_movement_meter.tooltip_text = "Movement unavailable: there is no legal destination."
+		var rooted_reason: String = ManeuverRules.movement_block_reason(_combat_state)
+		_movement_meter.tooltip_text = rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination."
 	_movement_meter.modulate = Color.WHITE if enabled else Color(1.0, 1.0, 1.0, 0.42)
 	if _player_movement_selected:
 		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
@@ -14754,7 +14770,7 @@ func _update_action_context_copy(tracker_state: Dictionary = {}) -> void:
 			verb_text = "SET DIRECTION · CHOOSE ARROW"
 			target_text = "DIRECTION"
 			target_tone = "valid"
-		elif str(action.get("type", "")) == "aoe" and int(action.get("range", 0)) > 0:
+		elif str(action.get("type", "")) in ["aoe", "meteor_marks"] and int(action.get("range", 0)) > 0:
 			verb_text = "AIM AREA"
 			var aoe_target_state: Dictionary = _action_context_target_state()
 			target_text = str(aoe_target_state.get("text", ""))
@@ -15104,6 +15120,12 @@ func _action_step_action_name(action: Dictionary) -> String:
 			return "Crystal Mantle"
 		"umbra_eclipse":
 			return "Last Eclipse"
+		# The player's Meteorfall shares the dragon's mark icon (Kindle Ground).
+		"meteor_marks":
+			return "Meteorfall"
+		# Rooted is the Immobilize icon; name the stance, not the status.
+		"self_flag":
+			return ManeuverRules.flag_label(str(action.get("flag", "")))
 	var icon_key: String = _action_step_icon_key(action)
 	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
 
@@ -18491,6 +18513,8 @@ func _refresh_stage_view() -> void:
 			var preview_presentation: Dictionary = _preview_presentation(preview)
 			for key: Variant in preview_presentation.keys():
 				presentation[key] = preview_presentation[key]
+		if _pending_card_requires_confirmation():
+			_append_confirmation_force_preview(presentation)
 		var guided_intent_focus_active: bool = (
 			_guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_CONFIRM_INTENT
 			and _state_has_visible_enemy_at_tile(display_state, _guided_tutorial_intent_enemy_tile)
@@ -19289,7 +19313,7 @@ func _active_card_preview() -> Dictionary:
 			if orientation_pending:
 				action = _pending_oriented_action()
 				target_tiles = _vector2i_array([_pending_orientation_target_tile])
-			elif str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
+			elif str(action.get("type", "")) in ["aoe", "meteor_marks", "outcrop"]:
 				action = _action_with_aoe_aim_orientation(action)
 			if target_tiles.has(_hovered_board_tile):
 				action = _combat_engine.action_with_automatic_origin(_preview_combat_state, action, _hovered_board_tile)
@@ -19600,7 +19624,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 		# Pending next-attack Pierce/Chain shows on the attack that will use it.
 		action = TempoRules.display_action(preview_state, action)
 		match action_type:
-			"melee", "ranged", "aoe", "detonate":
+			"melee", "ranged", "aoe", "detonate", "convert_surface", "discharge", "all_enemies", "meteor_marks":
 				var attack_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var attack_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
 				var attack_visible_modifiers: Array[Dictionary] = attack_damage_modifiers
@@ -19610,6 +19634,21 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 					"damage_modifiers": attack_visible_modifiers
 				})
 				_consume_preview_damage_modifiers(preview_state, action)
+			"destroy_illusion", "burst_terrain":
+				# The blast is a player-card attack on the struck tiles: attack
+				# bonuses apply, next-attack buffs do not (spec/card_mechanics_illusions_terrain.md).
+				var blast: Dictionary = _combat_engine.blast_action_for_player_action(action)
+				var blast_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, blast)
+				var blast_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, blast)
+				row = ActionIcons.tokens_for_action(action, {
+					"final_damage": blast_final_damage,
+					"tone_base_damage": _damage_tone_base_excluding_modifiers(blast_final_damage, blast_modifiers, blast),
+					"damage_modifiers": blast_modifiers
+				})
+				if blast_final_damage > 0 and _combat_engine.attack_bonus_for_current_turn(preview_state) != 0:
+					var blast_flags: Dictionary = (preview_state.get("turn_flags", {}) as Dictionary).duplicate(true)
+					blast_flags["first_attack_bonus_used"] = true
+					preview_state["turn_flags"] = blast_flags
 			"push", "pull":
 				var shove_final_damage: int = _combat_engine.final_damage_for_player_action(preview_state, action)
 				var shove_damage_modifiers: Array[Dictionary] = _combat_engine.damage_modifiers_for_player_action(preview_state, action)
@@ -20278,6 +20317,8 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 		result["path_tiles"] = path_tiles
 	var effect: Dictionary = _preview_effect_for_action(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_effect", performance_phase_started)
+	if not effect.is_empty() and action.has(IllusionCardRules.ORIGIN_ILLUSION_KEY):
+		result["focus_actor_keys"] = ["player", "illusion_%d" % int(action[IllusionCardRules.ORIGIN_ILLUSION_KEY])]
 	if not effect.is_empty():
 		result["effect"] = effect
 		if action_type == "aoe" and bool(effect.get("preview", false)) and not (effect.get("tiles", []) as Array).is_empty():
@@ -20304,16 +20345,21 @@ func _preview_units_for_action(preview: Dictionary) -> Array:
 	if not valid_targets.has(_hovered_board_tile):
 		return []
 	var health: int = maxi(1, int(action.get("health", action.get("amount", 1))))
-	return [{
-		"key": "illusion_preview",
-		"role": "illusion_preview",
-		"type": "player",
-		"name": "Illusion preview",
-		"pos": _hovered_board_tile,
-		"hp": health,
-		"max_hp": health,
-		"accent": ILLUSION_PREVIEW_FOCUS
-	}]
+	# Mirror Feint's illusion appears beside the chosen enemy, not on it.
+	var ghost_tiles: Array[Vector2i] = _combat_engine.illusion_placement_tiles_for_player_action(preview.get("state", _preview_combat_state) as Dictionary, action, _hovered_board_tile)
+	var ghosts: Array = []
+	for index: int in range(ghost_tiles.size()):
+		ghosts.append({
+			"key": "illusion_preview" if index == 0 else "illusion_preview_%d" % index,
+			"role": "illusion_preview",
+			"type": "player",
+			"name": "Illusion preview",
+			"pos": ghost_tiles[index],
+			"hp": health,
+			"max_hp": health,
+			"accent": ILLUSION_PREVIEW_FOCUS
+		})
+	return ghosts
 
 func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})
@@ -20333,7 +20379,7 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	if not shortcut_plan.is_empty():
 		var path_tiles: Array[Vector2i] = _vector2i_array(shortcut_plan.get("path_tiles", []))
 		return path_tiles if not path_tiles.is_empty() else _vector2i_array([_hovered_board_tile])
-	if action_type == "aoe" and _aoe_hover_can_show_pattern(preview.get("state", {}), action, _hovered_board_tile):
+	if action_type in ["aoe", "meteor_marks"] and _aoe_hover_can_show_pattern(preview.get("state", {}), action, _hovered_board_tile):
 		return _aoe_tiles_for_action(preview.get("state", {}), action, _hovered_board_tile)
 	var valid_targets: Array[Vector2i] = _vector2i_array(preview.get("target_tiles", []))
 	if not valid_targets.has(_hovered_board_tile):
@@ -20343,7 +20389,31 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	if action_type == "outcrop" and action.has("pattern"):
 		# A patterned raise highlights every tile that will rise for this aim.
 		return _combat_engine.outcrop_tiles_for_player_action(preview.get("state", {}), action, _hovered_board_tile)
+	if action_type == "force_area":
+		# The whole radius around the hovered center; paths and ghosts come from
+		# the forced-displacement forecast.
+		return ManeuverRules.force_area_tiles(preview.get("state", {}), action, _hovered_board_tile)
+	var family_tiles: Array[Vector2i] = _illusion_terrain_focus_tiles(preview.get("state", {}) as Dictionary, action, _hovered_board_tile)
+	if not family_tiles.is_empty():
+		return family_tiles
 	return _vector2i_array([_hovered_board_tile])
+
+# Patterned / caging outcrops show every raised tile; blasts show the struck
+# tiles with their source; placed illusions show where they will appear.
+func _illusion_terrain_focus_tiles(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
+	var tiles: Array[Vector2i]
+	match str(action.get("type", "")):
+		"outcrop":
+			if action.has("pattern"):
+				tiles = _combat_engine.outcrop_tiles_for_player_action(state, action, target_tile)
+		"destroy_illusion", "burst_terrain":
+			tiles = _combat_engine.blast_tiles_for_player_action(state, action, target_tile)
+			tiles.push_front(target_tile)
+		"illusion":
+			if str(action.get("place", "")) == "adjacent_to_enemy":
+				tiles = _combat_engine.illusion_placement_tiles_for_player_action(state, action, target_tile)
+				tiles.push_front(target_tile)
+	return tiles
 
 func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 	var action: Dictionary = preview.get("action", {})
@@ -20406,7 +20476,9 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 				"from": from_tile,
 				"to": target_tile,
 				"preview": true,
-				"target_curve_visible": _player_preview_target_curve_visible(action_type),
+				# A shot fired from a Doppelganger draws its own arc from the illusion
+				# beside the hand arrow, so the firing position is unmistakable.
+				"target_curve_visible": _player_preview_target_curve_visible(action_type) or action.has(IllusionCardRules.ORIGIN_ILLUSION_KEY),
 				"element": str(action.get("element", action.get("_card_element", ElementData.FIRE if action_type == "detonate" else ElementData.NONE))),
 				"force_tiles": force_tiles,
 				"damage_preview": _preview_damage_for_action(state, action, target_tile)
@@ -21362,12 +21434,12 @@ func _next_shortcut_attack_step(state: Dictionary, actions: Array, action_index:
 	return {}
 
 func _aoe_tiles_for_action(state: Dictionary, action: Dictionary, target_tile: Vector2i = INVALID_TARGET_TILE) -> Array[Vector2i]:
-	if str(action.get("type", "")) != "aoe":
+	if str(action.get("type", "")) not in ["aoe", "meteor_marks"]:
 		return []
 	return _combat_engine.aoe_tiles_for_player_action(state, action, target_tile)
 
 func _aoe_hover_can_show_pattern(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
-	if str(action.get("type", "")) != "aoe":
+	if str(action.get("type", "")) not in ["aoe", "meteor_marks"]:
 		return false
 	if target_tile.x < 0:
 		return false
@@ -21393,7 +21465,7 @@ func _current_action_is_aimed_aoe() -> bool:
 # outcrop raise (Earthen Rampart) uses the same Rotate, keys, bumpers and drag.
 func _action_uses_aoe_aim(action: Dictionary) -> bool:
 	var action_type: String = str(action.get("type", ""))
-	if action_type in ["aoe", "surface", "detonate"]:
+	if action_type in ["aoe", "surface", "detonate", "meteor_marks"]:
 		return true
 	return action_type == "outcrop" and _combat_engine.player_action_needs_orientation(action)
 
@@ -21640,7 +21712,7 @@ func _target_needs_force_orientation(action: Dictionary, target_tile: Vector2i) 
 	return _target_needs_force_orientation_in_state(_preview_combat_state, action, target_tile)
 
 func _target_needs_force_orientation_in_state(state: Dictionary, action: Dictionary, target_tile: Vector2i) -> bool:
-	if str(action.get("type", "")) == "aoe":
+	if str(action.get("type", "")) in ["aoe", "meteor_marks"]:
 		return false
 	if action.has("force_direction"):
 		return false
@@ -22138,7 +22210,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 	var action: Dictionary = _combat_engine.action_with_automatic_origin(_preview_combat_state, _pending_actions[_pending_action_index], tile)
 	_pending_actions[_pending_action_index] = action
 	var previous_action_index: int = _pending_action_index
-	if str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
+	if str(action.get("type", "")) in ["aoe", "meteor_marks", "outcrop"]:
 		action = _action_with_aoe_aim_orientation(action)
 		if not _combat_engine.valid_targets_for_player_action(_preview_combat_state, action).has(tile):
 			return
@@ -24062,6 +24134,22 @@ func _animate_player_ground_result(after_state: Dictionary, before_state: Dictio
 	await _animate_floating_text_presentation(after_state, presentation)
 	return true
 
+# Tiles of illusions that exist after a step but not before (creation order).
+func _created_illusion_tiles(before_state: Dictionary, after_state: Dictionary) -> Array[Vector2i]:
+	var before_ids: Dictionary = {}
+	for illusion_var: Variant in before_state.get("illusions", []):
+		if typeof(illusion_var) == TYPE_DICTIONARY:
+			before_ids[int((illusion_var as Dictionary).get("id", -1))] = true
+	var tiles: Array[Vector2i]
+	for illusion_var: Variant in after_state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = illusion_var as Dictionary
+		if before_ids.has(int(illusion.get("id", -1))) or int(illusion.get("hp", 0)) <= 0:
+			continue
+		tiles.append(illusion.get("pos", INVALID_TARGET_TILE))
+	return tiles
+
 func _has_electrical_trace(hits: Array) -> bool:
 	for hit: Dictionary in hits:
 		if str(hit.get("kind", "")) in ["relay", "conduction"]:
@@ -24115,7 +24203,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, base_presentation)
-		"blink":
+		"blink", "illusion_swap":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
@@ -24144,7 +24232,17 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_color": Color(0.53, 0.48, 0.92, 0.24)
 			})
 		"illusion":
-			var focus_tiles: Array[Vector2i] = _vector2i_array([target_tile])
+			var focus_tiles: Array[Vector2i] = _created_illusion_tiles(before_state, after_state)
+			if focus_tiles.is_empty():
+				focus_tiles = _vector2i_array([target_tile])
+			var illusion_texts: Array = []
+			for illusion_tile: Vector2i in focus_tiles:
+				illusion_texts.append({
+					"tile": illusion_tile,
+					"text": "+%d illusion" % int(action.get("health", action.get("amount", 0))),
+					"color": Color("9beeff"),
+					"offset": -6.0
+				})
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
@@ -24160,12 +24258,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": focus_tiles,
 				"focus_color": Color(0.40, 0.86, 0.94, 0.26),
-				"floating_texts": [{
-					"tile": target_tile,
-					"text": "+%d illusion" % int(action.get("health", action.get("amount", 0))),
-					"color": Color("9beeff"),
-					"offset": -6.0
-				}]
+				"floating_texts": illusion_texts
 			}), 0.0, true)
 		"illuminate":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -24201,16 +24294,21 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"offset": -8.0
 				}]
 			}, 0.0, true)
-		"surface", "consume_surface", "outcrop":
+		"surface", "consume_surface", "outcrop", "surface_adjacent_enemies", "convert_surface", "discharge", "meteor_marks":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_surface_change(before_state, after_state, base_presentation)
-		"melee", "ranged", "aoe", "push", "pull", "detonate":
+		"all_enemies":
+			# Losses follow as the secondary enemy-loss beat for every struck foe.
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+		"melee", "ranged", "aoe", "push", "pull", "detonate", "destroy_illusion", "burst_terrain":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
 				effect_target_tile = player_before_tile
 			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
 			if action_type == "aoe":
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
+			elif action_type in ["destroy_illusion", "burst_terrain"]:
+				focus_tiles.append_array(_combat_engine.blast_tiles_for_player_action(before_state, action, target_tile))
 			elif action_type == "detonate":
 				focus_tiles.clear()
 				for event: Dictionary in _surface_events_between(before_state, after_state):
@@ -24241,6 +24339,14 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				effect["range"] = 1
 				effect["from"] = effect_target_tile
 				effect["element"] = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+				effect["ground_burst"] = true
+				effect["burst_tiles"] = focus_tiles.duplicate()
+			elif action_type in ["destroy_illusion", "burst_terrain"]:
+				# The shattered illusion or terrain erupts in place, like Detonate.
+				effect["kind"] = "aoe"
+				effect["action_type"] = "aoe"
+				effect["range"] = 1
+				effect["from"] = effect_target_tile
 				effect["ground_burst"] = true
 				effect["burst_tiles"] = focus_tiles.duplicate()
 			if not chain_hits.is_empty() and bool((chain_hits[0] as Dictionary).get("range_relay", false)):
@@ -24344,6 +24450,26 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 						final_feedback_elapsed_seconds,
 						true
 					)
+		"force_area", "swap":
+			# Area forces and swaps resolve through the shared mover; the surface
+			# beat flashes collisions and floats their damage on the result.
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			await _animate_surface_change(before_state, after_state, base_presentation)
+		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
+			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var maneuver_tile: Vector2i = player_after_tile
+			if action_type == "petrify" and target_tile.x >= 0:
+				maneuver_tile = target_tile
+			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
+				"focus_actor_keys": ["player"],
+				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
+				"floating_texts": [{
+					"tile": maneuver_tile,
+					"text": ManeuverRules.presentation_text(before_state, after_state, action),
+					"color": Color("d6edff"),
+					"offset": -6.0
+				}]
+			}), 0.0, true)
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -24444,7 +24570,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_death_hold_presentation(before_state, after_state, secondary_enemy_loss_presentation)
 		)
 	var terrain_destruction_presented_inline: bool = (
-		action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]
+		action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate", "destroy_illusion", "burst_terrain"]
 		or not triggered_traps.is_empty()
 	)
 	# Defeat silhouettes and turn-clock cleanup already explain the kill. Reward
@@ -26383,6 +26509,16 @@ func _floating_texts_for_target_losses(target_losses: Array, status_text: String
 				"offset": 0.0,
 				"width": 112.0
 			})
+		if int(loss.get("mantle_loss", 0)) > 0:
+			var mantle_left: int = int(loss.get("mantle_remaining", 0))
+			floats.append({
+				"tile": tile,
+				"reaction_actor_key": str(loss.get("key", "player")), "reaction": "block",
+				"text": "Mantle %d → %d" % [mantle_left + int(loss.get("mantle_loss", 0)), mantle_left],
+				"color": Color("b9f3ff"),
+				"offset": -24.0,
+				"width": 140.0
+			})
 		if int(loss.get("defiance_restored", 0)) > 0:
 			floats.append({
 				"tile": tile,
@@ -26560,6 +26696,10 @@ func _apply_actor_losses(state: Dictionary, target_losses: Array) -> void:
 		match str(loss.get("kind", "")):
 			"player":
 				_apply_player_losses(state, int(loss.get("hp_loss", 0)), int(loss.get("block_loss", 0)), int(loss.get("stoneskin_loss", 0)))
+				if int(loss.get("mantle_loss", 0)) > 0:
+					var mantle_player: Dictionary = state.get("player", {})
+					mantle_player["frost_armor"] = maxi(0, int(loss.get("mantle_remaining", 0)))
+					state["player"] = mantle_player
 				var restored_hp: int = maxi(0, int(loss.get("defiance_restored", 0)))
 				if restored_hp > 0:
 					var player: Dictionary = state.get("player", {})
@@ -26916,6 +27056,12 @@ func _room_hover_hint() -> String:
 	return "%s%s %d" % [prefix, str(room.get("type", "combat")).capitalize(), int(room.get("depth", 1))]
 func _action_prompt(action: Dictionary) -> String:
 	match str(action.get("type", "")):
+		"illusion" when str(action.get("place", "")) == "adjacent_to_enemy":
+			return "Target"
+		"illusion" when str(action.get("place", "")) == "ring_around_self":
+			return "Resolve"
+		"illusion_swap", "destroy_illusion", "burst_terrain":
+			return "Target"
 		"move", "blink", "illusion", "illuminate", "outcrop":
 			return "Tile"
 		"aoe":
@@ -26959,7 +27105,8 @@ func _secondary_player_action_enemy_loss_presentation(
 	)
 
 func _player_action_enemy_losses_presented_inline(action_type: String, triggered_traps: Array) -> bool:
-	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
+	# Convert and Discharge float their losses with the surface change.
+	if action_type in ["melee", "ranged", "aoe", "push", "pull", "detonate", "force_area", "swap", "convert_surface", "discharge"]:
 		return true
 	return action_type in ["move", "blink"] and not triggered_traps.is_empty()
 
@@ -33568,6 +33715,8 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 	var payload: Dictionary = _analytics_card_play_payload(card_id, before_state, resolved_state, actions, selected_targets)
 	# Additive wave-3 keyword fields: quicken_spent, next_attack_bonus_used, rite_started.
 	payload.merge(TempoRules.analytics_fields(resolved_state, card_id), true)
+	# Additive wave-4 family B fields (spec/analytics.md).
+	payload.merge(ManeuverRules.analytics_fields(before_state, resolved_state), true)
 	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), payload)
 
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
@@ -34587,9 +34736,10 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	# including fully absorbed hits; movement already has its own player chips.
 	result["friendly_damage_chips"] = _friendly_damage_preview_chips(state, losses, str(action.get("type", "")) in ["move", "blink"])
 	for event: Dictionary in result.get("surface_preview_events", []):
-		if str(event.get("kind", "")) == "detonate":
+		# Discharge and Frost Circuit outline their struck area like a Detonate.
+		if str(event.get("kind", "")) in ["detonate", "surface_discharge", "surface_converted"]:
 			var focus: Array[Vector2i] = _vector2i_array(result.get("focus_tiles", []))
-			for blast_tile: Vector2i in _vector2i_array(event.get("tiles", [])):
+			for blast_tile: Vector2i in _vector2i_array(event.get("area", event.get("tiles", []))):
 				if not focus.has(blast_tile): focus.append(blast_tile)
 			result["focus_tiles"] = focus
 			result["focus_color"] = Color(0.95, 0.62, 0.37, 0.22)
@@ -34673,6 +34823,17 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		result["preview_units"] = previews
 	if not markers.is_empty():
 		result["collision_markers"] = markers
+
+func _append_confirmation_force_preview(presentation: Dictionary) -> void:
+	# A targetless card (Gale Ward, Unsealed Gale, Waning Pulse) is shown on its
+	# resolved board; add the same straight-line paths and collision markers the
+	# hover forecast draws. Ghosts are omitted because the board already shows
+	# each enemy at its landing tile.
+	var forced: Dictionary = {}
+	_append_forced_displacement_preview(forced, _combat_state, _pending_card_known_forecast_state())
+	for key: String in ["displacement_paths", "collision_markers"]:
+		if forced.has(key):
+			presentation[key] = forced[key]
 
 func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
 	var chips: Array = []

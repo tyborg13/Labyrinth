@@ -209,7 +209,9 @@
       "icon": "raise_terrain",
       "body": [
         "Outcrop cards raise crag outcrops on empty floor. An outcrop blocks movement and line of sight, can be attacked like other terrain, and leaves Rubble when destroyed.",
-        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away."
+        "A tile is legal only when the raise keeps every floor tile connected, so an outcrop can never seal the hero, an enemy, a pickup or an exit away. A Worldspine cage is the one exception: it may seal the single tile it surrounds.",
+        "Powder kegs and Worldspines are raised the same way. A keg blocks movement but not sight; when anything destroys it, it deals its damage to its tile and each tile next to it, setting off other kegs. Your Worldspines pulse at the start of each of your turns, hitting each enemy next to one of them once.",
+        "Rockburst and Worldbreak destroy terrain to blast the enemies next to it, or the line beyond an outcrop you raised."
       ]
     },
     {
@@ -405,7 +407,9 @@
       "default": true,
       "icon": "illusion",
       "body": [
-        "Creates a stationary decoy with the displayed Health. Enemies can target it."
+        "Creates a stationary decoy with the displayed Health. Enemies can target it.",
+        "Some illusions carry an effect while they live: enemies that damage a charged illusion take damage back (once per enemy attack), and a Doppelganger lets your ranged attacks fire from its tile. Mirror Feint places its illusion beside an enemy; Hall of Mirrors fills every empty tile next to you.",
+        "Empty Husk swaps you with one of your illusions and moves your Block onto it as extra health. Shattered Reflection destroys one of your illusions to blast each enemy next to it. Both count as normal arrivals and destruction for illusion effects."
       ]
     },
     {
@@ -758,7 +762,8 @@
       "icon": "detonate",
       "body": [
         "Meteorfall strikes marked cells and leaves Fire. Cinder Breath also burns the ground beside that Fire.",
-        "Crownfire detonates the surviving marked Fire while Vyraketh pursues you. Replace the Fire to deny the blast, or lure the dragon into it."
+        "Crownfire detonates the surviving marked Fire while Vyraketh pursues you. Replace the Fire to deny the blast, or lure the dragon into it.",
+        "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire."
       ]
     },
     {
@@ -772,6 +777,60 @@
       ]
     },
     {
+      "id": "combat:area_force",
+      "section": "combat",
+      "title": "Gusts and Vortices",
+      "icon": "push",
+      "body": [
+        "An area force pushes or pulls every enemy within its radius of a center: you, or a tile you choose. Each enemy moves along its own straight line away from (Push) or toward (Pull) the center, using the normal Push and Pull rules. An enemy standing on a Pull's center stays put.",
+        "Pushes resolve farthest from the center first; pulls resolve nearest first. A stopped line collides as usual: 2 damage per lost tile to the mover and to what stopped it.",
+        "Squall pushes each enemy in its cross away from the cross's center; the enemy on the center itself is pushed away from you."
+      ]
+    },
+    {
+      "id": "combat:swap",
+      "section": "combat",
+      "title": "Swap",
+      "icon": "swap",
+      "body": [
+        "Swap places with a visible one-tile enemy or one of your illusions within range and line of sight. Large enemies cannot be swapped.",
+        "Both of you arrive normally: surfaces and traps trigger for each, and you collect loot on your new tile. A swap is not a Push or Pull, so nothing collides and Anchored does not stop it."
+      ]
+    },
+    {
+      "id": "combat:stances",
+      "section": "combat",
+      "title": "Stances",
+      "icon": "anchored",
+      "body": [
+        "Skate: this turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+        "Rooted: for the rest of this turn you can't Move or Blink, including your own movement.",
+        "Anchored: until your next turn, Push and Pull against you move you 0 tiles and never collide.",
+        "Fireproof: Fire doesn't damage you this turn.",
+        "Active stances appear as badges on your character."
+      ]
+    },
+    {
+      "id": "combat:cleanse",
+      "section": "combat",
+      "title": "Cleanse",
+      "icon": "cleanse",
+      "body": [
+        "Cleanse removes the listed statuses from you at once: Bleed, Immobilize, Chilled or Shock. Removing Immobilize or Shock frees you for the rest of this turn, and a Shock cleanse can be played while Shocked.",
+        "Removing Chilled while standing on Ice keeps you unchilled until you next enter Ice or start a turn on it."
+      ]
+    },
+    {
+      "id": "combat:petrify",
+      "section": "combat",
+      "title": "Petrify",
+      "icon": "petrify",
+      "body": [
+        "A Petrified enemy skips its next turn. The skipped turn still costs its normal Time on the Turn Clock, so it does not come back sooner.",
+        "Petrify also gives the enemy Block, which lasts through your next turn. It is not Freeze: there is no damage multiplier and no Chill interaction. Dragons cannot be Petrified."
+      ]
+    },
+    {
       "id": "combat:crystal_armor",
       "section": "combat",
       "title": "Crystal Mantle",
@@ -779,7 +838,8 @@
       "body": [
         "Each direct damaging hit breaks one Crystal Mantle layer instead of damaging health. Cheap hits can clear layers before a heavy strike.",
         "Each remaining layer extends Shatterstorm by one tile. Break layers during its warning to shrink the danger; the burst consumes the layers that remain.",
-        "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus."
+        "Ice beneath Iskaldra can fuel an extra layer. Remove the visible fuel before its turn to deny the bonus.",
+        "Crystal Mantle cards give you the same layers: each direct hit against you breaks one layer instead of dealing damage. Fire, Bleed, collisions, traps and health costs bypass it. Your layers last until broken or the combat ends."
       ]
     },
     {
@@ -886,7 +946,8 @@
       "title": "Electrified Tiles",
       "icon": "surface_electrified",
       "body": [
-        "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles."
+        "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles.",
+        "Frost Circuit turns a connected patch of Ice into Electrified ground. Discharge removes a connected Electrified network and strikes each enemy on or next to it once."
       ]
     },
     {
@@ -932,6 +993,28 @@
       "icon": "surface_relocate",
       "body": [
         "Moves a surface from one tile to another."
+      ]
+    },
+    {
+      "id": "combat:surface_techniques",
+      "section": "combat",
+      "title": "Surface Techniques",
+      "icon": "surface_consume",
+      "body": [
+        "Consume: an attack that consumes a surface deals its bonus to each enemy it hits that stands on that surface, then removes the surface beneath it. An area consumes the surface on every tile of its pattern. Some attacks can only target an enemy standing on the surface. Any surface the attack leaves is placed after the consumption.",
+        "Convert: Frost Circuit turns the chosen Ice tile and all Ice connected to it into Electrified ground, then strikes and Shocks each enemy on the converted tiles.",
+        "Discharge: choose an Electrified tile. Each enemy on its connected network or next to it takes the damage once, then the network is removed.",
+        "Wards leave a surface beneath each enemy next to you. Ice placed this way Chills an enemy only when it starts a turn on or enters the Ice."
+      ]
+    },
+    {
+      "id": "combat:sweeping_strikes",
+      "section": "combat",
+      "title": "Sweeping Strikes",
+      "icon": "all_enemies",
+      "body": [
+        "Some cards strike every enemy you can see that meets a condition: standing on Fire or Electrified ground, Chilled, or in Light. There is no target to choose, and an enemy hidden by the Umbra is never hit.",
+        "Each strike is a direct hit of the card's element, so an Ice strike Freezes a Chilled enemy. The card can be played only while at least one enemy qualifies."
       ]
     }
   ]

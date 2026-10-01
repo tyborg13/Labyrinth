@@ -466,6 +466,9 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	for key: String in ["retaliate", "quicken", "rite", "next_attack"]:
 		expect.call(ActionIcons.icon_texture(key) != null, "%s keyword icon should load" % key)
 		expect.call(ActionIcons.action_icon_key({"type": key}) == key, "%s action type resolves through ACTION_ICON_ALIASES" % key)
+	# Setup riders take a watermark only when the card has no primary role.
+	for role_pair: Array in [["w3_fx_pierce", "attack_melee"], ["w3_fx_buff", "block"], ["w3_fx_headlong", "mobility"], ["w3_fx_quicken", "mobility"], ["w3_fx_retaliate_riders", "block"]]:
+		expect.call(ActionIcons.card_role_emblem_key(GameData.card_def(str(role_pair[0]))) == str(role_pair[1]), "%s uses the %s role emblem" % [str(role_pair[0]), str(role_pair[1])])
 	var thorn_card: Dictionary = GameData.card_def("w3_fx_rite_thorns")
 	var thorn_rows: Array = ActionIcons.rows_for_card(thorn_card)
 	var thorn_cost_row: Array = thorn_rows[0] as Array if not thorn_rows.is_empty() else []

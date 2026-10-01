@@ -68,6 +68,8 @@ const GameData = preload("res://scripts/game_data.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
+const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -252,6 +254,16 @@ const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
 	},
 	"wooden_crate": {
 		"path": "res://assets/art/tiles/wooden_crate_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	},
+	# The powder keg shares the wooden box's 128px framing, so it splinters
+	# with the box sheet; its burst feedback is drawn separately.
+	"powder_keg": {
+		"path": "res://assets/art/tiles/wooden_box_destroy.png",
 		"columns": 4,
 		"rows": 4,
 		"order": "row_major",
@@ -481,6 +493,8 @@ const IMPACT_DECAL_FADE_PROGRESS: float = 0.72
 const IMPACT_DECAL_MAX_ALPHA: float = 0.72
 const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
 const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
+## Where powder_keg.png draws its lit fuse spark, as a fraction of the sprite.
+const POWDER_KEG_FUSE_ANCHOR: Vector2 = Vector2(0.64, 0.13)
 const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
 const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
 const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
@@ -3278,6 +3292,8 @@ func _queue_combat_state_change_redraws(
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
 	if changed_keys.has("traps"):
 		_queue_render_layer_redraw(_ground_render_layer)
+	if changed_keys.has("meteor_marks"):
+		_queue_render_layer_redraw(_overlay_render_layer)
 	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
 		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
 			_queue_scene_render_layer_for_tile(tile)
@@ -3486,7 +3502,11 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
 		"retaliate": source_state.get("retaliate", {}),
 		"active_rites": source_state.get("active_rites", []),
+		# Player Meteorfall marks (spec/card_mechanics_surfaces.md).
+		"meteor_marks": source_state.get("meteor_marks", []),
 		"turn_flags": source_state.get("turn_flags", {}),
+		# Player self-flag badges (Skate, Rooted, Anchored, Fireproof).
+		ManeuverRules.FLAGS_KEY: source_state.get(ManeuverRules.FLAGS_KEY, {}),
 		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
 		"room_element": source_state.get("room_element", ElementData.NONE),
@@ -6438,6 +6458,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	_draw_meteor_mark(tile)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
 		# top so it remains the unmistakable primary targeting signal.
@@ -6452,6 +6473,31 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		else:
 			draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
 			_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+
+# Player Meteorfall marks persist through enemy turns and land at the start of
+# the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
+# an ember-ringed tile, with the incoming damage in the tooltip.
+func _draw_meteor_mark(tile: Vector2i) -> void:
+	var damage: int = 0
+	var surface: String = ""
+	var marked: bool = false
+	for mark_var: Variant in combat_state.get("meteor_marks", []):
+		if typeof(mark_var) != TYPE_DICTIONARY or not ((mark_var as Dictionary).get("tiles", []) as Array).has(tile):
+			continue
+		marked = true
+		damage += int((mark_var as Dictionary).get("damage", 0))
+		surface = str((mark_var as Dictionary).get("surface", surface))
+	if not marked:
+		return
+	draw_colored_polygon(_tile_polygon(tile), Color(0.95, 0.38, 0.16, 0.20))
+	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
+	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
+	if mark_icon == null:
+		return
+	var icon_side: float = _tile_width() * 0.30
+	var icon_rect := Rect2(_tile_center(tile) - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side)
+	draw_texture_rect(mark_icon, icon_rect, false, Color.WHITE)
+	_register_tooltip(icon_rect, "Meteorfall\nAt the start of your next turn this tile takes %d damage%s." % [damage, " and becomes %s" % surface.capitalize() if not surface.is_empty() else ""])
 
 func _draw_controller_door_focus(tile: Vector2i) -> void:
 	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
@@ -7637,7 +7683,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
-	var terrain_kind: String = str(terrain.get("kind", ""))
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
 	var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
 	if texture == null:
 		return
@@ -7651,6 +7697,8 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
+	if terrain_kind == "powder_keg":
+		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
@@ -7661,7 +7709,7 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
-	var terrain_kind: String = str(terrain.get("kind", ""))
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
@@ -7675,6 +7723,20 @@ func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array =
 		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
+
+# A player Worldspine reuses Tharokh's spire art.
+func _terrain_art_kind(terrain_kind: String) -> String:
+	if terrain_kind == "worldspine":
+		return "dragon_spire"
+	return terrain_kind
+
+func _draw_powder_keg_fuse_glow(terrain_rect: Rect2, opacity: float) -> void:
+	# A soft warning halo on the art's lit fuse keeps the keg readable as a
+	# bomb at small board zoom and under Umbra dimming.
+	var center: Vector2 = terrain_rect.position + terrain_rect.size * POWDER_KEG_FUSE_ANCHOR
+	var radius: float = maxf(2.5, terrain_rect.size.x * 0.07)
+	draw_circle(center, radius * 2.0, Color(1.0, 0.46, 0.14, 0.16 * opacity))
+	draw_circle(center, radius * 1.2, Color(1.0, 0.62, 0.24, 0.28 * opacity))
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
 	if terrain_kind == "dragon_spire":
@@ -7747,7 +7809,7 @@ func _terrain_key(terrain: Dictionary) -> String:
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	var terrain_kind: String = str(terrain.get("kind", ""))
-	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind == "dragon_spire" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
+	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
 	var text: String = "%s\n%d/%d HP" % [
 		label,
 		int(terrain.get("hp", 0)),
@@ -7755,6 +7817,8 @@ func _terrain_tooltip_text(terrain: Dictionary) -> String:
 	]
 
 	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
+	if terrain_kind == "powder_keg": text += "\nWhen destroyed, deals %d to its tile and each tile next to it." % int(terrain.get("burst_damage", 0))
+	if terrain_kind == "worldspine": text += "\nAt the start of your turn, each enemy next to it takes %d." % int(terrain.get("pulse_damage", 0))
 	return text
 
 func _visible_units() -> Array[Dictionary]:
@@ -7782,6 +7846,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(player_statuses.get("freeze", 0)),
 			"shock": int(player_statuses.get("shock", 0)),
 			"immobilize": bool(player_statuses.get("immobilize", false)),
+			"frost_armor": int(player.get("frost_armor", 0)),
 			"keyword_badges": _player_keyword_badges(),
 		})
 	for illusion_var: Variant in combat_state.get("illusions", []):
@@ -7805,6 +7870,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(illusion.get("freeze", 0)),
 			"shock": 0,
 			"immobilize": false,
+			"keyword_badges": IllusionCardRules.illusion_badges(illusion),
 		})
 	for preview_var: Variant in presentation.get("preview_units", []):
 		if typeof(preview_var) != TYPE_DICTIONARY:
@@ -7864,6 +7930,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"freeze": int(enemy.get("freeze", 0)),
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
+			"petrify": int(enemy.get("petrify", 0)),
 		}
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
@@ -13828,6 +13895,7 @@ func _load_loot_and_terrain_assets() -> void:
 		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
+		"powder_keg": AssetLoader.load_texture("res://assets/art/tiles/powder_keg.png"),
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
 	}
 	_terrain_destruction_frames_by_kind.clear()
@@ -14241,14 +14309,14 @@ func _terrain_destruction_frames_for_kind(terrain_kind: String) -> Array[Texture
 	return frames
 
 func _terrain_destruction_frame_count(terrain: Dictionary) -> int:
-	return _terrain_destruction_frames_for_kind(str(terrain.get("kind", ""))).size()
+	return _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", "")))).size()
 
 func _terrain_destruction_frame_seconds(terrain: Dictionary) -> float:
-	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(str(terrain.get("kind", "")), {})
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(_terrain_art_kind(str(terrain.get("kind", ""))), {})
 	return maxf(0.01, float(layout.get("frame_seconds", TERRAIN_DESTRUCTION_FRAME_SECONDS)))
 
 func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
-	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(str(terrain.get("kind", "")))
+	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", ""))))
 	if frames.is_empty():
 		return null
 	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]
@@ -15934,6 +16002,15 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"border": Color("b9f3ff"),
 			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
 		})
+	if int(unit.get("petrify", 0)) > 0:
+		badges.append({
+			"icon": "petrify",
+			"count": 0,
+			"fill": Color("4b4639"),
+			"border": Color("d8cfb4"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "Petrified\nSkips its next turn; the skipped turn still costs its Time. Its Petrify Block lasts through your next turn."
+		})
 	if int(unit.get("shock", 0)) > 0:
 		badges.append({
 			"icon": "shock",
@@ -15964,6 +16041,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 func _player_keyword_badges() -> Array[Dictionary]:
 	var badges: Array[Dictionary] = RetaliateRules.player_badges(combat_state, RiteRules.effects(combat_state))
 	badges.append_array(TempoRules.player_badges(combat_state))
+	badges.append_array(ManeuverRules.player_badges(combat_state))
 	return badges
 
 func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:

@@ -413,6 +413,77 @@ class HeuristicWeights:
     rite_discount_availability: float = 0.80
     rite_forced_moves_per_activation: float = 0.60
     rite_lit_attacks_per_activation: float = 0.50
+    # Wave-4 family B (spec/card_mechanics_maneuver.md). Area forces price each
+    # expected displaced enemy like a keyword Push/Pull without Rotate's
+    # directed bonus; expected targets grow with radius.
+    force_area_base_targets: float = 0.60
+    force_area_targets_per_radius: float = 0.45
+    force_area_max_targets: float = 2.50
+    # A self-centered area is live when an enemy is that close: radius 1 is
+    # about as available as a melee shove, radius 3 nearly always is.
+    force_area_self_base_availability: float = 0.45
+    force_area_self_availability_per_radius: float = 0.15
+    force_area_self_max_availability: float = 0.95
+    swap_per_range_tile: float = 0.25
+    swap_enemy_reposition_value: float = 0.60
+    skate_flag_value: float = 0.45
+    rooted_flag_penalty: float = 0.50
+    anchored_flag_value: float = 0.60
+    fireproof_flag_value: float = 0.50
+    cleanse_value_per_status: float = 0.35
+    convert_expected_block: float = 4.0
+    # A layer cancels one whole direct hit (~6 damage) after Block and lasts
+    # until broken, so it is priced above 6 Block.
+    mantle_per_layer: float = 1.60
+    # A skipped activation ~= Stagger of one enemy cycle (12 x 0.30).
+    petrify_skip_value: float = 3.60
+    petrify_enemy_block_cost_share: float = 0.50
+    move_trail_tile_share: float = 0.67
+    started_on_surface_availability: float = 0.25
+    straight_line_mobility_factor: float = 0.75
+    light_destination_factor: float = 0.60
+    adjacent_destination_factor: float = 0.85
+    trail_light_extra_tile_retention: float = 0.35
+    no_adjacent_reward_availability: float = 0.60
+    # Wave-4 surface family (spec/card_mechanics_surfaces.md).
+    adjacent_enemies_expected: float = 0.90
+    convert_expected_tiles: float = 2.0
+    convert_targets: float = 1.20
+    discharge_expected_network_tiles: float = 2.0
+    discharge_targets: float = 1.60
+    per_tile_expected_tiles: float = 2.0
+    on_result_freeze_availability: float = 0.30
+    on_result_kill_availability: float = 0.35
+    frozen_splash_neighbors: float = 0.80
+    selector_on_fire_targets: float = 0.90
+    selector_chilled_targets: float = 0.80
+    selector_in_light_targets: float = 1.00
+    selector_on_electrified_targets: float = 0.80
+    selector_prepared_bonus: float = 0.20
+    selector_range_factor: float = 0.85
+    ignore_los_playability_bonus: float = 0.08
+    meteor_hit_rate: float = 0.55
+    # Wave-4 illusion and terrain families (spec/card_mechanics_illusions_terrain.md).
+    # A charged decoy pays off only when an enemy actually damages it.
+    illusion_retort_trigger_chance: float = 0.55
+    illusion_reflect_expected_hit: float = 3.0
+    illusion_ring_expected_tiles: float = 2.5
+    illusion_adjacent_placement_value: float = 0.60
+    illusion_surface_ring_retention: float = 0.60
+    ranged_origin_value: float = 1.60
+    illusion_on_board_availability: float = 0.55
+    illusion_swap_expected_tiles: float = 3.0
+    transfer_block_expected_points: float = 4.0
+    destroy_illusion_expected_targets: float = 1.40
+    refraction_expected_extra_targets: float = 0.60
+    burst_terrain_availability: float = 0.70
+    burst_terrain_expected_targets: float = 1.30
+    owned_outcrop_availability: float = 0.40
+    burst_line_expected_targets: float = 1.50
+    powder_keg_detonation_chance: float = 0.45
+    powder_keg_expected_targets: float = 1.40
+    worldspine_expected_pulses: float = 2.0
+    worldspine_pulse_targets: float = 1.20
 
 
 @dataclass
@@ -587,6 +658,32 @@ def empower_cost_value(cost: dict[str, Any], weights: HeuristicWeights) -> float
     return value
 
 
+def illusion_extra_value(action: dict[str, Any], weights: HeuristicWeights) -> dict[str, float]:
+    """Wave-4 illusion options beyond the base health/range decoy value."""
+    out = {"offense": 0.0, "control": 0.0, "defense": 0.0, "surfaces": 0.0}
+    health = int(action.get("health", action.get("amount", 0)))
+    place = str(action.get("place", ""))
+    if place == "ring_around_self":
+        out["defense"] += health * weights.illusion_health_per_point * (weights.illusion_ring_expected_tiles - 1.0)
+    elif place == "adjacent_to_enemy":
+        out["control"] += weights.illusion_adjacent_placement_value
+        out["control"] += int(action.get("expose_adjacent", 0)) * weights.expose_value_per_point
+    ring = surface_kind(action.get("surface_ring", ""))
+    if ring:
+        ring_action = {"surface": ring, "surface_pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]}
+        out["surfaces"] += surface_value(ring_action, weights) * weights.illusion_surface_ring_retention
+    retort = action.get("on_damaged", {}) or {}
+    if retort:
+        out["offense"] += immediate_damage_value(int(retort.get("damage", 0)), weights.illusion_retort_trigger_chance, 1.0, weights)
+        out["control"] += int(retort.get("shock", 0)) * weights.shock_value * weights.illusion_retort_trigger_chance
+    if bool(action.get("reflect", False)):
+        reflected = min(float(health), weights.illusion_reflect_expected_hit)
+        out["offense"] += reflected * weights.damage_per_point * weights.illusion_retort_trigger_chance
+    if bool(action.get("ranged_origin", False)):
+        out["control"] += weights.ranged_origin_value
+    return out
+
+
 def retaliate_value(action: dict[str, Any], weights: HeuristicWeights) -> tuple[float, float]:
     """(offense, control) for one Retaliate or Rite thorns payload."""
     offense = int(action.get("amount", action.get("damage", 0))) * weights.retaliate_per_point
@@ -644,6 +741,79 @@ def rite_effect_value(effect: dict[str, Any], weights: HeuristicWeights) -> floa
     return 0.0
 
 
+def force_area_targets(action: dict[str, Any], weights: HeuristicWeights) -> float:
+    radius = max(0, int(action.get("radius", 1)))
+    return min(weights.force_area_max_targets, weights.force_area_base_targets + weights.force_area_targets_per_radius * radius)
+
+
+def force_area_value(action: dict[str, Any], weights: HeuristicWeights) -> tuple[float, float]:
+    """(control, fuel cost) of a `force_area` action."""
+    on_target = str(action.get("center", "self")) == "target"
+    radius = max(0, int(action.get("radius", 1)))
+    self_availability = min(weights.force_area_self_max_availability, weights.force_area_self_base_availability + weights.force_area_self_availability_per_radius * radius)
+    playability = ranged_playability(int(action.get("range", 0))) if on_target else self_availability
+    targets = force_area_targets(action, weights)
+    control = 0.0
+    push = int(action.get("push", 0))
+    pull = int(action.get("pull", 0))
+    shared = weights.displacement_hazard_value_per_tile + weights.collision_value_per_tile
+    if push > 0:
+        control += push * (weights.push_value_per_tile + shared) * targets * playability
+    elif pull > 0:
+        control += pull * (weights.pull_value_per_tile + shared) * targets * playability
+    control += int(action.get("expose", 0)) * weights.expose_value_per_point * targets * playability
+    fuel = 0.0
+    consume = surface_kind(action.get("consume_center", ""))
+    if consume:
+        availability = weights.surface_setup_availability
+        control *= availability
+        fuel = weights.surface_fuel_cost_per_tile * availability
+    return control, fuel
+
+
+def self_flag_value(flag: str, weights: HeuristicWeights) -> tuple[str, float]:
+    """(breakdown field, value) of a `self_flag` action."""
+    return {
+        "ice_skate": ("mobility", weights.skate_flag_value),
+        "no_move": ("mobility", -weights.rooted_flag_penalty),
+        "anchored": ("defense", weights.anchored_flag_value),
+        "fire_immune_turn": ("defense", weights.fireproof_flag_value),
+    }.get(flag, ("defense", 0.0))
+
+
+def trail_surface_value(surface: str, tiles: float, weights: HeuristicWeights) -> float:
+    per_tile = {
+        "fire": weights.surface_fire_per_tile,
+        "ice": weights.surface_ice_per_tile,
+        "rubble": weights.surface_rubble_per_tile,
+        "electrified": weights.surface_electrified_per_tile,
+    }.get(surface, 0.0)
+    if tiles <= 0 or per_tile <= 0:
+        return 0.0
+    effective = 1 + max(0.0, min(weights.surface_effective_tile_cap, tiles) - 1) * weights.surface_extra_tile_retention
+    return per_tile * effective * weights.surface_setup_availability
+
+
+WAVE4_OWN_SURFACE_TYPES = {"surface_adjacent_enemies", "convert_surface", "meteor_marks"}
+
+
+def reward_actions_value(card_id: str, rewards: list[dict[str, Any]], weights: HeuristicWeights) -> float:
+    """Board-independent value of a reward list (no Time, synergy or flurry terms)."""
+    reward = score_card(card_id + ":reward", {"actions": rewards, "time": weights.baseline_card_time}, weights)
+    return reward.offense + reward.control + reward.defense + reward.flow + reward.surfaces + reward.mobility + reward.radiance
+
+
+def selector_expected_targets(action: dict[str, Any], prepared: set[str], weights: HeuristicWeights) -> float:
+    selector = str(action.get("selector", ""))
+    targets = getattr(weights, f"selector_{selector}_targets", 0.0)
+    painted = {"on_fire": "fire", "on_electrified": "electrified", "chilled": "ice"}.get(selector, "")
+    if painted and painted in prepared:
+        targets += weights.selector_prepared_bonus
+    if int(action.get("range", 0)) > 0:
+        targets *= weights.selector_range_factor
+    return targets
+
+
 def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) -> ScoreBreakdown:
     breakdown = ScoreBreakdown()
     actions = card.get("actions", [])
@@ -675,9 +845,13 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
     for action in actions:
         action_type = str(action.get("type", ""))
         action_scale = surface_availability(action.get("requires_surface", {}), prepared, weights)
+        consume = action.get("consume", {}) if isinstance(action.get("consume", {}), dict) else {}
+        if consume and bool(consume.get("required", False)):
+            # Legal only against an enemy already standing on the surface.
+            action_scale *= surface_availability({"surface": consume.get("surface", "")}, prepared, weights)
         action_element = str(action.get("element", action.get("_card_element", card_element)))
         surface = surface_kind(action.get("surface", ""))
-        if surface and action_type != "consume_surface":
+        if surface and action_type != "consume_surface" and action_type not in WAVE4_OWN_SURFACE_TYPES:
             placement = ranged_playability(int(action.get("range", 0))) if int(action.get("range", 0)) > 0 else 0.60
             breakdown.surfaces += surface_value(action, weights) * action_scale * placement
 
@@ -686,32 +860,107 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             continue
         if action_type == "consume_surface":
             availability = surface_availability({"surface": surface}, prepared, weights)
-            reward_card = {"actions": action.get("rewards", []), "element": card_element, "time": weights.baseline_card_time}
+            rewards = []
+            expected_tiles = max(1, int(action.get("min_consumed", 1)))
+            for raw_reward in action.get("rewards", []):
+                reward_action = dict(raw_reward)
+                if bool(reward_action.get("per_tile", False)):
+                    expected = int(reward_action.get("amount", 0)) * weights.per_tile_expected_tiles
+                    if "max" in reward_action:
+                        expected = min(float(int(reward_action.get("max", 0))), expected)
+                    reward_action["amount"] = expected
+                    expected_tiles = max(expected_tiles, weights.per_tile_expected_tiles)
+                rewards.append(reward_action)
+            reward_card = {"actions": rewards, "element": card_element, "time": weights.baseline_card_time}
             reward = score_card(card_id + ":surface_reward", reward_card, weights)
             for field in ("offense", "control", "defense", "flow", "surfaces", "mobility", "radiance", "synergy"):
                 value = getattr(reward, field) * availability
                 setattr(breakdown, field, getattr(breakdown, field) + value)
                 add_fuel_limited(field, value, surface)
-            cost = max(1, int(action.get("min_consumed", 1))) * weights.surface_fuel_cost_per_tile * availability
+            cost = expected_tiles * weights.surface_fuel_cost_per_tile * availability
             breakdown.surface_fuel_cost += cost
             add_fuel_limited("surface_fuel_cost", cost, surface)
             prepared.discard(surface)
             continue
         if action_type == "detonate":
-            availability = surface_availability({"surface": "fire"}, prepared, weights)
+            fuel_kind = surface_kind(action.get("detonate_surface", "fire"))
+            availability = surface_availability({"surface": fuel_kind}, prepared, weights)
             fuel = min(2.5, 1 + (len(surface_footprint(action)) - 1) * 0.25)
             targets = min(2.0, 1.35 + (fuel - 1) * 0.25)
             playability = ranged_playability(int(action.get("range", 0))) if int(action.get("range", 0)) > 0 else 0.60
             if action.get("target") == "previous_target":
                 playability = previous_attack_playability
             payoff = immediate_damage_value(int(action.get("damage", 6)), playability, targets, weights) * availability
-            cost = (fuel * weights.surface_fuel_cost_per_tile + weights.detonate_shared_hazard_cost) * availability
+            # spare_player removes the shared-hazard risk of standing in the blast.
+            hazard = 0.0 if bool(action.get("spare_player", False)) else weights.detonate_shared_hazard_cost
+            cost = (fuel * weights.surface_fuel_cost_per_tile + hazard) * availability
             breakdown.offense += payoff
             breakdown.surface_fuel_cost += cost
-            add_fuel_limited("offense", payoff, "fire")
-            add_fuel_limited("surface_fuel_cost", cost, "fire")
-            prepared.discard("fire")
+            add_fuel_limited("offense", payoff, fuel_kind)
+            add_fuel_limited("surface_fuel_cost", cost, fuel_kind)
+            prepared.discard(fuel_kind)
+            leave = surface_kind(action.get("leave_surface", ""))
+            if leave:
+                # Each consumed tile and its four neighbors (a cross per fuel tile).
+                breakdown.surfaces += surface_value({"surface": leave, "pattern": [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1]]}, weights) * availability
+                prepared.add(leave)
             has_attack = True
+            continue
+
+        if action_type == "surface_adjacent_enemies":
+            expected = weights.adjacent_enemies_expected + (1.0 if bool(action.get("include_self", False)) else 0.0)
+            coefficient = getattr(weights, f"surface_{surface}_per_tile", 0.0)
+            effective = expected if expected <= 1.0 else 1.0 + (expected - 1.0) * weights.surface_extra_tile_retention
+            breakdown.surfaces += coefficient * min(weights.surface_effective_tile_cap, effective) * action_scale
+            if surface:
+                prepared.add(surface)
+            continue
+
+        if action_type == "convert_surface":
+            source_kind = surface_kind(action.get("surface", "ice"))
+            result_kind = surface_kind(action.get("to", "electrified"))
+            availability = surface_availability({"surface": source_kind}, prepared, weights) * action_scale
+            playability = ranged_playability(int(action.get("range", 0)))
+            damage = int(action.get("damage", 0))
+            breakdown.offense += immediate_damage_value(damage, playability, weights.convert_targets, weights) * availability
+            breakdown.control += int(action.get("shock", 0)) * weights.shock_value * playability * weights.convert_targets * availability
+            breakdown.surfaces += surface_value({"surface": result_kind, "pattern": [[0, 0], [1, 0]]}, weights) * availability
+            breakdown.surface_fuel_cost += weights.convert_expected_tiles * weights.surface_fuel_cost_per_tile * availability
+            prepared.discard(source_kind)
+            prepared.add(result_kind)
+            has_status = has_status or int(action.get("shock", 0)) > 0
+            continue
+
+        if action_type == "discharge":
+            availability = surface_availability({"surface": "electrified"}, prepared, weights) * action_scale
+            playability = ranged_playability(int(action.get("range", 0)))
+            payoff = immediate_damage_value(int(action.get("damage", 0)), playability, weights.discharge_targets, weights) * availability
+            cost = weights.discharge_expected_network_tiles * weights.surface_fuel_cost_per_tile * availability
+            breakdown.offense += payoff
+            breakdown.surface_fuel_cost += cost
+            add_fuel_limited("offense", payoff, "electrified")
+            add_fuel_limited("surface_fuel_cost", cost, "electrified")
+            prepared.discard("electrified")
+            continue
+
+        if action_type == "all_enemies":
+            targets = selector_expected_targets(action, prepared, weights)
+            damage = int(action.get("damage", 0))
+            breakdown.offense += immediate_damage_value(damage, 1.0, targets, weights) * action_scale
+            breakdown.control += int(action.get("expose", 0)) * weights.expose_value_per_point * targets * action_scale
+            if action_element == "ice" and damage > 0 and str(action.get("selector", "")) == "chilled":
+                # Every selected enemy is Chilled, so each Ice strike Freezes.
+                breakdown.control += weights.freeze_value * targets * action_scale
+            has_status = has_status or int(action.get("expose", 0)) > 0
+            continue
+
+        if action_type == "meteor_marks":
+            playability = ranged_playability(int(action.get("range", 0))) * weights.meteor_hit_rate
+            targets = target_multiplier(dict(action, type="aoe"), weights)
+            breakdown.offense += immediate_damage_value(int(action.get("damage", 0)), playability, targets, weights) * action_scale
+            if surface:
+                breakdown.surfaces += surface_value(action, weights) * action_scale
+                prepared.add(surface)
             continue
 
         illuminate_radius = max(0, int(action.get("illuminate_radius", 0)))
@@ -726,9 +975,35 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         if action_type == "move":
             if has_illusion:
                 illusion_before_move = True
-            move_tiles += int(action.get("range", 0)) * action_scale
-            pre_attack_reach += int(round(int(action.get("range", 0)) * action_scale))
+            move_range = int(action.get("range", 0))
+            line_factor = weights.straight_line_mobility_factor if bool(action.get("straight_line", False)) else 1.0
+            move_tiles += move_range * action_scale * line_factor
+            pre_attack_reach += int(round(move_range * action_scale * line_factor))
             has_move = True
+            expected_tiles = move_range * weights.move_trail_tile_share
+            trail = surface_kind(action.get("trail_surface", ""))
+            if trail:
+                breakdown.surfaces += trail_surface_value(trail, expected_tiles, weights) * action_scale
+                prepared.add(trail)
+            origin = surface_kind(action.get("origin_surface", ""))
+            if origin:
+                breakdown.surfaces += trail_surface_value(origin, 1, weights) * action_scale
+                prepared.add(origin)
+            if int(action.get("block_per_tile", 0)) > 0:
+                breakdown.defense += int(action.get("block_per_tile", 0)) * expected_tiles * weights.block_per_point * action_scale
+                has_defense = True
+            started = action.get("if_started_on_surface")
+            if isinstance(started, dict):
+                reward = score_card(card_id + ":started_on", {"actions": started.get("rewards", []), "element": card_element, "time": weights.baseline_card_time}, weights)
+                for field in ("offense", "control", "defense", "flow", "mobility"):
+                    setattr(breakdown, field, getattr(breakdown, field) + getattr(reward, field) * weights.started_on_surface_availability)
+            trail_light = action.get("trail_light")
+            if isinstance(trail_light, dict):
+                radius = max(1, int(trail_light.get("radius", 1)))
+                duration = max(1, int(trail_light.get("duration", 2)))
+                breakdown.radiance += (
+                    radius * weights.illuminate_radius_per_tile + duration * weights.illuminate_duration_per_activation
+                ) * (1 + max(0.0, expected_tiles - 1) * weights.trail_light_extra_tile_retention) * weights.umbra_relevance
             if surface:
                 prepared.add(surface)
             continue
@@ -736,11 +1011,72 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
         if action_type == "blink":
             if has_illusion:
                 illusion_before_move = True
-            blink_tiles += int(action.get("range", 0)) * action_scale
+            blink_factor = 1.0
+            if bool(action.get("destination_requires_light", False)):
+                blink_factor *= weights.light_destination_factor
+            if action.get("destination_adjacent_to"):
+                blink_factor *= weights.adjacent_destination_factor
+            blink_tiles += int(action.get("range", 0)) * action_scale * blink_factor
             pre_attack_reach += int(round((int(action.get("range", 0)) + 1) * action_scale))
             has_move = True
+            if int(action.get("illusion_at_origin", 0)) > 0:
+                breakdown.defense += int(action.get("illusion_at_origin", 0)) * weights.illusion_health_per_point * action_scale
+                has_illusion = True
+                has_defense = True
+            lonely = action.get("if_no_adjacent_enemies")
+            if isinstance(lonely, list) and lonely:
+                reward = score_card(card_id + ":no_adjacent", {"actions": lonely, "element": card_element, "time": weights.baseline_card_time}, weights)
+                breakdown.flow += reward.flow * weights.no_adjacent_reward_availability
+                breakdown.defense += reward.defense * weights.no_adjacent_reward_availability
             if surface:
                 prepared.add(surface)
+            continue
+
+        if action_type == "force_area":
+            control, fuel = force_area_value(action, weights)
+            breakdown.control += control * action_scale
+            breakdown.surface_fuel_cost += fuel * action_scale
+            if int(action.get("expose", 0)) > 0:
+                has_status = True
+            has_push_pull = True
+            consumed = surface_kind(action.get("consume_center", ""))
+            if consumed:
+                prepared.discard(consumed)
+            continue
+
+        if action_type == "swap":
+            reach = int(action.get("range", 1))
+            breakdown.mobility += reach * weights.swap_per_range_tile * action_scale
+            breakdown.control += weights.swap_enemy_reposition_value * ranged_playability(reach) * action_scale
+            has_move = True
+            continue
+
+        if action_type == "self_flag":
+            field, value = self_flag_value(str(action.get("flag", "")), weights)
+            setattr(breakdown, field, getattr(breakdown, field) + value * action_scale)
+            if field == "defense" and value > 0:
+                has_defense = True
+            continue
+
+        if action_type == "cleanse":
+            breakdown.defense += len(action.get("statuses", []) or []) * weights.cleanse_value_per_status * action_scale
+            continue
+
+        if action_type == "convert_block_to_stoneskin":
+            breakdown.defense += weights.convert_expected_block * (weights.stoneskin_per_point - weights.block_per_point) * action_scale
+            has_defense = True
+            continue
+
+        if action_type == "mantle":
+            breakdown.defense += int(action.get("amount", 0)) * weights.mantle_per_layer * action_scale
+            has_defense = True
+            continue
+
+        if action_type == "petrify":
+            playability = ranged_playability(int(action.get("range", 1)))
+            breakdown.control += weights.petrify_skip_value * playability * action_scale
+            breakdown.control -= int(action.get("block", 0)) * weights.block_per_point * weights.petrify_enemy_block_cost_share * playability * action_scale
+            has_status = True
             continue
 
         if action_type in {"melee", "ranged", "aoe", "push", "pull"}:
@@ -748,6 +1084,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             base_range = int(action.get("range", 1))
             effective_reach = pre_attack_reach + (1 if action_type == "aoe" and base_range <= 0 else base_range)
             playability = playability_for_attack(action_type, effective_reach, base_range)
+            if bool(action.get("ignore_los", False)):
+                playability = min(1.0, playability + weights.ignore_los_playability_bonus)
             previous_attack_playability = playability
             targets = target_multiplier(action, weights)
             damage = int(action.get("damage", 0))
@@ -801,6 +1139,25 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                     breakdown.offense += max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability
                 breakdown.control += int(state_bonus.get("stagger", 0)) * weights.stagger_value_per_point * playability * targets * availability
 
+            if consume:
+                consume_kind = surface_kind(consume.get("surface", ""))
+                required = bool(consume.get("required", False))
+                availability = 1.0 if required else surface_availability({"surface": consume_kind}, prepared, weights)
+                bonus_damage = int(consume.get("bonus_damage", 0))
+                if bonus_damage:
+                    breakdown.offense += max(0.0, immediate_damage_value(damage + bonus_damage, playability, targets, weights) - base_damage_value) * availability * action_scale
+                breakdown.surface_fuel_cost += weights.surface_fuel_cost_per_tile * availability * action_scale
+                prepared.discard(consume_kind)
+
+            on_result = action.get("on_result", {}) or {}
+            if on_result:
+                availability = weights.on_result_freeze_availability if str(on_result.get("when", "")) == "froze" else weights.on_result_kill_availability
+                breakdown.flow += reward_actions_value(card_id, list(on_result.get("rewards", [])), weights) * availability * playability * action_scale
+
+            splash = int(action.get("frozen_splash", 0))
+            if splash > 0:
+                breakdown.offense += splash * weights.damage_per_point * weights.frozen_splash_neighbors * weights.state_bonus_frozen_availability * playability * action_scale
+
             scale_bonus = action.get("scale_bonus", {}) or {}
             if scale_bonus:
                 expected = expected_scale_bonus(scale_bonus, move_tiles + blink_tiles, weights)
@@ -812,6 +1169,10 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             if push > 0:
                 breakdown.control += push * (weights.push_value_per_tile + weights.directed_force_bonus_per_tile + weights.displacement_hazard_value_per_tile + weights.collision_value_per_tile) * playability * targets * action_scale
                 has_push_pull = True
+            forced_tiles = max(push, int(action.get("pull", 0)) + (int(action.get("amount", 0)) if action_type == "pull" else 0))
+            trail = surface_kind(action.get("trail_surface", ""))
+            if trail and forced_tiles > 0:
+                breakdown.surfaces += trail_surface_value(trail, forced_tiles, weights) * playability * action_scale
 
             pull = int(action.get("pull", 0))
             if action_type == "pull":
@@ -823,6 +1184,8 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
                 breakdown.control += pull * pull_value * playability * targets * action_scale
                 has_push_pull = True
 
+            if bool(action.get("also_hits_near_illusions", False)) and damage > 0:
+                breakdown.offense += immediate_damage_value(damage, playability, weights.refraction_expected_extra_targets, weights) * action_scale
             if action_element == "lightning" and damage > 0:
                 extra = weights.lightning_extra_occupants * weights.lightning_network_availability
                 if int(action.get("chain", 0)) > 0:
@@ -882,14 +1245,56 @@ def score_card(card_id: str, card: dict[str, Any], weights: HeuristicWeights) ->
             breakdown.defense += (
                 int(action.get("health", 3)) * weights.outcrop_health_per_point * weights.outcrop_availability * effective_tiles * action_scale
             )
+            kind = str(action.get("kind", ""))
+            if kind == "powder_keg":
+                # A bomb anyone can set off: burst on the keg and its neighbors.
+                breakdown.offense += immediate_damage_value(int(action.get("burst_damage", 0)), weights.powder_keg_detonation_chance, weights.powder_keg_expected_targets, weights) * action_scale
+                has_attack = True
+            elif kind == "worldspine":
+                pulse = int(action.get("pulse_damage", 0))
+                breakdown.offense += pulse * weights.damage_per_point * weights.worldspine_pulse_targets * weights.worldspine_expected_pulses * action_scale
             has_defense = True
             continue
 
         if action_type == "illusion":
-            breakdown.defense += int(action.get("health", action.get("amount", 0))) * weights.illusion_health_per_point * action_scale
+            health = int(action.get("health", action.get("amount", 0)))
+            breakdown.defense += health * weights.illusion_health_per_point * action_scale
             breakdown.control += int(action.get("range", 0)) * weights.illusion_range_per_tile * action_scale
+            for field, value in illusion_extra_value(action, weights).items():
+                setattr(breakdown, field, getattr(breakdown, field) + value * action_scale)
             has_illusion = True
             has_defense = True
+            continue
+
+        if action_type == "illusion_swap":
+            # A blink to one of your illusions (when one is on the board), plus Block moved onto it.
+            availability = weights.illusion_on_board_availability * action_scale
+            tiles = min(float(int(action.get("range", 0))), weights.illusion_swap_expected_tiles)
+            breakdown.mobility += tiles * weights.pure_blink_per_tile * availability
+            if bool(action.get("transfer_block", False)):
+                breakdown.defense += weights.transfer_block_expected_points * weights.illusion_health_per_point * availability
+            has_move = True
+            continue
+
+        if action_type == "destroy_illusion":
+            availability = weights.illusion_on_board_availability * action_scale
+            breakdown.offense += immediate_damage_value(int(action.get("damage", 0)), availability, weights.destroy_illusion_expected_targets, weights)
+            has_attack = True
+            continue
+
+        if action_type == "burst_terrain":
+            owned_only = bool(action.get("owned_outcrop_only", False))
+            availability = (weights.owned_outcrop_availability if owned_only else weights.burst_terrain_availability) * action_scale
+            targets = weights.burst_line_expected_targets if owned_only else weights.burst_terrain_expected_targets
+            damage = int(action.get("line_damage", 0)) if owned_only else int(action.get("damage", 0))
+            breakdown.offense += immediate_damage_value(damage, availability, targets, weights)
+            stagger = int(action.get("stagger", 0))
+            if stagger > 0:
+                breakdown.control += stagger * weights.stagger_value_per_point * availability * targets
+                has_status = True
+            has_attack = True
+            if surface:
+                prepared.add(surface)
             continue
 
         if action_type == "illuminate":

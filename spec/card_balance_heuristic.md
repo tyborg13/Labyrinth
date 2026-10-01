@@ -780,3 +780,97 @@ Scored by `tools/card_heuristic.py` (rules in `spec/card_keywords_wave3.md`):
   their ordinary reward values; target-in-Light damage `amount x 0.45 x 0.50`
   lit attacks; thorns at the Retaliate values. A player Light aura is scored as
   Illuminate with the radius and a 3-activation duration.
+
+### Wave-4 movement, forces, flags, Petrify and Mantle
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_maneuver.md`;
+tests `tests/test_card_heuristic_maneuver.py`):
+
+- `force_area`: each tile of Push is `0.28 + 0.24 + 0.30` (push, displacement
+  hazard, collision) and each tile of Pull `0.14 + 0.24 + 0.30`; there is no
+  directed `0.03` bonus because an area has no Rotate. Expected targets are
+  `min(2.5, 0.60 + 0.45 x radius)`. A tile-centered area uses ranged
+  playability for its range; a self-centered one uses
+  `min(0.95, 0.45 + 0.15 x radius)` availability. Expose adds `0.32` per point
+  per target. `consume_center` scales the area by the `0.50` setup availability
+  and costs `0.35 x 0.50` fuel.
+- Squall's `force_mode: from_center` is priced like the AOE's Push rider.
+- Swap: `0.25` mobility per range tile plus `0.60` control (repositioning an
+  enemy) at ranged playability.
+- `trail_surface` on Push/Pull adds the surface per tile moved (with the usual
+  extra-tile retention) at the attack's playability; on Move it covers
+  `0.67 x range` tiles. `origin_surface` is one tile. Both use the `0.50` setup
+  availability.
+- Self flags: Skate `+0.45` mobility, Rooted `-0.50` mobility, Anchored `+0.60`
+  defense, Fireproof `+0.50` defense.
+- Cleanse `0.35` defense per listed status; Block to Stoneskin expects `4` Block
+  converted at `0.40 - 0.25` per point.
+- Mantle `1.60` defense per layer (a layer cancels one whole direct hit after
+  Block and lasts until broken).
+- Petrify `3.60` control (a skipped activation, about Stagger of one enemy
+  cycle, `12 x 0.30`) at ranged playability, minus `block x 0.25 x 0.50` for the
+  Block it grants the enemy.
+- Move riders: `block_per_tile` prices `0.67 x range` tiles of Block;
+  `straight_line` keeps `0.75` of the Move's tiles; `trail_light` is Illuminate
+  with `1 + 0.35` per extra lit tile; `if_started_on_surface` rewards at `0.25`
+  availability. Blink riders: `destination_requires_light` keeps `0.60` and
+  `destination_adjacent_to` `0.85` of the Blink's tiles; `illusion_at_origin` is
+  an illusion of that health; `if_no_adjacent_enemies` rewards at `0.60`.
+
+### Wave-4 surface family
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_surfaces.md`):
+
+- `surface_adjacent_enemies`: the surface's per-tile value over `0.90` expected adjacent
+  enemy tiles (`+1` tile with `include_self`, extra tiles at the usual `0.45` retention).
+- `consume` rider: bonus damage is the damage-value difference at the surface's setup
+  availability (`0.50`, or `0.80` after an earlier painter), plus a `0.35` fuel cost at the
+  same availability. `required` scales the whole attack by that availability instead.
+- Detonate: availability and fuel use `detonate_surface` (Rubble for Magma Vent);
+  `spare_player` drops the `0.45` shared-hazard cost; `leave_surface` adds the surface value of
+  a five-tile cross at the Detonate's availability.
+- `convert_surface`: at Ice availability, `damage` over `1.20` expected targets, Shock at
+  `2.5 x 1.20` targets, the value of two connected Electrified tiles, minus fuel for `2` Ice
+  tiles. `discharge`: at Electrified availability, `damage` over `1.60` targets, minus fuel
+  for a `2`-tile network.
+- `consume_surface` `per_tile` rewards expect `2` tiles removed (capped at `max`); fuel cost
+  uses the same expected count.
+- `on_result`: the reward list's board-independent value (no Time or synergy terms) at
+  `0.30` (froze) or `0.35` (killed) availability, times the attack's playability.
+- `frozen_splash`: `N x 0.45 x 0.80` expected neighbors at `0.30` Frozen availability.
+- `all_enemies`: targetless (playability `1.0`); expected targets `0.90` on Fire, `0.80`
+  Chilled, `1.00` in Light, `0.80` on Electrified (`+0.20` after an earlier painter of that
+  surface, `x0.85` with a printed range). Expose per target; an Ice strike on `chilled`
+  adds a full Freeze per target.
+- `ignore_los`: `+0.08` playability (capped at `1.0`). `shock_all_hits` adds nothing: Shock is
+  already priced per expected target, including Chain and conduction.
+- `meteor_marks`: damage at the range playability `x 0.55` delayed hit rate over the area
+  target multiplier, plus the full surface value of the marked pattern.
+
+### Wave-4 illusion and terrain families
+
+Scored by `tools/card_heuristic.py` (rules in `spec/card_mechanics_illusions_terrain.md`);
+the base decoy keeps `0.48` per illusion health point and `0.12` per placement range tile.
+
+- Retorts: an enemy damages a charged illusion before it fades `0.55` of the time.
+  `on_damaged` is the retort damage at that playability with one target (offense) plus
+  `2.5 x shock x 0.55` control; `reflect` is `min(health, 3) x 0.45 x 0.55` offense.
+- `surface_ring`: the surface value of a four-tile cardinal ring at `0.60` retention.
+- `ring_around_self`: `2.5` expected illusions (the extra `1.5` at the health value).
+- `adjacent_to_enemy`: `0.60` control for the flanking placement plus Expose at `0.32`
+  per point.
+- `ranged_origin`: `1.60` control for a second firing position.
+- `illusion_swap`: needs an illusion on the board (`0.55`); a Blink of at most `3` tiles
+  (`0.33` per tile, mobility) plus `transfer_block` as `4` Block points moved onto the
+  illusion at the illusion-health value.
+- `destroy_illusion`: the blast at `0.55` availability (an illusion on the board) and `1.4`
+  expected targets; its Light rider uses the ordinary Illuminate rider value.
+- Refraction (`also_hits_near_illusions`): the hit again at its playability against `0.6`
+  expected extra targets.
+- `burst_terrain`: the blast at `0.70` availability (crates are common) and `1.3` targets;
+  the Worldbreak variant needs your own adjacent outcrop (`0.40`) and hits a line (`1.5`
+  targets); Stagger at `0.30` per point times availability and targets; the surface rider is
+  scored as an ordinary placed surface.
+- Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
+  to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
+

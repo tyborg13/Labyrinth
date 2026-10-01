@@ -60,6 +60,8 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"draw": "keyword:draw",
 	"card_play": "keyword:card_play",
 	"illusion": "keyword:illusion",
+	"illusion_swap": "keyword:illusion",
+	"destroy_illusion": "keyword:illusion",
 	"illuminate": "keyword:illuminate",
 	"vision": "keyword:vision",
 	"truesight": "keyword:truesight",
@@ -73,6 +75,7 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
 	"outcrop": "combat:outcrops",
+	"burst_terrain": "combat:outcrops",
 	"raise_terrain": "combat:worldspines",
 	"terrain_burst": "combat:worldspines",
 	"cinder_marks": "combat:cinder_marks",
@@ -82,7 +85,27 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"umbra_eclipse": "combat:boss_eclipse",
 	"retaliate": "keyword:retaliate",
 	"quicken": "keyword:quicken",
-	"next_attack": "keyword:next_attack"
+	"next_attack": "keyword:next_attack",
+	# Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
+	"force_area": "combat:area_force",
+	"swap": "combat:swap",
+	"self_flag": "combat:stances",
+	"cleanse": "combat:cleanse",
+	"convert_block_to_stoneskin": "keyword:stoneskin",
+	"mantle": "combat:crystal_armor",
+	"petrify": "combat:petrify",
+	# Wave-4 surface family (spec/card_mechanics_surfaces.md).
+	"surface_adjacent_enemies": "keyword:surface",
+	"convert_surface": "combat:surface_techniques",
+	"discharge": "combat:surface_techniques",
+	"all_enemies": "combat:sweeping_strikes",
+	"meteor_marks": "combat:cinder_marks"
+}
+
+# Further entries an action type always teaches (beyond its surface fields).
+const ACTION_TYPE_EXTRA_ENTRY_IDS := {
+	"convert_surface": ["keyword:surface_electrified"],
+	"discharge": ["keyword:surface_electrified"]
 }
 
 const ACTION_FIELD_ENTRY_IDS := {
@@ -92,12 +115,22 @@ const ACTION_FIELD_ENTRY_IDS := {
 	"shock": "keyword:shock",
 	"immobilize": "keyword:immobilize",
 	"expose": "keyword:expose",
+	"expose_adjacent": "keyword:expose",
 	"sunder": "keyword:sunder",
 	"chain": "keyword:chain",
 	"pierce": "keyword:pierce",
 	"push": "keyword:push",
 	"pull": "keyword:pull",
-	"stagger": "keyword:stagger"
+	"stagger": "keyword:stagger",
+	"force_mode": "combat:area_force",
+	"trail_light": "keyword:illuminate",
+	"destination_requires_light": "keyword:illuminate",
+	"illusion_at_origin": "keyword:illusion",
+	"block_per_tile": "keyword:block",
+	"consume": "combat:surface_techniques",
+	"frozen_splash": "keyword:freeze",
+	"detonate_surface": "keyword:detonate",
+	"leave_surface": "keyword:detonate"
 }
 
 const LINKED_ENTRY_IDS := {
@@ -785,7 +818,15 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 		var type_entry: String = str(ACTION_TYPE_ENTRY_IDS.get(action_type, ""))
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
+		for extra_entry: Variant in ACTION_TYPE_EXTRA_ENTRY_IDS.get(action_type, []):
+			wanted[str(extra_entry)] = true
+		if action_type == "all_enemies" and str(action.get("element", "")) == "ice":
+			wanted["keyword:chilled"] = true
+			wanted["keyword:freeze"] = true
 		_collect_surface_entry_ids(str(action.get("surface", "")), wanted)
+		for surface_field: String in ["trail_surface", "origin_surface", "consume_center"]:
+			_collect_surface_entry_ids(str(action.get(surface_field, "")), wanted)
+		_collect_surface_entry_ids(str(action.get("surface_ring", "")), wanted)
 		if str(action.get("element", "")) == "ice" and action_type in ["melee", "ranged", "aoe"]:
 			wanted["keyword:chilled"] = true
 			wanted["keyword:freeze"] = true

@@ -38,6 +38,16 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:hollow_gale": "gale_force",
     "combat:crystal_armor": "frost_armor",
     "combat:boss_eclipse": "umbra_eclipse",
+    # Wave-4 family B topics. Stances (Skate, Rooted, Anchored, Fireproof) uses
+    # Anchored, the stance that most plainly reads as holding your ground.
+    "combat:area_force": "push",
+    "combat:swap": "swap",
+    "combat:stances": "anchored",
+    "combat:cleanse": "cleanse",
+    "combat:petrify": "petrify",
+    # Wave-4 family A topics. Consume is the first and broadest technique.
+    "combat:surface_techniques": "surface_consume",
+    "combat:sweeping_strikes": "all_enemies",
 }
 
 # These are one player-facing concept despite differing engine direction/target
@@ -46,7 +56,36 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),
+    # Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
+    frozenset({"push", "force_area"}),
+    frozenset({"frost_armor", "mantle"}),
+    frozenset({"stoneskin", "convert_block_to_stoneskin"}),
+    # Wave-4 surface family (spec/card_mechanics_surfaces.md). meteor_marks is the
+    # player's Meteorfall, the same marked-tiles-then-Fire concept as the dragon's.
+    frozenset({"cinder_marks", "meteor_marks"}),
+    # Wards leave a surface under each adjacent enemy: the Shape Ground action.
+    frozenset({"surface", "surface_adjacent_enemies"}),
+    # Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
+    # Worldbreak burst terrain like the Worldspine pulse.
+    frozenset({"burst_terrain", "terrain_burst"}),
 }
+
+# Temporary placeholders: action types that borrow an existing icon until a
+# purpose-built one exists (spec/icon_identity_policy.md, "Pending
+# purpose-built icons"). They are excluded from the exact-alias groups above.
+PENDING_ICON_PLACEHOLDER_ALIASES: dict[str, str] = {}
+
+# `self_flag` has no single icon: ActionIconLibrary.SELF_FLAG_ICON_KEYS resolves
+# each flag. `no_move` (Rooted: can't Move or Blink) is the exact Immobilize
+# status concept; every other flag owns its icon.
+EXPECTED_SELF_FLAG_ICONS = {
+    "ice_skate": "skate",
+    "no_move": "immobilize",
+    "anchored": "anchored",
+    "fire_immune_turn": "fireproof",
+}
+ALLOWED_EXACT_SELF_FLAG_ALIASES = {"no_move": "immobilize"}
+DYNAMIC_ACTION_TYPES = {"self_flag"}
 
 EXPECTED_OBJECTIVE_ICONS = {
     "kill_all": "res://assets/art/icons/objectives/kill_all_enemies.png",
@@ -93,16 +132,20 @@ def _action_icon_aliases() -> dict[str, str]:
     return dict(re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', block.group("body"), re.MULTILINE))
 
 
-def _card_role_emblem_paths() -> dict[str, str]:
+def _gd_string_dictionary(name: str) -> dict[str, str]:
     source = ACTION_ICON_LIBRARY.read_text(encoding="utf-8")
     block = re.search(
-        r"const CARD_ROLE_EMBLEM_PATHS:\s*Dictionary\s*=\s*\{(?P<body>.*?)^\}",
+        rf"const {name}:\s*Dictionary\s*=\s*\{{(?P<body>.*?)^\}}",
         source,
         re.MULTILINE | re.DOTALL,
     )
     if block is None:
-        raise AssertionError("ActionIconLibrary must declare CARD_ROLE_EMBLEM_PATHS")
+        raise AssertionError(f"ActionIconLibrary must declare {name}")
     return dict(re.findall(r'^\s*"([^"]+)":\s*"([^"]+)"', block.group("body"), re.MULTILINE))
+
+
+def _card_role_emblem_paths() -> dict[str, str]:
+    return _gd_string_dictionary("CARD_ROLE_EMBLEM_PATHS")
 
 
 def _declared_action_types(filename: str) -> set[str]:
@@ -219,16 +262,35 @@ class IconIdentityPolicyTests(unittest.TestCase):
         registry = _action_icon_paths()
         aliases = _action_icon_aliases()
         declared_actions = _declared_action_types("cards.json") | _declared_action_types("enemies.json")
-        dynamic_action_types: set[str] = set()
         self.assertFalse(
-            declared_actions - aliases.keys() - dynamic_action_types,
-            f"Action types lack a reviewed icon identity: {sorted(declared_actions - aliases.keys() - dynamic_action_types)}",
+            declared_actions - aliases.keys() - DYNAMIC_ACTION_TYPES,
+            f"Action types lack a reviewed icon identity: {sorted(declared_actions - aliases.keys() - DYNAMIC_ACTION_TYPES)}",
         )
+        self.assertFalse(DYNAMIC_ACTION_TYPES & aliases.keys(), "Per-flag action types must not also declare one static icon")
         for action_type, icon_key in aliases.items():
             self.assertIn(icon_key, registry, f"{action_type} maps to an unregistered icon key: {icon_key}")
 
+        self_flag_icons = _gd_string_dictionary("SELF_FLAG_ICON_KEYS")
+        self.assertEqual(self_flag_icons, EXPECTED_SELF_FLAG_ICONS, "Every self flag needs a reviewed icon identity")
+        self.assertEqual(
+            len(set(self_flag_icons.values())),
+            len(self_flag_icons),
+            "Distinct self flags must not share an icon",
+        )
+        aliased_icons = set(aliases.values())
+        for flag, icon_key in self_flag_icons.items():
+            self.assertIn(icon_key, registry, f"self_flag {flag} maps to an unregistered icon key: {icon_key}")
+            if flag in ALLOWED_EXACT_SELF_FLAG_ALIASES:
+                self.assertEqual(icon_key, ALLOWED_EXACT_SELF_FLAG_ALIASES[flag])
+            else:
+                self.assertNotIn(icon_key, aliased_icons, f"self_flag {flag} shares its icon with an action type")
+
+        for action_type, icon_key in PENDING_ICON_PLACEHOLDER_ALIASES.items():
+            self.assertEqual(aliases.get(action_type), icon_key, f"{action_type} placeholder must stay documented")
         action_types_by_icon: dict[str, set[str]] = {}
         for action_type, icon_key in aliases.items():
+            if action_type in PENDING_ICON_PLACEHOLDER_ALIASES:
+                continue
             action_types_by_icon.setdefault(icon_key, set()).add(action_type)
         actual_shared_groups = {
             frozenset(action_types)

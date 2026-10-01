@@ -720,6 +720,22 @@ separate analytics.
 
 Worldroot automatic origin selection is part of the same card commit: the chosen Rubble origin is consumed by the ordinary surface event path. It does not add an origin-pick event or a second card play. Cancelling a drag revokes commit input before snapback animation, so a concurrent release emits no card-play event.
 
+### Wave-4 family B (area forces, Swap, self flags, Cleanse, Petrify, Mantle)
+
+`card_played` gains additive fields, identical in RunScene and
+`tools/headless_playtest.gd` (`ManeuverRules.analytics_fields(before, resolved)`):
+`self_flags_gained` (flag ids newly active: `ice_skate`, `no_move`, `anchored`,
+`fire_immune_turn`), `statuses_cleansed` (player statuses removed),
+`mantle_gained` (Crystal Mantle layers added), `petrified_enemy_ids`,
+`swapped_with` (`enemy`, `illusion` or null) and `force_area_displaced` (enemies
+an area force moved). The append-only `surface_event` stream adds `force_area`
+(`center`, `radius`, `force`, `amount`, `expose`, `consumed`, per-enemy `from`/`to`),
+`swap` (`from`, `to`, `other_kind`, `other_key`), `petrified` (`enemy_id`,
+`block`), `statuses_cleansed` (`statuses`), `mantle_gained` (`amount`, `layers`),
+and `crystal_mantle_broken` with `actor_kind: player`. Area-force and Squall
+collisions use the existing `force_collision` event. Existing fields keep their
+meaning.
+
 ### Wave-3 card keywords (Retaliate, Quicken, next attack, Rites)
 
 `card_played` gains three additive fields, identical in RunScene and
@@ -741,3 +757,47 @@ that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"
 when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.
+
+### Wave-4 surface family (spec/card_mechanics_surfaces.md)
+
+No new event types and no `card_played` field changes. The existing append-only
+`surface_event` stream gains these kinds: `meteor_marked` (`tiles`, `damage`, `surface`,
+player card `source`), `meteor_impact` at the next player turn start (`tiles`, `damage`,
+`element`, `surface`, `victims` actor keys, `losses` per actor, `source` with
+`source_kind: "meteor_marks"`, `player_card: true`), `surface_converted` (`surface`,
+`from_surface`, `tiles`, `enemy_ids`, `damage`), `surface_discharge` (`tiles` network, `area`,
+`enemy_ids`, `damage`), `selector_strike` (`selector`, `enemy_ids`, `damage`, `element`),
+`attack_consumed_surface` (`surface`, `tiles`, `bonus_damage`), `card_result_reward`
+(`when`: froze|killed, `enemy_id`, `rewards`) and `frozen_splash` (`target_id`,
+`enemy_ids`, `damage`, `tiles`). Placed, replaced and removed surfaces keep their ordinary
+`surface_created`/`surface_replaced`/`surface_removed` records (removal reasons `consume`,
+`discharge`, `detonate`). A Meteorfall landing also animates as an enemy-phase
+`status_damage` step with `trigger: "meteor_marks"`; analysis should prefer the surface event.
+
+### Wave-4 illusion and terrain cards
+
+New action types (`illusion_swap`, `destroy_illusion`, `burst_terrain`) and the new
+`illusion`/`outcrop` fields appear unchanged in `card_played` action lists; there are no new
+payload fields. Outcomes use the existing append-only `surface_event` stream
+(spec/card_mechanics_illusions_terrain.md):
+
+- `illusion_retort` — `trait` (`on_damaged` | `reflect`), `enemy_id`, `actor_key`,
+  `illusion_id`, `illusion_key`, `illusion_tile`, `source_name`, `damage`, `element`,
+  `shock`, `hp_loss`, `block_loss`, `stoneskin_loss`, `killed`, `attacker_before` and a
+  player `source` (`source_kind: "illusion_retort"`, `player_card: false`). Kills keep their
+  ordinary `actor_death` with that source. The animating step also appears as an
+  `enemy_status_tick` with `trigger`/`action_type: "illusion_retort"`.
+- `illusion_ranged_origin` — `illusion_id`, `from` (the illusion tile), `target`: a ranged
+  attack fired from a Doppelganger.
+- `illusion_swapped` — `illusion_id`, `illusion_key`, `from`, `to`, `block_transferred`.
+- `illusion_shattered` — `illusion_id`, `tile`, `tiles` (blast tiles); the illusion's own
+  `actor_death` precedes it.
+- `terrain_shattered` — `tile`, `tiles`, `terrain_id`, `terrain_kind` (Rockburst/Worldbreak).
+- `powder_keg_burst` — `tile`, `tiles`, `damage`, `terrain_id`, `owner_kind`, `actor_keys`
+  and the triggering `source` with `source_kind: "powder_keg_burst"` (`causal_owner: player`
+  for a hero keg). Chained kegs record one event each.
+- `worldspine_pulse` — `tiles` (spires), `enemy_ids`, `damage_by_enemy`, player `source`
+  (`source_kind: "worldspine_pulse"`, `player_card: false`).
+
+Player-raised kegs and Worldspines use the existing `terrain_created` event with
+`terrain_kind` `powder_keg` / `worldspine`.

@@ -62,6 +62,9 @@ const CardDragPlaySuite = preload("res://tests/suites/card_drag_play_suite.gd")
 const ForcedMovementSuite = preload("res://tests/suites/forced_movement_suite.gd")
 const CardKeywordsSuite = preload("res://tests/suites/card_keywords_suite.gd")
 const CardKeywordsW3Suite = preload("res://tests/suites/card_keywords_w3_suite.gd")
+const ManeuverSuite = preload("res://tests/suites/maneuver_suite.gd")
+const CardMechanicsSurfacesSuite = preload("res://tests/suites/card_mechanics_surfaces_suite.gd")
+const IllusionTerrainSuite = preload("res://tests/suites/illusion_terrain_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
@@ -128,6 +131,9 @@ func _initialize() -> void:
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	CardKeywordsW3Suite.run(Callable(self, "_assert"))
+	ManeuverSuite.run(Callable(self, "_assert"))
+	CardMechanicsSurfacesSuite.run(Callable(self, "_assert"))
+	IllusionTerrainSuite.run(Callable(self, "_assert"))
 	AttackFxSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/chain_attack_suite.gd").run(Callable(self, "_assert"))
 	ForcedMovementSuite.run(Callable(self, "_assert"))
@@ -6115,6 +6121,15 @@ func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
 			_assert(last_frame.region.position == expected_last_origin, "%s destruction animation should include the final 4x4 source frame" % terrain_kind)
 			_assert(board.call("_terrain_destruction_texture", terrain) == destruction_frames[5], "%s destruction presentation should select the requested frame" % terrain_kind)
 		_assert(is_equal_approx(float(board.call("_terrain_destruction_frame_seconds", terrain)), 0.065), "%s destruction animation should use the configured frame cadence" % terrain_kind)
+	# The powder keg has its own standing art and splinters with the wooden box sheet.
+	var keg_texture: Texture2D = (board.get("_terrain_textures") as Dictionary).get("powder_keg", null) as Texture2D
+	_assert(keg_texture != null and keg_texture.get_size() == Vector2(128.0, 128.0), "The powder keg should draw its purpose-built 128px board art")
+	var keg_frames: Array = board.call("_terrain_destruction_frames_for_kind", "powder_keg")
+	var box_frames: Array = board.call("_terrain_destruction_frames_for_kind", "wooden_box")
+	_assert(keg_frames.size() == 16 and box_frames.size() == 16, "The powder keg should break apart with all 16 wooden box destruction frames")
+	if keg_frames.size() == 16 and box_frames.size() == 16:
+		_assert((keg_frames[0] as AtlasTexture).atlas == (box_frames[0] as AtlasTexture).atlas, "The powder keg destruction should slice the wooden box sheet")
+		_assert(board.call("_terrain_destruction_texture", {"kind": "powder_keg", "destruction_frame": 5}) == keg_frames[5], "Powder keg destruction should select the requested box-sheet frame")
 	board.free()
 
 func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> void:

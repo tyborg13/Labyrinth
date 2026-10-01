@@ -9,6 +9,8 @@ static func element(event: Dictionary) -> String:
 	match str(event.get("kind", "")):
 		"crystal_mantle_broken": return "ice"
 		"terrain_created": return "earth"
+		"powder_keg_burst": return "fire"
+		"worldspine_pulse": return "earth"
 		"surface_conducted": return "lightning"
 		"surface_created", "surface_replaced", "surface_damage", "status_applied":
 			match str(event.get("surface", "")):
