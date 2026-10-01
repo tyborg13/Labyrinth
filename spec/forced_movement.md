@@ -19,10 +19,11 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   more free travel before a blocker, then horizontal.
 - `_allow_sideways_force` (Quarry Winch) makes all four directions candidates,
   default first.
-- Enemy force against the player takes the candidate that hurts the player
-  more (collision plus hazard damage along the line, measured by the real
-  mover on a copy); ties keep the default. Committed dragon directional shapes
-  keep their authored `force_direction`.
+- Enemy force against the player uses the same default. Only on an exact
+  diagonal does it take the candidate that hurts the player more (collision
+  plus hazard damage along the line, measured by the real mover on a copy);
+  ties keep the default. Committed dragon directional shapes keep their
+  authored `force_direction`.
 - The chosen line is stored as the action's `force_direction`. Resolution uses
   it when it is a candidate, otherwise the default. A blocked line is still a
   legal choice: it collides.
@@ -34,8 +35,10 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   (enemy, player, illusion) stops the line.
 - Lost tiles = distance - tiles moved. The target and each distinct blocker
   take `2 x lost tiles`. Walls and the board edge take nothing.
-- A Pull that reaches its own source (any tile of the source actor) simply
-  stops; no collision.
+- A Pull only travels while it closes the gap to its source along its line.
+  It simply stops, with no collision, when it reaches its source (any tile of
+  the source actor) or draws level with it on the travel axis; it never
+  slides past the puller.
 - Collision damage is non-direct, like Fire ground: Block and Stoneskin absorb
   it; Chilled, Frozen and Expose do not add to it (Expose is not consumed),
   Crystal Mantle does not break and no on-hit riders apply.
@@ -44,8 +47,9 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
   death rewards). Deaths use the surface death batch.
 - Surfaces and traps never block: the target enters them and they trigger. A
   target defeated on the way stops and does not collide.
-- Illusions are never displaced by Push/Pull, but they block and take
-  collision damage. A player pushed into their own illusion collides with it.
+- Illusions are never displaced by Push/Pull (Air traps excepted), but they
+  block and take collision damage. A player pushed into
+  their own illusion collides with it.
 - Galehook Talon moves its line together and stops at the first obstruction;
   only the front member and its blocker take collision damage.
 - Every collision records a `force_collision` board event: `tile` (the
@@ -56,7 +60,8 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
 ## Several targets at once
 
 - When one effect moves several enemies (area forces, Squall's from-center
-  AOE), each moves along its own default line from that effect's source and
+  AOE, a pattern attack with a Push/Pull rider such as Wind Shear), each
+  moves along its own default line from that effect's source and
   they resolve one at a time: pushes farthest from the source first, pulls
   nearest first, ties by enemy id. An earlier mover can therefore clear a lane
   (pushes) or become a blocker (pulls) for a later one; collisions follow the
@@ -64,6 +69,14 @@ traps and Galehook Talon groups. Code: `CombatEngine._resolved_force_direction`,
 - Area forces have no Rotate. Details: [wave-4 family B](card_mechanics_maneuver.md).
 - Anchored (Windbreak) makes forced movement against the hero 0 tiles with no
   collision until the hero's next turn.
+
+## Enemy intent preview
+
+`enemy_threat_tiles` adds `projected_player_force {path, destination,
+collision}` when an intent's planned attack Pushes or Pulls the hero,
+measured by the real mover on a copy with the enemy at its projected
+destination and the hero in place. Focusing that enemy draws the hero's
+straight line, rings the landing tile and shows the collision marker.
 
 ## Targeting
 

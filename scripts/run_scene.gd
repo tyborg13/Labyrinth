@@ -11983,17 +11983,57 @@ func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
 	var accent: Color = Color(str(card.get("accent", "#d9862f")))
 	frame.add_theme_stylebox_override("panel", _pile_card_style(Color("1d1420"), accent, 4.0))
+	# Each Rite shows its own card painting, with the shared Rite mark in the
+	# corner, so two active Rites are told apart without hovering.
+	var layers := Control.new()
+	layers.name = "RiteBadgeLayers"
+	layers.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layers.clip_contents = true
+	frame.add_child(layers)
+	var art_path: String = str(card.get("art_path", ""))
+	var art_texture: Texture2D = _pre_battle_card_full_bleed_texture(art_path) if not art_path.is_empty() else null
+	if art_texture != null:
+		var art := TextureRect.new()
+		art.name = "RiteArt"
+		art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art.texture = art_texture
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layers.add_child(art)
+	var mark_backing := Panel.new()
+	mark_backing.name = "RiteMarkBacking"
+	mark_backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backing_style := StyleBoxFlat.new()
+	backing_style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
+	backing_style.border_color = accent
+	backing_style.set_border_width_all(1)
+	backing_style.set_corner_radius_all(10)
+	mark_backing.add_theme_stylebox_override("panel", backing_style)
+	var mark_size: float = 20.0 if art_texture != null else 0.0
+	if art_texture != null:
+		mark_backing.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		mark_backing.offset_left = -mark_size
+		mark_backing.offset_top = -mark_size
+		mark_backing.offset_right = 0.0
+		mark_backing.offset_bottom = 0.0
+		layers.add_child(mark_backing)
 	var icon := TextureRect.new()
-	icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	icon.offset_left = 5.0
-	icon.offset_top = 5.0
-	icon.offset_right = -5.0
-	icon.offset_bottom = -5.0
+	icon.name = "RiteMark"
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = ActionIcons.icon_texture(str(entry.get("icon", "rite")))
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_child(icon)
+	if art_texture != null:
+		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		icon.offset_left = 2.0
+		icon.offset_top = 2.0
+		icon.offset_right = -2.0
+		icon.offset_bottom = -2.0
+		mark_backing.add_child(icon)
+	else:
+		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		layers.add_child(icon)
 	return frame
 
 func _build_header_utility_divider(node_name: String) -> ColorRect:
@@ -18574,6 +18614,7 @@ func _refresh_stage_view() -> void:
 					else:
 						presentation.erase("projected_destination")
 					presentation["projected_attack_tiles"] = _vector2i_array(focused_threat.get("projected_attack", []))
+					_append_enemy_force_intent_preview(presentation, focused_threat)
 					if focused_threat.has("enemy_key"):
 						presentation["focus_actor_keys"] = [str(focused_threat.get("enemy_key", ""))]
 						presentation["focus_actor_color"] = Color("f2ddb2")
@@ -20323,6 +20364,11 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 		result["effect"] = effect
 		if action_type == "aoe" and bool(effect.get("preview", false)) and not (effect.get("tiles", []) as Array).is_empty():
 			result["player_aoe_preview_active"] = true
+	if action_type == "outcrop" and action.has("pattern") and focus_tiles.size() > 1:
+		# A patterned raise (Earthen Rampart) shows the exact tiles that will
+		# rise with the same footprint fill and ring as an area attack, so the
+		# Rotate consequence reads at a glance.
+		result["player_aoe_preview_active"] = true
 	var preview_units: Array = _preview_units_for_action(preview)
 	performance_phase_started = _record_runtime_performance_phase("preview_units", performance_phase_started)
 	if not preview_units.is_empty():
@@ -20368,6 +20414,8 @@ func _focus_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		var orientation_target: Vector2i = preview.get("orientation_target", INVALID_TARGET_TILE)
 		if action_type == "aoe":
 			return _aoe_tiles_for_action(preview.get("state", {}), action, orientation_target)
+		if action_type == "outcrop" and action.has("pattern"):
+			return _combat_engine.outcrop_tiles_for_player_action(preview.get("state", {}), action, orientation_target)
 		if action_type in ["push", "pull"] or int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0:
 			var force_tiles: Array[Vector2i] = _combat_engine.forced_movement_tiles_for_player_action(preview.get("state", {}), action, orientation_target)
 			force_tiles.push_front(orientation_target)
@@ -34500,7 +34548,8 @@ func _empower_toggle_available() -> bool:
 func _empower_command_text(active: bool) -> String:
 	var cost_label: String = CardKeywordRules.empower_cost_label(_selected_card_empower_cost())
 	var text: String = "Empower: %s" % cost_label if cost_label == "Exhaust" else "Empower %s" % cost_label
-	return ("✓ " if active else "") + text
+	# The keyboard shortcut is printed like the INTENTS [I] toggle.
+	return ("✓ " if active else "") + text + " [E]"
 
 func _empower_command_tooltip() -> String:
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
@@ -34823,6 +34872,23 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		result["preview_units"] = previews
 	if not markers.is_empty():
 		result["collision_markers"] = markers
+
+func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictionary) -> void:
+	# A focused enemy whose planned attack Pushes or Pulls the hero shows the
+	# hero's straight line and any collision, drawn like a card's forecast.
+	var force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
+	if force.is_empty():
+		return
+	var path: Array[Vector2i] = _vector2i_array(force.get("path", []))
+	if path.size() >= 2:
+		var paths: Array = (presentation.get("displacement_paths", []) as Array).duplicate()
+		paths.append(path)
+		presentation["displacement_paths"] = paths
+	var collision: Dictionary = force.get("collision", {}) as Dictionary
+	if not collision.is_empty():
+		var markers: Array = (presentation.get("collision_markers", []) as Array).duplicate()
+		markers.append(collision.duplicate(true))
+		presentation["collision_markers"] = markers
 
 func _append_confirmation_force_preview(presentation: Dictionary) -> void:
 	# A targetless card (Gale Ward, Unsealed Gale, Waning Pulse) is shown on its

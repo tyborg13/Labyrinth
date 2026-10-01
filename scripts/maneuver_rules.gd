@@ -32,7 +32,7 @@ const FLAG_INFO: Dictionary = {
 	"ice_skate": {"label": "Skate", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
 		"description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you."},
 	"no_move": {"label": "Rooted", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
-		"description": "You can't Move or Blink for the rest of this turn."},
+		"description": "You can't Move, Blink or Swap for the rest of this turn."},
 	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
 		"description": "Until your next turn, you can't be pushed or pulled. Push and Pull against you move you 0 tiles and never collide."},
 	"fire_immune_turn": {"label": "Fireproof", "expires": "activation", "fill": "5a2a1c", "border": "ffb38a",
@@ -102,9 +102,9 @@ static func player_anchored(state: Dictionary) -> bool:
 static func player_rooted(state: Dictionary) -> bool:
 	return has_flag(state, FLAG_NO_MOVE)
 
-## Rooted forbids every Move and Blink, card or independent movement.
+## Rooted forbids every Move, Blink and swap, card or independent movement.
 static func movement_blocked(state: Dictionary, action: Dictionary) -> bool:
-	return str(action.get("type", "")) in ["move", "blink"] and player_rooted(state)
+	return str(action.get("type", "")) in ["move", "blink", "swap", "illusion_swap"] and player_rooted(state)
 
 static func movement_block_reason(state: Dictionary) -> String:
 	if player_rooted(state):
@@ -187,7 +187,8 @@ static func force_area_center(state: Dictionary, action: Dictionary, target: Vec
 
 ## Enemies whose footprint lies within Manhattan `radius` of the center, in
 ## resolution order: pushes farthest first, pulls nearest first (ties by id).
-## A pull never moves an enemy standing on its own center.
+## An enemy standing on the center has no line away from or toward it, so the
+## area never moves, collides or Exposes it.
 static func force_area_affected(engine: RefCounted, state: Dictionary, action: Dictionary, center: Vector2i, visible_only: bool = false) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
 	if center == INVALID:
@@ -200,7 +201,7 @@ static func force_area_affected(engine: RefCounted, state: Dictionary, action: D
 		if visible_only and not engine.is_enemy_visible_to_player(state, enemy, lookup):
 			continue
 		var distance: int = Paths.manhattan(engine._closest_enemy_tile_to(enemy, center), center)
-		if distance > radius or (distance == 0 and not pushing):
+		if distance > radius or distance == 0:
 			continue
 		result.append({"id": int(enemy.get("id", -1)), "distance": distance})
 	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
@@ -237,7 +238,7 @@ static func force_area_has_effect(engine: RefCounted, state: Dictionary, action:
 		var direction: Vector2i = engine._resolved_force_direction(state, "enemy", id, rider, center, pushing, amount, source_tiles)
 		if direction == Vector2i.ZERO:
 			continue
-		var contact: Dictionary = engine._force_step_contact(state, "enemy", id, unit, unit.get("pos", INVALID) + direction, source_tiles, pushing)
+		var contact: Dictionary = engine._force_step_contact(state, "enemy", id, unit, unit.get("pos", INVALID) + direction, source_tiles, pushing, direction)
 		if not bool(contact.get("source", false)):
 			return true
 	return false
@@ -344,21 +345,33 @@ static func from_center_source(engine: RefCounted, state: Dictionary, enemy_id: 
 
 ## Several pushes at once resolve farthest-from-source first.
 static func order_from_center_hits(engine: RefCounted, hits: Array, center: Vector2i) -> Array:
+	return order_force_hits(engine, hits, center, true)
+
+## One effect that moves several enemies resolves them one at a time: pushes
+## farthest from the force source first, pulls nearest first, ties by enemy
+## id. Only the pattern's direct enemy hits are reordered, among their own
+## slots; Chain hops and every other hit keep their place.
+static func order_force_hits(engine: RefCounted, hits: Array, source: Vector2i, pushing: bool) -> Array:
+	var slots: Array[int] = []
 	var keyed: Array = []
 	for index: int in range(hits.size()):
 		var hit: Dictionary = hits[index] as Dictionary
-		var distance: int = -1
-		if hit.has("unit") and str(hit.get("kind", "")) == "enemy":
-			distance = Paths.manhattan(engine._closest_enemy_tile_to(engine._normalized_enemy(hit["unit"] as Dictionary), center), center)
-		keyed.append({"hit": hit, "distance": distance, "index": index})
+		if str(hit.get("kind", "")) != "enemy" or not hit.has("id") or hit.get("from") != hit.get("to"):
+			continue
+		var unit: Dictionary = hit.get("unit", {}) as Dictionary
+		var distance: int = Paths.manhattan(engine._closest_enemy_tile_to(engine._normalized_enemy(unit), source), source) if not unit.is_empty() else 0
+		slots.append(index)
+		keyed.append({"hit": hit, "distance": distance, "id": int(hit["id"])})
+	if keyed.size() < 2:
+		return hits
 	keyed.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		if int(a["distance"]) != int(b["distance"]):
-			return int(a["distance"]) > int(b["distance"])
-		return int(a["index"]) < int(b["index"])
+			return int(a["distance"]) > int(b["distance"]) if pushing else int(a["distance"]) < int(b["distance"])
+		return int(a["id"]) < int(b["id"])
 	)
-	var ordered: Array = []
-	for item: Dictionary in keyed:
-		ordered.append(item["hit"])
+	var ordered: Array = hits.duplicate()
+	for slot: int in range(slots.size()):
+		ordered[slots[slot]] = keyed[slot]["hit"]
 	return ordered
 
 # ------------------------------------------------------------------ forced-movement trail

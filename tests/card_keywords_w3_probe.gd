@@ -15,6 +15,8 @@ const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const OUTPUT: String = "user://probes/card_keywords_w3"
 const ART_BY_FIXTURE: Dictionary = {
 	"w3_fx_rite_noon": "res://assets/art/cards/guiding_flare.png",
+	"w3_fx_rite_pyre": "res://assets/art/cards/rite_of_the_pyre.png",
+	"w3_fx_rite_thorns": "res://assets/art/cards/thorn_crown_pact.png",
 	"w3_fx_slow_guard": "res://assets/art/cards/brace.png",
 	"w3_fx_strike": "res://assets/art/cards/quick_stab.png",
 	"w3_fx_lightning_chain": "res://assets/art/cards/spark_dart.png",
@@ -78,6 +80,11 @@ func _run() -> void:
 		if str(child.get_meta("rite_card_id", "")) != "":
 			rite_badges.append(child as Control)
 	expect(rite_badges.size() == 2, "Both active Rites appear in the relic bar")
+	if rite_badges.size() == 2:
+		var first_art: TextureRect = rite_badges[0].find_child("RiteArt", true, false) as TextureRect
+		var second_art: TextureRect = rite_badges[1].find_child("RiteArt", true, false) as TextureRect
+		expect(first_art != null and second_art != null and first_art.texture != second_art.texture, "Each active Rite badge shows its own card painting")
+		expect(rite_badges[0].find_child("RiteMark", true, false) != null, "Each Rite badge carries the shared Rite mark")
 	var slow: Node = _hand_card("w3_fx_slow_guard")
 	expect(slow != null and int((slow.call("_display_card_def") as Dictionary).get("time", 0)) == 4, "The hand shows the Quickened Time")
 	if not rite_badges.is_empty():

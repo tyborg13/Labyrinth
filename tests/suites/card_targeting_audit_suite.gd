@@ -106,6 +106,10 @@ static func state_for(combat: CombatEngine, id: String) -> Dictionary:
 		action_types.append(str(action.get("type", "")))
 	if action_types.has("illusion_swap") or action_types.has("destroy_illusion"):
 		state = combat._create_illusion(state, Vector2i(1,4), 3)
+	if action_types.has("force_area"):
+		# Dust Devil consumes a Rubble center and moves the enemies next to it,
+		# never one standing on it: give it an open Rubble tile beside enemy 3.
+		state = Surface.place(state,Vector2i(2,3),"rubble")
 	if action_types.has("burst_terrain"):
 		if not state.has("terrain"): state["terrain"] = []
 		(state["terrain"] as Array).append({"id":"audit_outcrop","kind":"crag_outcrop","owner_kind":"player","owner_id":-1,"pos":Vector2i(2,5),"hp":3,"max_hp":3,"blocks_sight":true,"surface_on_destroy":"rubble"})

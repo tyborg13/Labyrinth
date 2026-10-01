@@ -12,6 +12,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Choice = preload("res://scripts/graftwright_choice.gd")
 const CardScene = preload("res://scenes/card_widget.tscn")
 const ThreadEffect = preload("res://scripts/graftwright_thread_effect.gd")
@@ -706,7 +707,7 @@ func _open_inspection(source: Button) -> void:
 	_inspection.gui_input.connect(func(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed: close_inspection()
 	)
-	var panel: PanelContainer = Tooltip.make_lines(_card_name(id), PackedStringArray([str(Data.card_def(id).get("description", ""))]))
+	var panel: PanelContainer = Tooltip.make_lines(_card_name(id), PackedStringArray([ActionIcons.card_rules_text(Data.card_def(id))]))
 	panel.name = "ExactRules"
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	panel.hide()

@@ -130,6 +130,8 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 			var member: Dictionary = state["enemies"][member_index]
 			if int(member.get("hp",0))<=0: return state
 			origins[member_index]=member["pos"]
+			# A pulled line also stops once it is level with its source.
+			if not pushing and engine._force_pull_is_level(member,member["pos"],direction,source_tiles): return state
 			var blockers: Array[Dictionary]
 			var blocked_tile: Vector2i = Vector2i(-99999,-99999)
 			for tile: Vector2i in Surfaces.footprint_tiles(member,member["pos"]+direction):

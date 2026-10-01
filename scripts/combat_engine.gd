@@ -996,7 +996,7 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 	if bool(restrictions.get("shocked", false)):
 		if action_type not in ["move", "blink"] and not ManeuverRules.resolves_while_shocked(action):
 			return false
-	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink", "illusion_swap"]:
+	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink", "swap", "illusion_swap"]:
 		return false
 	if ManeuverRules.movement_blocked(state, action):
 		return false
@@ -2529,8 +2529,50 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
 		"projected_attack_element": str((plan.get("attack_action", {}) as Dictionary).get("element", enemy_definition.get("element", ElementData.NONE))),
 		"projected_attack_from": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
-		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE)
+		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE),
+		"projected_player_force": _projected_player_force(state, enemy_index, plan)
 	}
+
+func _projected_player_force(state: Dictionary, enemy_index: int, plan: Dictionary) -> Dictionary:
+	# Intent cue: the straight line an enemy's planned Push or Pull would move
+	# the hero if the hero stays put, measured by the real mover on a copy with
+	# the enemy at its projected destination (spec/forced_movement.md).
+	var action: Dictionary = plan.get("attack_action", {}) as Dictionary
+	var amount: int = _forced_movement_amount(action)
+	if amount <= 0 or str(plan.get("target_key", "")) != "player":
+		return {}
+	var trial: Dictionary = state.duplicate(true)
+	var enemies: Array = trial.get("enemies", []) as Array
+	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	enemy["pos"] = plan.get("destination", enemy.get("pos", INVALID_TILE))
+	enemies[enemy_index] = enemy
+	var forced_action: Dictionary = action.duplicate(true)
+	forced_action["_enemy_id"] = int(enemy.get("id", -1))
+	var from: Vector2i = (_normalized_player(trial.get("player", {}))).get("pos", INVALID_TILE)
+	var sequence: int = int(trial.get("surface_event_sequence", 0))
+	trial = _force_move_player_from(trial, forced_action, _closest_enemy_tile_to(enemy, from), _forced_movement_pushes(action), amount)
+	var to: Vector2i = (_normalized_player(trial.get("player", {}))).get("pos", from)
+	var path: Array[Vector2i]
+	path.append(from)
+	if to != from and (to.x == from.x or to.y == from.y):
+		var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+		while path[path.size() - 1] != to:
+			path.append(path[path.size() - 1] + step)
+	var collision: Dictionary = {}
+	for event_var: Variant in trial.get("surface_events", []):
+		var event: Dictionary = event_var as Dictionary
+		if int(event.get("sequence", 0)) > sequence and str(event.get("kind", "")) == "force_collision" and str(event.get("actor_kind", "")) == "player":
+			collision = {
+				"tile": event.get("tile", INVALID_TILE),
+				"blocked_tile": event.get("blocked_tile", INVALID_TILE),
+				"direction": event.get("direction", Vector2i.ZERO),
+				"damage": int(event.get("damage", 0)),
+				"actor_key": "player",
+				"blocker_kind": str(event.get("blocker_kind", ""))
+			}
+	if path.size() < 2 and collision.is_empty():
+		return {}
+	return {"path": path, "destination": to, "collision": collision}
 
 func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
@@ -6415,15 +6457,23 @@ func _resolved_force_direction(state: Dictionary, kind: String, id: int, action:
 	var candidates: Array[Vector2i] = _force_direction_candidates(state, kind, id, source_pos, pushing, amount, bool(action.get("_allow_sideways_force", false)))
 	var chosen: Vector2i = _action_force_direction(action)
 	if action.has("_enemy_id"):
-		# Committed dragon lines keep their authored direction. Otherwise an
-		# enemy takes whichever straight line hurts the player more.
+		# Committed dragon lines keep their authored direction. On an exact
+		# diagonal an enemy takes whichever straight line hurts the player more;
+		# off the diagonal it uses the ordinary bigger-gap default.
 		if chosen != Vector2i.ZERO:
 			return chosen
-		if candidates.size() >= 2 and kind == "player":
+		if candidates.size() >= 2 and kind == "player" and _force_offset_is_diagonal(state, kind, id, source_pos):
 			return _worse_force_direction_for_player(state, candidates, amount, source_tiles, pushing)
 	if candidates.is_empty():
 		return Vector2i.ZERO
 	return chosen if candidates.has(chosen) else candidates[0]
+
+func _force_offset_is_diagonal(state: Dictionary, kind: String, id: int, source_pos: Vector2i) -> bool:
+	var unit: Dictionary = _force_unit(state, kind, id)
+	if unit.is_empty() or source_pos == INVALID_TILE:
+		return false
+	var delta: Vector2i = _closest_enemy_tile_to(unit, source_pos) - source_pos
+	return delta.x != 0 and absi(delta.x) == absi(delta.y)
 
 func _worse_force_direction_for_player(state: Dictionary, candidates: Array[Vector2i], amount: int, source_tiles: Dictionary, pushing: bool) -> Vector2i:
 	var best: Vector2i = candidates[0]
@@ -6457,7 +6507,7 @@ func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Ve
 	var anchor: Vector2i = unit.get("pos", INVALID_TILE)
 	for _step: int in range(maxi(0, amount)):
 		anchor += direction
-		if not _force_step_contact(state, kind, id, unit, anchor, source_tiles, pushing).is_empty():
+		if not _force_step_contact(state, kind, id, unit, anchor, source_tiles, pushing, direction).is_empty():
 			break
 		anchors.append(anchor)
 	return anchors
@@ -6487,11 +6537,14 @@ func _force_blocker_at(state: Dictionary, tile: Vector2i, mover_kind: String, mo
 		return {"kind": "illusion", "id": int(illusion.get("id", -1)), "key": _illusion_key(illusion), "tile": tile}
 	return {}
 
-func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Dictionary, anchor: Vector2i, source_tiles: Dictionary, pushing: bool) -> Dictionary:
-	# {} = free step; {"source": true} = a pull reached its source and stops
-	# without colliding; otherwise the blocked tile and each distinct blocker.
+func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Dictionary, anchor: Vector2i, source_tiles: Dictionary, pushing: bool, direction: Vector2i = Vector2i.ZERO) -> Dictionary:
+	# {} = free step; {"source": true} = a pull reached its source (or drew
+	# level with it) and stops without colliding; otherwise the blocked tile and
+	# each distinct blocker.
 	var tiles: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit, anchor)
 	if not pushing:
+		if direction != Vector2i.ZERO and _force_pull_is_level(unit, anchor - direction, direction, source_tiles):
+			return {"source": true, "level": true, "blocked_tile": anchor}
 		for tile: Vector2i in tiles:
 			if source_tiles.has(tile):
 				return {"source": true, "blocked_tile": tile}
@@ -6511,6 +6564,27 @@ func _force_step_contact(state: Dictionary, kind: String, id: int, unit: Diction
 	if blockers.is_empty():
 		return {}
 	return {"blocked_tile": blocked_tile, "blockers": blockers}
+
+func _force_pull_is_level(unit: Dictionary, from_anchor: Vector2i, direction: Vector2i, source_tiles: Dictionary) -> bool:
+	# A Pull only travels while it closes the gap to its source along its line.
+	# Once the target is level with the source on that axis, another step would
+	# carry it past, so the line simply stops there without colliding.
+	if source_tiles.is_empty() or direction == Vector2i.ZERO:
+		return false
+	var horizontal: bool = direction.x != 0
+	var step: int = direction.x if horizontal else direction.y
+	var source_low: int = 2147483647
+	var source_high: int = -2147483647
+	for tile_var: Variant in source_tiles.keys():
+		var tile: Vector2i = tile_var
+		var value: int = tile.x if horizontal else tile.y
+		source_low = mini(source_low, value)
+		source_high = maxi(source_high, value)
+	for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, from_anchor):
+		var value: int = tile.x if horizontal else tile.y
+		if (step > 0 and value >= source_low) or (step < 0 and value <= source_high):
+			return true
+	return false
 
 func _force_place_actor(state: Dictionary, kind: String, id: int, anchor: Vector2i) -> Dictionary:
 	match kind:
@@ -6554,7 +6628,7 @@ func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vect
 			# Defeated on the way: it stops there and nothing collides.
 			return state
 		var current: Vector2i = unit.get("pos", INVALID_TILE)
-		contact = _force_step_contact(state, kind, id, unit, current + step_direction, source_tiles, pushing)
+		contact = _force_step_contact(state, kind, id, unit, current + step_direction, source_tiles, pushing, step_direction)
 		if not contact.is_empty():
 			break
 		state = _force_place_actor(state, kind, id, current + step_direction)
@@ -6647,7 +6721,7 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	var direction: Vector2i = _resolved_force_direction(state, "enemy", int(enemy.get("id", -1)), action, source_pos, pushing, amount, source_tiles)
 	if direction == Vector2i.ZERO:
 		return false
-	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing)
+	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing, direction)
 	return not bool(contact.get("source", false))
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
@@ -11263,7 +11337,13 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	# on the center away from the attacker), farthest first.
 	var from_center: bool = actor_kind == "player" and ManeuverRules.uses_from_center(action)
 	var aoe_center: Vector2i = _board_aoe_center(action, target, origin)
-	var ordered_hits: Array = ManeuverRules.order_from_center_hits(self, plan["hits"] as Array, aoe_center) if from_center else plan["hits"] as Array
+	var ordered_hits: Array = plan["hits"] as Array
+	if from_center:
+		ordered_hits = ManeuverRules.order_from_center_hits(self, ordered_hits, aoe_center)
+	elif actor_kind == "player" and _forced_movement_amount(resolved) > 0:
+		# Wind Shear and friends: farthest first for pushes, nearest first for
+		# pulls, so no target collides with one about to move out of the way.
+		ordered_hits = ManeuverRules.order_force_hits(self, ordered_hits, origin, _forced_movement_pushes(resolved))
 	for hit: Dictionary in ordered_hits:
 		var trace_hit: Dictionary = {"kind": str(hit["kind_trace"]), "conduction": str(hit["kind_trace"]) == "conduction", "from": hit["from"], "to": hit["to"]}
 		if not relay.is_empty() and hit["from"] == hit["to"]:

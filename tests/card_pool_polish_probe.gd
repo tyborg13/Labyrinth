@@ -70,6 +70,10 @@ func _initialize() -> void:
 	if _run_scene is CanvasItem:
 		(_run_scene as CanvasItem).visible = false
 	_hide_canvas_layers(_run_scene)
+	# Keep the software cursor glyph out of the card sheets.
+	var cursor_feedback: Node = root.get_node_or_null("CursorFeedback")
+	if cursor_feedback != null and cursor_feedback.has_method("set_glyph_visibility_suppressed"):
+		cursor_feedback.call("set_glyph_visibility_suppressed", "card_pool_polish_probe", true)
 	if DisplayServer.get_name() == "headless":
 		push_error("Card polish probe requires a real renderer")
 		quit(1)

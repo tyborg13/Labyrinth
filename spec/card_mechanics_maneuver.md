@@ -25,13 +25,14 @@ Devil, Vortex, Cyclone Seal, Unsealed Gale, Bottled Gale).
   the tile must hold that surface, which is removed first (event
   `surface_removed`, reason `consumed`).
 - Affected: every live enemy whose footprint tile nearest the center is within
-  Manhattan `radius`. A pull skips an enemy standing on its center.
+  Manhattan `radius`. An enemy standing on the center has no line away from or
+  toward it, so the area skips it (no movement, collision or Expose).
 - Each moves along its own default straight line away from (push) or toward
   (pull) the center, the center acting as the force source. There is no Rotate
   and no `force_direction`. Pushes resolve farthest first, pulls nearest first,
   ties by enemy id ("Several targets at once" in the forced-movement spec).
   Collisions, surfaces and traps apply; a pull that reaches the center (or the
-  enemy on it) stops without colliding. Deaths flush once after the area.
+  enemy on it), or draws level with it, stops without colliding. Deaths flush once after the area.
 - `expose` applies to each affected survivor (status relics fire).
 - Legality: a tile-centered area needs at least one visible enemy that would
   move, collide or be Exposed. A self-centered area with no such enemy cannot
@@ -62,6 +63,9 @@ hero's illusions within range, with line of sight beyond range 1. The two
 exchange tiles; the hero arrives first (loot, traps, surfaces), then the other.
 Not forced movement: nothing collides and Anchored does not stop it. Counts as
 tiles moved (Manhattan distance). Event `swap {from, to, other_kind, other_key}`.
+Both swaps (this and Empty Husk's `illusion_swap`) relocate the hero by its own
+action, so Immobilize and Rooted forbid them exactly as they forbid Move and
+Blink.
 
 ## Forced-movement trail (`trail_surface` on Push/Pull)
 
@@ -86,7 +90,7 @@ surface and consume follow-ups keep the impact tile (Cinderline Tempo).
 | Flag | Card | Effect | Ends |
 | --- | --- | --- | --- |
 | `ice_skate` | Skate | A step onto Ice costs 0 movement (player navigation uses the Ice-aware search, as with Winter's Spur); entering Ice does not Chill; Ice is not a pathing hazard. | `finish_player_activation` |
-| `no_move` | Rooted Stance, Shield Wall | Move and Blink cannot resolve, including independent movement; the movement meter dims with a Rooted reason; Move/Blink cards become unplayable. | `finish_player_activation` |
+| `no_move` | Rooted Stance, Shield Wall | Move, Blink and both swaps cannot resolve, including independent movement; the movement meter dims with a Rooted reason; Move/Blink/Swap cards become unplayable. | `finish_player_activation` |
 | `anchored` | Windbreak | Forced movement against the hero has 0 distance and never collides (Air traps and enemy shoves included). The hero can still block others. | start of the next player turn |
 | `fire_immune_turn` | Cinder Trail | Fire tile damage to the hero is 0 and Fire is not a pathing hazard. | `finish_player_activation` |
 

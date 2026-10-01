@@ -325,7 +325,7 @@ card("kestrel_dive", "Kestrel Dive", M, A, "rare", 4,
      note="Air's melee: drop in from above and knock the target into something.")
 card("vortex", "Vortex", M, A, "epic", 5,
      "Choose a tile within range 3. Pull each enemy within 2 of it 2 tiles toward it.", impl=2,
-     note="Gathers a group for an area attack, the opposite of Squall. Enemies pulled into each other collide.")
+     note="Gathers a group for an area attack, the opposite of Squall. Each enemy stops next to the tile or level with it; one pulled into another enemy collides.")
 card("eye_of_the_storm", "Eye of the Storm", M, A, "epic", 5,
      "Gain 6 Block. Until your next turn, enemies that hit you in melee are Pushed 2.",
      note="A Retaliate variant: the answer to being surrounded.")
@@ -367,7 +367,7 @@ card("rockburst", "Rockburst", M, E, "common", 4,
 card("tremor", "Tremor", M, E, "common", 5,
      "Deal 3 to each enemy within 2 tiles of you. Stagger 2. Empower (+2 Time): Stagger 4.", impl=1)
 card("rooted_stance", "Rooted Stance", M, E, "common", 3,
-     "Gain 6 Stoneskin. You can't Move or Blink for the rest of this turn.", impl=2,
+     "Gain 6 Stoneskin. You can't Move, Blink or Swap for the rest of this turn.", impl=2,
      note="Cheap persistent defense with a real cost. Play it last.")
 card("basalt_guard", "Basalt Guard", M, E, "rare", 6,
      "Create a 4-health illusion on Rubble within range 3. Gain 4 Block and 2 Stoneskin.", "keep")
@@ -639,7 +639,7 @@ card("rime_hack", "Rime Hack", G, I, "epic", 4,
 card("frozen_bite", "Frozen Bite", G, I, "epic", 3,
      "Strike for 4 Ice. If this Freezes the target, gain 1 card play.", impl=2)
 card("shatter_swing", "Shatter Swing", G, I, "epic", 5,
-     "Strike for 8. If the target is Frozen, also deal 4 to each enemy adjacent to it.", impl=2)
+     "Strike for 8 Ice damage. If the target is Frozen, also deal 4 to each enemy adjacent to it.", impl=2)
 
 piece("galewhip", "Galewhip", "weapon", "rare",
       "Reach 3. Drag, startle and bind.",
@@ -648,8 +648,9 @@ card("lash", "Lash", G, A, "rare", 3,
      "Strike at reach 3 for 4 and Pull 1.", impl=0)
 card("crack_the_whip", "Crack the Whip", G, A, "rare", 3,
      "Strike at reach 3 for 3. Stagger 2.")
-card("snare_coil", "Snare Coil", G, A, "rare", 5,
-     "Pull 3 at range 3 for 2. Immobilize.", impl=0)
+card("snare_coil", "Snare Coil", G, N, "rare", 5,
+     "Pull 3 at range 3 for 2. Immobilize.", impl=0,
+     note="Neutral, not Air: Immobilize stays on neutral, Ice and Earth cards.")
 
 piece("worldbreaker", "Worldbreaker", "weapon", "legendary",
       "Earth legendary. Raise stone, then break it into projectiles.",
@@ -734,7 +735,7 @@ piece("tower_shield", "Tower Shield", "offhand", "rare",
       "Plant it or charge with it.",
       ["shield_wall", "shield_charge"], "new")
 card("shield_wall", "Shield Wall", G, N, "rare", 3,
-     "Gain 9 Block. You can't Move or Blink for the rest of this turn.", impl=2)
+     "Gain 9 Block. You can't Move, Blink or Swap for the rest of this turn.", impl=2)
 card("shield_charge", "Shield Charge", G, N, "rare", 4,
      "Move 2, then bash an adjacent enemy for 3 and Push 2.")
 
@@ -758,7 +759,7 @@ piece("glacial_bulwark", "Glacial Bulwark", "offhand", "epic",
       "Ice defense. Freeze the ground you hold.",
       ["hoarfrost_wall", "cold_shoulder"], "new", element="ice")
 card("hoarfrost_wall", "Hoarfrost Wall", G, I, "epic", 4,
-     "Gain 6 Block. Leave Ice on each empty tile adjacent to you.", impl=2)
+     "Gain 6 Block. Leave Ice on each tile adjacent to you, including under enemies.", impl=2)
 card("cold_shoulder", "Cold Shoulder", G, I, "epic", 3,
      "Bash an adjacent enemy for 4 Ice and Push 1.", impl=0)
 
@@ -973,7 +974,7 @@ piece("frostwalkers", "Frostwalkers", "boots", "common",
 card("glide", "Glide", G, I, "common", 2,
      "Move 3. Leave Ice on the tile you started on.", impl=2)
 card("rime_step", "Rime Step", G, I, "common", 2,
-     "Move 2. Leave Ice under an adjacent enemy.", impl=2)
+     "Move 2. Leave Ice under each adjacent enemy.", impl=2)
 
 piece("emberstriders", "Emberstriders", "boots", "rare",
       "Fire boots. Walk through flame and leave more behind.",

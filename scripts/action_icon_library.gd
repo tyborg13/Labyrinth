@@ -487,7 +487,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 
 ## `self_flag` has no single identity: each flag resolves here, for card rows,
 ## action steps and the player's status badges alike. `no_move` (Rooted: you
-## can't Move or Blink) is the exact Immobilize concept. Keep this dictionary
+## can't Move, Blink or Swap) is the exact Immobilize concept. Keep this dictionary
 ## parseable by tests/test_icon_identity_policy.py.
 const SELF_FLAG_ICON_KEYS: Dictionary = {
 	"ice_skate": "skate",
@@ -1102,6 +1102,11 @@ static func rite_face_rules_text(card: Dictionary) -> String:
 		text = text.substr(5).strip_edges()
 	if not text.is_empty():
 		text = text.substr(0, 1).to_upper() + text.substr(1)
+	# Keep the last two words together so a short tail such as "draw 1." or
+	# "(minimum 1)." never wraps onto a line of its own.
+	var last_space: int = text.rfind(" ")
+	if last_space > 0:
+		text = text.substr(0, last_space) + "\u00a0" + text.substr(last_space + 1)
 	return text
 
 static func rite_label_token() -> Dictionary:
@@ -1181,7 +1186,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			else:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			if bool(action.get("also_hits_near_illusions", false)):
-				tokens.append(token_for("illusion", "+", "neutral", "Also hits each other enemy next to one of your illusions, once each."))
+				tokens.append(_labelled_icon_token("illusion", "+ near", "", "Also hits each other enemy next to one of your illusions, once each."))
 			_append_keyword_tokens(tokens, action)
 			if bool(action.get("shock_all_hits", false)):
 				for token_index: int in range(tokens.size()):
@@ -1443,7 +1448,7 @@ static func selector_token(selector: String) -> Dictionary:
 
 const SELF_FLAG_TEXT: Dictionary = {
 	"ice_skate": ["Skate", "Skate\nThis turn, moving onto Ice costs no movement and Ice doesn't Chill you."],
-	"no_move": ["Rooted", "Rooted\nYou can't Move or Blink for the rest of this turn."],
+	"no_move": ["Rooted", "Rooted\nYou can't Move, Blink or Swap for the rest of this turn."],
 	"anchored": ["Anchored", "Anchored\nUntil your next turn, you can't be pushed or pulled."],
 	"fire_immune_turn": ["Fireproof", "Fireproof\nFire doesn't damage you this turn."],
 }
@@ -1577,7 +1582,7 @@ static func _append_illusion_trait_tokens(tokens: Array, action: Dictionary) -> 
 		if int(on_damaged.get("shock", 0)) > 0:
 			tokens.append(token_for("shock", null, "neutral", "Enemies that damage this illusion are Shocked."))
 	if bool(action.get("reflect", false)):
-		tokens.append(token_for("retaliate", "=", "neutral", "Enemies that damage this illusion take that much damage too. Once per enemy attack."))
+		tokens.append(_labelled_icon_token("retaliate", "", "Reflect", "Reflect\nEnemies that damage this illusion take that much damage too. Once per enemy attack."))
 	if bool(action.get("ranged_origin", false)):
 		tokens.append(token_for("ranged", null, "neutral", "While this illusion lives, your ranged attacks may fire from its tile."))
 
@@ -1623,15 +1628,33 @@ static func _append_next_attack_tokens(tokens: Array, action: Dictionary) -> voi
 	var value: Variant = null
 	if damage > 0:
 		value = "+%d" % damage
-	elif not per_tile.is_empty():
-		value = "+%d" % int(per_tile.get("max", 0))
 	tokens.append(token_for("next_attack", value, "neutral", tooltip_text))
+	if not per_tile.is_empty():
+		# Headlong: the bonus scales with tiles moved, so the row says so
+		# ("Move +1 each (max 4)") instead of showing only the cap.
+		var suffix: String = "%+d each (max %d)" % [int(per_tile.get("damage", 1)), int(per_tile.get("max", 0))]
+		var per_token: Dictionary = text_token("%s %s" % [label("move"), suffix], "neutral", tooltip_text)
+		per_token["kind"] = "surface_condition"
+		per_token["icon"] = "move"
+		per_token["prefix"] = ""
+		per_token["suffix"] = suffix
+		tokens.append(per_token)
 	if ElementData.is_elemental(element_id):
 		tokens.append(token_for(element_icon_key(element_id), null, "neutral", "Only a %s attack uses this bonus." % element_id.capitalize()))
 	if bool(action.get("pierce", false)):
 		tokens.append(token_for("pierce", null, "neutral", tooltip_text))
 	if int(action.get("chain", 0)) > 0:
 		tokens.append(token_for("chain", int(action.get("chain", 0)), "neutral", tooltip_text))
+
+## An icon with a short word before or after it ("+ near [illusion]",
+## "[retaliate] Reflect"), laid out like a condition label.
+static func _labelled_icon_token(icon_key: String, prefix: String, suffix: String, tooltip_text: String) -> Dictionary:
+	var token: Dictionary = text_token(("%s %s %s" % [prefix, label(icon_key), suffix]).strip_edges(), "neutral", tooltip_text)
+	token["kind"] = "surface_condition"
+	token["icon"] = icon_key
+	token["prefix"] = prefix
+	token["suffix"] = suffix
+	return token
 
 static func _bonus_token(icon_key: String, amount: int, tooltip_text: String) -> Dictionary:
 	return token_for(icon_key, "+%d" % amount, "neutral", tooltip_text)

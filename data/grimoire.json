@@ -419,7 +419,7 @@
       "default": true,
       "icon": "immobilize",
       "body": [
-        "Prevents Move and Blink on the affected character’s next turn."
+        "Prevents Move and Blink (and the hero’s swaps) on the affected character’s next turn."
       ]
     },
     {
@@ -804,7 +804,7 @@
       "icon": "anchored",
       "body": [
         "Skate: this turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
-        "Rooted: for the rest of this turn you can't Move or Blink, including your own movement.",
+        "Rooted: for the rest of this turn you can't Move, Blink or Swap, including your own movement.",
         "Anchored: until your next turn, Push and Pull against you move you 0 tiles and never collide.",
         "Fireproof: Fire doesn't damage you this turn.",
         "Active stances appear as badges on your character."

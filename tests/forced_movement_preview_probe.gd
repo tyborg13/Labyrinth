@@ -67,9 +67,12 @@ func _capture_force_states() -> void:
 	# Start the commit without awaiting it so the resolution frames, including
 	# the collision flash on the contact edge, can be sampled.
 	instance.call("_on_board_tile_clicked", FORCE_TARGET)
+	# Sample every rendered frame (not a fixed timer) for up to four seconds so a
+	# frame hitch cannot skip the short collision flash.
 	var flash_seen: bool = false
-	for sample: int in range(24):
-		await create_timer(0.05).timeout
+	var deadline: int = Time.get_ticks_msec() + 4000
+	while not flash_seen and Time.get_ticks_msec() < deadline:
+		await process_frame
 		var shown: Dictionary = board.get("presentation") as Dictionary
 		for event: Dictionary in shown.get("surface_feedback_events", []):
 			if str(event.get("kind", "")) == "force_collision" and float(shown.get("surface_feedback_progress", 0.0)) > 0.2 and not flash_seen:
@@ -85,6 +88,7 @@ func _capture_force_states() -> void:
 	var enemy: Dictionary = (final_state.get("enemies", []) as Array)[0]
 	_expect(enemy.get("pos") == Vector2i(4, 6), "Commit follows the rotated line")
 	_metrics["committed"] = {"pos": enemy.get("pos"), "hp": enemy.get("hp")}
+	await _capture_enemy_force_intent(instance, board)
 	instance.queue_free()
 	await _settle()
 	_capture_viewport.queue_free()
@@ -102,3 +106,38 @@ func _capture_case(instance: Node, board: Control, label: String, landing: Vecto
 	_expect(instance.find_child("ActionContextRotate", true, false) != null, label + " must offer Rotate")
 	await _save_screenshot(FORCE_OUTPUT.path_join(label + ".png"))
 	_metrics[label] = {"collision_markers": markers, "ghosts": ghosts, "damage_preview": presentation.get("damage_preview", {}), "displacement_paths": presentation.get("displacement_paths", [])}
+
+func _capture_enemy_force_intent(instance: Node, board: Control) -> void:
+	# Hovering an enemy whose planned attack pushes the hero draws the hero's
+	# straight line and the collision it would take (spec/forced_movement.md).
+	var state: Dictionary = (instance.get("_combat_state") as Dictionary).duplicate(true)
+	var shove: Dictionary = {"id": "probe_shove", "name": "Shove", "actions": [{"type": "melee", "damage": 3, "range": 1, "push": 3}]}
+	state["enemies"] = [{"id": 1, "type": "crawler", "pos": Vector2i(4, 5), "hp": 30, "max_hp": 30, "block": 0, "intent": shove}]
+	state["terrain"] = [{"id": "probe_crate", "kind": "wooden_crate", "pos": Vector2i(1, 5), "hp": 3, "max_hp": 3}]
+	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
+	player["pos"] = Vector2i(3, 5)
+	state["player"] = player
+	state["current_actor"] = {"kind": "player", "key": "player"}
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["combat_state"] = state
+	instance.set("_run_state", run_state)
+	instance.set("_combat_state", state)
+	instance.call("_mark_combat_preview_state_changed")
+	instance.call("_refresh_ui")
+	await _settle()
+	instance.call("_on_board_tile_hovered", Vector2i(4, 5))
+	await _settle()
+	var presentation: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
+	var paths: Array = presentation.get("displacement_paths", [])
+	var markers: Array = presentation.get("collision_markers", [])
+	_expect(paths.size() == 1 and _vector2i_list(paths[0]) == [Vector2i(3, 5), Vector2i(2, 5)], "Enemy intent hover must draw the hero's straight push line: %s" % str(paths))
+	_expect(markers.size() == 1 and (markers[0] as Dictionary).get("tile") == Vector2i(2, 5) and (markers[0] as Dictionary).get("blocked_tile") == Vector2i(1, 5) and int((markers[0] as Dictionary).get("damage", 0)) == 4, "Enemy intent hover must mark the hero's collision: %s" % str(markers))
+	_expect((board.get("_projected_destination_tiles_lookup_cache") as Dictionary).has(Vector2i(2, 5)), "Enemy intent hover must ring the hero's landing tile")
+	await _save_screenshot(FORCE_OUTPUT.path_join("05_enemy_intent_push_line.png"))
+	_metrics["enemy_intent"] = {"displacement_paths": paths, "collision_markers": markers}
+
+func _vector2i_list(values: Variant) -> Array:
+	var result: Array = []
+	for value: Variant in values as Array:
+		result.append(value)
+	return result

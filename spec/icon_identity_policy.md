@@ -29,7 +29,7 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `convert_block_to_stoneskin` (Shrug Off) is a Stoneskin gain paid for with Block.
 - `meteor_marks` (the Meteorfall card) and `cinder_marks` (the dragon's Meteorfall intent) are both Meteorfall: marked tiles that are struck later and become Fire. The `combat:cinder_marks` topic teaches both.
 - `surface_adjacent_enemies` (Wards: leave a surface under each adjacent enemy) is the player-facing Shape Ground action, like `surface`.
-- `self_flag` has no single icon. `ActionIconLibrary.SELF_FLAG_ICON_KEYS` resolves each flag for card rows, action steps and the player's stance badges: `ice_skate` → Skate, `anchored` → Anchored, `fire_immune_turn` → Fireproof. `no_move` (Rooted: you can't Move or Blink) is the exact Immobilize concept and uses the Immobilize icon; the test lists it in `ALLOWED_EXACT_SELF_FLAG_ALIASES`.
+- `self_flag` has no single icon. `ActionIconLibrary.SELF_FLAG_ICON_KEYS` resolves each flag for card rows, action steps and the player's stance badges: `ice_skate` → Skate, `anchored` → Anchored, `fire_immune_turn` → Fireproof. `no_move` (Rooted: you can't Move, Blink or Swap) is the exact Immobilize concept and uses the Immobilize icon; the test lists it in `ALLOWED_EXACT_SELF_FLAG_ALIASES`.
 
 ## Wave-4 purpose-built identities
 

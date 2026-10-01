@@ -55,7 +55,7 @@ board badges with the card name.
   then the hero (both trigger ground and traps; the hero collects loot). `transfer_block`
   moves all current Block onto the illusion as **extra health** (`hp` and `max_hp` grow by
   that much; the hero's Block becomes 0) — the husk then soaks those hits whatever their
-  timing. Immobilize forbids the swap; it is not counted as tiles moved and fires no Blink
+  timing. Immobilize and Rooted forbid the swap, as they forbid Changing Winds' `swap`; it is not counted as tiles moved and fires no Blink
   relics. Event `illusion_swapped`.
 - `{"type": "destroy_illusion", "range": R, "damage": N, "illuminate_radius": r,
   "illuminate_duration": d}` (Shattered Reflection) — click one of your illusions within R.

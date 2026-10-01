@@ -363,7 +363,7 @@ card("tremor", "Tremor", "common", 5, [aoe(3, 0, DIAMOND2, EARTH, stagger=2)],
      "Deal 3 to each enemy within 2 tiles of you and Stagger 2. Empower (+2 Time): Stagger 4.", EARTH, wave=2,
      empower={"cost": {"time": 2}, "mods": [m(0, set={"stagger": 4})]})
 card("rooted_stance", "Rooted Stance", "common", 3, [stoneskin(6), act("self_flag", flag="no_move")],
-     "Gain 6 Stoneskin. You can't Move or Blink for the rest of this turn.", EARTH, wave=4)
+     "Gain 6 Stoneskin. You can't Move, Blink or Swap for the rest of this turn.", EARTH, wave=4)
 card("earthen_rampart", "Earthen Rampart", "rare", 5, [act("outcrop", range=2, health=3, pattern=LINE3, rotate=True), stoneskin(3)],
      "Raise outcrops on a three-tile line within range 2, then gain 3 Stoneskin. Empower (Exhaust): the line is five tiles.", EARTH,
      wave=2, empower={"cost": {"exhaust": True}, "mods": [m(0, set={"pattern": LINE5})]})
@@ -489,8 +489,8 @@ gear("rime_hack", "Rime Hack", "epic", 4, [melee(5, 1, ICE, surface="ice")], "St
 gear("frozen_bite", "Frozen Bite", "epic", 3,
      [melee(4, 1, ICE, on_result={"when": "froze", "rewards": [{"type": "card_play", "amount": 1}]})],
      "Strike for 4 Ice damage. If this Freezes the target, gain 1 card play.", ICE, wave=4)
-gear("shatter_swing", "Shatter Swing", "epic", 5, [melee(8, frozen_splash=4)],
-     "Strike for 8. If the target is Frozen, also deal 4 to each enemy next to it.", wave=4)
+gear("shatter_swing", "Shatter Swing", "epic", 5, [melee(8, 1, ICE, frozen_splash=4)],
+     "Strike for 8 Ice damage. If the target is Frozen, also deal 4 to each enemy next to it.", ICE, wave=4)
 gear("lash", "Lash", "rare", 3, [pull(1, 4, 3, AIR)], "Lash an enemy at reach 3 for 4 and pull 1.", AIR)
 gear("crack_the_whip", "Crack the Whip", "rare", 3, [melee(3, 3, AIR, stagger=2)], "Strike at reach 3 for 3 and Stagger 2.", AIR, wave=2)
 gear("snare_coil", "Snare Coil", "rare", 5, [pull(3, 2, 3, immobilize=True)], "Pull 3 at range 3 for 2, then immobilize.")
@@ -512,7 +512,7 @@ gear("reflected_threat", "Reflected Threat", "epic", 5, [act("illusion", health=
 gear("anchor_slam", "Anchor Slam", "legendary", 7, [stoneskin(3), pull(2, 5, 3, sunder=4, immobilize=True)],
      "Gain 3 Stoneskin, then pull 2 at range 3 for 5, Sunder 4, and immobilize.")
 gear("shield_wall", "Shield Wall", "rare", 3, [block(9), act("self_flag", flag="no_move")],
-     "Gain 9 Block. You can't Move or Blink for the rest of this turn.", wave=4)
+     "Gain 9 Block. You can't Move, Blink or Swap for the rest of this turn.", wave=4)
 gear("shield_charge", "Shield Charge", "rare", 4, [move(2), push(2, 3, 1, required=True)],
      "Move 2, then bash an adjacent enemy for 3 and push 2.")
 gear("deflect", "Deflect", "common", 2, [block(3), act("retaliate", amount=4)], "Gain 3 Block and Retaliate 4.", wave=3)
@@ -534,7 +534,7 @@ gear("grapple", "Grapple", "common", 3, [blink(4, destination_adjacent_to=["enem
 gear("yank", "Yank", "common", 4, [pull(3, 2, 4)], "Pull 3 at range 4 for 2.")
 
 # =============================================================================== GEAR: armor
-gear("glassbone_guard", "Glassbone Guard", "rare", 4, [stoneskin(6), draw(1)], "Gain 6 Stoneskin, then draw 1.", health_cost=1)
+gear("glassbone_guard", "Glassbone Guard", "rare", 4, [stoneskin(6), draw(1)], "Lose 1 health. Gain 6 Stoneskin, then draw 1.", health_cost=1)
 gear("undertaker_stand", "Undertaker Stand", "epic", 6, [block(8), act("retaliate", amount=5)],
      "Gain 8 Block and Retaliate 5.", wave=3)
 gear("threadbare_guard", "Unpick", "common", 2, [act("cleanse", statuses=["bleed", "immobilize", "chilled"]), block(4), draw(1)],
@@ -600,7 +600,7 @@ gear("clockwork_mark", "Clockwork Mark", "rare", 4, [ranged(4, 3, stagger=2), dr
 gear("unsealed_gale", "Unsealed Gale", "legendary", 6, [act("force_area", center="self", radius=3, push=3)],
      "Exhaust. Push every enemy within 3 of you 3 tiles away.", AIR, wave=4, burn=True)
 gear("borrowed_spark", "Borrowed Spark", "epic", 4, [surface("fire", 3, LINE2, rotate=True), draw(2), plays(1)],
-     "Exhaust. Place a two-tile Fire line at range 3, draw 2, and gain 1 play.", FIRE, burn=True, health_cost=1)
+     "Exhaust. Lose 1 health. Place a two-tile Fire line at range 3, draw 2, and gain 1 play.", FIRE, burn=True, health_cost=1)
 gear("thorn_crown_pact", "Thorn Crown Pact", "legendary", 5, [],
      "Rite: enemies that hit you in melee take 3 and Bleed 1.", wave=3, burn=True, health_cost=1,
      rite={"effects": [{"type": "thorns", "damage": 3, "bleed": 1}]})
@@ -618,7 +618,7 @@ gear("headsmans_toll", "Headsman's Toll", "rare", 2,
      "Deal 3 at range 3. If this kills, gain 1 more card play and draw 1.", wave=4)
 gear("stolen_moment", "Stolen Moment", "epic", 1, [act("quicken", amount=3), draw(1)],
      "Quicken 3: your next card this turn costs 3 less Time. Draw 1.", wave=3)
-gear("reprise", "Reprise", "epic", 6, [draw(4), block(5)], "Draw 4 and gain 5 Block.", health_cost=1)
+gear("reprise", "Reprise", "epic", 6, [draw(4), block(5)], "Lose 1 health. Draw 4 and gain 5 Block.", health_cost=1)
 gear("sworn_oath", "Sworn Oath", "common", 2, [block(3), act("next_attack", damage=3)],
      "Gain 3 Block. Your next attack this turn deals 3 more.", wave=3)
 

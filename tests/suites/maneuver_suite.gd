@@ -23,7 +23,7 @@ const FIXTURES: Dictionary = {
 	"w4b_bottled_gale": {"actions": [{"type": "force_area", "center": "self", "radius": 1, "push": 3}], "time": 3},
 	"w4b_unsealed_gale": {"actions": [{"type": "force_area", "center": "self", "radius": 3, "push": 3}], "time": 6, "burn": true},
 	"w4b_dust_devil": {"actions": [{"type": "force_area", "center": "target", "range": 3, "radius": 1, "push": 2, "expose": 2, "consume_center": "rubble"}], "time": 4},
-	"w4b_vortex": {"actions": [{"type": "force_area", "center": "target", "range": 3, "radius": 2, "pull": 1}], "time": 5},
+	"w4b_vortex": {"actions": [{"type": "force_area", "center": "target", "range": 3, "radius": 2, "pull": 2}], "time": 5},
 	"w4b_cyclone_seal": {"burn": true, "time": 7, "actions": [
 		{"type": "force_area", "center": "target", "range": 3, "radius": 3, "pull": 3},
 		{"type": "aoe", "damage": 6, "range": 0, "pattern": ADJ, "rotate": false, "element": "air", "target": "previous_target"}]},
@@ -60,6 +60,7 @@ static func run(expect: Callable) -> void:
 	_test_vortex_targets_and_pull(engine, expect)
 	_test_cyclone_seal_nearest_first_and_blast(engine, expect)
 	_test_dust_devil_consumes_rubble(engine, expect)
+	_test_area_pull_stops_level_on_diagonals(engine, expect)
 	_test_force_area_large_enemy(engine, expect)
 	_test_squall_from_center(engine, expect)
 	_test_swap(engine, expect)
@@ -244,6 +245,24 @@ static func _test_dust_devil_consumes_rubble(engine: CombatEngine, expect: Calla
 	expect.call(not Surface.has_rubble(after, Vector2i(4, 5)), "Dust Devil consumes the Rubble first")
 	expect.call(_pos(after, 1) == Vector2i(7, 5) and _pos(after, 2) == Vector2i(4, 2), "Each enemy next to the Rubble is pushed 2 straight away from it")
 	expect.call(int(_unit(after, 1).get("expose", 0)) == 2 and int(_unit(after, 2).get("expose", 0)) == 2, "Dust Devil Exposes each affected enemy")
+	var centered: Dictionary = _state(engine, [_enemy(1, Vector2i(5, 5)), _enemy(3, Vector2i(4, 5))], Vector2i(2, 5))
+	Surface.place(centered, Vector2i(4, 5), "rubble", {"actor_kind": "player"})
+	var swept: Dictionary = _resolve(engine, centered, "w4b_dust_devil", [Vector2i(4, 5)])
+	expect.call(_pos(swept, 3) == Vector2i(4, 5) and int(_unit(swept, 3).get("expose", 0)) == 0, "An enemy standing on the Rubble is not next to it: Dust Devil neither moves nor Exposes it")
+	expect.call(_pos(swept, 1) == Vector2i(7, 5) and int(_unit(swept, 1).get("expose", 0)) == 2, "Enemies next to the Rubble are still pushed and Exposed")
+
+static func _test_area_pull_stops_level_on_diagonals(engine: CombatEngine, expect: Callable) -> void:
+	# Shipped values: Vortex pulls 2 and Cyclone Seal pulls 3. A diagonal enemy
+	# closes the gap on its default axis and stops level with the center.
+	var vortex_state: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 6))], Vector2i(2, 5))
+	var pulled: Dictionary = _resolve(engine, vortex_state, "w4b_vortex", [Vector2i(5, 5)])
+	expect.call((_pos(pulled, 1) == Vector2i(5, 6) or _pos(pulled, 1) == Vector2i(6, 5)) and _hp(pulled, 1) == 30, "Vortex draws a diagonal enemy next to the center, never past it")
+	var far: Dictionary = _state(engine, [_enemy(1, Vector2i(7, 6))], Vector2i(2, 5))
+	var drawn: Dictionary = _resolve(engine, far, "w4b_cyclone_seal", [Vector2i(5, 5)])
+	expect.call(_pos(drawn, 1) == Vector2i(5, 6) and _hp(drawn, 1) == 24, "An off-axis Cyclone Seal pull stops level with the center, so the blast still lands")
+	var seal_state: Dictionary = _state(engine, [_enemy(1, Vector2i(6, 6))], Vector2i(2, 5))
+	var sealed: Dictionary = _resolve(engine, seal_state, "w4b_cyclone_seal", [Vector2i(5, 5)])
+	expect.call((_pos(sealed, 1) == Vector2i(5, 6) or _pos(sealed, 1) == Vector2i(6, 5)) and _hp(sealed, 1) == 24, "Cyclone Seal draws a diagonal enemy next to the center and its blast lands")
 
 static func _test_force_area_large_enemy(engine: CombatEngine, expect: Callable) -> void:
 	# A 2x2 body counts from its footprint tile nearest the center.
@@ -331,6 +350,16 @@ static func _test_rooted(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(not engine.player_action_can_resolve(rooted, {"type": "blink", "range": 2}), "Rooted: a card Blink cannot resolve")
 	expect.call(engine.player_movement_targets(rooted).is_empty() and not engine.player_has_movement_target(rooted), "Rooted: independent movement is unavailable")
 	expect.call(not ManeuverRules.movement_block_reason(rooted).is_empty(), "Rooted gives the movement meter a reason")
+	var swap_state: Dictionary = _state(engine, [_enemy(1, Vector2i(4, 5))], Vector2i(2, 5))
+	swap_state["illusions"] = [{"id": 7, "pos": Vector2i(2, 7), "hp": 3, "max_hp": 3}]
+	var swap: Dictionary = _action(engine, "w4b_changing_winds")
+	var husk: Dictionary = {"type": "illusion_swap", "range": 99, "transfer_block": true}
+	expect.call(engine.player_action_can_resolve(swap_state, swap) and engine.player_action_can_resolve(swap_state, husk), "Both swaps resolve while the hero may move")
+	var rooted_swap: Dictionary = _resolve(engine, swap_state, "w4b_rooted_stance")
+	expect.call(not engine.player_action_can_resolve(rooted_swap, swap) and not engine.player_action_can_resolve(rooted_swap, husk), "Rooted forbids Changing Winds and Empty Husk like Move and Blink")
+	var held: Dictionary = swap_state.duplicate(true)
+	held["player_turn_restrictions"] = {"immobilized": true}
+	expect.call(not engine.player_action_can_resolve(held, swap) and not engine.player_action_can_resolve(held, husk), "Immobilize forbids both swaps")
 	expect.call(engine.player_action_can_resolve(state, {"type": "move", "range": 2}), "Without the flag a Move resolves")
 	var next_turn: Dictionary = engine.finish_player_activation(rooted)
 	expect.call(not ManeuverRules.player_rooted(next_turn), "Rooted ends with the activation")

@@ -33,6 +33,10 @@ static func run(expect: Callable) -> void:
 	_test_collision_kill_grants_card_play(combat, expect)
 	_test_forecast_matches_commit(combat, expect)
 	_test_collision_is_non_direct(combat, expect)
+	_test_off_axis_pull_stops_level(combat, expect)
+	_test_enemy_off_axis_force_uses_default(combat, expect)
+	_test_area_attack_pushes_farthest_first(combat, expect)
+	_test_enemy_intent_projects_player_force(combat, expect)
 
 
 static func run_live(tree: SceneTree, expect: Callable) -> void:
@@ -303,6 +307,64 @@ static func _test_collision_is_non_direct(combat: CombatEngine, expect: Callable
 	var enemy: Dictionary = _unit(after, 1)
 	expect.call(int(enemy.get("hp", 0)) == 29 and int(enemy.get("stoneskin", 0)) == 0, "Stoneskin absorbs collision damage; Chilled adds nothing")
 	expect.call(int(enemy.get("expose", 0)) == 3 and int(enemy.get("frost_armor", 0)) == 1, "Collision neither consumes Expose nor breaks Crystal Mantle")
+
+
+static func _test_off_axis_pull_stops_level(combat: CombatEngine, expect: Callable) -> void:
+	# Yank (pull 3) on an enemy two across and one down: the default line closes
+	# the bigger gap and stops level with the player instead of sliding past.
+	var state: Dictionary = _state(combat, [_enemy(1, Vector2i(4, 5))], [_crate("far", Vector2i(1, 5), 10)])
+	var pull: Dictionary = _pull(3, 2)
+	expect.call(combat.forced_movement_tiles_for_player_action(state, pull, Vector2i(4, 5)) == _dirs([Vector2i(3, 5), Vector2i(2, 5)]), "An off-axis pull's hover line ends level with the puller")
+	var after: Dictionary = combat.apply_player_action(state, pull, Vector2i(4, 5))
+	expect.call(_unit(after, 1).get("pos") == Vector2i(2, 5) and _collisions(state, after).is_empty(), "An off-axis pull stops beside the puller without colliding")
+	expect.call(int(_unit(after, 1).get("hp", 0)) == 28 and _terrain_hp(after, "far") == 10, "A pull that stops level deals only its own damage")
+	var rotated: Dictionary = pull.duplicate(true)
+	rotated["force_direction"] = UP
+	var minor: Dictionary = combat.apply_player_action(state, rotated, Vector2i(4, 5))
+	expect.call(_unit(minor, 1).get("pos") == Vector2i(4, 4) and _collisions(state, minor).is_empty(), "A rotated minor-axis pull stops once level with the puller")
+	var large: Dictionary = _enemy(2, Vector2i(5, 5))
+	large["footprint"] = Vector2i(2, 2)
+	var big: Dictionary = _state(combat, [large])
+	var big_after: Dictionary = combat.apply_player_action(big, _pull(5), Vector2i(5, 5))
+	expect.call(_unit(big_after, 2).get("pos") == Vector2i(2, 5) and _collisions(big, big_after).is_empty(), "A 2x2 pull stops when its nearest footprint column reaches the puller's column")
+
+
+static func _test_enemy_off_axis_force_uses_default(combat: CombatEngine, expect: Callable) -> void:
+	# Enemy at (5,5) pulls a player at (2,4): the bigger gap is horizontal, so the
+	# player is drawn level with the enemy even though the short line is worse.
+	var state: Dictionary = _state(combat, [_enemy(1, Vector2i(5, 5))], [_crate("pin", Vector2i(2, 5), 10), _crate("top", Vector2i(2, 3), 10)], Vector2i(2, 4))
+	var after: Dictionary = combat._apply_action_keywords_to_player(state.duplicate(true), {"type": "melee", "damage": 0, "pull": 5, "_enemy_id": 1}, Vector2i(5, 5))
+	expect.call((after.get("player", {}) as Dictionary).get("pos") == Vector2i(5, 4) and int(after["player"]["hp"]) == 40, "Off the diagonal, an enemy pull follows the bigger-gap default and stops level with it")
+	var pushed: Dictionary = combat._apply_action_keywords_to_player(state.duplicate(true), {"type": "melee", "damage": 0, "push": 1, "_enemy_id": 1}, Vector2i(5, 5))
+	expect.call((pushed.get("player", {}) as Dictionary).get("pos") == Vector2i(1, 4) and int(pushed["player"]["hp"]) == 40, "Off the diagonal, an enemy push ignores the shorter line that would collide")
+
+
+static func _test_area_attack_pushes_farthest_first(combat: CombatEngine, expect: Callable) -> void:
+	var wind_shear: Dictionary = (Data.card_def("wind_shear").get("actions", []) as Array)[0] as Dictionary
+	var state: Dictionary = _state(combat, [_enemy(1, Vector2i(4, 4)), _enemy(2, Vector2i(5, 4))])
+	var after: Dictionary = combat.apply_player_action(state, wind_shear, Vector2i(4, 4))
+	expect.call(_unit(after, 1).get("pos") == Vector2i(5, 4) and _unit(after, 2).get("pos") == Vector2i(6, 4), "Wind Shear moves the far enemy first, then the near one into the lane it cleared")
+	expect.call(_collisions(state, after).is_empty() and int(_unit(after, 1).get("hp", 0)) == 27 and int(_unit(after, 2).get("hp", 0)) == 27, "Neither line target collides with a neighbor that was about to move")
+	var pinned: Dictionary = _state(combat, [_enemy(1, Vector2i(4, 4)), _enemy(2, Vector2i(5, 4))], [_crate("end", Vector2i(6, 4), 10)])
+	var stacked: Dictionary = combat.apply_player_action(pinned, wind_shear, Vector2i(4, 4))
+	expect.call(_unit(stacked, 2).get("pos") == Vector2i(5, 4) and int(_unit(stacked, 2).get("hp", 0)) == 23 and int(_unit(stacked, 1).get("hp", 0)) == 25, "A blocked far target collides first; the near target then collides with it")
+
+
+static func _test_enemy_intent_projects_player_force(combat: CombatEngine, expect: Callable) -> void:
+	var state: Dictionary = _state(combat, [_enemy(1, Vector2i(3, 4))], [], Vector2i(2, 4))
+	var enemy: Dictionary = state["enemies"][0]
+	enemy["intent"] = {"id": "shove", "name": "Shove", "actions": [{"type": "melee", "damage": 2, "range": 1, "push": 3}]}
+	state["enemies"][0] = enemy
+	var threat: Dictionary = combat.enemy_threat_tiles(state, 0)
+	var force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
+	var actual: Dictionary = combat._apply_action_keywords_to_player(state.duplicate(true), {"type": "melee", "push": 3, "_enemy_id": 1}, Vector2i(3, 4))
+	expect.call(_dirs(force.get("path", [])) == _dirs([Vector2i(2, 4), Vector2i(1, 4)]), "A push intent previews the hero's straight line: %s" % str(force))
+	var collision: Dictionary = force.get("collision", {}) as Dictionary
+	expect.call(int(collision.get("damage", 0)) == 4 and collision.get("blocked_tile") == Vector2i(0, 4), "The intent preview shows the wall collision and its damage")
+	expect.call((actual.get("player", {}) as Dictionary).get("pos") == force.get("destination") and int(actual["player"]["hp"]) == 36, "The intent preview matches the resolved push")
+	var quiet: Dictionary = _state(combat, [_enemy(1, Vector2i(3, 4))], [], Vector2i(2, 4))
+	quiet["enemies"][0]["intent"] = {"id": "bite", "name": "Bite", "actions": [{"type": "melee", "damage": 2, "range": 1}]}
+	expect.call((combat.enemy_threat_tiles(quiet, 0).get("projected_player_force", {}) as Dictionary).is_empty(), "An intent without forced movement projects no hero line")
 
 
 static func _dirs(values: Array) -> Array[Vector2i]:

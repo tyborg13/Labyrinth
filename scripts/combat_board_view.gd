@@ -2807,6 +2807,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
 			if destination.x > -999 and _threat_has_projected_movement(threat):
 				_projected_destination_tiles_lookup_cache[destination] = true
+			# Where the intent's Push or Pull would land the hero.
+			var player_force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
+			if (player_force.get("path", []) as Array).size() >= 2:
+				_projected_destination_tiles_lookup_cache[player_force.get("destination", Vector2i(-999, -999))] = true
 	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
 		_navigation_pan = Vector2.ZERO
 		_enemy_hud_side_by_actor.clear()
@@ -3294,6 +3298,8 @@ func _queue_combat_state_change_redraws(
 		_queue_render_layer_redraw(_ground_render_layer)
 	if changed_keys.has("meteor_marks"):
 		_queue_render_layer_redraw(_overlay_render_layer)
+		# The mark badges (icon and damage) draw above units in the effects layer.
+		_queue_render_layer_redraw(_effects_render_layer)
 	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
 		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
 			_queue_scene_render_layer_for_tile(tile)
@@ -4250,6 +4256,7 @@ func _draw_effects_render_layer() -> void:
 	_record_render_section_time("effect_overlay", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_collision_markers()
+	_draw_meteor_mark_badges()
 	_record_render_section_time("collision_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_lethal_preview_icons(units_to_draw)
@@ -6478,26 +6485,67 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
 # an ember-ringed tile, with the incoming damage in the tooltip.
 func _draw_meteor_mark(tile: Vector2i) -> void:
-	var damage: int = 0
-	var surface: String = ""
+	# Floor wash and ring only; the icon and damage are drawn above units by
+	# `_draw_meteor_mark_badges`.
 	var marked: bool = false
 	for mark_var: Variant in combat_state.get("meteor_marks", []):
-		if typeof(mark_var) != TYPE_DICTIONARY or not ((mark_var as Dictionary).get("tiles", []) as Array).has(tile):
-			continue
-		marked = true
-		damage += int((mark_var as Dictionary).get("damage", 0))
-		surface = str((mark_var as Dictionary).get("surface", surface))
+		if typeof(mark_var) == TYPE_DICTIONARY and ((mark_var as Dictionary).get("tiles", []) as Array).has(tile):
+			marked = true
+			break
 	if not marked:
 		return
 	draw_colored_polygon(_tile_polygon(tile), Color(0.95, 0.38, 0.16, 0.20))
 	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
-	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
-	if mark_icon == null:
+
+func _draw_meteor_mark_badges() -> void:
+	# Meteorfall's icon and incoming damage sit on a medallion at each marked
+	# tile's front edge in the effects layer, above units, so a mark under an
+	# enemy (or under the hero) stays readable without hovering.
+	var marks: Dictionary = {}
+	for mark_var: Variant in combat_state.get("meteor_marks", []):
+		if typeof(mark_var) != TYPE_DICTIONARY:
+			continue
+		var mark: Dictionary = mark_var as Dictionary
+		for tile_var: Variant in mark.get("tiles", []):
+			var tile: Vector2i = tile_var
+			var entry: Dictionary = marks.get(tile, {"damage": 0, "surface": ""}) as Dictionary
+			entry["damage"] = int(entry["damage"]) + int(mark.get("damage", 0))
+			entry["surface"] = str(mark.get("surface", entry["surface"]))
+			marks[tile] = entry
+	if marks.is_empty():
 		return
-	var icon_side: float = _tile_width() * 0.30
-	var icon_rect := Rect2(_tile_center(tile) - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side)
-	draw_texture_rect(mark_icon, icon_rect, false, Color.WHITE)
-	_register_tooltip(icon_rect, "Meteorfall\nAt the start of your next turn this tile takes %d damage%s." % [damage, " and becomes %s" % surface.capitalize() if not surface.is_empty() else ""])
+	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
+	var font: Font = get_theme_default_font()
+	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	for tile_var: Variant in marks.keys():
+		var tile: Vector2i = tile_var
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		var entry: Dictionary = marks[tile] as Dictionary
+		var damage: int = int(entry["damage"])
+		var surface: String = str(entry["surface"])
+		var icon_size: float = clampf(_tile_width() * 0.22, 24.0, 40.0)
+		var radius: float = icon_size * 0.62
+		var center: Vector2 = _tile_center(tile) + Vector2(-_tile_width() * 0.16, _tile_height() * 0.22)
+		draw_circle(center + Vector2(0.0, 2.0), radius + 2.0, Color(0.0, 0.0, 0.0, 0.40))
+		draw_circle(center, radius, COLLISION_MARKER_FILL)
+		draw_arc(center, radius - 1.0, 0.0, TAU, 32, COLLISION_MARKER_RING, 2.0, true)
+		var tooltip: String = "Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [
+			damage,
+			" and becomes %s" % surface.capitalize() if not surface.is_empty() else "",
+			"\nYou are standing on it." if tile == player_tile else ""
+		]
+		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+		if mark_icon != null:
+			draw_texture_rect(mark_icon, rect, false, Color.WHITE)
+		_register_tooltip(rect, tooltip)
+		if damage > 0 and font != null:
+			var text: String = str(damage)
+			var font_size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
+			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+			var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
+			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
+			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
 
 func _draw_controller_door_focus(tile: Vector2i) -> void:
 	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
@@ -16000,6 +16048,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"count": int(unit.get("frost_armor", 0)),
 			"fill": Color("274864"),
 			"border": Color("b9f3ff"),
+			"icon_tint": Color.WHITE,
 			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
 		})
 	if int(unit.get("petrify", 0)) > 0:
@@ -16062,7 +16111,10 @@ func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
 	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
 	var icon_tint: Color = badge.get("icon_tint", Color("1f1812"))
 	var tooltip: String = str(badge.get("tooltip", ActionIcons.tooltip(icon_key)))
-	_draw_keyword_icon(icon_key, Rect2(center - Vector2(6.5, 6.5), Vector2(13.0, 13.0)), tooltip, icon_tint)
+	# Painted full-colour keyword icons (white tint) fill the badge so their
+	# shapes read at board size; tinted silhouettes keep the inset glyph size.
+	var icon_side: float = 18.0 if icon_tint.is_equal_approx(Color.WHITE) else 13.0
+	_draw_keyword_icon(icon_key, Rect2(center - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side), tooltip, icon_tint)
 	var count: int = int(badge.get("count", 0))
 	var count_text: String = str(badge.get("count_text", ""))
 	if count_text.is_empty() and count > 0:

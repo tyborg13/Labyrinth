@@ -582,7 +582,7 @@ static func _test_live_targetless_empower_confirmation(tree: SceneTree, expect: 
 	expect.call(str(tracker.get("mode", "")) == "confirmation", "The command host appears at a targetless card's confirmation stage")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button != null and button.text == "Empower +1 Time", "The Empower toggle is labelled with its cost")
+	expect.call(button != null and button.text == "Empower +1 Time [E]", "The Empower toggle is labelled with its cost and shortcut")
 	expect.call(int((instance.call("_turn_order_card_time_preview") as Dictionary).get("time", 0)) == 2, "The Time preview starts at the printed Time")
 	await instance.call("_toggle_pending_empower")
 	await tree.process_frame
@@ -610,7 +610,7 @@ static func _test_live_targeted_empower_and_stagger_preview(tree: SceneTree, exp
 	expect.call(str((instance.call("_action_step_tracker_state") as Dictionary).get("mode", "")) == "selection", "A targeted Empower card starts at its first targeted action")
 	instance.call("_refresh_action_step_tracker")
 	var button: BaseButton = _command_button(instance, "ActionContextEmpower")
-	expect.call(button != null and button.text == "Empower +2 Time", "The targeted card offers Empower while its target is pending")
+	expect.call(button != null and button.text == "Empower +2 Time [E]", "The targeted card offers Empower while its target is pending")
 	var key := InputEventKey.new()
 	key.keycode = KEY_E
 	key.physical_keycode = KEY_E
