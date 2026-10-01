@@ -6,7 +6,7 @@ const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
 const OUTPUT_DIR: String = "user://probes/card_rarity_polish"
-# One card per rarity (short and longest names) to check the rarity name ink,
+# One card per rarity (short and longest names) to check the plain name ink,
 # the gem glow, the seated art shadow and title fit at the larger title size.
 const SAMPLES: Array = [
 	{"card": "quick_stab", "label": "COMMON"},
@@ -107,18 +107,14 @@ func _initialize() -> void:
 			if glow_material == null or not (glow_material.shader.code.contains("TIME")) or not (glow_material.get_shader_parameter("gem_center") as Vector2).is_equal_approx(widget.size * Vector2(0.5, 0.957)):
 				push_error("%s gem glow should be a live shader centred on the frame gem" % card_id)
 				failures += 1
-		var outline_ink: Color = title.get_theme_color("font_outline_color")
-		if (rarity == "legendary") != (outline_ink == CardWidget.LEGENDARY_TITLE_OUTLINE):
-			push_error("%s only legendary names should use the dark gilt outline" % card_id)
-			failures += 1
 		if card_id == "quick_stab" and title.get_theme_font_size("font_size") != CardWidget.TITLE_MAX_RENDER_SIZE:
 			push_error("A short full-size card name should render at %d px, got %d" % [CardWidget.TITLE_MAX_RENDER_SIZE, title.get_theme_font_size("font_size")])
 			failures += 1
 		if glow == null or glow.visible != (rarity in ["uncommon", "rare", "epic", "legendary"]):
 			push_error("%s rarity gem glow should appear only above common" % card_id)
 			failures += 1
-		if title.get_theme_color("font_color") != CardWidget.RARITY_TITLE_INK.get(rarity, CardWidget.RARITY_TITLE_INK["common"]):
-			push_error("%s title should use its rarity ink" % card_id)
+		if title.get_theme_color("font_color") != Color("39271b") or title.get_theme_color("font_outline_color") != Color("f8f1dd"):
+			push_error("%s title should keep the plain brown nameplate ink; rarity shows in the gem" % card_id)
 			failures += 1
 		if title.text != str(GameData.card_def(card_id).get("name", "")) or title.get_visible_line_count() > 2:
 			push_error("%s title should fit its nameplate" % card_id)

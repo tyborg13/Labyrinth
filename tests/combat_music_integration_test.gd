@@ -106,17 +106,11 @@ func _run() -> void:
 func _check_stingers(instance: Node) -> void:
 	_assert(MusicLibrary.dragon_in_fight({"type": "guardian", "boss_id": "ashen_reaver"}, {}).is_empty(), "Guardians should not count as dragon fights")
 	_assert(MusicLibrary.dragon_in_fight({"type": "combat"}, {"enemies": [{"type": "noctyrax"}]}) == "noctyrax", "A dragon enemy should be found from the combat roster")
-	instance.set("_run_state", {"pending_reward": {"cards": ["quick_stab", "prism_sight"]}})
-	_assert(not bool(instance.call("_reward_offers_rare_find")), "Common and rare rewards should not trigger the rare-find stinger")
-	instance.set("_run_state", {"pending_reward": {"cards": ["quick_stab", "blood_price"]}})
-	_assert(bool(instance.call("_reward_offers_rare_find")), "An epic reward should trigger the rare-find stinger")
-	instance.set("_run_state", {"pending_reward": {"cards": ["daybreak"]}})
-	_assert(bool(instance.call("_reward_offers_rare_find")), "A legendary reward should trigger the rare-find stinger")
 	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
 	_assert(duck != null and is_equal_approx(duck.volume_db, 0.0), "The music duck should rest at unity before a stinger")
 	var boss_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_BOSS_DEFEATED_ID)))
 	_assert(boss_length > 6.0 and boss_length < 7.5, "The boss-defeated stinger should play its full fanfare")
-	var stacked_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_RARE_REWARD_ID)))
+	var stacked_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
 	_assert(is_zero_approx(stacked_length), "A second stinger should not stack on a fanfare that is still sounding")
 	await create_timer(0.35).timeout
 	if duck != null:
@@ -124,16 +118,6 @@ func _check_stingers(instance: Node) -> void:
 	instance.call("_shutdown_audio")
 	if duck != null:
 		_assert(is_equal_approx(duck.volume_db, 0.0), "Leaving the run scene should restore the score to unity")
-	var victory_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID)))
-	_assert(victory_length > 4.0, "The victory cue should start before a rare-find reveal")
-	instance.call("_fade_out_sfx", RunSfxLibrary.VICTORY_RESOLUTION_ID, 0.2)
-	await create_timer(0.4).timeout
-	var victory_still_playing: bool = false
-	for player_var: Variant in instance.get("_sfx_players") as Array:
-		var sfx_player: AudioStreamPlayer = player_var as AudioStreamPlayer
-		if sfx_player != null and sfx_player.playing and str(sfx_player.get_meta("sfx_id", "")) == RunSfxLibrary.VICTORY_RESOLUTION_ID:
-			victory_still_playing = true
-	_assert(not victory_still_playing, "A rare-find fanfare should fade the victory cue out instead of stacking on it")
 	var level_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
 	_assert(level_length > 2.5 and level_length < 4.5, "After audio shutdown a new stinger should be free to play")
 	instance.call("_shutdown_audio")

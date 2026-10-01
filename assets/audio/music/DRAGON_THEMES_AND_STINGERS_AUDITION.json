@@ -1,9 +1,9 @@
 {
-  "approval": "Pending: dragon bosses each get their own theme (guardians keep Thorns in the Dark); Noctyrax uses v02 take A pending the owner's A/B choice; level-up, rare-reward and boss-defeated moments get darker v02 stingers that briefly duck the score. Themes 01-05 were liked by the owner on 2026-09-30.",
-  "approved_by": null,
+  "approval": "Each dragon boss plays its own theme (guardians keep Thorns in the Dark): themes 01-05 v01 as first auditioned, and Noctyrax v02 take A \"Eclipse Requiem\" chosen over take B. The v02 level-up and boss-defeated stingers duck the score beneath them. The rare-reward stinger was dropped after in-game audition (too many back-to-back sound transitions); the victory cue carries the reveal.",
+  "approved_by": "project owner in conversation",
   "date": "2026-10-01",
   "source_kind": "original_authored_symbolic_composition",
-  "status": "awaiting_owner_audition",
+  "status": "approved_for_game_integration",
   "tracks": [
     {
       "asset": "assets/audio/music/dragon_themes/zekarion_theme_v01.ogg",
@@ -87,18 +87,6 @@
       "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/07_stinger_level_up",
       "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
       "title": "Level Up (v02)",
-      "version": "v02"
-    },
-    {
-      "asset": "assets/audio/music/stingers/rare_reward_v02.ogg",
-      "flac_sha256": "2c3f88a466ae693219af9ff574665f56ca3a3bc552408367fb5465556d5855c7",
-      "id": "run.stinger_rare_reward",
-      "loop": false,
-      "midi_sha256": "25670c80910344826abe6be81b4c13f536d8ef88b24ea6e8aac773feb74e6a2d",
-      "ogg_sha256": "29dd12923e81ef5bf283c322592e8db2de3731345560069cd8febeda9fd0804c",
-      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/08_stinger_rare_reward",
-      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
-      "title": "Rare Reward (v02)",
       "version": "v02"
     },
     {

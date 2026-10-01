@@ -644,7 +644,13 @@ func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coo
 			return bool(run_state.get("pre_battle_pending", false)) and typeof(run_state.get("pre_battle_travel_dir", null)) == TYPE_VECTOR2I
 		"reward":
 			var reward_value: Variant = run_state.get("pending_reward", null)
-			return typeof(reward_value) == TYPE_DICTIONARY and typeof((reward_value as Dictionary).get("cards", null)) == TYPE_ARRAY and not ((reward_value as Dictionary).get("cards", []) as Array).is_empty()
+			if typeof(reward_value) != TYPE_DICTIONARY:
+				return false
+			var reward: Dictionary = reward_value
+			# A dragon's milestone reward (relic, embers, healing) offers no cards.
+			if str(reward.get("kind", "")) == "dragon":
+				return not str(reward.get("milestone_id", "")).is_empty()
+			return typeof(reward.get("cards", null)) == TYPE_ARRAY and not (reward.get("cards", []) as Array).is_empty()
 		"treasure":
 			var relics_value: Variant = run_state.get("pending_relics", null)
 			return typeof(relics_value) == TYPE_ARRAY and not (relics_value as Array).is_empty()

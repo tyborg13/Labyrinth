@@ -35,9 +35,10 @@ class OriginalSoundtrackAssets(unittest.TestCase):
 
     def test_dragon_themes_and_stingers_are_exact_copies_of_verified_renders(self):
         audition = json.loads((MUSIC / 'DRAGON_THEMES_AND_STINGERS_AUDITION.json').read_text())
-        self.assertIn(audition['status'], {'awaiting_owner_audition', 'approved_for_game_integration'})
+        self.assertEqual(audition['status'], 'approved_for_game_integration')
         self.assertEqual(sum(1 for t in audition['tracks'] if t['loop']), 6)
-        self.assertEqual(sum(1 for t in audition['tracks'] if not t['loop']), 3)
+        self.assertEqual({t['id'] for t in audition['tracks'] if not t['loop']},
+                         {'run.stinger_level_up', 'run.stinger_boss_defeated'})
         for manifest_path in sorted({t['source_manifest'] for t in audition['tracks']}):
             manifest = json.loads((ROOT / manifest_path).read_text())
             for rel, expected in manifest['inputs_sha256'].items():

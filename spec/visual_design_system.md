@@ -85,9 +85,8 @@ floor shadows); the former navy button bodies clashed with it.
 
 - **Cards** keep their authored bronze-and-wood frames and 16:9 art windows. A
   soft offset copy of the illustration seats the ragged art window into the
-  parchment. The name is inked by rarity (brown common, blue rare, violet epic,
-  gilt legendary: gold on a dark outline so it lifts off the parchment). The
-  frame's rarity gem emits live light: a breathing core and halo, slow rays on
+  parchment. Every name keeps the same brown ink; rarity reads from the frame's
+  rarity gem alone, which emits live light: a breathing core and halo, slow rays on
   epic and legendary, and a star glint on legendary; reduced motion holds it
   still. Hover lifts and scales the whole card without growing the frame, so
   the nameplate, gem and their overlays never drift apart. Titles fit the full

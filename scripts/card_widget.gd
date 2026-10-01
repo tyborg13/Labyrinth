@@ -75,19 +75,6 @@ const FLURRY_ICON_HEIGHT_SCALE: float = 1.05
 const TITLE_MIN_SIZE: int = 10
 const ART_SHADOW_OFFSET := Vector2(1.5, 3.0)
 const ART_SHADOW_COLOR := Color(0.16, 0.08, 0.03, 0.42)
-const RARITY_TITLE_INK := {
-	"starter": Color("39271b"),
-	"common": Color("39271b"),
-	"uncommon": Color("1f4e7a"),
-	"rare": Color("1f4e7a"),
-	"epic": Color("5a2682"),
-	"legendary": Color("e8a93a"),
-}
-# Legendary names are gilt lettering: gold fill on a dark outline, so they lift
-# off the parchment instead of sinking into it like a darker ink would.
-const TITLE_OUTLINE_INK := Color("f8f1dd")
-const LEGENDARY_TITLE_OUTLINE := Color("2e1505")
-const LEGENDARY_TITLE_OUTLINE_SIZE: int = 3
 const RARITY_GEM_GLOW := {
 	"uncommon": Color(0.35, 0.62, 1.0, 0.9),
 	"rare": Color(0.35, 0.62, 1.0, 0.9),
@@ -692,7 +679,7 @@ func _ready() -> void:
 	if ui_font != null:
 		title_label.add_theme_font_override("font", ui_font)
 	title_label.add_theme_color_override("font_color", Color("39271b"))
-	title_label.add_theme_color_override("font_outline_color", TITLE_OUTLINE_INK)
+	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
 	title_label.add_theme_constant_override("outline_size", 2)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1314,14 +1301,9 @@ func _ensure_art_shadow() -> void:
 	art_frame.add_child(holder)
 	art_frame.move_child(holder, art_rect.get_index())
 
-# Rarity reads from the name ink and a soft glow on the frame's rarity gem;
-# commons and starters keep the plain brown ink.
+# Rarity reads from the live light in the frame's rarity gem alone; every name
+# keeps the same brown ink so the nameplate stays calm.
 func _apply_rarity_presentation(rarity: String) -> void:
-	var ink: Color = RARITY_TITLE_INK.get(rarity, RARITY_TITLE_INK["common"]) as Color
-	title_label.add_theme_color_override("font_color", ink)
-	var gilt: bool = rarity == "legendary"
-	title_label.add_theme_color_override("font_outline_color", LEGENDARY_TITLE_OUTLINE if gilt else TITLE_OUTLINE_INK)
-	title_label.add_theme_constant_override("outline_size", LEGENDARY_TITLE_OUTLINE_SIZE if gilt else 2)
 	if _rarity_gem_glow == null:
 		_rarity_gem_glow = RarityGemGlow.new()
 		_rarity_gem_glow.name = "RarityGemGlow"

@@ -16535,9 +16535,6 @@ func _play_reward_reveal() -> void:
 			if child is Control:
 				card_slots.append(child as Control)
 	var secondary_actions: Control = find_child("RewardSecondaryActions", true, false) as Control
-	if _reward_offers_rare_find() and _play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_RARE_REWARD_ID)) > 0.0:
-		# The rare-find fanfare takes over from the victory cue's tail.
-		_fade_out_sfx(RunSfxLibrary.VICTORY_RESOLUTION_ID, 0.35)
 	await PostCombatRewardSequence.play_reward_reveal(
 		stage_root,
 		_relic_choice_banner,
@@ -23029,13 +23026,6 @@ func _play_card_play_sfx() -> void:
 		return
 	_play_sfx(CARD_PLAY_SFX_ENTRY)
 
-func _reward_offers_rare_find() -> bool:
-	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
-	for card_id_var: Variant in reward_state.get("cards", []):
-		if str(GameData.card_def(str(card_id_var)).get("rarity", "")) in ["epic", "legendary"]:
-			return true
-	return false
-
 func _play_reward_card_flip_sfx() -> void:
 	_play_sfx(REWARD_CARD_FLIP_SFX_ENTRY)
 
@@ -25437,16 +25427,6 @@ func _looping_audio_stream(resource: AudioStream) -> AudioStream:
 		wav.loop_begin = 0
 		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
 	return looped
-
-func _fade_out_sfx(sfx_id: String, seconds: float) -> void:
-	for player_var: Variant in _sfx_players:
-		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
-		if player == null or not player.playing or str(player.get_meta("sfx_id", "")) != sfx_id:
-			continue
-		var generation: int = int(player.get_meta("play_generation", 0))
-		var fade: Tween = create_tween().set_ignore_time_scale(true)
-		fade.tween_property(player, "volume_db", player.volume_db - 36.0, seconds)
-		fade.tween_callback(_stop_attack_sfx_player.bind(player, generation))
 
 func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) -> void:
 	if not is_instance_valid(player):
