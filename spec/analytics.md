@@ -741,3 +741,31 @@ that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"
 when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.
+
+### Wave-4 illusion and terrain cards
+
+New action types (`illusion_swap`, `destroy_illusion`, `burst_terrain`) and the new
+`illusion`/`outcrop` fields appear unchanged in `card_played` action lists; there are no new
+payload fields. Outcomes use the existing append-only `surface_event` stream
+(spec/card_mechanics_illusions_terrain.md):
+
+- `illusion_retort` — `trait` (`on_damaged` | `reflect`), `enemy_id`, `actor_key`,
+  `illusion_id`, `illusion_key`, `illusion_tile`, `source_name`, `damage`, `element`,
+  `shock`, `hp_loss`, `block_loss`, `stoneskin_loss`, `killed`, `attacker_before` and a
+  player `source` (`source_kind: "illusion_retort"`, `player_card: false`). Kills keep their
+  ordinary `actor_death` with that source. The animating step also appears as an
+  `enemy_status_tick` with `trigger`/`action_type: "illusion_retort"`.
+- `illusion_ranged_origin` — `illusion_id`, `from` (the illusion tile), `target`: a ranged
+  attack fired from a Doppelganger.
+- `illusion_swapped` — `illusion_id`, `illusion_key`, `from`, `to`, `block_transferred`.
+- `illusion_shattered` — `illusion_id`, `tile`, `tiles` (blast tiles); the illusion's own
+  `actor_death` precedes it.
+- `terrain_shattered` — `tile`, `tiles`, `terrain_id`, `terrain_kind` (Rockburst/Worldbreak).
+- `powder_keg_burst` — `tile`, `tiles`, `damage`, `terrain_id`, `owner_kind`, `actor_keys`
+  and the triggering `source` with `source_kind: "powder_keg_burst"` (`causal_owner: player`
+  for a hero keg). Chained kegs record one event each.
+- `worldspine_pulse` — `tiles` (spires), `enemy_ids`, `damage_by_enemy`, player `source`
+  (`source_kind: "worldspine_pulse"`, `player_card: false`).
+
+Player-raised kegs and Worldspines use the existing `terrain_created` event with
+`terrain_kind` `powder_keg` / `worldspine`.

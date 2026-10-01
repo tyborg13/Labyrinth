@@ -60,6 +60,8 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"draw": "keyword:draw",
 	"card_play": "keyword:card_play",
 	"illusion": "keyword:illusion",
+	"illusion_swap": "keyword:illusion",
+	"destroy_illusion": "keyword:illusion",
 	"illuminate": "keyword:illuminate",
 	"vision": "keyword:vision",
 	"truesight": "keyword:truesight",
@@ -73,6 +75,7 @@ const ACTION_TYPE_ENTRY_IDS := {
 	"lightning_strikes": "combat:lightning_strikes",
 	"summon_minions": "combat:summons",
 	"outcrop": "combat:outcrops",
+	"burst_terrain": "combat:outcrops",
 	"raise_terrain": "combat:worldspines",
 	"terrain_burst": "combat:worldspines",
 	"cinder_marks": "combat:cinder_marks",
@@ -92,6 +95,7 @@ const ACTION_FIELD_ENTRY_IDS := {
 	"shock": "keyword:shock",
 	"immobilize": "keyword:immobilize",
 	"expose": "keyword:expose",
+	"expose_adjacent": "keyword:expose",
 	"sunder": "keyword:sunder",
 	"chain": "keyword:chain",
 	"pierce": "keyword:pierce",
@@ -756,6 +760,7 @@ static func _collect_entry_ids_for_actions(actions: Variant, wanted: Dictionary)
 		if not type_entry.is_empty():
 			wanted[type_entry] = true
 		_collect_surface_entry_ids(str(action.get("surface", "")), wanted)
+		_collect_surface_entry_ids(str(action.get("surface_ring", "")), wanted)
 		if str(action.get("element", "")) == "ice" and action_type in ["melee", "ranged", "aoe"]:
 			wanted["keyword:chilled"] = true
 			wanted["keyword:freeze"] = true

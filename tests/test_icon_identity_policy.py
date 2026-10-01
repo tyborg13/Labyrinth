@@ -46,6 +46,13 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),
+    # Card pool wave 4 (spec/card_mechanics_illusions_terrain.md): Rockburst and
+    # Worldbreak burst terrain like the Worldspine pulse; Empty Husk's swap is a
+    # Blink to an illusion's tile. Shattered Reflection borrows Area Attack until
+    # its purpose-built shatter icon exists.
+    frozenset({"burst_terrain", "terrain_burst"}),
+    frozenset({"illusion_swap", "blink"}),
+    frozenset({"destroy_illusion", "aoe"}),
 }
 
 EXPECTED_OBJECTIVE_ICONS = {

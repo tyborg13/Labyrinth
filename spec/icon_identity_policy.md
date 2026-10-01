@@ -22,6 +22,9 @@ Every distinct player-facing concept owns a distinct icon. This includes named a
 - `move` and `move_toward` are both the player-facing Move action.
 - `heal` and `heal_self` are both the player-facing Heal action.
 - `outcrop` (player cards) and `raise_terrain` (enemy intents) are both the player-facing Raise Terrain action: each creates breakable, sight-blocking terrain on empty floor. The Outcrops grimoire topic (`combat:outcrops`) uses the same Raise Terrain icon.
+- `burst_terrain` (Rockburst, Worldbreak) and `terrain_burst` (Tharokh's Worldspine pulse) are both the player-facing Terrain Burst: standing terrain erupts and hits the tiles around it.
+- `illusion_swap` (Empty Husk) and `blink` are both a teleport that lands without crossing the tiles between and triggers the destination's ground and traps; the swap's destination is one of your illusions. A purpose-built swap icon (`illusion_swap`) is still requested.
+- `destroy_illusion` (Shattered Reflection) temporarily shares Area Attack (`aoe`): it is a blast on the tiles around the shattered illusion. This is a placeholder until a purpose-built `shatter_illusion` icon exists; replace the alias then.
 - `move_away` uses Retreat, which is its own icon identity. Ally-targeted Guard and Heal actions also retain their own identities.
 
 ## Acceptance proof
