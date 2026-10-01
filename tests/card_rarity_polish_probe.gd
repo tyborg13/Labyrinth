@@ -95,6 +95,22 @@ func _initialize() -> void:
 			if not shadow_offset.is_equal_approx(CardWidget.ART_SHADOW_OFFSET) or not shadow.size.is_equal_approx(art.size):
 				push_error("%s art shadow should sit offset by %s beneath the art, got %s" % [card_id, CardWidget.ART_SHADOW_OFFSET, shadow_offset])
 				failures += 1
+		var hover_style: StyleBox = widget.get_theme_stylebox("hover")
+		var normal_style: StyleBox = widget.get_theme_stylebox("normal")
+		for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+			if not is_equal_approx(hover_style.get_expand_margin(side), normal_style.get_expand_margin(side)):
+				push_error("%s hover frame should not grow past the nameplate text and gem glow" % card_id)
+				failures += 1
+				break
+		if glow != null and glow.visible:
+			var glow_material: ShaderMaterial = glow.material as ShaderMaterial
+			if glow_material == null or not (glow_material.shader.code.contains("TIME")) or not (glow_material.get_shader_parameter("gem_center") as Vector2).is_equal_approx(widget.size * Vector2(0.5, 0.957)):
+				push_error("%s gem glow should be a live shader centred on the frame gem" % card_id)
+				failures += 1
+		var outline_ink: Color = title.get_theme_color("font_outline_color")
+		if (rarity == "legendary") != (outline_ink == CardWidget.LEGENDARY_TITLE_OUTLINE):
+			push_error("%s only legendary names should use the dark gilt outline" % card_id)
+			failures += 1
 		if card_id == "quick_stab" and title.get_theme_font_size("font_size") != CardWidget.TITLE_MAX_RENDER_SIZE:
 			push_error("A short full-size card name should render at %d px, got %d" % [CardWidget.TITLE_MAX_RENDER_SIZE, title.get_theme_font_size("font_size")])
 			failures += 1

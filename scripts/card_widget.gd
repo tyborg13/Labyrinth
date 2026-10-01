@@ -81,8 +81,13 @@ const RARITY_TITLE_INK := {
 	"uncommon": Color("1f4e7a"),
 	"rare": Color("1f4e7a"),
 	"epic": Color("5a2682"),
-	"legendary": Color("8a4308"),
+	"legendary": Color("e8a93a"),
 }
+# Legendary names are gilt lettering: gold fill on a dark outline, so they lift
+# off the parchment instead of sinking into it like a darker ink would.
+const TITLE_OUTLINE_INK := Color("f8f1dd")
+const LEGENDARY_TITLE_OUTLINE := Color("2e1505")
+const LEGENDARY_TITLE_OUTLINE_SIZE: int = 3
 const RARITY_GEM_GLOW := {
 	"uncommon": Color(0.35, 0.62, 1.0, 0.9),
 	"rare": Color(0.35, 0.62, 1.0, 0.9),
@@ -245,12 +250,23 @@ class TimeCostBadge:
 	const UiTypographyScript = preload("res://scripts/ui_typography.gd")
 	const CLOCK_HOVER_SECONDS_PER_SECOND: float = 24.0
 	const MotionSettings = preload("res://scripts/settings_store.gd")
+	const AssetLoaderScript = preload("res://scripts/asset_loader.gd")
+	# Geometry of assets/art/ui/card_time_watch.png, from card_time_watch.json.
+	const WATCH_TEXTURE_PATH: String = "res://assets/art/ui/card_time_watch.png"
+	const WATCH_TEXTURE_SIZE := Vector2(147.0, 176.0)
+	const WATCH_DIAL_CENTER := Vector2(73.4, 102.28)
+	const WATCH_CASE_RADIUS: float = 72.24
+	# The dark enamel inside the hour markers, as a share of the case radius.
+	const WATCH_DIAL_RATIO: float = 0.66
+	static var _watch_mipmapped: Texture2D
+	static var _watch_missing: bool = false
 
 	var value: int = 0
 	var _clock_seconds: float = 0.0
 	var _hovered: bool = false
 
 	func _ready() -> void:
+		texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 		_refresh_processing()
 
 	func _notification(what: int) -> void:
@@ -285,20 +301,19 @@ class TimeCostBadge:
 
 	func _draw() -> void:
 		var center: Vector2 = size * 0.5
-		var radius: float = minf(size.x, size.y) * 0.48
-		_draw_clock_face(center, radius)
+		var case_radius: float = minf(size.x, size.y) * 0.50
+		_draw_watch(center, case_radius)
 		var font: Font = UiTypographyScript.ui_font()
 		if font == null:
 			return
-		var font_size: int = UiTypographyScript.scaled_size(self, 20 if size.x <= 42.0 else 23)
+		var font_size: int = UiTypographyScript.scaled_size(self, 21 if size.x <= 42.0 else 24)
 		var text: String = str(value)
 		var text_size: Vector2 = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		while font_size > 12 and text_size.x > size.x * 0.62:
+		while font_size > 12 and text_size.x > size.x * 0.58:
 			font_size -= 1
 			text_size = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1.0, font_size)
-		_draw_number_medallion(center, radius)
-		var baseline: Vector2 = Vector2(center.x - text_size.x * 0.5, center.y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5 + radius * 0.12)
-		var outline_color: Color = Color("100804")
+		var baseline: Vector2 = Vector2(center.x - text_size.x * 0.5, center.y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5)
+		var outline_color: Color = Color("120804")
 		outline_color.a = 0.96
 		var outline_offsets: Array = [
 			Vector2(-1.0, 0.0),
@@ -310,73 +325,87 @@ class TimeCostBadge:
 			Vector2(-1.0, 1.0),
 			Vector2(1.0, -1.0)
 		]
+		draw_string(font, baseline + Vector2(0.0, 1.6), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color(0.0, 0.0, 0.0, 0.55))
 		for offset_var: Variant in outline_offsets:
 			draw_string(font, baseline + (offset_var as Vector2), text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, outline_color)
-		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff3c2"))
+		draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size, Color("fff1c8"))
 
-	func _draw_clock_face(center: Vector2, radius: float) -> void:
-		draw_circle(center + Vector2(radius * 0.05, radius * 0.09), radius * 1.07, Color(0.02, 0.01, 0.005, 0.60))
-		draw_circle(center, radius * 1.03, Color("1a1008"))
-		draw_circle(center + Vector2(-radius * 0.025, -radius * 0.035), radius * 0.96, Color("d9a850"))
-		draw_circle(center + Vector2(radius * 0.035, radius * 0.050), radius * 0.91, Color("6a3e18"))
-		draw_circle(center, radius * 0.86, Color("3a2515"))
-		draw_circle(center + Vector2(-radius * 0.020, -radius * 0.030), radius * 0.76, Color("2a190f"))
-		draw_circle(center + Vector2(-radius * 0.20, -radius * 0.24), radius * 0.42, Color(1.0, 0.78, 0.36, 0.11))
-		draw_circle(center + Vector2(radius * 0.24, radius * 0.26), radius * 0.56, Color(0.0, 0.0, 0.0, 0.18))
-		draw_arc(center, radius * 0.98, -PI * 0.88, -PI * 0.06, 24, Color(1.0, 0.86, 0.50, 0.84), 1.7, true)
-		draw_arc(center, radius * 0.98, PI * 0.18, PI * 0.95, 24, Color(0.18, 0.09, 0.03, 0.62), 2.0, true)
-		draw_arc(center, radius * 0.66, 0.0, PI * 2.0, 48, Color(0.86, 0.60, 0.25, 0.22), 0.8, true)
-		for tick: int in range(12):
-			var angle: float = -PI * 0.5 + float(tick) * TAU / 12.0
-			var inner: float = radius * (0.64 if tick % 3 == 0 else 0.71)
-			var outer: float = radius * 0.84
-			var tick_color: Color = Color("f6d98d") if tick % 3 == 0 else Color(0.80, 0.58, 0.30, 0.82)
-			var tick_width: float = 1.8 if tick % 3 == 0 else 1.1
-			draw_line(_polar_point(center, angle, inner) + Vector2(0.6, 0.8), _polar_point(center, angle, outer) + Vector2(0.6, 0.8), Color(0.05, 0.025, 0.01, 0.70), tick_width + 0.4, true)
-			draw_line(_polar_point(center, angle, inner), _polar_point(center, angle, outer), tick_color, tick_width, true)
+	# The case, bezel, markers and enamel dial are one painted brass pocket watch
+	# (tools/process_card_time_watch.py); only the hands, crystal and cost are
+	# drawn here so the hands can sweep while the card is hovered.
+	func _draw_watch(center: Vector2, case_radius: float) -> void:
+		var watch: Texture2D = _watch_texture()
+		if watch == null:
+			draw_circle(center, case_radius, Color("6a3e18"))
+			draw_circle(center, case_radius * 0.72, Color("1c0f0d"))
+		else:
+			var scale_factor: float = case_radius / WATCH_CASE_RADIUS
+			var origin: Vector2 = center - WATCH_DIAL_CENTER * scale_factor
+			var rect := Rect2(origin, WATCH_TEXTURE_SIZE * scale_factor)
+			draw_texture_rect(watch, Rect2(rect.position + Vector2(case_radius * 0.06, case_radius * 0.10), rect.size), false, Color(0.02, 0.01, 0.005, 0.55))
+			draw_texture_rect(watch, rect, false)
+		var dial_radius: float = case_radius * WATCH_DIAL_RATIO
 		var second_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds, 60.0) / 60.0
 		var minute_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds / 60.0, 60.0) / 60.0
 		var hour_angle: float = -PI * 0.5 + TAU * fposmod(_clock_seconds / 3600.0, 12.0) / 12.0
-		_draw_clock_hand(center, hour_angle, radius * 0.34, radius * 0.090, Color("7c4820"), Color("d39b4a"))
-		_draw_clock_hand(center, minute_angle, radius * 0.53, radius * 0.066, Color("d39a43"), Color("ffe099"))
-		_draw_second_hand(center, second_angle, radius * 0.65)
-		draw_circle(center + Vector2(0.7, 0.9), radius * 0.105, Color(0.03, 0.015, 0.006, 0.70))
-		draw_circle(center, radius * 0.092, Color("f4d486"))
-		draw_circle(center + Vector2(-radius * 0.020, -radius * 0.025), radius * 0.052, Color("6b3b18"))
-		draw_circle(center + Vector2(-radius * 0.030, -radius * 0.040), radius * 0.020, Color(1.0, 0.88, 0.58, 0.60))
+		_draw_clock_hand(center, hour_angle, dial_radius * 0.56, dial_radius * 0.085, Color("a8742f"), Color("f3d48a"))
+		_draw_clock_hand(center, minute_angle, dial_radius * 0.86, dial_radius * 0.060, Color("c8953f"), Color("fde3a0"))
+		_draw_second_hand(center, second_angle, dial_radius * 0.90)
+		# Under the cost numeral the hands meet a dark pivot well, so the digits
+		# never sit on top of bright brass.
+		for ring: int in range(4):
+			var t: float = float(ring) / 3.0
+			draw_circle(center, dial_radius * lerpf(0.50, 0.30, t), Color(0.05, 0.02, 0.015, lerpf(0.10, 0.34, t)))
+		# Domed crystal: a soft sheen across the upper-left of the glass.
+		draw_arc(center, dial_radius * 0.80, -PI * 0.96, -PI * 0.60, 18, Color(1.0, 0.96, 0.86, 0.20), maxf(1.0, dial_radius * 0.11), true)
+		draw_arc(center, dial_radius * 0.80, -PI * 0.90, -PI * 0.68, 12, Color(1.0, 0.98, 0.92, 0.22), maxf(0.6, dial_radius * 0.04), true)
 
-	func _draw_number_medallion(center: Vector2, radius: float) -> void:
-		draw_circle(center + Vector2(0.0, radius * 0.06), radius * 0.40, Color(0.02, 0.01, 0.004, 0.58))
-		draw_circle(center, radius * 0.36, Color(0.10, 0.055, 0.026, 0.88))
-		draw_arc(center, radius * 0.35, -PI * 0.82, -PI * 0.18, 16, Color(1.0, 0.80, 0.42, 0.30), 0.9, true)
-		draw_arc(center, radius * 0.35, PI * 0.10, PI * 0.84, 16, Color(0.0, 0.0, 0.0, 0.30), 1.0, true)
+	static func _watch_texture() -> Texture2D:
+		if _watch_mipmapped != null or _watch_missing:
+			return _watch_mipmapped
+		var source: Texture2D = AssetLoaderScript.load_texture(WATCH_TEXTURE_PATH)
+		if source == null:
+			_watch_missing = true
+			return null
+		_watch_mipmapped = source
+		# The painting is drawn well below its native size; mipmaps keep the
+		# bezel's fine milling from shimmering at small card widths.
+		var image: Image = source.get_image()
+		if image != null and not image.is_empty():
+			image = image.duplicate() as Image
+			if image.is_compressed():
+				image.decompress()
+			image.generate_mipmaps()
+			_watch_mipmapped = ImageTexture.create_from_image(image)
+		return _watch_mipmapped
 
 	func _draw_clock_hand(center: Vector2, angle: float, length: float, width: float, color: Color, highlight: Color) -> void:
 		var direction: Vector2 = Vector2(cos(angle), sin(angle))
 		var perpendicular: Vector2 = Vector2(-direction.y, direction.x)
-		var tail: Vector2 = center - direction * length * 0.14
+		var tail: Vector2 = center - direction * length * 0.16
 		var tip: Vector2 = center + direction * length
 		var points := PackedVector2Array([
-			tail + perpendicular * width,
-			center + perpendicular * width * 0.58,
-			tip + perpendicular * width * 0.18,
+			tail + perpendicular * width * 0.8,
+			center + perpendicular * width,
+			tip - direction * length * 0.22 + perpendicular * width * 0.55,
 			tip,
-			tip - perpendicular * width * 0.18,
-			center - perpendicular * width * 0.58,
-			tail - perpendicular * width
+			tip - direction * length * 0.22 - perpendicular * width * 0.55,
+			center - perpendicular * width,
+			tail - perpendicular * width * 0.8
 		])
-		draw_colored_polygon(_offset_polygon(points, Vector2(0.8, 1.0)), Color(0.03, 0.015, 0.006, 0.58))
+		draw_colored_polygon(_offset_polygon(points, Vector2(0.7, 1.0)), Color(0.02, 0.01, 0.004, 0.62))
 		draw_colored_polygon(points, color)
-		draw_polyline(_closed_polygon(points), Color(0.10, 0.045, 0.014, 0.60), 0.7, true)
-		draw_line(tail + perpendicular * width * 0.36, tip + perpendicular * width * 0.08, highlight, 0.7, true)
+		draw_polyline(_closed_polygon(points), Color(0.16, 0.08, 0.02, 0.70), 0.6, true)
+		draw_line(tail + perpendicular * width * 0.25, tip, highlight, 0.7, true)
 
 	func _draw_second_hand(center: Vector2, angle: float, length: float) -> void:
 		var direction: Vector2 = Vector2(cos(angle), sin(angle))
 		var tip: Vector2 = center + direction * length
-		var tail: Vector2 = center - direction * length * 0.24
-		draw_line(tail + Vector2(0.7, 0.8), tip + Vector2(0.7, 0.8), Color(0.03, 0.014, 0.006, 0.62), 1.8, true)
-		draw_line(tail, tip, Color("f6d783"), 1.15, true)
-		draw_circle(tip, length * 0.032, Color("fff0a8"))
+		var tail: Vector2 = center - direction * length * 0.26
+		draw_line(tail + Vector2(0.6, 0.9), tip + Vector2(0.6, 0.9), Color(0.02, 0.01, 0.004, 0.60), 1.6, true)
+		draw_line(tail, tip, Color("e2b65a"), 1.0, true)
+		draw_circle(tail, length * 0.07, Color("c08a3a"))
+		draw_circle(tip - direction * length * 0.18, length * 0.045, Color("f6d98d"))
 
 	func _offset_polygon(points: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
 		var shifted := PackedVector2Array()
@@ -396,31 +425,93 @@ class TimeCostBadge:
 class RarityGemGlow:
 	extends Control
 
+	# The frame's rarity gem emits light: a breathing hot core over the gem, a
+	# soft halo that spills onto the wood and parchment, slow light rays for
+	# epic and legendary cards, and an occasional star glint on legendary. The
+	# shader runs on the GPU clock; reduced motion holds it still.
+	const MotionSettings = preload("res://scripts/settings_store.gd")
 	const GEM_CENTER_RATIO := Vector2(0.5, 0.957)
-	const GLOW_RADIUS_RATIO: float = 0.085
-	var _glow: Color = Color.TRANSPARENT
+	const GEM_RADIUS_RATIO: float = 0.056
+	const SHADER_CODE: String = """
+shader_type canvas_item;
+render_mode blend_add, unshaded;
+uniform vec4 glow_color : source_color = vec4(1.0);
+uniform vec2 gem_center = vec2(125.0, 337.0);
+uniform float gem_radius = 14.0;
+uniform float strength = 1.0;
+uniform float rays = 0.0;
+uniform float sparkle = 0.0;
+uniform float phase = 0.0;
+uniform float animate = 1.0;
+varying vec2 local;
+void vertex() {
+	local = VERTEX;
+}
+void fragment() {
+	float t = TIME * animate + phase;
+	vec2 d = (local - gem_center) / gem_radius;
+	d.y *= 0.92;
+	float r = length(d);
+	float breath = 0.74 + 0.20 * sin(t * 2.1) + 0.06 * sin(t * 5.7 + 1.3);
+	float core = exp(-r * r * 1.6) * 0.62;
+	float halo = exp(-r * 1.05) * 0.70;
+	float a = atan(d.y, d.x);
+	float beams = pow(max(0.0, cos(a * 3.0 + t * 0.31)), 22.0) + 0.7 * pow(max(0.0, cos(a * 4.0 - t * 0.23 + 1.1)), 30.0);
+	float ray = beams * exp(-r * 0.95) * smoothstep(0.55, 1.25, r) * rays;
+	float shimmer = 0.5 + 0.5 * sin(d.x * 3.1 + d.y * 4.7 - t * 3.3);
+	float cycle = fract((t + 0.9) / 4.3);
+	float flash = pow(max(0.0, 1.0 - abs(cycle - 0.5) * 7.0), 2.0);
+	vec2 g = d - vec2(-0.30, -0.42);
+	float star = (exp(-abs(g.x) * 16.0 - abs(g.y) * 1.7) + exp(-abs(g.y) * 16.0 - abs(g.x) * 1.7)) * exp(-length(g) * 0.9);
+	float glint = (star + exp(-dot(g, g) * 30.0)) * flash * sparkle;
+	float energy = (core * (0.82 + 0.18 * shimmer) + halo + ray) * breath + glint * 1.3;
+	vec3 hot = mix(glow_color.rgb, vec3(1.0, 0.97, 0.90), clamp(core * 0.25 + glint * 0.8, 0.0, 1.0));
+	COLOR = vec4(hot, clamp(energy * strength * glow_color.a, 0.0, 1.0));
+}
+"""
+	const RARITY_LIGHT := {
+		"uncommon": {"strength": 0.62, "rays": 0.0, "sparkle": 0.0},
+		"rare": {"strength": 0.62, "rays": 0.0, "sparkle": 0.0},
+		"epic": {"strength": 0.74, "rays": 0.55, "sparkle": 0.0},
+		"legendary": {"strength": 0.86, "rays": 1.0, "sparkle": 1.0},
+	}
+	static var _shader: Shader
+	var _material: ShaderMaterial
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
 		set_anchors_preset(Control.PRESET_FULL_RECT)
-		var additive := CanvasItemMaterial.new()
-		additive.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
-		material = additive
+		if _shader == null:
+			_shader = Shader.new()
+			_shader.code = SHADER_CODE
+		_material = ShaderMaterial.new()
+		_material.shader = _shader
+		_material.set_shader_parameter("phase", float(get_instance_id() % 997) * 0.61)
+		material = _material
 		visible = false
 
-	func set_glow(color: Color) -> void:
-		_glow = color
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED or what == NOTIFICATION_ENTER_TREE:
+			_sync_geometry()
+
+	func set_glow(color: Color, rarity: String = "") -> void:
 		visible = color.a > 0.0
-		queue_redraw()
+		var light: Dictionary = RARITY_LIGHT.get(rarity, RARITY_LIGHT["rare"]) as Dictionary
+		_material.set_shader_parameter("glow_color", color)
+		_material.set_shader_parameter("strength", float(light.get("strength", 0.6)))
+		_material.set_shader_parameter("rays", float(light.get("rays", 0.0)))
+		_material.set_shader_parameter("sparkle", float(light.get("sparkle", 0.0)))
+		_material.set_shader_parameter("animate", 0.0 if MotionSettings.applied_reduced_motion_enabled() else 1.0)
+		_sync_geometry()
+
+	func _sync_geometry() -> void:
+		if _material == null or size.x <= 0.0:
+			return
+		_material.set_shader_parameter("gem_center", size * GEM_CENTER_RATIO)
+		_material.set_shader_parameter("gem_radius", size.x * GEM_RADIUS_RATIO)
 
 	func _draw() -> void:
-		if _glow.a <= 0.0 or size.x <= 0.0:
-			return
-		var center: Vector2 = size * GEM_CENTER_RATIO
-		var radius: float = size.x * GLOW_RADIUS_RATIO
-		for index: int in range(6):
-			var t: float = float(index + 1) / 6.0
-			draw_circle(center, radius * t, Color(_glow, _glow.a * (1.0 - t) * 0.55))
+		draw_rect(Rect2(Vector2.ZERO, size), Color.WHITE)
 
 
 class DebossedRoleEmblem:
@@ -564,7 +655,7 @@ var _frame_reflection_material: ShaderMaterial
 var _frame_reflection_progress: float = 1.0
 var _material_highlighted: bool = false
 var _art_shadow: TextureRect
-var _rarity_gem_glow: Control
+var _rarity_gem_glow: RarityGemGlow
 
 func _ready() -> void:
 	set_process(false)
@@ -582,7 +673,7 @@ func _ready() -> void:
 	if ui_font != null:
 		title_label.add_theme_font_override("font", ui_font)
 	title_label.add_theme_color_override("font_color", Color("39271b"))
-	title_label.add_theme_color_override("font_outline_color", Color("f8f1dd"))
+	title_label.add_theme_color_override("font_outline_color", TITLE_OUTLINE_INK)
 	title_label.add_theme_constant_override("outline_size", 2)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
@@ -1003,7 +1094,7 @@ func _scaled_card_font_size(value: int, minimum: int = 7) -> int:
 
 func _apply_base_style(_background: Color, _border: Color, _usable: bool, _previewed: bool, _printed_playable: bool, _art_background: Color, rarity: String, element_id: String) -> void:
 	var normal: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
-	var hover: StyleBoxTexture = _card_frame_style(2.0, rarity, element_id)
+	var hover: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
 	var pressed: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
 	var disabled_style: StyleBoxTexture = _card_frame_style(0.0, rarity, element_id)
 	add_theme_stylebox_override("normal", normal)
@@ -1209,11 +1300,14 @@ func _ensure_art_shadow() -> void:
 func _apply_rarity_presentation(rarity: String) -> void:
 	var ink: Color = RARITY_TITLE_INK.get(rarity, RARITY_TITLE_INK["common"]) as Color
 	title_label.add_theme_color_override("font_color", ink)
+	var gilt: bool = rarity == "legendary"
+	title_label.add_theme_color_override("font_outline_color", LEGENDARY_TITLE_OUTLINE if gilt else TITLE_OUTLINE_INK)
+	title_label.add_theme_constant_override("outline_size", LEGENDARY_TITLE_OUTLINE_SIZE if gilt else 2)
 	if _rarity_gem_glow == null:
 		_rarity_gem_glow = RarityGemGlow.new()
 		_rarity_gem_glow.name = "RarityGemGlow"
 		add_child(_rarity_gem_glow)
-	_rarity_gem_glow.set_glow(RARITY_GEM_GLOW.get(rarity, Color.TRANSPARENT) as Color)
+	_rarity_gem_glow.set_glow(RARITY_GEM_GLOW.get(rarity, Color.TRANSPARENT) as Color, rarity)
 
 func _refresh_role_emblem(card: Dictionary) -> void:
 	_ensure_role_emblem()
