@@ -375,6 +375,7 @@ class TimeCostBadge:
 			image = image.duplicate() as Image
 			if image.is_compressed():
 				image.decompress()
+			image.fix_alpha_edges()
 			image.generate_mipmaps()
 			_watch_mipmapped = ImageTexture.create_from_image(image)
 		return _watch_mipmapped
@@ -475,8 +476,13 @@ void fragment() {
 		"epic": {"strength": 0.74, "rays": 0.55, "sparkle": 0.0},
 		"legendary": {"strength": 0.86, "rays": 1.0, "sparkle": 1.0},
 	}
+	# The light is negligible past this many gem radii, so only that square
+	# around the gem is shaded.
+	const LIGHT_REACH_RADII: float = 6.0
 	static var _shader: Shader
 	var _material: ShaderMaterial
+	var _phase: float = 0.0
+	var _sparkle: float = 0.0
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -486,13 +492,15 @@ void fragment() {
 			_shader.code = SHADER_CODE
 		_material = ShaderMaterial.new()
 		_material.shader = _shader
-		_material.set_shader_parameter("phase", float(get_instance_id() % 997) * 0.61)
+		_phase = float(get_instance_id() % 997) * 0.61
 		material = _material
 		visible = false
 
 	func _notification(what: int) -> void:
 		if what == NOTIFICATION_RESIZED or what == NOTIFICATION_ENTER_TREE:
 			_sync_geometry()
+		if what == NOTIFICATION_VISIBILITY_CHANGED and is_visible_in_tree():
+			refresh_motion()
 
 	func set_glow(color: Color, rarity: String = "") -> void:
 		visible = color.a > 0.0
@@ -500,18 +508,29 @@ void fragment() {
 		_material.set_shader_parameter("glow_color", color)
 		_material.set_shader_parameter("strength", float(light.get("strength", 0.6)))
 		_material.set_shader_parameter("rays", float(light.get("rays", 0.0)))
-		_material.set_shader_parameter("sparkle", float(light.get("sparkle", 0.0)))
-		_material.set_shader_parameter("animate", 0.0 if MotionSettings.applied_reduced_motion_enabled() else 1.0)
+		_sparkle = float(light.get("sparkle", 0.0))
+		refresh_motion()
 		_sync_geometry()
+
+	# Reduced motion holds every gem on the same calm frame with no glint, and
+	# is re-read whenever the card refreshes its material or visibility.
+	func refresh_motion() -> void:
+		var still: bool = MotionSettings.applied_reduced_motion_enabled()
+		_material.set_shader_parameter("animate", 0.0 if still else 1.0)
+		_material.set_shader_parameter("phase", 0.0 if still else _phase)
+		_material.set_shader_parameter("sparkle", 0.0 if still else _sparkle)
 
 	func _sync_geometry() -> void:
 		if _material == null or size.x <= 0.0:
 			return
 		_material.set_shader_parameter("gem_center", size * GEM_CENTER_RATIO)
 		_material.set_shader_parameter("gem_radius", size.x * GEM_RADIUS_RATIO)
+		queue_redraw()
 
 	func _draw() -> void:
-		draw_rect(Rect2(Vector2.ZERO, size), Color.WHITE)
+		var reach: float = size.x * GEM_RADIUS_RATIO * LIGHT_REACH_RADII
+		var light_rect := Rect2(size * GEM_CENTER_RATIO - Vector2(reach, reach), Vector2(reach, reach) * 2.0)
+		draw_rect(light_rect.intersection(Rect2(Vector2.ZERO, size)), Color.WHITE)
 
 
 class DebossedRoleEmblem:
@@ -1342,7 +1361,9 @@ func _position_time_badge() -> void:
 	_time_badge.custom_minimum_size = Vector2(badge_size, badge_size)
 	_time_badge.size = Vector2(badge_size, badge_size)
 	var overhang: float = clampf(width * 0.020, _scaled_card_value(3.5, 1.5), _scaled_card_value(5.0, 3.0))
-	var vertical_lift: float = badge_size * 0.10
+	# The watch's crown and bow already rise above the card, so the case sits
+	# almost level with the frame corner.
+	var vertical_lift: float = badge_size * 0.03
 	var edge_overhang: float = overhang * 0.5
 	_time_badge.position = Vector2(-edge_overhang, -edge_overhang - vertical_lift)
 	_time_badge.z_index = 12
@@ -2055,6 +2076,8 @@ func _material_is_highlighted() -> bool:
 	)
 
 func _refresh_card_material(allow_response: bool) -> void:
+	if _rarity_gem_glow != null and _rarity_gem_glow.visible:
+		_rarity_gem_glow.refresh_motion()
 	if _elevation_shadow == null:
 		return
 	var highlighted: bool = _material_is_highlighted()

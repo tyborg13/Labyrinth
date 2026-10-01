@@ -8197,6 +8197,11 @@ func _build_pile_overlay() -> void:
 	_pile_dialog_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pile_dialog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_pile_dialog_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# Room above the first row for each card's time watch, whose crown rises
+	# past the card's top edge.
+	var pile_scroll_padding := StyleBoxEmpty.new()
+	pile_scroll_padding.content_margin_top = 18.0
+	_pile_dialog_scroll.add_theme_stylebox_override("panel", pile_scroll_padding)
 	vbox.add_child(_pile_dialog_scroll)
 
 	_pile_dialog_cards = HFlowContainer.new()
