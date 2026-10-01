@@ -741,3 +741,19 @@ that animates it also appears as an `enemy_status_tick` with `label: "Retaliate"
 when only riders applied); analysis should prefer the surface event. `rite_surface_pulse` records Rite turn-start pulses (`surface`, `element`,
 `damage`, `enemy_ids`, `relic_id`). Rite effects otherwise reuse relic events and flags,
 keyed by `relic_id` `rite:<card_id>:<n>`.
+
+### Wave-4 surface family (spec/card_mechanics_surfaces.md)
+
+No new event types and no `card_played` field changes. The existing append-only
+`surface_event` stream gains these kinds: `meteor_marked` (`tiles`, `damage`, `surface`,
+player card `source`), `meteor_impact` at the next player turn start (`tiles`, `damage`,
+`element`, `surface`, `victims` actor keys, `losses` per actor, `source` with
+`source_kind: "meteor_marks"`, `player_card: true`), `surface_converted` (`surface`,
+`from_surface`, `tiles`, `enemy_ids`, `damage`), `surface_discharge` (`tiles` network, `area`,
+`enemy_ids`, `damage`), `selector_strike` (`selector`, `enemy_ids`, `damage`, `element`),
+`attack_consumed_surface` (`surface`, `tiles`, `bonus_damage`), `card_result_reward`
+(`when`: froze|killed, `enemy_id`, `rewards`) and `frozen_splash` (`target_id`,
+`enemy_ids`, `damage`, `tiles`). Placed, replaced and removed surfaces keep their ordinary
+`surface_created`/`surface_replaced`/`surface_removed` records (removal reasons `consume`,
+`discharge`, `detonate`). A Meteorfall landing also animates as an enemy-phase
+`status_damage` step with `trigger: "meteor_marks"`; analysis should prefer the surface event.

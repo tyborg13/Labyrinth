@@ -3275,6 +3275,8 @@ func _queue_combat_state_change_redraws(
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
 	if changed_keys.has("traps"):
 		_queue_render_layer_redraw(_ground_render_layer)
+	if changed_keys.has("meteor_marks"):
+		_queue_render_layer_redraw(_overlay_render_layer)
 	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
 		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
 			_queue_scene_render_layer_for_tile(tile)
@@ -3483,6 +3485,8 @@ func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
 		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
 		"retaliate": source_state.get("retaliate", {}),
 		"active_rites": source_state.get("active_rites", []),
+		# Player Meteorfall marks (spec/card_mechanics_surfaces.md).
+		"meteor_marks": source_state.get("meteor_marks", []),
 		"turn_flags": source_state.get("turn_flags", {}),
 		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
 		"grid": source_state.get("grid", []),
@@ -6435,6 +6439,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	_draw_meteor_mark(tile)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
 		# top so it remains the unmistakable primary targeting signal.
@@ -6449,6 +6454,31 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		else:
 			draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
 			_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+
+# Player Meteorfall marks persist through enemy turns and land at the start of
+# the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
+# an ember-ringed tile, with the incoming damage in the tooltip.
+func _draw_meteor_mark(tile: Vector2i) -> void:
+	var damage: int = 0
+	var surface: String = ""
+	var marked: bool = false
+	for mark_var: Variant in combat_state.get("meteor_marks", []):
+		if typeof(mark_var) != TYPE_DICTIONARY or not ((mark_var as Dictionary).get("tiles", []) as Array).has(tile):
+			continue
+		marked = true
+		damage += int((mark_var as Dictionary).get("damage", 0))
+		surface = str((mark_var as Dictionary).get("surface", surface))
+	if not marked:
+		return
+	draw_colored_polygon(_tile_polygon(tile), Color(0.95, 0.38, 0.16, 0.20))
+	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
+	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
+	if mark_icon == null:
+		return
+	var icon_side: float = _tile_width() * 0.30
+	var icon_rect := Rect2(_tile_center(tile) - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side)
+	draw_texture_rect(mark_icon, icon_rect, false, Color.WHITE)
+	_register_tooltip(icon_rect, "Meteorfall\nAt the start of your next turn this tile takes %d damage%s." % [damage, " and becomes %s" % surface.capitalize() if not surface.is_empty() else ""])
 
 func _draw_controller_door_focus(tile: Vector2i) -> void:
 	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)

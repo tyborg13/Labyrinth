@@ -401,14 +401,23 @@ const SKILL_ICONS: Dictionary = {
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
 	"aoe": "aoe",
+	# Wave-4 surface family placeholders (spec/card_mechanics_surfaces.md):
+	# convert_surface and discharge await purpose-built icons; all_enemies
+	# shares Area Attack until its own "each matching enemy" icon exists.
+	"all_enemies": "aoe",
 	"surface": "surface",
+	"surface_adjacent_enemies": "surface",
+	"convert_surface": "surface",
 	"detonate": "detonate",
 	"consume_surface": "surface_consume",
+	"discharge": "surface_consume",
 	"surface_relocate": "surface_relocate",
 	"blink": "blink",
 	"block": "block",
 	"card_play": "card_play",
 	"cinder_marks": "cinder_marks",
+	# The Meteorfall card marks tiles exactly like the dragon's Meteorfall.
+	"meteor_marks": "cinder_marks",
 	"consume": "consume",
 	"detonate_cinders": "detonate_cinders",
 	"dispel_umbra": "dispel_umbra",
@@ -899,6 +908,51 @@ static func keyword_rider_rows(action: Dictionary) -> Array:
 	var scale: Variant = action.get("scale_bonus", {})
 	if typeof(scale) == TYPE_DICTIONARY and not (scale as Dictionary).is_empty():
 		rows.append([scale_bonus_token(action)])
+	rows.append_array(surface_family_rider_rows(action))
+	return rows
+
+## Wave-4 surface-family riders (spec/card_mechanics_surfaces.md): consume,
+## on_result and frozen_splash.
+static func surface_family_rider_rows(action: Dictionary) -> Array:
+	var rows: Array = []
+	var consume: Variant = action.get("consume", null)
+	if typeof(consume) == TYPE_DICTIONARY and not str((consume as Dictionary).get("surface", "")).is_empty():
+		var spec: Dictionary = consume
+		var kind: String = str(spec.get("surface", ""))
+		var required: bool = bool(spec.get("required", false))
+		var per_hit: bool = bool(spec.get("per_hit", false))
+		var condition: Dictionary = surface_condition_token({"surface": kind, "subject": "target", "present": true})
+		if required:
+			condition["prefix"] = "Only Target on"
+			condition["value"] = "Only Target on %s:" % label(surface_icon_key(kind))
+			condition["tooltip"] = "Only Target on %s\nThis attack can only target an enemy standing on %s." % [label(surface_icon_key(kind)), label(surface_icon_key(kind))]
+		elif per_hit:
+			condition["prefix"] = "Each hit on"
+			condition["value"] = "Each hit on %s:" % label(surface_icon_key(kind))
+		var row: Array = [condition]
+		var bonus: int = int(spec.get("bonus_damage", 0))
+		if bonus != 0:
+			row.append(token_for(_damage_icon_for_action(action, _damage_bonus_fallback_icon(action)), "%+d" % bonus, "condition"))
+		var where: String = "on each pattern tile" if str(action.get("type", "")) == "aoe" else "beneath each enemy hit" if per_hit else "beneath the target"
+		row.append(token_for("surface_consume", null, "neutral", "Consume Surface\nRemoves the %s %s after the hit." % [label(surface_icon_key(kind)), where]))
+		rows.append(row)
+	var result: Variant = action.get("on_result", null)
+	if typeof(result) == TYPE_DICTIONARY and not (result as Dictionary).is_empty():
+		var when: String = str((result as Dictionary).get("when", ""))
+		var result_text: String = "if it Freezes:" if when == "froze" else "if it kills:" if when == "killed" else "if %s:" % when
+		var result_tooltip: String = "If this hit Freezes the target (it was not Frozen before), also:" if when == "froze" else "If this hit defeats the target, also (on top of the usual card play for a kill):"
+		var result_row: Array = [text_token(result_text, "neutral", result_tooltip)]
+		for reward_var: Variant in (result as Dictionary).get("rewards", []):
+			if typeof(reward_var) != TYPE_DICTIONARY:
+				continue
+			for token_var: Variant in tokens_for_action(reward_var as Dictionary):
+				var token: Dictionary = (token_var as Dictionary).duplicate(true)
+				token["tone"] = "condition"
+				result_row.append(token)
+		rows.append(result_row)
+	var splash: int = int(action.get("frozen_splash", 0))
+	if splash > 0:
+		rows.append([state_condition_token("frozen"), token_for("aoe", splash, "condition", "Shatter\nIf the target was Frozen before the hit, deal %d to each other enemy next to it (not tripled)." % splash), text_token("adjacent", "neutral", "Each other enemy next to the target.")])
 	return rows
 
 const STATE_CONDITION_COPY: Dictionary = {
@@ -988,8 +1042,16 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_keyword_tokens(tokens, action)
 		"ranged":
 			_append_damage_token(tokens, _damage_icon_for_action(action, "ranged"), action, options)
-			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
+			if bool(action.get("ignore_los", false)):
+				var unlimited: bool = int(action.get("range", 0)) >= 99
+				tokens.append(_token_for_action_field(action, "range", "range", "∞" if unlimited else int(action.get("range", 0)), "neutral", "Range\n%s" % ("Any enemy you can see, ignoring range and line of sight." if unlimited else "Ignores line of sight: any enemy you can see within this range.")))
+			else:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			_append_keyword_tokens(tokens, action)
+			if bool(action.get("shock_all_hits", false)):
+				for token_index: int in range(tokens.size()):
+					if str((tokens[token_index] as Dictionary).get("icon", "")) == "shock":
+						(tokens[token_index] as Dictionary)["tooltip"] = "Shock\nEvery enemy this hits is Shocked, including Chain and conducted hits."
 		"aoe":
 			# A facing-aimed area starts on an adjacent tile, like a melee strike:
 			# the pattern token carries its reach, so no range chip is shown.
@@ -1024,17 +1086,64 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 				tokens.append(_aoe_pattern_token(action))
 		"detonate":
 			_append_damage_token(tokens, "detonate", action, options)
+			if action.has("detonate_surface") and str(action.get("detonate_surface", "fire")) != "fire":
+				tokens.append(surface_token(str(action.get("detonate_surface", "")), "Detonates this surface instead of Fire."))
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			if (action.get("pattern", []) as Array).size() > 1:
 				tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
+			if not str(action.get("leave_surface", "")).is_empty():
+				tokens.append(surface_token(str(action.get("leave_surface", "")), "Leaves this surface on each detonated tile and its four neighbors."))
+			if bool(action.get("spare_player", false)):
+				tokens.append(text_token("spares you", "neutral", "You take no damage from this Detonate."))
 		"consume_surface":
 			tokens.append(token_for("surface_consume"))
 			tokens.append(surface_token(str(action.get("surface", ""))))
 			for reward_var: Variant in action.get("rewards", []):
 				if typeof(reward_var) == TYPE_DICTIONARY:
 					tokens.append_array(tokens_for_action(reward_var as Dictionary))
+					if bool((reward_var as Dictionary).get("per_tile", false)):
+						var cap: int = int((reward_var as Dictionary).get("max", 0))
+						tokens.append(text_token("per tile" + (", max %d" % cap if cap > 0 else ""), "neutral", "Gains this for each tile removed%s." % (" (maximum %d)" % cap if cap > 0 else "")))
+		"surface_adjacent_enemies":
+			var self_too: bool = bool(action.get("include_self", false))
+			var adjacent_detail: String = "Leaves this surface under each adjacent enemy%s." % (" and on your tile" if self_too else "")
+			tokens.append(surface_token(str(action.get("surface", "")), adjacent_detail))
+			tokens.append(text_token("adjacent + you" if self_too else "adjacent", "neutral", adjacent_detail))
+		"convert_surface":
+			var from_kind: String = str(action.get("surface", "ice"))
+			var to_kind: String = str(action.get("to", "electrified"))
+			var convert_detail: String = "Turns a %s tile%s into %s." % [label(surface_icon_key(from_kind)), (" and every %s tile connected to it" % label(surface_icon_key(from_kind))) if bool(action.get("connected", false)) else "", label(surface_icon_key(to_kind))]
+			tokens.append(surface_token(from_kind, convert_detail))
+			tokens.append(text_token("→", "neutral", convert_detail))
+			tokens.append(surface_token(to_kind, convert_detail))
+			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
+				_append_damage_token(tokens, "aoe", action, options)
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nChoose a %s tile within this range and line of sight." % label(surface_icon_key(from_kind))))
+			_append_keyword_tokens(tokens, action)
+		"discharge":
+			tokens.append(token_for("surface_consume", null, "neutral", "Discharge\nRemoves a connected Electrified network. Each enemy on it or next to it takes the damage once."))
+			tokens.append(surface_token("electrified"))
+			_append_damage_token(tokens, "aoe", action, options)
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nChoose an Electrified tile within this range and line of sight."))
+			_append_keyword_tokens(tokens, action)
+		"all_enemies":
+			tokens.append(selector_token(str(action.get("selector", ""))))
+			if int(action.get("damage", 0)) > 0 or int(options.get("final_damage", 0)) > 0:
+				_append_damage_token(tokens, "aoe", action, options)
+			if int(action.get("range", 0)) > 0:
+				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nOnly enemies within this distance of you."))
+			_append_keyword_tokens(tokens, action)
+		"meteor_marks":
+			var meteor_surface: String = str(action.get("surface", ""))
+			tokens.append(token_for("cinder_marks", null, "neutral", "Meteorfall\nMarks the shown tiles. At the start of your next turn, before you draw, each marked tile takes the damage (anyone there, including you)%s." % (" and becomes %s" % label(surface_icon_key(meteor_surface)) if not meteor_surface.is_empty() else "")))
+			_append_damage_token(tokens, "aoe", action, options)
+			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Range\nMark tiles within this range and line of sight."))
+			if (action.get("pattern", []) as Array).size() > 1:
+				tokens.append(_aoe_pattern_token(action))
+			if not meteor_surface.is_empty():
+				tokens.append(surface_token(meteor_surface, "Each marked tile becomes this surface when the meteor lands."))
 		"surface_relocate":
 			tokens.append(token_for("surface_relocate"))
 			if int(action.get("range", 0)) > 0:
@@ -1117,12 +1226,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			_append_next_attack_tokens(tokens, action)
 	if int(action.get("outcrop_health", 0)) > 0:
 		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
-	if action_type not in ["surface", "consume_surface"] and not str(action.get("surface", "")).is_empty():
+	if action_type not in ["surface", "consume_surface", "surface_adjacent_enemies", "convert_surface", "meteor_marks"] and not str(action.get("surface", "")).is_empty():
 		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
 		elif action.has("surface_tiles_limit"): tokens.append(text_token("%d nearest tile%s" % [int(action["surface_tiles_limit"]), "" if int(action["surface_tiles_limit"]) == 1 else "s"], "neutral", "Places ground on the nearest affected tiles, beginning at the dragon."))
 		if action.has("surface_pattern") and not _same_pattern(action.get("surface_pattern", []), action.get("pattern", [])):
-			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0)), "aim": str(action.get("aim", ""))}))
+			# surface_follows_facing patterns are authored from the struck tile
+			# facing away from you, like a facing-aimed area.
+			tokens.append(_aoe_pattern_token({"pattern": action.get("surface_pattern", []), "range": int(action.get("range", 0)), "aim": "facing" if bool(action.get("surface_follows_facing", false)) else str(action.get("aim", ""))}))
 	if action_type in ["move", "move_toward", "move_away", "blink", "melee", "ranged", "aoe", "push", "pull"]:
 		_append_illuminate_rider_tokens(tokens, action)
 	if not str(action.get("clear_surface", "")).is_empty():
@@ -1131,6 +1242,25 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	if not requirement.is_empty():
 		tokens.push_front(surface_condition_token(requirement))
 	return tokens
+
+const SELECTOR_COPY: Dictionary = {
+	"on_fire": {"icon": "surface_fire", "prefix": "Each on", "tooltip": "Each Enemy on Fire\nHits every enemy you can see that stands on Fire. There is no target to choose."},
+	"chilled": {"icon": "chilled", "prefix": "Each", "tooltip": "Each Chilled Enemy\nHits every Chilled enemy you can see. There is no target to choose."},
+	"in_light": {"icon": "illuminate", "prefix": "Each in", "tooltip": "Each Enemy in Light\nHits every enemy you can see that stands in Light. There is no target to choose."},
+	"on_electrified": {"icon": "surface_electrified", "prefix": "Each on", "tooltip": "Each Enemy on Electrified\nHits every enemy you can see that stands on Electrified ground. There is no target to choose."},
+}
+
+## all_enemies selector: "Each on [Fire]:" etc. Rendered like a surface condition.
+static func selector_token(selector: String) -> Dictionary:
+	var copy: Dictionary = SELECTOR_COPY.get(selector, {"icon": "aoe", "prefix": "Each", "tooltip": "Each matching enemy you can see."}) as Dictionary
+	var text: String = "%s %s:" % [str(copy.get("prefix", "Each")), label(str(copy.get("icon", "aoe")))]
+	var token: Dictionary = text_token(text, "neutral", str(copy.get("tooltip", "")))
+	token["kind"] = "surface_condition"
+	token["icon"] = str(copy.get("icon", "aoe"))
+	token["prefix"] = str(copy.get("prefix", "Each"))
+	token["suffix"] = ":"
+	token["state_condition"] = selector
+	return token
 
 
 static func _append_retaliate_tokens(tokens: Array, action: Dictionary) -> void:
@@ -1192,6 +1322,8 @@ static func _damage_bonus_fallback_icon(action: Dictionary) -> String:
 	match str(action.get("type", "")):
 		"ranged":
 			return "ranged"
+		"convert_surface", "discharge", "all_enemies", "meteor_marks":
+			return "aoe"
 		"aoe":
 			return "ranged" if int(action.get("range", 0)) > 0 else "melee"
 		_:

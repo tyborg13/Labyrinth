@@ -62,7 +62,8 @@ static func relay_effect(engine: RefCounted, state: Dictionary, action: Dictiona
 static func route(engine: RefCounted, state: Dictionary, action: Dictionary, target: Vector2i, visible: Dictionary = {}) -> Dictionary:
 	var origin: Vector2i = action.get("_origin_tile", (state.get("player", {}) as Dictionary).get("pos", INVALID))
 	var reach: int = maxi(0, int(action.get("range", 1)))
-	if Path.manhattan(origin, target) <= reach and engine.combat_line_of_sight(state, origin, target):
+	# `ignore_los` (Skybolt, Thunderstone) reaches any visible tile in range.
+	if Path.manhattan(origin, target) <= reach and (engine.combat_line_of_sight(state, origin, target) or (bool(action.get("ignore_los", false)) and engine.is_tile_visible_to_player(state, target, visible))):
 		return {"from":origin,"to":target}
 	var effect: Dictionary = relay_effect(engine, state, action)
 	if effect.is_empty() or not engine.is_tile_visible_to_player(state, target, visible): return {}

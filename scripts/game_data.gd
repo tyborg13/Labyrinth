@@ -1091,7 +1091,7 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop"] or (action_type in ["aoe", "surface", "detonate", "consume_surface"] and int(action.get("range", 0)) > 0):
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop"] or (action_type in ["aoe", "surface", "detonate", "consume_surface", "convert_surface", "discharge", "meteor_marks"] and int(action.get("range", 0)) > 0):
 			has_targeted_action = true
 			break
 	if not has_targeted_action:

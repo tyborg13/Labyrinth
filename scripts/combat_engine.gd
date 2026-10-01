@@ -18,6 +18,7 @@ const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
+const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -957,6 +958,8 @@ func card_plays_spent_for_actions(actions: Array) -> int:
 func player_action_needs_target(action: Dictionary) -> bool:
 	if str(action.get("target", "")) in ["previous_target", "player"]:
 		return false
+	if SurfaceCardRules.needs_target(action):
+		return true
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["aoe", "surface", "detonate", "consume_surface"]:
 		return int(action.get("range", 0)) > 0
@@ -968,6 +971,8 @@ func player_action_needs_orientation(action: Dictionary) -> bool:
 		return int(action.get("range", 0)) > 0 and _aoe_pattern_variants(action).size() > 1
 	if action_type == "outcrop":
 		return action.has("pattern") and _aoe_pattern_variants(action).size() > 1
+	if action_type == "meteor_marks":
+		return SurfaceCardRules.needs_orientation(self, action)
 	return _action_has_forced_movement(action)
 
 func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
@@ -982,7 +987,7 @@ func player_action_can_resolve(state: Dictionary, action: Dictionary) -> bool:
 			return false
 	if bool(restrictions.get("immobilized", false)) and action_type in ["move", "blink"]:
 		return false
-	return true
+	return SurfaceCardRules.can_resolve(self, state, action)
 
 func valid_targets_for_player_action(state: Dictionary, action: Dictionary, accepted_limit: int = 0, accept_target: Callable = Callable()) -> Array[Vector2i]:
 	if action.has("_illusion_id"):
@@ -1012,7 +1017,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 	var occupied: Dictionary = {}
 	var targets: Array[Vector2i] = []
 	var visible_lookup: Dictionary = {}
-	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate", "outcrop"]:
+	if action_type in ["blink", "illusion", "melee", "ranged", "aoe", "push", "pull", "detonate", "outcrop", "meteor_marks", "convert_surface", "discharge"]:
 		visible_lookup = umbra_visible_tile_lookup(state)
 	match targeting_type:
 		"surface", "detonate", "consume_surface":
@@ -1123,7 +1128,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 					continue
 				if not targets.has(trap_pos):
 					targets.append(trap_pos)
-		"aoe":
+		"convert_surface", "discharge":
+			targets = SurfaceCardRules.ground_targets(self, state, resolved_action, player_pos, visible_lookup)
+		"aoe", "meteor_marks":
 			var aoe_range: int = int(action.get("range", 0))
 			if aoe_range <= 0:
 				var attackable_tiles: Dictionary = _player_attackable_tiles_lookup(state, true)
@@ -1204,6 +1211,8 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 							component_has_opponent[member] = useful
 				if bool(component_has_opponent[tile]) and not targets.has(tile):
 					targets.append(tile)
+	if SurfaceCardRules.filters_targets(resolved_action):
+		targets = SurfaceCardRules.filter_targets(self, state, resolved_action, targets)
 	var legal: Array[Vector2i]
 	for tile: Vector2i in targets:
 		if _player_action_target_is_accepted(state, action, tile, accept_target):
@@ -1478,7 +1487,20 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			TempoRules.gain_next_attack(next_state, resolved_action, _action_card_name(resolved_action))
 		"rite":
 			pass # finish_player_card starts the Rite when the card is committed.
-	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and action.has("surface"):
+		"surface_adjacent_enemies":
+			next_state = SurfaceCardRules.apply_surface_adjacent_enemies(self, next_state, resolved_action)
+		"convert_surface":
+			if target_is_valid:
+				next_state = SurfaceCardRules.apply_convert_surface(self, next_state, resolved_action, target_tile)
+		"discharge":
+			if target_is_valid:
+				next_state = SurfaceCardRules.apply_discharge(self, next_state, resolved_action, target_tile)
+		"all_enemies":
+			next_state = SurfaceCardRules.apply_all_enemies(self, next_state, resolved_action)
+		"meteor_marks":
+			if target_is_valid:
+				next_state = SurfaceCardRules.place_meteor_marks(self, next_state, resolved_action, target_tile)
+	if not ATTACK_ACTION_TYPES.has(action_type) and action_type not in ["surface", "move", "blink", "consume_surface"] and not SurfaceCardRules.OWN_SURFACE_TYPES.has(action_type) and action.has("surface"):
 		next_state = _place_action_surface(next_state, action, target_tile)
 	if action.has("clear_surface"):
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(next_state.get("player", {}) as Dictionary):
@@ -2007,6 +2029,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 		next_state = prepare_next_player_turn(next_state)
 		if include_commit_steps:
 			_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
+		steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
 		_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 		_record_runtime_performance_phase("enemy_phase_slice_total", performance_total_started)
 		return {"state": next_state, "steps": steps, "player_turn_before_state": player_turn_before_state, "complete": true}
@@ -2016,6 +2039,7 @@ func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: 
 			next_state = prepare_next_player_turn(next_state)
 			if include_commit_steps:
 				_append_commit_step(steps, before_pop_state, next_state, "player_turn_start")
+			steps.append_array(SurfaceCardRules.turn_start_presentation_steps(self, player_turn_before_state, next_state))
 			_append_turn_order_step(steps, before_pop_state, next_state, "activate")
 			_record_runtime_performance_phase("enemy_phase_slice_total", performance_total_started)
 			return {"state": next_state, "steps": steps, "player_turn_before_state": player_turn_before_state, "complete": true}
@@ -2516,6 +2540,9 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		"first_move_bonus_used": false
 	}
 	next_state = _resolve_player_start_of_turn(next_state)
+	if combat_outcome(next_state) != "":
+		return next_state
+	next_state = SurfaceCardRules.resolve_meteor_marks(self, next_state)
 	if combat_outcome(next_state) != "":
 		return next_state
 	next_state = _draw_cards_in_place(next_state, int(next_state.get("draw_per_turn", BASE_DRAW_PER_TURN)))
@@ -10615,6 +10642,7 @@ func _surface_action_tiles(state: Dictionary, action: Dictionary, target: Vector
 		pattern_action["pattern"] = action["surface_pattern"]
 	if not pattern_action.has("pattern"):
 		pattern_action["pattern"] = [[0, 0]]
+	pattern_action = SurfaceCardRules.facing_pattern_action(self, state, action, pattern_action, center)
 	return _best_aoe_tiles_for_target(state, pattern_action, center, false)
 
 func _place_action_surface(state: Dictionary, action: Dictionary, target: Vector2i, supplied_tiles: Array[Vector2i] = []) -> Dictionary:
@@ -11019,6 +11047,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			var target_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved, index)
 			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
 	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
+	var family_context: Dictionary = SurfaceCardRules.begin_attack(self, state, resolved, impact, actor_kind)
 	performance_started = _record_runtime_performance_phase("board_attack_plan_total", performance_started)
 	if actor_kind == "player":
 		state = _trigger_player_bleed_for_action(state, resolved)
@@ -11082,6 +11111,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
 			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
 			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
+			hit_action = SurfaceCardRules.before_enemy_hit(self, state, hit_action, hit, index, family_context)
 			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = _damage_for_enemy_target(state, hit_action, index)
 			state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action))
@@ -11093,6 +11123,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			if hit["from"] != hit["to"]: hit_action.erase("force_direction")
 			state = _apply_action_keywords_to_enemy(state, index, hit_action, origin if hit["from"] == hit["to"] else hit["from"])
 			_apply_stagger_to_enemy(state, int(hit["id"]), int(hit_action.get("stagger", 0)))
+			state = SurfaceCardRules.after_enemy_hit(self, state, hit_action, family_context)
 			_mark_light_target_skill_trigger(state, hit_action)
 			affected.append(index)
 		else:
@@ -11113,6 +11144,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			trace_hit["state"] = state.duplicate(true)
 		native_trace.append(trace_hit)
 	performance_started = _record_runtime_performance_phase("board_attack_hits_total", performance_started)
+	state = SurfaceCardRules.after_attack_hits(self, state, family_context)
 	if actor_kind == "player":
 		var terrain_damage: int = final_damage_for_player_action(state, resolved)
 		state = _damage_terrain_indices(state, _terrain_indices_in_tiles(state, impact), terrain_damage)
@@ -11137,6 +11169,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = _flush_surface_deaths(state)
+	state = SurfaceCardRules.finish_attack(self, state, family_context)
 	if not relay.is_empty() and native_trace.size() == 1:
 		var ground_hit: Dictionary = {"kind":"actor","from":relay["relay"],"to":relay["to"],"relay_delivery":true}
 		if capture_states: ground_hit["state"] = state.duplicate(true)
@@ -11164,7 +11197,7 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 	var selected: Array[Vector2i] = selected_override.duplicate()
 	if selected.is_empty():
 		selected = _surface_action_tiles(state, action, target)
-	var fuel: String = str(action.get("_detonate_surface", "fire"))
+	var fuel: String = SurfaceCardRules.detonate_fuel(action)
 	var cluster_bonus: int = GuardianRelicRules.amount(state,"connected_detonate") if not action.has("_enemy_id") and fuel == "fire" else 0
 	if cluster_bonus > 0:
 		# Expand the card's resolved seeds, including automatic player-centered
@@ -11194,7 +11227,10 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 			return state
 	var victims: Array[Dictionary]
 	var blast_tiles: Array[Vector2i] = _sorted_tiles_from_lookup(blast)
+	var spare_player: bool = bool(action.get("spare_player", false))
 	for actor: Dictionary in _surface_actor_records(state):
+		if spare_player and str(actor["kind"]) == "player":
+			continue
 		if _surface_unit_intersects(actor["unit"] as Dictionary, blast_tiles):
 			victims.append(actor.duplicate(true))
 	for tile: Vector2i in consumed:
@@ -11232,6 +11268,7 @@ func _resolve_board_detonate(state: Dictionary, action: Dictionary, target: Vect
 	# before resolving their wake, so newly painted Fire is never detonated again.
 	state = _trigger_traps_on_tiles(state, _trap_tiles_in_tiles(state, blast_tiles))
 	BoardSurfaceRules.record_event(state, {"kind": "detonate", "surface": fuel, "consumed": consumed, "tiles": blast_tiles, "source": state.get("damage_context", {})})
+	state = SurfaceCardRules.leave_detonate_surface(self, state, action, consumed)
 	state["_surface_damage_batch"] = previous_batch
 	if not previous_batch:
 		state = _flush_surface_deaths(state)
@@ -11251,7 +11288,7 @@ func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Ve
 		BoardSurfaceRules.remove(state, tile, surface, "consume")
 	for reward: Dictionary in action.get("rewards", []):
 		# Card fields have already been converted to runtime fixed point by GameData.
-		var raw_reward: Dictionary = reward.duplicate(true)
+		var raw_reward: Dictionary = SurfaceCardRules.scaled_consume_reward(reward, selected.size()).duplicate(true)
 		raw_reward["_runtime_amount"] = true
 		state = apply_surface_reward(state, raw_reward, {"source_name": "Consumed ground"})
 	return state

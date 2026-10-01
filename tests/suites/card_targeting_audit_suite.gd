@@ -92,6 +92,14 @@ static func state_for(combat: CombatEngine, id: String) -> Dictionary:
 	state.erase("player_turn_restrictions")
 	for tile: Vector2i in [Vector2i(2,4),Vector2i(3,4),Vector2i(4,4),Vector2i(3,3),Vector2i(2,3)]:
 		state = Surface.place(state,tile,"fire")
+	# Wave-4 surface family setups (spec/card_mechanics_surfaces.md): a Chilled
+	# enemy on Ice and Rubble, an enemy on Electrified ground and one in Light,
+	# so convert/discharge/Rubble Detonate/required-consume and selectors resolve.
+	state = Surface.place(state,Vector2i(2,2),"ice")
+	state = Surface.place(state,Vector2i(2,2),"rubble")
+	state["enemies"][2]["chilled"] = true
+	state = Surface.place(state,Vector2i(3,5),"electrified")
+	state = combat.call("_create_umbra_light_source",state,Vector2i(3,5),{"radius":1,"duration":2})
 	return state
 
 static func _install(instance: Node, state: Dictionary) -> void:

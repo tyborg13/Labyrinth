@@ -38,6 +38,8 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
     "combat:hollow_gale": "gale_force",
     "combat:crystal_armor": "frost_armor",
     "combat:boss_eclipse": "umbra_eclipse",
+    "combat:surface_techniques": "surface_consume",
+    "combat:sweeping_strikes": "aoe",
 }
 
 # These are one player-facing concept despite differing engine direction/target
@@ -46,6 +48,14 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),
+    # Wave-4 surface family (spec/card_mechanics_surfaces.md). meteor_marks is the
+    # player's Meteorfall, the same marked-tiles-then-Fire concept as the dragon's.
+    frozenset({"cinder_marks", "meteor_marks"}),
+    # Placeholders until purpose-built icons exist (convert_surface, discharge,
+    # all_enemies); each still names the concept the player sees on the card.
+    frozenset({"surface", "surface_adjacent_enemies", "convert_surface"}),
+    frozenset({"consume_surface", "discharge"}),
+    frozenset({"aoe", "all_enemies"}),
 }
 
 EXPECTED_OBJECTIVE_ICONS = {

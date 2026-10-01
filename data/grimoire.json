@@ -758,7 +758,8 @@
       "icon": "detonate",
       "body": [
         "Meteorfall strikes marked cells and leaves Fire. Cinder Breath also burns the ground beside that Fire.",
-        "Crownfire detonates the surviving marked Fire while Vyraketh pursues you. Replace the Fire to deny the blast, or lure the dragon into it."
+        "Crownfire detonates the surviving marked Fire while Vyraketh pursues you. Replace the Fire to deny the blast, or lure the dragon into it.",
+        "The Meteorfall card marks a line of tiles the same way. The marks stay through enemy turns; at the start of your next turn, before you draw, each marked tile takes the damage (anyone standing there, including you) and becomes Fire."
       ]
     },
     {
@@ -886,7 +887,8 @@
       "title": "Electrified Tiles",
       "icon": "surface_electrified",
       "body": [
-        "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles."
+        "Lightning attacks travel through connected Electrified tiles, hitting enemies on them. Chain can also jump through individual Electrified tiles.",
+        "Frost Circuit turns a connected patch of Ice into Electrified ground. Discharge removes a connected Electrified network and strikes each enemy on or next to it once."
       ]
     },
     {
@@ -932,6 +934,28 @@
       "icon": "surface_relocate",
       "body": [
         "Moves a surface from one tile to another."
+      ]
+    },
+    {
+      "id": "combat:surface_techniques",
+      "section": "combat",
+      "title": "Surface Techniques",
+      "icon": "surface_consume",
+      "body": [
+        "Consume: an attack that consumes a surface deals its bonus to each enemy it hits that stands on that surface, then removes the surface beneath it. An area consumes the surface on every tile of its pattern. Some attacks can only target an enemy standing on the surface. Any surface the attack leaves is placed after the consumption.",
+        "Convert: Frost Circuit turns the chosen Ice tile and all Ice connected to it into Electrified ground, then strikes and Shocks each enemy on the converted tiles.",
+        "Discharge: choose an Electrified tile. Each enemy on its connected network or next to it takes the damage once, then the network is removed.",
+        "Wards leave a surface beneath each enemy next to you. Ice placed this way Chills an enemy only when it starts a turn on or enters the Ice."
+      ]
+    },
+    {
+      "id": "combat:sweeping_strikes",
+      "section": "combat",
+      "title": "Sweeping Strikes",
+      "icon": "aoe",
+      "body": [
+        "Some cards strike every enemy you can see that meets a condition: standing on Fire or Electrified ground, Chilled, or in Light. There is no target to choose, and an enemy hidden by the Umbra is never hit.",
+        "Each strike is a direct hit of the card's element, so an Ice strike Freezes a Chilled enemy. The card can be played only while at least one enemy qualifies."
       ]
     }
   ]
