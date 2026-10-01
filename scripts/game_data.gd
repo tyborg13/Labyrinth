@@ -1091,7 +1091,9 @@ static func _action_upgrade_options(card: Dictionary, _element: Dictionary) -> A
 			continue
 		var action: Dictionary = action_var as Dictionary
 		var action_type: String = str(action.get("type", ""))
-		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop", "illusion_swap", "destroy_illusion", "burst_terrain"] or (action_type in ["aoe", "surface", "detonate", "consume_surface", "convert_surface", "discharge", "meteor_marks"] and int(action.get("range", 0)) > 0):
+		# Mirrors CombatEngine.player_action_needs_target for every wave-4 family:
+		# a card that already asks for a target never gains a second decision.
+		if action_type in ["move", "blink", "melee", "ranged", "push", "pull", "illusion", "illuminate", "outcrop", "swap", "petrify", "illusion_swap", "destroy_illusion", "burst_terrain"] or (action_type in ["aoe", "surface", "detonate", "consume_surface", "convert_surface", "discharge", "meteor_marks"] and int(action.get("range", 0)) > 0) or (action_type == "force_area" and str(action.get("center", "self")) == "target"):
 			has_targeted_action = true
 			break
 	if not has_targeted_action:
