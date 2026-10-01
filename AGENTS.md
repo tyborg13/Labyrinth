@@ -24,7 +24,7 @@ Assignments to `Array[T]` must use a typed helper or explicitly typed temporary.
 
 ## Player-facing work
 
-For player-facing UI, use `$create-labyrinth-ui` and the relevant [UI rubric](spec/game_ui_rubric.md) sections. Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
+For player-facing UI, use `$create-labyrinth-ui` and the shared visual language in [the visual design system](spec/visual_design_system.md). Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
 
 For segmented character art, skeletal cutouts, or new cutout animations/equipment variants, use `$create-labyrinth-cutout`. Start from the current production baseline or a fresh creature case; historical experiment builders are revision-specific.
 

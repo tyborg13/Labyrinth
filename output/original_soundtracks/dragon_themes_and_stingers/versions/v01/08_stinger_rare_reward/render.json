@@ -1,0 +1,141 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "ed51bb0fe4233cafcb7e23b5195301dc87bc7ecbe1ab6fb5c4bdd2d0cf511c0e",
+    "preview.flac": "43d3120056fdc063b71286d3cb426aea7c02b9d223a0651dfe3a9b74751480a3",
+    "preview.mp3": "9a3eccbf33886446c623fbc91b2089980a4721424e077ae964bf54b322cbf6de",
+    "preview.ogg": "8fe2427aa84ebf59904dd6149825a097a118355c0500e87fb5b7ad0d11f997af",
+    "score.json": "1d373c30e3894e6ea1f9822a345d3a267f73f690b9df9381c028794ff2026526"
+  },
+  "bars": 2,
+  "bpm": 132,
+  "canvas_final_100ms_rel_peak_db": -110.05070114515624,
+  "channels": 2,
+  "decoded": {
+    "flac": {
+      "duration_seconds": 2.91384375,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -16.2,
+      "sample_peak_dbfs": -7.6,
+      "shape": {
+        "duration_seconds": 2.91384375,
+        "final_10ms_peak_dbfs": -240.0,
+        "final_50ms_rms_dbfs": -101.64981985967606,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -49.948984140431534,
+          -54.753205887606214,
+          -56.264724791901585,
+          -61.400448434366055,
+          -75.02541654812111,
+          -90.07261656464445
+        ],
+        "onset_seconds": 0.00209375
+      },
+      "short_term_max_lufs": null,
+      "true_peak_dbtp": -7.6
+    },
+    "mp3": {
+      "duration_seconds": 2.91384375,
+      "integrated_lufs": -18.3,
+      "momentary_max_lufs": -16.5,
+      "sample_peak_dbfs": -7.9,
+      "shape": {
+        "duration_seconds": 2.91384375,
+        "final_10ms_peak_dbfs": -135.2970801542366,
+        "final_50ms_rms_dbfs": -101.97614104110961,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -50.21308778012241,
+          -55.01794766187522,
+          -56.53303952892464,
+          -61.66614609254537,
+          -75.29493435075489,
+          -90.27461930895022
+        ],
+        "onset_seconds": 0.00209375
+      },
+      "short_term_max_lufs": null,
+      "true_peak_dbtp": -7.8
+    },
+    "ogg": {
+      "duration_seconds": 2.914,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -16.2,
+      "sample_peak_dbfs": -7.6,
+      "shape": {
+        "duration_seconds": 2.914,
+        "final_10ms_peak_dbfs": -125.29956548767375,
+        "final_50ms_rms_dbfs": -101.89352531389302,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -49.95308652386751,
+          -54.72860175196671,
+          -56.28801487170647,
+          -61.428238491985226,
+          -75.01983130722549,
+          -90.11598124546829
+        ],
+        "onset_seconds": 0.00209375
+      },
+      "short_term_max_lufs": null,
+      "true_peak_dbtp": -7.6
+    }
+  },
+  "key": "E-flat Lydian (Ebmaj7#11)",
+  "kind": "stinger",
+  "limited_by": "loudness target",
+  "master_gain": 2.211449660293926,
+  "note_counts": {
+    "hollow_bass": 1,
+    "lantern_mallet": 9,
+    "thread_pluck": 5,
+    "viola": 1,
+    "violin_1": 1,
+    "violin_2": 1
+  },
+  "reverb": {
+    "rt60_seconds": 1.3,
+    "wet": 0.28
+  },
+  "sample_peak_ceiling_dbfs": -3.0,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "hollow_bass": 0.7861401911481284,
+      "lantern_mallet": 0.4602565735813559,
+      "thread_pluck": 1.2133888504649772,
+      "viola": 0.14842258800645722,
+      "violin_1": 0.3568617492834811,
+      "violin_2": 0.25733567644261096
+    },
+    "post_master_peak_dbfs": {
+      "hollow_bass": -17.33,
+      "lantern_mallet": -15.21,
+      "thread_pluck": -22.34,
+      "viola": -24.88,
+      "violin_1": -20.44,
+      "violin_2": -21.93
+    },
+    "target_pre_master_lufs": {
+      "hollow_bass": -30.53,
+      "lantern_mallet": -32.92,
+      "thread_pluck": -37.92,
+      "viola": -37.84,
+      "violin_1": -32.34,
+      "violin_2": -35.34
+    }
+  },
+  "tail_method": "linear (non-circular) render, synthetic hall tail, trimmed 50 ms after the tail falls 54 dB below peak, 3 ms fade-in and 350 ms cosine fade over the already-quiet end",
+  "target_integrated_lufs": -18.0,
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Rare Reward",
+  "version": "v01"
+}

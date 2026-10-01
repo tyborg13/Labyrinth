@@ -10,6 +10,8 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
+const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
+const TITLE_MOTE_COUNT: int = 42
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
@@ -150,6 +152,7 @@ var _saved_run_preview: Dictionary = {}
 var _replacement_confirmation_open: bool = false
 var _using_keyboard_navigation: bool = false
 var _music_player: AudioStreamPlayer
+var _title_motes: CPUParticles2D
 var _ui_skin: UiSkin = UiSkin.new()
 var settings_back_button: Button
 var _title_shadow_lines: Array[Label]
@@ -263,6 +266,7 @@ func _apply_style() -> void:
 	background_art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	global_scrim.color = Color(0.0, 0.0, 0.0, 0.16)
 	left_scrim.visible = false
+	_install_title_motes()
 
 	_configure_title_container(title_shadow_label)
 	_configure_title_container(title_rim_label)
@@ -298,6 +302,38 @@ func _apply_style() -> void:
 	_apply_label_style($ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementWarning, TEXT_FONT, 15, Color("d9b8a4"), Color("090708"), 2)
 	_apply_label_style(replacement_location_label, UI_FONT, 20, Color("ffe2b0"), Color("090708"), 3)
 	_apply_label_style(replacement_stats_label, TEXT_FONT, 16, Color("e7d7ba"), Color("090708"), 2)
+
+# Slow embers drifting up through the key art keep the title screen alive.
+# They sit above the art and scrim but below every title and menu control.
+func _install_title_motes() -> void:
+	if _title_motes != null:
+		return
+	_title_motes = CombatAtmosphere.build_motes(TITLE_MOTE_COUNT)
+	_title_motes.name = "TitleMotes"
+	add_child(_title_motes)
+	move_child(_title_motes, global_scrim.get_index() + 1)
+	_layout_title_motes()
+	_apply_title_motes_motion(SettingsStore.applied_reduced_motion_enabled())
+	if settings_panel != null and settings_panel.has_signal("settings_changed"):
+		var on_changed := Callable(self, "_on_title_settings_changed")
+		if not settings_panel.is_connected("settings_changed", on_changed):
+			settings_panel.connect("settings_changed", on_changed)
+
+func _on_title_settings_changed(settings: Dictionary) -> void:
+	_apply_title_motes_motion(SettingsStore.reduced_motion_enabled(settings))
+
+func _apply_title_motes_motion(reduced: bool) -> void:
+	if _title_motes == null:
+		return
+	_title_motes.emitting = not reduced
+	_title_motes.visible = not reduced
+
+func _layout_title_motes() -> void:
+	if _title_motes == null:
+		return
+	var viewport_size: Vector2 = get_viewport_rect().size
+	_title_motes.position = Vector2(viewport_size.x * 0.58, viewport_size.y * 0.78)
+	_title_motes.emission_rect_extents = Vector2(viewport_size.x * 0.44, viewport_size.y * 0.24)
 
 func _configure_title_container(control: Control) -> void:
 	control.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -608,7 +644,13 @@ func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coo
 			return bool(run_state.get("pre_battle_pending", false)) and typeof(run_state.get("pre_battle_travel_dir", null)) == TYPE_VECTOR2I
 		"reward":
 			var reward_value: Variant = run_state.get("pending_reward", null)
-			return typeof(reward_value) == TYPE_DICTIONARY and typeof((reward_value as Dictionary).get("cards", null)) == TYPE_ARRAY and not ((reward_value as Dictionary).get("cards", []) as Array).is_empty()
+			if typeof(reward_value) != TYPE_DICTIONARY:
+				return false
+			var reward: Dictionary = reward_value
+			# A dragon's milestone reward (relic, embers, healing) offers no cards.
+			if str(reward.get("kind", "")) == "dragon":
+				return not str(reward.get("milestone_id", "")).is_empty()
+			return typeof(reward.get("cards", null)) == TYPE_ARRAY and not (reward.get("cards", []) as Array).is_empty()
 		"treasure":
 			var relics_value: Variant = run_state.get("pending_relics", null)
 			return typeof(relics_value) == TYPE_ARRAY and not (relics_value as Array).is_empty()
@@ -676,6 +718,7 @@ func _update_layout() -> void:
 	var viewport_size: Vector2 = get_viewport_rect().size
 	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
 		return
+	_layout_title_motes()
 	var margin_x: float = clampf(viewport_size.x * 0.04, 30.0, 72.0)
 	var title_y: float = clampf(viewport_size.y * 0.052, 26.0, 62.0)
 	var menu_width: float = clampf(viewport_size.x * 0.22, MENU_BUTTON_MIN_WIDTH, MENU_BUTTON_MAX_WIDTH)

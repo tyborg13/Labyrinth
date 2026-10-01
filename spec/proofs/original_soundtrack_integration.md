@@ -9,6 +9,8 @@ The four promoted Oggs are unchanged audition bytes. Lanterns Below v02 covers
 quiet rooms, rewards and victory; The Turning Key v02 covers pre-battle, map,
 merchants and full in-run planning menus; Ashen Pursuit v03 covers ordinary
 combat; Thorns in the Dark v02 covers guardians, bosses and boss-bar encounters.
+(Since 2026-09-30, dragon bosses play their own themes instead; see
+`assets/audio/music/ORIGINAL_SOUNDTRACKS_PROVENANCE.md`.)
 Old Castle v07 and Chopin v05 retain their exact files, levels and dedicated
 contexts. Defeat/victory outrank a planning surface left visible at the transition.
 

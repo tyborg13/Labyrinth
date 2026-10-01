@@ -358,8 +358,7 @@ class IconIdentityPolicyTests(unittest.TestCase):
     def test_policy_is_mandatory_for_ui_work(self) -> None:
         agents = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
         skill = (REPO_ROOT / ".codex/skills/create-labyrinth-ui/SKILL.md").read_text(encoding="utf-8")
-        rubric = (REPO_ROOT / "spec/game_ui_rubric.md").read_text(encoding="utf-8")
-        for source in (agents, skill, rubric):
+        for source in (agents, skill):
             self.assertIn("spec/icon_identity_policy.md", source)
 
     def test_card_widget_consumes_the_central_role_emblem_inventory(self) -> None:

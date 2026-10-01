@@ -5,6 +5,8 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
 
 const INTRO_START_SCALE: float = 0.88
 const INTRO_POP_SCALE: float = 2.65
@@ -28,9 +30,11 @@ const INTRO_TEXT_FADE_DELAY_SECONDS: float = 0.36
 const INTRO_TEXT_FADE_SECONDS: float = 0.12
 const INTRO_CONTENT_DELAY_SECONDS: float = 0.52
 const INTRO_CONTENT_FADE_SECONDS: float = 0.12
-const PANEL_BACKGROUND_COLOR := Color(0.055, 0.038, 0.062, 0.96)
-const PANEL_BORDER_COLOR := Color(0.66, 0.48, 0.27, 0.92)
-const PANEL_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.58)
+# The gilded plate is drawn in _draw(); the StyleBox only carries margins and
+# fades with the intro chrome like before.
+const PANEL_BACKGROUND_COLOR := Color(0.0, 0.0, 0.0, 0.0)
+const PANEL_BORDER_COLOR := Color(0.0, 0.0, 0.0, 0.0)
+const PANEL_SHADOW_COLOR := Color(0.0, 0.0, 0.0, 0.0)
 
 var _icon: TextureRect
 var _title: Label
@@ -87,11 +91,10 @@ func _build() -> void:
 	var style := StyleBoxFlat.new()
 	style.bg_color = PANEL_BACKGROUND_COLOR
 	style.border_color = PANEL_BORDER_COLOR
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(7)
+	style.set_border_width_all(0)
+	style.set_corner_radius_all(0)
 	style.shadow_color = PANEL_SHADOW_COLOR
-	style.shadow_size = 8
-	style.shadow_offset = Vector2(0.0, 3.0)
+	style.shadow_size = 0
 	style.content_margin_left = 12.0
 	style.content_margin_top = 8.0
 	style.content_margin_right = 16.0
@@ -105,10 +108,10 @@ func _build() -> void:
 	var icon_frame := PanelContainer.new()
 	icon_frame.custom_minimum_size = Vector2(50.0, 50.0)
 	var icon_style := StyleBoxFlat.new()
-	icon_style.bg_color = Color(0.11, 0.075, 0.10, 0.98)
-	icon_style.border_color = Color(0.82, 0.62, 0.32, 0.78)
+	icon_style.bg_color = Color(0.043, 0.035, 0.031, 0.98)
+	icon_style.border_color = Color(Palette.GOLD_DIM, 0.95)
 	icon_style.set_border_width_all(1)
-	icon_style.set_corner_radius_all(5)
+	icon_style.set_corner_radius_all(3)
 	icon_style.set_content_margin_all(4.0)
 	icon_frame.add_theme_stylebox_override("panel", icon_style)
 	row.add_child(icon_frame)
@@ -126,9 +129,9 @@ func _build() -> void:
 	row.add_child(text_stack)
 	var kicker := Label.new()
 	kicker.text = "OBJECTIVE"
-	UiTypography.apply_label_role(kicker, UiTypography.ROLE_CAPTION)
+	kicker.add_theme_font_override("font", UiTypography.eyebrow_font())
 	kicker.add_theme_font_size_override("font_size", 11)
-	kicker.add_theme_color_override("font_color", Color("b99768"))
+	kicker.add_theme_color_override("font_color", Palette.GOLD)
 	kicker.add_theme_color_override("font_outline_color", Color("160e0c"))
 	kicker.add_theme_constant_override("outline_size", 1)
 	text_stack.add_child(kicker)
@@ -137,18 +140,18 @@ func _build() -> void:
 	_title.clip_text = true
 	_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(_title, UiTypography.ROLE_SECTION)
-	_title.add_theme_font_size_override("font_size", 20)
-	_title.add_theme_color_override("font_color", Color("f3d59a"))
-	_title.add_theme_color_override("font_outline_color", Color("160e0c"))
-	_title.add_theme_constant_override("outline_size", 2)
+	_title.add_theme_font_size_override("font_size", 19)
+	_title.add_theme_color_override("font_color", Palette.GOLD_BRIGHT)
+	_title.add_theme_color_override("font_outline_color", Palette.TEXT_OUTLINE)
+	_title.add_theme_constant_override("outline_size", 3)
 	text_stack.add_child(_title)
 	_detail = Label.new()
 	_detail.name = "ObjectiveLiveDetail"
 	_detail.clip_text = true
 	_detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	UiTypography.apply_label_role(_detail, UiTypography.ROLE_BODY)
-	_detail.add_theme_font_size_override("font_size", 13)
-	_detail.add_theme_color_override("font_color", Color("c9c4b2"))
+	_detail.add_theme_font_size_override("font_size", 14)
+	_detail.add_theme_color_override("font_color", Palette.TEXT_2)
 	text_stack.add_child(_detail)
 
 	_intro_text_stack = VBoxContainer.new()
@@ -192,6 +195,17 @@ func _build() -> void:
 	_intro_text_stack.add_child(_intro_title)
 	_set_intro_font_progress(1.0)
 	_set_intro_shadow_progress(0.0)
+
+func _draw() -> void:
+	if size.x < 40.0 or size.y < 30.0:
+		return
+	GildedFrame.draw_panel(self, Rect2(Vector2.ZERO, size), {
+		"top": Color(Palette.INK_2, 0.95),
+		"bottom": Color(Palette.INK_1, 0.95),
+		"cut": 5.0,
+		"shadow_spread": 12.0,
+		"inner_inset": 3.0,
+	})
 
 func preferred_width() -> float:
 	if _title == null: return 350.0
@@ -374,6 +388,8 @@ func _intro_can_continue() -> bool:
 	return intro_active and visible and is_inside_tree()
 
 func _set_intro_chrome_progress(progress: float) -> void:
+	self_modulate.a = clampf(progress, 0.0, 1.0)
+	queue_redraw()
 	intro_chrome_progress = clampf(progress, 0.0, 1.0)
 	if _panel_style != null:
 		_panel_style.bg_color = Color(

@@ -1,0 +1,641 @@
+{
+  "bars": 3,
+  "beats_per_bar": 4,
+  "bpm": 60,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "Cm | Ab (bVI) | G (V) | C open fifth (Picardy E in the choir)",
+      "triads": [
+        "Cm",
+        "Ab",
+        "G",
+        "C"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "C open fifth (Picardy E in the choir)",
+      "triads": [
+        "C"
+      ]
+    },
+    {
+      "bar": 3,
+      "chord": "C open fifth (Picardy E in the choir)",
+      "triads": [
+        "C"
+      ]
+    }
+  ],
+  "identity": {
+    "gesture": "impact - bVI swell - V - open fifth with tolling bell",
+    "use": "boss defeated"
+  },
+  "key": "C minor to a C open fifth (i - bVI - V - I5, Picardy hint)",
+  "kind": "stinger",
+  "lead_instrument": "violin_1",
+  "mix": {
+    "brass": [
+      "violin_1",
+      1.0
+    ],
+    "cello": [
+      "violin_1",
+      0.0
+    ],
+    "choir_high": [
+      "violin_2",
+      -6.0
+    ],
+    "choir_low": [
+      "violin_2",
+      1.0
+    ],
+    "contrabass": [
+      "hollow_bass",
+      -2.0
+    ],
+    "taiko": [
+      "drums",
+      5.0
+    ],
+    "timpani": [
+      "drums",
+      3.0
+    ],
+    "toll": [
+      "thread_pluck",
+      6.0
+    ],
+    "viola": [
+      "viola",
+      0.0
+    ],
+    "violin_1": [
+      "violin_1",
+      0.0
+    ],
+    "violin_2": [
+      "violin_2",
+      -1.0
+    ]
+  },
+  "mood": "Grim triumph: a crushing C minor impact, an A-flat swell, a G-major dominant and a hard-won bare C fifth with a faint Picardy E in the choir, then a long dark tail.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "brass",
+      "pitch": 36,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "brass",
+      "pitch": 43,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "brass",
+      "pitch": 48,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "cello",
+      "pitch": 43,
+      "shape": "sfz",
+      "velocity": 112
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 112,
+      "vowel": "ah"
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "choir_low",
+      "pitch": 55,
+      "velocity": 112,
+      "vowel": "ah"
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "contrabass",
+      "pitch": 36,
+      "shape": "sfz",
+      "velocity": 116
+    },
+    {
+      "beat": 0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 127
+    },
+    {
+      "beat": 0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 116
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 36,
+      "velocity": 126
+    },
+    {
+      "beat": 0.0,
+      "duration": 2.0,
+      "instrument": "toll",
+      "pitch": 60,
+      "velocity": 120
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "viola",
+      "pitch": 51,
+      "shape": "sfz",
+      "velocity": 104
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "violin_1",
+      "pitch": 75,
+      "shape": "sfz",
+      "velocity": 104
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "violin_2",
+      "pitch": 67,
+      "shape": "sfz",
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 44,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 60,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "choir_low",
+      "pitch": 44,
+      "velocity": 104,
+      "vowel": "ah"
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 104,
+      "vowel": "ah"
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 104
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 96
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 75,
+      "velocity": 96
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "velocity": 94
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "brass",
+      "pitch": 43,
+      "shape": "swell",
+      "velocity": 118
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "brass",
+      "pitch": 50,
+      "shape": "swell",
+      "velocity": 118
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "brass",
+      "pitch": 59,
+      "shape": "swell",
+      "velocity": 118
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 104
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "choir_low",
+      "pitch": 43,
+      "velocity": 108,
+      "vowel": "ah"
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "choir_low",
+      "pitch": 50,
+      "velocity": 108,
+      "vowel": "ah"
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 106
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 92
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 43,
+      "velocity": 104
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "viola",
+      "pitch": 50,
+      "velocity": 100
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "violin_1",
+      "pitch": 74,
+      "velocity": 100
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.7,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 98
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "brass",
+      "pitch": 36,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "brass",
+      "pitch": 43,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "brass",
+      "pitch": 48,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "brass",
+      "pitch": 55,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "cello",
+      "pitch": 48,
+      "shape": "fade",
+      "velocity": 112
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "choir_high",
+      "pitch": 64,
+      "velocity": 70,
+      "vowel": "oo"
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 112,
+      "vowel": "oh"
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "choir_low",
+      "pitch": 55,
+      "velocity": 112,
+      "vowel": "oh"
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "contrabass",
+      "pitch": 36,
+      "shape": "fade",
+      "velocity": 116
+    },
+    {
+      "beat": 3,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 3,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 3.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 36,
+      "velocity": 118
+    },
+    {
+      "beat": 3.0,
+      "duration": 2.0,
+      "instrument": "toll",
+      "pitch": 60,
+      "velocity": 104
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "viola",
+      "pitch": 55,
+      "shape": "fade",
+      "velocity": 106
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "violin_1",
+      "pitch": 72,
+      "shape": "fade",
+      "velocity": 108
+    },
+    {
+      "beat": 3.0,
+      "duration": 1.75,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "shape": "fade",
+      "velocity": 104
+    }
+  ],
+  "palette": "Thorns v02 string ensemble extended for the final boss: low strings in octaves, formant choir, low brass, taiko, timpani and a tolling bell",
+  "patches": {
+    "brass": {
+      "attack_seconds": 0.07,
+      "hall": 0.42,
+      "lowpass_hz": 5000,
+      "pan": 0.1,
+      "program": 57,
+      "release_seconds": 0.3,
+      "synth": "brass",
+      "voices": 3,
+      "wet": 0.0
+    },
+    "cello": {
+      "attack_seconds": 0.085,
+      "bow_noise": 0.0034,
+      "hall": 0.3,
+      "lowpass_hz": 2400,
+      "pan": 0.1,
+      "program": 42,
+      "release_seconds": 0.28,
+      "vibrato_cents": 5,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "choir_high": {
+      "attack_seconds": 0.22,
+      "breath": 0.02,
+      "detune_cents": 7,
+      "hall": 0.55,
+      "lowpass_hz": 5200,
+      "pan": 0.18,
+      "program": 52,
+      "release_seconds": 0.7,
+      "spread": 0.7,
+      "synth": "choir",
+      "vibrato_cents": 16,
+      "voices": 6,
+      "vowel": "ah_high",
+      "wet": 0.0
+    },
+    "choir_low": {
+      "attack_seconds": 0.3,
+      "breath": 0.02,
+      "detune_cents": 7,
+      "hall": 0.55,
+      "lowpass_hz": 5200,
+      "pan": -0.18,
+      "program": 52,
+      "release_seconds": 0.7,
+      "spread": 0.7,
+      "synth": "choir",
+      "vibrato_cents": 16,
+      "voices": 6,
+      "vowel": "oh",
+      "wet": 0.0
+    },
+    "contrabass": {
+      "attack_seconds": 0.09,
+      "bow_noise": 0.004,
+      "hall": 0.25,
+      "lowpass_hz": 1500,
+      "pan": 0.04,
+      "program": 43,
+      "release_seconds": 0.28,
+      "vibrato_cents": 3,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "taiko": {
+      "decay_scale": 0.5,
+      "hall": 0.35,
+      "pan": 0.0,
+      "percussion": true,
+      "program": 0,
+      "synth": "taiko",
+      "wet": 0.0
+    },
+    "timpani": {
+      "hall": 0.3,
+      "pan": -0.12,
+      "program": 47,
+      "ring_seconds": 1.8,
+      "synth": "timpani",
+      "wet": 0.0
+    },
+    "toll": {
+      "hall": 0.5,
+      "pan": 0.2,
+      "program": 14,
+      "ring_seconds": 2.0,
+      "synth": "toll",
+      "wet": 0.0
+    },
+    "viola": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0028,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.22,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "violin_1": {
+      "attack_seconds": 0.048,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 3200,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.16,
+      "vibrato_cents": 10,
+      "vibrato_hz": 4.9,
+      "voice": "violin",
+      "wet": 0.0
+    },
+    "violin_2": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.22,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.0
+    }
+  },
+  "reverb": {
+    "rt60_seconds": 2.0,
+    "wet": 0.32
+  },
+  "schema_version": 1,
+  "sections": [
+    "0 s: C minor impact - taiko, timpani, brass sforzando, full strings, choir, bell",
+    "1.25 s: A-flat swell; 2.25 s: G major dominant",
+    "3 s: bare C fifth with a faint Picardy E, second bell toll, long dark tail"
+  ],
+  "slug": "09_stinger_boss_defeated",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Boss Defeated (v02)",
+  "version": "v02"
+}

@@ -1,0 +1,183 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "80b57d58377ef743697f7095fca720fd62f673e68db648edf5514548a28e24a8",
+    "preview.flac": "68f43cb08410531b9e00deaa1bf1d03dd1e804659477147d668d93f99c8f38ba",
+    "preview.mp3": "909310c44cbe6badf38123b5c8c93d89f0620dea9674b2af2adc640d8d54605b",
+    "preview.ogg": "e5173ba2fe4d67fa0fc509efc6b8aed5c3dbf167c99409b763a5c86373375f63",
+    "score.json": "ed2a683b544a33c7d90be93fe9ecf7916f5ca8f5925f3d8071ec17559ce8fd98"
+  },
+  "bars": 32,
+  "bpm": 156,
+  "channels": 2,
+  "circular_continuity_before_taper": {
+    "p99_9_adjacent_delta": [
+      0.04327437505860679,
+      0.0414396915209944
+    ],
+    "ratio": [
+      0.008510836856026183,
+      0.012727230966701286
+    ],
+    "wrap_sample_delta": [
+      0.00036830114617029085,
+      0.0005274125251765486
+    ]
+  },
+  "decoded": {
+    "flac": {
+      "duration_seconds": 49.23078125,
+      "integrated_lufs": -20.01,
+      "loudness_range_lu": 2.5,
+      "momentary_max_lufs": -17.6,
+      "sample_peak_dbfs": -8.1,
+      "sample_seam_to_p99_9_ratio": [
+        0.0,
+        0.0
+      ],
+      "seam_profile": {
+        "band_limit_db": 14.642888780383206,
+        "internal_band_distance_db_p50": 6.792851281244329,
+        "internal_band_distance_db_p95": 10.633334723198827,
+        "internal_band_distance_db_p99": 14.142888780383206,
+        "internal_rms_step_db_p50": 0.8898414053939483,
+        "internal_rms_step_db_p95": 3.419871728852142,
+        "internal_rms_step_db_p99": 6.813492242953267,
+        "rms_limit_db": 7.313492242953267,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 5.56418744709634,
+        "seam_band_distance_percentile": 32.30769230769231,
+        "seam_rms_step_db": 6.00120012505786,
+        "seam_rms_step_percentile": 98.57433808553971,
+        "section_boundary_band_distance_db": [
+          7.835230138165632,
+          9.715584608941777,
+          6.063028173413502
+        ],
+        "section_boundary_rms_step_db": [
+          4.288694403022085,
+          0.9712498337250359,
+          3.0486893475637267
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -18.9,
+      "true_peak_dbtp": -8.09
+    },
+    "mp3": {
+      "duration_seconds": 49.23078125,
+      "integrated_lufs": -20.26,
+      "loudness_range_lu": 2.4,
+      "momentary_max_lufs": -17.8,
+      "sample_peak_dbfs": -8.4,
+      "short_term_max_lufs": -19.2,
+      "true_peak_dbtp": -8.35
+    },
+    "ogg": {
+      "duration_seconds": 49.232,
+      "integrated_lufs": -19.99,
+      "loudness_range_lu": 2.5,
+      "momentary_max_lufs": -17.6,
+      "sample_peak_dbfs": -8.0,
+      "sample_seam_to_p99_9_ratio": [
+        0.042146343241538285,
+        0.10240844036892263
+      ],
+      "seam_profile": {
+        "band_limit_db": 16.18778314276439,
+        "internal_band_distance_db_p50": 6.835803944032674,
+        "internal_band_distance_db_p95": 11.02507293826872,
+        "internal_band_distance_db_p99": 15.68778314276439,
+        "internal_rms_step_db_p50": 0.8627789575300824,
+        "internal_rms_step_db_p95": 3.397957703072887,
+        "internal_rms_step_db_p99": 6.82422981124589,
+        "rms_limit_db": 7.32422981124589,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 5.6643280677883885,
+        "seam_band_distance_percentile": 31.794871794871792,
+        "seam_rms_step_db": 6.019091603633157,
+        "seam_rms_step_percentile": 98.57433808553971,
+        "section_boundary_band_distance_db": [
+          7.692446288273694,
+          11.80173673399363,
+          6.118221678258055
+        ],
+        "section_boundary_rms_step_db": [
+          4.25789702996337,
+          1.0471303246360826,
+          3.054384715951123
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -18.9,
+      "true_peak_dbtp": -7.97
+    }
+  },
+  "key": "F# minor; Phrygian G-natural flashes, German-sixth D7 and C#7(b9) strikes",
+  "kind": "loop_theme",
+  "loop_duration_seconds": 49.23076923076923,
+  "loop_method": "periodic overlap-add of every release tail, circular echo/filters, exact bar length, 2 ms endpoint taper (Thorns v02 convention)",
+  "master_gain": 1.3273944577297396,
+  "note_counts": {
+    "bowed_veil": 25,
+    "drums": 244,
+    "hollow_bass": 108,
+    "thread_pluck": 252,
+    "viola": 89,
+    "violin_1": 159,
+    "violin_2": 122
+  },
+  "pre_master_sample_peak_dbfs": -8.086260588940652,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "bowed_veil": 1.124604973966926,
+      "drums": 0.7294575102545688,
+      "hollow_bass": 0.7227698036021702,
+      "thread_pluck": 0.8892011178579481,
+      "viola": 0.18092559102538197,
+      "violin_1": 0.27574014523463597,
+      "violin_2": 0.21852443196532748
+    },
+    "lead_above_middle_lu": 0.74,
+    "lufs_in_matched_mix": {
+      "bowed_veil": -36.33,
+      "drums": -31.13,
+      "hollow_bass": -24.07,
+      "thread_pluck": -35.24,
+      "viola": -30.71,
+      "violin_1": -26.11,
+      "violin_2": -29.41
+    },
+    "post_master_peak_dbfs": {
+      "bowed_veil": -25.0,
+      "drums": -14.62,
+      "hollow_bass": -14.48,
+      "thread_pluck": -25.11,
+      "viola": -21.78,
+      "violin_1": -17.9,
+      "violin_2": -19.95
+    },
+    "target_pre_master_lufs": {
+      "bowed_veil": -38.71,
+      "drums": -33.69,
+      "hollow_bass": -26.53,
+      "thread_pluck": -37.92,
+      "viola": -33.34,
+      "violin_1": -28.59,
+      "violin_2": -31.840000000000003
+    }
+  },
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Zekarion, the Raging Tempest",
+  "version": "v01"
+}

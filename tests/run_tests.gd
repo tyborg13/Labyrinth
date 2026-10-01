@@ -9595,15 +9595,9 @@ func _test_run_scene_fatigue_damage_visual_event() -> void:
 	_assert((fatigue_presentation.get("impact_actor_keys", []) as Array).has("player"), "Fatigue visual should drive the player's damage impact animation")
 	_assert(float(fatigue_presentation.get("impact_strength", 0.0)) > 1.0, "Fatigue visual should boost the player damage impact so it reads on the player sprite")
 	_assert((fatigue_presentation.get("floating_texts", []) as Array).size() >= 2, "Fatigue damage presentation should show both damage number and fatigue text")
-	var overlay: Control = instance.get("_fatigue_edge_overlay") as Control
-	_assert(overlay != null, "RunScene should build a full-screen fatigue edge overlay")
-	if overlay != null:
-		instance.call("_set_fatigue_edge_progress", 0.5)
-		await process_frame
-		_assert(overlay.visible, "Fatigue edge overlay should appear while the pulse is active")
-		instance.call("_set_fatigue_edge_progress", -1.0)
-		await process_frame
-		_assert(not overlay.visible, "Fatigue edge overlay should hide after the pulse")
+	# Fatigue shares the ordinary player-hit feedback (crimson edge flush and
+	# board kick) instead of a separate web overlay.
+	_assert(instance.get("_fatigue_edge_overlay") == null, "Fatigue should not build a separate edge overlay")
 
 	instance.queue_free()
 	await process_frame

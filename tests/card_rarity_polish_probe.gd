@@ -1,0 +1,160 @@
+extends SceneTree
+
+const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const GameData = preload("res://scripts/game_data.gd")
+const CardWidget = preload("res://scripts/card_widget.gd")
+const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+
+const OUTPUT_DIR: String = "user://probes/card_rarity_polish"
+# One card per rarity (short and longest names) to check the plain name ink,
+# the gem glow, the seated art shadow and title fit at the larger title size.
+const SAMPLES: Array = [
+	{"card": "quick_stab", "label": "COMMON"},
+	{"card": "prism_sight", "label": "RARE"},
+	{"card": "blood_price", "label": "EPIC"},
+	{"card": "daybreak", "label": "LEGENDARY"},
+	{"card": "threadbare_guard", "label": "COMMON · LONG NAME"},
+	{"card": "lodestone_reversal", "label": "RARE · LONG NAME"},
+	{"card": "witchglass_double", "label": "EPIC · LONG NAME"},
+	{"card": "worldroot_stride", "label": "LEGENDARY · LONG NAME"},
+]
+
+func _initialize() -> void:
+	ParallelRuntime.apply_from_environment()
+	root.size = Vector2i(1920, 1080)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
+	_clear_probe_output(OUTPUT_DIR)
+	var background := ColorRect.new()
+	background.color = Color("17110d")
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.anchor_right = 1.0
+	background.anchor_bottom = 1.0
+	root.add_child(background)
+	var heading := Label.new()
+	heading.text = "CARD RARITY POLISH — ACTUAL-SIZE CARDWIDGETS"
+	heading.position = Vector2(0.0, 72.0)
+	heading.size = Vector2(1920.0, 42.0)
+	heading.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	heading.add_theme_font_size_override("font_size", 24)
+	heading.add_theme_color_override("font_color", Color("d9c29b"))
+	heading.add_theme_color_override("font_outline_color", Color("0d0805"))
+	heading.add_theme_constant_override("outline_size", 3)
+	root.add_child(heading)
+	var widgets: Array = []
+	var card_width: float = 250.0
+	var columns: int = 4
+	var gap: float = 56.0
+	var row_width: float = float(columns) * card_width + float(columns - 1) * gap
+	var start_x: float = (1920.0 - row_width) * 0.5
+	for index: int in range(SAMPLES.size()):
+		var sample: Dictionary = SAMPLES[index]
+		var card_id: String = str(sample.get("card", ""))
+		var column: int = index % columns
+		var row: int = index / columns
+		var position := Vector2(start_x + float(column) * (card_width + gap), 132.0 + float(row) * 452.0)
+		var label := Label.new()
+		label.text = str(sample.get("label", ""))
+		label.position = position + Vector2(0.0, -35.0)
+		label.size = Vector2(card_width, 26.0)
+		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.add_theme_font_size_override("font_size", 15)
+		label.add_theme_color_override("font_color", Color("c9ad80"))
+		root.add_child(label)
+		var slot := Control.new()
+		slot.position = position
+		slot.size = Vector2(250.0, 352.0)
+		root.add_child(slot)
+		var widget: CardWidget = CardWidgetScene.instantiate()
+		widget.custom_minimum_size = Vector2(250.0, 352.0)
+		widget.size = Vector2(250.0, 352.0)
+		slot.add_child(widget)
+		widget.configure(card_id, false, false, true, false, false, true, GameData.card_def(card_id))
+		widgets.append(widget)
+	await process_frame
+	await process_frame
+	await create_timer(0.12).timeout
+	await process_frame
+	if DisplayServer.get_name() == "headless":
+		push_error("Card rarity polish probe requires a real renderer.")
+		quit(1)
+		return
+	var failures: int = 0
+	for index: int in range(widgets.size()):
+		var widget: Control = widgets[index] as Control
+		var card_id: String = str((SAMPLES[index] as Dictionary).get("card", ""))
+		var rarity: String = str(GameData.card_def(card_id).get("rarity", "common"))
+		var shadow: TextureRect = widget.find_child("ArtShadow", true, false) as TextureRect
+		var glow: Control = widget.find_child("RarityGemGlow", true, false) as Control
+		var title: Label = widget.get_node("Margin/VBox/TopRow/Title") as Label
+		if shadow == null or shadow.texture == null:
+			push_error("%s should seat its art with a shadow copy" % card_id)
+			failures += 1
+		else:
+			var art: TextureRect = widget.find_child("Art", true, false) as TextureRect
+			var shadow_offset: Vector2 = shadow.get_global_rect().position - art.get_global_rect().position
+			if not shadow_offset.is_equal_approx(CardWidget.ART_SHADOW_OFFSET) or not shadow.size.is_equal_approx(art.size):
+				push_error("%s art shadow should sit offset by %s beneath the art, got %s" % [card_id, CardWidget.ART_SHADOW_OFFSET, shadow_offset])
+				failures += 1
+		var hover_style: StyleBox = widget.get_theme_stylebox("hover")
+		var normal_style: StyleBox = widget.get_theme_stylebox("normal")
+		for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+			if not is_equal_approx(hover_style.get_expand_margin(side), normal_style.get_expand_margin(side)):
+				push_error("%s hover frame should not grow past the nameplate text and gem glow" % card_id)
+				failures += 1
+				break
+		if glow != null and glow.visible:
+			var glow_material: ShaderMaterial = glow.material as ShaderMaterial
+			if glow_material == null or not (glow_material.shader.code.contains("TIME")) or not (glow_material.get_shader_parameter("gem_center") as Vector2).is_equal_approx(widget.size * Vector2(0.5, 0.957)):
+				push_error("%s gem glow should be a live shader centred on the frame gem" % card_id)
+				failures += 1
+		if card_id == "quick_stab" and title.get_theme_font_size("font_size") != CardWidget.TITLE_MAX_RENDER_SIZE:
+			push_error("A short full-size card name should render at %d px, got %d" % [CardWidget.TITLE_MAX_RENDER_SIZE, title.get_theme_font_size("font_size")])
+			failures += 1
+		if glow == null or glow.visible != (rarity in ["uncommon", "rare", "epic", "legendary"]):
+			push_error("%s rarity gem glow should appear only above common" % card_id)
+			failures += 1
+		if title.get_theme_color("font_color") != Color("39271b") or title.get_theme_color("font_outline_color") != Color("f8f1dd"):
+			push_error("%s title should keep the plain brown nameplate ink; rarity shows in the gem" % card_id)
+			failures += 1
+		if title.text != str(GameData.card_def(card_id).get("name", "")) or title.get_visible_line_count() > 2:
+			push_error("%s title should fit its nameplate" % card_id)
+			failures += 1
+	var stamp: int = int(Time.get_unix_time_from_system())
+	var viewport_image: Image = root.get_viewport().get_texture().get_image()
+	var overview_image: Image = viewport_image.duplicate()
+	overview_image.resize(1920, 1080, Image.INTERPOLATE_LANCZOS)
+	var overview_path: String = "%s/card_rarity_overview_%d.png" % [OUTPUT_DIR, stamp]
+	overview_image.save_png(overview_path)
+	print(ProjectSettings.globalize_path(overview_path))
+	for index: int in range(widgets.size()):
+		var sample: Dictionary = SAMPLES[index]
+		var card_id: String = str(sample.get("card", ""))
+		var card_image: Image = _crop_to_control(viewport_image, widgets[index] as Control)
+		card_image.resize(250, 352, Image.INTERPOLATE_LANCZOS)
+		var card_path: String = "%s/card_rarity_%s_%d.png" % [OUTPUT_DIR, card_id, stamp]
+		card_image.save_png(card_path)
+		print(ProjectSettings.globalize_path(card_path))
+	print("CARD RARITY POLISH: %s" % ("PASS" if failures == 0 else "FAIL (%d)" % failures))
+	quit(0 if failures == 0 else 1)
+
+func _crop_to_control(image: Image, control: Control) -> Image:
+	var viewport_rect: Rect2 = root.get_viewport().get_visible_rect()
+	var image_scale := Vector2(float(image.get_width()) / viewport_rect.size.x, float(image.get_height()) / viewport_rect.size.y)
+	var control_rect: Rect2 = control.get_global_rect()
+	var crop_rect := Rect2i(
+		Vector2i(int(round(control_rect.position.x * image_scale.x)), int(round(control_rect.position.y * image_scale.y))),
+		Vector2i(int(round(control_rect.size.x * image_scale.x)), int(round(control_rect.size.y * image_scale.y)))
+	)
+	return image.get_region(crop_rect)
+
+func _clear_probe_output(path: String) -> void:
+	var directory := DirAccess.open(path)
+	if directory == null:
+		return
+	directory.list_dir_begin()
+	var file_name: String = directory.get_next()
+	while not file_name.is_empty():
+		if not directory.current_is_dir() and file_name.ends_with(".png"):
+			directory.remove(file_name)
+		file_name = directory.get_next()
+	directory.list_dir_end()

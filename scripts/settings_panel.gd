@@ -94,11 +94,6 @@ func _build_surface() -> void:
 func _build_header() -> Control:
 	var header := HBoxContainer.new()
 	header.add_theme_constant_override("separation", 18)
-	var accent := ColorRect.new()
-	accent.custom_minimum_size = Vector2(6.0, 58.0)
-	accent.color = GOLD
-	accent.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(accent)
 	var copy := VBoxContainer.new()
 	copy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	copy.add_theme_constant_override("separation", 0)
@@ -111,20 +106,6 @@ func _build_header() -> Control:
 	title.add_theme_color_override("font_outline_color", Color("090609"))
 	title.add_theme_constant_override("outline_size", 4)
 	copy.add_child(title)
-	var subtitle := Label.new()
-	subtitle.text = "One profile. Every run."
-	subtitle.add_theme_font_override("font", TEXT_FONT)
-	UiTypography.set_label_size(subtitle, UiTypography.SIZE_BODY)
-	subtitle.add_theme_color_override("font_color", MUTED_TEXT)
-	copy.add_child(subtitle)
-	var badge := Label.new()
-	badge.text = "AUTO-SAVE"
-	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	badge.add_theme_font_override("font", UI_FONT)
-	UiTypography.set_label_size(badge, UiTypography.SIZE_SMALL)
-	badge.add_theme_color_override("font_color", Color("82d7b0"))
-	badge.add_theme_stylebox_override("normal", _chip_style(Color("18342d"), Color("4d9a7c")))
-	header.add_child(badge)
 	return header
 
 func _build_audio_section() -> Control:
@@ -270,6 +251,8 @@ func _section_shell(title_text: String, subtitle_text: String) -> PanelContainer
 	subtitle.add_theme_font_override("font", TEXT_FONT)
 	UiTypography.set_label_size(subtitle, UiTypography.SIZE_SMALL)
 	subtitle.add_theme_color_override("font_color", MUTED_TEXT)
+	# Section names already say what each group does; taglines only add noise.
+	subtitle.visible = false
 	header.add_child(subtitle)
 	var rows := VBoxContainer.new()
 	rows.add_theme_constant_override("separation", 2)

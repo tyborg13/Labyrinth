@@ -1,0 +1,350 @@
+{
+  "bars": 2,
+  "beats_per_bar": 4,
+  "bpm": 80,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "Bb (bVI) | D open fifth",
+      "triads": [
+        "Bb",
+        "D"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "D open fifth",
+      "triads": [
+        "D"
+      ]
+    }
+  ],
+  "identity": {
+    "gesture": "solemn low swell into an open fifth with a tolling bell",
+    "use": "character level up"
+  },
+  "key": "D (open fifth) from B-flat: bVI to I without a third",
+  "kind": "stinger",
+  "lead_instrument": "violin_1",
+  "mix": {
+    "brass": [
+      "violin_1",
+      -1.0
+    ],
+    "cello": [
+      "violin_1",
+      0.0
+    ],
+    "choir_low": [
+      "violin_2",
+      0.0
+    ],
+    "contrabass": [
+      "hollow_bass",
+      -3.0
+    ],
+    "taiko": [
+      "drums",
+      2.0
+    ],
+    "timpani": [
+      "drums",
+      2.0
+    ],
+    "toll": [
+      "thread_pluck",
+      7.0
+    ],
+    "viola": [
+      "viola",
+      0.0
+    ],
+    "violin_1": [
+      "violin_1",
+      -1.0
+    ],
+    "violin_2": [
+      "violin_2",
+      -1.0
+    ]
+  },
+  "mood": "Power earned at a cost: low strings swell on B-flat and settle onto a bare D-A fifth, with a deep bell toll, timpani and a brass/choir bloom.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "cello",
+      "pitch": 41,
+      "shape": "swell",
+      "velocity": 76
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "shape": "swell",
+      "velocity": 76
+    },
+    {
+      "beat": 0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 70
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "viola",
+      "pitch": 50,
+      "shape": "swell",
+      "velocity": 70
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "violin_1",
+      "pitch": 70,
+      "shape": "swell",
+      "velocity": 66
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.2,
+      "instrument": "violin_2",
+      "pitch": 65,
+      "shape": "swell",
+      "velocity": 64
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "brass",
+      "pitch": 38,
+      "shape": "swell",
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "brass",
+      "pitch": 45,
+      "shape": "swell",
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "brass",
+      "pitch": 50,
+      "shape": "swell",
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "choir_low",
+      "pitch": 50,
+      "velocity": 80,
+      "vowel": "oh"
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "choir_low",
+      "pitch": 57,
+      "velocity": 80,
+      "vowel": "oh"
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "contrabass",
+      "pitch": 38,
+      "velocity": 100
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 38,
+      "velocity": 108
+    },
+    {
+      "beat": 1.25,
+      "duration": 2.0,
+      "instrument": "toll",
+      "pitch": 62,
+      "velocity": 112
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "viola",
+      "pitch": 50,
+      "velocity": 94
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "violin_1",
+      "pitch": 69,
+      "velocity": 86
+    },
+    {
+      "beat": 1.25,
+      "duration": 1.8,
+      "instrument": "violin_2",
+      "pitch": 69,
+      "velocity": 88
+    }
+  ],
+  "palette": "Thorns v02 string ensemble extended for the final boss: low strings in octaves, formant choir, low brass, taiko, timpani and a tolling bell",
+  "patches": {
+    "brass": {
+      "attack_seconds": 0.07,
+      "hall": 0.42,
+      "lowpass_hz": 5000,
+      "pan": 0.1,
+      "program": 57,
+      "release_seconds": 0.3,
+      "synth": "brass",
+      "voices": 3,
+      "wet": 0.0
+    },
+    "cello": {
+      "attack_seconds": 0.085,
+      "bow_noise": 0.0034,
+      "hall": 0.3,
+      "lowpass_hz": 2400,
+      "pan": 0.1,
+      "program": 42,
+      "release_seconds": 0.28,
+      "vibrato_cents": 5,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "choir_low": {
+      "attack_seconds": 0.3,
+      "breath": 0.02,
+      "detune_cents": 7,
+      "hall": 0.55,
+      "lowpass_hz": 5200,
+      "pan": -0.18,
+      "program": 52,
+      "release_seconds": 0.7,
+      "spread": 0.7,
+      "synth": "choir",
+      "vibrato_cents": 16,
+      "voices": 6,
+      "vowel": "oh",
+      "wet": 0.0
+    },
+    "contrabass": {
+      "attack_seconds": 0.09,
+      "bow_noise": 0.004,
+      "hall": 0.25,
+      "lowpass_hz": 1500,
+      "pan": 0.04,
+      "program": 43,
+      "release_seconds": 0.28,
+      "vibrato_cents": 3,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "taiko": {
+      "decay_scale": 0.5,
+      "hall": 0.35,
+      "pan": 0.0,
+      "percussion": true,
+      "program": 0,
+      "synth": "taiko",
+      "wet": 0.0
+    },
+    "timpani": {
+      "hall": 0.3,
+      "pan": -0.12,
+      "program": 47,
+      "ring_seconds": 1.2,
+      "synth": "timpani",
+      "wet": 0.0
+    },
+    "toll": {
+      "hall": 0.5,
+      "pan": 0.2,
+      "program": 14,
+      "ring_seconds": 1.9,
+      "synth": "toll",
+      "wet": 0.0
+    },
+    "viola": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0028,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.22,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.0
+    },
+    "violin_1": {
+      "attack_seconds": 0.048,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 3200,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.16,
+      "vibrato_cents": 10,
+      "vibrato_hz": 4.9,
+      "voice": "violin",
+      "wet": 0.0
+    },
+    "violin_2": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.22,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.0
+    }
+  },
+  "reverb": {
+    "rt60_seconds": 1.3,
+    "wet": 0.3
+  },
+  "schema_version": 1,
+  "sections": [
+    "0-0.9 s: B-flat swell in the low strings over a soft taiko",
+    "0.9 s: D-A open fifth - bell toll, timpani, brass and choir bloom; the violins sink B-flat to A"
+  ],
+  "slug": "07_stinger_level_up",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Level Up (v02)",
+  "version": "v02"
+}

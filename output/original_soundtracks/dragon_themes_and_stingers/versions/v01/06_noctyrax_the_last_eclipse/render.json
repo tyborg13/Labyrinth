@@ -1,0 +1,192 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "f6d6ea6307706172e8994d0a425a4ce43d4b75711596eb5dc5ac89bb074ffc7f",
+    "preview.flac": "53dc9b9b52865822525356d0ea194e4bd3b5c8e28ddd3060fa9f59f56ff647bd",
+    "preview.mp3": "09aff219fd4e1733f47ce965fea983b95302c2c008ebc59a58f3f146aaa0a319",
+    "preview.ogg": "c51a211cf96b3e71993d819de5948dbf7e9af07161edc1ecd47da07cf099167c",
+    "score.json": "20aa4461195924fd809802c51d7d3911ec599021bc5d2b3de1f353793c23594e"
+  },
+  "bars": 24,
+  "bpm": 96,
+  "channels": 2,
+  "circular_continuity_before_taper": {
+    "p99_9_adjacent_delta": [
+      0.03981987978691548,
+      0.03908369653113547
+    ],
+    "ratio": [
+      0.10279537243018062,
+      0.048153906887399796
+    ],
+    "wrap_sample_delta": [
+      0.004093299372820998,
+      0.0018820326835756879
+    ]
+  },
+  "decoded": {
+    "flac": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -20.0,
+      "loudness_range_lu": 5.1,
+      "momentary_max_lufs": -15.9,
+      "sample_peak_dbfs": -6.0,
+      "sample_seam_to_p99_9_ratio": [
+        0.0,
+        0.0
+      ],
+      "seam_profile": {
+        "band_limit_db": 10.409549547991132,
+        "internal_band_distance_db_p50": 3.886434409207579,
+        "internal_band_distance_db_p95": 8.701044961443658,
+        "internal_band_distance_db_p99": 9.909549547991132,
+        "internal_rms_step_db_p50": 0.45069778205981237,
+        "internal_rms_step_db_p95": 4.016656162547411,
+        "internal_rms_step_db_p99": 6.9618229383303785,
+        "rms_limit_db": 9.586822968421142,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 6.252418933727907,
+        "seam_band_distance_percentile": 87.02928870292888,
+        "seam_rms_step_db": 5.800463573955927,
+        "seam_rms_step_percentile": 98.33055091819699,
+        "section_boundary_band_distance_db": [
+          7.878300784098561,
+          5.741694311489884,
+          8.991901606601475,
+          9.216407793976034
+        ],
+        "section_boundary_rms_step_db": [
+          9.086822968421142,
+          5.842457296690181,
+          6.3410467094212635,
+          4.358562713370194
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -17.6,
+      "true_peak_dbtp": -6.02
+    },
+    "mp3": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -20.26,
+      "loudness_range_lu": 5.1,
+      "momentary_max_lufs": -16.2,
+      "sample_peak_dbfs": -6.3,
+      "short_term_max_lufs": -17.8,
+      "true_peak_dbtp": -6.29
+    },
+    "ogg": {
+      "duration_seconds": 60.0,
+      "integrated_lufs": -19.99,
+      "loudness_range_lu": 5.1,
+      "momentary_max_lufs": -15.9,
+      "sample_peak_dbfs": -5.9,
+      "sample_seam_to_p99_9_ratio": [
+        0.0696343567921152,
+        0.3055345786167791
+      ],
+      "seam_profile": {
+        "band_limit_db": 12.467802231850701,
+        "internal_band_distance_db_p50": 4.395482722422282,
+        "internal_band_distance_db_p95": 10.598051062529915,
+        "internal_band_distance_db_p99": 11.967802231850701,
+        "internal_rms_step_db_p50": 0.4514287748711716,
+        "internal_rms_step_db_p95": 4.003964879485503,
+        "internal_rms_step_db_p99": 6.972478644103661,
+        "rms_limit_db": 9.576165620106217,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 7.154728167696214,
+        "seam_band_distance_percentile": 84.51882845188284,
+        "seam_rms_step_db": 5.8188899594325925,
+        "seam_rms_step_percentile": 98.33055091819699,
+        "section_boundary_band_distance_db": [
+          9.77681620583586,
+          8.347428299231444,
+          11.569701724750699,
+          11.298990133777968
+        ],
+        "section_boundary_rms_step_db": [
+          9.076165620106217,
+          5.865839285153669,
+          6.308342807869115,
+          4.367229493248235
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -17.6,
+      "true_peak_dbtp": -5.92
+    }
+  },
+  "key": "B-flat minor / Phrygian (C-flat), chromatic build through G, A-flat and A dim7",
+  "kind": "loop_theme",
+  "loop_duration_seconds": 60.0,
+  "loop_method": "periodic overlap-add of every release tail, circular echo/filters, exact bar length, 2 ms endpoint taper (Thorns v02 convention)",
+  "master_gain": 1.3583134465871542,
+  "note_counts": {
+    "bowed_veil": 23,
+    "drums": 130,
+    "hollow_bass": 100,
+    "lantern_mallet": 4,
+    "thread_pluck": 192,
+    "viola": 38,
+    "violin_1": 61,
+    "violin_2": 47
+  },
+  "pre_master_sample_peak_dbfs": -6.021618414837406,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "bowed_veil": 1.3645831365889238,
+      "drums": 0.8413951416451955,
+      "hollow_bass": 0.8531001140175891,
+      "lantern_mallet": 0.7261059574351546,
+      "thread_pluck": 1.092697627188909,
+      "viola": 0.1698243652461744,
+      "violin_1": 0.22181964198002188,
+      "violin_2": 0.19120533246045324
+    },
+    "lead_above_middle_lu": 0.79,
+    "lufs_in_matched_mix": {
+      "bowed_veil": -33.04,
+      "drums": -30.61,
+      "hollow_bass": -23.38,
+      "lantern_mallet": -33.46,
+      "thread_pluck": -36.16,
+      "viola": -30.48,
+      "violin_1": -25.95,
+      "violin_2": -29.28
+    },
+    "post_master_peak_dbfs": {
+      "bowed_veil": -22.84,
+      "drums": -9.99,
+      "hollow_bass": -13.39,
+      "lantern_mallet": -22.29,
+      "thread_pluck": -23.61,
+      "viola": -22.9,
+      "violin_1": -18.37,
+      "violin_2": -20.23
+    },
+    "target_pre_master_lufs": {
+      "bowed_veil": -36.21,
+      "drums": -33.19,
+      "hollow_bass": -26.03,
+      "lantern_mallet": -35.92,
+      "thread_pluck": -38.92,
+      "viola": -33.34,
+      "violin_1": -28.59,
+      "violin_2": -31.840000000000003
+    }
+  },
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Noctyrax, the Last Eclipse",
+  "version": "v01"
+}

@@ -6,6 +6,8 @@ extends Node2D
 static var _paper_grain: Texture2D
 static var _menu_grain_texture: Texture2D
 const MENU_SHADER = preload("res://assets/shaders/menu_surface_finish.gdshader")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
 var _menu_accent := Color("b49461")
 var _panel: PanelContainer
 var _kind: String = "dialog"
@@ -113,36 +115,15 @@ static func _menu_grain() -> Texture2D:
 	return _menu_grain_texture
 
 func _draw_choice(rect: Rect2) -> void:
-	# Choice plates reuse the same quiet well, with raised metal at the edge.
-	# Rarity/danger color stays in the rim; the object and exact rules stay primary.
+	# Choice plates share the gilded-glass edge: a quiet well for the rules text,
+	# a fine accent hairline, and corner studs that brighten on emphasis.
 	draw_dark_well(self, _quad(rect), rect, "choice")
-	var strength: float = 1.0 if _choice_enabled else 0.48
-	var accent: Color = _choice_accent
-	var light: Color = accent.lerp(Color("ffe5b5"), 0.48)
-	var rim_alpha: float = (0.84 if _choice_emphasized else 0.49) * strength
-	var outer := Rect2(Vector2(2.5, 2.5), _panel.size - Vector2(5.0, 5.0))
-	var inner: Rect2 = outer.grow(-4.0)
-	# Upper reflection and dark underside make one substantial frame, rather
-	# than another nested colored outline. All facets stay inside the hit rect.
-	draw_polygon(PackedVector2Array([
-		outer.position + Vector2(7.0, 0.0), Vector2(outer.end.x - 7.0, outer.position.y),
-		Vector2(inner.end.x - 4.0, inner.position.y), inner.position + Vector2(4.0, 0.0)
-	]), PackedColorArray([
-		Color(light, rim_alpha * 0.48), Color(light, rim_alpha * 0.22),
-		Color(accent, rim_alpha * 0.08), Color(accent, rim_alpha * 0.18)
-	]))
-	draw_line(outer.position + Vector2(8.0, 0.0), Vector2(outer.end.x - 8.0, outer.position.y), Color(light, rim_alpha), 1.0, true)
-	draw_line(outer.position + Vector2(0.0, 8.0), Vector2(outer.position.x, outer.end.y - 8.0), Color(light, rim_alpha * 0.38), 1.0, true)
-	draw_line(Vector2(outer.end.x, outer.position.y + 8.0), outer.end - Vector2(0.0, 8.0), Color(0.02, 0.012, 0.01, 0.76), 2.0, true)
-	draw_line(Vector2(outer.position.x + 8.0, outer.end.y - 1.0), outer.end - Vector2(8.0, 1.0), Color(0.02, 0.012, 0.01, 0.80), 3.0, true)
-	draw_line(Vector2(inner.position.x + 8.0, inner.end.y), inner.end - Vector2(8.0, 0.0), Color(accent, rim_alpha * 0.30), 1.0, true)
-	for corner: Vector2 in [Vector2(0, 0), Vector2(1, 0), Vector2(1, 1), Vector2(0, 1)]:
-		var point: Vector2 = outer.position + outer.size * corner
-		var direction: Vector2 = Vector2.ONE - corner * 2.0
-		var arm: float = 13.0 if _choice_emphasized else 9.0
-		var tint := Color(light, rim_alpha * (1.0 if _choice_emphasized else 0.72))
-		draw_line(point + Vector2(direction.x * 3.0, direction.y * 8.0), point + Vector2(direction.x * 3.0, direction.y * arm), tint, 1.0, true)
-		draw_line(point + Vector2(direction.x * 8.0, direction.y * 3.0), point + Vector2(direction.x * arm, direction.y * 3.0), tint, 1.0, true)
+	var strength: float = 1.0 if _choice_enabled else 0.45
+	var gold: Color = _choice_accent.lerp(Palette.GOLD_BRIGHT if _choice_emphasized else Palette.GOLD, 0.45)
+	var edge := Rect2(Vector2(1.0, 1.0), _panel.size - Vector2(2.0, 2.0))
+	if _choice_emphasized and _choice_enabled:
+		GildedFrame.draw_glow(self, edge, Color(gold, 0.30), 10.0, 3.0)
+	GildedFrame.draw_gilding(self, edge, gold, strength * (1.0 if _choice_emphasized else 0.72), 4.0, 3.0, true)
 
 static func draw_dark_well(canvas: CanvasItem, points: PackedVector2Array, rect: Rect2, kind: String) -> void:
 	# The slight warm top reflection and cool lower falloff make a shallow well,

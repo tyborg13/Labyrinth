@@ -2,6 +2,8 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
 
 const GLINT_DURATION: float = 0.28
 
@@ -109,71 +111,50 @@ func _draw() -> void:
 		_draw_umbra_raster(state)
 		return
 	var accent: Color = _accent_color(state)
-	var muted: Color = Color(accent.r, accent.g, accent.b, accent.a * 0.42)
-	var inset: float = 4.5 if _variant != VARIANT_COMPACT else 3.5
-	var left: float = inset
-	var right: float = size.x - inset
-	var top: float = inset
-	var bottom: float = size.y - inset
-	var arm: float = clampf(size.y * 0.23, 6.0, 12.0)
-	var stroke: float = 1.0
+	var disabled: bool = state == STATE_DISABLED
+	var pressed: bool = _material_is_pressed(state)
+	var engaged: bool = state in [STATE_HOVER, STATE_FOCUS, STATE_SELECTED] or _variant == VARIANT_SELECTED
+	var face := Rect2(Vector2(1.0, 1.0), size - Vector2(2.0, 3.0))
 
-	_draw_material_bevel(state, accent)
+	# Primary plates carry a steady ember halo so the advancing action reads first.
+	if _variant == VARIANT_SELECTED and not disabled:
+		GildedFrame.draw_glow(self, face, Color(Palette.EMBER, 0.55 if engaged and state != STATE_SELECTED else 0.38), 10.0, 3.0)
+	elif state == STATE_HOVER and not disabled:
+		GildedFrame.draw_glow(self, face, Color(accent, 0.22), 7.0, 3.0)
 
-	# Fine metal inlay: short corner cuts scale cleanly without stretching artwork.
-	_draw_corner(Vector2(left, top), Vector2(1.0, 1.0), arm, muted, stroke)
-	_draw_corner(Vector2(right, top), Vector2(-1.0, 1.0), arm, muted, stroke)
-	_draw_corner(Vector2(left, bottom), Vector2(1.0, -1.0), arm, muted, stroke)
-	_draw_corner(Vector2(right, bottom), Vector2(-1.0, -1.0), arm, muted, stroke)
+	GildedFrame.draw_sheen(self, face, 0.35 if disabled or pressed else (1.25 if engaged else 1.0), 2.0)
+	# Inner hairline: a fine gilt edge one step inside the border.
+	var inner := face.grow(-3.0)
+	var inner_alpha: float = 0.10 if disabled else (0.42 if engaged else 0.22)
+	draw_rect(inner, Color(accent, inner_alpha), false, 1.0)
+	# Polished catch-light across the top edge.
+	var span: float = minf(size.x * 0.32, 90.0)
+	var catch_alpha: float = 0.08 if disabled or pressed else (0.62 if engaged else 0.36)
+	_draw_centered_highlight(Vector2(size.x * 0.5, 1.5), span, Color(1.0, 0.93, 0.76, catch_alpha))
 
-	if _variant != VARIANT_ICON and size.x >= 96.0:
-		var rail_inset: float = maxf(arm + 10.0, size.x * 0.18)
-		draw_line(Vector2(rail_inset, top), Vector2(size.x - rail_inset, top), Color(accent.r, accent.g, accent.b, accent.a * 0.26), stroke)
-		draw_line(Vector2(rail_inset, bottom), Vector2(size.x - rail_inset, bottom), Color(0.02, 0.02, 0.025, 0.72), stroke)
-
-	if _variant != VARIANT_COMPACT:
-		var rivet_radius: float = 1.35 if _variant == VARIANT_ICON else 1.1
-		_draw_rivet(Vector2(left + 3.0, size.y * 0.5), rivet_radius, accent, state)
-		_draw_rivet(Vector2(right - 3.0, size.y * 0.5), rivet_radius, accent, state)
-
-	if state in [STATE_HOVER, STATE_PRESSED, STATE_SELECTED, STATE_FOCUS] or _variant in [VARIANT_DESTRUCTIVE, VARIANT_SELECTED]:
-		var ember: Color = Color("f19a55") if _variant != VARIANT_DESTRUCTIVE else Color("ff7c63")
-		ember.a = 0.88 if state != STATE_DISABLED else 0.22
-		draw_line(Vector2(left + 1.0, size.y * 0.36), Vector2(left + 1.0, size.y * 0.64), ember, 2.0)
+	if _variant != VARIANT_ICON and _variant != VARIANT_COMPACT and size.x >= 110.0:
+		var stud_strength: float = 0.35 if disabled else (1.0 if engaged else 0.72)
+		GildedFrame.draw_diamond(self, Vector2(8.0, size.y * 0.5), 3.0, accent, stud_strength)
+		GildedFrame.draw_diamond(self, Vector2(size.x - 8.0, size.y * 0.5), 3.0, accent, stud_strength)
 
 	if state == STATE_FOCUS:
 		_draw_focus_brackets(Color("ffe3a0"))
-	if _glint_progress < 1.0 and state != STATE_DISABLED:
+	if _glint_progress < 1.0 and not disabled:
 		_draw_engagement_glint(accent)
 
-# Restrict the material to the perimeter: the native Button owns the label,
-# hit target and state fill. Light comes from above; pressed plates recess.
-func _draw_material_bevel(state: String, accent: Color) -> void:
-	var disabled: bool = state == STATE_DISABLED
-	var pressed: bool = _material_is_pressed(state)
-	var strength: float = 0.23 if disabled else 1.0
-	var bright: Color = accent.lerp(Color("ffe4ad"), 0.45)
-	bright.a = strength * (0.16 if pressed else 0.64)
-	var facet: Color = Color(accent.r, accent.g, accent.b, strength * (0.045 if pressed else 0.14))
-	var shade := Color(0.015, 0.012, 0.011, strength * (0.64 if pressed else 0.52))
-	var bevel: float = 5.0 if _variant == VARIANT_COMPACT else 6.5
-	var w: float = size.x
-	var h: float = size.y
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(6.0, 2.5), Vector2(w - 6.0, 2.5),
-		Vector2(w - bevel - 3.0, bevel), Vector2(bevel + 3.0, bevel)
-	]), facet)
-	draw_line(Vector2(6.0, 2.5), Vector2(w - 6.0, 2.5), bright, 1.0, true)
-	draw_line(Vector2(2.5, 7.0), Vector2(2.5, h - 7.0), Color(bright, bright.a * 0.38), 1.0, true)
-	draw_colored_polygon(PackedVector2Array([
-		Vector2(bevel, h - bevel), Vector2(w - bevel, h - bevel),
-		Vector2(w - 4.0, h - 2.5), Vector2(4.0, h - 2.5)
-	]), shade)
-	draw_line(Vector2(5.0, h - 3.0), Vector2(w - 5.0, h - 3.0), Color(accent, strength * 0.23), 1.0, true)
-	draw_line(Vector2(w - 3.0, 7.0), Vector2(w - 3.0, h - 6.0), shade, 1.0, true)
-	# Two tiny corner facets catch light without a glossy wash over the face.
-	for x: float in [7.0, w - 7.0]:
-		draw_line(Vector2(x, 3.0), Vector2(x, bevel + 1.0), Color(bright, bright.a * 0.65), 1.0, true)
+func _draw_centered_highlight(center: Vector2, half_width: float, color: Color) -> void:
+	var segments: int = 10
+	for index: int in range(segments):
+		var a: float = float(index) / float(segments)
+		var b: float = float(index + 1) / float(segments)
+		var fade: float = 1.0 - absf((a + b) * 0.5 - 0.5) * 2.0
+		draw_line(
+			Vector2(center.x - half_width + a * half_width * 2.0, center.y),
+			Vector2(center.x - half_width + b * half_width * 2.0, center.y),
+			Color(color, color.a * fade),
+			1.0,
+			true
+		)
 
 func _material_is_pressed(state: String) -> bool:
 	if _button == null or not str(_button.get_meta("button_gallery_state", "")).is_empty():
@@ -183,12 +164,6 @@ func _material_is_pressed(state: String) -> bool:
 	if not _button.toggle_mode:
 		return _button.get_draw_mode() in [BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED]
 	return state == STATE_PRESSED
-
-func _draw_rivet(center: Vector2, radius: float, accent: Color, state: String) -> void:
-	var strength: float = 0.24 if state == STATE_DISABLED else 0.72
-	draw_circle(center + Vector2(0.0, 0.7), radius + 0.6, Color(0.015, 0.012, 0.01, strength))
-	draw_circle(center, radius, Color(accent, strength * 0.75))
-	draw_circle(center + Vector2(-0.3, -0.4), radius * 0.43, Color(accent.lerp(Color("fff0c7"), 0.55), strength))
 
 func _draw_engagement_glint(accent: Color) -> void:
 	var envelope: float = sin(_glint_progress * PI)
@@ -305,13 +280,13 @@ func _umbra_visual_state() -> String:
 
 func _accent_color(state: String) -> Color:
 	if state == STATE_DISABLED:
-		return Color("6c6458")
+		return Color("5e5347")
 	if _variant == VARIANT_DESTRUCTIVE:
 		return Color("d56858") if state == STATE_NORMAL else Color("ff9a73")
 	if _variant == VARIANT_SELECTED or state == STATE_SELECTED:
-		return Color("f0b75b")
+		return Color("f0c778")
 	if state == STATE_FOCUS:
 		return Color("ffe3a0")
 	if state in [STATE_HOVER, STATE_PRESSED]:
-		return Color("e4b66b")
-	return Color("9b7844")
+		return Color("e2bd76")
+	return Color("b48c52")

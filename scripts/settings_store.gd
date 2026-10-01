@@ -42,6 +42,21 @@ const MUSIC_REVERB_WET: float = 0.04
 const MUSIC_REVERB_PREDELAY_MSEC: float = 28.0
 const MUSIC_REVERB_PREDELAY_FEEDBACK: float = 0.04
 
+# Mastering chain. A slow, gentle compressor glues stacked hits, card cues and
+# UI ticks into one consistent SFX layer; a transparent brick-wall limiter on
+# Master keeps simultaneous impacts from ever clipping the output.
+const SFX_GLUE_THRESHOLD_DB: float = -16.0
+const SFX_GLUE_RATIO: float = 2.5
+const SFX_GLUE_ATTACK_US: float = 6000.0
+const SFX_GLUE_RELEASE_MS: float = 140.0
+# No makeup gain: owner-auditioned cue levels stay where they were set.
+const SFX_GLUE_GAIN_DB: float = 0.0
+const MASTER_LIMITER_CEILING_DB: float = -0.8
+const MASTER_LIMITER_RELEASE_S: float = 0.12
+# A neutral gain stage on the Music bus lets stingers dip the score under them
+# without touching the player's volume setting or the score's own fades.
+const MUSIC_DUCK_EFFECT_NAME: String = "MusicDuck"
+
 const STANDARD_DIALOGUE_CHARACTERS_PER_SECOND: float = 34.0
 const FAST_DIALOGUE_CHARACTERS_PER_SECOND: float = 92.0
 const SUPPORTED_UI_SCALES := [0.90, 1.00, 1.15, 1.25]
@@ -142,6 +157,62 @@ static func ensure_audio_buses() -> void:
 	_route_audio_bus(UI_SFX_BUS, SFX_BUS)
 	_ensure_world_sfx_reverb()
 	_ensure_music_reverb()
+	_ensure_sfx_glue_compressor()
+	_ensure_master_limiter()
+	_ensure_music_duck()
+
+static func music_duck_effect() -> AudioEffectAmplify:
+	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)
+	if bus_index < 0:
+		return null
+	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
+		var effect: AudioEffect = AudioServer.get_bus_effect(bus_index, effect_index)
+		if effect is AudioEffectAmplify and effect.resource_name == MUSIC_DUCK_EFFECT_NAME:
+			return effect as AudioEffectAmplify
+	return null
+
+static func _ensure_music_duck() -> void:
+	var bus_index: int = AudioServer.get_bus_index(MUSIC_BUS)
+	if bus_index < 0 or music_duck_effect() != null:
+		return
+	var amplify := AudioEffectAmplify.new()
+	amplify.resource_name = MUSIC_DUCK_EFFECT_NAME
+	amplify.volume_db = 0.0
+	AudioServer.add_bus_effect(bus_index, amplify, 0)
+
+static func _ensure_sfx_glue_compressor() -> void:
+	var bus_index: int = AudioServer.get_bus_index(SFX_BUS)
+	if bus_index < 0:
+		return
+	var compressor: AudioEffectCompressor = _find_bus_effect(bus_index, "AudioEffectCompressor") as AudioEffectCompressor
+	if compressor == null:
+		compressor = AudioEffectCompressor.new()
+		AudioServer.add_bus_effect(bus_index, compressor)
+	compressor.threshold = SFX_GLUE_THRESHOLD_DB
+	compressor.ratio = SFX_GLUE_RATIO
+	compressor.attack_us = SFX_GLUE_ATTACK_US
+	compressor.release_ms = SFX_GLUE_RELEASE_MS
+	compressor.gain = SFX_GLUE_GAIN_DB
+	compressor.mix = 1.0
+
+static func _ensure_master_limiter() -> void:
+	var bus_index: int = AudioServer.get_bus_index(MASTER_BUS)
+	if bus_index < 0:
+		return
+	var limiter: AudioEffectHardLimiter = _find_bus_effect(bus_index, "AudioEffectHardLimiter") as AudioEffectHardLimiter
+	if limiter == null:
+		limiter = AudioEffectHardLimiter.new()
+		AudioServer.add_bus_effect(bus_index, limiter)
+	limiter.ceiling_db = MASTER_LIMITER_CEILING_DB
+	limiter.pre_gain_db = 0.0
+	limiter.release = MASTER_LIMITER_RELEASE_S
+
+static func _find_bus_effect(bus_index: int, effect_class: String) -> AudioEffect:
+	for effect_index: int in range(AudioServer.get_bus_effect_count(bus_index)):
+		var effect: AudioEffect = AudioServer.get_bus_effect(bus_index, effect_index)
+		if effect != null and effect.is_class(effect_class):
+			return effect
+	return null
 
 static func apply_audio_settings(settings: Dictionary) -> void:
 	var normalized: Dictionary = normalize_settings(settings)

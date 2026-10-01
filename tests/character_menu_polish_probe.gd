@@ -1,5 +1,7 @@
 extends "res://tests/loadout_material_polish_probe.gd"
 
+const OUTER_FRAME_CORNER_RADIUS: int = preload("res://scripts/ui_skin.gd").OUTER_FRAME_CORNER_RADIUS
+
 const CHARACTER_OUTPUT: String = "user://probes/character_menu_polish_v2"
 
 func _initialize() -> void:
@@ -160,22 +162,27 @@ func _assert_menu_edge_alignment(dialog: Control) -> void:
 	for panel: PanelContainer in panels:
 		var finish: Node2D = panel.get_node("SurfaceFinish") as Node2D
 		var outer: bool = panel == dialog
+		# Resource chips use the quieter 1 px / 3 px gilded chip; grouped
+		# surfaces keep their 2 px / 8 px rim. Material must follow either.
+		var chip: bool = str(finish.get("_kind")) == "menu_chip"
+		var rim: int = 0 if outer else (1 if chip else 2)
+		var corner_radius: int = OUTER_FRAME_CORNER_RADIUS if outer else (3 if chip else 8)
 		var style: StyleBoxFlat = panel.get_theme_stylebox("panel") as StyleBoxFlat
 		_require(style != null, "Character material keeps its native StyleBoxFlat host")
 		_require(finish.position == Vector2.ZERO and finish.scale == Vector2.ONE and finish.get_index() == 0, "Menu paint stays aligned with its host beneath existing content")
 		_require(not finish.is_processing(), "Aligned material has no idle processing")
 		for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-			_require(style.get_border_width(side) == (0 if outer else 2), "Character native rim width remains unchanged")
+			_require(style.get_border_width(side) == rim, "Character native rim width matches its surface treatment")
 		for corner: int in [CORNER_TOP_LEFT, CORNER_TOP_RIGHT, CORNER_BOTTOM_RIGHT, CORNER_BOTTOM_LEFT]:
-			_require(style.get_corner_radius(corner) == (14 if outer else 8), "Character native corner silhouette remains unchanged")
+			_require(style.get_corner_radius(corner) == corner_radius, "Character corner silhouette matches its frame treatment")
 		var geometry: Dictionary = finish.call("menu_face_geometry")
 		var face: Rect2 = geometry.get("rect", Rect2())
-		var expected: Rect2 = Rect2(Vector2.ZERO, panel.size) if outer else Rect2(Vector2(2.0, 2.0), panel.size - Vector2(4.0, 4.0))
+		var expected: Rect2 = Rect2(Vector2.ONE * rim, panel.size - Vector2.ONE * rim * 2.0)
 		_require(face == expected, "Material reaches the full native face without a detached inset slab")
 		var radii: PackedVector2Array = geometry.get("radii", PackedVector2Array())
 		_require(radii.size() == 4, "Material has a contour for all four native corners")
 		for radius: Vector2 in radii:
-			_require(radius == Vector2.ONE * (14.0 if outer else 6.0), "Material follows Character rounded inner corners")
+			_require(radius == Vector2.ONE * float(corner_radius - rim), "Material follows Character inner corners")
 		print("CHARACTER FACE ", panel.name, " global=", panel.get_global_rect(), " local=", face, " radii=", radii)
 		if DisplayServer.get_name() != "headless":
 			await _assert_material_reaches_rim(panel, finish, outer)
@@ -224,7 +231,9 @@ func _assert_material_reaches_rim(panel: PanelContainer, finish: Node2D, outer: 
 	_require(top_delta > 0.004 and left_delta > 0.004 and bottom_delta > 0.004 and right_delta > 0.004, "Native material reaches all four inner edges on " + str(panel.name))
 	if not outer:
 		_require(_pixel_delta(painted, unpainted, origin + Vector2i(extent.x / 2, 0)) <= 0.005, "Finish preserves the sole native top border on " + str(panel.name))
-	var corner: int = 0 if outer else 2
+	# Sample just outside the rounded face: the 2px rim's corner for grouped
+	# surfaces, the rim pixel itself for 1px chips.
+	var corner: int = 0 if outer or str(finish.get("_kind")) == "menu_chip" else 2
 	for point: Vector2i in [Vector2i(corner, corner), Vector2i(extent.x - corner - 1, corner), Vector2i(extent.x - corner - 1, extent.y - corner - 1), Vector2i(corner, extent.y - corner - 1)]:
 		_require(_pixel_delta(painted, unpainted, origin + point) <= 0.005, "Finish does not square off a rounded native corner on " + str(panel.name))
 	if ornament != null:

@@ -1,0 +1,105 @@
+{
+  "approval": "Each dragon boss plays its own theme (guardians keep Thorns in the Dark): themes 01-05 v01 as first auditioned, and Noctyrax v02 take A \"Eclipse Requiem\" chosen over take B. The v02 level-up and boss-defeated stingers duck the score beneath them. The rare-reward stinger was dropped after in-game audition (too many back-to-back sound transitions); the victory cue carries the reveal.",
+  "approved_by": "project owner in conversation",
+  "date": "2026-10-01",
+  "source_kind": "original_authored_symbolic_composition",
+  "status": "approved_for_game_integration",
+  "tracks": [
+    {
+      "asset": "assets/audio/music/dragon_themes/zekarion_theme_v01.ogg",
+      "flac_sha256": "68f43cb08410531b9e00deaa1bf1d03dd1e804659477147d668d93f99c8f38ba",
+      "id": "boss.zekarion_raging_tempest",
+      "loop": true,
+      "midi_sha256": "80b57d58377ef743697f7095fca720fd62f673e68db648edf5514548a28e24a8",
+      "ogg_sha256": "e5173ba2fe4d67fa0fc509efc6b8aed5c3dbf167c99409b763a5c86373375f63",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/01_zekarion_the_raging_tempest",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
+      "title": "Zekarion, the Raging Tempest",
+      "version": "v01"
+    },
+    {
+      "asset": "assets/audio/music/dragon_themes/tharokh_theme_v01.ogg",
+      "flac_sha256": "5c4da5563010b9be878b5cf7355cb4c19c2a576acc3a973923b0e40c72f3650d",
+      "id": "boss.tharokh_worldspine",
+      "loop": true,
+      "midi_sha256": "d7b4cff32def8b9b0eae3361aca4c678e5151e1057eb7990a3bb73d004dedf1f",
+      "ogg_sha256": "b741d24775f944367fb1a7e98f2637282959b41e6fedbfa1086ccccd48aeeb0e",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/02_tharokh_the_worldspine",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
+      "title": "Tharokh, the Worldspine",
+      "version": "v01"
+    },
+    {
+      "asset": "assets/audio/music/dragon_themes/vyraketh_theme_v01.ogg",
+      "flac_sha256": "cc6514864638bdf6c83098812963307e20bff754546ac7387030c248f6f8de9c",
+      "id": "boss.vyraketh_cinder_crown",
+      "loop": true,
+      "midi_sha256": "d34c8c2e3174924def806890094288312a7c912a912d935ee15c9c575ca2f614",
+      "ogg_sha256": "b96e05706edc850d5d422e3a88d1369bbafa38c95f908f40c419ea831eea78c8",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/03_vyraketh_the_cinder_crown",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
+      "title": "Vyraketh, the Cinder Crown",
+      "version": "v01"
+    },
+    {
+      "asset": "assets/audio/music/dragon_themes/vaeloryx_theme_v01.ogg",
+      "flac_sha256": "9a4ed174a1f672e1c10a42f253e53bf149a4eebc298c6b9c8aa687ea4cdbedd8",
+      "id": "boss.vaeloryx_hollow_gale",
+      "loop": true,
+      "midi_sha256": "571308e03d610368df63fdd5f29b9661bc250efb3d8722a2758449765a5de1e0",
+      "ogg_sha256": "4a79b26f20aa4052592a35e4da8c32e039972e12e46d5209bcca1faba79b48dc",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/04_vaeloryx_the_hollow_gale",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
+      "title": "Vaeloryx, the Hollow Gale",
+      "version": "v01"
+    },
+    {
+      "asset": "assets/audio/music/dragon_themes/iskaldra_theme_v01.ogg",
+      "flac_sha256": "a2e4ef53d7a499a1b6326201b8ce808644719f3003131a58d6585bbd4a1b002d",
+      "id": "boss.iskaldra_rime_tyrant",
+      "loop": true,
+      "midi_sha256": "67ee5831b16ade290c3789405f3e2c20dccf0df98f0a0031ce27de8c1f45dbb4",
+      "ogg_sha256": "8f28a117b57a5c24e4eb09326b89a7902dee68e10caad6af0d760bca676658f9",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/05_iskaldra_the_rime_tyrant",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v01/SOURCES.json",
+      "title": "Iskaldra, the Rime Tyrant",
+      "version": "v01"
+    },
+    {
+      "asset": "assets/audio/music/dragon_themes/noctyrax_theme_v02.ogg",
+      "flac_sha256": "5cd0698121ffc2957b274d30ed923235bdceec0e3fd4571fb180aef010c6d2ba",
+      "id": "boss.noctyrax_last_eclipse",
+      "loop": true,
+      "midi_sha256": "1bb9c19bcee18cedf5fa3a8dcb90168fd32867e3f799ba5d4ed996784c3814e5",
+      "ogg_sha256": "6c655d4caacc7d093d70596a2b4bdbbe1ce1f03b31d7f835b50ef83b1d944ff6",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/06a_noctyrax_the_last_eclipse_take_a",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Noctyrax, the Last Eclipse (take A: Eclipse Requiem)",
+      "version": "v02"
+    },
+    {
+      "asset": "assets/audio/music/stingers/level_up_v02.ogg",
+      "flac_sha256": "37b9cfbf79efb89981556cfb5e26721b5744c09236249fdbdc48c719ac618cb1",
+      "id": "run.stinger_level_up",
+      "loop": false,
+      "midi_sha256": "3ffe5d76f7beb15fcb20f79b426070e28a71db42825d73dee7df57705fe73fc0",
+      "ogg_sha256": "84cbe0bc1ba2345b370ad67329fb0dcbfffe144ce137161a04ba67d32e66c42f",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/07_stinger_level_up",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Level Up (v02)",
+      "version": "v02"
+    },
+    {
+      "asset": "assets/audio/music/stingers/boss_defeated_v02.ogg",
+      "flac_sha256": "25a9fee22cac4713c0f8c828c9595f98d8af98cd936f5048be38bc37b2db45eb",
+      "id": "run.stinger_boss_defeated",
+      "loop": false,
+      "midi_sha256": "2e5cfc5fa0d1238dd543a455dce2f57041bedae80e49e4ef416dcb68f214d240",
+      "ogg_sha256": "78cffcbbfb7d912618efd7fa49be892bd0d9f599b7da7d4c7ae85ffad5793b8b",
+      "source": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/09_stinger_boss_defeated",
+      "source_manifest": "output/original_soundtracks/dragon_themes_and_stingers/versions/v02/SOURCES.json",
+      "title": "Boss Defeated (v02)",
+      "version": "v02"
+    }
+  ]
+}

@@ -99,7 +99,7 @@ focus without selecting or consuming anything. The native per-icon tooltips are
 retained. Result cards can be inspected with Accept; initial result focus remains
 on Continue. Ordinary card selection never opens this popover.
 
-The [durable copy preference](game_ui_rubric.md#durable-player-preference-relevant-anchored-copy)
+The durable copy preference (anchored, relevant copy only)
 forbids decorative floating taglines and automatic repetition of visible card
 rules. This screen uses only anchored identity, action, state, or consequence
 copy. Save failure and the Open Arsenal empty-slot consequence have dedicated

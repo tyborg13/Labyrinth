@@ -21,6 +21,22 @@ const TURNING_KEY_TRACK_ID: String = "planning.the_turning_key"
 const ASHEN_PURSUIT_TRACK_ID: String = "combat.ashen_pursuit"
 const THORNS_TRACK_ID: String = "combat.thorns_in_the_dark"
 
+# Each dragon boss has its own theme in the Thorns string-ensemble family.
+# Guardians and other boss-bar enemies keep Thorns in the Dark.
+const DRAGON_THEME_TRACK_IDS: Dictionary = {
+	"zekarion": "boss.zekarion_raging_tempest",
+	"tharokh": "boss.tharokh_worldspine",
+	"vyraketh": "boss.vyraketh_cinder_crown",
+	"vaeloryx": "boss.vaeloryx_hollow_gale",
+	"iskaldra": "boss.iskaldra_rime_tyrant",
+	"noctyrax": "boss.noctyrax_last_eclipse",
+}
+const DRAGON_THEME_VOLUME_DB: float = -5.5
+# Themes are v01 unless a dragon has a later approved take.
+const DRAGON_THEME_VERSIONS: Dictionary = {
+	"noctyrax": "v02",
+}
+
 const TRACKS: Dictionary = {
 	LANTERNS_TRACK_ID: {
 		"path": "res://assets/audio/music/lanterns_below_v02.ogg",
@@ -112,11 +128,30 @@ static func entry_for_context(mode: String, room: Dictionary, combat_state: Dict
 	return entry(track_id)
 
 static func entry(track_id: String) -> Dictionary:
-	if not TRACKS.has(track_id):
-		return {}
-	var result: Dictionary = (TRACKS.get(track_id, {}) as Dictionary).duplicate(true)
-	result["id"] = track_id
-	return result
+	if TRACKS.has(track_id):
+		var result: Dictionary = (TRACKS.get(track_id, {}) as Dictionary).duplicate(true)
+		result["id"] = track_id
+		return result
+	for dragon_id: String in DRAGON_THEME_TRACK_IDS:
+		if DRAGON_THEME_TRACK_IDS[dragon_id] == track_id:
+			return {
+				"id": track_id,
+				"path": "res://assets/audio/music/dragon_themes/%s_theme_%s.ogg" % [dragon_id, str(DRAGON_THEME_VERSIONS.get(dragon_id, "v01"))],
+				"volume_db": DRAGON_THEME_VOLUME_DB,
+				"loop": true,
+			}
+	return {}
+
+static func dragon_in_fight(room: Dictionary, combat_state: Dictionary) -> String:
+	var boss_id: String = str(room.get("boss_id", ""))
+	if DRAGON_THEME_TRACK_IDS.has(boss_id):
+		return boss_id
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			var enemy_type: String = str((enemy_var as Dictionary).get("type", ""))
+			if DRAGON_THEME_TRACK_IDS.has(enemy_type):
+				return enemy_type
+	return ""
 
 static func _track_id_for_context(mode: String, room: Dictionary, combat_state: Dictionary, planning_open: bool) -> String:
 	# Terminal outcomes outrank a menu/map left open during the transition.
@@ -127,6 +162,9 @@ static func _track_id_for_context(mode: String, room: Dictionary, combat_state: 
 	if MODE_TRACKS.has(mode):
 		return str(MODE_TRACKS[mode])
 	if mode == "combat":
+		var dragon_id: String = dragon_in_fight(room, combat_state)
+		if not dragon_id.is_empty():
+			return str(DRAGON_THEME_TRACK_IDS[dragon_id])
 		return THORNS_TRACK_ID if _is_intense_fight(room, combat_state) else ASHEN_PURSUIT_TRACK_ID
 	if mode == "room":
 		var room_type: String = str(room.get("type", ""))

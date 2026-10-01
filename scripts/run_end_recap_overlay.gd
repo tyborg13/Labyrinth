@@ -22,7 +22,7 @@ const PANEL_MIN_WIDTH: float = 548.0
 const PANEL_EDGE_MARGIN: float = 42.0
 const BUTTON_HEIGHT: float = 64.0
 const BUTTON_MIN_WIDTH: float = 314.0
-const NEW_BEST_COLOR: Color = Color("72c78c")
+const NEW_BEST_COLOR: Color = Color("f0b35e")
 const DEFEAT_KICKER_COLOR: Color = Color("b98cff")
 const DEFEAT_VALUE_COLOR: Color = Color("f1dcc3")
 const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
@@ -309,6 +309,7 @@ func _build_victory_panel() -> void:
 	content.add_theme_constant_override("separation", 9)
 	margin.add_child(content)
 	_victory_kicker = _label("VictoryOutcomeKicker", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
+	_victory_kicker.add_theme_font_override("font", UiTypography.eyebrow_font())
 	content.add_child(_victory_kicker)
 	_victory_title = _label("VictoryOutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
 	_victory_title.add_theme_font_override("font", DISPLAY_FONT)
@@ -460,6 +461,8 @@ func _add_victory_stat_metric(host: GridContainer, spec: Dictionary) -> void:
 	margin.add_child(box)
 	var heading := _label("Victory%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
 	heading.text = str(spec.get("label", stat_id.to_upper()))
+	heading.add_theme_font_override("font", UiTypography.eyebrow_font())
+	UiTypography.set_label_size(heading, UiTypography.SIZE_CAPTION)
 	box.add_child(heading)
 	var value := _label("Victory%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
 	value.add_theme_font_override("font", UI_FONT)
@@ -496,7 +499,7 @@ func _add_defeat_stat_metric(host: Control, spec: Dictionary) -> void:
 	best.position = Vector2(286.0, 16.0)
 	best.size = Vector2(126.0, 32.0)
 	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
-	best.add_theme_color_override("font_outline_color", Color("102217"))
+	best.add_theme_color_override("font_outline_color", Color("1c0d05"))
 	best.add_theme_constant_override("outline_size", 2)
 	row.add_child(best)
 	_defeat_metric_rows[stat_id] = row
@@ -583,6 +586,7 @@ func _apply_model() -> void:
 		(_defeat_stat_bests.get(stat_id) as Label).visible = new_bests.has(stat_id)
 	var accent := Color("e7b85a")
 	_victory_panel.add_theme_stylebox_override("panel", _panel_style(accent))
+	_ui_skin.apply_outer_panel_frame(_victory_panel, UiSkin.SURFACE_DIALOG)
 	_victory_accent_rule.color = accent
 	_victory_kicker.add_theme_color_override("font_color", accent.lightened(0.20))
 	_victory_title.add_theme_color_override("font_color", Color("fff1c8"))
@@ -595,14 +599,14 @@ func _apply_model() -> void:
 
 func _panel_style(accent: Color) -> StyleBoxFlat:
 	var style := _ui_skin.make_plain_card_style(Color(0.075, 0.052, 0.035, 0.965), accent, 0.0)
-	style.border_width_left = 4
-	style.border_width_top = 4
-	style.border_width_right = 4
-	style.border_width_bottom = 4
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_right = 12
-	style.corner_radius_bottom_left = 12
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
 	style.shadow_size = 22
 	style.shadow_offset = Vector2(0.0, 8.0)
@@ -611,15 +615,15 @@ func _panel_style(accent: Color) -> StyleBoxFlat:
 func _inset_style(border: Color, background: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = background
-	style.border_color = Color(border.r, border.g, border.b, 0.62)
+	style.border_color = Color(border.r, border.g, border.b, 0.28)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.corner_radius_top_left = 7
-	style.corner_radius_top_right = 7
-	style.corner_radius_bottom_right = 7
-	style.corner_radius_bottom_left = 7
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
 	return style
 
 func _is_victory() -> bool:

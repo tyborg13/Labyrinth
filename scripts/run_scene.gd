@@ -39,6 +39,13 @@ const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
+const CombatAtmosphereScript = preload("res://scripts/combat_atmosphere.gd")
+const UiPalette = preload("res://scripts/ui_palette.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const HudSeatScrimScript = preload("res://scripts/hud_seat_scrim.gd")
+const TurnBannerScript = preload("res://scripts/turn_banner.gd")
+const TurnOrderInk = preload("res://scripts/turn_order_ink.gd")
+const GildedRule = preload("res://scripts/ui_gilded_rule.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
 const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
@@ -554,81 +561,6 @@ class CardArtBadgeBacking:
 	func _badge_smoothstep(edge0: float, edge1: float, value: float) -> float:
 		var t: float = clampf((value - edge0) / maxf(edge1 - edge0, 0.0001), 0.0, 1.0)
 		return t * t * (3.0 - 2.0 * t)
-
-class FatigueEdgeOverlay:
-	extends Control
-
-	const WEB_LINE_COLOR: Color = Color(0.96, 0.06, 0.04, 0.70)
-	const WEB_GLOW_COLOR: Color = Color(0.58, 0.0, 0.0, 0.30)
-	const EDGE_WASH_COLOR: Color = Color(0.52, 0.0, 0.0, 0.14)
-
-	var progress: float = -1.0:
-		set(value):
-			progress = value
-			visible = progress >= 0.0
-			queue_redraw()
-
-	func _init() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		visible = false
-
-	func _draw() -> void:
-		if progress < 0.0 or size.x <= 0.0 or size.y <= 0.0:
-			return
-		var t: float = clampf(progress, 0.0, 1.0)
-		var pulse: float = sin(t * PI)
-		if pulse <= 0.001:
-			return
-		var wash_color: Color = EDGE_WASH_COLOR
-		wash_color.a *= pulse
-		var edge_thickness: float = lerpf(18.0, 46.0, pulse)
-		draw_rect(Rect2(Vector2.ZERO, Vector2(size.x, edge_thickness)), wash_color, true)
-		draw_rect(Rect2(Vector2(0.0, size.y - edge_thickness), Vector2(size.x, edge_thickness)), wash_color, true)
-		draw_rect(Rect2(Vector2.ZERO, Vector2(edge_thickness, size.y)), wash_color, true)
-		draw_rect(Rect2(Vector2(size.x - edge_thickness, 0.0), Vector2(edge_thickness, size.y)), wash_color, true)
-
-		var line_color: Color = WEB_LINE_COLOR
-		line_color.a *= pulse
-		var glow_color: Color = WEB_GLOW_COLOR
-		glow_color.a *= pulse
-		var reach: float = minf(size.x, size.y) * lerpf(0.10, 0.27, pulse)
-		_draw_corner_web(Vector2.ZERO, Vector2(1.0, 1.0), reach, line_color, glow_color)
-		_draw_corner_web(Vector2(size.x, 0.0), Vector2(-1.0, 1.0), reach, line_color, glow_color)
-		_draw_corner_web(Vector2(0.0, size.y), Vector2(1.0, -1.0), reach, line_color, glow_color)
-		_draw_corner_web(size, Vector2(-1.0, -1.0), reach, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x * 0.20, 0.0), Vector2(0.12, 1.0), reach * 0.62, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x * 0.78, size.y), Vector2(-0.18, -1.0), reach * 0.58, line_color, glow_color)
-		_draw_edge_strand(Vector2(0.0, size.y * 0.36), Vector2(1.0, -0.12), reach * 0.66, line_color, glow_color)
-		_draw_edge_strand(Vector2(size.x, size.y * 0.62), Vector2(-1.0, 0.16), reach * 0.60, line_color, glow_color)
-
-	func _draw_corner_web(origin: Vector2, direction: Vector2, reach: float, line_color: Color, glow_color: Color) -> void:
-		var endpoints: Array = [
-			origin + Vector2(direction.x * reach, 0.0),
-			origin + Vector2(direction.x * reach * 0.78, direction.y * reach * 0.28),
-			origin + Vector2(direction.x * reach * 0.50, direction.y * reach * 0.64),
-			origin + Vector2(0.0, direction.y * reach)
-		]
-		for endpoint_var: Variant in endpoints:
-			var endpoint: Vector2 = endpoint_var
-			draw_line(origin, endpoint, glow_color, 4.0, true)
-			draw_line(origin, endpoint, line_color, 1.3, true)
-		for ring_var: Variant in [0.34, 0.58, 0.82]:
-			var ring: float = float(ring_var)
-			var points := PackedVector2Array()
-			for endpoint_var: Variant in endpoints:
-				var endpoint: Vector2 = endpoint_var
-				points.append(origin.lerp(endpoint, ring))
-			draw_polyline(points, glow_color, 3.0, true)
-			draw_polyline(points, line_color, 1.1, true)
-
-	func _draw_edge_strand(start: Vector2, direction: Vector2, length: float, line_color: Color, glow_color: Color) -> void:
-		var points := PackedVector2Array()
-		points.append(start)
-		points.append(start + Vector2(direction.x * length * 0.34, direction.y * length * 0.34) + Vector2(direction.y, -direction.x) * 7.0)
-		points.append(start + Vector2(direction.x * length * 0.68, direction.y * length * 0.68) - Vector2(direction.y, -direction.x) * 5.0)
-		points.append(start + direction * length)
-		draw_polyline(points, glow_color, 4.0, true)
-		draw_polyline(points, line_color, 1.2, true)
 
 class RelicChoiceSparkleLayer:
 	extends Control
@@ -1199,15 +1131,22 @@ const REWARD_CARD_FLIP_SFX_ENTRY: Dictionary = {
 const ITEM_EQUIP_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/item_equip.wav",
 	"duration": 0.53,
-	"volume_db": 0.0,
+	"volume_db": -1.0,
 	"bus": SettingsStore.UI_SFX_BUS
 }
 const RELIC_CHOICES_OPEN_SFX_ENTRY: Dictionary = {
 	"path": "res://assets/audio/sfx/relic_choices_open.wav",
 	"duration": 2.45,
-	"volume_db": 0.0,
+	"volume_db": -2.5,
 	"bus": SettingsStore.UI_SFX_BUS
 }
+const SFX_DEFAULT_PITCH_VARIANCE: float = 0.035
+const SFX_PITCH_VARIANCE_MAX_LENGTH: float = 1.25
+const AMBIENT_FADE_FLOOR_DB: float = -36.0
+const AMBIENT_FADE_IN_SECONDS: float = 1.8
+const MUSIC_DUCK_DB: float = -9.0
+# A stinger may start once the previous one is into its decaying tail.
+const MUSIC_STINGER_TAIL_SECONDS: float = 1.2
 const CARD_PLAY_SECONDS: float = 0.23
 const CARD_PLAY_HOLD_SECONDS: float = 0.04
 const CARD_PILE_SECONDS: float = 0.24
@@ -1228,8 +1167,6 @@ const ENEMY_DEATH_FALLBACK_FRAME_SECONDS: float = 0.065
 const TERRAIN_DESTRUCTION_FALLBACK_FRAMES: int = 16
 const TERRAIN_DESTRUCTION_FALLBACK_FRAME_SECONDS: float = 0.065
 const IMPACT_DECAL_MAX_TILES: int = 7
-const FATIGUE_EDGE_LINGER_SECONDS: float = 0.18
-const FATIGUE_EDGE_HOLD_PROGRESS: float = 0.82
 const PLAYER_PREVIEW_FOCUS: Color = Color("f1d18b")
 const PLAYER_ATTACK_FOCUS: Color = Color("f08c53")
 const ILLUSION_PREVIEW_FOCUS: Color = Color("9beeff")
@@ -1266,15 +1203,18 @@ const PILE_STACK_OFFSET: Vector2 = Vector2(6.0, 7.0)
 const PILE_STACK_LAYERS: int = 3
 const PILE_ICON_SIZE: Vector2 = Vector2(88.0, 88.0)
 const PILE_HUD_EDGE_MARGIN: float = 12.0
+const COMBAT_OBJECTIVE_DOCK_GAP: float = 12.0
+const DIALOGUE_PORTRAIT_SIZE: Vector2 = Vector2(104.0, 104.0)
+const TURN_BANNER_Z_INDEX: int = 66
 const UPGRADE_CARD_SIZE: Vector2 = Vector2(186.0, 186.0 * CARD_ASPECT_RATIO)
 const CARD_BACK_TEXTURE_PATH: String = "res://assets/art/ui/card_back.png"
 const CARD_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_PLAY_ICON_PATH: String = "res://assets/art/icons/card_play.png"
-const TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH: String = "res://assets/art/ui/turn_order_brush_backing_v2.png"
-const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/card_play_meter_frame_v2.png"
-const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_v2.png"
-const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_hover_v2.png"
-const PASS_FORECAST_PRESSED_TEXTURE_PATH: String = "res://assets/art/ui/pass_forecast_button_pressed_v1.png"
+const TURN_ORDER_INK_ART_HOOK: String = "ink_brush_v3"
+const CARD_PLAY_METER_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/resource_meter_frame.png"
+const PASS_FORECAST_FRAME_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame.png"
+const PASS_FORECAST_HOVER_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame_hover.png"
+const PASS_FORECAST_PRESSED_TEXTURE_PATH: String = "res://assets/art/ui/hud_v3/pass_command_frame_pressed.png"
 const DRAW_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/draw_pile_icon_v2.png"
 const DISCARD_PILE_ICON_TEXTURE_PATH: String = "res://assets/art/ui/discard_pile_icon_v1.png"
 const ACTION_STEP_TRACKER_MIN_SIZE: Vector2 = Vector2(328.0, 116.0)
@@ -1332,6 +1272,9 @@ const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
 const RELIC_CHOICE_OVERLAY_SIZE: Vector2 = Vector2(1040.0, 248.0)
 const RELIC_CHOICE_CARD_SIZE: Vector2 = Vector2(264.0, 220.0)
 const RELIC_OFFER_CARD_SIZE: Vector2 = Vector2(304.0, 284.0)
+const RELIC_OFFER_ICON_SIZE: float = 76.0
+const RELIC_OFFER_ICON_STAGE_HEIGHT: float = 80.0
+const RELIC_OFFER_DESCRIPTION_MIN_HEIGHT: float = 130.0
 const REWARD_CHOICE_TITLE_TEXT: String = "GROW YOUR POWER"
 const REWARD_CHOICE_CARD_GAP: float = 34.0
 const REWARD_CHOICE_STACK_GAP: float = 18.0
@@ -1940,11 +1883,20 @@ var _card_fx_layer: Control
 var _card_proxy_pool_host: Control
 var _card_proxy_pool: Array[Control] = []
 var _equipment_fx_layer: Control
-var _fatigue_edge_overlay: FatigueEdgeOverlay
 var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _sfx_pitch_rng := RandomNumberGenerator.new()
+var _ambient_fade_tween: Tween
+var _music_duck_tween: Tween
+var _music_stinger_until_msec: int = 0
+var _dialogue_portrait_frame: PanelContainer
+var _dialogue_portrait: TextureRect
+var _combat_atmosphere: Control
+var _hud_seat_scrim: Control
+var _turn_banner: Control
+var _relic_choice_glow: Texture2D
 var _relic_choices_open_sfx_signature: String = ""
 var _music_tween: Tween
 var _active_music_id: String = ""
@@ -3875,6 +3827,12 @@ func _exit_tree() -> void:
 	_finalize_performance_telemetry_scene("scene_exit")
 
 func _shutdown_audio() -> void:
+	if _music_duck_tween != null and _music_duck_tween.is_valid():
+		_music_duck_tween.kill()
+	_music_stinger_until_msec = 0
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	if duck != null:
+		duck.volume_db = 0.0
 	_music_context_refresh_queued = false
 	_cancel_music_context_settle_wait()
 	_stop_music_tween()
@@ -3889,6 +3847,45 @@ func _shutdown_audio() -> void:
 		player.stop()
 		player.stream = null
 
+# Atmosphere sits between the hall art and the board; the seat scrim sits under
+# every HUD element so the title bar and action dock rest on a surface.
+func _install_scene_atmosphere() -> void:
+	var underlay: Node = get_node_or_null("BoardUnderlay")
+	if underlay != null and _combat_atmosphere == null:
+		_combat_atmosphere = CombatAtmosphereScript.new()
+		_combat_atmosphere.z_index = -8
+		underlay.add_child(_combat_atmosphere)
+		underlay.move_child(_combat_atmosphere, board_backdrop.get_index() + 1)
+		_combat_atmosphere.set("board", get_node_or_null("BoardUnderlay/CombatBoard"))
+	if ui_root != null and _hud_seat_scrim == null:
+		_hud_seat_scrim = HudSeatScrimScript.new()
+		ui_root.add_child(_hud_seat_scrim)
+		ui_root.move_child(_hud_seat_scrim, 0)
+	if ui_root != null and _turn_banner == null:
+		_turn_banner = TurnBannerScript.new()
+		_turn_banner.z_index = TURN_BANNER_Z_INDEX
+		_turn_banner.z_as_relative = false
+		ui_root.add_child(_turn_banner)
+
+func _show_turn_banner(player_turn: bool) -> void:
+	if _turn_banner == null or not _turn_banner.is_inside_tree():
+		return
+	# The boss health bar and enemy action labels own the top-centre band; the
+	# phase banner is a courtesy cue and always yields to them.
+	if _turn_banner_blocked():
+		return
+	_turn_banner.call(
+		"show_banner",
+		"YOUR TURN" if player_turn else "ENEMY TURN",
+		UiPalette.GOLD if player_turn else UiPalette.DANGER_BRIGHT,
+		_reduced_motion_enabled()
+	)
+
+func _turn_banner_blocked() -> bool:
+	if _boss_health_overlay != null and _boss_health_overlay.is_visible_in_tree():
+		return true
+	return action_banner != null and action_banner.is_visible_in_tree() and not action_banner.text.is_empty()
+
 func _finalize_performance_telemetry_scene(reason: String) -> void:
 	if _performance_telemetry_finalized:
 		return
@@ -3901,6 +3898,7 @@ func _apply_style() -> void:
 	_apply_tooltip_wrapper_style()
 	$BoardUnderlay/BaseBackdrop.color = Color("18120f")
 	board_backdrop.texture = AssetLoader.load_texture(BOARD_BACKDROP_PATH)
+	_install_scene_atmosphere()
 	var mini_map_style := StyleBoxFlat.new()
 	mini_map_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
 	mini_map_style.corner_radius_top_left = 10
@@ -3946,22 +3944,24 @@ func _apply_style() -> void:
 	UiTypography.apply_label_role(room_title, UiTypography.ROLE_TITLE)
 	UiTypography.set_label_size(room_title, UiTypography.SIZE_TITLE + 3)
 	UiTypography.apply_stone_text(room_title, 0.13, 3.5)
-	UiTypography.set_label_size(room_subtitle, UiTypography.SIZE_SECTION)
+	UiTypography.apply_eyebrow(room_subtitle, UiTypography.SIZE_SMALL + 1, UiPalette.TEXT_2)
 	UiTypography.set_label_size(umbra_subtitle, UiTypography.SIZE_BODY_LARGE)
-	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION)
+	stats_label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION - 1)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
 	room_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
 	room_title.add_theme_constant_override("outline_size", 2)
-	room_subtitle.add_theme_color_override("font_color", Color("cdbca2"))
+	room_subtitle.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	room_subtitle.add_theme_constant_override("outline_size", 3)
 	umbra_subtitle.add_theme_color_override("font_color", Color("b994d0"))
 	umbra_subtitle.add_theme_color_override("font_outline_color", Color("160d20"))
 	umbra_subtitle.add_theme_constant_override("outline_size", 2)
 	umbra_subtitle.mouse_filter = Control.MOUSE_FILTER_STOP
 	umbra_subtitle.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-	stats_label.add_theme_color_override("font_color", Color("f0c978"))
-	stats_label.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	stats_label.add_theme_constant_override("outline_size", 2)
+	stats_label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT)
+	stats_label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	stats_label.add_theme_constant_override("outline_size", 3)
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_box.size_flags_stretch_ratio = 2.0
 	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4213,7 +4213,6 @@ func _build_overlay_ui() -> void:
 	_build_card_fx_layer()
 	_build_card_focus_tooltip_stack()
 	_build_equipment_fx_layer()
-	_build_fatigue_edge_overlay()
 	_build_choice_button_overlay()
 	_build_dialogue_overlay()
 	_build_pinned_tooltip_overlay()
@@ -5061,7 +5060,6 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.connect("interaction_changed", _refresh_controller_prompts)
 	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
-	_large_map_dialog.set_meta("panel_frame_scale", 0.19)
 	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
 	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
@@ -6586,18 +6584,18 @@ func _build_context_choice_overlay() -> void:
 	_context_choice_overlay.visible = false
 	_context_choice_overlay.mouse_filter = Control.MOUSE_FILTER_STOP
 	var overlay_style := StyleBoxFlat.new()
-	overlay_style.bg_color = Color(0.10, 0.065, 0.045, 0.88)
-	overlay_style.border_color = Color(0.88, 0.63, 0.32, 0.72)
-	overlay_style.border_width_left = 2
-	overlay_style.border_width_top = 2
-	overlay_style.border_width_right = 2
-	overlay_style.border_width_bottom = 2
+	overlay_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.border_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.border_width_left = 0
+	overlay_style.border_width_top = 0
+	overlay_style.border_width_right = 0
+	overlay_style.border_width_bottom = 0
 	overlay_style.corner_radius_top_left = 8
 	overlay_style.corner_radius_top_right = 8
 	overlay_style.corner_radius_bottom_right = 8
 	overlay_style.corner_radius_bottom_left = 8
-	overlay_style.shadow_color = Color(0.0, 0.0, 0.0, 0.36)
-	overlay_style.shadow_size = 12
+	overlay_style.shadow_color = Color(0.0, 0.0, 0.0, 0.0)
+	overlay_style.shadow_size = 0
 	overlay_style.content_margin_left = 12
 	overlay_style.content_margin_top = 10
 	overlay_style.content_margin_right = 12
@@ -6869,16 +6867,6 @@ func _build_equipment_fx_layer() -> void:
 	_equipment_fx_layer.z_index = 1300
 	_equipment_fx_layer.z_as_relative = false
 	ui_root.add_child(_equipment_fx_layer)
-
-func _build_fatigue_edge_overlay() -> void:
-	_fatigue_edge_overlay = FatigueEdgeOverlay.new()
-	_fatigue_edge_overlay.name = "FatigueEdgeOverlay"
-	_fatigue_edge_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_fatigue_edge_overlay.anchor_right = 1.0
-	_fatigue_edge_overlay.anchor_bottom = 1.0
-	_fatigue_edge_overlay.z_index = 210
-	_fatigue_edge_overlay.z_as_relative = false
-	ui_root.add_child(_fatigue_edge_overlay)
 
 func _build_menu_overlay() -> void:
 	_menu_scrim = ColorRect.new()
@@ -8069,33 +8057,56 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_dialog.custom_minimum_size = Vector2(DIALOGUE_DIALOG_WIDTH, DIALOGUE_DIALOG_HINT_MIN_HEIGHT)
 	_dialogue_dialog.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	_dialogue_dialog.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), Color("b8aa90"), 18.0)
-	dialogue_style.corner_radius_top_left = 14
-	dialogue_style.corner_radius_top_right = 14
-	dialogue_style.corner_radius_bottom_right = 14
-	dialogue_style.corner_radius_bottom_left = 14
-	dialogue_style.shadow_size = 10
-	_dialogue_dialog.add_theme_stylebox_override("panel", dialogue_style)
+	_apply_dialogue_frame(UiPalette.GOLD)
 	bottom.add_child(_dialogue_dialog)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 18)
 	margin.add_theme_constant_override("margin_top", 16)
-	margin.add_theme_constant_override("margin_right", 18)
+	margin.add_theme_constant_override("margin_right", 22)
 	margin.add_theme_constant_override("margin_bottom", 14)
 	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_dialog.add_child(margin)
 
+	var content_row := HBoxContainer.new()
+	content_row.name = "DialogueContentRow"
+	content_row.add_theme_constant_override("separation", 20)
+	content_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.add_child(content_row)
+
+	# The speaker's own board sprite, cropped to a bust, anchors who is talking.
+	_dialogue_portrait_frame = PanelContainer.new()
+	_dialogue_portrait_frame.name = "DialoguePortraitFrame"
+	_dialogue_portrait_frame.custom_minimum_size = DIALOGUE_PORTRAIT_SIZE
+	_dialogue_portrait_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	_dialogue_portrait_frame.clip_contents = true
+	_dialogue_portrait_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var portrait_style := StyleBoxFlat.new()
+	portrait_style.bg_color = Color(0.043, 0.035, 0.031, 1.0)
+	portrait_style.border_color = UiPalette.GOLD_DIM
+	portrait_style.set_border_width_all(1)
+	portrait_style.set_corner_radius_all(3)
+	_dialogue_portrait_frame.add_theme_stylebox_override("panel", portrait_style)
+	_dialogue_portrait_frame.visible = false
+	content_row.add_child(_dialogue_portrait_frame)
+	_dialogue_portrait = TextureRect.new()
+	_dialogue_portrait.name = "DialoguePortrait"
+	_dialogue_portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_dialogue_portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	_dialogue_portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_dialogue_portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_dialogue_portrait_frame.add_child(_dialogue_portrait)
+
 	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 10)
+	vbox.add_theme_constant_override("separation", 8)
+	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	margin.add_child(vbox)
+	content_row.add_child(vbox)
 
 	_dialogue_name_label = Label.new()
-	UiTypography.set_label_size(_dialogue_name_label, UiTypography.SIZE_BODY)
-	_dialogue_name_label.add_theme_color_override("font_color", Color("f0c978"))
-	_dialogue_name_label.add_theme_color_override("font_outline_color", Color("2d1f18"))
-	_dialogue_name_label.add_theme_constant_override("outline_size", 1)
+	UiTypography.apply_eyebrow(_dialogue_name_label, UiTypography.SIZE_BODY, UiPalette.GOLD_BRIGHT)
+	_dialogue_name_label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	_dialogue_name_label.add_theme_constant_override("outline_size", 3)
 	_dialogue_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_name_label)
 
@@ -8109,7 +8120,8 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_text_label.fit_content = true
 	_dialogue_text_label.scroll_active = false
 	UiTypography.set_rich_text_size(_dialogue_text_label, UiTypography.SIZE_SECTION)
-	_dialogue_text_label.add_theme_color_override("default_color", Color("f5ebd8"))
+	_dialogue_text_label.add_theme_color_override("default_color", UiPalette.TEXT)
+	_dialogue_text_label.add_theme_constant_override("line_separation", 4)
 	_dialogue_text_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(_dialogue_text_label)
 
@@ -8122,8 +8134,7 @@ func _build_dialogue_overlay() -> void:
 	_dialogue_hint_label = Label.new()
 	_dialogue_hint_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_dialogue_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_dialogue_hint_label, UiTypography.SIZE_BODY)
-	_dialogue_hint_label.add_theme_color_override("font_color", Color("cab697"))
+	UiTypography.apply_eyebrow(_dialogue_hint_label, UiTypography.SIZE_CAPTION, UiPalette.TEXT_3)
 	_dialogue_hint_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_dialogue_footer.add_child(_dialogue_hint_label)
 
@@ -8163,6 +8174,7 @@ func _build_pile_overlay() -> void:
 	dialog_style.corner_radius_bottom_left = 14
 	dialog_style.shadow_size = 12
 	_pile_dialog.add_theme_stylebox_override("panel", dialog_style)
+	_ui_skin.apply_outer_panel_frame(_pile_dialog, UiSkin.SURFACE_DIALOG)
 	center.add_child(_pile_dialog)
 
 	var margin := MarginContainer.new()
@@ -8184,10 +8196,9 @@ func _build_pile_overlay() -> void:
 
 	_pile_dialog_title = Label.new()
 	_pile_dialog_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(_pile_dialog_title, UiTypography.SIZE_SECTION)
-	_pile_dialog_title.add_theme_color_override("font_color", Color("f0e6d2"))
-	_pile_dialog_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	_pile_dialog_title.add_theme_constant_override("outline_size", 2)
+	UiTypography.apply_eyebrow(_pile_dialog_title, UiTypography.SIZE_SECTION - 1, UiPalette.GOLD_BRIGHT)
+	_pile_dialog_title.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	_pile_dialog_title.add_theme_constant_override("outline_size", 3)
 	top_row.add_child(_pile_dialog_title)
 
 	var close_button := Button.new()
@@ -8206,6 +8217,11 @@ func _build_pile_overlay() -> void:
 	_pile_dialog_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_pile_dialog_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_pile_dialog_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	# Room above the first row for each card's time watch, whose crown rises
+	# past the card's top edge.
+	var pile_scroll_padding := StyleBoxEmpty.new()
+	pile_scroll_padding.content_margin_top = 18.0
+	_pile_dialog_scroll.add_theme_stylebox_override("panel", pile_scroll_padding)
 	vbox.add_child(_pile_dialog_scroll)
 
 	_pile_dialog_cards = HFlowContainer.new()
@@ -8492,6 +8508,7 @@ func _show_dialogue_line(index: int) -> void:
 	var speaker: String = str(line.get("speaker", _dialogue_script.get("speaker", "")))
 	var accent_text: String = str(line.get("accent", _dialogue_script.get("accent", "#b8aa90")))
 	_apply_dialogue_accent(accent_text)
+	_set_dialogue_portrait(str(line.get("npc_id", _dialogue_script.get("npc_id", ""))))
 	_dialogue_name_label.text = speaker
 	_dialogue_text_label.text = _dialogue_line_markup(line)
 	_sync_dialogue_layout()
@@ -8699,16 +8716,38 @@ func _clear_dialogue_choices() -> void:
 func _apply_dialogue_accent(accent_text: String) -> void:
 	var accent: Color = Color(accent_text)
 	if _dialogue_name_label != null:
-		_dialogue_name_label.add_theme_color_override("font_color", accent.lightened(0.08))
+		_dialogue_name_label.add_theme_color_override("font_color", accent.lerp(UiPalette.GOLD_BRIGHT, 0.45))
 	if _dialogue_dialog == null:
 		return
-	var dialogue_style := _ui_skin.make_plain_card_style(Color(0.10, 0.07, 0.05, 0.96), accent, 18.0)
-	dialogue_style.corner_radius_top_left = 14
-	dialogue_style.corner_radius_top_right = 14
-	dialogue_style.corner_radius_bottom_right = 14
-	dialogue_style.corner_radius_bottom_left = 14
-	dialogue_style.shadow_size = 10
-	_dialogue_dialog.add_theme_stylebox_override("panel", dialogue_style)
+	# Each speaker tints the gilding, softened toward gold so every NPC still
+	# belongs to the same material family.
+	_apply_dialogue_frame(accent.lerp(UiPalette.GOLD, 0.45))
+
+func _apply_dialogue_frame(accent: Color) -> void:
+	if _dialogue_dialog == null:
+		return
+	_dialogue_dialog.set_meta("panel_surface_accent", accent)
+	_dialogue_dialog.set_meta("panel_safe_inset", 0.0)
+	_ui_skin.apply_panel_surface(_dialogue_dialog, UiSkin.SURFACE_DIALOG)
+	_ui_skin.refresh_panel_surface(_dialogue_dialog)
+
+func _set_dialogue_portrait(npc_id: String) -> void:
+	if _dialogue_portrait == null or _dialogue_portrait_frame == null:
+		return
+	var art_path: String = str(GameData.npc_def(npc_id).get("art_path", "")) if not npc_id.is_empty() else ""
+	var texture: Texture2D = AssetLoader.load_texture(art_path) if not art_path.is_empty() else null
+	if texture == null:
+		_dialogue_portrait_frame.visible = false
+		_dialogue_portrait.texture = null
+		return
+	# Bust crop: the upper-middle of the sprite, scaled up with crisp pixels.
+	var atlas := AtlasTexture.new()
+	atlas.atlas = texture
+	var source: Vector2 = texture.get_size()
+	var crop: float = source.x * 0.56
+	atlas.region = Rect2(Vector2((source.x - crop) * 0.5, source.y * 0.04), Vector2(crop, crop))
+	_dialogue_portrait.texture = atlas
+	_dialogue_portrait_frame.visible = true
 
 func _show_drag_overlay() -> void:
 	if _drag_overlay == null:
@@ -10607,6 +10646,7 @@ func _setup_play_meter() -> void:
 	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art_host.texture = AssetLoader.load_texture(CARD_PLAY_METER_FRAME_TEXTURE_PATH)
+	art_host.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
 	art_host.set_meta("expected_target_size", Vector2i(228, 58))
@@ -10622,7 +10662,7 @@ func _setup_play_meter() -> void:
 	_play_meter.add_child(content)
 
 	_play_meter_icon = TextureRect.new()
-	_play_meter_icon.position = Vector2(12.0, 11.0)
+	_play_meter_icon.position = Vector2(12.0, 12.0)
 	_play_meter_icon.size = Vector2(34.0, 34.0)
 	_play_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_play_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -10636,10 +10676,11 @@ func _setup_play_meter() -> void:
 	_play_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_play_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_play_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_play_meter_count.add_theme_font_override("font", UiTypography.ui_font())
 	UiTypography.set_label_size(_play_meter_count, UiTypography.SIZE_BODY_LARGE)
-	_play_meter_count.add_theme_color_override("font_color", Color("fff4dc"))
-	_play_meter_count.add_theme_color_override("font_outline_color", Color("2b1b12"))
-	_play_meter_count.add_theme_constant_override("outline_size", 2)
+	_play_meter_count.add_theme_color_override("font_color", UiPalette.TEXT)
+	_play_meter_count.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	_play_meter_count.add_theme_constant_override("outline_size", 3)
 	content.add_child(_play_meter_count)
 
 	_play_meter_banked_badge = PanelContainer.new()
@@ -10689,6 +10730,7 @@ func _setup_movement_meter() -> void:
 	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art_host.texture = AssetLoader.load_texture(CARD_PLAY_METER_FRAME_TEXTURE_PATH)
+	art_host.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
 	art_host.set_meta("expected_target_size", Vector2i(228, 58))
@@ -10704,7 +10746,7 @@ func _setup_movement_meter() -> void:
 	_movement_meter.add_child(content)
 
 	_movement_meter_icon = TextureRect.new()
-	_movement_meter_icon.position = Vector2(14.0, 13.0)
+	_movement_meter_icon.position = Vector2(14.0, 14.0)
 	_movement_meter_icon.size = Vector2(30.0, 30.0)
 	_movement_meter_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_movement_meter_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -10718,10 +10760,11 @@ func _setup_movement_meter() -> void:
 	_movement_meter_count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_movement_meter_count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_movement_meter_count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_movement_meter_count.add_theme_font_override("font", UiTypography.ui_font())
 	UiTypography.set_label_size(_movement_meter_count, UiTypography.SIZE_BODY_LARGE)
-	_movement_meter_count.add_theme_color_override("font_color", Color("d9f5ff"))
-	_movement_meter_count.add_theme_color_override("font_outline_color", Color("15252d"))
-	_movement_meter_count.add_theme_constant_override("outline_size", 2)
+	_movement_meter_count.add_theme_color_override("font_color", UiPalette.TEXT)
+	_movement_meter_count.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	_movement_meter_count.add_theme_constant_override("outline_size", 3)
 	content.add_child(_movement_meter_count)
 
 	_movement_meter.z_index = 120
@@ -11392,7 +11435,6 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_defeat_lost_amount = 0
 	if _run_end_recap != null:
 		_run_end_recap.reset()
-	_set_fatigue_edge_progress(-1.0)
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
@@ -11462,6 +11504,8 @@ func _refresh_ui(
 	queue_hand_ready_wave_on_unlock: bool = false
 ) -> void:
 	_consume_pending_card_draw_sfx(_combat_state)
+	if _hud_seat_scrim != null:
+		_hud_seat_scrim.show_bottom_band = str(_run_state.get("mode", "room")) == "combat"
 	if frame_sliced:
 		_frame_sliced_ui_refresh_active = true
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -11602,6 +11646,7 @@ func _refresh_ui(
 		_animation_lock = false
 		if queue_hand_ready_wave_on_unlock:
 			_queue_hand_ready_wave("player_turn_start")
+			_show_turn_banner(true)
 		_refresh_card_play_meter()
 		_refresh_player_movement_meter()
 		_refresh_choice_bar()
@@ -12961,7 +13006,9 @@ func _layout_combat_objective_hud_content() -> void:
 
 func _combat_objective_hud_target_rect() -> Rect2:
 	var hud_width: float = _combat_objective_hud.preferred_width()
-	var hud_height: float = 68.0
+	# Use the rendered content height so the dock gap stays exact when the
+	# objective's typography grows past the authored 68 px minimum.
+	var hud_height: float = maxf(68.0, _combat_objective_hud.get_combined_minimum_size().y)
 	var left: float = UiTypography.SAFE_MARGIN
 	var viewport_size: Vector2 = get_viewport_rect().size
 	var top: float = viewport_size.y * 0.60
@@ -12971,7 +13018,20 @@ func _combat_objective_hud_target_rect() -> Rect2:
 	if _play_meter != null and _play_meter.is_inside_tree() and ui_root != null:
 		var play_meter_rect: Rect2 = _play_meter.get_global_rect()
 		if play_meter_rect.size.y > 0.0:
-			top = play_meter_rect.position.y - ui_root.get_global_rect().position.y - hud_height - 36.0
+			# One aligned left dock: the objective sits directly above the
+			# card-play and movement meters and shares their right edge, so the
+			# column reads as one flush stack beside the hand.
+			var root_origin: Vector2 = ui_root.get_global_rect().position
+			top = play_meter_rect.position.y - root_origin.y - hud_height - COMBAT_OBJECTIVE_DOCK_GAP
+			var right_edge: float = play_meter_rect.end.x - root_origin.x
+			var board_bounds: Rect2 = _contextual_combat_rendered_board_bounds()
+			if board_bounds.size.x > 0.0 and board_bounds.size.y > 0.0:
+				var board_top: float = board_bounds.position.y - root_origin.y
+				var board_bottom: float = board_bounds.end.y - root_origin.y
+				if top < board_bottom and top + hud_height > board_top:
+					right_edge = minf(right_edge, board_bounds.position.x - root_origin.x - COMBAT_OBJECTIVE_DOCK_GAP)
+			left = right_edge - hud_width
+	left = clampf(left, UiTypography.SAFE_MARGIN, maxf(UiTypography.SAFE_MARGIN, viewport_size.x - hud_width - UiTypography.SAFE_MARGIN))
 	top = clampf(top, minimum_top, maxf(minimum_top, viewport_size.y - hud_height - UiTypography.SAFE_MARGIN))
 	return Rect2(Vector2(left, top), Vector2(hud_width, hud_height))
 
@@ -13415,9 +13475,32 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
-	frame.set_meta("turn_order_art_hook", "brush_backing_v2")
-	frame.set_meta("turn_order_backing_asset", TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH)
+	frame.set_meta("turn_order_art_hook", TURN_ORDER_INK_ART_HOOK)
 	frame.set_meta("turn_order_team", str(entry.get("team", "enemy")))
+	var team_name: String = str(entry.get("team", "enemy"))
+	var projected_entry: bool = _turn_order_is_card_preview_projection(entry)
+	var ink_key: String = _turn_order_actor_key(entry)
+	# Painted stroke behind the actor. It bleeds past the slot (widest on the
+	# left, where the time is painted) and keeps its variant and tilt per actor.
+	var backing := TextureRect.new()
+	backing.name = "TurnOrderBrushBacking"
+	var brush: Texture2D = TurnOrderInk.brush_texture(active, ink_key)
+	var backing_rect: Rect2 = TurnOrderInk.brush_rect(slot_size, brush)
+	backing.position = backing_rect.position
+	backing.size = backing_rect.size
+	backing.pivot_offset = backing_rect.size * 0.5
+	backing.rotation_degrees = TurnOrderInk.brush_tilt_degrees(ink_key, active)
+	backing.flip_h = TurnOrderInk.brush_flipped(ink_key, active)
+	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	backing.stretch_mode = TextureRect.STRETCH_SCALE
+	backing.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	backing.clip_contents = false
+	backing.texture = brush
+	backing.modulate = TurnOrderInk.ink_color(team_name, active, projected_entry)
+	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Drawn beneath every portrait in the rail so a neighbour's stroke never
+	# covers a face; the slot panel stays the frame's first child.
+	backing.z_index = -1
 	var panel := PanelContainer.new()
 	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
 	panel.anchor_right = 1.0
@@ -13426,38 +13509,27 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	panel.add_theme_stylebox_override("panel", _turn_order_slot_style(entry, active))
 	frame.add_child(panel)
-	var backing := TextureRect.new()
-	backing.name = "TurnOrderBrushBacking"
-	backing.set_anchors_preset(Control.PRESET_FULL_RECT)
-	backing.anchor_right = 1.0
-	backing.anchor_bottom = 1.0
-	backing.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	backing.stretch_mode = TextureRect.STRETCH_SCALE
-	backing.clip_contents = false
-	backing.texture = AssetLoader.load_texture(TURN_ORDER_BRUSH_BACKING_TEXTURE_PATH)
-	backing.modulate = _turn_order_backing_modulate(entry, active)
-	backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(backing)
+	frame.add_child(backing)
 	var margin := MarginContainer.new()
 	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	margin.anchor_right = 1.0
 	margin.anchor_bottom = 1.0
-	# Retain only a tiny crop-safety inset. The abstract torn silhouette supplies
-	# atmosphere behind the actor without becoming a frame or opaque box.
-	var side_inset: int = 1
-	var top_inset: int = 1
-	var bottom_inset: int = 1
+	var side_inset: int = 0
+	var top_inset: int = 0
+	var bottom_inset: int = 0
 	margin.add_theme_constant_override("margin_left", side_inset)
 	margin.add_theme_constant_override("margin_top", top_inset)
 	margin.add_theme_constant_override("margin_right", side_inset)
 	margin.add_theme_constant_override("margin_bottom", bottom_inset)
 	panel.add_child(margin)
-	var portrait_crop := Control.new()
+	# The slanted, slightly ragged window is the mask; only the portrait inside
+	# it is drawn.
+	var portrait_crop := TurnOrderInk.PortraitMask.new()
 	portrait_crop.name = "TurnOrderPortraitCrop"
+	portrait_crop.skew = TurnOrderInk.SKEW_RATIO
 	portrait_crop.set_anchors_preset(Control.PRESET_FULL_RECT)
 	portrait_crop.anchor_right = 1.0
 	portrait_crop.anchor_bottom = 1.0
-	portrait_crop.clip_contents = true
 	portrait_crop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(portrait_crop)
 	var portrait := TextureRect.new()
@@ -13477,6 +13549,16 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
+	var edge := TurnOrderInk.SlashEdge.new()
+	edge.name = "TurnOrderSlashEdge"
+	edge.skew = TurnOrderInk.SKEW_RATIO
+	edge.color = Color(1.0, 0.95, 0.82, 0.85) if active else Color(UiPalette.TEXT, 0.30)
+	edge.width = 2.5 if active else 1.2
+	edge.set_anchors_preset(Control.PRESET_FULL_RECT)
+	edge.anchor_right = 1.0
+	edge.anchor_bottom = 1.0
+	edge.z_index = 6
+	frame.add_child(edge)
 	var health_bar: SegmentedHealthBar = _turn_order_health_bar(entry, slot_size)
 	if health_bar != null:
 		frame.add_child(health_bar)
@@ -13515,12 +13597,14 @@ func _turn_order_health_bar(entry: Dictionary, slot_size: Vector2) -> SegmentedH
 	var max_hp: int = maxi(1, int(entry.get("max_hp", 1)))
 	var health_bar := SegmentedHealthBar.new()
 	health_bar.name = "TurnOrderHealthBar"
+	# Sit on the slanted window's bottom edge, which ends short of the right side.
+	var slant: float = slot_size.x * TurnOrderInk.SKEW_RATIO
 	health_bar.position = Vector2(
 		TURN_ORDER_HEALTH_BAR_SIDE_INSET,
 		slot_size.y - TURN_ORDER_HEALTH_BAR_HEIGHT - TURN_ORDER_HEALTH_BAR_BOTTOM_INSET
 	)
 	health_bar.custom_minimum_size = Vector2(
-		maxf(1.0, slot_size.x - TURN_ORDER_HEALTH_BAR_SIDE_INSET * 2.0),
+		maxf(1.0, slot_size.x - slant - TURN_ORDER_HEALTH_BAR_SIDE_INSET * 2.0),
 		TURN_ORDER_HEALTH_BAR_HEIGHT
 	)
 	health_bar.size = health_bar.custom_minimum_size
@@ -13549,17 +13633,6 @@ func _turn_order_portrait_modulate(entry: Dictionary, active: bool) -> Color:
 	# Active actor reads first through scale plus a barely brighter subject, not a
 	# surrounding frame or panel.
 	return Color(0.92, 0.92, 0.92, 0.94)
-
-func _turn_order_backing_modulate(entry: Dictionary, active: bool) -> Color:
-	# The abstract brush silhouette is a secondary team cue, never a bright faction banner.
-	# Portrait identity and clock value still carry the primary turn-order reading.
-	var team: String = str(entry.get("team", "enemy"))
-	var tint: Color = Color("7897b2") if team == "player" else Color("b97870")
-	var alpha: float = 0.66 if active else 0.54
-	if bool(entry.get("projected", false)) and not active:
-		alpha *= 0.82
-	tint.a = alpha
-	return tint
 
 func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Control:
 	var badge := PanelContainer.new()
@@ -13614,27 +13687,30 @@ func _turn_order_projection_badge_style() -> StyleBoxFlat:
 	return style
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slot_size: Vector2) -> Control:
-	var badge := PanelContainer.new()
-	# Relative time is a supporting cue: keep its small medallion out of the
-	# portrait's center so actor identity and active/queued state read first.
-	var badge_size := Vector2(clampf(15.0 + float(text.length()) * 5.0, 19.0, 31.0), 16.0)
-	badge.position = Vector2(slot_size.x - badge_size.x - 5.0, 4.0) if slot_size.x >= 120.0 else Vector2(slot_size.x - badge_size.x - 3.0, 3.0)
-	badge.custom_minimum_size = badge_size
-	badge.size = badge_size
-	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	badge.z_index = 8
-	badge.add_theme_stylebox_override("panel", _turn_order_number_badge_style(entry, active))
+	# The time is painted straight onto the stroke's left end, like a brushed
+	# numeral, instead of sitting in a box, in heavy outlined ivory on every
+	# stroke; the active actor's numeral is simply larger.
 	var label := Label.new()
+	label.name = "TurnOrderTimeNumeral"
 	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_SMALL)
-	label.add_theme_color_override("font_color", Color("fff4d2"))
-	label.add_theme_color_override("font_outline_color", Color("120b07"))
-	label.add_theme_constant_override("outline_size", 1)
-	badge.add_child(label)
-	return badge
+	label.z_index = 8
+	label.add_theme_font_override("font", UiTypography.display_font())
+	var font_size: int = 30 if active else 22
+	UiTypography.set_label_size(label, font_size)
+	var projection: bool = _turn_order_is_card_preview_projection(entry) and not active
+	label.add_theme_color_override("font_color", Color("fff4dc") if active else (Color("f4c968") if projection else UiPalette.TEXT))
+	label.add_theme_color_override("font_outline_color", Color(0.05, 0.03, 0.02, 0.95))
+	label.add_theme_constant_override("outline_size", 7 if active else 5)
+	# Right-aligned against the portrait so the numeral lands on the stroke's
+	# loaded body rather than its frayed tip.
+	var width: float = TurnOrderInk.BLEED_LEFT
+	# Vertically centred on the stroke's painted band, not the whole slot.
+	label.size = Vector2(width, slot_size.y)
+	label.position = Vector2(-width + 2.0, slot_size.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))
+	return label
 
 func _turn_order_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -13676,25 +13752,6 @@ func _turn_order_slot_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
 	style.shadow_color = Color.TRANSPARENT
 	style.shadow_size = 0
 	style.shadow_offset = Vector2.ZERO
-	return style
-
-func _turn_order_number_badge_style(entry: Dictionary, active: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	var team: String = str(entry.get("team", "enemy"))
-	var accent: Color = Color("5ca7e0") if team == "player" else Color("d36a55")
-	style.bg_color = Color(0.05, 0.03, 0.02, 0.88)
-	style.border_color = accent.lightened(0.18 if active else 0.02)
-	if _turn_order_is_card_preview_projection(entry) and not active:
-		style.bg_color = Color(0.055, 0.075, 0.090, 0.94)
-		style.border_color = Color("f4c968")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
 	return style
 
 func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
@@ -15720,6 +15777,7 @@ func _add_pass_preview_chip() -> void:
 	art_host.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art_host.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	art_host.texture = AssetLoader.load_texture(PASS_FORECAST_FRAME_TEXTURE_PATH)
+	art_host.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art_host.z_index = 2
 	art_host.set_meta("expected_target_size", Vector2i(270, 100))
@@ -15738,8 +15796,8 @@ func _add_pass_preview_chip() -> void:
 	focus_edge.name = "PassFocusEdgeCue"
 	# Keyboard/controller focus is the only code-drawn state treatment. Pointer
 	# hover and press use their authored native frames without a colored wash.
-	focus_edge.position = Vector2(10.0, 10.0)
-	focus_edge.size = Vector2(250.0, 61.0)
+	focus_edge.position = Vector2(8.0, 6.0)
+	focus_edge.size = Vector2(254.0, 58.0)
 	focus_edge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	focus_edge.visible = false
 	focus_edge.z_index = 4
@@ -15749,15 +15807,16 @@ func _add_pass_preview_chip() -> void:
 	# Targetless confirmations hide the action tracker. The disabled Pass face
 	# makes this card's lethal payment visible beside the separate turn-end risk.
 	action_label.text = "CARD COST\nDEFIANCE -%d" % card_defiance_spent if card_defiance_spent > 0 else "PASS"
-	action_label.position = Vector2(18.0, 15.0)
+	action_label.position = Vector2(18.0, 10.0)
 	action_label.size = Vector2(234.0, 50.0)
 	action_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	action_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	action_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(action_label, UiTypography.SIZE_BODY_LARGE)
-	action_label.add_theme_color_override("font_color", Color("fff4dc"))
-	action_label.add_theme_color_override("font_outline_color", Color("20120b"))
-	action_label.add_theme_constant_override("outline_size", 2)
+	action_label.add_theme_font_override("font", UiTypography.eyebrow_font())
+	UiTypography.set_label_size(action_label, UiTypography.SIZE_SECTION + 3 if card_defiance_spent <= 0 else UiTypography.SIZE_BODY)
+	action_label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT.lerp(Color.WHITE, 0.35))
+	action_label.add_theme_color_override("font_outline_color", Color("1c0d05"))
+	action_label.add_theme_constant_override("outline_size", 4)
 	action_label.z_index = 5
 	content.add_child(action_label)
 	var forecast_title := Label.new()
@@ -15776,7 +15835,7 @@ func _add_pass_preview_chip() -> void:
 	# The lower authored ribbon ends above the distressed lower edge. Keep the
 	# forecast vertically contained inside it instead of centering against the
 	# whole lower strip.
-	damage_row.position = Vector2(12.0, 72.0)
+	damage_row.position = Vector2(12.0, 71.0)
 	damage_row.size = Vector2(246.0, 18.0)
 	damage_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(damage_row)
@@ -16578,7 +16637,10 @@ func _play_post_combat_victory(board_state: Dictionary) -> void:
 	_render_board_state(board_state, {})
 	# Let the musical resolution ring through reward selection. Input follows
 	# the visible victory beat instead of waiting for the audio reverb tail.
-	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
+	if not MusicLibrary.dragon_in_fight(_run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)), board_state).is_empty():
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_BOSS_DEFEATED_ID))
+	else:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.VICTORY_RESOLUTION_ID))
 	await PostCombatRewardSequence.play_victory(
 		_post_combat_victory_overlay,
 		_reduced_motion_enabled()
@@ -17049,31 +17111,65 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.add_child(margin)
 
 	var vbox := VBoxContainer.new()
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 7)
+	vbox.alignment = BoxContainer.ALIGNMENT_BEGIN
+	vbox.add_theme_constant_override("separation", 4)
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	margin.add_child(vbox)
 
+	# The relic rests on a soft pool of its own accent light, larger than an
+	# inventory icon so the offer reads as treasure.
+	var accent: Color = Color(GameData.relic_accent(relic_id))
+	var icon_stage := Control.new()
+	icon_stage.name = "RelicChoiceIconStage"
+	icon_stage.custom_minimum_size = Vector2(0.0, RELIC_OFFER_ICON_STAGE_HEIGHT)
+	icon_stage.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(icon_stage)
+	var glow := TextureRect.new()
+	glow.name = "RelicChoiceIconGlow"
+	glow.texture = _relic_choice_glow_texture()
+	glow.modulate = Color(accent.lerp(UiPalette.GOLD_BRIGHT, 0.35), 0.55)
+	glow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	glow.stretch_mode = TextureRect.STRETCH_SCALE
+	glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	glow.set_anchors_preset(Control.PRESET_CENTER)
+	glow.offset_left = -RELIC_OFFER_ICON_SIZE
+	glow.offset_right = RELIC_OFFER_ICON_SIZE
+	glow.offset_top = -RELIC_OFFER_ICON_STAGE_HEIGHT * 0.5
+	glow.offset_bottom = RELIC_OFFER_ICON_STAGE_HEIGHT * 0.5
+	icon_stage.add_child(glow)
 	var icon := TextureRect.new()
-	icon.custom_minimum_size = Vector2(76.0, 76.0)
+	icon.name = "RelicChoiceIcon"
 	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
 	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(icon)
+	icon.set_anchors_preset(Control.PRESET_CENTER)
+	icon.offset_left = -RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_right = RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_top = -RELIC_OFFER_ICON_SIZE * 0.5
+	icon.offset_bottom = RELIC_OFFER_ICON_SIZE * 0.5
+	icon_stage.add_child(icon)
 
 	var label := Label.new()
 	label.text = str(relic.get("name", relic_id))
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 34.0)
+	label.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 26.0)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(label, UiTypography.SIZE_BODY_LARGE)
-	label.add_theme_color_override("font_color", Color("fff1d5"))
-	label.add_theme_color_override("font_outline_color", Color("26180f"))
-	label.add_theme_constant_override("outline_size", 2)
+	label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(label, UiTypography.SIZE_SECTION)
+	label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT)
+	label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	label.add_theme_constant_override("outline_size", 3)
 	vbox.add_child(label)
+
+	var rule := GildedRule.new()
+	rule.name = "RelicChoiceRule"
+	rule.accent = accent.lerp(UiPalette.GOLD, 0.5)
+	rule.custom_minimum_size = Vector2(0.0, 8.0)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	vbox.add_child(rule)
 
 	var description := RichTextLabel.new()
 	description.name = "RelicChoiceDescription_%s" % relic_id
@@ -17083,10 +17179,13 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	description.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	description.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, 122.0)
+	# Exact rules text always gets the remaining height: 130 px holds the longest
+	# current relic (126 px) and grows with the panel if copy ever gets longer.
+	description.custom_minimum_size = Vector2(RELIC_OFFER_CARD_SIZE.x - 40.0, RELIC_OFFER_DESCRIPTION_MIN_HEIGHT)
+	description.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	description.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	UiTypography.set_rich_text_size(description, UiTypography.SIZE_BODY_LARGE)
-	description.add_theme_color_override("default_color", Color("dec9a7"))
+	description.add_theme_color_override("default_color", UiPalette.TEXT)
 	description.add_theme_color_override("font_outline_color", Color("21150e"))
 	description.add_theme_constant_override("outline_size", 1)
 	InlineIconText.apply_to(description, str(relic.get("description", "")))
@@ -17521,10 +17620,27 @@ func _campfire_choice_chip_text_color(tone: String, choice_enabled: bool) -> Col
 			return Color("d1c1a8")
 	return Color("fff1d5") if choice_enabled else Color("c8b69b")
 
+func _relic_choice_glow_texture() -> Texture2D:
+	if _relic_choice_glow != null:
+		return _relic_choice_glow
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(1.0, 1.0, 1.0, 0.9))
+	gradient.set_color(1, Color(1.0, 1.0, 1.0, 0.0))
+	gradient.add_point(0.45, Color(1.0, 1.0, 1.0, 0.28))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill = GradientTexture2D.FILL_RADIAL
+	texture.fill_from = Vector2(0.5, 0.5)
+	texture.fill_to = Vector2(1.0, 0.5)
+	texture.width = 128
+	texture.height = 96
+	_relic_choice_glow = texture
+	return texture
+
 func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.06, 0.045, 0.92).lightened(0.08) if hovered else Color(0.09, 0.06, 0.045, 0.86)
-	style.border_color = accent.lightened(0.20) if hovered else Color(accent.r, accent.g, accent.b, 0.78)
+	style.bg_color = Color(UiPalette.INK_2, 0.95).lightened(0.05) if hovered else Color(UiPalette.INK_1, 0.92)
+	style.border_color = accent.lerp(UiPalette.GOLD_BRIGHT, 0.4) if hovered else Color(accent.lerp(UiPalette.GOLD_DIM, 0.5), 0.70)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -17533,10 +17649,10 @@ func _relic_choice_style(accent: Color, hovered: bool) -> StyleBoxFlat:
 	style.content_margin_top = 0.0
 	style.content_margin_right = 0.0
 	style.content_margin_bottom = 0.0
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
+	style.corner_radius_top_left = 3
+	style.corner_radius_top_right = 3
+	style.corner_radius_bottom_right = 3
+	style.corner_radius_bottom_left = 3
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48 if hovered else 0.38)
 	style.shadow_size = 22 if hovered else 16
 	style.shadow_offset = Vector2(0.0, 9.0 if hovered else 7.0)
@@ -18345,7 +18461,7 @@ func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vecto
 			str(context.get("status", "new")).to_upper(),
 			Vector2(12.0, 62.0),
 			Vector2(76.0 if bool(context.get("owned", false)) else 58.0, 26.0),
-			Color("e2b86d") if bool(context.get("owned", false)) else Color("a8d98d")
+			UiPalette.TEXT_2 if bool(context.get("owned", false)) else UiPalette.EMBER.lerp(UiPalette.GOLD_BRIGHT, 0.45)
 		)
 	return slot
 
@@ -23956,8 +24072,6 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 	var state_validated_for_animation: bool = false
 	while true:
 		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
-		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
-		_set_fatigue_edge_progress(minf(t, FATIGUE_EDGE_HOLD_PROGRESS))
 		_render_board_state(
 			display_state,
 			_fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds),
@@ -23967,21 +24081,7 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 		if elapsed_seconds >= duration_seconds:
 			break
 		await get_tree().process_frame
-	var linger_started_usec: int = Time.get_ticks_usec()
-	while true:
-		var linger_elapsed: float = float(Time.get_ticks_usec() - linger_started_usec) / 1000000.0
-		var linger_t: float = clampf(linger_elapsed / FATIGUE_EDGE_LINGER_SECONDS, 0.0, 1.0)
-		_set_fatigue_edge_progress(lerpf(FATIGUE_EDGE_HOLD_PROGRESS, 1.0, linger_t))
-		if linger_t >= 1.0:
-			break
-		await get_tree().process_frame
-	_set_fatigue_edge_progress(-1.0)
 	_render_board_state(display_state, {}, state_validated_for_animation)
-
-func _set_fatigue_edge_progress(progress: float) -> void:
-	if _fatigue_edge_overlay == null:
-		return
-	_fatigue_edge_overlay.progress = progress
 
 func _animate_player_card_resolution(animated_state: Dictionary, card_id: String, actions: Array, selected_targets: Array[Vector2i]) -> void:
 	_begin_player_popup_timeline()
@@ -24635,6 +24735,7 @@ func _resolve_enemy_round() -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
+	_show_turn_banner(false)
 	_refresh_enemy_round_lock_ui()
 	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
 	await _begin_locked_hand_render_cache()
@@ -25625,6 +25726,10 @@ func _play_sfx(entry: Dictionary) -> float:
 	var resource: AudioStream = AssetLoader.load_audio_stream(path)
 	if resource == null:
 		return 0.0
+	var is_stinger: bool = bool(entry.get("music_duck", false))
+	if is_stinger and Time.get_ticks_msec() < _music_stinger_until_msec:
+		# Never stack stingers: a dragon kill's fanfare owns the reward reveal.
+		return 0.0
 	var player: AudioStreamPlayer = _acquire_sfx_player()
 	var generation: int = int(player.get_meta("play_generation", 0)) + 1
 	player.set_meta("play_generation", generation)
@@ -25632,12 +25737,41 @@ func _play_sfx(entry: Dictionary) -> float:
 	player.stream = resource
 	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
 	player.volume_db = float(entry.get("volume_db", 0.0))
-	player.play()
+	player.pitch_scale = _sfx_pitch_for_entry(entry, resource)
+	if player.is_inside_tree():
+		player.play()
+	if is_stinger:
+		_music_stinger_until_msec = Time.get_ticks_msec() + int(maxf(0.0, resource.get_length() - MUSIC_STINGER_TAIL_SECONDS) * 1000.0)
+		_duck_music_for(resource.get_length())
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
 		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
 		return minf(duration, maxf(0.0, resource.get_length()))
 	return maxf(0.0, resource.get_length())
+
+# Repeated one-shots (card draws, hits, clicks) get a small random pitch drift
+# so a hand of five draws or a flurry of strikes never sounds machine-gunned.
+# Long stingers keep their authored pitch. The private generator never touches
+# gameplay randomness.
+func _sfx_pitch_for_entry(entry: Dictionary, resource: AudioStream) -> float:
+	var variance: float = float(entry.get("pitch_variance", -1.0))
+	if variance < 0.0:
+		variance = SFX_DEFAULT_PITCH_VARIANCE if resource.get_length() <= SFX_PITCH_VARIANCE_MAX_LENGTH else 0.0
+	if variance <= 0.0:
+		return 1.0
+	return 1.0 + _sfx_pitch_rng.randf_range(-variance, variance)
+
+# Dip the score under a musical stinger, then let it swell back.
+func _duck_music_for(seconds: float) -> void:
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	if duck == null or not is_inside_tree():
+		return
+	if _music_duck_tween != null and _music_duck_tween.is_valid():
+		_music_duck_tween.kill()
+	_music_duck_tween = create_tween().set_ignore_time_scale(true)
+	_music_duck_tween.tween_property(duck, "volume_db", MUSIC_DUCK_DB, 0.18)
+	_music_duck_tween.tween_interval(maxf(0.0, seconds - 0.9))
+	_music_duck_tween.tween_property(duck, "volume_db", 0.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _play_trap_sfx(traps: Array) -> void:
 	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
@@ -25673,8 +25807,17 @@ func _update_ambient_sfx_for_context(mode: String) -> void:
 	_ensure_ambient_sfx_player()
 	_ambient_sfx_player.stream = _looping_audio_stream(resource)
 	_ambient_sfx_player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
-	_ambient_sfx_player.volume_db = float(entry.get("volume_db", 0.0))
-	_ambient_sfx_player.play()
+	var ambient_target_db: float = float(entry.get("volume_db", 0.0))
+	_ambient_sfx_player.volume_db = ambient_target_db
+	if _ambient_sfx_player.is_inside_tree():
+		_ambient_sfx_player.play()
+	# Beds swell in under the room rather than snapping on with the scene cut.
+	if _ambient_fade_tween != null and _ambient_fade_tween.is_valid():
+		_ambient_fade_tween.kill()
+	if is_inside_tree():
+		_ambient_sfx_player.volume_db = AMBIENT_FADE_FLOOR_DB
+		_ambient_fade_tween = create_tween()
+		_ambient_fade_tween.tween_property(_ambient_sfx_player, "volume_db", ambient_target_db, AMBIENT_FADE_IN_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 func _ensure_ambient_sfx_player() -> void:
 	if _ambient_sfx_player != null:
@@ -26993,6 +27136,8 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 func _set_action_banner(text: String) -> void:
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
+	if not text.is_empty() and _turn_banner != null and _turn_banner.visible:
+		_turn_banner.call("dismiss", _reduced_motion_enabled())
 	_layout_action_banner()
 
 func _layout_action_banner() -> void:
@@ -28515,6 +28660,8 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 func _open_menu_overlay() -> void:
 	if _menu_scrim == null:
 		return
+	if not _menu_scrim.visible:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
 	_cancel_drag_play()
 	_close_pile_view()
 	_close_card_upgrade_overlay()
@@ -28529,6 +28676,8 @@ func _open_menu_overlay() -> void:
 
 func _close_menu_overlay() -> void:
 	if _menu_scrim != null:
+		if _menu_scrim.visible:
+			_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_CLOSE_ID))
 		_menu_scrim.visible = false
 	if _settings_panel != null:
 		_settings_panel.visible = false
@@ -28561,6 +28710,8 @@ func _on_settings_changed(settings: Dictionary) -> void:
 		_cancel_pre_battle_entry()
 	if _run_end_recap != null:
 		_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
+	if _combat_atmosphere != null:
+		_combat_atmosphere.call("set_motion_enabled", not _reduced_motion_enabled())
 	if _run_end_board_reframe_active and _reduced_motion_enabled():
 		_seek_run_end_board_reframe(1.0)
 
@@ -28580,6 +28731,8 @@ func _open_grimoire_overlay() -> void:
 	_reset_grimoire_search()
 	_select_first_unread_grimoire_entry()
 	_rebuild_grimoire_overlay(true)
+	if not _grimoire_scrim.visible:
+		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_OPEN_ID))
 	_grimoire_scrim.visible = true
 	_grimoire_scrim.move_to_front()
 	_update_performance_telemetry_context()
@@ -28596,6 +28749,7 @@ func _close_grimoire_overlay() -> void:
 	_reset_grimoire_search()
 	if not was_visible:
 		return
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.MENU_CLOSE_ID))
 	_run_state = GrimoireLibrary.clear_unread(_run_state)
 	_persist_grimoire_progression_from_run()
 	_refresh_grimoire_badge()
@@ -29480,6 +29634,7 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 	_reconcile_progression_analytics_outbox()
 	_sync_progression_analytics_outbox_to_run()
 	_persist_committed_boundary("level_up_ack")
+	_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID))
 	if present_feedback:
 		var token: int = _campfire_presentation.generation
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_STRENGTH_ID))
@@ -29710,16 +29865,15 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	panel.name = "%sChip" % chip_name
 	panel.custom_minimum_size = Vector2(minimum_width, 36.0 if _progression_summary_compact else 44.0)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.042, 0.052, 0.96)
-	style.border_color = accent.darkened(0.14)
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(8)
-	style.border_blend = true
+	style.bg_color = Color(UiPalette.INK_1, 0.96)
+	style.border_color = UiPalette.GOLD_DIM
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(3)
 	style.shadow_color = Color(0.005, 0.004, 0.008, 0.42)
 	style.shadow_size = 3
 	style.shadow_offset = Vector2(0.0, 2.0)
 	panel.add_theme_stylebox_override("panel", style)
-	_ui_skin.apply_menu_finish(panel, "chip", accent)
+	_ui_skin.apply_menu_finish(panel, "chip", UiPalette.GOLD)
 	row.add_child(panel)
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 10)

@@ -2,6 +2,7 @@ extends SceneTree
 
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
 var _failures: Array[String] = []
@@ -23,7 +24,7 @@ func _run() -> void:
 		"type": "boss",
 		"boss_id": "zekarion"
 	})
-	_assert(str(boss_entry.get("id", "")) == MusicLibrary.THORNS_TRACK_ID, "Boss combat should use Thorns before terminal defeat")
+	_assert(str(boss_entry.get("id", "")) == str(MusicLibrary.DRAGON_THEME_TRACK_IDS["zekarion"]), "Dragon boss combat should use its own theme before terminal defeat")
 	var death_entry: Dictionary = MusicLibrary.entry_for_context("defeat", {
 		"type": "boss",
 		"boss_id": "zekarion"
@@ -97,9 +98,29 @@ func _run() -> void:
 		_assert(str(instance.get("_active_music_id")) == MusicLibrary.TURNING_KEY_TRACK_ID, "Leaving defeat mode should replace death music with the next context route")
 		instance.call("_shutdown_audio")
 		_assert(not player.playing and player.stream == null, "Leaving the run scene should stop and release death music")
+	await _check_stingers(instance)
 	instance.queue_free()
 	await process_frame
 	_finish()
+
+func _check_stingers(instance: Node) -> void:
+	_assert(MusicLibrary.dragon_in_fight({"type": "guardian", "boss_id": "ashen_reaver"}, {}).is_empty(), "Guardians should not count as dragon fights")
+	_assert(MusicLibrary.dragon_in_fight({"type": "combat"}, {"enemies": [{"type": "noctyrax"}]}) == "noctyrax", "A dragon enemy should be found from the combat roster")
+	var duck: AudioEffectAmplify = SettingsStore.music_duck_effect()
+	_assert(duck != null and is_equal_approx(duck.volume_db, 0.0), "The music duck should rest at unity before a stinger")
+	var boss_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_BOSS_DEFEATED_ID)))
+	_assert(boss_length > 6.0 and boss_length < 7.5, "The boss-defeated stinger should play its full fanfare")
+	var stacked_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
+	_assert(is_zero_approx(stacked_length), "A second stinger should not stack on a fanfare that is still sounding")
+	await create_timer(0.35).timeout
+	if duck != null:
+		_assert(absf(duck.volume_db - -9.0) < 0.2, "The score should dip beneath a stinger, got %.2f dB" % duck.volume_db)
+	instance.call("_shutdown_audio")
+	if duck != null:
+		_assert(is_equal_approx(duck.volume_db, 0.0), "Leaving the run scene should restore the score to unity")
+	var level_length: float = float(instance.call("_play_sfx", RunSfxLibrary.entry(RunSfxLibrary.STINGER_LEVEL_UP_ID)))
+	_assert(level_length > 2.5 and level_length < 4.5, "After audio shutdown a new stinger should be free to play")
+	instance.call("_shutdown_audio")
 
 func _assert(condition: bool, message: String) -> void:
 	if not condition:

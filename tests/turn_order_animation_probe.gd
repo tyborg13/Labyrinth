@@ -5,7 +5,6 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
-const TURN_ORDER_BACKING_PATH: String = "res://assets/art/ui/turn_order_brush_backing_v2.png"
 
 func _initialize() -> void:
 	print("turn order probe: start")
@@ -53,7 +52,6 @@ func _initialize() -> void:
 	_assert_turn_order_label(instance)
 	_assert_turn_order_panel_right_rail(instance)
 	_assert_vertical_turn_order_geometry(instance)
-	_assert_backing_texture_has_transparent_bleed()
 	_assert_turn_order_badges_match_relative_clocks(instance, combat_state)
 	await _save_root_screenshot("user://probes/turn_order_motion_v5_00_stable.png")
 	var combat_engine = instance.get("_combat_engine")
@@ -186,7 +184,7 @@ func _save_root_screenshot(output_path: String) -> void:
 		return
 	var image: Image = root.get_viewport().get_texture().get_image()
 	# macOS may expose a Retina-sized backing texture even when the authored
-	# logical canvas is 1920x1080. Normalize proof to the rubric's exact canvas.
+	# logical canvas is 1920x1080. Normalize proof to that exact canvas.
 	if image.get_size() != VIEWPORT_SIZE:
 		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
 	image.save_png(output_path)
@@ -641,23 +639,25 @@ func _assert_vertical_turn_order_geometry(instance: Node) -> void:
 			return
 		var portrait_crop: Control = slot.find_child("TurnOrderPortraitCrop", true, false) as Control
 		var backing: TextureRect = slot.find_child("TurnOrderBrushBacking", true, false) as TextureRect
+		var edge: Control = slot.find_child("TurnOrderSlashEdge", true, false) as Control
 		var slot_panel: PanelContainer = slot.get_child(0) as PanelContainer if slot.get_child_count() > 0 else null
 		var slot_style: StyleBoxFlat = slot_panel.get_theme_stylebox("panel") as StyleBoxFlat if slot_panel != null else null
-		if portrait_crop == null or backing == null or str(slot.get_meta("turn_order_art_hook", "")) != "brush_backing_v2" or str(slot.get_meta("turn_order_backing_asset", "")) != TURN_ORDER_BACKING_PATH or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
-			push_error("Turn entry should pair its portrait with the user-provided brush backing and no rectangular frame-art host.")
+		if portrait_crop == null or backing == null or backing.texture == null or edge == null or str(slot.get_meta("turn_order_art_hook", "")) != "ink_brush_v3" or slot.find_child("TurnOrderActiveFrameArtHost", true, false) != null or slot.find_child("TurnOrderQueuedFrameArtHost", true, false) != null:
+			push_error("Turn entry should pair its portrait with a painted ink stroke and no raster frame-art host.")
 			quit(1)
 			return
 		if slot.clip_contents or slot_panel == null or slot_panel.clip_contents or backing.clip_contents:
-			push_error("Turn-entry brush backing must sit beneath a fully non-clipping control chain.")
+			push_error("Turn-entry ink stroke must sit beneath a fully non-clipping control chain.")
 			quit(1)
 			return
 		var team: String = str(slot.get_meta("turn_order_team", "enemy"))
-		if (team == "player" and backing.modulate.b <= backing.modulate.r) or (team != "player" and backing.modulate.r <= backing.modulate.b):
-			push_error("Turn-entry brush backing should use the subdued blue player or red enemy treatment.")
+		var active_slot: bool = slots.find(slot) == 0
+		if not active_slot and ((team == "player" and backing.modulate.g <= backing.modulate.r) or (team != "player" and backing.modulate.r <= backing.modulate.b)):
+			push_error("Queued ink strokes should read as teal allies and crimson enemies.")
 			quit(1)
 			return
-		if backing.modulate.a > 0.67:
-			push_error("Turn-entry brush backing should remain a subdued secondary cue.")
+		if edge.z_index <= portrait_crop.z_index:
+			push_error("Turn-entry painted edge should draw above the portrait sprite.")
 			quit(1)
 			return
 		if slot_style == null or slot_style.bg_color.a > 0.001 or slot_style.border_color.a > 0.001 or slot_style.shadow_size > 0:
@@ -667,36 +667,6 @@ func _assert_vertical_turn_order_geometry(instance: Node) -> void:
 		previous_rect = rect
 	if slots.size() >= 8 and (first_width < 128.0 or previous_rect.size.x < 74.0):
 		push_error("Dense rail should keep its leading and final portraits readable.")
-		quit(1)
-
-func _assert_backing_texture_has_transparent_bleed() -> void:
-	var image := Image.new()
-	var load_error: Error = image.load(TURN_ORDER_BACKING_PATH)
-	if load_error != OK:
-		push_error("Turn-order brush backing failed to load for alpha-bound validation: %s" % error_string(load_error))
-		quit(1)
-		return
-	var size: Vector2i = image.get_size()
-	var min_x: int = size.x
-	var min_y: int = size.y
-	var max_x: int = -1
-	var max_y: int = -1
-	for y: int in range(size.y):
-		for x: int in range(size.x):
-			if image.get_pixel(x, y).a <= 0.01:
-				continue
-			min_x = mini(min_x, x)
-			min_y = mini(min_y, y)
-			max_x = maxi(max_x, x)
-			max_y = maxi(max_y, y)
-	if max_x < min_x or max_y < min_y:
-		push_error("Turn-order brush backing contains no visible pixels.")
-		quit(1)
-		return
-	var minimum_horizontal_bleed: int = 20
-	var minimum_vertical_bleed: int = 40
-	if min_x < minimum_horizontal_bleed or size.x - 1 - max_x < minimum_horizontal_bleed or min_y < minimum_vertical_bleed or size.y - 1 - max_y < minimum_vertical_bleed:
-		push_error("Turn-order brush backing needs transparent bleed on every side; alpha bounds were %s inside %s." % [Rect2i(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1), size])
 		quit(1)
 
 func _turn_order_slot_controls(bar: Control) -> Array[Control]:

@@ -41,7 +41,9 @@ static func _test_registry_and_trimmed_assets(expect: Callable) -> void:
 
 	var ambient: Dictionary = RunSfxLibrary.ambient_entry_for_mode("campfire")
 	expect.call(str(ambient.get("id", "")) == RunSfxLibrary.CAMPFIRE_LOOP_ID and bool(ambient.get("loop", false)), "Campfire mode should own the looping fire ambience")
-	expect.call(RunSfxLibrary.ambient_entry_for_mode("room").is_empty(), "Fire ambience should not continue outside campfire mode")
+	expect.call(str(RunSfxLibrary.ambient_entry_for_mode("room").get("id", "")) != RunSfxLibrary.CAMPFIRE_LOOP_ID, "Fire ambience should not continue outside campfire mode")
+	expect.call(str(RunSfxLibrary.ambient_entry_for_mode("combat").get("id", "")) == RunSfxLibrary.DUNGEON_AMBIENCE_ID, "Combat halls should carry the quiet stone-hall ambience bed")
+	expect.call(RunSfxLibrary.ambient_entry_for_mode("victory").is_empty(), "Terminal screens should leave ambience to the music")
 	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.DOOR_OPEN_ID).get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Door creak should use the room-reverberated world SFX path")
 	expect.call(str(ambient.get("bus", "")) == SettingsStore.WORLD_SFX_BUS, "Campfire ambience should use the room-reverberated world SFX path")
 	expect.call(str(RunSfxLibrary.entry(RunSfxLibrary.REWARD_ACCEPTED_ID).get("bus", "")) == SettingsStore.UI_SFX_BUS, "Reward acceptance should stay dry on the UI SFX path")
@@ -75,7 +77,9 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 			var looped_wav: AudioStreamWAV = ambient_player.stream as AudioStreamWAV
 			expect.call(looped_wav.loop_mode == AudioStreamWAV.LOOP_FORWARD and looped_wav.loop_end > 0, "Campfire ambience should loop sample-accurately without a restart gap")
 	instance.call("_update_ambient_sfx_for_context", "room")
-	expect.call(ambient_player != null and not ambient_player.playing and ambient_player.stream == null, "Leaving campfire mode should stop its ambience")
+	expect.call(str(instance.get("_active_ambient_sfx_id")) == RunSfxLibrary.DUNGEON_AMBIENCE_ID and ambient_player != null and ambient_player.playing, "Leaving campfire mode should hand over from the fire loop to the quiet hall bed")
+	instance.call("_update_ambient_sfx_for_context", "victory")
+	expect.call(ambient_player != null and not ambient_player.playing and ambient_player.stream == null, "Terminal screens should stop room ambience")
 
 	var door_started_msec: int = Time.get_ticks_msec()
 	await instance.call("_play_door_opening_animation", Vector2i(4, 0))

@@ -1,0 +1,8541 @@
+{
+  "bars": 32,
+  "beats_per_bar": 4,
+  "bpm": 88,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "Cb/Bb (Phrygian bII over pedal)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 3,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 4,
+      "chord": "Cb/Bb (Phrygian bII over pedal)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 5,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 6,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 7,
+      "chord": "Gbmaj7",
+      "triads": [
+        "Gb"
+      ]
+    },
+    {
+      "bar": 8,
+      "chord": "F7(b9)",
+      "triads": [
+        "F"
+      ]
+    },
+    {
+      "bar": 9,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 10,
+      "chord": "Ebm",
+      "triads": [
+        "Ebm"
+      ]
+    },
+    {
+      "bar": 11,
+      "chord": "Cb (Neapolitan)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 12,
+      "chord": "F7(b9)",
+      "triads": [
+        "F"
+      ]
+    },
+    {
+      "bar": 13,
+      "chord": "Gbmaj7",
+      "triads": [
+        "Gb"
+      ]
+    },
+    {
+      "bar": 14,
+      "chord": "Eb/G",
+      "triads": [
+        "Eb"
+      ]
+    },
+    {
+      "bar": 15,
+      "chord": "Ab",
+      "triads": [
+        "Ab"
+      ]
+    },
+    {
+      "bar": 16,
+      "chord": "A dim7",
+      "triads": [
+        "Adim"
+      ]
+    },
+    {
+      "bar": 17,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 18,
+      "chord": "Gbmaj7",
+      "triads": [
+        "Gb"
+      ]
+    },
+    {
+      "bar": 19,
+      "chord": "Cb (Neapolitan)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 20,
+      "chord": "F7(b9)",
+      "triads": [
+        "F"
+      ]
+    },
+    {
+      "bar": 21,
+      "chord": "Ebm",
+      "triads": [
+        "Ebm"
+      ]
+    },
+    {
+      "bar": 22,
+      "chord": "Cb (Neapolitan)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 23,
+      "chord": "Gbmaj7",
+      "triads": [
+        "Gb"
+      ]
+    },
+    {
+      "bar": 24,
+      "chord": "F7(b9)",
+      "triads": [
+        "F"
+      ]
+    },
+    {
+      "bar": 25,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 26,
+      "chord": "Gbmaj7",
+      "triads": [
+        "Gb"
+      ]
+    },
+    {
+      "bar": 27,
+      "chord": "Ebm",
+      "triads": [
+        "Ebm"
+      ]
+    },
+    {
+      "bar": 28,
+      "chord": "F (major dominant)",
+      "triads": [
+        "F"
+      ]
+    },
+    {
+      "bar": 29,
+      "chord": "Bbm",
+      "triads": [
+        "Bbm"
+      ]
+    },
+    {
+      "bar": 30,
+      "chord": "Cb (Neapolitan)",
+      "triads": [
+        "Cb"
+      ]
+    },
+    {
+      "bar": 31,
+      "chord": "A dim7",
+      "triads": [
+        "Adim"
+      ]
+    },
+    {
+      "bar": 32,
+      "chord": "F7(b9)",
+      "triads": [
+        "F"
+      ]
+    }
+  ],
+  "identity": {
+    "dragon": "Noctyrax, the Last Eclipse",
+    "element": "shadow",
+    "motif": "Bb-F-Db-Cb | Db-Bb (Thorns' C-G-Eb-D | Eb-C eclipsed: lower, augmented, Phrygian flat second), carried by low brass then choir",
+    "relation_to_thorns": "Distorted quotation of Thorns' opening and its pluck figure; i-i-bVI-V mirrors Cm-Cm-Ab-G7. Bigger forces: choir, brass, taiko, timpani, bell.",
+    "take": "A",
+    "tonic": "Bb"
+  },
+  "key": "B-flat minor / Phrygian (C-flat), chromatic build through G, A-flat and A dim7",
+  "kind": "loop_theme",
+  "lead_instrument": "brass",
+  "mix": {
+    "brass": [
+      "violin_1",
+      0.5
+    ],
+    "cello": [
+      "violin_1",
+      -1.5
+    ],
+    "choir_high": [
+      "violin_1",
+      -0.5
+    ],
+    "choir_low": [
+      "violin_2",
+      1.5
+    ],
+    "contrabass": [
+      "hollow_bass",
+      -3.5
+    ],
+    "hollow_bass": [
+      "hollow_bass",
+      -2.0
+    ],
+    "taiko": [
+      "drums",
+      5.5
+    ],
+    "thread_pluck": [
+      "thread_pluck",
+      -1.0
+    ],
+    "timpani": [
+      "drums",
+      1.5
+    ],
+    "toll": [
+      "thread_pluck",
+      6.0
+    ],
+    "viola": [
+      "viola",
+      0.5
+    ],
+    "violin_1": [
+      "violin_1",
+      1.0
+    ],
+    "violin_2": [
+      "violin_2",
+      0.0
+    ]
+  },
+  "mood": "Final boss, processional take: an impact that hushes into a tolling eclipse, a relentless low-string ostinato, the Thorns motif in low brass and choir, and a full-ensemble summit.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 3.5,
+      "instrument": "brass",
+      "pitch": 34,
+      "shape": "fade",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 3.5,
+      "instrument": "brass",
+      "pitch": 41,
+      "shape": "fade",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 3.5,
+      "instrument": "brass",
+      "pitch": 46,
+      "shape": "fade",
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 3.5,
+      "instrument": "cello",
+      "pitch": 46,
+      "shape": "fade",
+      "velocity": 108
+    },
+    {
+      "beat": 0.0,
+      "duration": 2.0,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "shape": "fade",
+      "velocity": 110
+    },
+    {
+      "beat": 0,
+      "duration": 3,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 110
+    },
+    {
+      "beat": 0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 127
+    },
+    {
+      "beat": 0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 112
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 124
+    },
+    {
+      "beat": 0.0,
+      "duration": 4.0,
+      "instrument": "toll",
+      "pitch": 58,
+      "velocity": 120
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.5,
+      "instrument": "viola",
+      "pitch": 65,
+      "shape": "fade",
+      "velocity": 96
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.5,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "shape": "fade",
+      "velocity": 104
+    },
+    {
+      "beat": 0.0,
+      "duration": 1.5,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "shape": "fade",
+      "velocity": 100
+    },
+    {
+      "beat": 1.0,
+      "duration": 2.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 66,
+      "vowel": "oo"
+    },
+    {
+      "beat": 1.0,
+      "duration": 2.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 66,
+      "vowel": "oo"
+    },
+    {
+      "beat": 2.0,
+      "duration": 13.9,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 62
+    },
+    {
+      "beat": 4.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 68,
+      "vowel": "oo"
+    },
+    {
+      "beat": 4.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 68,
+      "vowel": "oo"
+    },
+    {
+      "beat": 4,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 72
+    },
+    {
+      "beat": 4.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 64
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 4.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 89,
+      "velocity": 54
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 4.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "velocity": 52
+    },
+    {
+      "beat": 4.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 56
+    },
+    {
+      "beat": 8.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 70,
+      "vowel": "oo"
+    },
+    {
+      "beat": 8.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 70,
+      "vowel": "oo"
+    },
+    {
+      "beat": 8,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 72
+    },
+    {
+      "beat": 8.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 66
+    },
+    {
+      "beat": 8.0,
+      "duration": 4.0,
+      "instrument": "toll",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 8.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 89,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 8.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "velocity": 54
+    },
+    {
+      "beat": 8.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 56
+    },
+    {
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "shape": "swell",
+      "velocity": 84
+    },
+    {
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 48,
+      "shape": "swell",
+      "velocity": 84
+    },
+    {
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 74,
+      "vowel": "oo"
+    },
+    {
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 74,
+      "vowel": "oo"
+    },
+    {
+      "beat": 12,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 72
+    },
+    {
+      "beat": 12.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 68
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 90,
+      "velocity": 60
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 12.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 83,
+      "velocity": 58
+    },
+    {
+      "beat": 12.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 56
+    },
+    {
+      "articulation": "roll",
+      "beat": 14.0,
+      "duration": 1.9,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 96
+    },
+    {
+      "beat": 15,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 50
+    },
+    {
+      "beat": 15.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 56
+    },
+    {
+      "beat": 15.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 15.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 72
+    },
+    {
+      "beat": 16.0,
+      "duration": 7.9,
+      "instrument": "brass",
+      "pitch": 46,
+      "velocity": 92
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 100
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 16.0,
+      "duration": 7.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 68
+    },
+    {
+      "beat": 16.0,
+      "duration": 7.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 68
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 74
+    },
+    {
+      "beat": 16,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 70
+    },
+    {
+      "beat": 16,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 16.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 90
+    },
+    {
+      "beat": 16.0,
+      "duration": 7.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 52
+    },
+    {
+      "beat": 16.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 16.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 16.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 17.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 53,
+      "velocity": 97
+    },
+    {
+      "beat": 17.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 68
+    },
+    {
+      "beat": 17.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 68
+    },
+    {
+      "beat": 17,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 17.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 44
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 17.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 61,
+      "velocity": 100
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 72
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 72
+    },
+    {
+      "beat": 18,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 18.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 50
+    },
+    {
+      "beat": 18.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 18.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 18.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 59,
+      "velocity": 97
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 68
+    },
+    {
+      "beat": 19,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 19.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 46
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 19.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 19.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 20.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 61,
+      "velocity": 100
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 74
+    },
+    {
+      "beat": 20,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 70
+    },
+    {
+      "beat": 20,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 20.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 20.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 20.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 20.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 21.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 68
+    },
+    {
+      "beat": 21.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 68
+    },
+    {
+      "beat": 21,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 21.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 44
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 21.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 22.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 97
+    },
+    {
+      "beat": 22.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 72
+    },
+    {
+      "beat": 22.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 72
+    },
+    {
+      "beat": 22,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 22.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 50
+    },
+    {
+      "beat": 22.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 22.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 22.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 68
+    },
+    {
+      "beat": 23,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 23.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 46
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 23.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 23.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 24.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 42,
+      "velocity": 92
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 53,
+      "velocity": 100
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 74
+    },
+    {
+      "beat": 24.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 24.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 49,
+      "velocity": 70
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 74
+    },
+    {
+      "beat": 24,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 70
+    },
+    {
+      "beat": 24,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 42,
+      "velocity": 52
+    },
+    {
+      "beat": 24.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 24.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 54
+    },
+    {
+      "beat": 24.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 58
+    },
+    {
+      "beat": 24.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 58
+    },
+    {
+      "beat": 24.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 40
+    },
+    {
+      "beat": 25.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 97
+    },
+    {
+      "beat": 25.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 68
+    },
+    {
+      "beat": 25.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 68
+    },
+    {
+      "beat": 25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 25.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 44
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 58
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 58
+    },
+    {
+      "beat": 25.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 40
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 59,
+      "velocity": 100
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 72
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 72
+    },
+    {
+      "beat": 26,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 26.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 42,
+      "velocity": 50
+    },
+    {
+      "beat": 26.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 58
+    },
+    {
+      "beat": 26.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 58
+    },
+    {
+      "beat": 26.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 40
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 61,
+      "velocity": 97
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 68
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 68
+    },
+    {
+      "beat": 27,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 27.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 46
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 62
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 62
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 27.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 40
+    },
+    {
+      "beat": 27.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 28.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "velocity": 94
+    },
+    {
+      "beat": 28.0,
+      "duration": 2.9,
+      "instrument": "brass",
+      "pitch": 65,
+      "velocity": 100
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 74
+    },
+    {
+      "beat": 28.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 41,
+      "velocity": 72
+    },
+    {
+      "beat": 28.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 72
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 74
+    },
+    {
+      "beat": 28,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 29,
+      "velocity": 70
+    },
+    {
+      "beat": 28,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 28.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 92
+    },
+    {
+      "beat": 28.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 60,
+      "velocity": 56
+    },
+    {
+      "beat": 28.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 28.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 28.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 29.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 68
+    },
+    {
+      "beat": 29.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 68
+    },
+    {
+      "beat": 29,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 29.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 44
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 29.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 72
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 72
+    },
+    {
+      "beat": 30,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 30.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 30.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 63,
+      "velocity": 97
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 68
+    },
+    {
+      "beat": 31,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 31.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 45,
+      "velocity": 46
+    },
+    {
+      "beat": 31.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 80
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 62
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 62
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 84
+    },
+    {
+      "beat": 31.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 31.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 46,
+      "velocity": 94
+    },
+    {
+      "beat": 32.0,
+      "duration": 1.4,
+      "instrument": "brass",
+      "pitch": 61,
+      "velocity": 100
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 32.0,
+      "duration": 1.4,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 74
+    },
+    {
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 72
+    },
+    {
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 72
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 74
+    },
+    {
+      "beat": 32,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 70
+    },
+    {
+      "beat": 32,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 32.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 92
+    },
+    {
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 50
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 32.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 48
+    },
+    {
+      "beat": 32.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 32.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 32.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 33.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 68
+    },
+    {
+      "beat": 33.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 68
+    },
+    {
+      "beat": 33,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 33.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 59,
+      "velocity": 44
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.45,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 97
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.45,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 71
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 33.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 56,
+      "velocity": 100
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 72
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 68,
+      "velocity": 74
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 72
+    },
+    {
+      "beat": 34,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 34.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 46,
+      "velocity": 50
+    },
+    {
+      "beat": 34.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 58
+    },
+    {
+      "beat": 34.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 58
+    },
+    {
+      "beat": 34.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 54,
+      "velocity": 97
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 71
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 68
+    },
+    {
+      "beat": 35,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 35.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 49,
+      "velocity": 46
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 35.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 53,
+      "velocity": 40
+    },
+    {
+      "beat": 35.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 39,
+      "velocity": 94
+    },
+    {
+      "beat": 36.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 53,
+      "velocity": 100
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 74
+    },
+    {
+      "beat": 36.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 74
+    },
+    {
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 72
+    },
+    {
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 58,
+      "velocity": 72
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 74
+    },
+    {
+      "beat": 36,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 39,
+      "velocity": 70
+    },
+    {
+      "beat": 36,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 51,
+      "velocity": 52
+    },
+    {
+      "beat": 36.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 39,
+      "velocity": 88
+    },
+    {
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 56
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 52
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 36.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 50
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 58
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 58
+    },
+    {
+      "beat": 36.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 40
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 40,
+      "velocity": 68
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 28,
+      "velocity": 68
+    },
+    {
+      "beat": 37,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 37.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 65,
+      "velocity": 44
+    },
+    {
+      "beat": 37.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 58
+    },
+    {
+      "beat": 37.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 58
+    },
+    {
+      "beat": 37.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 40
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 54,
+      "velocity": 97
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 72
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 71
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 72
+    },
+    {
+      "beat": 38,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 38.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 51,
+      "velocity": 50
+    },
+    {
+      "beat": 38.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 58
+    },
+    {
+      "beat": 38.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 58
+    },
+    {
+      "beat": 38.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 40
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 100
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 68
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 74
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 68
+    },
+    {
+      "beat": 39,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 39.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 46
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 40,
+      "velocity": 62
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 28,
+      "velocity": 62
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 39.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 58,
+      "velocity": 40
+    },
+    {
+      "beat": 39.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 40.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "velocity": 100
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 74
+    },
+    {
+      "beat": 40.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 74
+    },
+    {
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 47,
+      "velocity": 74
+    },
+    {
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 74
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 74
+    },
+    {
+      "beat": 40,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 70
+    },
+    {
+      "beat": 40,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 52
+    },
+    {
+      "beat": 40.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 58
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 54
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 40.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 52
+    },
+    {
+      "beat": 40.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 58
+    },
+    {
+      "beat": 40.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 58
+    },
+    {
+      "beat": 40.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 40
+    },
+    {
+      "beat": 41.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 68
+    },
+    {
+      "beat": 41.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 68
+    },
+    {
+      "beat": 41,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 41.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 61,
+      "velocity": 44
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 58
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 58
+    },
+    {
+      "beat": 41.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 40
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 61,
+      "velocity": 97
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 72
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 71
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 72
+    },
+    {
+      "beat": 42,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 42.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 47,
+      "velocity": 50
+    },
+    {
+      "beat": 42.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 58
+    },
+    {
+      "beat": 42.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 58
+    },
+    {
+      "beat": 42.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 40
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 59,
+      "velocity": 100
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 51,
+      "velocity": 68
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 74
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 39,
+      "velocity": 68
+    },
+    {
+      "beat": 43,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 43.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 51,
+      "velocity": 46
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 62
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 43.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 40
+    },
+    {
+      "beat": 43.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "velocity": 98
+    },
+    {
+      "beat": 44.0,
+      "duration": 1.4,
+      "instrument": "brass",
+      "pitch": 57,
+      "velocity": 100
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 74
+    },
+    {
+      "beat": 44.0,
+      "duration": 1.4,
+      "instrument": "choir_high",
+      "pitch": 69,
+      "velocity": 74
+    },
+    {
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 41,
+      "velocity": 76
+    },
+    {
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 76
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 74
+    },
+    {
+      "beat": 44,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 29,
+      "velocity": 70
+    },
+    {
+      "beat": 44,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 41,
+      "velocity": 52
+    },
+    {
+      "beat": 44.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 92
+    },
+    {
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 60
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 58
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 44.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 56
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 44.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 68
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 68
+    },
+    {
+      "beat": 45,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 45.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 54,
+      "velocity": 44
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.45,
+      "instrument": "brass",
+      "pitch": 60,
+      "velocity": 97
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.45,
+      "instrument": "choir_high",
+      "pitch": 72,
+      "velocity": 71
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 45.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 63,
+      "velocity": 100
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 72
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 74
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 72
+    },
+    {
+      "beat": 46,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 46.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 41,
+      "velocity": 50
+    },
+    {
+      "articulation": "roll",
+      "beat": 46.0,
+      "duration": 1.9,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 92
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 58
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 58
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 46.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.95,
+      "instrument": "brass",
+      "pitch": 66,
+      "velocity": 97
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 68
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 78,
+      "velocity": 71
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 68
+    },
+    {
+      "beat": 47,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 47.0,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 45,
+      "velocity": 46
+    },
+    {
+      "beat": 47.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 80
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 62
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 62
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 84
+    },
+    {
+      "beat": 47.5,
+      "duration": 0.3,
+      "instrument": "thread_pluck",
+      "pitch": 48,
+      "velocity": 40
+    },
+    {
+      "beat": 47.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 42,
+      "shape": "swell",
+      "velocity": 80
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 49,
+      "shape": "swell",
+      "velocity": 80
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 58,
+      "shape": "swell",
+      "velocity": 80
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 80
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 74
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 77,
+      "velocity": 76
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 42,
+      "velocity": 80,
+      "vowel": "ah"
+    },
+    {
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 49,
+      "velocity": 80,
+      "vowel": "ah"
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 80
+    },
+    {
+      "beat": 48,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 74
+    },
+    {
+      "beat": 48,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 100
+    },
+    {
+      "beat": 48.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 92
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 62
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 62
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 48.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "velocity": 60
+    },
+    {
+      "beat": 48.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 64
+    },
+    {
+      "beat": 48.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 64
+    },
+    {
+      "beat": 49.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 74
+    },
+    {
+      "beat": 49.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 74
+    },
+    {
+      "beat": 49,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 64
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 64
+    },
+    {
+      "beat": 49.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 50.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 78
+    },
+    {
+      "beat": 50.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 78
+    },
+    {
+      "beat": 50,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 50.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 64
+    },
+    {
+      "beat": 50.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 64
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 51.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 74
+    },
+    {
+      "beat": 51,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 68
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 68
+    },
+    {
+      "beat": 51.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 43,
+      "shape": "swell",
+      "velocity": 88
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "swell",
+      "velocity": 88
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 58,
+      "shape": "swell",
+      "velocity": 88
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 85
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 82
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 79,
+      "velocity": 84
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 43,
+      "velocity": 86,
+      "vowel": "ah"
+    },
+    {
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 86,
+      "vowel": "ah"
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 85
+    },
+    {
+      "beat": 52,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 31,
+      "velocity": 79
+    },
+    {
+      "beat": 52,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 106
+    },
+    {
+      "beat": 52.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 70
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 70
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 52.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "velocity": 68
+    },
+    {
+      "beat": 52.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 69
+    },
+    {
+      "beat": 52.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 69
+    },
+    {
+      "beat": 53.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 79
+    },
+    {
+      "beat": 53.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 79
+    },
+    {
+      "beat": 53,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 69
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 69
+    },
+    {
+      "beat": 53.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 54.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 83
+    },
+    {
+      "beat": 54.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 83
+    },
+    {
+      "beat": 54,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 102
+    },
+    {
+      "beat": 54.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 43,
+      "velocity": 69
+    },
+    {
+      "beat": 54.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 31,
+      "velocity": 69
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 79
+    },
+    {
+      "beat": 55.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 79
+    },
+    {
+      "beat": 55,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 80
+    },
+    {
+      "beat": 55.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 73
+    },
+    {
+      "beat": 55.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 73
+    },
+    {
+      "beat": 55.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 44,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 60,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 89
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 90
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 80,
+      "velocity": 92
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 44,
+      "velocity": 92,
+      "vowel": "ah"
+    },
+    {
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 92,
+      "vowel": "ah"
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 89
+    },
+    {
+      "beat": 56,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 32,
+      "velocity": 83
+    },
+    {
+      "beat": 56,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 112
+    },
+    {
+      "beat": 56.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 44,
+      "velocity": 100
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 78
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 78
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 56.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 84,
+      "velocity": 76
+    },
+    {
+      "beat": 56.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 73
+    },
+    {
+      "beat": 56.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 73
+    },
+    {
+      "beat": 57.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 83
+    },
+    {
+      "beat": 57.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 83
+    },
+    {
+      "beat": 57,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 82
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 73
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 73
+    },
+    {
+      "beat": 57.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 72
+    },
+    {
+      "beat": 58.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 87
+    },
+    {
+      "beat": 58.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 87
+    },
+    {
+      "beat": 58,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 108
+    },
+    {
+      "beat": 58.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 73
+    },
+    {
+      "beat": 58.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 73
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 48,
+      "velocity": 83
+    },
+    {
+      "beat": 59.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 36,
+      "velocity": 83
+    },
+    {
+      "beat": 59,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 86
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 77
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 77
+    },
+    {
+      "beat": 59.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 82
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 45,
+      "shape": "swell",
+      "velocity": 106
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "swell",
+      "velocity": 106
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 54,
+      "shape": "swell",
+      "velocity": 106
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 60,
+      "shape": "swell",
+      "velocity": 106
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 94
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 98
+    },
+    {
+      "beat": 60.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 81,
+      "velocity": 100
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 45,
+      "velocity": 100,
+      "vowel": "ah"
+    },
+    {
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 100,
+      "vowel": "ah"
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 94
+    },
+    {
+      "beat": 60,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 88
+    },
+    {
+      "beat": 60,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 116
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 62
+    },
+    {
+      "articulation": "roll",
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "timpani",
+      "pitch": 45,
+      "velocity": 112
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 88
+    },
+    {
+      "beat": 60.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 86
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 60.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 84,
+      "velocity": 88
+    },
+    {
+      "beat": 60.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 65
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 78
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 78
+    },
+    {
+      "beat": 60.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 68
+    },
+    {
+      "beat": 60.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 71
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 88
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 88
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 61.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 88
+    },
+    {
+      "beat": 61.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 77
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 78
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 78
+    },
+    {
+      "beat": 61.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 80
+    },
+    {
+      "beat": 61.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 83
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 92
+    },
+    {
+      "beat": 62.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 78,
+      "velocity": 104
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 92
+    },
+    {
+      "beat": 62,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 110
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 86
+    },
+    {
+      "beat": 62.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 92
+    },
+    {
+      "beat": 62.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 89
+    },
+    {
+      "beat": 62.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 78
+    },
+    {
+      "beat": 62.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 78
+    },
+    {
+      "beat": 62.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 92
+    },
+    {
+      "beat": 62.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 95
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 48,
+      "velocity": 88
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 36,
+      "velocity": 88
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 98
+    },
+    {
+      "beat": 63.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 96
+    },
+    {
+      "beat": 63.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 101
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 82
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 82
+    },
+    {
+      "beat": 63.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 104
+    },
+    {
+      "beat": 63.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 107
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 46,
+      "shape": "sfz",
+      "velocity": 120
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 53,
+      "shape": "sfz",
+      "velocity": 120
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 61,
+      "shape": "sfz",
+      "velocity": 120
+    },
+    {
+      "beat": 64.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 104
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 112
+    },
+    {
+      "beat": 64.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 118
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 64.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 64.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 104
+    },
+    {
+      "beat": 64,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 96
+    },
+    {
+      "beat": 64,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 64,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 64.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 120
+    },
+    {
+      "beat": 64.0,
+      "duration": 4.0,
+      "instrument": "toll",
+      "pitch": 58,
+      "velocity": 112
+    },
+    {
+      "beat": 64.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 96
+    },
+    {
+      "beat": 64.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 82,
+      "velocity": 98
+    },
+    {
+      "beat": 64.0,
+      "duration": 1.45,
+      "instrument": "violin_2",
+      "pitch": 70,
+      "velocity": 92
+    },
+    {
+      "beat": 64.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 88
+    },
+    {
+      "beat": 64.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 88
+    },
+    {
+      "beat": 64.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 80
+    },
+    {
+      "beat": 65.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 98
+    },
+    {
+      "beat": 65.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 98
+    },
+    {
+      "beat": 65,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 65.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 90
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 88
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 88
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 80
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.45,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 95
+    },
+    {
+      "beat": 65.5,
+      "duration": 0.45,
+      "instrument": "violin_2",
+      "pitch": 65,
+      "velocity": 89
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 102
+    },
+    {
+      "beat": 66.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 115
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 102
+    },
+    {
+      "beat": 66,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 66,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 104
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 94
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 98
+    },
+    {
+      "beat": 66.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 92
+    },
+    {
+      "beat": 66.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 88
+    },
+    {
+      "beat": 66.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 88
+    },
+    {
+      "beat": 66.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 80
+    },
+    {
+      "beat": 66.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 98
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 98
+    },
+    {
+      "beat": 67,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 90
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 95
+    },
+    {
+      "beat": 67.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 89
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 92
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 92
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 67.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 84
+    },
+    {
+      "beat": 67.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 42,
+      "velocity": 112
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 49,
+      "velocity": 112
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 112
+    },
+    {
+      "beat": 68.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 104
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 112
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 118
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 42,
+      "velocity": 114,
+      "vowel": "ah"
+    },
+    {
+      "beat": 68.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 49,
+      "velocity": 114,
+      "vowel": "ah"
+    },
+    {
+      "beat": 68.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 104
+    },
+    {
+      "beat": 68,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 96
+    },
+    {
+      "beat": 68,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 68,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 68.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 116
+    },
+    {
+      "beat": 68.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 96
+    },
+    {
+      "beat": 68.0,
+      "duration": 2.9,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 98
+    },
+    {
+      "beat": 68.0,
+      "duration": 2.9,
+      "instrument": "violin_2",
+      "pitch": 82,
+      "velocity": 92
+    },
+    {
+      "beat": 68.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 68.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 68.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 69.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 98
+    },
+    {
+      "beat": 69.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 98
+    },
+    {
+      "beat": 69,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 69.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 90
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 69.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 102
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 102
+    },
+    {
+      "beat": 70,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 70,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 49,
+      "velocity": 100
+    },
+    {
+      "beat": 70.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 94
+    },
+    {
+      "beat": 70.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 70.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 70.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 70.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 98
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 98
+    },
+    {
+      "beat": 71,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 90
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 82,
+      "velocity": 95
+    },
+    {
+      "beat": 71.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 89
+    },
+    {
+      "beat": 71.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 92
+    },
+    {
+      "beat": 71.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 92
+    },
+    {
+      "beat": 71.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 71.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 84
+    },
+    {
+      "beat": 71.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 47,
+      "shape": "sfz",
+      "velocity": 118
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 54,
+      "shape": "sfz",
+      "velocity": 118
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "shape": "sfz",
+      "velocity": 118
+    },
+    {
+      "beat": 72.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 104
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 112
+    },
+    {
+      "beat": 72.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 118
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 47,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 72.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 72.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 72,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 72,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 72,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 72.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 118
+    },
+    {
+      "beat": 72.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 96
+    },
+    {
+      "beat": 72.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 98
+    },
+    {
+      "beat": 72.0,
+      "duration": 1.45,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 92
+    },
+    {
+      "beat": 72.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 72.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 72.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 73.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 98
+    },
+    {
+      "beat": 73.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 98
+    },
+    {
+      "beat": 73,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 73.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 90
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.45,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 95
+    },
+    {
+      "beat": 73.5,
+      "duration": 0.45,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 89
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 102
+    },
+    {
+      "beat": 74.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 115
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 102
+    },
+    {
+      "beat": 74,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 74,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 51,
+      "velocity": 100
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 94
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 98
+    },
+    {
+      "beat": 74.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 71,
+      "velocity": 92
+    },
+    {
+      "beat": 74.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 74.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 74.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 74.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 51,
+      "velocity": 98
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 39,
+      "velocity": 98
+    },
+    {
+      "beat": 75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 90
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 82,
+      "velocity": 95
+    },
+    {
+      "beat": 75.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 70,
+      "velocity": 89
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 92
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 92
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 75.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 84
+    },
+    {
+      "beat": 75.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 76.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "shape": "swell",
+      "velocity": 116
+    },
+    {
+      "beat": 76.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 48,
+      "shape": "swell",
+      "velocity": 116
+    },
+    {
+      "beat": 76.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 57,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 76.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 104
+    },
+    {
+      "beat": 76.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 69,
+      "velocity": 112
+    },
+    {
+      "beat": 76.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 72,
+      "velocity": 118
+    },
+    {
+      "beat": 76.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 41,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 76.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 76.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 104
+    },
+    {
+      "beat": 76,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 29,
+      "velocity": 96
+    },
+    {
+      "beat": 76,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 76,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 76.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 120
+    },
+    {
+      "beat": 76.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 96
+    },
+    {
+      "beat": 76.0,
+      "duration": 1.9,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 98
+    },
+    {
+      "beat": 76.0,
+      "duration": 1.9,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 92
+    },
+    {
+      "beat": 76.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 76.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 76.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 77.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 98
+    },
+    {
+      "beat": 77.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 98
+    },
+    {
+      "beat": 77,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 77.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 90
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 77.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 78.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "shape": "swell",
+      "velocity": 118
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 102
+    },
+    {
+      "beat": 78.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 115
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 102
+    },
+    {
+      "beat": 78,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 78,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 104
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 94
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 95
+    },
+    {
+      "beat": 78.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 89
+    },
+    {
+      "beat": 78.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 78.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 78.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 78.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 98
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 98
+    },
+    {
+      "beat": 79,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 92
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 90
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 98
+    },
+    {
+      "beat": 79.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 84,
+      "velocity": 92
+    },
+    {
+      "beat": 79.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 79.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 92
+    },
+    {
+      "beat": 79.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 92
+    },
+    {
+      "beat": 79.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 96
+    },
+    {
+      "beat": 79.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 84
+    },
+    {
+      "beat": 79.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 104
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 39,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 46,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 54,
+      "shape": "sfz",
+      "velocity": 124
+    },
+    {
+      "beat": 80.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 104
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 112
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 78,
+      "velocity": 118
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 122,
+      "vowel": "ah"
+    },
+    {
+      "beat": 80.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 58,
+      "velocity": 122,
+      "vowel": "ah"
+    },
+    {
+      "beat": 80.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 104
+    },
+    {
+      "beat": 80,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 39,
+      "velocity": 96
+    },
+    {
+      "beat": 80,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 80,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 80.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 51,
+      "velocity": 120
+    },
+    {
+      "beat": 80.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 96
+    },
+    {
+      "beat": 80.0,
+      "duration": 2.9,
+      "instrument": "violin_1",
+      "pitch": 90,
+      "velocity": 98
+    },
+    {
+      "beat": 80.0,
+      "duration": 2.9,
+      "instrument": "violin_2",
+      "pitch": 87,
+      "velocity": 92
+    },
+    {
+      "beat": 80.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 88
+    },
+    {
+      "beat": 80.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 88
+    },
+    {
+      "beat": 80.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 80
+    },
+    {
+      "beat": 81.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 40,
+      "velocity": 98
+    },
+    {
+      "beat": 81.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 28,
+      "velocity": 98
+    },
+    {
+      "beat": 81,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 81.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 52,
+      "velocity": 90
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 88
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 88
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 81.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 80
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 102
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 102
+    },
+    {
+      "beat": 82,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 82,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 104
+    },
+    {
+      "beat": 82.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 94
+    },
+    {
+      "beat": 82.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 39,
+      "velocity": 88
+    },
+    {
+      "beat": 82.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 27,
+      "velocity": 88
+    },
+    {
+      "beat": 82.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 51,
+      "velocity": 80
+    },
+    {
+      "beat": 82.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 98
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 98
+    },
+    {
+      "beat": 83,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 90
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 89,
+      "velocity": 95
+    },
+    {
+      "beat": 83.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 85,
+      "velocity": 89
+    },
+    {
+      "beat": 83.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 40,
+      "velocity": 92
+    },
+    {
+      "beat": 83.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 28,
+      "velocity": 92
+    },
+    {
+      "beat": 83.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 83.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 52,
+      "velocity": 84
+    },
+    {
+      "beat": 83.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 35,
+      "velocity": 116
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 42,
+      "velocity": 116
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 51,
+      "velocity": 116
+    },
+    {
+      "beat": 84.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 104
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 112
+    },
+    {
+      "beat": 84.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 118
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 47,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 84.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 118,
+      "vowel": "ah"
+    },
+    {
+      "beat": 84.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 104
+    },
+    {
+      "beat": 84,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 84,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 84,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 84.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 116
+    },
+    {
+      "beat": 84.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 96
+    },
+    {
+      "beat": 84.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 98
+    },
+    {
+      "beat": 84.0,
+      "duration": 1.45,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 92
+    },
+    {
+      "beat": 84.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 84.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 84.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 85.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 98
+    },
+    {
+      "beat": 85.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 98
+    },
+    {
+      "beat": 85,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 85.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 90
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.45,
+      "instrument": "violin_1",
+      "pitch": 85,
+      "velocity": 95
+    },
+    {
+      "beat": 85.5,
+      "duration": 0.45,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 89
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 102
+    },
+    {
+      "beat": 86.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 115
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 102
+    },
+    {
+      "beat": 86,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 86,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 51,
+      "velocity": 100
+    },
+    {
+      "beat": 86.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 94
+    },
+    {
+      "beat": 86.0,
+      "duration": 1.9,
+      "instrument": "violin_1",
+      "pitch": 83,
+      "velocity": 98
+    },
+    {
+      "beat": 86.0,
+      "duration": 1.9,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 92
+    },
+    {
+      "beat": 86.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 88
+    },
+    {
+      "beat": 86.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 88
+    },
+    {
+      "beat": 86.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 59,
+      "velocity": 80
+    },
+    {
+      "beat": 86.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 51,
+      "velocity": 98
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 39,
+      "velocity": 98
+    },
+    {
+      "beat": 87,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 87.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 63,
+      "velocity": 90
+    },
+    {
+      "beat": 87.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 92
+    },
+    {
+      "beat": 87.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 92
+    },
+    {
+      "beat": 87.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 87.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 61,
+      "velocity": 84
+    },
+    {
+      "beat": 87.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 42,
+      "velocity": 112
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 49,
+      "velocity": 112
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 58,
+      "velocity": 112
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 104
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 61,
+      "velocity": 112
+    },
+    {
+      "beat": 88.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 118
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 42,
+      "velocity": 114,
+      "vowel": "ah"
+    },
+    {
+      "beat": 88.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 49,
+      "velocity": 114,
+      "vowel": "ah"
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 104
+    },
+    {
+      "beat": 88,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 30,
+      "velocity": 96
+    },
+    {
+      "beat": 88,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 88,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 114
+    },
+    {
+      "beat": 88.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 96
+    },
+    {
+      "beat": 88.0,
+      "duration": 1.45,
+      "instrument": "violin_1",
+      "pitch": 82,
+      "velocity": 98
+    },
+    {
+      "beat": 88.0,
+      "duration": 1.45,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 92
+    },
+    {
+      "beat": 88.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 88.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 88.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 89.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 98
+    },
+    {
+      "beat": 89.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 98
+    },
+    {
+      "beat": 89,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 89.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 90
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.45,
+      "instrument": "violin_1",
+      "pitch": 80,
+      "velocity": 95
+    },
+    {
+      "beat": 89.5,
+      "duration": 0.45,
+      "instrument": "violin_2",
+      "pitch": 77,
+      "velocity": 89
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 102
+    },
+    {
+      "beat": 90.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 115
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 102
+    },
+    {
+      "beat": 90,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 90,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 49,
+      "velocity": 100
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 94
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 98
+    },
+    {
+      "beat": 90.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 92
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 88
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 88
+    },
+    {
+      "beat": 90.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 80
+    },
+    {
+      "beat": 90.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 98
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 98
+    },
+    {
+      "beat": 91,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 58,
+      "velocity": 90
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 95
+    },
+    {
+      "beat": 91.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 89
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 44,
+      "velocity": 92
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 32,
+      "velocity": 92
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 80
+    },
+    {
+      "beat": 91.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 56,
+      "velocity": 84
+    },
+    {
+      "beat": 91.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 92.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "velocity": 118
+    },
+    {
+      "beat": 92.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 48,
+      "velocity": 118
+    },
+    {
+      "beat": 92.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 57,
+      "velocity": 118
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 104
+    },
+    {
+      "beat": 92.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 60,
+      "velocity": 112
+    },
+    {
+      "beat": 92.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 118
+    },
+    {
+      "beat": 92.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 41,
+      "velocity": 116,
+      "vowel": "ah"
+    },
+    {
+      "beat": 92.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 116,
+      "vowel": "ah"
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 104
+    },
+    {
+      "beat": 92,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 29,
+      "velocity": 96
+    },
+    {
+      "beat": 92,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 124
+    },
+    {
+      "beat": 92,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 100
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 120
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 96
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.95,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 98
+    },
+    {
+      "beat": 92.0,
+      "duration": 0.95,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 92
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 92.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 98
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 98
+    },
+    {
+      "beat": 93,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 84
+    },
+    {
+      "beat": 93.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 90
+    },
+    {
+      "beat": 93.0,
+      "duration": 2.9,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 95
+    },
+    {
+      "beat": 93.0,
+      "duration": 2.9,
+      "instrument": "violin_2",
+      "pitch": 72,
+      "velocity": 89
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 93.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 94.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "shape": "swell",
+      "velocity": 122
+    },
+    {
+      "beat": 94.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 57,
+      "shape": "swell",
+      "velocity": 122
+    },
+    {
+      "beat": 94.0,
+      "duration": 1.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "shape": "swell",
+      "velocity": 120
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 102
+    },
+    {
+      "beat": 94.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 57,
+      "velocity": 109
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 102
+    },
+    {
+      "beat": 94,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 118
+    },
+    {
+      "beat": 94,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 96
+    },
+    {
+      "articulation": "roll",
+      "beat": 94.0,
+      "duration": 1.9,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 110
+    },
+    {
+      "beat": 94.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 94
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 88
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 88
+    },
+    {
+      "beat": 94.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 94.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 98
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 98
+    },
+    {
+      "beat": 95,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 92
+    },
+    {
+      "beat": 95.0,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 57,
+      "velocity": 90
+    },
+    {
+      "beat": 95.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 90
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 92
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 92
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 96
+    },
+    {
+      "beat": 95.5,
+      "duration": 0.4,
+      "instrument": "viola",
+      "pitch": 54,
+      "velocity": 84
+    },
+    {
+      "beat": 95.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 104
+    },
+    {
+      "beat": 96.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 61,
+      "velocity": 86
+    },
+    {
+      "beat": 96.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 92
+    },
+    {
+      "beat": 96.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 76
+    },
+    {
+      "beat": 96.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 76
+    },
+    {
+      "beat": 96.0,
+      "duration": 7.9,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 60
+    },
+    {
+      "beat": 96,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 66
+    },
+    {
+      "beat": 96.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 96.0,
+      "duration": 4.0,
+      "instrument": "toll",
+      "pitch": 58,
+      "velocity": 92
+    },
+    {
+      "beat": 97.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 89
+    },
+    {
+      "beat": 98.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 92
+    },
+    {
+      "beat": 98,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 54
+    },
+    {
+      "beat": 99.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 89
+    },
+    {
+      "beat": 100.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 86
+    },
+    {
+      "beat": 100.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 92
+    },
+    {
+      "beat": 100.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "beat": 100.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 74
+    },
+    {
+      "beat": 100,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 100.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 70
+    },
+    {
+      "beat": 102.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 89
+    },
+    {
+      "beat": 102,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 52
+    },
+    {
+      "beat": 104.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 63,
+      "velocity": 86
+    },
+    {
+      "beat": 104.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 92
+    },
+    {
+      "beat": 104.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 76
+    },
+    {
+      "beat": 104.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 76
+    },
+    {
+      "beat": 104.0,
+      "duration": 3.9,
+      "instrument": "contrabass",
+      "pitch": 39,
+      "velocity": 60
+    },
+    {
+      "beat": 104,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 66
+    },
+    {
+      "beat": 104.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 51,
+      "velocity": 74
+    },
+    {
+      "beat": 104.0,
+      "duration": 4.0,
+      "instrument": "toll",
+      "pitch": 54,
+      "velocity": 84
+    },
+    {
+      "beat": 105.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 89
+    },
+    {
+      "beat": 106.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 92
+    },
+    {
+      "beat": 106,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 54
+    },
+    {
+      "beat": 107.0,
+      "duration": 0.95,
+      "instrument": "choir_high",
+      "pitch": 73,
+      "velocity": 89
+    },
+    {
+      "beat": 108.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 86
+    },
+    {
+      "beat": 108.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 72,
+      "velocity": 92
+    },
+    {
+      "beat": 108.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 45,
+      "velocity": 80
+    },
+    {
+      "beat": 108.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 80
+    },
+    {
+      "beat": 108.0,
+      "duration": 3.9,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 62
+    },
+    {
+      "beat": 108,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 70
+    },
+    {
+      "beat": 108.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 78
+    },
+    {
+      "beat": 110.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 63,
+      "velocity": 83
+    },
+    {
+      "beat": 110.0,
+      "duration": 1.9,
+      "instrument": "choir_high",
+      "pitch": 69,
+      "velocity": 89
+    },
+    {
+      "beat": 110,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 58
+    },
+    {
+      "beat": 111.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 56
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 46,
+      "shape": "swell",
+      "velocity": 72
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 53,
+      "shape": "swell",
+      "velocity": 72
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 61,
+      "shape": "swell",
+      "velocity": 72
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 68
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 65,
+      "velocity": 62
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 70,
+      "velocity": 64
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 46,
+      "velocity": 66
+    },
+    {
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 53,
+      "velocity": 66
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 68
+    },
+    {
+      "beat": 112,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 34,
+      "velocity": 66
+    },
+    {
+      "beat": 112,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 74
+    },
+    {
+      "beat": 112.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 46,
+      "velocity": 74
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 65,
+      "velocity": 54
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 77,
+      "velocity": 54
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 112.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 73,
+      "velocity": 52
+    },
+    {
+      "beat": 112.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 112.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 52
+    },
+    {
+      "beat": 113.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 113.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 113.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 52
+    },
+    {
+      "beat": 114.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 66
+    },
+    {
+      "beat": 114.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 66
+    },
+    {
+      "beat": 114,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 70
+    },
+    {
+      "beat": 114.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 52
+    },
+    {
+      "beat": 114.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 52
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 62
+    },
+    {
+      "beat": 115.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 62
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 56
+    },
+    {
+      "beat": 115.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 56
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 47,
+      "shape": "swell",
+      "velocity": 84
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 54,
+      "shape": "swell",
+      "velocity": 84
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "shape": "swell",
+      "velocity": 84
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 78
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 70
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 71,
+      "velocity": 74
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 47,
+      "velocity": 76
+    },
+    {
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 54,
+      "velocity": 76
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 78
+    },
+    {
+      "beat": 116,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 35,
+      "velocity": 75
+    },
+    {
+      "beat": 116,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 82
+    },
+    {
+      "beat": 116.0,
+      "duration": 0.5,
+      "instrument": "timpani",
+      "pitch": 42,
+      "velocity": 82
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 66,
+      "velocity": 62
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 78,
+      "velocity": 64
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 116.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 75,
+      "velocity": 62
+    },
+    {
+      "beat": 116.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 116.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 117.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 72
+    },
+    {
+      "beat": 117.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 72
+    },
+    {
+      "beat": 117,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 60
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 117.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 118.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 76
+    },
+    {
+      "beat": 118.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 76
+    },
+    {
+      "beat": 118,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 80
+    },
+    {
+      "beat": 118.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 47,
+      "velocity": 62
+    },
+    {
+      "beat": 118.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 35,
+      "velocity": 62
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 51,
+      "velocity": 72
+    },
+    {
+      "beat": 119.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 39,
+      "velocity": 72
+    },
+    {
+      "beat": 119,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 66
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 49,
+      "velocity": 66
+    },
+    {
+      "beat": 119.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 37,
+      "velocity": 66
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 45,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 51,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 60,
+      "shape": "swell",
+      "velocity": 96
+    },
+    {
+      "beat": 120.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 88
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 66,
+      "velocity": 80
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 72,
+      "velocity": 86
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 45,
+      "velocity": 88,
+      "vowel": "ah"
+    },
+    {
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 51,
+      "velocity": 88,
+      "vowel": "ah"
+    },
+    {
+      "beat": 120.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 88
+    },
+    {
+      "beat": 120,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 33,
+      "velocity": 83
+    },
+    {
+      "beat": 120,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 92
+    },
+    {
+      "articulation": "roll",
+      "beat": 120.0,
+      "duration": 7.9,
+      "instrument": "timpani",
+      "pitch": 41,
+      "velocity": 118
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 66,
+      "velocity": 72
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "violin_1",
+      "pitch": 81,
+      "velocity": 76
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 120.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 78,
+      "velocity": 74
+    },
+    {
+      "beat": 120.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 72
+    },
+    {
+      "beat": 120.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 72
+    },
+    {
+      "beat": 120.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 64
+    },
+    {
+      "beat": 121.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 82
+    },
+    {
+      "beat": 121.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 82
+    },
+    {
+      "beat": 121,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 72
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 72
+    },
+    {
+      "beat": 121.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 74
+    },
+    {
+      "beat": 122.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 86
+    },
+    {
+      "beat": 122.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 86
+    },
+    {
+      "beat": 122,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 96
+    },
+    {
+      "beat": 122.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 72
+    },
+    {
+      "beat": 122.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 72
+    },
+    {
+      "beat": 122.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 78
+    },
+    {
+      "beat": 123.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 48,
+      "velocity": 82
+    },
+    {
+      "beat": 123.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 36,
+      "velocity": 82
+    },
+    {
+      "beat": 123,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 82
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 46,
+      "velocity": 76
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 34,
+      "velocity": 76
+    },
+    {
+      "beat": 123.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 86
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 41,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 48,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 57,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "brass",
+      "pitch": 63,
+      "shape": "swell",
+      "velocity": 112
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 98
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 69,
+      "velocity": 94
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "choir_high",
+      "pitch": 75,
+      "velocity": 100
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 41,
+      "velocity": 104,
+      "vowel": "ah"
+    },
+    {
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "choir_low",
+      "pitch": 48,
+      "velocity": 104,
+      "vowel": "ah"
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 98
+    },
+    {
+      "beat": 124,
+      "duration": 3.8,
+      "instrument": "hollow_bass",
+      "pitch": 29,
+      "velocity": 92
+    },
+    {
+      "beat": 124,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 112
+    },
+    {
+      "beat": 124.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 70
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "viola",
+      "pitch": 69,
+      "velocity": 86
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 124.0,
+      "duration": 1.9,
+      "instrument": "violin_1",
+      "pitch": 84,
+      "velocity": 88
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 124.0,
+      "duration": 3.9,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 90
+    },
+    {
+      "beat": 124.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 73
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 82
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 82
+    },
+    {
+      "beat": 124.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 76
+    },
+    {
+      "beat": 124.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 79
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 92
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 92
+    },
+    {
+      "beat": 125.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 82
+    },
+    {
+      "beat": 125.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 85
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 82
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 82
+    },
+    {
+      "beat": 125.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 88
+    },
+    {
+      "beat": 125.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 43,
+      "velocity": 91
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 96
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 96
+    },
+    {
+      "beat": 126,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 35,
+      "velocity": 116
+    },
+    {
+      "beat": 126.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 94
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 126.0,
+      "duration": 1.9,
+      "instrument": "violin_1",
+      "pitch": 87,
+      "velocity": 100
+    },
+    {
+      "beat": 126.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 97
+    },
+    {
+      "beat": 126.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 41,
+      "velocity": 82
+    },
+    {
+      "beat": 126.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 29,
+      "velocity": 82
+    },
+    {
+      "beat": 126.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 100
+    },
+    {
+      "beat": 126.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 103
+    },
+    {
+      "beat": 127.0,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 45,
+      "velocity": 92
+    },
+    {
+      "beat": 127.0,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 33,
+      "velocity": 92
+    },
+    {
+      "beat": 127.0,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 106
+    },
+    {
+      "beat": 127.25,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 109
+    },
+    {
+      "beat": 127.5,
+      "duration": 0.4,
+      "instrument": "cello",
+      "pitch": 42,
+      "velocity": 86
+    },
+    {
+      "beat": 127.5,
+      "duration": 0.4,
+      "instrument": "contrabass",
+      "pitch": 30,
+      "velocity": 86
+    },
+    {
+      "beat": 127.5,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 112
+    },
+    {
+      "beat": 127.75,
+      "duration": 0.2,
+      "instrument": "taiko",
+      "pitch": 47,
+      "velocity": 115
+    }
+  ],
+  "palette": "Thorns v02 string ensemble extended for the final boss: low strings in octaves, formant choir, low brass, taiko, timpani and a tolling bell",
+  "patches": {
+    "brass": {
+      "attack_seconds": 0.07,
+      "hall": 0.42,
+      "lowpass_hz": 5000,
+      "pan": 0.1,
+      "program": 57,
+      "release_seconds": 0.3,
+      "synth": "brass",
+      "voices": 3,
+      "wet": 0.12
+    },
+    "cello": {
+      "attack_seconds": 0.085,
+      "bow_noise": 0.0034,
+      "hall": 0.3,
+      "lowpass_hz": 2400,
+      "pan": 0.1,
+      "program": 42,
+      "release_seconds": 0.28,
+      "vibrato_cents": 5,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.26
+    },
+    "choir_high": {
+      "attack_seconds": 0.22,
+      "breath": 0.02,
+      "detune_cents": 7,
+      "hall": 0.55,
+      "lowpass_hz": 5200,
+      "pan": 0.18,
+      "program": 52,
+      "release_seconds": 0.7,
+      "spread": 0.7,
+      "synth": "choir",
+      "vibrato_cents": 16,
+      "voices": 6,
+      "vowel": "ah_high",
+      "wet": 0.16
+    },
+    "choir_low": {
+      "attack_seconds": 0.3,
+      "breath": 0.02,
+      "detune_cents": 7,
+      "hall": 0.55,
+      "lowpass_hz": 5200,
+      "pan": -0.18,
+      "program": 52,
+      "release_seconds": 0.7,
+      "spread": 0.7,
+      "synth": "choir",
+      "vibrato_cents": 16,
+      "voices": 6,
+      "vowel": "oh",
+      "wet": 0.16
+    },
+    "contrabass": {
+      "attack_seconds": 0.09,
+      "bow_noise": 0.004,
+      "hall": 0.25,
+      "lowpass_hz": 1500,
+      "pan": 0.04,
+      "program": 43,
+      "release_seconds": 0.28,
+      "vibrato_cents": 3,
+      "vibrato_hz": 4.4,
+      "voice": "viola",
+      "wet": 0.26
+    },
+    "hollow_bass": {
+      "gain": 0.23,
+      "hall": 0.0,
+      "pan": 0.0,
+      "program": 38,
+      "wet": 0.025
+    },
+    "taiko": {
+      "hall": 0.35,
+      "pan": 0.0,
+      "percussion": true,
+      "program": 0,
+      "synth": "taiko",
+      "wet": 0.05
+    },
+    "thread_pluck": {
+      "gain": 0.105,
+      "hall": 0.2,
+      "lowpass_hz": 1050,
+      "pan": 0.3,
+      "program": 10,
+      "wet": 0.23
+    },
+    "timpani": {
+      "hall": 0.3,
+      "pan": -0.12,
+      "program": 47,
+      "synth": "timpani",
+      "wet": 0.06
+    },
+    "toll": {
+      "hall": 0.5,
+      "pan": 0.2,
+      "program": 14,
+      "ring_seconds": 6.0,
+      "synth": "toll",
+      "wet": 0.12
+    },
+    "viola": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0028,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.22,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.27
+    },
+    "violin_1": {
+      "attack_seconds": 0.048,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 3200,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.16,
+      "vibrato_cents": 10,
+      "vibrato_hz": 4.9,
+      "voice": "violin",
+      "wet": 0.24
+    },
+    "violin_2": {
+      "attack_seconds": 0.065,
+      "bow_noise": 0.0038,
+      "hall": 0.32,
+      "lowpass_hz": 2900,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.22,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.27
+    }
+  },
+  "reverb": {
+    "return": 0.55,
+    "rt60_seconds": 2.6
+  },
+  "schema_version": 1,
+  "sections": [
+    "1-4: impact, then the eclipse - Bb pedal, tolling bell, choir hum, creeping high tremolo",
+    "5-12: procession - low-string ostinato and taiko; low brass sings the eclipsed Thorns motif, choir joins (Bbm-Gb-F7b9, Ebm, Neapolitan Cb)",
+    "13-16: chromatic rise Gb, Eb/G, Ab, A dim7 - brass swells, tremolo, timpani roll",
+    "17-24: summit - full ensemble: high violins and choir melody, ostinato in three octaves, brass chorale, taiko and timpani, peak Gb6 over Ebm",
+    "25-28: requiem - choir almost alone sings the motif over a drone and bells",
+    "29-32: the gathering storm - ostinato, brass and choir crescendo into the loop's impact"
+  ],
+  "slug": "06a_noctyrax_the_last_eclipse_take_a",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Noctyrax, the Last Eclipse (take A: Eclipse Requiem)",
+  "version": "v02"
+}

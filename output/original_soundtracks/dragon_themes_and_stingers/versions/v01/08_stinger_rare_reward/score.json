@@ -1,0 +1,261 @@
+{
+  "bars": 2,
+  "beats_per_bar": 4,
+  "bpm": 132,
+  "harmony": [
+    {
+      "bar": 1,
+      "chord": "Ebmaj7(#11)",
+      "triads": [
+        "Eb"
+      ]
+    },
+    {
+      "bar": 2,
+      "chord": "Ebmaj7(#11)",
+      "triads": [
+        "Eb"
+      ]
+    }
+  ],
+  "identity": {
+    "gesture": "ascending bell cascade and unresolved #11 shimmer",
+    "use": "rare/epic/legendary find"
+  },
+  "key": "E-flat Lydian (Ebmaj7#11)",
+  "kind": "stinger",
+  "lead_instrument": "violin_1",
+  "mix": {
+    "hollow_bass": [
+      "hollow_bass",
+      -4.0
+    ],
+    "lantern_mallet": [
+      "thread_pluck",
+      6.0
+    ],
+    "thread_pluck": [
+      "thread_pluck",
+      1.0
+    ],
+    "viola": [
+      "viola",
+      -4.0
+    ],
+    "violin_1": [
+      "violin_1",
+      -3.0
+    ],
+    "violin_2": [
+      "violin_2",
+      -3.0
+    ]
+  },
+  "mood": "Mysterious treasure shimmer: a bell cascade through the Lydian A natural over tremolo harmonics.",
+  "notes": [
+    {
+      "beat": 0.0,
+      "duration": 3.0,
+      "instrument": "hollow_bass",
+      "pitch": 39,
+      "velocity": 58
+    },
+    {
+      "beat": 0.0,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 70,
+      "velocity": 66
+    },
+    {
+      "beat": 0.25,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 74,
+      "velocity": 63
+    },
+    {
+      "beat": 0.5,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 77,
+      "velocity": 66
+    },
+    {
+      "beat": 0.5,
+      "duration": 2.6,
+      "instrument": "viola",
+      "pitch": 67,
+      "velocity": 46
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 0.5,
+      "duration": 2.6,
+      "instrument": "violin_1",
+      "pitch": 86,
+      "velocity": 50
+    },
+    {
+      "articulation": "tremolo",
+      "beat": 0.5,
+      "duration": 2.6,
+      "instrument": "violin_2",
+      "pitch": 81,
+      "velocity": 48
+    },
+    {
+      "beat": 0.75,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 81,
+      "velocity": 63
+    },
+    {
+      "beat": 1.0,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 82,
+      "velocity": 66
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.25,
+      "instrument": "lantern_mallet",
+      "pitch": 86,
+      "velocity": 63
+    },
+    {
+      "beat": 1.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 79,
+      "velocity": 44
+    },
+    {
+      "beat": 1.5,
+      "duration": 0.5,
+      "instrument": "lantern_mallet",
+      "pitch": 89,
+      "velocity": 66
+    },
+    {
+      "beat": 1.75,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 86,
+      "velocity": 41
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.45,
+      "instrument": "lantern_mallet",
+      "pitch": 81,
+      "velocity": 63
+    },
+    {
+      "beat": 2.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 81,
+      "velocity": 44
+    },
+    {
+      "beat": 2.75,
+      "duration": 0.8,
+      "instrument": "lantern_mallet",
+      "pitch": 86,
+      "velocity": 66
+    },
+    {
+      "beat": 2.75,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 77,
+      "velocity": 41
+    },
+    {
+      "beat": 3.25,
+      "duration": 0.2,
+      "instrument": "thread_pluck",
+      "pitch": 86,
+      "velocity": 44
+    }
+  ],
+  "palette": "Thorns in the Dark v02 string ensemble (violins/viola over pluck, bass, restrained drums)",
+  "patches": {
+    "hollow_bass": {
+      "gain": 0.23,
+      "pan": 0.0,
+      "program": 38,
+      "wet": 0.04
+    },
+    "lantern_mallet": {
+      "gain": 0.125,
+      "lowpass_hz": 4500,
+      "pan": -0.12,
+      "program": 11,
+      "wet": 0.34
+    },
+    "thread_pluck": {
+      "gain": 0.105,
+      "lowpass_hz": 3200,
+      "pan": 0.3,
+      "program": 10,
+      "wet": 0.34
+    },
+    "viola": {
+      "attack_seconds": 0.3,
+      "bow_noise": 0.0028,
+      "lowpass_hz": 2900,
+      "pan": -0.3,
+      "program": 41,
+      "release_seconds": 0.5,
+      "vibrato_cents": 6,
+      "vibrato_hz": 4.65,
+      "voice": "viola",
+      "wet": 0.27
+    },
+    "violin_1": {
+      "attack_seconds": 0.25,
+      "bow_noise": 0.0038,
+      "lowpass_hz": 4200,
+      "pan": -0.12,
+      "program": 40,
+      "release_seconds": 0.5,
+      "tremolo_depth": 0.5,
+      "tremolo_division": 8,
+      "vibrato_cents": 10,
+      "vibrato_hz": 4.9,
+      "voice": "violin",
+      "wet": 0.24
+    },
+    "violin_2": {
+      "attack_seconds": 0.25,
+      "bow_noise": 0.0038,
+      "lowpass_hz": 4200,
+      "pan": 0.24,
+      "program": 40,
+      "release_seconds": 0.5,
+      "tremolo_depth": 0.5,
+      "tremolo_division": 8,
+      "vibrato_cents": 8,
+      "vibrato_hz": 5.15,
+      "voice": "violin",
+      "wet": 0.27
+    }
+  },
+  "reverb": {
+    "rt60_seconds": 1.3,
+    "wet": 0.28
+  },
+  "schema_version": 1,
+  "sections": [
+    "0-0.8 s: bell cascade Bb-D-F-A-Bb-D-F",
+    "0.8-2.5 s: #11 shimmer and ringing tail"
+  ],
+  "slug": "08_stinger_rare_reward",
+  "source_kind": "original_authored_symbolic_composition",
+  "title": "Rare Reward",
+  "version": "v01"
+}

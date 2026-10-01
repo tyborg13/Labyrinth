@@ -1,0 +1,251 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "b717a023ef7933fd436462653026d745fab3ee714ff5e4e6dc4413005e158e1c",
+    "preview.flac": "291b0b363ee074df15c1f31ff1a72b911a77216178ee674d94eccde6a1698d05",
+    "preview.mp3": "befacd1c79f9f696434387fa70aef31d110d7ce2bc4e9b7fdec9dbf96e432c1b",
+    "preview.ogg": "cd81d086c6b22a514dac2ec4bbd200cdb512429f432721bd7097fc9e6acfd2f8",
+    "score.json": "d94080efd94efa594f24b0bbb6e79c302f4d1ec3aac956c5a825b3ec5fe39b09"
+  },
+  "bars": 48,
+  "bpm": 132,
+  "channels": 2,
+  "circular_continuity_before_taper": {
+    "p99_9_adjacent_delta": [
+      0.04361609442824148,
+      0.04092588333267811
+    ],
+    "ratio": [
+      0.13472920844527833,
+      0.02734839929059893
+    ],
+    "wrap_sample_delta": [
+      0.005876361877791489,
+      0.0011192573987025486
+    ]
+  },
+  "decoded": {
+    "flac": {
+      "duration_seconds": 87.27271875,
+      "integrated_lufs": -20.0,
+      "loudness_range_lu": 6.2,
+      "momentary_max_lufs": -15.7,
+      "sample_peak_dbfs": -4.9,
+      "sample_seam_to_p99_9_ratio": [
+        0.0,
+        0.0
+      ],
+      "seam_profile": {
+        "band_limit_db": 7.360249638113223,
+        "internal_band_distance_db_p50": 3.0764639290191007,
+        "internal_band_distance_db_p95": 5.4704220614364045,
+        "internal_band_distance_db_p99": 6.860249638113223,
+        "internal_rms_step_db_p50": 0.8536467550285884,
+        "internal_rms_step_db_p95": 3.0236767036963297,
+        "internal_rms_step_db_p99": 5.927840204838645,
+        "rms_limit_db": 7.099351350814416,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 5.492952834312558,
+        "seam_band_distance_percentile": 95.11494252873564,
+        "seam_rms_step_db": 1.2061234925522122,
+        "seam_rms_step_percentile": 65.90126291618829,
+        "section_boundary_band_distance_db": [
+          5.103434450265877,
+          5.534918299943498,
+          5.145137744546353,
+          4.829591900847332,
+          3.875298145050246
+        ],
+        "section_boundary_rms_step_db": [
+          6.599351350814416,
+          5.045905664419752,
+          2.00222292493363,
+          6.339542144376308,
+          3.627183007483481
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -17.2,
+      "true_peak_dbtp": -4.9
+    },
+    "mp3": {
+      "duration_seconds": 87.27271875,
+      "integrated_lufs": -20.26,
+      "loudness_range_lu": 6.1,
+      "momentary_max_lufs": -16.0,
+      "sample_peak_dbfs": -5.2,
+      "short_term_max_lufs": -17.5,
+      "true_peak_dbtp": -5.16
+    },
+    "ogg": {
+      "duration_seconds": 87.274,
+      "integrated_lufs": -19.99,
+      "loudness_range_lu": 6.1,
+      "momentary_max_lufs": -15.7,
+      "sample_peak_dbfs": -4.7,
+      "sample_seam_to_p99_9_ratio": [
+        0.029193623163826777,
+        0.12527139148404207
+      ],
+      "seam_profile": {
+        "band_limit_db": 9.04975187302814,
+        "internal_band_distance_db_p50": 3.370194635100253,
+        "internal_band_distance_db_p95": 7.077217155121106,
+        "internal_band_distance_db_p99": 8.54975187302814,
+        "internal_rms_step_db_p50": 0.8499383804265008,
+        "internal_rms_step_db_p95": 3.013994174028598,
+        "internal_rms_step_db_p99": 5.952042471748793,
+        "rms_limit_db": 7.1574077742626265,
+        "rms_window_seconds": 0.1,
+        "seam_band_distance_db": 6.576601420447443,
+        "seam_band_distance_percentile": 90.51724137931035,
+        "seam_rms_step_db": 1.2473907526286574,
+        "seam_rms_step_percentile": 66.70493685419059,
+        "section_boundary_band_distance_db": [
+          5.9214517212824935,
+          8.130275037113437,
+          6.112084249483691,
+          5.247862644713248,
+          6.6692058462578565
+        ],
+        "section_boundary_rms_step_db": [
+          6.6574077742626265,
+          5.00568680018543,
+          2.010493522416816,
+          6.314772347890543,
+          3.6681184289651547
+        ],
+        "spectrum_window_seconds": 0.25,
+        "within_internal_range": true
+      },
+      "short_term_max_lufs": -17.2,
+      "true_peak_dbtp": -4.69
+    }
+  },
+  "key": "E Phrygian (F natural), with a tritone B-flat and a B7 dominant",
+  "kind": "loop_theme",
+  "loop_duration_seconds": 87.27272727272727,
+  "loop_method": "periodic overlap-add of every release/ring tail, circular echo, filters and hall convolution, exact bar length, 2 ms endpoint taper (Thorns v02 convention)",
+  "master_gain": 0.7997892843972606,
+  "note_counts": {
+    "brass": 208,
+    "cello": 704,
+    "choir_high": 113,
+    "choir_low": 180,
+    "contrabass": 92,
+    "hollow_bass": 48,
+    "taiko": 428,
+    "thread_pluck": 64,
+    "timpani": 63,
+    "toll": 3,
+    "viola": 768,
+    "violin_1": 111,
+    "violin_2": 111
+  },
+  "pre_master_sample_peak_dbfs": -4.910599913279625,
+  "reverb": {
+    "return": 0.55,
+    "rt60_seconds": 2.6
+  },
+  "sample_rate": 32000,
+  "section_loudness": [
+    {
+      "bars": "1-4",
+      "integrated_lufs": -23.3
+    },
+    {
+      "bars": "5-12",
+      "integrated_lufs": -21.6
+    },
+    {
+      "bars": "13-20",
+      "integrated_lufs": -21.1
+    },
+    {
+      "bars": "21-28",
+      "integrated_lufs": -23.2
+    },
+    {
+      "bars": "29-40",
+      "integrated_lufs": -18.0
+    },
+    {
+      "bars": "41-48",
+      "integrated_lufs": -18.7
+    }
+  ],
+  "stems": {
+    "calibration_gain": {
+      "brass": 0.6201546436537855,
+      "cello": 0.26637900967669886,
+      "choir_high": 0.3184197521726124,
+      "choir_low": 0.30373860919461027,
+      "contrabass": 0.4315190768277652,
+      "hollow_bass": 0.601173737483278,
+      "taiko": 0.5182030920072274,
+      "thread_pluck": 1.0034598491478393,
+      "timpani": 0.22750974307720706,
+      "toll": 0.2654605561975538,
+      "viola": 0.20796966871036948,
+      "violin_1": 0.22777182418573225,
+      "violin_2": 0.14454397707459268
+    },
+    "hall_return_lufs_in_mix": -31.09,
+    "lufs_in_matched_mix": {
+      "brass": -30.17,
+      "cello": -31.23,
+      "choir_high": -31.73,
+      "choir_low": -32.76,
+      "contrabass": -32.18,
+      "hollow_bass": -30.9,
+      "taiko": -31.55,
+      "thread_pluck": -41.71,
+      "timpani": -35.56,
+      "toll": -35.57,
+      "viola": -31.79,
+      "violin_1": -30.18,
+      "violin_2": -34.35
+    },
+    "post_master_peak_dbfs": {
+      "brass": -12.0,
+      "cello": -20.65,
+      "choir_high": -18.0,
+      "choir_low": -18.49,
+      "contrabass": -19.72,
+      "hollow_bass": -22.01,
+      "taiko": -13.63,
+      "thread_pluck": -31.97,
+      "timpani": -20.85,
+      "toll": -20.26,
+      "viola": -22.27,
+      "violin_1": -21.15,
+      "violin_2": -25.24
+    },
+    "target_pre_master_lufs": {
+      "brass": -28.34,
+      "cello": -29.840000000000003,
+      "choir_high": -29.84,
+      "choir_low": -30.840000000000003,
+      "contrabass": -30.53,
+      "hollow_bass": -29.03,
+      "taiko": -29.689999999999998,
+      "thread_pluck": -39.92,
+      "timpani": -33.69,
+      "toll": -33.92,
+      "viola": -30.340000000000003,
+      "violin_1": -28.34,
+      "violin_2": -32.34
+    }
+  },
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Noctyrax, the Last Eclipse (take B: Black Sun Onslaught)",
+  "version": "v02"
+}

@@ -18,6 +18,7 @@ const TEXTURES := {
 }
 
 const PANEL_MARGIN := 12.0
+const OUTER_FRAME_CORNER_RADIUS: int = 3
 const INSET_MARGIN := 10.0
 const BUTTON_MARGIN_H := 16.0
 const BUTTON_MARGIN_V := 7.0
@@ -25,10 +26,10 @@ const BUTTON_HEIGHT_SMALL: float = 38.0
 const BUTTON_HEIGHT_STANDARD: float = 46.0
 const BUTTON_HEIGHT_LARGE: float = 52.0
 const BUTTON_HEIGHT_ACTION: float = 58.0
-const BUTTON_FONT_COLOR := Color("f0e6cf")
+const BUTTON_FONT_COLOR := Color("efe3c8")
 const BUTTON_FONT_OUTLINE_COLOR := Color("09090b")
-const BUTTON_FONT_FOCUS_COLOR := Color("fff7dd")
-const BUTTON_FONT_DISABLED_COLOR := Color("91897b")
+const BUTTON_FONT_FOCUS_COLOR := Color("fff2d2")
+const BUTTON_FONT_DISABLED_COLOR := Color("7f7262")
 const BUTTON_FONT_OUTLINE_SIZE := 2
 const ACCENT_TEXT_COLOR := Color("b8860b")
 const ACCENT_TEXT_OUTLINE_COLOR := Color("3e2f22")
@@ -147,10 +148,10 @@ func make_button_style(variant: String = VARIANT_STANDARD, state: String = STATE
 
 	style.bg_color = palette.get("background", Color.TRANSPARENT)
 	style.border_color = palette.get("border", Color("80653c"))
-	style.border_width_left = 2
-	style.border_width_top = 1 if umbra else 2
-	style.border_width_right = 2
-	style.border_width_bottom = 3 if state != STATE_PRESSED else 2
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 2 if state != STATE_PRESSED else 1
 	style.corner_radius_top_left = radius
 	style.corner_radius_top_right = radius
 	style.corner_radius_bottom_right = radius
@@ -351,7 +352,6 @@ func apply_outer_panel_frame(panel: PanelContainer, variant: String = SURFACE_DI
 	apply_surface_finish(panel, variant)
 	panel.set_meta("surface_variant", variant)
 	panel.set_meta("panel_outer_frame_only", true)
-	panel.set_meta("panel_frame_scale", 0.14)
 	var ornament: Node2D = _ensure_outer_panel_ornament(panel, variant)
 	if ornament != null:
 		panel.move_child(ornament, panel.get_child_count() - 1)
@@ -457,6 +457,9 @@ func _suppress_outer_panel_outline(panel: PanelContainer) -> void:
 	var raster_backing_style: StyleBoxFlat = baseline_style.duplicate() as StyleBoxFlat
 	raster_backing_style.set_border_width_all(0)
 	raster_backing_style.border_color = Color.TRANSPARENT
+	# The gilded frame is square-cornered; a matching tight radius keeps the
+	# fill and its gold edge one silhouette instead of a rounded card in a box.
+	raster_backing_style.set_corner_radius_all(OUTER_FRAME_CORNER_RADIUS)
 	panel.add_theme_stylebox_override("panel", raster_backing_style)
 
 func _ensure_outer_panel_ornament(panel: PanelContainer, variant: String) -> Node2D:
@@ -480,31 +483,33 @@ func _ensure_outer_panel_ornament(panel: PanelContainer, variant: String) -> Nod
 func _button_corner_radius(variant: String) -> int:
 	match variant:
 		VARIANT_COMPACT:
-			return 4
+			return 3
 		VARIANT_LARGE:
-			return 8
+			return 5
 		VARIANT_ICON:
-			return 7
+			return 5
 		VARIANT_UMBRA:
 			return 2
 		_:
-			return 6
+			return 4
 
 func _button_palette(variant: String, state: String) -> Dictionary:
-	var background := Color("151820")
-	var border := Color("80653c")
+	# Warm ink bodies with gold hairlines; the primary (selected) plate is lit
+	# ember-bronze so the one advancing action always reads first.
+	var background := Color("221a14")
+	var border := Color("6e5536")
 	if variant == VARIANT_ICON:
-		background = Color("11151d")
-		border = Color("725b38")
+		background = Color("1d1612")
+		border = Color("6a5234")
 	elif variant == VARIANT_LARGE:
-		background = Color("17181e")
-		border = Color("92703f")
+		background = Color("241b14")
+		border = Color("86683f")
 	elif variant == VARIANT_SELECTED:
-		background = Color("3b2815")
-		border = Color("d5a454")
+		background = Color("5a3414")
+		border = Color("e0b264")
 	elif variant == VARIANT_DESTRUCTIVE:
-		background = Color("35171a")
-		border = Color("a84c43")
+		background = Color("3a1614")
+		border = Color("a8473d")
 	elif variant == VARIANT_UMBRA:
 		background = Color("101116")
 		border = Color("62543f")
@@ -512,17 +517,17 @@ func _button_palette(variant: String, state: String) -> Dictionary:
 	match state:
 		STATE_HOVER:
 			if variant != VARIANT_UMBRA:
-				background = background.lightened(0.10)
-				border = Color("e2b86e") if variant != VARIANT_DESTRUCTIVE else Color("ef8069")
+				background = background.lightened(0.09)
+				border = Color("e2bd76") if variant != VARIANT_DESTRUCTIVE else Color("ef8069")
 		STATE_PRESSED:
-			background = Color("090a0e") if variant == VARIANT_UMBRA else background.darkened(0.16)
-			border = Color("d28d3e") if variant == VARIANT_UMBRA else (Color("c58e48") if variant != VARIANT_DESTRUCTIVE else Color("c95a4d"))
+			background = Color("090a0e") if variant == VARIANT_UMBRA else background.darkened(0.18)
+			border = Color("d28d3e") if variant == VARIANT_UMBRA else (Color("b78c4c") if variant != VARIANT_DESTRUCTIVE else Color("c95a4d"))
 		STATE_DISABLED:
-			background = Color("0d0e12") if variant == VARIANT_UMBRA else Color("111217")
-			border = Color("403c35") if variant == VARIANT_UMBRA else Color("59554e")
+			background = Color("0d0e12") if variant == VARIANT_UMBRA else Color("17120f")
+			border = Color("403c35") if variant == VARIANT_UMBRA else Color("3e342a")
 		STATE_SELECTED:
-			background = Color("13141a") if variant == VARIANT_UMBRA else (Color("3c2815") if variant != VARIANT_DESTRUCTIVE else Color("4b1c20"))
-			border = Color("d39a4c") if variant == VARIANT_UMBRA else (Color("e0ad55") if variant != VARIANT_DESTRUCTIVE else Color("e8705d"))
+			background = Color("13141a") if variant == VARIANT_UMBRA else (Color("4a2d14") if variant != VARIANT_DESTRUCTIVE else Color("4b1c20"))
+			border = Color("d39a4c") if variant == VARIANT_UMBRA else (Color("f0c778") if variant != VARIANT_DESTRUCTIVE else Color("e8705d"))
 		STATE_FOCUS:
 			background = Color.TRANSPARENT
 			border = Color.TRANSPARENT if variant == VARIANT_UMBRA else Color("ffe3a0")

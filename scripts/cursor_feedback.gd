@@ -24,6 +24,7 @@ const TRANSPARENT_CURSOR_SIZE: int = 16
 
 var _glyph
 var _audio_players: Array[AudioStreamPlayer] = []
+var _pitch_rng := RandomNumberGenerator.new()
 var _audio_cursor: int = 0
 var _focus_player: AudioStreamPlayer
 var _last_focus_msec: int = -1000
@@ -330,6 +331,8 @@ func play_focus_feedback() -> void:
 		return
 	_last_focus_msec = now
 	_feedback_counts["focus"] = int(_feedback_counts.get("focus", 0)) + 1
+	# A slight random drift keeps rapid menu sweeps from sounding mechanical.
+	_focus_player.pitch_scale = 1.0 + _pitch_rng.randf_range(-0.045, 0.045)
 	_focus_player.play()
 
 func _play_click_feedback(valid: bool) -> void:
@@ -344,6 +347,7 @@ func _play_click_feedback(valid: bool) -> void:
 	player.stop()
 	player.stream = _valid_click_stream if valid else _invalid_click_stream
 	player.volume_db = VALID_CLICK_VOLUME_DB if valid else INVALID_CLICK_VOLUME_DB
+	player.pitch_scale = 1.0 + _pitch_rng.randf_range(-0.03, 0.03)
 	player.play()
 
 func _create_audio_players() -> void:

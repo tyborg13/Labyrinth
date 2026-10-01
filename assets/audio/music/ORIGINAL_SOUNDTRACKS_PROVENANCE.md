@@ -11,7 +11,8 @@ during promotion. Earlier audition source/approval snapshots remain immutable.
 | Opening room, campfire, treasure, cleared rooms, rewards, victory | Lanterns Below v02 |
 | Pre-battle, map/events, pause/settings, character/loadout, grimoire, card piles, merchant rooms | The Turning Key v02 |
 | Standard combat, including elemental encounters | Ashen Pursuit v03 (violin ensemble) |
-| Guardians/mini-bosses, bosses, boss-bar enemies within combat encounters | Thorns in the Dark v02 (violin ensemble) |
+| Guardians/mini-bosses and non-dragon boss-bar enemies | Thorns in the Dark v02 (violin ensemble) |
+| Dragon bosses (Zekarion, Tharokh, Vyraketh, Vaeloryx, Iskaldra, Noctyrax) | Each dragon's own theme: v01 for the first five, v02 take A for Noctyrax |
 | Main menu and its submenus | Existing Old Castle v07, unchanged |
 | Defeat | Existing Chopin Funeral March v05, unchanged |
 
@@ -22,7 +23,7 @@ bridges retain the current playback through their complete animation; an
 automatically opening map owns the destination cue. Deliberate navigation has
 no minimum-duration delay. Escape transitions retain the preceding cue until
 the next scene settles. A HUD minimap or small tooltip does not change music. Terminal defeat/victory outrank
-open menus. All bosses use Thorns for now, including Zekarion. Merchant choice
+open menus. Each dragon boss plays its own theme; guardians keep Thorns. Merchant choice
 screens use planning music; incidental room dialogue keeps its room's cue.
 
 The four sources are original symbolic compositions authored for this project.
@@ -39,6 +40,24 @@ in-game volume. Quiet/planning cues use -7 dB playback gain, combat cues -5.5 dB
 Old Castle remains -6.5 dB and Chopin -7 dB; existing bus volume/reverb controls
 remain active. Context changes use a short sequential 0.25-second fade-out and
 0.65-second fade-in; the existing slower terminal-death transition is retained.
+
+## Dragon themes and stingers (2026-09-30, approved 2026-10-01)
+
+`DRAGON_THEMES_AND_STINGERS_AUDITION.json` records six looping dragon boss
+themes and two one-shot stingers from
+`output/original_soundtracks/dragon_themes_and_stingers/versions/v01` and `v02`,
+approved by the owner on 2026-10-01. After the first audition the owner kept
+themes 01–05 (v01) and asked for a more epic final-boss theme and darker
+stingers. Noctyrax plays v02 take A ("Eclipse Requiem"), chosen over take B,
+and the level-up and boss-defeated stingers are v02. The rare-reward stinger was
+dropped after in-game audition because it stacked one sound transition too many
+on the victory cue; its renders stay in the package. As with the four tracks
+above, the production Oggs are byte-for-byte copies of the verified previews,
+and the source package keeps its own provenance. The themes are -20 LUFS loops
+played at the -5.5 dB combat gain. The stingers are -18 LUFS one-shots on the
+dry UI SFX path. When the level-up overlay opens or a dragon falls, a stinger
+plays while a `MusicDuck` amplify stage on the Music bus dips the score by 9 dB
+beneath it and then recovers; stingers never stack.
 
 Inspection and hearing the mix in play are the next step; this integration does
 not claim final balancing approval. Technical proof and fixture commands are in

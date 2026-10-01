@@ -5,6 +5,8 @@ const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
+const CombatEngine = preload("res://scripts/combat_engine.gd")
+const DragonBossInspection = preload("res://tools/dragon_boss_inspection.gd")
 
 const PROGRESSION_PATH: String = "user://main_menu_resume_test_progression.json"
 const RUN_PATH: String = "user://main_menu_resume_test_run.save"
@@ -18,6 +20,7 @@ func _initialize() -> void:
 	_cleanup_storage()
 	await _test_valid_save_summary_and_replacement_gate()
 	await _test_graftwright_saves_resume()
+	await _test_dragon_reward_save_resumes()
 	await _test_no_save_hides_summary()
 	await _test_corrupt_save_is_hidden_and_recoverable()
 	_cleanup_storage()
@@ -120,6 +123,24 @@ func _test_graftwright_saves_resume() -> void:
 		_stop_menu_music(instance)
 		instance.queue_free()
 		await process_frame
+
+func _test_dragon_reward_save_resumes() -> void:
+	var options: Dictionary = {"dragon_id": "vyraketh", "dragon_depth": 4, "dragon_case": "reward", "dragon_build": "balanced"}
+	var engine := RunEngine.new()
+	var state: Dictionary = DragonBossInspection.build(engine, CombatEngine.new(), engine.create_new_run(DragonBossInspection.seed_for_options(options), ProgressionStore.default_data()), options)
+	_assert(engine.is_dragon_reward(state), "Dragon reward resume fixture should be a dragon milestone reward")
+	_assert(ProgressionStore.save_data(ProgressionStore.default_data()), "Dragon reward resume fixture should write progression")
+	_assert(ProgressionStore.save_run_state(state), "Dragon reward resume fixture should write the run")
+	var instance: Node = await _instantiate_menu()
+	if instance == null: return
+	var button: Button = instance.get_node("MenuColumn/ContinueButton")
+	_assert(not button.disabled and button.text == "Continue Run", "A save paused on a dragon's milestone reward should enable Continue")
+	var invalid: Dictionary = state.duplicate(true)
+	(invalid["pending_reward"] as Dictionary)["milestone_id"] = ""
+	_assert((instance.call("_build_saved_run_preview", invalid) as Dictionary).is_empty(), "A dragon reward without its milestone must not be resumable")
+	_stop_menu_music(instance)
+	instance.queue_free()
+	await process_frame
 
 func _test_no_save_hides_summary() -> void:
 	ProgressionStore.clear_saved_run()

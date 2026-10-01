@@ -1,0 +1,12 @@
+{
+  "source": "spec/assets/card_time_watch/watch_source.png",
+  "size": [
+    147,
+    176
+  ],
+  "dial_center": [
+    73.4,
+    102.28
+  ],
+  "case_radius": 72.24
+}

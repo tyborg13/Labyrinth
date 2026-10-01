@@ -1,0 +1,157 @@
+{
+  "artifacts_sha256": {
+    "arrangement.mid": "3ffe5d76f7beb15fcb20f79b426070e28a71db42825d73dee7df57705fe73fc0",
+    "preview.flac": "37b9cfbf79efb89981556cfb5e26721b5744c09236249fdbdc48c719ac618cb1",
+    "preview.mp3": "9ca17ff60b2dcd89f8ebe1c01a3adf538b1b5dadf8a1099c7a0d11088eac201b",
+    "preview.ogg": "84cbe0bc1ba2345b370ad67329fb0dcbfffe144ce137161a04ba67d32e66c42f",
+    "score.json": "33f8199fdab3fa764e019ebe0d631c47739ccffff29fb5927b222345fba60289"
+  },
+  "bars": 2,
+  "bpm": 80,
+  "canvas_final_100ms_rel_peak_db": -97.64394910908183,
+  "channels": 2,
+  "decoded": {
+    "flac": {
+      "duration_seconds": 3.47121875,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -15.4,
+      "sample_peak_dbfs": -6.4,
+      "shape": {
+        "duration_seconds": 3.47121875,
+        "final_10ms_peak_dbfs": -240.0,
+        "final_50ms_rms_dbfs": -103.29223972207492,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -46.30959208596628,
+          -51.2687543390591,
+          -54.999608433291584,
+          -61.89031563263457,
+          -70.81509863274523,
+          -88.9299216448789
+        ],
+        "onset_seconds": 0.00078125
+      },
+      "short_term_max_lufs": -18.8,
+      "true_peak_dbtp": -6.4
+    },
+    "mp3": {
+      "duration_seconds": 3.47121875,
+      "integrated_lufs": -18.3,
+      "momentary_max_lufs": -15.7,
+      "sample_peak_dbfs": -6.6,
+      "shape": {
+        "duration_seconds": 3.47121875,
+        "final_10ms_peak_dbfs": -135.4454200825327,
+        "final_50ms_rms_dbfs": -103.5772436303764,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -46.578378250520274,
+          -51.52667541192341,
+          -55.26222797082553,
+          -62.14905694446539,
+          -71.08210938069283,
+          -89.22449732484857
+        ],
+        "onset_seconds": 0.00078125
+      },
+      "short_term_max_lufs": -19.0,
+      "true_peak_dbtp": -6.6
+    },
+    "ogg": {
+      "duration_seconds": 3.472,
+      "integrated_lufs": -18.0,
+      "momentary_max_lufs": -15.4,
+      "sample_peak_dbfs": -6.2,
+      "shape": {
+        "duration_seconds": 3.472,
+        "final_10ms_peak_dbfs": -120.07432712214374,
+        "final_50ms_rms_dbfs": -104.27758472041273,
+        "last_600ms_monotonic_decay": true,
+        "last_600ms_rms_dbfs_per_100ms": [
+          -46.35108378729018,
+          -51.21515131956798,
+          -55.0834252884514,
+          -61.774510975264015,
+          -70.88463184338255,
+          -89.13227415722037
+        ],
+        "onset_seconds": 0.00075
+      },
+      "short_term_max_lufs": -18.7,
+      "true_peak_dbtp": -6.2
+    }
+  },
+  "key": "D (open fifth) from B-flat: bVI to I without a third",
+  "kind": "stinger",
+  "limited_by": "loudness target",
+  "master_gain": 1.2902072535276954,
+  "note_counts": {
+    "brass": 3,
+    "cello": 2,
+    "choir_low": 2,
+    "contrabass": 2,
+    "taiko": 2,
+    "timpani": 1,
+    "toll": 1,
+    "viola": 2,
+    "violin_1": 2,
+    "violin_2": 2
+  },
+  "reverb": {
+    "rt60_seconds": 1.3,
+    "wet": 0.3
+  },
+  "sample_peak_ceiling_dbfs": -3.0,
+  "sample_rate": 32000,
+  "stems": {
+    "calibration_gain": {
+      "brass": 0.2747894153102397,
+      "cello": 0.2393315756405388,
+      "choir_low": 0.19860949173573705,
+      "contrabass": 0.2770129039163733,
+      "taiko": 0.2985382618917961,
+      "timpani": 0.16443717232149324,
+      "toll": 0.2716439268839082,
+      "viola": 0.13803842646028847,
+      "violin_1": 0.1798870915128788,
+      "violin_2": 0.12897335578987498
+    },
+    "post_master_peak_dbfs": {
+      "brass": -15.03,
+      "cello": -17.99,
+      "choir_low": -19.77,
+      "contrabass": -18.07,
+      "taiko": -14.31,
+      "timpani": -19.49,
+      "toll": -15.63,
+      "viola": -23.51,
+      "violin_1": -23.02,
+      "violin_2": -24.69
+    },
+    "target_pre_master_lufs": {
+      "brass": -30.34,
+      "cello": -29.34,
+      "choir_low": -32.34,
+      "contrabass": -29.53,
+      "taiko": -32.69,
+      "timpani": -32.69,
+      "toll": -31.92,
+      "viola": -33.84,
+      "violin_1": -30.34,
+      "violin_2": -33.34
+    }
+  },
+  "tail_method": "v01 method: linear render, synthetic hall tail, trimmed 50 ms after falling 54 dB below peak, 3 ms fade-in, 350 ms cosine fade over the already-quiet end",
+  "target_integrated_lufs": -18.0,
+  "thorns_v02_stem_template_lufs": {
+    "bowed_veil": -37.71,
+    "drums": -34.69,
+    "hollow_bass": -26.53,
+    "thread_pluck": -38.92,
+    "viola": -33.84,
+    "violin_1": -29.34,
+    "violin_2": -32.34
+  },
+  "title": "Level Up (v02)",
+  "version": "v02"
+}
