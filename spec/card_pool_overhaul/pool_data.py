@@ -123,8 +123,8 @@ card("magma_vent", "Magma Vent", M, F, "rare", 5,
 card("cinder_wall", "Cinder Wall", M, F, "rare", 4,
      "Leave Fire on a 4-tile line within range 2 (rotatable). Gain 4 Block.", impl=0,
      note="Defensive Fire: a wall that makes approaching you cost health.")
-card("immolation", "Immolation", M, F, "epic", 5,
-     "Detonate 7 on every Fire tile within 1 of you, including your own. You take no damage from it. Empower (2 HP): within 2 instead.",
+card("immolation", "Immolation", M, F, "epic", 4,
+     "Detonate 8 on every Fire tile within 1 of you, including your own. You take no damage from it. Empower (2 HP): within 2 instead.",
      impl=2, note="The firewalker's burst. Stand in your own Fire, then cash all of it out at once.")
 card("pyroclasm", "Pyroclasm", M, F, "epic", 7,
      "Deal 9 at range 3. If the target stands on Fire, consume it and deal 6 more.", impl=2,
@@ -203,8 +203,8 @@ card("rite_of_hoarfrost", "Rite of Hoarfrost", M, I, "epic", 4,
 card("white_silence", "White Silence", M, I, "legendary", 8,
      "Deal 4 Ice to each Chilled enemy you can see. (Each is Frozen.)", "rework", impl=2,
      note="Was 10 damage at range 3, a big number and nothing more. Now it is the Ice capstone: a mass Freeze for a prepared board.")
-card("crystal_mantle", "Crystal Mantle", M, I, "legendary", 6,
-     "Exhaust. Gain 2 Mantle. Each direct hit against you breaks one Mantle instead of dealing damage.",
+card("crystal_mantle", "Crystal Mantle", M, I, "legendary", 5,
+     "Exhaust. Gain 3 Mantle. Each direct hit against you breaks one Mantle instead of dealing damage.",
      costs=["Exhaust"], impl=2,
      note="Iskaldra's armor for the player. It negates hits by count, so it answers boss strikes that Block can't.")
 
@@ -257,8 +257,8 @@ card("storm_salvo", "Storm Salvo", M, L, "epic", 6,
 card("thunderline", "Thunderline", M, L, "epic", 7,
      "Deal 6 Lightning along a 3-tile line at range 2. Chain 1. Hits conducted through Electrified also Shock.",
      "tweak", note="Legendary to epic, Time 8 to 7. Strong, but it doesn't change how you play.")
-card("discharge", "Discharge", M, L, "epic", 5,
-     "Choose an Electrified tile within range 4. Deal 4 Lightning to each enemy on or adjacent to its connected network, then remove the network.",
+card("discharge", "Discharge", M, L, "epic", 4,
+     "Choose an Electrified tile within range 4. Deal 5 Lightning to each enemy on or adjacent to its connected network, then remove the network.",
      impl=2, note="Cash in the wiring. Ordinary Lightning keeps the network; Discharge spends it for a bigger area.")
 card("ball_lightning", "Ball Lightning", M, L, "epic", 4,
      "Create a 3-health illusion within range 3 and Electrify its tile. Enemies that damage it take 4 Lightning and are Shocked.",
@@ -269,7 +269,7 @@ card("rite_of_the_storm", "Rite of the Storm", M, L, "epic", 5,
 card("tempest_form", "Tempest Form", M, L, "legendary", 5,
      "Rite: your cards cost 1 less Time (minimum 1).", costs=["Rite"], impl=2,
      note="Build-around for the turn clock. Pays for itself in about three turns, so it is strongest in long fights.")
-card("skybolt", "Skybolt", M, L, "legendary", 6,
+card("skybolt", "Skybolt", M, L, "legendary", 7,
      "Deal 8 Lightning to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
      impl=2, note="Zekarion's strike in the player's hand. The only card that ignores sight lines.")
 
@@ -324,7 +324,7 @@ card("kestrel_dive", "Kestrel Dive", M, A, "rare", 4,
      "Blink 3, then strike an adjacent enemy for 5 and Push 1.",
      note="Air's melee: drop in from above and knock the target into something.")
 card("vortex", "Vortex", M, A, "epic", 5,
-     "Choose a tile within range 3. Pull each enemy within 2 of it 1 tile toward it.", impl=2,
+     "Choose a tile within range 3. Pull each enemy within 2 of it 2 tiles toward it.", impl=2,
      note="Gathers a group for an area attack, the opposite of Squall. Enemies pulled into each other collide.")
 card("eye_of_the_storm", "Eye of the Storm", M, A, "epic", 5,
      "Gain 6 Block. Until your next turn, enemies that hit you in melee are Pushed 2.",
@@ -390,8 +390,8 @@ card("grounding", "Grounding", M, E, "rare", 3,
 card("spike_mantle", "Spike Mantle", M, E, "epic", 6,
      "Strike all adjacent tiles for 8, or 12 against targets on Rubble. Pierce. Consume adjacent Rubble to gain 4 Stoneskin.",
      "keep")
-card("petrify", "Petrify", M, E, "epic", 6,
-     "An enemy within range 3 skips its next turn and gains 8 Block.", impl=2,
+card("petrify", "Petrify", M, E, "epic", 5,
+     "An enemy within range 3 skips its next turn and gains 5 Block.", impl=2,
      note="A full turn skip, like Freeze, but the target comes back harder to kill.")
 card("rite_of_the_mountain", "Rite of the Mountain", M, E, "epic", 5,
      "Rite: at the start of each of your turns, gain 3 Stoneskin.", costs=["Rite"], impl=2)
@@ -1122,7 +1122,7 @@ card("bone_ward_charm", "Bone-Ward Charm", IT, N, "epic", 4,
 card("grave_dust_satchel", "Quarry Dust", IT, E, "epic", 5,
      "Deal 2 in a cross at range 2. Pierce. Leave Rubble.", "keep", costs=C)
 card("powder_keg", "Powder Keg", IT, F, "rare", 3,
-     "Place a 3-health keg on an empty tile within range 2. When it's destroyed, it deals 8 to its tile and each adjacent tile.",
+     "Place a 3-health keg on an empty tile within range 2. When it's destroyed, it deals 6 to its tile and each adjacent tile.",
      costs=C, impl=2, note="A bomb enemies can set off for you. Crates and traps already teach the idea.")
 card("lamp_oil", "Lamp Oil", IT, F, "common", 3,
      "Leave Fire on a 3-tile line within range 3 (rotatable).", costs=C, impl=0)

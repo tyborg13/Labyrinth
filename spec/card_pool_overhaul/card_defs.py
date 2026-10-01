@@ -200,9 +200,9 @@ card("magma_vent", "Magma Vent", "rare", 5,
      "Consume a Rubble tile within range 3 to deal 5 there and to its four neighbors, then leave Fire there.", FIRE, wave=4)
 card("cinder_wall", "Cinder Wall", "rare", 4, [surface("fire", 2, LINE4, rotate=True), block(4)],
      "Leave Fire on a four-tile line within range 2, then gain 4 Block.", FIRE)
-card("immolation", "Immolation", "epic", 5,
-     [act("detonate", damage=7, range=0, pattern=[[0, 0]] + ADJ, rotate=False, element="fire", spare_player=True)],
-     "Detonate 7 on every Fire tile within 1 of you, including yours. You take no damage from it. Empower (2 HP): within 2 instead.",
+card("immolation", "Immolation", "epic", 4,
+     [act("detonate", damage=8, range=0, pattern=[[0, 0]] + ADJ, rotate=False, element="fire", spare_player=True)],
+     "Detonate 8 on every Fire tile within 1 of you, including yours. You take no damage from it. Empower (2 HP): within 2 instead.",
      FIRE, wave=4, empower={"cost": {"health": 2}, "mods": [m(0, set={"pattern": [[0, 0]] + ADJ + DIAG + [[2, 0], [-2, 0], [0, 2], [0, -2]]})]})
 card("pyroclasm", "Pyroclasm", "epic", 7,
      [ranged(9, 3, FIRE, consume={"surface": "fire", "bonus_damage": 6})],
@@ -256,8 +256,8 @@ card("rite_of_hoarfrost", "Rite of Hoarfrost", "epic", 4, [],
                         "rewards": [{"type": "block", "amount": 3}, {"type": "draw", "amount": 1}]}]})
 card("white_silence", "White Silence", "legendary", 8, [act("all_enemies", selector="chilled", damage=4, element="ice")],
      "Deal 4 Ice damage to each Chilled enemy you can see. (This Freezes them.)", ICE, wave=4)
-card("crystal_mantle", "Crystal Mantle", "legendary", 6, [act("mantle", amount=2)],
-     "Exhaust. Gain 2 Mantle: each direct hit against you breaks one Mantle instead of dealing damage.", ICE, wave=4, burn=True)
+card("crystal_mantle", "Crystal Mantle", "legendary", 5, [act("mantle", amount=3)],
+     "Exhaust. Gain 3 Mantle: each direct hit against you breaks one Mantle instead of dealing damage.", ICE, wave=4, burn=True)
 
 # =============================================================================== LIGHTNING
 card("chain_bolt", "Chain Bolt", "common", 4, [ranged(4, 3, LIGHTNING, chain=2)],
@@ -291,8 +291,8 @@ card("thunderclap", "Thunderclap", "rare", 4, [aoe(3, 0, ADJ, LIGHTNING, push=1)
 card("thunderline", "Thunderline", "epic", 7,
      [aoe(6, 2, LINE3, LIGHTNING, rotate=True, chain=1, surface_bonus={"surface": "electrified", "subject": "conducted", "shock": 1})],
      "Deal 6 Lightning damage along a three-tile line at range 2 with Chain 1. Electrified-assisted hits also Shock.", LIGHTNING)
-card("discharge", "Discharge", "epic", 5, [act("discharge", range=4, damage=4, element="lightning")],
-     "Choose an Electrified tile within range 4. Deal 4 Lightning damage to each enemy on or next to its connected network, then remove the network.",
+card("discharge", "Discharge", "epic", 4, [act("discharge", range=4, damage=5, element="lightning")],
+     "Choose an Electrified tile within range 4. Deal 5 Lightning damage to each enemy on or next to its connected network, then remove the network.",
      LIGHTNING, wave=4)
 card("ball_lightning", "Ball Lightning", "epic", 4,
      [act("illusion", health=3, range=3, surface="electrified", on_damaged={"damage": 4, "element": "lightning", "shock": 1})],
@@ -305,7 +305,7 @@ card("rite_of_the_storm", "Rite of the Storm", "epic", 5, [],
 card("tempest_form", "Tempest Form", "legendary", 5, [],
      "Rite: your cards cost 1 less Time (minimum 1).", LIGHTNING, wave=3, burn=True,
      rite={"effects": [{"type": "card_time_discount", "amount": 1}]})
-card("skybolt", "Skybolt", "legendary", 6,
+card("skybolt", "Skybolt", "legendary", 7,
      [ranged(8, 99, LIGHTNING, ignore_los=True, shock=1, shock_all_hits=True)],
      "Deal 8 Lightning damage to any enemy you can see, ignoring range and line of sight. It conducts; everything it hits is Shocked.",
      LIGHTNING, wave=4)
@@ -334,8 +334,8 @@ card("dust_devil", "Dust Devil", "rare", 4,
      "Consume a Rubble tile within range 3. Push each enemy next to it 2 away and Expose 2.", AIR, wave=4)
 card("kestrel_dive", "Kestrel Dive", "rare", 4, [blink(3), push(1, 5, 1, AIR, required=True)],
      "Blink 3, then strike an adjacent enemy for 5 and push 1.", AIR)
-card("vortex", "Vortex", "epic", 5, [act("force_area", center="target", range=3, radius=2, pull=1)],
-     "Choose a tile within range 3. Pull each enemy within 2 of it 1 tile toward it.", AIR, wave=4)
+card("vortex", "Vortex", "epic", 5, [act("force_area", center="target", range=3, radius=2, pull=2)],
+     "Choose a tile within range 3. Pull each enemy within 2 of it 2 tiles toward it.", AIR, wave=4)
 card("eye_of_the_storm", "Eye of the Storm", "epic", 5, [block(6), act("retaliate", amount=0, push=2)],
      "Gain 6 Block. Until your next turn, enemies that hit you in melee are pushed 2.", AIR, wave=3)
 card("rite_of_tailwinds", "Rite of Tailwinds", "epic", 3, [],
@@ -376,8 +376,8 @@ card("grounding", "Grounding", "rare", 3,
      [act("consume_surface", surface="electrified", target="player", pattern=DIAMOND2, min_consumed=1,
           rewards=[{"type": "stoneskin", "amount": 2, "per_tile": True, "max": 8}])],
      "Remove every Electrified tile within 2 of you. Gain 2 Stoneskin per tile removed (maximum 8).", EARTH, wave=4)
-card("petrify", "Petrify", "epic", 6, [act("petrify", range=3, block=8)],
-     "An enemy within range 3 skips its next turn and gains 8 Block.", EARTH, wave=4)
+card("petrify", "Petrify", "epic", 5, [act("petrify", range=3, block=5)],
+     "An enemy within range 3 skips its next turn and gains 5 Block.", EARTH, wave=4)
 card("rite_of_the_mountain", "Rite of the Mountain", "epic", 5, [],
      "Rite: at the start of each of your turns, gain 3 Stoneskin.", EARTH, wave=3, burn=True,
      rite={"effects": [{"type": "turn_start_reward", "rewards": [{"type": "stoneskin", "amount": 3}]}]})
@@ -623,8 +623,8 @@ gear("sworn_oath", "Sworn Oath", "common", 2, [block(3), act("next_attack", dama
 
 # =============================================================================== ITEMS
 card("nail_bomb", "Shrapnel Bomb", "common", 5, [aoe(4, 3, CROSS, sunder=2)], "Consume. Deal 4 in a cross at range 3 and Sunder 2.", item=True)
-card("powder_keg", "Powder Keg", "rare", 3, [act("outcrop", range=2, health=3, kind="powder_keg", burst_damage=8)],
-     "Consume. Place a 3-health keg within range 2. When destroyed, it deals 8 to its tile and each tile next to it.",
+card("powder_keg", "Powder Keg", "rare", 3, [act("outcrop", range=2, health=3, kind="powder_keg", burst_damage=6)],
+     "Consume. Place a 3-health keg within range 2. When destroyed, it deals 6 to its tile and each tile next to it.",
      FIRE, item=True, wave=4)
 card("lamp_oil", "Lamp Oil", "common", 3, [surface("fire", 3, LINE3, rotate=True)], "Consume. Leave Fire on a three-tile line within range 3.", FIRE, item=True)
 card("caltrops", "Caltrops", "common", 3, [aoe(0, 2, CROSS, EARTH, bleed=2, surface="rubble")],
