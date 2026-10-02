@@ -97,6 +97,12 @@ static func _test_glassway(e: RefCounted, check: Callable) -> void:
 		check.call(e.valid_targets_for_player_action(s, action).has(Vector2i(3, 4)), "Glassway " + type + " may end on an illusion")
 		var result: Dictionary = preview_commit(e, s, action, Vector2i(3, 4), check, "Glassway " + type)
 		check.call(result["player"]["pos"] == Vector2i(3, 4) and result["illusions"][0]["pos"] == Vector2i(2, 4), "Glassway trades endpoint positions")
+		var swaps: Array = (result.get("surface_events", []) as Array).filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "illusion_swapped")
+		check.call(swaps.size() == 1 and swaps[0].get("from") == Vector2i(2, 4) and swaps[0].get("to") == Vector2i(3, 4), "Glassway " + type + " records the trade the board presents")
+		if type == "move":
+			var path: Array[Vector2i] = e.path_for_player_action(s, action, Vector2i(3, 4))
+			var segments: Array[Dictionary] = preload("res://scripts/run_scene.gd").player_move_segments(s, path, swaps[0])
+			check.call(not segments.is_empty() and segments[-1].get("blink_to") == Vector2i(3, 4) and segments[-1].get("exchange") == swaps[0], "Glassway Move presents the trade as a blink exchange, not a walk onto the Illusion")
 		check.call(hp(e, result, "illusion", 1) == 4 and int(result["player"]["hp"]) == 22, "Glassway both arrivals trigger ground")
 		var idle: Dictionary = s.duplicate(true); idle["relics"] = []
 		idle = e.apply_player_action(idle, action, Vector2i(3, 4))

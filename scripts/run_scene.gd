@@ -51,6 +51,7 @@ const BoardSurfacePresentation = preload("res://scripts/board_surface_presentati
 const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
 const SurfaceAimFlow = preload("res://scripts/surface_aim_flow.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
+const SurfaceVarietyRules = preload("res://scripts/surface_variety_relic_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -24451,12 +24452,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			movement_presentation["focus_tiles"] = move_path
 			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
 			movement_presentation["path_tiles"] = move_path
-			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
+			await _animate_player_move_path(before_state, after_state, move_path, movement_presentation)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink", "illusion_swap":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var blink_effect: Dictionary = _player_blink_effect(player_before_tile, player_after_tile, _illusion_exchange_event(before_state, after_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
@@ -24464,7 +24466,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 					"focus_tiles": [player_after_tile],
 					"focus_color": Color(0.53, 0.48, 0.92, 0.24),
-					"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
+					"effect": blink_effect,
 					"effect_progress": t
 				}, true)
 			)
@@ -24473,7 +24475,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": [player_after_tile],
 				"focus_color": Color(0.53, 0.48, 0.92, 0.24),
-				"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
+				"effect": blink_effect,
 				"effect_progress": 1.0
 			}))
 			await get_tree().create_timer(0.14).timeout
@@ -25633,6 +25635,76 @@ func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, p
 		if endpoint_index > 0:
 			return _vector2i_array(path.slice(0, endpoint_index + 1))
 	return _vector2i_array([from_tile, to_tile])
+
+# A Move is walked except where the hero does not travel on foot: an Unclouded
+# Sun Light link and a Glassway Compass trade onto an Illusion play the Blink
+# rift. Walked steps before a trade still happen, so only the last step blinks,
+# with the traded Illusion blinking back to the Move's origin.
+func _animate_player_move_path(before_state: Dictionary, after_state: Dictionary, path: Array[Vector2i], presentation: Dictionary) -> void:
+	for segment: Dictionary in player_move_segments(before_state, path, _illusion_exchange_event(before_state, after_state)):
+		if segment.has("walk"):
+			await _animate_actor_along_path(before_state, "player", _vector2i_array(segment["walk"]), presentation)
+		else:
+			await _animate_player_blink_step(before_state, segment["blink_from"], segment["blink_to"], segment["exchange"], presentation)
+
+## Splits a Move path into walked runs ({"walk": tiles}) and blinked steps
+## ({"blink_from", "blink_to", "exchange"}). `exchange` is the Move's Illusion
+## swap event, or empty.
+static func player_move_segments(state: Dictionary, path: Array[Vector2i], exchange: Dictionary) -> Array[Dictionary]:
+	var segments: Array[Dictionary]
+	var walk: Array[Vector2i]
+	if not path.is_empty():
+		walk.append(path[0])
+	for index: int in range(1, path.size()):
+		var from: Vector2i = path[index - 1]
+		var to: Vector2i = path[index]
+		var trades: bool = index == path.size() - 1 and not exchange.is_empty() and exchange.get("to", INVALID_TARGET_TILE) == to
+		if not trades and not SurfaceVarietyRules.is_light_link(state, from, to):
+			walk.append(to)
+			continue
+		if walk.size() >= 2:
+			segments.append({"walk": walk.duplicate()})
+		segments.append({"blink_from": from, "blink_to": to, "exchange": exchange if trades else {}})
+		walk.clear()
+		walk.append(to)
+	if walk.size() >= 2:
+		segments.append({"walk": walk.duplicate()})
+	return segments
+
+func _animate_player_blink_step(display_state: Dictionary, from: Vector2i, to: Vector2i, exchange: Dictionary, base_presentation: Dictionary) -> void:
+	var player: Dictionary = _animation_actor_unit(display_state, "player")
+	var frame_base: Dictionary = _movement_actor_frame_presentation(
+		base_presentation,
+		"player",
+		board_view.world_position_for_unit_origin(player, from),
+		board_view.draw_tile_for_unit_origin(player, from),
+		to
+	)
+	# The rift replaces the walked route line while the hero crosses it.
+	frame_base.erase("path_tiles")
+	frame_base["focus_tiles"] = [to]
+	frame_base["focus_color"] = Color(0.53, 0.48, 0.92, 0.24)
+	frame_base["effect"] = _player_blink_effect(from, to, exchange)
+	await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+		var frame: Dictionary = frame_base.duplicate(false)
+		frame["effect_progress"] = float(frame_number) / float(ATTACK_FRAMES)
+		_render_board_state(display_state, frame, true)
+	)
+
+func _player_blink_effect(from: Vector2i, to: Vector2i, exchange: Dictionary) -> Dictionary:
+	var effect: Dictionary = {"kind": "blink", "from": from, "to": to}
+	if not exchange.is_empty():
+		# A traded Illusion crosses the other way: from the hero's landing tile
+		# to the tile the hero left.
+		effect["exchange_from"] = exchange.get("to", to)
+		effect["exchange_to"] = exchange.get("from", from)
+	return effect
+
+func _illusion_exchange_event(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	for event: Dictionary in _surface_events_between(before_state, after_state):
+		if str(event.get("kind", "")) == IllusionCardRules.SWAP_EVENT:
+			return event
+	return {}
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)

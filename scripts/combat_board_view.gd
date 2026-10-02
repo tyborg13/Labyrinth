@@ -10461,6 +10461,11 @@ func _draw_effect_overlay() -> void:
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
 			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
+			# A traded Illusion (Glassway Compass, Empty Husk) blinks the other way.
+			var exchange_from: Vector2i = effect.get("exchange_from", Vector2i(-1, -1))
+			var exchange_to: Vector2i = effect.get("exchange_to", Vector2i(-1, -1))
+			if exchange_from.x >= 0 and exchange_to.x >= 0 and exchange_from != exchange_to:
+				_draw_blink_rift_effect(exchange_from, exchange_to, progress, bool(effect.get("preview", false)))
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -12543,7 +12548,7 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool
 		var variety = preload("res://scripts/surface_variety_relic_rules.gd")
 		var has_jump: bool = false
 		for index: int in range(1, path_tiles.size()):
-			if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1 and variety.hero_light(combat_state, path_tiles[index - 1]) and variety.hero_light(combat_state, path_tiles[index]): has_jump = true
+			if variety.is_light_link(combat_state, path_tiles[index - 1], path_tiles[index]): has_jump = true
 		if has_jump:
 			var segment: Array[Vector2i]
 			segment.append(path_tiles[0])

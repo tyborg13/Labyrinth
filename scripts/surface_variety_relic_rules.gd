@@ -175,6 +175,11 @@ static func hero_light(state: Dictionary, tile: Vector2i) -> bool:
 		if str(source.get("owner", "")) == "player" and int(source.get("remaining_activations", -1)) != 0 and Paths.manhattan(source.get("pos", Vector2i(-999, -999)), tile) <= int(source.get("radius", 0)): return true
 	return false
 
+# One Move step between two of your Light tiles that are not neighbours: an
+# Unclouded Sun link. It costs one step and is presented as a blink.
+static func is_light_link(state: Dictionary, from: Vector2i, to: Vector2i) -> bool:
+	return Paths.manhattan(from, to) > 1 and hero_light(state, from) and hero_light(state, to)
+
 static func refund_available(state: Dictionary, effects: Array) -> int:
 	var entry: Dictionary = effect(effects, "light_move_refund")
 	return maxi(0, int(entry.get("max", 2)) - int((state.get("turn_flags", {}) as Dictionary).get(REFUNDS, 0))) if not entry.is_empty() else 0

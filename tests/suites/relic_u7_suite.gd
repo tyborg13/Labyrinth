@@ -318,6 +318,11 @@ static func _test_sun(engine: Combat, check: Callable) -> void:
 	var move: Dictionary = {"type": "move", "range": 1}
 	var path: Array[Vector2i] = engine.path_for_player_action(state, move, Vector2i(6, 4))
 	check.call(path.size() == 2 and engine.movement_cost_for_path(state, path) == 1, "Sun connects nonadjacent hero Light tiles for exactly one movement")
+	var segments: Array[Dictionary] = preload("res://scripts/run_scene.gd").player_move_segments(state, path, {})
+	check.call(segments.size() == 1 and segments[0].get("blink_from") == path[0] and segments[0].get("blink_to") == Vector2i(6, 4), "A Sun Light link is presented as a blink, not a walk")
+	var walked: Array[Vector2i] = engine.path_for_player_action(state, {"type": "move", "range": 2}, Vector2i(2, 5))
+	var walk_segments: Array[Dictionary] = preload("res://scripts/run_scene.gd").player_move_segments(state, walked, {})
+	check.call(walked.size() == 3 and walk_segments.size() == 1 and walk_segments[0].has("walk"), "Ordinary adjacent steps still walk")
 	var hp: int = int(state["player"]["hp"])
 	state = _preview(engine, state, move, Vector2i(6, 4), check, "Sun")
 	check.call(state["player"]["pos"] == Vector2i(6, 4) and int(state["player"]["hp"]) == hp - 2, "Sun enters only the landing tile and applies its hazards")

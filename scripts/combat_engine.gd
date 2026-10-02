@@ -11157,7 +11157,7 @@ func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int,
 	return state
 
 func hero_move_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i, previous_direction: Vector2i) -> int:
-	if PathUtils.manhattan(from, to) > 1 and SurfaceVarietyRules.hero_light(state, from) and SurfaceVarietyRules.hero_light(state, to) and not SurfaceVarietyRules.effect(_relic_effects(state), "light_move_links").is_empty():
+	if SurfaceVarietyRules.is_light_link(state, from, to) and not SurfaceVarietyRules.effect(_relic_effects(state), "light_move_links").is_empty():
 		return 1
 	return GuardianRelicRules.ice_step_cost(state, unit, from, to, previous_direction)
 
