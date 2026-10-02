@@ -19869,7 +19869,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	}
 	# A toggled Empower +Time shows on the card's own Time badge, matching the
 	# turn-order rail's preview (and its tooltip names the surcharge).
-	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card) + int(card.get("_tempo_time_surcharge", 0))
+	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card) + int(card.get("_tempo_time_surcharge", 0)) + int(card.get("_item_time_surcharge", 0))
 	if time_surcharge > 0:
 		display["time_surcharge"] = time_surcharge
 	return display

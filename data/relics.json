@@ -2418,7 +2418,12 @@
       "items",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "item_no_card_play",
+        "time": 1
+      }
+    ]
   },
   "briar_vambrace": {
     "name": "Briar Vambrace",
@@ -2841,7 +2846,13 @@
       "items",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "item_value_multiplier",
+        "numerator": 3,
+        "denominator": 2
+      }
+    ]
   },
   "crown_of_surplus": {
     "name": "Crown of Surplus",
@@ -2980,6 +2991,10 @@
       "items",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "item_once_per_combat"
+      }
+    ]
   }
 }

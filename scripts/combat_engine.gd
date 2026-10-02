@@ -7,6 +7,7 @@ const ForcedRelicRules = preload("res://scripts/forced_relic_rules.gd")
 
 const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
+const ItemRelicRules = preload("res://scripts/item_relic_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
@@ -926,7 +927,7 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = CardKeywordRules.actions_for_play(card, card_id, state)
-	var plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(state)) else (maxi(1, cards_remaining_this_turn(state)) if bool(card.get("flurry", false)) else 1)
+	var plays_spent: int = card_plays_spent(card_id, state)
 	if RiteRules.is_rite_card(card):
 		# A Rite resolves as one targetless step; finish_player_card starts it.
 		printed_actions.append({"type": "rite", "_card_element": GameData.card_element_from_def(card)})
@@ -967,7 +968,7 @@ func flurry_plays_for_card(card_id: String, state: Dictionary = {}) -> int:
 
 func card_plays_spent(card_id: String, state: Dictionary) -> int:
 	var card: Dictionary = card_def(card_id, state)
-	if DefenseRelicRules.free_rite(card, _relic_effects(state)):
+	if DefenseRelicRules.free_rite(card, _relic_effects(state)) or ItemRelicRules.free_item(card, _relic_effects(state)):
 		return 0
 	return maxi(1, cards_remaining_this_turn(state)) if bool(card.get("flurry", false)) else 1
 
@@ -1887,7 +1888,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	next_state["last_card_destination"] = destination
 	if destination == "discard":
 		next_state = _maybe_trigger_pain_recall(next_state, card_id)
-	var safe_plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(next_state)) else maxi(1, plays_spent)
+	var safe_plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(next_state)) or ItemRelicRules.free_item(card, _relic_effects(next_state)) else maxi(1, plays_spent)
 	var cards_played_before: int = int(next_state.get("cards_played_this_turn", 0))
 	var payment_snapshot: Dictionary = next_state.get("pending_card_payment", {}) as Dictionary
 	var used_banked_play: bool = _card_payment_uses_banked_play(payment_snapshot, next_state, safe_plays_spent)
@@ -1983,7 +1984,7 @@ func card_time_cost(card_id: String, state: Dictionary = {}) -> int:
 
 func card_time_cost_from_def(card: Dictionary) -> int:
 	if card.has("time"):
-		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST) + int(card.get("_tempo_time_surcharge", 0))
+		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST) + int(card.get("_tempo_time_surcharge", 0)) + int(card.get("_item_time_surcharge", 0))
 	return _estimated_card_time_cost(card)
 
 func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT, projection_context: Dictionary = {}) -> Array[Dictionary]:

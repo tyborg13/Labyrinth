@@ -23,8 +23,9 @@ const RARITY_TIERS := {
 	"epic": 3,
 	"legendary": 4
 }
-# U4/U5 categories are behavior-tested by their registered unit suites.
+# Unit categories are behavior-tested by their registered overhaul suites.
 const SUPPORTED_EFFECT_TYPES := [
+	"item_no_card_play", "item_value_multiplier", "item_once_per_combat",
   "retaliate_health_block", "persistent_retaliate", "prevent_card_block",
   "health_cost_stoneskin", "health_loss_next_attack", "opening_hand_rite",
   "card_time_discount", "exhaust_time_stoneskin", "turn_start_active_rite_block",

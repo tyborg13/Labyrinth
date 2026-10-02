@@ -310,6 +310,15 @@ normal `card_drawn` only when actually drawn. Full-slot pickups produce no draw.
 Combat snapshots now own item loadout transactions, so checkpoint replay and
 reload copy the result rather than granting or consuming items a second time.
 
+Item relics (overhaul U8, [item rules](item_relic_rules.md)) reuse these saved
+transactions. Bandolier reports zero `card_plays_spent` and its actual extra
+Time in existing card-play fields. Ledger keeps non-healing copies equipped
+while sending them to the combat's burned pile; `item_card` and
+`consume_on_play` remain authored card classifications, rather than assertions
+that the played copy was permanently removed. Retort changes resolved action
+values and stored Powder Keg damage in the existing snapshots/events. No new
+event types or payload fields are introduced; forecasts emit no analytics.
+
 `item_equipped` fires when the character overlay equips or stows an owned
 consumable outside combat. Its payload records `action` (`equip` or `stow`),
 `card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,

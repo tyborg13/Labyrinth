@@ -1357,7 +1357,10 @@ func _ensure_time_badge() -> void:
 func _refresh_time_badge(card: Dictionary) -> void:
 	_ensure_time_badge()
 	var printed_cost: int = maxi(1, int(card.get("time", 5)))
-	var time_cost: int = printed_cost + _time_surcharge
+	var item_surcharge: int = int(card.get("_item_time_surcharge", 0))
+	var tempo_surcharge: int = int(card.get("_tempo_time_surcharge", 0))
+	var total_surcharge: int = maxi(_time_surcharge, item_surcharge + tempo_surcharge)
+	var time_cost: int = printed_cost + total_surcharge
 	_time_badge.visible = time_cost > 0
 	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
@@ -1365,9 +1368,9 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
 	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\nRelic: -%d" % int(card["_relic_time_discount"])
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
-	var tempo_surcharge: int = int(card.get("_tempo_time_surcharge", 0))
 	if tempo_surcharge > 0: detail += "\nWhirling Sash: +%d" % tempo_surcharge
-	if _time_surcharge > tempo_surcharge: detail += "\nEmpower: +%d" % (_time_surcharge - tempo_surcharge)
+	if item_surcharge > 0: detail += "\nQuick-Draw Bandolier: +%d" % item_surcharge
+	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower: +%d" % (total_surcharge - tempo_surcharge - item_surcharge)
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 
