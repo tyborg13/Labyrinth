@@ -280,7 +280,7 @@ static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	scene.set("_combat_state", s)
 	scene.set("_selected_card_index", 0)
 	expect.call(str(scene.call("_empower_command_text", false)) == "Empower +3 Time [E]", "Crown uses existing Empower button label")
-	expect.call(str(scene.call("_empower_command_tooltip")) == "Empower (+3 Time): repeat this card's first action.", "Crown tooltip is exact")
+	expect.call(str(scene.call("_empower_command_tooltip")) == "Empower (+3 Time): repeat this card's first action.\nThe cost is paid when the card finishes. Press E (controller: right stick).", "Crown tooltip keeps the shared cost-timing and input hints")
 	(s["deck"] as Dictionary)["hand"] = ["u4_guard"]
 	(s["umbra"] as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_DEEP
 	scene.set("_combat_state", s)

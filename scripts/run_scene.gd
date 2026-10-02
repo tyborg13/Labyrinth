@@ -34810,9 +34810,7 @@ func _empower_command_text(active: bool) -> String:
 func _empower_command_tooltip() -> String:
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var card: Dictionary = _card_def(card_id, _combat_state)
-	if bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)):
-		return "Empower (+3 Time): repeat this card's first action."
-	var bonus_text: String = ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
+	var bonus_text: String = "repeat this card's first action" if bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)) else ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
 	return "Empower (%s): %s.\nThe cost is paid when the card finishes. Press E (controller: right stick)." % [CardKeywordRules.empower_cost_label(_selected_card_empower_cost()), bonus_text]
 
 func _add_empower_command() -> void:

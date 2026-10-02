@@ -1,8 +1,10 @@
-"""Relic pool overhaul: the authored design record (proposal, 2026-10-01).
+"""Relic pool overhaul: the authored design record (reviewed 2026-10-02, implemented).
 
-Every relic in the proposed 100-relic pool, plus the 12 cuts. Rules text is
-proposal text, written to the card pool's vocabulary (spec/card_keywords*.md,
-spec/forced_movement.md). Nothing here is implemented.
+Every relic in the 100-relic pool, plus the 12 cuts. For new, reworked and
+tweaked relics, `text` is the shipped rules text in plain words (data/relics.json
+carries the same text with inline icons). Kept relics ship their earlier wording;
+their `text` here is a paraphrase for review. Vocabulary follows
+spec/card_keywords*.md and spec/forced_movement.md.
 
 Fields
   status   keep | tweak | rework | new | cut
@@ -465,7 +467,7 @@ relic("vaulting_sigil", "Vaulting Sigil", EP, "rework", "Transform", ["movement"
       "", impl=2,
       was="The first Move or Blink of 4+ each turn grants 1 card play and 4 Block.")
 relic("overflow_censer", "Overflow Censer", EP, "rework", "Engine", ["fire", "ice", "lightning", "earth"], 0, 3,
-      "When you place a surface on a tile that holds a different elemental surface, the new surface also spreads to each empty tile next to it.",
+      "When you place Fire, Ice or Electrified on a tile holding a different one of them, it also spreads to each empty tile next to it.",
       "Nothing without two schools of ground.",
       "Mixed boards grow every time you overwrite.",
       ["relic:black_sun_dial", "relic:coalheart_crucible"],
@@ -634,7 +636,7 @@ relic("quartermasters_ledger", "Quartermaster's Ledger", L, "new", "Transform", 
 relic("ashen_brand", "Ashen Brand", L, "keep", "Transform", ["fire"], 0, 3,
       "Detonate consumes the whole connected Fire cluster. Each extra overlapping blast adds 25% of base damage.",
       "", "Fire decks shape one huge Detonate.", ["relic:ember_siphon"], "Kept. Rewarded by the Ashen Reaver.", source="guardian")
-relic("winters_spur", "Winter's Spur", L, "keep", "Transform", ["ice", "movement"], 0, 3,
+relic("winters_spur", "Winter’s Spur", L, "keep", "Transform", ["ice", "movement"], 0, 3,
       "A straight stretch of Ice costs 1 base movement per Move. Turning starts a new stretch.",
       "", "Ice roads become highways.", ["relic:hobnail_cleats"], "Kept. Rewarded by Rimejaw.", source="guardian")
 relic("resonant_clapper", "Resonant Clapper", L, "keep", "Amplify", ["lightning"], 0, 3,

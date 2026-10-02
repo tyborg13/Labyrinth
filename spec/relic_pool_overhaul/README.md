@@ -3,9 +3,10 @@
 Owning design record for the 100-relic pool (proposal reviewed 2026-10-02).
 
 - `relic_data.py` is the authored source: every relic's verdict (keep, tweak, rework, new,
-  cut), final rules text, rarity, shape, packages, intrinsic and extrinsic scores, combos
-  and design note, plus the twelve cuts with their save replacements and the builds the
-  relics support.
+  cut), rules text, rarity, shape, packages, intrinsic and extrinsic scores, combos and
+  design note, plus the twelve cuts with their save replacements and the builds the relics
+  support. For new, reworked and tweaked relics the text is the shipped rules text; kept
+  relics ship their earlier wording, which the record paraphrases.
 - `proposal.json` is the generated snapshot the implementation is checked against.
 
 Review decisions: no relic needs a bespoke control (six designs were reworked so their

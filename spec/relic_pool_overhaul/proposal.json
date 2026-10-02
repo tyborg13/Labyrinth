@@ -1929,7 +1929,7 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "When you place a surface on a tile that holds a different elemental surface, the new surface also spreads to each empty tile next to it.",
+   "text": "When you place Fire, Ice or Electrified on a tile holding a different one of them, it also spreads to each empty tile next to it.",
    "was": "Once per combat, having 3 different surface types in view grants 6 Stoneskin and draw 2.",
    "intrinsic": "Nothing without two schools of ground.",
    "extrinsic": "Mixed boards grow every time you overwrite.",

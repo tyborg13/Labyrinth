@@ -9,7 +9,6 @@ const SurfaceFixture = preload("res://tests/suites/surface_relic_suite.gd")
 const SkillFixture = preload("res://tests/suites/skill_run_suite.gd")
 const TIERS := {"common": 1, "rare": 2, "epic": 3, "legendary": 4}
 # These four assets are supplied separately by Claude; absence is reported, not failed.
-const PENDING_ART := ["pocket_sundial", "siege_ram_totem", "liturgy_of_ash", "briar_throne"]
 # Authored inventory, imported from spec/relic_pool_overhaul/relic_data.py for U1.
 const NEW_IDS := [
   "recoil_plates",
@@ -137,7 +136,7 @@ const AUTHORED_TEXT := {
   "masons_plumb": "Your outcrops have 2 more health. An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
   "cold_mirror": "When you Freeze an enemy while you have 4 or more Block, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
   "vaulting_sigil": "Your Move can pass through enemies (you can't stop on one). Each enemy you pass through is Staggered 2.",
-  "overflow_censer": "When you place a surface on a tile that holds a different elemental surface, the new surface also spreads to each empty tile next to it.",
+  "overflow_censer": "When you place Fire, Ice or Electrified on a tile holding a different one of them, it also spreads to each empty tile next to it.",
   "funeral_bell": "When an enemy dies with 2 or more different statuses, such as Bleed and Expose, each enemy next to it gains them.",
   "bloodmoon_chalice": "When you lose health during your turn, your next attack this turn deals 2 more damage per health lost (max 8 more).",
   "glassway_compass": "Your Move and Blink can end on one of your illusions: you trade places with it.",
@@ -196,10 +195,7 @@ static func _test_live_data(expect: Callable) -> void:
 		var description: String = str(GameData.relic_def(relic_id).get("description", ""))
 		expect.call(not description.is_empty() and not description.contains("{") and InlineIcons.invalid_icon_keys(description).is_empty(), "U1 live data/%s: valid resolved copy and established icons" % relic_id)
 		var icon_exists: bool = FileAccess.file_exists(str(raw.get("icon_path", "")))
-		if not icon_exists and PENDING_ART.has(relic_id):
-			print("U1 SUPPLIED ART PENDING: %s" % raw.get("icon_path", ""))
-		else:
-			expect.call(icon_exists, "U1 live data/%s: icon exists" % relic_id)
+		expect.call(icon_exists, "U1 live data/%s: icon exists" % relic_id)
 		if NEW_IDS.has(relic_id):
 			expect.call(int(raw.get("condition_tier", 0)) == int(TIERS.get(rarity, 0)) and int(raw.get("upside_tier", 0)) == int(TIERS.get(rarity, 0)), "U1 new data/%s: tiers equal rarity" % relic_id)
 			expect.call(record.contains('relic("%s",' % relic_id), "U1 new data/%s: ID appears in Python design record" % relic_id)

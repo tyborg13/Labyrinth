@@ -988,7 +988,7 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "When you place a @icon(surface) on a tile that holds a different elemental @icon(surface), the new @icon(surface) also spreads to each empty tile next to it.",
+    "description": "When you place @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) on a tile holding a different one of them, it also spreads to each empty tile next to it.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1008,7 +1008,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Consuming a @icon(surface) stores it (max 3). Your next attack deals 2 more damage per stored @icon(surface), and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
+    "description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2543,7 +2543,7 @@
   "breaking_wheel": {
     "name": "The Breaking Wheel",
     "rarity": "epic",
-    "description": "An enemy that collides on a @icon(surface) breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) @icon(freeze)s it, @icon(surface_electrified) @icon(shock)s it and its blocker, @icon(surface_rubble) @icon(stagger)s it 3.",
+    "description": "An enemy that collides on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) @icon(freeze)s it, @icon(surface_electrified) @icon(shock)s it and its blocker, @icon(surface_rubble) @icon(stagger)s it 3.",
     "icon_path": "res://assets/art/relics/breaking_wheel.png",
     "accent": "#9b62d6",
     "design_version": 4,

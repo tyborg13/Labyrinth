@@ -12519,6 +12519,11 @@ func _draw_light_jump_arc(from: Vector2, to: Vector2, color: Color) -> void:
 		dash_start += period
 	draw_circle(to, width * 1.1, color)
 
+func _light_jump_depth_tile(a: Vector2i, b: Vector2i) -> Vector2i:
+	if a.x + a.y != b.x + b.y:
+		return a if a.x + a.y > b.x + b.y else b
+	return a if a.x > b.x else b
+
 func _arc_point_at(samples: PackedVector2Array, lengths: PackedFloat32Array, distance: float) -> Vector2:
 	for index: int in range(1, samples.size()):
 		if lengths[index] >= distance:
@@ -12545,7 +12550,10 @@ func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool
 			for index: int in range(1, path_tiles.size()):
 				if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1:
 					if segment.size() >= 2: _draw_path_tiles(segment, color)
-					_draw_light_jump_arc(_tile_center(path_tiles[index - 1]), _tile_center(path_tiles[index]), color)
+					# The arc floats above the floor, so it draws once, in the later endpoint's depth pass.
+					var jump_depth_tile: Vector2i = _light_jump_depth_tile(path_tiles[index - 1], path_tiles[index])
+					if _path_depth_tile.x < 0 or _path_depth_tile == jump_depth_tile:
+						_draw_light_jump_arc(_tile_center(path_tiles[index - 1]), _tile_center(path_tiles[index]), color)
 					segment.clear()
 				segment.append(path_tiles[index])
 			if segment.size() >= 2: _draw_path_tiles(segment, color)
