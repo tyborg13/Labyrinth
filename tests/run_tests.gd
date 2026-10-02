@@ -736,7 +736,7 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("cross"), "Faultline Brooch should explain its optional melee footprint transformation")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining @icon(block)"), "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Opening @icon(draw) -1"), "Obsidian Heart should format its negative opening draw through the draw icon")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("stores that element"), "Black Sun Dial should describe its stored-element rule")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("stores it (max 3)"), "Black Sun Dial should describe its stored-element rule")
 	_assert(GameData.relic_offer_weight("pilgrim_boots") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")

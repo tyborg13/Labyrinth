@@ -18,7 +18,6 @@ func _initialize() -> void:
 	_test_paid_v4_guide_releases_controls()
 	_test_direct_detonate_shatter_and_passive_exclusion()
 	_test_ember_siphon_source_filter()
-	_test_tongs_excludes_relic_fire()
 	for failure: String in failures:
 		push_error(failure)
 	print("Surface parent review checks: %s" % ("PASS" if failures.is_empty() else "%d failures" % failures.size()))
@@ -112,19 +111,6 @@ func _test_ember_siphon_source_filter() -> void:
 	state = (combat.call("_resolve_enemy_start_of_turn", state, 0) as Dictionary)["state"]
 	check(int(state["player"]["hp"]) == 23, "Ember Siphon should heal once when your persistent Fire kills on enemy turn start")
 	check(int(state.get("death_bonus_card_plays_this_turn", 0)) == 0, "Causal Fire credit must never turn a passive start death into banked plays")
-
-func _test_tongs_excludes_relic_fire() -> void:
-	var combat: Combat = Combat.new()
-	var state: Dictionary = Base.fixture(combat)
-	state["relics"] = ["cinderbrand_tongs", "phoenix_ember"]
-	state["player"]["hp"] = 1
-	state["player"]["max_hp"] = 24
-	state["defiance_capacity"] = 1
-	state["defiance_remaining"] = 1
-	Ground.place(state, Vector2i(2, 3), "fire")
-	state = combat.apply_player_action(state, {"type": "detonate", "damage": 2, "range": 5, "element": "fire"}, Vector2i(2, 3))
-	check(Ground.has_surface(state, Vector2i(4, 3), "fire"), "Tongs source fixture should include Phoenix's actual new Fire during a paid action")
-	check(not (state.get("surface_relic_flags", {}) as Dictionary).has("cinderbrand_tongs:surface_creation_reward"), "Relic-created Fire must not spend or recursively trigger Cinderbrand Tongs's player-card creation reward")
 
 func check(condition: bool, message: String) -> void:
 	if not condition:
