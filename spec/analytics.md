@@ -820,3 +820,19 @@ removal/status event). Both layers on the contact tile are consumed. Siege and
 Wheel Stagger remain part of the existing `stagger_applied` card summary; Freeze
 and Shock keep normal status state and Freeze events. Forecast copies emit no
 analytics. No new event types or payload fields are required.
+
+### Relic overhaul U4 tempo
+
+No new event kinds are introduced. Borrowed Hourglass uses the ordinary saved
+hero-turn start boundary and records the new activation normally. Pendulum
+Weight deaths use existing `actor_death` events with `source_kind: relic`,
+`player_card: false` and `relic_id`; overflow never grants a card-play kill.
+Existing Quicken, Follow-up, Empower and next-attack card-play fields continue
+to describe these relics. Echoing Blade's next-card damage is a `card_scoped`
+next-attack buff (all attacks of that card); ordinary buffs remain first-attack.
+Card action snapshots may add `_tempo_card_time` and `_tempo_plays_spent`
+(derived projection/payment inputs), `_empower_repeat_available` on the first
+action and `_empower_repeat_first` on its automatic repeat. These additive
+runtime annotations do not represent extra played cards. Preview copies never
+append gameplay analytics; local append-only JSONL and existing event cursors
+are unchanged.

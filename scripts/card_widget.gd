@@ -1364,7 +1364,9 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
-	if _time_surcharge > 0: detail += "\nEmpower: +%d" % _time_surcharge
+	var tempo_surcharge: int = int(card.get("_tempo_time_surcharge", 0))
+	if tempo_surcharge > 0: detail += "\nWhirling Sash: +%d" % tempo_surcharge
+	if _time_surcharge > tempo_surcharge: detail += "\nEmpower: +%d" % (_time_surcharge - tempo_surcharge)
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()
 

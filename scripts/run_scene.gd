@@ -66,6 +66,7 @@ const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_e
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
@@ -11890,6 +11891,7 @@ func _refresh_relic_bar() -> void:
 	var signature: String = str(hash([
 		relic_ids,
 		_combat_state.get("relic_time_reserve", {}),
+		_combat_state.get("relic_flags", {}),
 		rite_entries,
 		skill_ids,
 		skill_sigil_presentation,
@@ -11910,7 +11912,7 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {}), rite_entries])
+	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {}), _combat_state.get("relic_flags", {}), rite_entries])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
 		_clear_children(_relic_icon_grid)
@@ -11967,6 +11969,10 @@ func _refresh_relic_bar() -> void:
 			icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
 			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 			margin.add_child(icon)
+			for effect: Dictionary in GameData.relic_effects_for_ids([relic_id]):
+				if str(effect.get("type", "")) == "unused_play_extra_turn" and TempoRelicRules.used(_combat_state, effect):
+					icon.modulate.a = 0.45
+					frame.tooltip_text += "\nUsed this combat."
 			if icon.texture == null:
 				var fallback := Label.new()
 				fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -13227,6 +13233,7 @@ func _turn_order_display_state() -> Dictionary:
 	if not preview.is_empty():
 		state["turn_order_preview_time_delta"] = int(preview.get("time", 0))
 		state["turn_order_preview_card_name"] = str(preview.get("name", ""))
+		state["turn_order_preview_plays_spent"] = int(preview.get("plays_spent", 1))
 	if not stagger_delays.is_empty():
 		state[CardKeywordRules.PREVIEW_DELAYS_KEY] = stagger_delays
 	return state
@@ -13246,6 +13253,7 @@ func _turn_order_card_time_preview() -> Dictionary:
 	var empower_time: int = CardKeywordRules.empower_time_surcharge(_preview_combat_state, card_id, card) if index == _selected_card_index else 0
 	return {
 		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
+		"plays_spent": _combat_engine.flurry_plays_for_card(card_id, _combat_state) if bool(card.get("flurry", false)) else 1,
 		"name": str(card.get("name", card_id))
 	}
 
@@ -13549,6 +13557,26 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
+	if not str(entry.get("late_relic_id", "")).is_empty():
+		# A miniature of the relic-bar badge, so the cue reads as "this relic applies here".
+		var late_relic_id: String = str(entry["late_relic_id"])
+		var bell_badge := Panel.new()
+		bell_badge.name = "LateRelicIcon"
+		bell_badge.size = Vector2(30, 30)
+		bell_badge.position = Vector2(slot_size.x - 32, 2)
+		bell_badge.z_index = 7
+		bell_badge.mouse_filter = Control.MOUSE_FILTER_PASS
+		bell_badge.tooltip_text = "Late: your attacks deal 3 more."
+		bell_badge.add_theme_stylebox_override("panel", _pile_card_style(Color("261b14"), Color(GameData.relic_accent(late_relic_id)), 3.0))
+		var bell := TextureRect.new()
+		bell.texture = AssetLoader.load_texture(str(GameData.relic_def(late_relic_id).get("icon_path", "")))
+		bell.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bell.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		bell.size = Vector2(24, 24)
+		bell.position = Vector2(3, 3)
+		bell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bell_badge.add_child(bell)
+		frame.add_child(bell_badge)
 	var edge := TurnOrderInk.SlashEdge.new()
 	edge.name = "TurnOrderSlashEdge"
 	edge.skew = TurnOrderInk.SKEW_RATIO
@@ -13877,7 +13905,7 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			str(entry.get("pos", Vector2i.ZERO)),
 			int(entry.get("hp", -1)),
 			int(entry.get("max_hp", -1)),
-			"P" if bool(entry.get("petrified", false)) else ""
+			("P" if bool(entry.get("petrified", false)) else "") + str(entry.get("late_relic_id", ""))
 		])
 	return "|".join(parts)
 
@@ -16188,6 +16216,11 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 			working_state = _combat_engine.apply_player_action(working_state, action)
 			cursor += 1
 			continue
+		if bool(action.get("_empower_repeat_first", false)) and _combat_engine.player_action_needs_target(action):
+			var repeat_target: Vector2i = working_state.get("last_action_target", INVALID_TARGET_TILE)
+			working_state = _combat_engine.apply_player_action(working_state, action, repeat_target)
+			cursor += 1
+			continue
 		if _combat_engine.player_action_needs_target(action):
 			var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			var has_candidate_target: bool = _combat_engine.player_action_has_valid_target(working_state, action)
@@ -16230,7 +16263,7 @@ func _pending_card_known_forecast_state() -> Dictionary:
 		# Filter hidden causes before replaying the targetless actions, not just
 		# after them: a concealed target may otherwise trigger healing or a trap.
 		var known: Dictionary = _surface_preview_information_state(_combat_state)
-		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "play")
+		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
 		var preview: Dictionary = _card_preview_from_state(_card_id_for_hand_index(_selected_card_index), prepared, _pending_actions, 0)
 		_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
 			preview.get("state", prepared) as Dictionary,
@@ -19836,7 +19869,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	}
 	# A toggled Empower +Time shows on the card's own Time badge, matching the
 	# turn-order rail's preview (and its tooltip names the surcharge).
-	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card)
+	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card) + int(card.get("_tempo_time_surcharge", 0))
 	if time_surcharge > 0:
 		display["time_surcharge"] = time_surcharge
 	return display
@@ -20674,7 +20707,7 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	# for the same hovered target. Share that immutable result within the pointer
 	# event instead of resolving dense AOEs and their relic hooks twice.
 	if _selected_card_index >= 0 and not _orientation_pending():
-		_cache_hover_resolved_preview_state(after_state)
+		_cache_hover_resolved_preview_state((resolved["actual"] as Dictionary).get("single_state", after_state) as Dictionary)
 	var known_state: Dictionary = resolved["before"]
 	var known_after: Dictionary = (resolved["damage"] as Dictionary)["state"]
 	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(known_state, known_after))
@@ -22818,6 +22851,8 @@ func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dicti
 		if not bool(action.get("reuse_previous_target", false)):
 			break
 		var target_tile: Vector2i = _last_resolved_pending_target()
+		if bool(action.get("_empower_repeat_first", false)):
+			target_tile = _combat_engine.empower_repeat_target(preview.get("state", {}) as Dictionary, action, target_tile)
 		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
 		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
 			if str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
@@ -34685,7 +34720,7 @@ func _selected_card_empower_cost() -> Dictionary:
 	if _selected_card_index < 0 or _combat_state.is_empty():
 		return {}
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	if card_id.is_empty() or not CardKeywordRules.card_id_may_have_keywords(card_id):
+	if card_id.is_empty():
 		return {}
 	return CardKeywordRules.empower_cost(_card_def(card_id, _combat_state))
 
@@ -34708,6 +34743,8 @@ func _empower_command_text(active: bool) -> String:
 func _empower_command_tooltip() -> String:
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var card: Dictionary = _card_def(card_id, _combat_state)
+	if bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)):
+		return "Empower (+3 Time): repeat this card's first action."
 	var bonus_text: String = ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
 	return "Empower (%s): %s.\nThe cost is paid when the card finishes. Press E (controller: right stick)." % [CardKeywordRules.empower_cost_label(_selected_card_empower_cost()), bonus_text]
 

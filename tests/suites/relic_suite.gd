@@ -23,7 +23,12 @@ const RARITY_TIERS := {
 	"epic": 3,
 	"legendary": 4
 }
+# U4 categories are behavior-tested by RelicU4Suite.
 const SUPPORTED_EFFECT_TYPES := [
+  "unused_play_time_reduction", "damage_vs_late", "stagger_overflow_damage",
+  "high_time_quicken", "unused_play_extra_turn", "cards_per_turn_bonus",
+  "later_card_time_surcharge", "empower_quicken", "grant_first_action_empower",
+  "movement_first_follow_up", "follow_up_next_card",
   "blink_draw_once_per_turn",
   "blink_origin_illusion",
   "bloodied_glass_attack_bonus",
@@ -177,9 +182,6 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 		"Chorus Mask should turn a two-element sequence into usable tempo and defense"
 	)
 
-	var hourglass_state: Dictionary = _state(combat, ["hourglass_splinter"])
-	hourglass_state = _trigger_card(combat, hourglass_state, _card("", 7, [{"type": "melee", "damage": 1}]), "hourglass")
-	expect.call(int(hourglass_state.get("card_play_bonus_this_turn", 0)) == 1 and int((hourglass_state.get("player", {}) as Dictionary).get("block", 0)) == 4, "Hourglass Splinter should refund a high-Time card and add defense")
 
 	var widow_state: Dictionary = _state(combat, ["widow_thread"])
 	widow_state["illusions"] = [{"id": 99, "pos": Vector2i(3, 4), "hp": 2, "max_hp": 2}]
@@ -227,10 +229,6 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 		knot_state = _trigger_card(combat, knot_state, _card(element_id, 3, [{"type": "block", "amount": 1}]), "knot_%s" % element_id)
 	expect.call(((knot_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(knot_state.get("card_play_bonus_this_turn", 0)) == 5, "Fivefold Knot should deliver a legendary payoff only after all five elements in one turn")
 
-	var borrowed_state: Dictionary = _state(combat, ["borrowed_hourglass"])
-	borrowed_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace"], [])
-	borrowed_state = _trigger_card(combat, borrowed_state, _card("", 8, [{"type": "aoe", "damage": 4}]), "borrowed", true)
-	expect.call(((borrowed_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 4 and int(borrowed_state.get("card_play_bonus_this_turn", 0)) == 3, "Borrowed Hourglass should turn a banked high-Time play into a mythic combo turn")
 
 static func _test_spatial_radiance_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
