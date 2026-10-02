@@ -2713,7 +2713,7 @@
   "mirror_triptych": {
     "name": "Mirror Triptych",
     "rarity": "legendary",
-    "description": "Your first attack card each turn is echoed by up to three of your @icon(illusion)s: each repeats its first attack from its own tile against the nearest enemy it can reach, at half damage (rounded down), then loses 1 @icon(health).",
+    "description": "Your first attack card each turn is echoed by up to 3 of your @icon(illusion)s at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
     "icon_path": "res://assets/art/relics/mirror_triptych.png",
     "accent": "#d9862f",
     "design_version": 4,

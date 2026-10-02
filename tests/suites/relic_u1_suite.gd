@@ -154,7 +154,7 @@ const AUTHORED_TEXT := {
   "borrowed_hourglass": "Once per combat, when you end your turn with a card play unused, take another turn at once. Everything it costs is added to your next turn's Time.",
   "unclouded_sun": "Your Light is a road: when you Move, every tile of your Light counts as next to every other tile of your Light.",
   "crown_of_surplus": "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action. Rites, items and Flurry cards are excluded.",
-  "mirror_triptych": "Your first attack card each turn is echoed by up to three of your illusions: each repeats its first attack from its own tile against the nearest enemy it can reach, at half damage (rounded down), then loses 1 health.",
+  "mirror_triptych": "Your first attack card each turn is echoed by up to 3 of your Illusions at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 Health.",
   "liturgy_of_ash": "Rites don't use a card play.",
   "pyre_keepers_urn": "At the start of your turn, the card you most recently Exhausted returns to your hand, unless it is a Rite or heals.",
   "briar_throne": "Your Retaliate no longer expires, and grows by 1 each time it triggers. Cards can't give you Block.",

@@ -592,7 +592,7 @@ relic("crown_of_surplus", "Crown of Surplus", L, "new", "Transform", ["empower",
       ["relic:overclock_coil", "relic:fencers_gloves"],
       "The Time cost is the brake. Enemies act more often against a deck that doubles everything.", impl=2)
 relic("mirror_triptych", "Mirror Triptych", L, "new", "Engine", ["illusion"], 0, 3,
-      "Your first attack card each turn is echoed by up to three of your illusions: each repeats its first attack from its own tile against the nearest enemy it can reach, at half damage (rounded down), then loses 1 health.",
+      "Your first attack card each turn is echoed by up to 3 of your Illusions at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 Health.",
       "Nothing without illusions.",
       "A hall of mirrors becomes a firing line.",
       ["card:hall_of_mirrors", "relic:witchglass_carapace", "relic:glassway_compass"],
