@@ -52,7 +52,6 @@ const SUPPORTED_EFFECT_TYPES := [
   "turn_start_surface_stoneskin",
   "bloodied_glass_attack_bonus",
   "card_action_mod",
-  "card_play_reward",
   "chain_swap_endpoints",
   "conductive_fire",
   "defiance_capacity",
