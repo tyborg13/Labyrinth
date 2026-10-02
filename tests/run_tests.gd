@@ -137,6 +137,7 @@ func _initialize() -> void:
 	# relic overhaul U4 suites
 	preload("res://tests/suites/relic_u4_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U5 suites
+	preload("res://tests/suites/relic_u5_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U6 suites
 	# relic overhaul U7 suites
 	# relic overhaul U8 suites

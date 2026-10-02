@@ -166,11 +166,11 @@ static func player_light_radius(effects: Array) -> int:
 			radius += maxi(0, int(effect.get("radius", 0)))
 	return radius
 
-static func card_time_discount(effects: Array) -> int:
+static func card_time_discount(effects: Array, card: Dictionary = {}) -> int:
 	var total: int = 0
 	for effect_var: Variant in effects:
 		var effect: Dictionary = effect_var as Dictionary
-		if str(effect.get("type", "")) == "card_time_discount":
+		if str(effect.get("type", "")) == "card_time_discount" and (not bool(effect.get("rite_only", false)) or is_rite_card(card)):
 			total += maxi(0, int(effect.get("amount", 0)))
 	return total
 

@@ -1066,7 +1066,7 @@ func _start_card_from_input(hand_index: int, mode: String, input_label: String) 
 	_continue_pending()
 
 func _can_start_card(hand_index: int, mode: String) -> bool:
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, hand_index):
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if hand_index < 0 or hand_index >= hand.size():

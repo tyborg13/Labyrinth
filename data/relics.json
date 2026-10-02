@@ -14,15 +14,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_health_cost": 1,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 3
-          }
-        ]
+        "type": "health_cost_stoneskin",
+        "stoneskin_per_health": 2
       }
     ]
   },
@@ -613,16 +606,14 @@
     ],
     "effects": [
       {
-        "type": "status_count_reward",
+        "type": "status_applied_reward",
         "status": "freeze",
-        "threshold": 1,
-        "player_min_block": 1,
-        "count_scope": "turn",
-        "once": "turn",
+        "player_min_block": 4,
         "rewards": [
           {
-            "type": "block_to_stoneskin",
-            "amount": 6
+            "type": "block_to_mantle",
+            "block_per_layer": 4,
+            "max_layers": 2
           }
         ]
       }
@@ -1387,24 +1378,9 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_health_cost": 1,
-        "player_hp_percent_max": 50,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "heal",
-            "amount": 5
-          },
-          {
-            "type": "draw",
-            "amount": 2
-          },
-          {
-            "type": "card_play",
-            "amount": 1
-          }
-        ]
+        "type": "health_loss_next_attack",
+        "damage_per_health": 2,
+        "max_damage": 8
       }
     ]
   },
@@ -2501,7 +2477,11 @@
       "block",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "retaliate_health_block"
+      }
+    ]
   },
   "reliquary_box": {
     "name": "Reliquary Box",
@@ -2516,7 +2496,16 @@
       "rites",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "opening_hand_rite"
+      },
+      {
+        "type": "card_time_discount",
+        "rite_only": true,
+        "amount": 1
+      }
+    ]
   },
   "changelings_rattle": {
     "name": "Changeling's Rattle",
@@ -2565,7 +2554,12 @@
       "earth",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "exhaust_time_stoneskin",
+        "max_amount": 5
+      }
+    ]
   },
   "bonded_set": {
     "name": "Bonded Set",
@@ -2728,7 +2722,12 @@
       "block",
       "engine"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "turn_start_active_rite_block",
+        "amount": 2
+      }
+    ]
   },
   "siege_ram_totem": {
     "name": "Siege Ram Totem",
@@ -2835,7 +2834,11 @@
       "rites",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "rite_no_card_play"
+      }
+    ]
   },
   "pyre_keepers_urn": {
     "name": "Pyre-Keeper's Urn",
@@ -2850,7 +2853,12 @@
       "rites",
       "engine"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "turn_start_return_exhaust",
+        "once": "turn"
+      }
+    ]
   },
   "briar_throne": {
     "name": "Briar Throne",
@@ -2865,7 +2873,15 @@
       "block",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "persistent_retaliate",
+        "growth": 1
+      },
+      {
+        "type": "prevent_card_block"
+      }
+    ]
   },
   "whirling_sash": {
     "name": "Whirling Sash",

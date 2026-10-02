@@ -23,8 +23,12 @@ const RARITY_TIERS := {
 	"epic": 3,
 	"legendary": 4
 }
-# U4 categories are behavior-tested by RelicU4Suite.
+# U4/U5 categories are behavior-tested by their registered unit suites.
 const SUPPORTED_EFFECT_TYPES := [
+  "retaliate_health_block", "persistent_retaliate", "prevent_card_block",
+  "health_cost_stoneskin", "health_loss_next_attack", "opening_hand_rite",
+  "card_time_discount", "exhaust_time_stoneskin", "turn_start_active_rite_block",
+  "rite_no_card_play", "turn_start_return_exhaust", "status_applied_reward",
   "unused_play_time_reduction", "damage_vs_late", "stagger_overflow_damage",
   "high_time_quicken", "unused_play_extra_turn", "cards_per_turn_bonus",
   "later_card_time_surcharge", "empower_quicken", "grant_first_action_empower",
@@ -59,7 +63,6 @@ const SUPPORTED_EFFECT_TYPES := [
   "rubble_attack_origin",
   "rubble_detonate",
   "rubble_redirect",
-  "status_count_reward",
   "stoneskin_melee_cross",
   "collision_player_defense",
   "collision_rubble",
@@ -216,12 +219,6 @@ static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 		and int(off_turn_funeral_state.get("pending_relic_card_plays", -1)) == 0,
 		"Passive deaths must not create a later Funeral Bell refund"
 	)
-
-	var chalice_state: Dictionary = _state(combat, ["bloodmoon_chalice"], 10, 24)
-	chalice_state["deck"] = _deck([], ["brace", "quick_stab"], [])
-	chalice_state = _trigger_card(combat, chalice_state, _card("", 6, [{"type": "melee", "damage": 4}], 1), "bloodmoon")
-	expect.call(int((chalice_state.get("player", {}) as Dictionary).get("hp", 0)) == 15, "Bloodmoon Chalice should heal a bloodied health-cost build")
-	expect.call(((chalice_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2 and int(chalice_state.get("card_play_bonus_this_turn", 0)) == 1, "Bloodmoon Chalice should add draw and tempo at its risk threshold")
 
 	var knot_state: Dictionary = _state(combat, ["fivefold_knot"])
 	knot_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
@@ -417,21 +414,6 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 
 static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var cold_state: Dictionary = _state(combat, ["cold_mirror"])
-	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
-	expect.call(int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 0, "Cold Mirror should require block before Freeze")
-	var cold_player: Dictionary = (cold_state.get("player", {}) as Dictionary).duplicate(true)
-	cold_player["block"] = 8
-	cold_state["player"] = cold_player
-	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
-	expect.call(
-		int((cold_state.get("player", {}) as Dictionary).get("block", 0)) == 2
-		and int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6,
-		"Cold Mirror should convert up to six existing block on the first qualifying Freeze"
-	)
-	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
-	expect.call(int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6, "Cold Mirror should trigger only once per turn")
-
 	var ember_state: Dictionary = _state(combat, ["ember_siphon"], 10, 24)
 	ember_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(6, 4), 2)
 	Surface.place(ember_state, Vector2i(4, 4), "fire")
