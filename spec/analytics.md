@@ -802,3 +802,21 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
 
 Player-raised kegs and Worldspines use the existing `terrain_created` event with
 `terrain_kind` `powder_keg` / `worldspine`.
+
+### Forced-movement relics (relic pool overhaul U3)
+
+Collision relics retain the existing `force_collision` schema and sequence cursor.
+Per-party `damage`, `target_damage`, `blocker_damage`, `blockers[].damage` and
+`total_damage` include the party's collision modifiers and Quarry's event-time
+Rubble bonus before Block/Stoneskin. Protected outcrops report zero damage.
+Battering Yoke records each knock-on collision separately in resolution order;
+card-play collision counts and sums therefore include those events. Knock-on
+kills retain the original card context and normal death/reward records.
+
+Millstone creates ordinary `surface_created` Rubble records, with the original
+force context and its source relic. Breaking Wheel uses `surface_removed` with
+reason `force_collision` (Ice successfully freezing still uses the normal `freeze`
+removal/status event). Both layers on the contact tile are consumed. Siege and
+Wheel Stagger remain part of the existing `stagger_applied` card summary; Freeze
+and Shock keep normal status state and Freeze events. Forecast copies emit no
+analytics. No new event types or payload fields are required.

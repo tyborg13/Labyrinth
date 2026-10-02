@@ -34954,8 +34954,13 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		var old: Dictionary = before_units[key] as Dictionary
 		var current: Dictionary = after_units.get(key, {}) as Dictionary
 		if current.is_empty() or int(current.get("hp", 0)) <= 0: continue
+		var predicted: Dictionary = {}
 		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
-			status_previews[key] = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
+			predicted = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
+		if int(old.get("shock", 0)) != int(current.get("shock", 0)):
+			predicted["shock"] = int(current.get("shock", 0))
+		if not predicted.is_empty():
+			status_previews[key] = predicted
 	result["surface_status_preview"] = status_previews
 
 func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:

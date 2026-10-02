@@ -357,8 +357,14 @@ static func _event_rewards(engine: RefCounted, before: Dictionary, state: Dictio
 						conducted[event.get("tile", INVALID)] = true
 				matched = conducted.size() >= int(entry.get("threshold", 2))
 			"displacement_reward":
-				if int(action.get("push", 0)) <= 0 and int(action.get("pull", 0)) <= 0 and str(action.get("type", "")) not in ["push", "pull"]:
+				if int(action.get("push", 0)) <= 0 and int(action.get("pull", 0)) <= 0 and str(action.get("type", "")) not in ["push", "pull", "force_area"]:
 					continue
+				if bool(entry.get("collision", false)):
+					for event: Dictionary in events:
+						var source: Dictionary = event.get("source", {})
+						if str(event.get("kind", "")) == "force_collision" and str(event.get("actor_kind", "")) == "enemy" and int(event.get("lost_tiles", 0)) > 0 and bool(source.get("player_card", false)) and str(source.get("source_kind", "")) != "trap":
+							matched = true
+							position = event.get("anchor", target)
 				for enemy: Dictionary in before.get("enemies", []):
 					if int(enemy.get("hp", 0)) <= 0: continue
 					var after: Dictionary = enemy_by_id(state, int(enemy.get("id", -1)))

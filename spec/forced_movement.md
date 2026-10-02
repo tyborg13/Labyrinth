@@ -113,3 +113,45 @@ worth damage, so relics that add distance (Tailwind Fletching, Anchor Chain,
 including keyword Push/Pull riders) add damage. Enemy force obeys the same
 rules against the player, and a straight line is always readable from the
 board before commit.
+
+## Collision relics (relic pool overhaul U3)
+
+`ForcedRelicRules.resolve_collision` is the shared single-actor and Galehook
+collision hook. Effects are selected from relic data, with no relic-ID branches.
+Recoil changes only the hero's share to one per lost tile, then gives three Block
+after all damage in that collision event. Fetter doubles an Immobilized enemy's
+share, whether mover or blocker. Mason adds two to an enemy mover's collision
+against any player-owned outcrop (once per collision) and prevents damage to
+each such outcrop; player-raised
+crags, Worldspines and Powder Kegs (the terrain spec's offensive outcrop variants)
+also gain two creation health. Ordinary crates and enemy terrain are excluded.
+
+Breaking Wheel samples the mover's contact tile (`blocked_tile - direction`),
+adds Fire's three to its collision amount, and resolves Ice Freeze, Electrified
+Shock (also on enemy blockers), and Rubble Stagger three after damage. Both ground
+layers there are consumed, even when Freeze/Shock immunity prevents a rider.
+Collision Freeze needs no prior Chill, uses the normal one-turn Freeze/immunity
+rules, and consumes only contact-tile Ice, preserving other footprint Ice.
+Quarry's universal one-point Rubble bonus is applied at the central enemy damage
+endpoint, after direct-hit Chill/Freeze amplification and before defenses. Fetter
+multiplies the collision and its Fire/Mason bonuses; Quarry then adds one.
+Siege uses that full pre-defense amount with the usual Stagger cap and dragon
+halving. It applies to both enemy parties, regardless of who caused the force.
+
+Hero-caused collisions paint Millstone Rubble on the stopped footprint after
+Wheel consumes the original ground. Newly created Rubble cannot amplify the
+collision that created it. Card and Retaliate forces are hero-caused; enemy and
+trap forces are excluded, including traps entered during a card action.
+Battering Yoke resolves the original collision first, then knocks living enemy
+blockers one tile in the same direction through the normal mover, recursively.
+An action-local set limits each enemy to one knock per action (including area
+forces and Chain), and is discarded before returning the state. Galehook's front
+member can knock an enemy outside its group. A blocked knock has zero travelled
+path and its own collision marker; it never retries after a later knock clears
+space. Pinion's existing turn-stamped saved flag also claims card-caused enemy
+collision events, including zero-tile displacement.
+
+Forecast copies use these same hooks. Damage and consumed ground appear in the
+existing surface/damage forecast, Freeze and Shock use existing status badges,
+Stagger uses the turn rail, and Yoke uses ordinary paths and one marker per
+collision. No new input or presentation controls are added.

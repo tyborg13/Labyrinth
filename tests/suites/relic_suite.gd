@@ -56,6 +56,14 @@ const SUPPORTED_EFFECT_TYPES := [
   "rubble_redirect",
   "status_count_reward",
   "stoneskin_melee_cross",
+  "collision_player_defense",
+  "collision_rubble",
+  "collision_knock_chain",
+  "collision_status_multiplier",
+  "outcrop_collision_guard",
+  "collision_stagger",
+  "collision_break_surfaces",
+  "damage_on_surface",
   "target_state_action_mod",
   "transport_surface",
   "umbra_transition_reward"
@@ -131,9 +139,6 @@ static func _test_conditional_card_mutations(expect: Callable) -> void:
 	Surface.place(terrain_state, Vector2i(3, 4), "fire")
 	var burning_ground: Dictionary = combat.call("_action_with_target_state_relic_modifiers", terrain_state, {"type": "melee", "damage": 3, "range": 1}, 0)
 	expect.call(int(burning_ground["damage"]) == 5, "Flint Edge enables only its own Fire condition")
-	Surface.place(terrain_state, Vector2i(3, 4), "rubble")
-	var layered: Dictionary = combat.call("_action_with_target_state_relic_modifiers", terrain_state, {"type": "melee", "damage": 3, "range": 1}, 0)
-	expect.call(int(layered["damage"]) == 7, "Distinct Fire and Rubble target conditions may combine")
 	_expect_action_delta(expect, "chain_bolt", "storm_capacitor", "ranged", "chain", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "damage", 1)
 	_expect_action_delta(expect, "gust_step", "tailwind_fletching", "pull", "amount", 1)

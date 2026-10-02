@@ -504,18 +504,9 @@
     ],
     "effects": [
       {
-        "type": "target_state_action_mod",
-        "target_surface": "rubble",
-        "action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "field": "damage",
-        "amount": 2
+        "type": "damage_on_surface",
+        "surface": "rubble",
+        "amount": 1
       }
     ]
   },
@@ -2150,7 +2141,8 @@
             "type": "draw",
             "amount": 1
           }
-        ]
+        ],
+        "collision": true
       }
     ]
   },
@@ -2242,7 +2234,13 @@
       "block",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_player_defense",
+        "damage_per_tile": 1,
+        "block": 3
+      }
+    ]
   },
   "millstone_fob": {
     "name": "Millstone Fob",
@@ -2258,7 +2256,11 @@
       "earth",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_rubble"
+      }
+    ]
   },
   "tallow_candle": {
     "name": "Tallow Candle",
@@ -2471,7 +2473,12 @@
       "forced",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_knock_chain",
+        "amount": 1
+      }
+    ]
   },
   "pendulum_weight": {
     "name": "Pendulum Weight",
@@ -2612,7 +2619,13 @@
       "forced",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_status_multiplier",
+        "status": "immobilize",
+        "multiplier": 2
+      }
+    ]
   },
   "masons_plumb": {
     "name": "Mason's Plumb",
@@ -2628,7 +2641,18 @@
       "forced",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "outcrop_collision_guard",
+        "health": 2,
+        "damage": 2,
+        "terrain_kinds": [
+          "crag_outcrop",
+          "worldspine",
+          "powder_keg"
+        ]
+      }
+    ]
   },
   "breaking_wheel": {
     "name": "The Breaking Wheel",
@@ -2647,7 +2671,14 @@
       "earth",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_break_surfaces",
+        "fire_damage": 3,
+        "rubble_stagger": 3,
+        "shock": 1
+      }
+    ]
   },
   "hollow_puppet": {
     "name": "Hollow Puppet",
@@ -2710,7 +2741,11 @@
       "tempo",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "collision_stagger"
+      }
+    ]
   },
   "echoing_blade": {
     "name": "Echoing Blade",

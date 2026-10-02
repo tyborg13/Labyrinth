@@ -3,6 +3,8 @@ class_name CombatEngine
 
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 
+const ForcedRelicRules = preload("res://scripts/forced_relic_rules.gd")
+
 const CombatTerrainRules = preload("res://scripts/combat_terrain_rules.gd")
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -1417,6 +1419,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	# Consumers select deltas by sequence, never by array offset.
 	next_state["damage_context"] = _surface_source(next_state, action)
 	next_state["damage_context"]["source_kind"] = "direct_attack"
+	next_state["_forced_relic_knocked"] = {}
 	next_state = SurfaceRelicRules.before_action(self, next_state, payment_action, target_tile)
 	if target_tile != INVALID_TILE and target_tile.x >= 0:
 		next_state["last_action_target"] = target_tile
@@ -1434,6 +1437,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			if target_is_valid:
 				var movement_path: Array[Vector2i] = path_for_player_action(next_state, action, target_tile)
 				if movement_path.size() <= 1:
+					next_state.erase("_forced_relic_knocked")
 					_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 					_record_runtime_performance_phase("player_action_total", performance_total_started)
 					return next_state
@@ -1579,6 +1583,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	if action.has("clear_surface"):
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(next_state.get("player", {}) as Dictionary):
 			BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
+	next_state.erase("_forced_relic_knocked")
 	next_state = SurfaceRelicRules.apply_events(self, state, next_state, action, target_tile, presentation_trace)
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
@@ -4378,6 +4383,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 			total_damage *= BoardSurfaceRules.FROZEN_MULTIPLIER
 		elif bool(enemy.get("chilled", false)):
 			total_damage += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
+	total_damage += ForcedRelicRules.damage_bonus(self, next_state, enemy, damage)
 	if apply_freeze_multiplier and total_damage > 0 and int(enemy.get("frost_armor", 0)) > 0:
 		enemy["frost_armor"] = int(enemy.get("frost_armor", 0)) - 1
 		enemies[enemy_index] = enemy
@@ -6666,63 +6672,7 @@ func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: i
 	return _surface_damage_actor(state, kind, id, amount, false, false)
 
 func _apply_force_collision(state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
-	if lost <= 0:
-		return state
-	var damage: int = GameData.fixed_point_amount(FORCE_COLLISION_DAMAGE_PER_TILE) * lost
-	var unit: Dictionary = _force_unit(state, kind, id)
-	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
-	var context_before: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
-	# Keep the card's context so a collision kill is that card's kill.
-	var context: Dictionary = context_before.duplicate(true)
-	context["source_kind"] = "force_collision"
-	state["damage_context"] = context
-	state["_surface_damage_batch"] = true
-	state = _force_collision_damage(state, kind, id, damage)
-	var blockers: Array = []
-	var total_damage: int = damage
-	for blocker_var: Variant in contact.get("blockers", []):
-		var blocker: Dictionary = (blocker_var as Dictionary).duplicate(true)
-		var dealt: int = 0
-		match str(blocker.get("kind", "")):
-			"terrain":
-				var terrain_index: int = _terrain_index_at_tile(state, blocker.get("tile", INVALID_TILE))
-				if terrain_index >= 0:
-					state = _damage_terrain(state, terrain_index, damage)
-					dealt = damage
-			"enemy", "player", "illusion":
-				state = _force_collision_damage(state, str(blocker["kind"]), int(blocker.get("id", -1)), damage)
-				dealt = damage
-		blocker["damage"] = dealt
-		total_damage += dealt
-		blockers.append(blocker)
-	var primary: Dictionary = blockers[0] if not blockers.is_empty() else {}
-	var blocked_tile: Vector2i = contact.get("blocked_tile", INVALID_TILE)
-	BoardSurfaceRules.record_event(state, {
-		"kind": "force_collision",
-		"tile": blocked_tile - direction,
-		"anchor": unit.get("pos", INVALID_TILE),
-		"blocked_tile": blocked_tile,
-		"direction": direction,
-		"force": "push" if pushing else "pull",
-		"actor_kind": kind,
-		"id": id,
-		"actor_key": _surface_actor_key(kind, id),
-		"lost_tiles": lost,
-		"damage": damage,
-		"target_damage": damage,
-		"blocker_kind": str(primary.get("kind", "")),
-		"blocker_key": str(primary.get("key", "")),
-		"blocker_damage": int(primary.get("damage", 0)),
-		"blockers": blockers,
-		"total_damage": total_damage,
-		"source": context_before.duplicate(true)
-	})
-	_log(state, "Collision: %d damage." % damage)
-	state["damage_context"] = context_before
-	state["_surface_damage_batch"] = previous_batch
-	if not previous_batch:
-		state = _flush_surface_deaths(state)
-	return state
+	return ForcedRelicRules.resolve_collision(self, state, kind, id, contact, direction, lost, pushing)
 
 func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i) -> bool:
 	# Zero-damage Push/Pull is legal when it moves the target or collides.
@@ -11041,13 +10991,13 @@ func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int,
 
 func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int, action: Dictionary) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
-	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or not bool(unit.get("chilled", false)) or _action_element(action) != "ice":
+	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or (not action.has("_collision_freeze_tile") and not bool(unit.get("chilled", false))) or _action_element(action) != "ice":
 		return state
 	if actor_kind == "enemy" and _enemy_is_immune_to_status(unit, "freeze"):
 		return state
 	var support: Array[Vector2i]
 	for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit):
-		if BoardSurfaceRules.element_at(state, tile) == "ice":
+		if BoardSurfaceRules.element_at(state, tile) == "ice" and (not action.has("_collision_freeze_tile") or tile == action["_collision_freeze_tile"]):
 			support.append(tile)
 	unit["freeze"] = 1
 	unit["chilled"] = false
@@ -11831,7 +11781,7 @@ func _surface_chain_displacement(state: Dictionary, actor: Dictionary, action: D
 	if index < 0:
 		return {"state": state, "pos": actor.get("to", INVALID_TILE)}
 	state["_surface_damage_batch"] = true
-	state["damage_context"] = {"player_card": false, "source_kind": "forecast"}
+	state["damage_context"] = {"actor_kind": "player", "player_card": false, "source_kind": "forecast"}
 	var hit_action: Dictionary = action.duplicate(true)
 	if actor.has("from") and actor["from"] != actor.get("to", actor["from"]):
 		hit_action.erase("force_direction")

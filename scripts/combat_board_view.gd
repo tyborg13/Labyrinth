@@ -16156,6 +16156,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		var chilled: bool = bool(predicted.get("chilled", false))
 		if frozen or chilled:
 			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
+		if int(predicted.get("shock", 0)) > int(unit.get("shock", 0)):
+			badges.append({"icon": "shock", "count_text": "→", "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"})
 
 	return badges
 
