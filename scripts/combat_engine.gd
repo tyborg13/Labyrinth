@@ -81,6 +81,7 @@ const ENEMY_DAMAGE_DELTA_DEPTH_ONE: int = 0
 const ENEMY_DAMAGE_DELTA_DEPTH_THREE: int = 0
 const ENEMY_SUPPORT_DELTA_DEPTH_ONE: int = -1
 const ENEMY_SUPPORT_DELTA_DEPTH_THREE: int = 0
+const CommonRelicRules = preload("res://scripts/common_relic_rules.gd")
 const GuardianRelicRules = preload("res://scripts/guardian_relic_rules.gd")
 const GuardianCombatRules = preload("res://scripts/guardian_combat_rules.gd")
 
@@ -886,6 +887,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	}
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
+	state = CommonRelicRules.start_combat(self, state)
 	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
 		_assign_enemy_intent(state, enemy_index, rng)
 	state["rng_state"] = rng.state
@@ -1501,6 +1503,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		"block":
 			player["block"] = int(player.get("block", 0)) + int(resolved_action.get("amount", 0))
 			next_state["player"] = player
+			CommonRelicRules.block_from_card(self, next_state, resolved_action)
 			_log(next_state, "Gained %d block." % int(resolved_action.get("amount", 0)))
 		"stoneskin":
 			var stoneskin_before: int = int(player.get("stoneskin", 0))
@@ -1875,6 +1878,8 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	if empower_health > 0:
 		next_state = _lose_player_health(next_state, empower_health, true, false, "card_health_cost")
 		_log(next_state, "Paid %d health to Empower %s." % [empower_health, str(card.get("name", card_id))])
+	# A Flurry finishes one card even when it spends several play slots.
+	next_state["turn_flags"]["cards_finished"] = int((next_state.get("turn_flags", {}) as Dictionary).get("cards_finished", 0)) + 1
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
 	var time_cost: int = card_time_cost_from_def(card)
 	var borrowed_time_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
@@ -2698,7 +2703,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["banked_play_spent_this_activation"] = 0
 	next_state = _tick_umbra_player_activation(next_state)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
-	player["block"] = 0
+	player["block"] = CommonRelicRules.retained_block(_relic_effects(next_state), int(player.get("block", 0)))
 	next_state["player"] = player
 	RetaliateRules.clear(next_state)
 	ManeuverRules.expire_flags(next_state, "next_turn")
@@ -2719,6 +2724,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		"first_attack_bonus_used": false,
 		"first_move_bonus_used": false
 	}
+	next_state = CommonRelicRules.turn_start(self, next_state)
 	next_state = _resolve_player_start_of_turn(next_state)
 	if combat_outcome(next_state) != "":
 		return next_state
@@ -5656,6 +5662,8 @@ func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictio
 	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) != "player_state_action_mod":
 			continue
+		if effect.has("element") and _action_element(action) != str(effect["element"]):
+			continue
 		if not _relic_player_state_condition_met(state, effect):
 			continue
 		var action_types: Array = effect.get("action_types", [])
@@ -5681,6 +5689,8 @@ func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictio
 
 func _relic_player_state_condition_met(state: Dictionary, effect: Dictionary) -> bool:
 	var player: Dictionary = _normalized_player(state.get("player", {}))
+	if effect.has("player_surface") and not BoardSurfaceRules.unit_on(state, player, str(effect["player_surface"])):
+		return false
 	if effect.has("player_min_block") and int(player.get("block", 0)) < GameData.fixed_point_amount(int(effect.get("player_min_block", 0))):
 		return false
 	if effect.has("player_min_stoneskin") and int(player.get("stoneskin", 0)) < GameData.fixed_point_amount(int(effect.get("player_min_stoneskin", 0))):
@@ -5705,6 +5715,8 @@ func _action_with_target_state_relic_modifiers(state: Dictionary, action: Dictio
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	for effect: Dictionary in _relic_effects(state):
 		if str(effect.get("type", "")) != "target_state_action_mod":
+			continue
+		if bool(effect.get("requires_damage", false)) and int(action.get("damage", 0)) <= 0:
 			continue
 		var action_types: Array = effect.get("action_types", []) as Array
 		if not action_types.is_empty() and not action_types.has(str(action.get("type", ""))):
@@ -9959,6 +9971,8 @@ func _conditional_attack_bonus_for_action_from_effects(
 				var card_element: String = str(action.get("_card_element", ElementData.NONE))
 				if ElementData.is_elemental(card_element) and card_element == str(state.get("room_element", ElementData.NONE)):
 					total += GameData.fixed_point_amount(int(effect.get("value", 0)))
+			"moved_tiles_card_attack_bonus":
+				total += CommonRelicRules.moved_damage(state, action, effect)
 			"first_card_attack_bonus":
 				var first_card_key: String = _turn_relic_flag_key(effect, "first_card_attack_bonus")
 				if not _turn_flag(state, first_card_key) and _action_matches_relic_card_groups(action, effect):
@@ -9995,6 +10009,9 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 				if ElementData.is_elemental(card_element) and card_element == str(state.get("room_element", ElementData.NONE)):
 					amount = GameData.fixed_point_amount(int(effect.get("value", 0)))
 					detail = "Matching room element"
+			"moved_tiles_card_attack_bonus":
+				amount = CommonRelicRules.moved_damage(state, action, effect)
+				detail = "Tiles moved this turn (maximum 3)"
 			"first_card_attack_bonus":
 				var first_card_key: String = _turn_relic_flag_key(effect, "first_card_attack_bonus")
 				if not _turn_flag(state, first_card_key) and _action_matches_relic_card_groups(action, effect):
@@ -10003,6 +10020,7 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 			"player_state_action_mod":
 				if (
 					str(effect.get("field", "")) == "damage"
+					and (not effect.has("element") or _action_element(action) == str(effect["element"]))
 					and _relic_player_state_condition_met(state, effect)
 					and (effect.get("action_types", []) as Array).has(str(action.get("type", "")))
 					and action.has("_card_action_types")
@@ -10012,7 +10030,7 @@ func _conditional_attack_modifiers_for_action(state: Dictionary, action: Diction
 						"damage",
 						int(effect.get("amount", effect.get("value", 0)))
 					)
-					detail = "While you have block"
+					detail = "While standing on %s" % str(effect["player_surface"]).capitalize() if effect.has("player_surface") else "While you have block"
 		if amount == 0:
 			continue
 		modifiers.append({
@@ -10559,6 +10577,9 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 				var block_player: Dictionary = _normalized_player(next_state.get("player", {}))
 				block_player["block"] = int(block_player.get("block", 0)) + maxi(0, amount)
 				next_state["player"] = block_player
+				if bool(reward.get("_runtime_amount", false)) and not effect.has("relic_id"):
+					# Authored consume/on-result Block is a card action reward.
+					CommonRelicRules.block_from_card(self, next_state, {"amount": amount, "_card_id": str((next_state.get("damage_context", {}) as Dictionary).get("card_id", ""))})
 			"stoneskin":
 				var stoneskin_player: Dictionary = _normalized_player(next_state.get("player", {}))
 				var stoneskin_before: int = int(stoneskin_player.get("stoneskin", 0))
@@ -10957,14 +10978,16 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 		if not start and old_tiles.has(tile):
 			continue
 		if BoardSurfaceRules.element_at(state, tile) == "fire" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "fire"):
-			if not entered_fire:
-				fire_source = (BoardSurfaceRules.surface_at(state, tile).get("elemental_source", {}) as Dictionary).duplicate(true)
+			var tile_source: Dictionary = BoardSurfaceRules.surface_at(state, tile).get("elemental_source", {}) as Dictionary
+			var base_contact: int = GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE)
+			if not entered_fire or RiteRules.surface_tile_damage(_relic_effects(state), "fire", actor_kind, base_contact, tile_source, GameData.FIXED_POINT_SCALE) > RiteRules.surface_tile_damage(_relic_effects(state), "fire", actor_kind, base_contact, fire_source, GameData.FIXED_POINT_SCALE):
+				fire_source = tile_source.duplicate(true)
 			entered_fire = true
 		if BoardSurfaceRules.element_at(state, tile) == "ice" and (start or elemental_snapshot.is_empty() or str(elemental_snapshot.get(tile, "")) == "ice"):
 			entered_ice = true
 	var fire_amount: int = 0
 	if entered_fire:
-		# Rites may raise Fire damage or make the player immune to it.
+		# Rites and relics adjust Fire contact or make the player immune.
 		fire_amount = RiteRules.surface_tile_damage(_relic_effects(state), "fire", actor_kind, GameData.fixed_point_amount(BoardSurfaceRules.FIRE_START_DAMAGE if start else BoardSurfaceRules.FIRE_ENTRY_DAMAGE), fire_source, GameData.FIXED_POINT_SCALE)
 		if actor_kind == "player" and ManeuverRules.player_fire_immune(state):
 			fire_amount = 0
@@ -10986,8 +11009,8 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 		state["damage_context"] = context_before
 		BoardSurfaceRules.record_event(state, {"kind": "surface_damage", "surface": "fire", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE), "amount": amount, "health_lost": maxi(0, before_hp - int(_surface_actor(state, actor_kind, actor_id).get("hp", 0))), "trigger": "start" if start else "entry", "source": fire_context})
 	unit = _surface_actor(state, actor_kind, actor_id)
-	if actor_kind == "player" and ManeuverRules.player_skating(state):
-		entered_ice = false # Skate: Ice doesn't Chill you this turn.
+	if actor_kind == "player" and (ManeuverRules.player_skating(state) or SurfaceRelicRules.has_effect(state, "surface_chill_immunity")):
+		entered_ice = false # Skate and Ice-contact immunity both prevent Chill.
 	if int(unit.get("hp", 0)) > 0 and entered_ice and int(unit.get("freeze", 0)) <= 0 and not bool(unit.get("chilled", false)):
 		unit["chilled"] = true
 		BoardSurfaceRules.record_event(state, {"kind": "status_applied", "surface": "ice", "status": "chilled", "actor_kind": actor_kind, "id": actor_id, "actor_key": _surface_actor_key(actor_kind, actor_id), "tile": unit.get("pos", INVALID_TILE)})
@@ -11014,6 +11037,8 @@ func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int,
 
 func _surface_freeze_actor(state: Dictionary, actor_kind: String, actor_id: int, action: Dictionary) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
+	if bool(action.get("_skip_surface_freeze", false)):
+		return state
 	if int(unit.get("hp", 0)) <= 0 or int(unit.get("freeze", 0)) > 0 or (not action.has("_collision_freeze_tile") and not bool(unit.get("chilled", false))) or _action_element(action) != "ice":
 		return state
 	if actor_kind == "enemy" and _enemy_is_immune_to_status(unit, "freeze"):
@@ -11050,7 +11075,7 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 					break
 	var step_cost: Callable = func(from: Vector2i, to: Vector2i) -> int: return BoardSurfaceRules.movement_step_cost(state, unit, from, to)
 	var fire_harmless: bool = not unit.has("id") and (RiteRules.player_immune_to_surface(_relic_effects(state), "fire") or ManeuverRules.player_fire_immune(state))
-	var ice_harmless: bool = not unit.has("id") and ManeuverRules.player_skating(state)
+	var ice_harmless: bool = not unit.has("id") and (ManeuverRules.player_skating(state) or SurfaceRelicRules.has_effect(state, "surface_chill_immunity"))
 	var hazard_cost: Callable = func(to: Vector2i) -> int:
 		var harm: int = 0
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(unit, to):
@@ -11297,15 +11322,16 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				continue
 			var target_action: Dictionary = _action_with_target_state_relic_modifiers(state, resolved, index)
 			route_action["chain"] = maxi(int(route_action.get("chain", 0)), int(target_action.get("chain", 0)))
+	if actor_kind == "player":
+		state = _trigger_player_bleed_for_action(state, resolved)
+		if combat_outcome(state) == "defeat":
+			return state
+	var melee_fuel: Dictionary = CommonRelicRules.consume_melee_target(self, state, resolved, target, actor_kind == "player")
 	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
 	if actor_kind == "player" and bool(action.get("also_hits_near_illusions", false)):
 		IllusionCardRules.append_refraction_hits(self, state, plan)
 	var family_context: Dictionary = SurfaceCardRules.begin_attack(self, state, resolved, impact, actor_kind)
 	performance_started = _record_runtime_performance_phase("board_attack_plan_total", performance_started)
-	if actor_kind == "player":
-		state = _trigger_player_bleed_for_action(state, resolved)
-		if combat_outcome(state) == "defeat":
-			return state
 	var previous_batch: bool = bool(state.get("_surface_damage_batch", false))
 	state["_surface_damage_batch"] = true
 	var consumed: Dictionary = plan["consumed"] as Dictionary
@@ -11320,6 +11346,8 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 	var affected: Array[int]
 	var player_struck: bool = false
 	var struck_player_tile: Vector2i = INVALID_TILE
+	var attack_health_loss: int = 0
+	var attack_block_loss: int = 0
 	var struck_illusions: Dictionary = {}
 	var native_trace: Array = []
 	var relay: Dictionary = action.get("_ranged_relay",{}) as Dictionary
@@ -11376,6 +11404,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
 			hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
 			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
+			hit_action = CommonRelicRules.before_melee_hit(hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(self, state, hit_action, hit, index, family_context)
 			state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = _damage_for_enemy_target(state, hit_action, index)
@@ -11402,7 +11431,13 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				hit_origin = _closest_enemy_tile_to(_surface_actor(state,"enemy",actor_id),hit["to"])
 			if actor_kind == "enemy" and str(hit["kind"]) == "illusion":
 				IllusionCardRules.note_enemy_hit(self, state, struck_illusions, hit, hit_action)
+			var block_before_hit: int = int((state.get("player", {}) as Dictionary).get("block", 0))
+			var health_lost_before_hit: int = int((state.get("run_stats", {}) as Dictionary).get(RUN_STAT_DAMAGE_RECEIVED, 0))
 			state = _damage_actor_target(state, hit, int(hit_action.get("damage", 0)), _action_pierces_defense(hit_action), hit_action)
+			if actor_kind == "enemy" and str(hit["kind"]) == "player":
+				# Count health actually lost before Defiance/prevent-lethal recovery.
+				attack_health_loss += maxi(0, int((state.get("run_stats", {}) as Dictionary).get(RUN_STAT_DAMAGE_RECEIVED, 0)) - health_lost_before_hit)
+				attack_block_loss += maxi(0, block_before_hit - int(state["player"].get("block", 0)))
 			if not player_struck and actor_kind == "enemy" and str(hit["kind"]) == "player" and int(hit_action.get("damage", 0)) > 0:
 				# Retaliate judges melee range where the strike landed, before knockback.
 				player_struck = true
@@ -11440,6 +11475,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		CombatTerrainRules.raise_outcrop(self, state, target, int(action["outcrop_health"]), _surface_source(state, action))
 	if player_struck:
 		# Once per enemy attack, inside the batch so Retaliate deaths flush here.
+		state = CommonRelicRules.blocked_attack(self, state, actor_id, attack_health_loss, attack_block_loss)
 		state = RetaliateRules.after_enemy_hit(self, state, actor_id, resolved, struck_player_tile)
 	if not struck_illusions.is_empty():
 		state = IllusionCardRules.after_enemy_hit(self, state, actor_id, struck_illusions)

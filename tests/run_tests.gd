@@ -132,6 +132,7 @@ func _initialize() -> void:
 	RelicSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/relic_u1_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U2 suites
+	preload("res://tests/suites/relic_u2_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U3 suites
 	preload("res://tests/suites/relic_u3_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U4 suites
@@ -10371,6 +10372,7 @@ func _test_run_scene_damage_display_matches_bonus() -> void:
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	_set_run_scene_combat_state_for_test(instance, combat_state)
+	combat_state["turn_flags"]["tiles_moved"] = 2
 	var display: Dictionary = instance.call("_card_widget_display", "sidestep_slash", combat_state)
 	var summary_rows: Array = display.get("summary_rows", [])
 	var modifier_lines: Array = display.get("modifier_lines", [])

@@ -150,6 +150,8 @@ static func sync_chilled(state: Dictionary) -> void:
 				unit["chilled"] = false
 
 static func movement_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i) -> int:
+	if not unit.has("id") and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("player_ignores_rubble", false)):
+		return 1
 	var destination: Array[Vector2i] = footprint_tiles(unit, to)
 	for tile: Vector2i in footprint_tiles(unit, from):
 		if not destination.has(tile) and has_rubble(state, tile):

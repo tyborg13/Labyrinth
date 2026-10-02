@@ -12,6 +12,7 @@ const CROSS: Array = [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN,
 static func configure(state: Dictionary) -> void:
 	var overrides: Dictionary = state.get("surface_rule_overrides", {}) as Dictionary
 	overrides["conductive_fire"] = has_effect(state, "conductive_fire")
+	overrides["player_ignores_rubble"] = has_effect(state, "ignore_rubble_movement_cost")
 	state["surface_rule_overrides"] = overrides
 
 static func effects(state: Dictionary) -> Array[Dictionary]:

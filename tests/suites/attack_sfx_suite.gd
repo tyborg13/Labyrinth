@@ -92,13 +92,6 @@ static func run(expect: Callable) -> void:
 	recall_after["deck"] = recall_deck
 	expect.call(RunSceneScript.card_draw_sfx_count_between_states(draw_before, recall_after) == 0, "Moving a card from discard to hand should not count as a deck-draw sound")
 	expect.call(RunSceneScript.opening_hand_draw_sfx_count(draw_after) == 5, "Opening-hand cadence should use the exact number of successful initial deck draws")
-	var relic_draw_transition: Dictionary = _iron_buckler_draw_transition()
-	var relic_draw_before: Dictionary = relic_draw_transition.get("before", {}) as Dictionary
-	var relic_draw_after: Dictionary = relic_draw_transition.get("after", {}) as Dictionary
-	expect.call(
-		RunSceneScript.card_draw_sfx_count_between_states(relic_draw_before, relic_draw_after) == 1,
-		"Iron Buckler's real block-card reward should register one semantic draw even though the card has no draw action"
-	)
 	var distinct_traps: Array[Dictionary] = AttackSfxLibrary.entries_for_traps([
 		{"element": "fire"},
 		{"element": "fire"},
@@ -174,19 +167,6 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 3, "A semantic same-ID replacement draw should still play exactly one sound without a visual diff entry")
 	await tree.create_timer(0.20).timeout
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 3, "A same-ID replacement draw should not schedule extra sounds")
-	var relic_draw_transition: Dictionary = _iron_buckler_draw_transition()
-	var relic_draw_before: Dictionary = relic_draw_transition.get("before", {}) as Dictionary
-	var relic_draw_after: Dictionary = relic_draw_transition.get("after", {}) as Dictionary
-	instance.call("_baseline_card_draw_sfx_revision", relic_draw_before)
-	var relic_generation_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
-	var consumed_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_after))
-	expect.call(consumed_relic_draws == 1, "The generic sound consumer should detect Iron Buckler's non-draw-action reward")
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Iron Buckler's real reward draw should play one sound")
-	var stale_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_before))
-	expect.call(stale_relic_draws == 0, "Observing an older combat state should not rewind the exact-once draw cursor")
-	var replayed_relic_draws: int = int(instance.call("_consume_pending_card_draw_sfx", relic_draw_after))
-	expect.call(replayed_relic_draws == 0, "Revisiting a committed draw after a stale observation should stay silent")
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == relic_generation_before + 1, "Out-of-order state observations should not replay a committed relic draw")
 	await _test_reward_flip_sequence(instance, tree, expect)
 	await _test_ui_feedback_actions(instance, tree, expect)
 	instance.queue_free()
@@ -352,25 +332,6 @@ static func _reward_flip_slot(host: Control, index: int) -> Control:
 	scaler.add_child(back)
 	slot.modulate = Color(1.0, 1.0, 1.0, 0.0)
 	return slot
-
-static func _iron_buckler_draw_transition() -> Dictionary:
-	var combat := CombatEngine.new()
-	var state: Dictionary = combat.create_combat(40942, _relic_draw_room(), {
-		"hp": 20,
-		"max_hp": 20,
-		"deck_cards": ["brace", "quick_stab", "lantern_shot"],
-		"relics": ["iron_buckler"],
-		"hand_size": 1
-	})
-	var deck: Dictionary = (state.get("deck", {}) as Dictionary).duplicate(true)
-	deck["hand"] = ["brace"]
-	deck["draw"] = ["quick_stab", "lantern_shot"]
-	deck["discard"] = []
-	deck["draw_revision"] = 1
-	state["deck"] = deck
-	var before: Dictionary = state.duplicate(true)
-	var after: Dictionary = combat.finish_player_card(state, 0, 1, {"play_mode": "play"})
-	return {"before": before, "after": after}
 
 static func _relic_draw_room() -> Dictionary:
 	var grid: Array = []

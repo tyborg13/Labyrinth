@@ -143,17 +143,8 @@
     ],
     "effects": [
       {
-        "type": "player_state_action_mod",
-        "player_min_block": 1,
-        "action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "field": "bleed",
+        "type": "fully_blocked_attack_status",
+        "status": "bleed",
         "amount": 1
       }
     ]
@@ -198,26 +189,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "requires_any_action_types": [
-          "block",
-          "stoneskin"
-        ],
-        "excludes_action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 1
-          }
-        ]
+        "type": "retain_turn_block",
+        "amount": 3
       }
     ]
   },
@@ -237,13 +210,8 @@
     ],
     "effects": [
       {
-        "type": "target_state_action_mod",
-        "target_surface": "fire",
-        "action_types": [
-          "melee"
-        ],
-        "field": "damage",
-        "amount": 2
+        "type": "melee_consume_elemental_damage",
+        "amount": 3
       }
     ]
   },
@@ -1199,21 +1167,13 @@
     ],
     "effects": [
       {
-        "type": "first_card_attack_bonus",
-        "requires_any_action_type_groups": [
-          [
-            "move",
-            "blink"
-          ],
-          [
-            "melee",
-            "ranged",
-            "aoe",
-            "push",
-            "pull"
-          ]
+        "type": "moved_tiles_card_attack_bonus",
+        "requires_any_action_types": [
+          "move",
+          "blink"
         ],
-        "value": 2
+        "amount": 1,
+        "max": 3
       }
     ]
   },
@@ -1908,7 +1868,7 @@
     ]
   },
   "winters_spur": {
-    "name": "Winter’s Spur",
+    "name": "Winter\u2019s Spur",
     "rarity": "legendary",
     "description": "Each straight stretch of @icon(surface_ice) costs 1 base @icon(move) per movement action. Turns start a new stretch.",
     "icon_path": "res://assets/art/relics/winters_spur.png",
@@ -2253,7 +2213,13 @@
       "radiance",
       "setup"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "start_combat_light",
+        "radius": 2,
+        "duration": 3
+      }
+    ]
   },
   "pocket_sundial": {
     "name": "Pocket Sundial",
@@ -2289,7 +2255,22 @@
       "tempo",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "card_action_mod",
+        "min_time": 5,
+        "action_types": [
+          "melee",
+          "ranged",
+          "aoe",
+          "push",
+          "pull",
+          "detonate"
+        ],
+        "field": "stagger",
+        "amount": 1
+      }
+    ]
   },
   "pitch_gloves": {
     "name": "Pitch Gloves",
@@ -2304,7 +2285,21 @@
       "fire",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "surface_damage_bonus",
+        "surface": "fire",
+        "actor_kind": "player",
+        "amount": -1
+      },
+      {
+        "type": "surface_damage_bonus",
+        "surface": "fire",
+        "actor_kind": "enemy",
+        "owner": "player",
+        "amount": 1
+      }
+    ]
   },
   "hobnail_cleats": {
     "name": "Hobnail Cleats",
@@ -2319,7 +2314,26 @@
       "ice",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "surface_chill_immunity"
+      },
+      {
+        "type": "player_state_action_mod",
+        "player_surface": "ice",
+        "element": "ice",
+        "action_types": [
+          "melee",
+          "ranged",
+          "aoe",
+          "push",
+          "pull",
+          "detonate"
+        ],
+        "field": "damage",
+        "amount": 2
+      }
+    ]
   },
   "grounding_pin": {
     "name": "Grounding Pin",
@@ -2334,7 +2348,21 @@
       "lightning",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "target_state_action_mod",
+        "target_surface": "electrified",
+        "action_types": [
+          "melee",
+          "ranged",
+          "push",
+          "pull"
+        ],
+        "field": "chain",
+        "amount": 1,
+        "requires_damage": true
+      }
+    ]
   },
   "rubblewalker_greaves": {
     "name": "Rubblewalker Greaves",
@@ -2350,7 +2378,16 @@
       "movement",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "ignore_rubble_movement_cost"
+      },
+      {
+        "type": "turn_start_surface_stoneskin",
+        "surface": "rubble",
+        "amount": 1
+      }
+    ]
   },
   "grave_dirt": {
     "name": "Grave Dirt",
@@ -2365,7 +2402,12 @@
       "earth",
       "setup"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "start_combat_stoneskin",
+        "value": 4
+      }
+    ]
   },
   "waxen_effigy": {
     "name": "Waxen Effigy",
@@ -2380,7 +2422,12 @@
       "illusion",
       "setup"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "start_combat_adjacent_illusion",
+        "health": 2
+      }
+    ]
   },
   "quick_draw_bandolier": {
     "name": "Quick-Draw Bandolier",
@@ -2410,7 +2457,12 @@
       "block",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "card_block_retaliate",
+        "amount": 1
+      }
+    ]
   },
   "fencers_gloves": {
     "name": "Fencer's Gloves",
@@ -2426,7 +2478,13 @@
       "tempo",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "nth_card_time_discount",
+        "card_number": 2,
+        "amount": 1
+      }
+    ]
   },
   "feint_ribbon": {
     "name": "Feint Ribbon",
