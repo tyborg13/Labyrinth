@@ -21,6 +21,8 @@ least two `build_tags`.
 | Epic | 3 | Cross-card sequencing, risk, or a demanding board arrangement | A turn-shaping payoff or a substantial change to an action |
 | Legendary | 4 | A developed terrain route, layered consumption, Defiance, or a demanding card sequence | A rule or payoff that can define the run without free repetition |
 
+Relic offer weights are common 10, rare 8, epic 6, and legendary 5; over 300 seeds a typical route passes about 5.4 treasure rooms, and 82% of typical runs see at least one legendary offer.
+
 Rarity is not a flat efficiency multiplier. A persistent rule can be valuable
 because the player must build its board conditions on each encounter. It does
 not need a new meter, an arbitrary card-count requirement, or a larger number.

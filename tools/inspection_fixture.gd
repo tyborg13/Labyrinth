@@ -1308,8 +1308,8 @@ func _validate_card_ids(card_ids: Array[String], source: String) -> bool:
 
 func _validate_relic_ids(relic_ids: Array[String], source: String) -> bool:
 	for relic_id: String in relic_ids:
-		if GameData.relic_def(relic_id).is_empty():
-			_fail("Unknown relic id %s in %s" % [relic_id, source])
+		if not GameData.relic_ids().has(relic_id):
+			_fail("Unknown or retired relic id %s in %s" % [relic_id, source])
 			return false
 	return true
 

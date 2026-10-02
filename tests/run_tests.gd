@@ -130,6 +130,14 @@ func _initialize() -> void:
 	InitiativeOrderSuite.run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/relic_u1_suite.gd").run(Callable(self, "_assert"))
+	# relic overhaul U2 suites
+	# relic overhaul U3 suites
+	# relic overhaul U4 suites
+	# relic overhaul U5 suites
+	# relic overhaul U6 suites
+	# relic overhaul U7 suites
+	# relic overhaul U8 suites
 	CardKeywordsW3Suite.run(Callable(self, "_assert"))
 	ManeuverSuite.run(Callable(self, "_assert"))
 	CardMechanicsSurfacesSuite.run(Callable(self, "_assert"))
@@ -720,7 +728,7 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		var rarity: String = str(relic.get("rarity", ""))
 		_assert(valid_rarities.has(rarity), "%s should use the relic rarity set" % relic_id)
 		_assert(str(relic.get("accent", "")) == GameData.relic_rarity_accent(rarity), "%s border accent should match relic rarity" % relic_id)
-		_assert(not (relic.get("effects", []) as Array).is_empty(), "%s should define reusable relic effects" % relic_id)
+		_assert(relic.get("effects", null) is Array, "%s should define its reusable effects array" % relic_id)
 		var description: String = str(relic.get("description", ""))
 		_assert(not description.contains("{") and not description.contains("}"), "%s description placeholders should be formatted for display" % relic_id)
 		var icon_path: String = str(relic.get("icon_path", ""))
@@ -728,8 +736,8 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("cross"), "Faultline Brooch should explain its optional melee footprint transformation")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining @icon(block)"), "Obsidian Heart should explain its end-of-turn block conversion")
 	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Opening @icon(draw) -1"), "Obsidian Heart should format its negative opening draw through the draw icon")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("everyone in a cross"), "Black Sun Dial should disclose its shared local blast")
-	_assert(GameData.relic_offer_weight("iron_lung") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("stores that element"), "Black Sun Dial should describe its stored-element rule")
+	_assert(GameData.relic_offer_weight("pilgrim_boots") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
 

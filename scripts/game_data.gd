@@ -54,10 +54,10 @@ const RELIC_RARITY_ACCENTS := {
 	"legendary": "#d9862f"
 }
 const RELIC_RARITY_OFFER_WEIGHTS := {
-	"common": 12,
-	"rare": 6,
-	"epic": 3,
-	"legendary": 1
+	"common": 10,
+	"rare": 8,
+	"epic": 6,
+	"legendary": 5
 }
 const CARD_RARITY_TIERS: Array[String] = ["common", "rare", "epic", "legendary"]
 const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
@@ -150,7 +150,7 @@ static func npc_def(npc_id: String) -> Dictionary:
 	return _duplicate_dict(npcs().get(npc_id, {}))
 
 static func relic_def(relic_id: String) -> Dictionary:
-	var relic: Dictionary = _duplicate_dict(relics().get(relic_id, {}))
+	var relic: Dictionary = _duplicate_dict(relics().get(resolve_relic_id(relic_id), {}))
 	if relic.is_empty():
 		return relic
 	relic["description"] = _format_relic_description(relic)
@@ -369,7 +369,41 @@ static func compile_deck_cards(equipped_equipment: Dictionary, magic_cards: Arra
 	return result
 
 static func relic_ids() -> Array:
-	return relics().keys()
+	var result: Array = []
+	for relic_id: String in relics().keys():
+		if not bool((relics()[relic_id] as Dictionary).get("retired", false)):
+			result.append(relic_id)
+	return result
+
+## Retired IDs remain readable for old saves, but only live IDs enter loadouts.
+static func resolve_relic_id(relic_id: String) -> String:
+	var visited: Dictionary = {}
+	while not relic_id.is_empty() and not visited.has(relic_id):
+		visited[relic_id] = true
+		var relic: Dictionary = relics().get(relic_id, {}) as Dictionary
+		if relic.is_empty():
+			return ""
+		if not bool(relic.get("retired", false)):
+			return relic_id
+		relic_id = str(relic.get("replacement_id", ""))
+	return ""
+
+static func normalized_relic_ids(ids: Array, excluded: Array = []) -> Array[String]:
+	var result: Array[String]
+	var original_live_ids: Dictionary = {}
+	for id_var: Variant in ids:
+		var raw_id: String = str(id_var)
+		if not raw_id.is_empty() and raw_id == resolve_relic_id(raw_id):
+			original_live_ids[raw_id] = true
+	for id_var: Variant in ids:
+		var raw_id: String = str(id_var)
+		var live_id: String = resolve_relic_id(raw_id)
+		# Drop the retired alias rather than moving an already owned live relic.
+		if raw_id != live_id and original_live_ids.has(live_id):
+			continue
+		if not live_id.is_empty() and not excluded.has(live_id) and not result.has(live_id):
+			result.append(live_id)
+	return result
 
 static func relic_rarity(relic_id: String) -> String:
 	var rarity: String = str(relic_def(relic_id).get("rarity", "common"))
@@ -389,6 +423,7 @@ static func relic_effects(relic_id: String) -> Array[Dictionary]:
 	# Effect expansion does not consume display copy. Avoid cloning the complete
 	# relic and formatting its description on every rules/preview lookup; each
 	# returned effect below is still a separately owned mutable dictionary.
+	relic_id = resolve_relic_id(relic_id)
 	var relic: Dictionary = relics().get(relic_id, {}) as Dictionary
 	var result: Array[Dictionary] = []
 	var raw_effects: Array = relic.get("effects", [])
