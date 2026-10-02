@@ -8,7 +8,6 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const SurfaceFixture = preload("res://tests/suites/surface_relic_suite.gd")
 const SkillFixture = preload("res://tests/suites/skill_run_suite.gd")
 const TIERS := {"common": 1, "rare": 2, "epic": 3, "legendary": 4}
-# These four assets are supplied separately by Claude; absence is reported, not failed.
 # Authored inventory, imported from spec/relic_pool_overhaul/relic_data.py for U1.
 const NEW_IDS := [
   "recoil_plates",

@@ -41,7 +41,7 @@ static func end_activation(engine: RefCounted, state: Dictionary, effects: Array
 	state[DEBT_KEY] = int(state.get(DEBT_KEY, 0)) + int(state.get("player_turn_time_spent", 0)) - unused_play_reduction(effects, unused)
 	return {"time": int(state.get("initiative_clock", 0)), "immediate": true}
 
-static func is_late(engine: RefCounted, state: Dictionary, enemy_id: int, effects: Array, extra_time: int = 0, plays_spent: int = 0) -> bool:
+static func is_late(engine: RefCounted, state: Dictionary, enemy_id: int, effects: Array, extra_time: int = 0, _plays_spent: int = 0) -> bool:
 	if not engine.is_player_turn(state):
 		return false
 	# Late Bell must not assume the hero will leave a play unused.

@@ -6916,12 +6916,6 @@ func _player_path_until_hidden_collision(
 			resolved.pop_back()
 	return resolved
 
-func _actual_player_movement_path(state: Dictionary, start: Vector2i, goal: Vector2i, max_distance: int) -> Array[Vector2i]:
-	var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(true)
-	player["pos"] = start
-	var navigation: Dictionary = _unit_movement_navigation(state, player, max_distance, _known_actor_tiles_for_player(state), bool(state.get("_movement_minimum_progress", true)))
-	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(goal, []))
-
 func _preferred_pickup_scores(state: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for loot_var: Variant in state.get("loot", []):
