@@ -35312,7 +35312,9 @@ func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictio
 		shown["surface_feedback_events"] = events
 		shown["surface_feedback_progress"] = t
 		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, t * 0.36, _reduced_motion_enabled())
-		_render_board_state(after if t >= 0.2 else before, shown)
+		# New ground lands on the first frame; any ground it replaces or
+		# consumes breaks and fades out in the same beat (break_surface).
+		_render_board_state(after, shown)
 	)
 	_queue_player_popup_group(texts, 0.36)
 	_render_board_state(after, {})

@@ -19,6 +19,15 @@ static func element(event: Dictionary) -> String:
 				"fire", "ice": return str(event["surface"])
 	return ""
 
+static func broken_surface(event: Dictionary) -> String:
+	match str(event.get("kind", "")):
+		"surface_replaced":
+			var previous: String = str(event.get("previous_surface", ""))
+			return previous if previous != str(event.get("surface", "")) else ""
+		"surface_removed", "surface_consumed":
+			return str(event.get("surface", ""))
+	return ""
+
 static func prepare(events: Array, primary: Dictionary = {}) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	var seen: Dictionary = {}
@@ -36,6 +45,12 @@ static func prepare(events: Array, primary: Dictionary = {}) -> Array[Dictionary
 		var primary_covers: bool = id == str(primary.get("element", "")) and primary_tiles.has(tile)
 		event["feedback_element"] = id if not seen.has(key) and not primary_covers else ""
 		if not id.is_empty(): seen[key] = true
+		# The surface leaving the tile breaks in the same beat: replaced ground
+		# names its predecessor, consumed or broken ground names itself.
+		var broken: String = broken_surface(event)
+		var break_key: String = "break:%s:%s" % [tile, broken]
+		event["break_surface"] = broken if not broken.is_empty() and not seen.has(break_key) else ""
+		if not broken.is_empty(): seen[break_key] = true
 		result.append(event)
 	return result
 

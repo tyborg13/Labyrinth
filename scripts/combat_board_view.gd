@@ -16367,8 +16367,14 @@ func _surface_tooltip_for_tile(tile: Vector2i) -> String:
 func _draw_board_surface(tile: Vector2i) -> void:
 	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
+	# Ground a feedback beat replaces, consumes or breaks keeps its retained
+	# layer for the start of the beat, fading out as the new ground arrives.
+	var feedback_events: Array = presentation.get("surface_feedback_events", []) as Array
+	var feedback_progress: float = float(presentation.get("surface_feedback_progress", 0.0))
 	if retained_rubble:
-		var show_rubble: bool = visible_tile and BoardSurfaceRules.has_rubble(combat_state, tile)
+		var has_rubble: bool = BoardSurfaceRules.has_rubble(combat_state, tile)
+		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)
+		var show_rubble: bool = visible_tile and (has_rubble or rubble_leaving > 0.0)
 		if show_rubble and _surface_rubble_layer == null:
 			_surface_rubble_layer = BoardSurfaceRubbleLayer.new()
 			_surface_rubble_layer.name = "SurfaceRubble"
@@ -16377,6 +16383,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if _surface_rubble_layer != null:
 			_surface_rubble_layer.visible = show_rubble
 			if show_rubble:
+				_surface_rubble_layer.modulate.a = 1.0 if has_rubble else rubble_leaving
 				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
 	elif _surface_rubble_layer != null:
 		_surface_rubble_layer.visible = false
@@ -16387,7 +16394,9 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		return
 	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var retained_ice: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "ice"
+	var element: String = BoardSurfaceRules.element_at(combat_state, tile)
+	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
+	var retained_ice: bool = retained_rubble and (element == "ice" or ice_leaving > 0.0)
 	if retained_ice and _surface_ice_layer == null:
 		_surface_ice_layer = BoardSurfaceIceLayer.new()
 		_surface_ice_layer.name = "SurfaceIce"
@@ -16398,10 +16407,12 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_ice:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_ice_layer.modulate.a = 1.0 if element == "ice" else ice_leaving
 			_surface_ice_layer.configure(_tile_center(tile), _tile_width(), seed, phase)
 			# Rubble may be added after this Ice child already exists.
 			move_child(_surface_ice_layer, get_child_count() - 1)
-	var retained_fire: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "fire"
+	var fire_leaving: float = 0.0 if element == "fire" else BoardSurfacePresentation.leaving_alpha(tile, "fire", feedback_events, feedback_progress)
+	var retained_fire: bool = retained_rubble and (element == "fire" or fire_leaving > 0.0)
 	if retained_fire and _surface_fire_layer == null:
 		_surface_fire_layer = BoardSurfaceFireLayer.new()
 		_surface_fire_layer.name = "SurfaceFire"
@@ -16412,9 +16423,12 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_fire:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_fire_layer.modulate.a = 1.0 if element == "fire" else fire_leaving
 			_surface_fire_layer.configure(_tile_center(tile), _tile_width(), seed, phase, reduced_motion)
 			move_child(_surface_fire_layer, get_child_count() - 1)
-	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and BoardSurfaceRules.is_conductive(combat_state, tile)
+	var conductive: bool = BoardSurfaceRules.is_conductive(combat_state, tile)
+	var electric_leaving: float = 0.0 if conductive else BoardSurfacePresentation.leaving_alpha(tile, "electrified", feedback_events, feedback_progress)
+	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and (conductive or electric_leaving > 0.0)
 	if retained_electric and _surface_electric_layer == null:
 		_surface_electric_layer = BoardSurfaceElectricLayer.new()
 		_surface_electric_layer.name = "SurfaceElectric"
@@ -16425,14 +16439,15 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_electric:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
-			var opacity: float = 0.75 if BoardSurfaceRules.element_at(combat_state, tile) == "fire" else 1.0
+			var opacity: float = 0.75 if element == "fire" else 1.0
+			_surface_electric_layer.modulate.a = 1.0 if conductive else electric_leaving
 			_surface_electric_layer.configure(_tile_center(tile), _tile_width(), seed, phase, opacity)
 			move_child(_surface_electric_layer, get_child_count() - 1)
 	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
 	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 	_draw_surface_connection_preview(tile)
 	_draw_surface_conduction_floor(tile)
-	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)), bool(presentation.get("reduced_motion", false)))
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), feedback_events, feedback_progress, bool(presentation.get("reduced_motion", false)))
 
 func _draw_surface_connection_preview(tile: Vector2i) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):

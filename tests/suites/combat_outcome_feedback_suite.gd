@@ -65,6 +65,19 @@ static func run(expect: Callable) -> void:
 	expect.call(Outcomes.sounds(events).size()==1 and Outcomes.sounds(events,"lightning").is_empty(),"A network plays one elemental sound, not one per tile")
 	var creation: Array=[{"kind":"terrain_created","tile":Vector2i(2,2),"terrain_id":"outcrop_1"}]
 	expect.call(Outcomes.sounds(creation)[0]["id"]=="attack.elemental.earth","Shared outcrop creation uses Earth sound")
+	# Replaced, consumed and broken ground breaks in the same beat the new ground lands.
+	var overwrite: Array=Outcomes.prepare([
+		{"kind":"surface_replaced","surface":"fire","previous_surface":"ice","tile":Vector2i(4,2)},
+		{"kind":"surface_removed","surface":"ice","tile":Vector2i(4,2)},
+		{"kind":"surface_created","surface":"fire","tile":Vector2i(4,1)},
+		{"kind":"surface_removed","surface":"rubble","tile":Vector2i(5,5),"reason":"force_collision"},
+	])
+	expect.call(overwrite[0]["feedback_element"]=="fire" and overwrite[0]["break_surface"]=="ice","A replacement breaks the surface it replaces as the new one arrives")
+	expect.call(overwrite[1]["break_surface"]=="","A synthesized removal of the same ground does not break it twice")
+	expect.call(overwrite[2]["break_surface"]=="" and overwrite[3]["break_surface"]=="rubble","New ground breaks nothing; removed ground breaks itself")
+	var Surfaces=preload("res://scripts/board_surface_presentation.gd")
+	expect.call(Surfaces.leaving_alpha(Vector2i(4,2),"ice",overwrite,0.05)>0.9 and Surfaces.leaving_alpha(Vector2i(4,2),"ice",overwrite,0.6)==0.0,"Broken ground fades out early in the beat and is gone before it ends")
+	expect.call(Surfaces.leaving_alpha(Vector2i(4,1),"ice",overwrite,0.05)==0.0 and Surfaces.leaving_alpha(Vector2i(4,2),"fire",overwrite,0.05)==0.0,"Only the broken surface on its own tile lingers")
 	expect.call(Outcomes.outcrop_progress(creation,"outcrop_1",0.1,false)<Outcomes.outcrop_progress(creation,"outcrop_1",0.8,false),"Outcrop emerges vertically")
 	expect.call(Outcomes.outcrop_progress(creation,"outcrop_1",0.0,true)==1.0,"Reduced motion shows complete terrain immediately")
 

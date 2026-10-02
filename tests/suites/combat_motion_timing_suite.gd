@@ -108,6 +108,24 @@ static func _test_surface_motion(tree: SceneTree, instance: Node, expect: Callab
 		await tree.process_frame
 	expect.call(bool(completion.get("done", false)), "Ground feedback completes in one short beat")
 	expect.call((board.get("combat_state") as Dictionary).get("surfaces", {}) == after.get("surfaces", {}), "Ground feedback must settle on the exact committed surface state")
+	# An overwrite lands the new ground and breaks the old in the same frame.
+	var Surface = preload("res://scripts/board_surface_rules.gd")
+	var iced: Dictionary = before.duplicate(true)
+	Surface.place(iced, Vector2i(3, 4), "ice")
+	var kindled: Dictionary = iced.duplicate(true)
+	Surface.place(kindled, Vector2i(3, 4), "fire")
+	completion = {"done": false}
+	_track_surface(instance, iced, kindled, completion)
+	var saw_break: bool = false
+	var break_without_fire: bool = false
+	deadline = Time.get_ticks_msec() + 1500
+	while not bool(completion.get("done", false)) and Time.get_ticks_msec() < deadline:
+		var shown: Array = (board.get("presentation") as Dictionary).get("surface_feedback_events", []) as Array
+		if shown.any(func(event: Dictionary) -> bool: return str(event.get("break_surface", "")) == "ice" and event.get("tile") == Vector2i(3, 4)):
+			saw_break = true
+			if Surface.element_at(board.get("combat_state") as Dictionary, Vector2i(3, 4)) != "fire": break_without_fire = true
+		await tree.process_frame
+	expect.call(bool(completion.get("done", false)) and saw_break and not break_without_fire, "An overwrite breaks the old Ice in the same frames the new Fire is shown")
 
 static func _track_death_rewards(instance: Node, before: Dictionary, after: Dictionary, completion: Dictionary) -> void:
 	await instance.call("_animate_death_rewards", before, after)
