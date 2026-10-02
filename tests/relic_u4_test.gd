@@ -1,7 +1,7 @@
 extends SceneTree
 const Suite = preload("res://tests/suites/relic_u4_suite.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
-var failures: Array[String] = []
+var failures: Array[String]
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	Suite.run(Callable(self, "_expect"))
