@@ -1,6 +1,7 @@
 extends Control
 class_name CombatBoardView
 
+const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
@@ -12475,7 +12476,7 @@ func _draw_path_preview() -> void:
 			and path_tiles == _vector2i_array(focused_threat.get("projected_path", []))
 		)
 	if not base_path_is_focused_enemy:
-		_draw_path_tiles(path_tiles, color)
+		_draw_path_tiles(path_tiles, color, true)
 	for threat_var: Variant in enemy_threat_previews:
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue
@@ -12487,14 +12488,63 @@ func _draw_path_preview() -> void:
 			ENEMY_PATH_PREVIEW_COLOR
 		)
 
+func _draw_light_jump_arc(from: Vector2, to: Vector2, color: Color) -> void:
+	# A Light jump is a dashed arc, thinner than the walked shaft so it reads as a
+	# leap rather than a step; dashes scale with the line so they never become rungs.
+	var height: float = from.distance_to(to) * 0.35
+	var width: float = maxf(3.0, _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO * 0.45)
+	var dash: float = width * 2.6
+	var period: float = dash + width * 1.7
+	var samples: PackedVector2Array = PackedVector2Array()
+	var lengths: PackedFloat32Array = PackedFloat32Array()
+	for index: int in range(0, 65):
+		var t: float = float(index) / 64.0
+		samples.append(from.lerp(to, t) + Vector2.UP * (4.0 * t * (1.0 - t) * height))
+		lengths.append(0.0 if index == 0 else lengths[index - 1] + samples[index - 1].distance_to(samples[index]))
+	var total: float = lengths[lengths.size() - 1]
+	var dash_start: float = 0.0
+	while dash_start < total:
+		var dash_end: float = minf(total, dash_start + dash)
+		var points: PackedVector2Array = PackedVector2Array([_arc_point_at(samples, lengths, dash_start)])
+		for index: int in range(samples.size()):
+			if lengths[index] > dash_start and lengths[index] < dash_end:
+				points.append(samples[index])
+		points.append(_arc_point_at(samples, lengths, dash_end))
+		draw_polyline(points, color, width, true)
+		dash_start += period
+	draw_circle(to, width * 1.1, color)
+
+func _arc_point_at(samples: PackedVector2Array, lengths: PackedFloat32Array, distance: float) -> Vector2:
+	for index: int in range(1, samples.size()):
+		if lengths[index] >= distance:
+			var span: float = lengths[index] - lengths[index - 1]
+			return samples[index - 1].lerp(samples[index], 0.0 if span <= 0.0 else (distance - lengths[index - 1]) / span)
+	return samples[samples.size() - 1]
+
 func _threat_has_projected_movement(threat: Dictionary) -> bool:
 	var path: Array[Vector2i] = _vector2i_array(threat.get("projected_path", []))
 	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
-func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
+func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> void:
 	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
 	if path_tiles.is_empty():
 		return
+	if hero_path and path_tiles.size() >= 2:
+		var variety = preload("res://scripts/surface_variety_relic_rules.gd")
+		var has_jump: bool = false
+		for index: int in range(1, path_tiles.size()):
+			if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1 and variety.hero_light(combat_state, path_tiles[index - 1]) and variety.hero_light(combat_state, path_tiles[index]): has_jump = true
+		if has_jump:
+			var segment: Array[Vector2i]
+			segment.append(path_tiles[0])
+			for index: int in range(1, path_tiles.size()):
+				if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1:
+					if segment.size() >= 2: _draw_path_tiles(segment, color)
+					_draw_light_jump_arc(_tile_center(path_tiles[index - 1]), _tile_center(path_tiles[index]), color)
+					segment.clear()
+				segment.append(path_tiles[index])
+			if segment.size() >= 2: _draw_path_tiles(segment, color)
+			return
 	var tile_width: float = _tile_width()
 	var point_offset := Vector2(0.0, -tile_width * 0.075)
 	if path_tiles.size() == 1:

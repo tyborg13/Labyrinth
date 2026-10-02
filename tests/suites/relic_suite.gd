@@ -25,6 +25,10 @@ const RARITY_TIERS := {
 }
 # U4 categories are behavior-tested by RelicU4Suite.
 const SUPPORTED_EFFECT_TYPES := [
+  "death_on_surface_spread", "elemental_overwrite_spread", "store_consumed_surface_release",
+  "combat_element_knots", "alternating_element_card_bonus", "matching_equipment_card_bonus",
+  "blink_distance_next_attack", "light_move_refund", "move_through_enemies_stagger",
+  "light_move_links", "death_status_spread",
   "unused_play_time_reduction", "damage_vs_late", "stagger_overflow_damage",
   "high_time_quicken", "unused_play_extra_turn", "cards_per_turn_bonus",
   "later_card_time_surcharge", "empower_quicken", "grant_first_action_empower",
@@ -42,10 +46,8 @@ const SUPPORTED_EFFECT_TYPES := [
   "surface_chill_immunity",
   "surface_damage_bonus",
   "turn_start_surface_stoneskin",
-  "blink_draw_once_per_turn",
   "blink_origin_illusion",
   "bloodied_glass_attack_bonus",
-  "board_surface_types_reward",
   "card_action_mod",
   "card_play_reward",
   "chain_hit_count_reward",
@@ -54,14 +56,10 @@ const SUPPORTED_EFFECT_TYPES := [
   "defiance_capacity",
   "defiance_trigger_reward",
   "end_turn_block_to_stoneskin",
-  "enemy_death_reward",
   "freeze_relocate_ice",
   "frozen_kill_rubble",
   "illusion_damage_cap",
-  "layered_surface_consumption_reward",
   "light_source_umbra_suppression",
-  "long_move_card_play",
-  "movement_end_reward",
   "movement_pool_bonus",
   "opening_draw_bonus",
   "overheal_to_stoneskin",
@@ -82,8 +80,7 @@ const SUPPORTED_EFFECT_TYPES := [
   "collision_break_surfaces",
   "damage_on_surface",
   "target_state_action_mod",
-  "transport_surface",
-  "umbra_transition_reward"
+  "transport_surface"
 ]
 static func run(expect: Callable) -> void:
 	_test_complete_set_contract(expect)
@@ -168,17 +165,6 @@ static func _test_conditional_card_mutations(expect: Callable) -> void:
 
 static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var chorus_state: Dictionary = _state(combat, ["chorus_mask"])
-	chorus_state["deck"] = _deck([], ["brace", "quick_stab"], [])
-	chorus_state = _trigger_card(combat, chorus_state, _card(ElementData.FIRE, 3, [{"type": "block", "amount": 1}]), "chorus_fire")
-	chorus_state = _trigger_card(combat, chorus_state, _card(ElementData.ICE, 3, [{"type": "block", "amount": 1}]), "chorus_ice")
-	expect.call(
-		int(chorus_state.get("card_play_bonus_this_turn", 0)) == 1
-		and int((chorus_state.get("player", {}) as Dictionary).get("block", 0)) == 3,
-		"Chorus Mask should turn a two-element sequence into usable tempo and defense"
-	)
-
-
 	var widow_state: Dictionary = _state(combat, ["widow_thread"])
 	widow_state["illusions"] = [{"id": 99, "pos": Vector2i(3, 4), "hp": 2, "max_hp": 2}]
 	var widow_attack: Dictionary = combat.call("_action_with_player_state_relic_modifiers", widow_state, {"type": "ranged", "damage": 3, "range": 4, "_card_action_types": ["ranged"]})
@@ -190,40 +176,12 @@ static func _test_new_common_and_rare_relics(expect: Callable) -> void:
 
 static func _test_new_epic_and_legendary_relics(expect: Callable) -> void:
 	var combat := CombatEngine.new()
-	var funeral_state: Dictionary = _state(combat, ["funeral_bell"])
-	funeral_state["damage_context"] = {"actor_kind": "player", "player_card": true, "source_kind": "direct_attack"}
-	funeral_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
-	for index: int in range(3):
-		funeral_state = combat.call("_trigger_enemy_death_relics", funeral_state, {"expose": 1, "hp": 0, "id": index})
-	expect.call(((funeral_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(funeral_state.get("card_play_bonus_this_turn", 0)) == 2, "Funeral Bell should pay only after a third statused death")
-	var off_turn_funeral_state: Dictionary = _state(combat, ["funeral_bell"])
-	off_turn_funeral_state["current_actor"] = {"kind": "enemy", "enemy_id": 1}
-	off_turn_funeral_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
-	for index: int in range(3):
-		off_turn_funeral_state = combat.call("_trigger_enemy_death_relics", off_turn_funeral_state, {"expose": 1, "hp": 0, "id": index})
-	expect.call(
-		int(off_turn_funeral_state.get("card_play_bonus_this_turn", 0)) == 0
-		and int(off_turn_funeral_state.get("pending_relic_card_plays", 0)) == 0,
-		"Funeral Bell must not bank card plays from passive enemy-turn deaths"
-	)
-	off_turn_funeral_state = combat.prepare_next_player_turn(off_turn_funeral_state)
-	expect.call(
-		int(off_turn_funeral_state.get("card_play_bonus_this_turn", 0)) == 0
-		and int(off_turn_funeral_state.get("pending_relic_card_plays", -1)) == 0,
-		"Passive deaths must not create a later Funeral Bell refund"
-	)
-
 	var chalice_state: Dictionary = _state(combat, ["bloodmoon_chalice"], 10, 24)
 	chalice_state["deck"] = _deck([], ["brace", "quick_stab"], [])
 	chalice_state = _trigger_card(combat, chalice_state, _card("", 6, [{"type": "melee", "damage": 4}], 1), "bloodmoon")
 	expect.call(int((chalice_state.get("player", {}) as Dictionary).get("hp", 0)) == 15, "Bloodmoon Chalice should heal a bloodied health-cost build")
 	expect.call(((chalice_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 2 and int(chalice_state.get("card_play_bonus_this_turn", 0)) == 1, "Bloodmoon Chalice should add draw and tempo at its risk threshold")
 
-	var knot_state: Dictionary = _state(combat, ["fivefold_knot"])
-	knot_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart", "brace", "quick_stab"], [])
-	for element_id: String in ElementData.all_elements():
-		knot_state = _trigger_card(combat, knot_state, _card(element_id, 3, [{"type": "block", "amount": 1}]), "knot_%s" % element_id)
-	expect.call(((knot_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 5 and int(knot_state.get("card_play_bonus_this_turn", 0)) == 5, "Fivefold Knot should deliver a legendary payoff only after all five elements in one turn")
 
 
 static func _test_spatial_radiance_relics(expect: Callable) -> void:
@@ -374,11 +332,6 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	thaw_state = combat.apply_player_action(thaw_state, {"type": "heal", "amount": 3})
 	expect.call(int((thaw_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 3 and ((thaw_state.get("umbra", {}) as Dictionary).get("light_sources", []) as Array).size() == 1, "Thawing Charm should turn actual overheal conversion into Stoneskin and Light")
 
-	var beacon_state: Dictionary = _state(combat, ["beaconrunner_spurs"])
-	beacon_state = combat.apply_player_action(beacon_state, {"type": "illuminate", "range": 5, "radius": 1, "duration": 2}, Vector2i(4, 4))
-	beacon_state = combat.apply_player_action(beacon_state, {"type": "move", "range": 3, "_card_action_types": ["move"]}, Vector2i(4, 4))
-	expect.call(int(beacon_state.get("card_play_bonus_this_turn", 0)) == 1 and int((beacon_state.get("player", {}) as Dictionary).get("block", 0)) == 3, "Beaconrunner Spurs should reward movement that ends in existing Light")
-
 	var carapace_state: Dictionary = _state(combat, ["witchglass_carapace"])
 	carapace_state["illusions"] = [{"id": 61, "pos": Vector2i(3, 4), "hp": 3, "max_hp": 3}]
 	carapace_state = combat.call("_damage_actor_target", carapace_state, {"kind": "illusion", "id": 61, "pos": Vector2i(3, 4)}, 5, false, {"type": "ranged"})
@@ -397,12 +350,6 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	glassway_state = combat.apply_player_action(glassway_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(5, 4))
 	var glassway_illusions: Array = glassway_state.get("illusions", []) as Array
 	expect.call(glassway_illusions.size() == 1 and int((glassway_illusions[0] as Dictionary).get("hp", 0)) == 2 and (glassway_illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Glassway Compass should create one two-health illusion at the first Blink origin each turn")
-
-	var sun_state: Dictionary = _state(combat, ["unclouded_sun"])
-	(sun_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_FRINGE
-	sun_state["deck"] = _deck([], ["brace", "quick_stab", "bone_dart"], [])
-	sun_state = combat.apply_player_action(sun_state, {"type": "dispel_umbra", "amount": 1})
-	expect.call(int((sun_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 12 and ((sun_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 3 and int(sun_state.get("card_play_bonus_this_turn", 0)) == 3, "Unclouded Sun should pay once when authored Umbra first reaches Clear")
 
 	var phoenix_state: Dictionary = _state(combat, ["phoenix_ember"], 2, 24)
 	(phoenix_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_DEEP
@@ -428,14 +375,6 @@ static func _test_status_and_enemy_death_engines(expect: Callable) -> void:
 	cold_state = combat.call("_trigger_status_relics", cold_state, "freeze")
 	expect.call(int((cold_state.get("player", {}) as Dictionary).get("stoneskin", 0)) == 6, "Cold Mirror should trigger only once per turn")
 
-	var ember_state: Dictionary = _state(combat, ["ember_siphon"], 10, 24)
-	ember_state["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(6, 4), 2)
-	Surface.place(ember_state, Vector2i(4, 4), "fire")
-	ember_state = combat.apply_player_action(ember_state, {"type": "detonate", "damage": 3, "range": 5, "element": "fire"}, Vector2i(4, 4))
-	expect.call(int(ember_state["player"]["hp"]) == 13, "Ember Siphon heals from a player-caused Detonate death")
-	Surface.place(ember_state, Vector2i(6, 4), "fire")
-	ember_state = combat.apply_player_action(ember_state, {"type": "detonate", "damage": 3, "range": 5, "element": "fire"}, Vector2i(6, 4))
-	expect.call(int(ember_state["player"]["hp"]) == 13, "Ember Siphon pays only once per combat")
 
 static func _test_surface_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -455,20 +394,6 @@ static func _test_surface_engines(expect: Callable) -> void:
 	expect.call((crown["deck"]["hand"] as Array).size() == 2 and int(crown.get("card_play_bonus_this_turn", 0)) == 1, "Storm Crown rewards three distinct native Chain targets")
 	crown = combat.apply_player_action(crown, {"type": "ranged", "damage": 1, "range": 5, "chain": 1, "element": "lightning"}, Vector2i(3, 4))
 	expect.call((crown["deck"]["hand"] as Array).size() == 2 and int(crown.get("card_play_bonus_this_turn", 0)) == 1, "Storm Crown cannot form an unbounded play refund loop")
-	var overflow: Dictionary = _state(combat, ["overflow_censer"])
-	overflow["deck"] = _deck([], ["brace", "quick_stab", "pale_spark"], [])
-	Surface.place(overflow, Vector2i(3, 4), "fire")
-	Surface.place(overflow, Vector2i(4, 4), "rubble")
-	overflow = combat.apply_player_action(overflow, {"type": "surface", "surface": "ice", "range": 4}, Vector2i(5, 4))
-	expect.call(int(overflow["player"].get("stoneskin", 0)) == 6 and (overflow["deck"]["hand"] as Array).size() == 2, "Overflow Censer rewards three visible surface types once per combat")
-	var black: Dictionary = _state(combat, ["black_sun_dial"])
-	black["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(4, 3), 20)
-	Surface.place(black, Vector2i(4, 4), "fire")
-	Surface.place(black, Vector2i(4, 4), "rubble")
-	black = combat.apply_player_action(black, {"type": "detonate", "damage": 1, "range": 5, "element": "fire"}, Vector2i(4, 4))
-	expect.call(int(black["player"].get("stoneskin", 0)) == 6, "Black Sun Dial rewards spending an elemental surface over Rubble")
-	expect.call(int(black["enemies"][0]["hp"]) == 13 and int(black["enemies"][1]["hp"]) == 13, "Black Sun Dial emits one local shared pulse in addition to the original blast")
-	expect.call(Surface.has_surface(black, Vector2i(4, 4), "rubble"), "Black Sun Dial consumes the elemental layer and retains Rubble")
 
 static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -492,48 +417,6 @@ static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	heart_player = heart_state.get("player", {}) as Dictionary
 	expect.call(int(heart_player.get("block", 0)) == 0 and int(heart_player.get("stoneskin", 0)) == 6, "Obsidian Heart should carry remaining block into persistent stoneskin")
 
-	var vault_state: Dictionary = _state(combat, ["vaulting_sigil"])
-	vault_state = combat.call("_trigger_long_move_relics", vault_state, 3)
-	expect.call(int(vault_state.get("card_play_bonus_this_turn", 0)) == 0, "Vaulting Sigil should ignore ordinary movement")
-	vault_state = combat.call("_trigger_long_move_relics", vault_state, 4)
-	expect.call(
-		int(vault_state.get("card_play_bonus_this_turn", 0)) == 1
-		and int((vault_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
-		"Vaulting Sigil should reward an achievable four-tile move with tempo and defense"
-	)
-	vault_state = combat.call("_trigger_blink_relics", vault_state, 4)
-	expect.call(
-		int(vault_state.get("card_play_bonus_this_turn", 0)) == 1
-		and int((vault_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
-		"Vaulting Sigil should not retrigger from a later long Blink in the same turn"
-	)
-	var vault_blink_state: Dictionary = _state(combat, ["vaulting_sigil"])
-	vault_blink_state = combat.call("_trigger_blink_relics", vault_blink_state, 4)
-	expect.call(
-		int(vault_blink_state.get("card_play_bonus_this_turn", 0)) == 1
-		and int((vault_blink_state.get("player", {}) as Dictionary).get("block", 0)) == 4,
-		"Vaulting Sigil should treat a four-tile Blink as a valid movement build payoff"
-	)
-
-	var gale_state: Dictionary = _state(combat, ["gale_tabi"])
-	gale_state["deck"] = _deck([], ["brace", "quick_stab"], [])
-	gale_state = combat.call("_trigger_blink_relics", gale_state, 2)
-	expect.call(((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(), "Gale Tabi should ignore short blinks")
-	gale_state = combat.call("_trigger_blink_relics", gale_state, 3)
-	expect.call(
-		((gale_state.get("deck", {}) as Dictionary).get("hand", []) as Array).size() == 1
-		and int(gale_state.get("card_play_bonus_this_turn", 0)) == 1,
-		"Gale Tabi should pair one drawn card with the play needed to use it"
-	)
-	var gale_fatigue_state: Dictionary = _state(combat, ["gale_tabi"], 10, 24)
-	gale_fatigue_state["deck"] = _deck([], [], ["brace", "quick_stab"])
-	gale_fatigue_state = combat.call("_trigger_blink_relics", gale_fatigue_state, 3)
-	expect.call(
-		int((gale_fatigue_state.get("player", {}) as Dictionary).get("hp", 0)) == 10
-		and int((gale_fatigue_state.get("deck", {}) as Dictionary).get("cycles", 0)) == 0
-		and ((gale_fatigue_state.get("deck", {}) as Dictionary).get("hand", []) as Array).is_empty(),
-		"Gale Tabi's draw should stop before Fatigue even though its card play still resolves"
-	)
 
 static func _test_defiance_and_surface_transformations(expect: Callable) -> void:
 	var combat := CombatEngine.new()
@@ -646,11 +529,12 @@ static func _test_damage_feedback_contract(expect: Callable) -> void:
 	before["enemies"] = _two_enemies(Vector2i(4, 4), Vector2i(4, 3), 20)
 	Surface.place(before, Vector2i(4, 4), "fire")
 	Surface.place(before, Vector2i(4, 4), "rubble")
+	before["relic_stored_surfaces"] = ["rubble", "rubble", "rubble"]
 	var after: Dictionary = combat.apply_player_action(before, {"type": "detonate", "damage": 1, "range": 5, "element": "fire"}, Vector2i(4, 4))
 	var held: Dictionary = scene.call("_state_with_enemy_durability_from", after, before)
 	expect.call(_enemy_durability(held, 1) == _enemy_durability(before, 1) and _enemy_durability(held, 2) == _enemy_durability(before, 2), "Surface blast presentation can hold exact pre-hit durability until impact")
 	expect.call(Surface.element_at(held, Vector2i(4, 4)).is_empty() and Surface.has_rubble(held, Vector2i(4, 4)), "Holding durability preserves resolved terrain consumption")
-	expect.call(int(after["enemies"][0]["hp"]) == 13 and int(after["enemies"][1]["hp"]) == 13, "The committed impact matches direct blast plus one local relic pulse")
+	expect.call(int(after["enemies"][0]["hp"]) == 13 and int(after["enemies"][1]["hp"]) == 13, "The committed impact matches the blast plus three stored surfaces")
 	scene.free()
 
 static func _floating_text_count(floating_texts: Array, expected_text: String) -> int:

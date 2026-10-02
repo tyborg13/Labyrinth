@@ -197,6 +197,7 @@
   "ember_pendant": {
     "name": "Ember Pendant",
     "slot": "trinket",
+    "element": "fire",
     "rarity": "common",
     "icon_path": "res://assets/art/equipment/ember_pendant.png",
     "accent": "#8f9499",
@@ -217,6 +218,7 @@
   "sealed_cyclone": {
     "name": "Sealed Cyclone",
     "slot": "trinket",
+    "element": "air",
     "rarity": "legendary",
     "icon_path": "res://assets/art/equipment/sealed_cyclone.png",
     "accent": "#d9862f",
@@ -239,6 +241,7 @@
   "stormstring_bow": {
     "name": "Stormstring Bow",
     "slot": "weapon",
+    "element": "lightning",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/stormstring_bow.png",
     "accent": "#4b84d8",
@@ -263,6 +266,7 @@
   "phoenix_brand": {
     "name": "Phoenix Brand",
     "slot": "weapon",
+    "element": "fire",
     "rarity": "legendary",
     "icon_path": "res://assets/art/equipment/phoenix_brand.png",
     "accent": "#d9862f",
@@ -286,6 +290,7 @@
   "lodestone_buckler": {
     "name": "Lodestone Buckler",
     "slot": "offhand",
+    "element": "lightning",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/lodestone_buckler.png",
     "accent": "#4b84d8",
@@ -330,6 +335,7 @@
   "cinderweave_mail": {
     "name": "Cinderweave Mail",
     "slot": "armor",
+    "element": "fire",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/cinderweave_mail.png",
     "accent": "#4b84d8",
@@ -341,6 +347,7 @@
   "rimeplate_harness": {
     "name": "Rimeplate Harness",
     "slot": "armor",
+    "element": "ice",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/rimeplate_harness.png",
     "accent": "#9b62d6",
@@ -374,6 +381,7 @@
   "static_spurs": {
     "name": "Static Spurs",
     "slot": "boots",
+    "element": "lightning",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/static_spurs.png",
     "accent": "#4b84d8",
@@ -385,6 +393,7 @@
   "cloudstep_sandals": {
     "name": "Cloudstep Sandals",
     "slot": "boots",
+    "element": "air",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/cloudstep_sandals.png",
     "accent": "#9b62d6",
@@ -396,6 +405,7 @@
   "worldroot_greaves": {
     "name": "Worldroot Greaves",
     "slot": "boots",
+    "element": "earth",
     "rarity": "legendary",
     "icon_path": "res://assets/art/equipment/worldroot_greaves.png",
     "accent": "#d9862f",
@@ -418,6 +428,7 @@
   "rime_locket": {
     "name": "Rime Locket",
     "slot": "trinket",
+    "element": "ice",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/rime_locket.png",
     "accent": "#4b84d8",
@@ -429,6 +440,7 @@
   "ember_hourglass": {
     "name": "Ember Hourglass",
     "slot": "trinket",
+    "element": "fire",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/ember_hourglass.png",
     "accent": "#9b62d6",
@@ -474,6 +486,7 @@
   "glacial_bulwark": {
     "name": "Glacial Bulwark",
     "slot": "offhand",
+    "element": "ice",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/glacial_bulwark.png",
     "accent": "#9b62d6",
@@ -496,6 +509,7 @@
   "geode_charm": {
     "name": "Geode Charm",
     "slot": "trinket",
+    "element": "earth",
     "rarity": "common",
     "icon_path": "res://assets/art/equipment/geode_charm.png",
     "accent": "#8f9499",
@@ -564,6 +578,7 @@
   "galewhip": {
     "name": "Galewhip",
     "slot": "weapon",
+    "element": "air",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/galewhip.png",
     "accent": "#4b84d8",
@@ -598,6 +613,7 @@
   "basalt_pavise": {
     "name": "Basalt Pavise",
     "slot": "offhand",
+    "element": "earth",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/basalt_pavise.png",
     "accent": "#4b84d8",
@@ -620,6 +636,7 @@
   "stormweave_robe": {
     "name": "Stormweave Robe",
     "slot": "armor",
+    "element": "lightning",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/stormweave_robe.png",
     "accent": "#4b84d8",
@@ -653,6 +670,7 @@
   "stormglass_orb": {
     "name": "Stormglass Orb",
     "slot": "trinket",
+    "element": "lightning",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/stormglass_orb.png",
     "accent": "#4b84d8",
@@ -696,6 +714,7 @@
   "rimebite_hatchet": {
     "name": "Rimebite Hatchet",
     "slot": "weapon",
+    "element": "ice",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/rimebite_hatchet.png",
     "accent": "#9b62d6",
@@ -708,6 +727,7 @@
   "worldbreaker": {
     "name": "Worldbreaker",
     "slot": "weapon",
+    "element": "earth",
     "rarity": "legendary",
     "icon_path": "res://assets/art/equipment/worldbreaker.png",
     "accent": "#d9862f",
@@ -742,6 +762,7 @@
   "quarrymail": {
     "name": "Quarrymail",
     "slot": "armor",
+    "element": "earth",
     "rarity": "epic",
     "icon_path": "res://assets/art/equipment/quarrymail.png",
     "accent": "#9b62d6",
@@ -753,6 +774,7 @@
   "gale_cloak": {
     "name": "Gale Cloak",
     "slot": "armor",
+    "element": "air",
     "rarity": "common",
     "icon_path": "res://assets/art/equipment/gale_cloak.png",
     "accent": "#8f9499",
@@ -764,6 +786,7 @@
   "frostwalkers": {
     "name": "Frostwalkers",
     "slot": "boots",
+    "element": "ice",
     "rarity": "common",
     "icon_path": "res://assets/art/equipment/frostwalkers.png",
     "accent": "#8f9499",
@@ -775,6 +798,7 @@
   "emberstriders": {
     "name": "Emberstriders",
     "slot": "boots",
+    "element": "fire",
     "rarity": "rare",
     "icon_path": "res://assets/art/equipment/emberstriders.png",
     "accent": "#4b84d8",

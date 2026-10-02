@@ -803,6 +803,21 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
 Player-raised kegs and Worldspines use the existing `terrain_created` event with
 `terrain_kind` `powder_keg` / `worldspine`.
 
+### Surface and movement relics (relic pool overhaul U7)
+
+The existing append-only `surface_event` stream gains a `source` dictionary on
+`surface_removed`, copied from the active damage context. This distinguishes
+hero consumption from enemy or trap consumption for stored-ground relics;
+replacement and transport do not count as spending ground. Placement and death
+spreads continue to use the ordinary surface-created/replaced events.
+
+Independent `player_moved` payloads gain `light_refunds`, the number of movement
+points returned by hero-created Light during that request. `spent` remains the
+actual movement-pool expenditure, now net of those refunds. A successful Move
+with zero net expenditure emits `player_moved`; it is not an interruption.
+Stagger continues to use the existing turn-flag totals and rail projection.
+Previews emit no analytics. No new event types or card-play fields are introduced.
+
 ### Forced-movement relics (relic pool overhaul U3)
 
 Collision relics retain the existing `force_collision` schema and sequence cursor.

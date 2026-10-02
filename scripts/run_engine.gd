@@ -2246,6 +2246,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
+		"equipped_equipment": (run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"equipment_grafts": (run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"equipped_items": run_state.get("equipped_items", []).duplicate(),
 		"item_inventory": run_state.get("item_inventory", []).duplicate(),
 		"skill_ids": ((run_state.get("progression", {}) as Dictionary).get("skill_ids", []) as Array).duplicate(),

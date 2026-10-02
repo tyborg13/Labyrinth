@@ -11890,6 +11890,8 @@ func _refresh_relic_bar() -> void:
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
 	var signature: String = str(hash([
 		relic_ids,
+		_combat_state.get("relic_stored_surfaces", []),
+		_combat_state.get("relic_element_knots", []),
 		_combat_state.get("relic_time_reserve", {}),
 		_combat_state.get("relic_flags", {}),
 		rite_entries,
@@ -11912,7 +11914,7 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {}), _combat_state.get("relic_flags", {}), rite_entries])
+	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_stored_surfaces", []), _combat_state.get("relic_element_knots", []), _combat_state.get("relic_time_reserve", {}), _combat_state.get("relic_flags", {}), rite_entries])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
 		_clear_children(_relic_icon_grid)
@@ -11991,18 +11993,44 @@ func _refresh_relic_bar() -> void:
 				var capacity: int = int(effect.get("capacity",3))
 				var held: int = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state,relic_id,capacity)
 				frame.tooltip_text += "\nStored Time: %d / %d" % [held,capacity]
-				var counter := Label.new()
-				counter.name = "RelicTimeReserve"
-				counter.text = str(held)
-				counter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-				counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-				counter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-				counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				UiTypography.set_label_size(counter,UiTypography.SIZE_BODY)
-				counter.add_theme_color_override("font_color",Color("c3f5ff"))
-				counter.add_theme_color_override("font_outline_color",Color("14101b"))
-				counter.add_theme_constant_override("outline_size",7)
-				frame.add_child(counter)
+				_add_relic_counter(frame, "RelicTimeReserve", held)
+			for effect: Dictionary in relic.get("effects", []):
+				if str(effect.get("type", "")) == "store_consumed_surface_release":
+					var held: Array = _combat_state.get("relic_stored_surfaces", []) as Array
+					frame.tooltip_text += "\nStored: " + _relic_element_names(held, true)
+					var pip_layer := Control.new()
+					pip_layer.name = "RelicStoredSurfaces"
+					pip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					frame.add_child(pip_layer)
+					for pip_index: int in range(held.size()):
+						var backing := Panel.new()
+						backing.name = "RelicStoredSurface_%d" % pip_index
+						backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+						backing.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+						backing.offset_left = 2.0 + pip_index * 16.0
+						backing.offset_right = backing.offset_left + 16.0
+						backing.offset_top = -18.0
+						backing.offset_bottom = -2.0
+						var style := StyleBoxFlat.new()
+						style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
+						style.set_corner_radius_all(3)
+						backing.add_theme_stylebox_override("panel", style)
+						pip_layer.add_child(backing)
+						var pip := TextureRect.new()
+						pip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+						pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+						pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+						pip.texture = ActionIcons.icon_texture("surface_" + str(held[pip_index]))
+						pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+						backing.add_child(pip)
+				if str(effect.get("type", "")) == "combat_element_knots":
+					var tied: Array = _combat_state.get("relic_element_knots", []) as Array
+					_add_relic_counter(frame, "RelicKnots", tied.size())
+					frame.tooltip_text += "\nKnots: %s (%d of 5)" % [_relic_element_names(tied), tied.size()]
+					if tied.size() >= 3: frame.tooltip_text += ": attacks Pierce"
+					if tied.size() >= 4: frame.tooltip_text += " and Chain 1"
+					if tied.size() >= 5: frame.tooltip_text += "; every card grants 3 Block"
+					frame.tooltip_text += "."
 			_relic_icon_grid.add_child(frame)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
@@ -12022,6 +12050,26 @@ func _refresh_relic_bar() -> void:
 		call_deferred("_pulse_defiance_badge")
 	_record_runtime_performance_phase("relic_bar_deferred_effects", performance_phase_started)
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
+
+func _add_relic_counter(frame: Control, counter_name: String, held: int) -> void:
+	var counter := Label.new()
+	counter.name = counter_name
+	counter.text = str(held)
+	counter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	counter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(counter, UiTypography.SIZE_BODY)
+	counter.add_theme_color_override("font_color", Color("c3f5ff"))
+	counter.add_theme_color_override("font_outline_color", Color("14101b"))
+	counter.add_theme_constant_override("outline_size", 7)
+	frame.add_child(counter)
+
+func _relic_element_names(elements: Array, surfaces: bool = false) -> String:
+	var names := PackedStringArray()
+	for element: String in elements:
+		names.append("Electrified" if surfaces and element == "electrified" else element.capitalize())
+	return ", ".join(names) if not names.is_empty() else "nothing"
 
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
 	var frame := TooltipPanelContainer.new()
@@ -19893,6 +19941,8 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 	if action_type not in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return
 	TempoRules.consume_for_preview(state, action)
+	var resolved: Dictionary = _combat_engine.call("_resolved_surface_action", state, action)
+	preload("res://scripts/surface_variety_relic_rules.gd").before_action(state, resolved)
 	if int(action.get("damage", 0)) <= 0:
 		return
 	if _combat_engine.attack_bonus_for_current_turn(state) == 0:
@@ -20275,6 +20325,7 @@ func _card_preview_from_state(
 				can_use_position_only_move = (
 					use_position_only_move_legality
 					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
+					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
 					movement_trap_tiles = _preview_trap_tiles_lookup(working_state)
@@ -20390,6 +20441,7 @@ func _card_preview_continuation_is_playable(
 				can_use_position_only_move = (
 					use_position_only_move_legality
 					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
+					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
 					movement_trap_tiles = _preview_trap_tiles_lookup(working_state)
@@ -21156,6 +21208,7 @@ func _preview_immediate_attack_shortcuts(
 			and not skip_move
 			and str(attack_action.get("type", "")) in ["melee", "ranged"]
 			and _shortcut_move_bleed_is_survivable(preview_state)
+			and not _movement_variety_requires_resolution(preview_state)
 			and not _shortcut_path_has_live_trap(preview_state, path_tiles)
 		)
 		if safely_deferred:
@@ -21204,6 +21257,11 @@ func _preview_immediate_attack_shortcuts(
 		"tiles": tiles,
 		"movement_plan": movement_plan,
 	}
+
+func _movement_variety_requires_resolution(state: Dictionary) -> bool:
+	var variety = preload("res://scripts/surface_variety_relic_rules.gd")
+	var effects: Array = GameData.relic_effects_for_state(state)
+	return variety.move_rules(effects) or not variety.effect(effects, "blink_distance_next_attack").is_empty()
 
 func _shortcut_positional_state(state: Dictionary, player_tile: Vector2i) -> Dictionary:
 	var positional_state: Dictionary = state.duplicate(false)
@@ -33962,7 +34020,7 @@ func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dicti
 	# Cover and Illusion commands have their own idempotent surface events;
 	# spending shared Move must not count as physical player movement.
 	if bool(movement.get("utility", false)): return
-	var moved: bool = int(movement.get("spent", 0)) > 0
+	var moved: bool = int(movement.get("spent", 0)) > 0 or (resolved_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE) != (before_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	if not moved and not bool(movement.get("resolved", false)):
 		return
 	_analytics_store.write_event(
@@ -34790,9 +34848,15 @@ func _is_empower_shortcut_event(event: InputEvent) -> bool:
 # Stagger delays for the selected card: the hovered target's resolved preview,
 # or the card's already-resolved automatic actions. Hidden enemies never move.
 func _turn_order_stagger_preview_delays() -> Dictionary:
-	if _animation_lock or _selected_card_index < 0 or _combat_state.is_empty() or _preview_combat_state.is_empty():
+	if _animation_lock or (_selected_card_index < 0 and not _player_movement_selected) or _combat_state.is_empty():
 		return {}
 	var resolved: Dictionary = _cached_hover_resolved_preview_state()
+	if resolved.is_empty() and not SurfaceRelicRules.effect(_combat_state, "move_through_enemies_stagger").is_empty():
+		var preview: Dictionary = _active_card_preview()
+		var action: Dictionary = preview.get("action", {}) as Dictionary
+		if str(action.get("type", "")) == "move" and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+			var forecast: Dictionary = _surface_resolution_for_preview(preview.get("state", _combat_state), action, _hovered_board_tile)
+			resolved = (forecast["known"] as Dictionary)["state"]
 	if resolved.is_empty():
 		resolved = _preview_combat_state
 	var delays: Dictionary = _combat_engine.stagger_delays_between(_combat_state, resolved)

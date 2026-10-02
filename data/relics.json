@@ -398,10 +398,9 @@
     ],
     "effects": [
       {
-        "type": "blink_draw_once_per_turn",
-        "threshold": 3,
-        "value": 1,
-        "card_play": 1
+        "type": "blink_distance_next_attack",
+        "max": 4,
+        "source_name": "Gale Tabi"
       }
     ]
   },
@@ -525,24 +524,8 @@
     ],
     "effects": [
       {
-        "type": "enemy_death_reward",
-        "damage_sources": [
-          "surface_fire",
-          "detonate"
-        ],
-        "causal_owner": "player",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "heal",
-            "amount": 3
-          },
-          {
-            "type": "illuminate_event",
-            "radius": 1,
-            "duration": 2
-          }
-        ]
+        "type": "death_on_surface_spread",
+        "surface": "fire"
       }
     ]
   },
@@ -679,19 +662,8 @@
     ],
     "effects": [
       {
-        "type": "long_move_card_play",
-        "threshold": 4,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 4
-          }
-        ]
+        "type": "move_through_enemies_stagger",
+        "stagger": 2
       }
     ]
   },
@@ -1065,26 +1037,7 @@
     ],
     "effects": [
       {
-        "type": "board_surface_types_reward",
-        "required_types": 3,
-        "surfaces": [
-          "fire",
-          "ice",
-          "electrified",
-          "rubble"
-        ],
-        "visible_only": true,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 6
-          },
-          {
-            "type": "draw",
-            "amount": 2
-          }
-        ]
+        "type": "elemental_overwrite_spread"
       }
     ]
   },
@@ -1105,50 +1058,9 @@
     ],
     "effects": [
       {
-        "type": "layered_surface_consumption_reward",
-        "requires_underlay": "rubble",
-        "surfaces": [
-          "fire",
-          "ice",
-          "electrified"
-        ],
-        "once": "combat",
-        "owner": "player",
-        "position_mode": "first_consumed_tile",
-        "rewards": [
-          {
-            "type": "surface_pulse",
-            "damage": 6,
-            "pattern": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                -1,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                0,
-                -1
-              ]
-            ],
-            "affects": "all_actors",
-            "damage_source": "relic"
-          },
-          {
-            "type": "stoneskin",
-            "amount": 6
-          }
-        ]
+        "type": "store_consumed_surface_release",
+        "capacity": 3,
+        "damage": 2
       }
     ]
   },
@@ -1230,19 +1142,9 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "previous_element": "different",
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 3
-          }
-        ]
+        "type": "alternating_element_card_bonus",
+        "damage": 2,
+        "block": 2
       }
     ]
   },
@@ -1313,22 +1215,8 @@
     ],
     "effects": [
       {
-        "type": "enemy_death_reward",
-        "requires_status": true,
-        "threshold": 3,
-        "count_scope": "combat",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 3
-          },
-          {
-            "type": "card_play",
-            "amount": 2
-          }
-        ],
-        "requires_player_action": true
+        "type": "death_status_spread",
+        "threshold": 2
       }
     ]
   },
@@ -1427,20 +1315,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "unique_elements_threshold": 5,
-        "unique_elements_scope": "turn",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 5
-          },
-          {
-            "type": "card_play",
-            "amount": 5
-          }
-        ]
+        "type": "combat_element_knots",
+        "block": 3
       }
     ]
   },
@@ -1594,23 +1470,8 @@
     ],
     "effects": [
       {
-        "type": "movement_end_reward",
-        "action_types": [
-          "move",
-          "blink"
-        ],
-        "player_in_light": true,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 3
-          }
-        ]
+        "type": "light_move_refund",
+        "max": 2
       }
     ]
   },
@@ -1824,24 +1685,7 @@
     ],
     "effects": [
       {
-        "type": "umbra_transition_reward",
-        "initial_stage_min": "fringe",
-        "target_stage": "clear",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 12
-          },
-          {
-            "type": "draw",
-            "amount": 3
-          },
-          {
-            "type": "card_play",
-            "amount": 3
-          }
-        ]
+        "type": "light_move_links"
       }
     ]
   },
@@ -2638,7 +2482,13 @@
       "gear",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "matching_equipment_card_bonus",
+        "damage": 1,
+        "block": 1
+      }
+    ]
   },
   "overclock_coil": {
     "name": "Overclock Coil",

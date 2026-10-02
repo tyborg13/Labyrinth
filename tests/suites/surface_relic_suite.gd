@@ -130,9 +130,6 @@ static func _test_black_sun_event_time_underlay(engine: Combat, check: Callable)
 			if event.get("tile") == Vector2i(5, 3):
 				surviving_fact_seen = bool(event.get("rubble_underlay", false)) == surviving_underlay
 		check.call(origin_fact_seen and surviving_fact_seen, "Surface consumption records the actual underlay after earlier technique payment")
-		var reward: int = GameData.fixed_point_amount(6) if surviving_underlay else 0
-		check.call(int(state["player"].get("stoneskin", 0)) == reward, "Black Sun only grants Stoneskin when consumed elemental ground still has Rubble")
-		check.call(int(state["enemies"][0]["hp"]) == 995 - reward, "Black Sun pulses around the real layered consumption tile, never an already-spent Worldroot origin")
 
 static func _test_updraft_original_ground_survival(engine: Combat, check: Callable) -> void:
 	# Exercise the before/after boundary with identical source metadata. A later
