@@ -1144,7 +1144,7 @@ static func cost_rows_for_card(card: Dictionary) -> Array:
 	if card_is_rite(card):
 		row.append(rite_label_token())
 	elif bool(card.get("burn", false)):
-		row.append(token_for("exhaust"))
+		row.append(token_for("exhaust", "", "neutral", "Once per combat. This item returns at the next combat." if bool(card.get("_item_once_per_combat", false)) else ""))
 	if bool(card.get("consume_on_play", false)):
 		row.append(token_for("consume"))
 	if bool(card.get("flurry", false)):

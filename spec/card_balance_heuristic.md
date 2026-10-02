@@ -291,6 +291,10 @@ Encounter calibration is also important:
   goes only to reserve inventory. Consumption removes one owned copy permanently
   unless the existing preserve-item skill applies. Pickup access is encounter
   context, not an intrinsic draw/tempo bonus in every item's score.
+  [Item relics](item_relic_rules.md) can replace non-healing Consume with
+  once-per-combat Exhaust, amplify item values, or trade one extra Time for
+  zero play spend. These owned-relic transformations do not change the
+  scorer's printed, relic-free item baseline.
   Items now target modest tactical effects (mostly scores `2–3.7`; Storm Jar
   remains a narrow epic control premium at `4.84`), rather than the previous
   `6.45–11.69` band. Item Time costs are `3–5`, retaining initiative tradeoffs.
@@ -873,4 +877,3 @@ the base decoy keeps `0.48` per illusion health point and `0.12` per placement r
   scored as an ordinary placed surface.
 - Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
   to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
-
