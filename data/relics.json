@@ -1265,6 +1265,11 @@
     "effects": [
       {
         "type": "combat_element_knots",
+        "max_knots": 5,
+        "pierce_threshold": 3,
+        "chain_threshold": 4,
+        "chain": 1,
+        "block_threshold": 5,
         "block": 3
       }
     ]

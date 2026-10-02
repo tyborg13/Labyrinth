@@ -24,6 +24,7 @@ static func modify_card(card: Dictionary, effects: Array, record_modifier: Calla
 			"item_no_card_play":
 				# Like Empower, this surcharge follows discounts and the Time reserve.
 				result["_item_time_surcharge"] = int(result.get("_item_time_surcharge", 0)) + int(effect.get("time", 1))
+				result["_item_time_surcharge_relic"] = str(effect.get("relic_id", ""))
 			"item_value_multiplier":
 				var actions: Array = []
 				for action: Dictionary in result.get("actions", []):

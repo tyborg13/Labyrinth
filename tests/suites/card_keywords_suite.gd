@@ -270,6 +270,7 @@ static func _test_follow_up_with_flurry(expect: Callable) -> void:
 	var combat := CombatEngine.new()
 	var state: Dictionary = _state(combat, ["kwtest_follow_flurry"])
 	state["cards_played_this_turn"] = 1
+	state["turn_flags"]["cards_finished"] = 1
 	var prepared: Dictionary = combat.prepare_player_card(state, 0)
 	var actions: Array = combat.card_play_actions("kwtest_follow_flurry", prepared)
 	expect.call(actions.size() == 2, "Flurry repeats once per remaining play (two remain)")
@@ -478,7 +479,7 @@ static func _test_hand_display_rows(expect: Callable) -> void:
 	expect.call(not cold_segment.is_empty() and not bool((cold_segment[0] as Dictionary).get("active", true)), "The hand shows an inactive Follow-up segment on the first card")
 	expect.call(_first_damage_value(cold_rows) == 6, "An inactive Follow-up leaves the printed damage in the hand")
 	var warm_state: Dictionary = state.duplicate(true)
-	warm_state["cards_played_this_turn"] = 1
+	warm_state["turn_flags"]["cards_finished"] = 1
 	var warm_rows: Array = (scene.call("_card_widget_display", "kwtest_follow_strike", warm_state) as Dictionary).get("summary_rows", [])
 	var warm_segment: Array = _segment(warm_rows, "follow_up")
 	expect.call(not warm_segment.is_empty() and bool((warm_segment[0] as Dictionary).get("active", false)), "The hand marks Follow-up active once a card was played")

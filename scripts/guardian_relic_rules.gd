@@ -44,6 +44,7 @@ static func ice_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, t
 	return maxi(0,cost)
 
 static func ice_navigation(state: Dictionary, unit: Dictionary, budget: int, blocked: Dictionary, hazard_cost: Callable, minimum: bool, pickup_score: Callable, stop: Callable) -> Dictionary:
+	var endpoints: Dictionary = state.get("_movement_allowed_endpoints", {}) as Dictionary
 	var start: Vector2i = unit["pos"]
 	var paths: Dictionary = {start:GuardianRules.tiles([start])}
 	var costs: Dictionary = {start:0}
@@ -58,7 +59,7 @@ static func ice_navigation(state: Dictionary, unit: Dictionary, budget: int, blo
 		cursor+=1
 		for direction: Vector2i in Paths.DIRS_4:
 			var tile: Vector2i = current["tile"]+direction
-			if not Paths.is_passable(state["grid"],tile) or blocked.has(tile) or current["path"].has(tile): continue
+			if not Paths.is_passable(state["grid"],tile) or (blocked.has(tile) and not endpoints.has(tile)) or current["path"].has(tile): continue
 			var entry: int = ice_step_cost(state,unit,current["tile"],tile,current["direction"])
 			if current["path"].size()==1 and minimum and budget>0: entry=mini(entry,budget)
 			var spent: int = int(current["cost"])+entry
@@ -79,6 +80,7 @@ static func ice_navigation(state: Dictionary, unit: Dictionary, budget: int, blo
 				pickups[tile]=pickup
 			if stop.is_valid() and bool(stop.call(tile)): return {"paths":paths,"costs":costs,"hazards":hazards}
 			# At the budget boundary a straight Ice continuation can still be free.
+			if endpoints.has(tile): continue
 			queue.append({"tile":tile,"direction":direction,"cost":spent,"harm":harm,"pickup":pickup,"path":path})
 	return {"paths":paths,"costs":costs,"hazards":hazards}
 

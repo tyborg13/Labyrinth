@@ -48,7 +48,7 @@ N less Time, minimum 1.
 Action `{"type": "next_attack", "damage"?: n, "pierce"?: true, "chain"?: n,
 "element"?: e, "per_tile_moved"?: {"damage": d, "max": m}}`.
 
-- Stored in `turn_flags.next_attack_buffs` with `granted_at = cards_played_this_turn`; a
+- Stored in `turn_flags.next_attack_buffs` with `granted_at = turn_flags.cards_finished`; a
   buff is eligible only for an attack action (melee/ranged/aoe/push/pull/detonate) of a
   later card, and with `element` only for an attack of that element. A push/pull (or a
   push/pull-only area) that deals no damage is forced movement, not an attack
@@ -140,9 +140,11 @@ Additive `card_played` fields: `quicken_spent` (Time removed by Quicken from thi
 `scripts/tempo_relic_rules.gd` owns data-driven tempo effects, with small engine
 and card-definition hooks. Pocket Sundial reduces the projected and scheduled
 hero activation by unused plays (up to two). Late Bell compares the enemy's
-next queued action against that same projection, including the pending card's
-Time, Empower/sash surcharges, discounts, and plays spent. Exact Time ties are
-not late. Hidden enemies do not disclose their bell on the rail.
+next queued action against clock + base initiative + carried Time debt + paid
+Time + the pending card's Time (including discounts and surcharges). The Late
+comparison excludes Sundial's unused-play reduction and a pending Hourglass
+extra activation; the rail's hero portrait and scheduling still include them.
+Exact Time ties are not late. Hidden enemies do not disclose their bell on the rail.
 
 Borrowed Hourglass schedules a normal hero activation at the current clock
 before enemies, once per combat. `relic_flags["tempo_used:<relic_id>"]` persists
@@ -155,7 +157,10 @@ Hourglass Splinter tests the actual paid card Time, including optional Empower
 and Whirling Sash, after discounts; Overclock tests the stamped Empower choice.
 Both grant pending Quicken after the card consumes its incoming pool. Whirling
 Sash adds its two-Time surcharge after printed-cost discounts/reserve, like
-Empower's surcharge; hand badges show the identical final payment.
+Empower's surcharge; hand badges show the identical final payment. Sash, Gloves,
+Follow-up, first-card conditions and next-attack eligibility/expiry count `turn_flags.cards_finished`;
+free Rites/items count once and Flurry counts once. `cards_played_this_turn`
+tracks only spent play slots. Time badge modifiers carry their source relic ids.
 
 Feint Ribbon enables the normal Follow-up start snapshot after at least two
 actual tiles of independent or earlier card movement. Echoing Blade grants
@@ -188,8 +193,9 @@ Exhaust history and turn-start hooks; `RetaliateRules` retains trigger ownership
   `persistent_retaliate` preserves the pool and adds `growth` after each
   qualifying trigger (including absorbed hits and Rite thorns). The ordinary
   badge reads that same pool. `prevent_card_block` suppresses printed, keyword,
-  conditional and movement-rider Block; relic and active-Rite rewards remain
-  non-card sources and still grant Block.
+  conditional, movement-rider and active-Rite Block, including arbitrarily nested
+  rewards. Relic rewards remain allowed; Empty Husk may transfer existing Block.
+  Chorus, Bonded Set and Fivefold do not append bonus Block under this rule.
 - Cold Mirror reuses `status_applied_reward` with `player_min_block: 4` and
   `block_to_mantle`: spend all Block, grant floor(Block/4) layers, capped at two
   layers per successful Freeze event. Immunity/reapplying Freeze never triggers

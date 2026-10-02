@@ -21,6 +21,9 @@ static func run(check: Callable) -> void:
 	_test_vault(engine, check)
 	_test_sun(engine, check)
 	_test_funeral(engine, check)
+	_test_review_regressions(engine, check)
+	_test_navigation_performance(engine, check)
+	_test_navigation_preferences(engine, check)
 
 static func _state(engine: Combat, ids: Array) -> Dictionary:
 	return Fixture.fixture(engine, ids)
@@ -359,3 +362,86 @@ static func _test_funeral(engine: Combat, check: Callable) -> void:
 	Surface.place(passive, Vector2i(4, 3), "fire", {"actor_kind": "enemy"})
 	passive = (engine.call("_resolve_enemy_start_of_turn", passive, 0) as Dictionary)["state"]
 	check.call(bool(passive["enemies"][1]["chilled"]) and bool(passive["enemies"][1]["immobilize"]), "Funeral also spreads boolean statuses on passive deaths without requiring supporting Ice")
+
+static func _test_review_regressions(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])
+	_light(state, Vector2i(3, 3))
+	Surface.place(state, Vector2i(3, 3), "ice")
+	state = engine.apply_player_action(state, {"type": "self_flag", "flag": "ice_skate"})
+	var path: Array[Vector2i]
+	path.append(Vector2i(2, 3))
+	path.append(Vector2i(3, 3))
+	check.call(engine.movement_cost_for_path(state, path) == 0, "Beacon cannot refund a free Skate step in the movement forecast")
+	state = _preview(engine, state, {"type": "move", "range": 1}, Vector2i(3, 3), check, "Beacon with Skate")
+	check.call(int(state["turn_flags"].get(Rules.REFUNDS, 0)) == 0, "A free Skate entry spends no Beacon refund")
+	state["player"]["pos"] = Vector2i(2, 3)
+	state = engine.apply_player_movement(state, Vector2i(3, 3))
+	check.call(int(state["player_movement_remaining"]) == engine.player_movement_capacity(state) and int(state["last_player_movement"]["spent"]) == 0, "Beacon and Skate cannot increase the movement pool above capacity")
+	var combo: Dictionary = _state(engine, ["beaconrunner_spurs", "unclouded_sun", "vaulting_sigil", "glassway_compass"])
+	combo["enemies"][0]["pos"] = Vector2i(3, 3)
+	_light(combo, Vector2i(4, 3))
+	combo = engine._create_illusion(combo, Vector2i(5, 3), 2)
+	var straight: Dictionary = {"type": "move", "range": 2, "straight_line": true}
+	check.call(engine.valid_targets_for_player_action(combo, straight).has(Vector2i(5, 3)), "Glassway straight Move uses Vault and Beacon's U7 movement costs")
+	combo = _preview(engine, combo, straight, Vector2i(5, 3), check, "Glassway straight with U7 relics")
+	check.call(int(engine.stagger_delays_between({}, combo).get(1, 0)) == 2 and int(combo["turn_flags"].get(Rules.REFUNDS, 0)) == 1 and combo["illusions"][0]["pos"] == Vector2i(2, 3), "Glassway straight Move preserves Stagger, refund and exchange resolution")
+	var blocked: Dictionary = _state(engine, ["unclouded_sun", "glassway_compass"])
+	blocked = engine._create_illusion(blocked, Vector2i(3, 3), 2)
+	blocked = engine._create_illusion(blocked, Vector2i(5, 3), 2)
+	for y: int in range(1, 8):
+		if y != 3: blocked["grid"][y][3] = "wall"
+	check.call(not engine.valid_targets_for_player_action(blocked, {"type": "move", "range": 4}).has(Vector2i(5, 3)), "One Glassway search opens endpoints without allowing traversal through illusions")
+	var throne: Dictionary = _state(engine, ["chorus_mask", "fivefold_knot", "briar_throne"])
+	throne[Rules.KNOTS] = Rules.ELEMENTS.duplicate()
+	throne["turn_flags"][Rules.LAST] = "fire"
+	var lash: Dictionary = Data.card_def_for_progression("lash", throne)
+	var tokens: Array = preload("res://scripts/action_icon_library.gd").rows_for_card(lash)
+	check.call(not lash["actions"].any(func(a: Dictionary) -> bool: return str(a.get("type", "")) == "block") and not str(tokens).contains('"icon": "block"'), "Throne prevents Chorus and Fivefold from appending a Block 0 row to Lash")
+	var gear: Dictionary = {"a": {"element": "air"}, "b": {"element": "air"}}
+	var bonded: Dictionary = Rules.modify_card(Data.card_def("lash"), {"equipped_equipment": {"weapon": "a", "boots": "b"}}, Data.relic_effects_for_ids(["bonded_set", "briar_throne"]), gear, {"a": ["lash"]})
+	check.call(not bonded["actions"].any(func(a: Dictionary) -> bool: return str(a.get("type", "")) == "block"), "Throne also prevents Bonded Set from appending card Block")
+	var original: Dictionary = {"actions": [{"type": "block", "amount": 1}]}
+	var untouched: Dictionary = Rules.modify_card(original, {}, [], {}, {})
+	check.call(is_same(original, untouched), "SurfaceVariety returns the original card without copying when no modifier is owned")
+	var scene := preload("res://scripts/run_scene.gd").new()
+	var custom: Dictionary = {"max_knots": 8, "pierce_threshold": 2, "chain_threshold": 3, "chain": 4, "block_threshold": 4, "block": 9}
+	var detail: String = scene.call("_relic_knots_tooltip", custom, ["fire", "ice", "earth", "air"])
+	check.call(detail.contains("4 of 8") and detail.contains("attacks Pierce and Chain 4; every card grants 9 Block"), "Fivefold tooltip reads all thresholds and amounts from its effect")
+	scene.free()
+
+static func _test_navigation_performance(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = _state(engine, ["beaconrunner_spurs", "unclouded_sun", "vaulting_sigil", "glassway_compass"])
+	_light(state, Vector2i(2, 3), "player", 3)
+	_light(state, Vector2i(6, 4), "player", 3)
+	for tile: Vector2i in [Vector2i(3, 4), Vector2i(5, 4), Vector2i(7, 4)]: state = engine._create_illusion(state, tile, 2)
+	var best_usec: int = 2147483647
+	var targets: Array[Vector2i]
+	for _attempt: int in range(3):
+		var start: int = Time.get_ticks_usec()
+		targets = engine.valid_targets_for_player_action(state, {"type": "move", "range": 4})
+		best_usec = mini(best_usec, Time.get_ticks_usec() - start)
+	print("R1 dense-Light navigation best of 3: %0.3f ms" % (best_usec / 1000.0))
+	check.call(best_usec < 40000 and targets.has(Vector2i(7, 4)), "Two radius-three Light patches, Move 4 and all four relics search in under 40 ms")
+
+static func _test_navigation_preferences(engine: Combat, check: Callable) -> void:
+	var state: Dictionary = _state(engine, ["beaconrunner_spurs"])
+	state["enemies"][0]["pos"] = Vector2i(8, 7)
+	Surface.place(state, Vector2i(3, 3), "fire")
+	var move: Dictionary = {"type": "move", "range": 4}
+	var target := Vector2i(4, 3)
+	var path: Array[Vector2i] = engine.path_for_player_action(state, move, target)
+	check.call(not path.has(Vector2i(3, 3)) and engine.movement_cost_for_path(state, path) == 4, "Cost search retains a longer safe route instead of the shorter hazardous route")
+	var before_hp: int = state["player"]["hp"]
+	state = _preview(engine, state, move, target, check, "Safe predecessor route")
+	check.call(state["player"]["hp"] == before_hp, "Safe predecessor path commits without Fire contact")
+	state = _state(engine, ["beaconrunner_spurs"])
+	state["enemies"][0]["pos"] = Vector2i(8, 7)
+	state["loot"] = [{"id": "r1_pickup", "pos": Vector2i(3, 2), "kind": "dropped_embers", "claimed": false}]
+	path = engine.path_for_player_action(state, move, target)
+	check.call(path.has(Vector2i(3, 2)) and path.size() == 5, "Predecessor search preserves the preferred pickup detour without repeated tiles")
+	var winter: Dictionary = _state(engine, ["beaconrunner_spurs", "winters_spur"])
+	winter["enemies"][0]["pos"] = Vector2i(8, 7)
+	for x: int in range(2, 7): Surface.place(winter, Vector2i(x, 3), "ice")
+	path = engine.path_for_player_action(winter, {"type": "move", "range": 1}, Vector2i(6, 3))
+	check.call(path.size() == 5 and engine.movement_cost_for_path(winter, path) == 1, "Incoming direction is retained when Winter's Spur genuinely changes step cost")
+	winter = _preview(engine, winter, {"type": "move", "range": 1}, Vector2i(6, 3), check, "Winter direction with Beacon")

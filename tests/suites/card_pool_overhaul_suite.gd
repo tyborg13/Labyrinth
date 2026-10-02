@@ -344,7 +344,7 @@ static func _test_wave2_follow_up_and_empower_cards(expect: Callable) -> void:
 	var first: Dictionary = (_card_actions(combat, state)["actions"] as Array)[0]
 	expect.call(int(first.get("damage", 0)) == 6 and not bool(first.get("_follow_up_active", false)), "Quick Stab opens a turn for its printed 6")
 	var second_state: Dictionary = state.duplicate(true)
-	second_state["cards_played_this_turn"] = 1
+	second_state["turn_flags"]["cards_finished"] = 1
 	var second: Dictionary = (_card_actions(combat, second_state)["actions"] as Array)[0]
 	expect.call(int(second.get("damage", 0)) == 9 and bool(second.get("_follow_up_active", false)), "Quick Stab's Follow-up deals 9 after another card")
 	var after: Dictionary = _play_first(combat, second_state, [Vector2i(3, 4)])
@@ -671,7 +671,7 @@ static func _test_wave23_hand_display(expect: Callable) -> void:
 		expect.call(keyword_segments.has("follow_up") == card.has("follow_up") and keyword_segments.has("empower") == card.has("empower"), "%s shows exactly its Follow-up / Empower segments: %s" % [card_id, str(keyword_segments)])
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", state) as Dictionary).get("summary_rows", [])) == 6, "The hand shows Quick Stab's printed 6 before any card is played")
 	var warm: Dictionary = state.duplicate(true)
-	warm["cards_played_this_turn"] = 1
+	warm["turn_flags"]["cards_finished"] = 1
 	expect.call(_display_damage((scene.call("_card_widget_display", "quick_stab", warm) as Dictionary).get("summary_rows", [])) == 9, "The hand shows Quick Stab's Follow-up 9 after a card")
 	var armored: Dictionary = state.duplicate(true)
 	(armored["player"] as Dictionary)["stoneskin"] = 3

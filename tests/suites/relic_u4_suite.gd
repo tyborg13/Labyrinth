@@ -72,6 +72,7 @@ static func run(expect: Callable) -> void:
 	_test_quicken_triggers(engine, expect)
 	_test_borrowed(engine, expect)
 	_test_sash(engine, expect)
+	_test_finished_card_pricing(engine, expect)
 	_test_crown(engine, expect)
 	_test_feint_echo(engine, expect)
 	_test_ui(engine, expect)
@@ -121,6 +122,20 @@ static func _test_late_bell(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(bell, "Late Bell marks visible enemy rail entries")
 	s["current_actor"] = {"kind": "enemy", "enemy_id": 2}
 	expect.call(not Rules.is_late(engine, s, 1, GameData.relic_effects_for_state(s)), "Late Bell idle on enemy turns")
+
+	for partner: String in ["borrowed_hourglass", "pocket_sundial"]:
+		var paired: Dictionary = state(engine, ["toll_late_bell", partner])
+		paired["turn_queue"][0]["time"] = 12
+		var action: Dictionary = engine.card_play_actions("u4_strike", paired)[0]
+		var forecast: Dictionary = engine.surface_preview_for_player_action(paired, action, TARGET)["state"]
+		var commit: Dictionary = play(engine, paired, "u4_strike", TARGET)
+		expect.call(forecast["enemies"] == commit["enemies"] and commit["enemies"][0]["hp"] == 37, "Late Bell ignores unused-play scheduling from " + partner + " in preview and commit")
+		paired["turn_queue"][0]["time"] = 8
+		paired["turn_queue"][1]["time"] = 8
+		expect.call(not Rules.is_late(engine, paired, 1, GameData.relic_effects_for_state(paired)), "Late Bell rail ignores pending unused-play benefit from " + partner)
+		paired[Rules.DEBT_KEY] = 3
+		paired["turn_queue"][0]["time"] = 11
+		expect.call(not Rules.is_late(engine, paired, 1, GameData.relic_effects_for_state(paired)), "Late Bell includes carried Time debt with " + partner)
 
 static func _test_pendulum(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["pendulum_weight"])
@@ -196,6 +211,7 @@ static func _test_sash(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(engine.cards_remaining_this_turn(s) == 3, "Whirling Sash adds one play")
 	expect.call(engine.card_time_cost("u4_guard", s) == 3, "Whirling Sash first two cards have no surcharge")
 	s["cards_played_this_turn"] = 2
+	s["turn_flags"]["cards_finished"] = 2
 	expect.call(engine.card_time_cost("u4_guard", s) == 5, "Whirling Sash third card costs two more")
 	var display: Node = RunScene.new()
 	var shown: Dictionary = display.call("_card_widget_display", "u4_guard", s)
@@ -205,7 +221,7 @@ static func _test_sash(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(int(s["player_turn_time_spent"]) == 5, "Whirling Sash surcharge is paid after resume")
 	var discounted: Dictionary = state(engine, ["whirling_sash"])
 	discounted["cards_played_this_turn"] = 2
-	discounted["turn_flags"] = {"quicken_pending": 3}
+	discounted["turn_flags"] = {"quicken_pending": 3, "cards_finished": 2}
 	expect.call(engine.card_time_cost("u4_guard", discounted) == 3, "Whirling surcharge follows the printed-cost discount floor")
 	var next_turn: Dictionary = engine.prepare_next_player_turn(s)
 	expect.call(engine.cards_remaining_this_turn(next_turn) == 3 and engine.card_time_cost("u4_guard", next_turn) == 3, "Sash play bonus repeats each turn and surcharge resets")
@@ -275,6 +291,26 @@ static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	var bell_badge: Control = slot.get_node_or_null("LateRelicIcon") as Control
 	var bell: TextureRect = bell_badge.get_child(0) as TextureRect if bell_badge != null and bell_badge.get_child_count() > 0 else null
 	expect.call(bell_badge != null and bell != null and bell.size == Vector2(24, 24) and bell_badge.tooltip_text == "Late: your attacks deal 3 more.", "Late Bell uses its own 24px icon in a framed rail badge with the exact tooltip")
+	var bell_data: Dictionary = (GameData.relics()["toll_late_bell"] as Dictionary).duplicate(true)
+	GameData.relics()["toll_late_bell"]["effects"][0]["amount"] = 7
+	var changed_slot: Control = scene.call("_build_turn_order_slot", entry, 1)
+	expect.call(changed_slot.get_node("LateRelicIcon").tooltip_text == "Late: your attacks deal 7 more.", "Late Bell tooltip reads its authored damage effect")
+	changed_slot.free()
+	GameData.relics()["toll_late_bell"] = bell_data
+	var widget := preload("res://scripts/card_widget.gd").new()
+	for source: Array in [["whirling_sash", "_tempo_time_surcharge", "+2"], ["quick_draw_bandolier", "_item_time_surcharge", "+2"], ["fencers_gloves", "_relic_time_discount", "-2"]]:
+		var id: String = source[0]
+		var key: String = source[1]
+		var original_name: String = GameData.relics()[id]["name"]
+		GameData.relics()[id]["name"] = "Authored Source"
+		var card: Dictionary = {"time": 3}
+		card[key] = 2
+		card[key + "_relic"] = id
+		widget.call("_refresh_time_badge", card)
+		expect.call(widget.get_node("TimeCostBadge").tooltip_text.contains("Authored Source: " + str(source[2])), "Time badge reads source relic name for " + key)
+		GameData.relics()[id]["name"] = original_name
+	widget.free()
+
 	slot.free()
 	s = state(engine, ["crown_of_surplus"])
 	scene.set("_combat_state", s)
@@ -296,3 +332,21 @@ static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	var known: Dictionary = scene.call("_pending_card_known_forecast_state")
 	expect.call(int(known["player_turn_time_spent"]) == 6 and int((known["player"] as Dictionary)["block"]) == 4, "Crown targetless forecast preserves Empower payment under limited Umbra")
 	scene.free()
+
+static func _test_finished_card_pricing(engine: CombatEngine, expect: Callable) -> void:
+	for free: String in ["u4_rite", "u4_item"]:
+		var source: Dictionary = state(engine, ["whirling_sash", "fencers_gloves", "liturgy_of_ash", "quick_draw_bandolier"])
+		var once: Dictionary = resume(play(engine, source, free))
+		expect.call(once["cards_played_this_turn"] == 0 and TempoRules.cards_finished(once) == 1, "Free card counts once while preserving play budget: " + free)
+		expect.call(engine.card_def("u4_guard", once).get("_relic_time_discount_relic", "") == "fencers_gloves", "Gloves stamps its source id after a free card: " + free)
+		expect.call(engine.card_time_cost("u4_guard", once) == 2, "Gloves discount the card after a free card; Sash waits: " + free)
+		var twice: Dictionary = play(engine, once, "u4_guard")
+		expect.call(engine.card_def("u4_guard", twice).get("_tempo_time_surcharge_relic", "") == "whirling_sash", "Sash stamps its source id on surcharged cards: " + free)
+		expect.call(engine.card_time_cost("u4_guard", twice) == 5, "Sash starts after two finished cards including a free card; Gloves finish: " + free)
+	var flurry: Dictionary = state(engine, ["whirling_sash", "fencers_gloves"])
+	flurry = resume(play(engine, flurry, "u4_flurry"))
+	expect.call(flurry["cards_played_this_turn"] == 3 and TempoRules.cards_finished(flurry) == 1 and engine.card_time_cost("u4_guard", flurry) == 2, "A Flurry spends three slots but counts once for Sash and Gloves")
+	var feint: Dictionary = state(engine, ["feint_ribbon", "liturgy_of_ash"])
+	TempoRules.add_tiles_moved(feint, 2)
+	feint = play(engine, feint, "u4_rite")
+	expect.call(not Rules.follow_up_from_movement(feint, GameData.relic_effects_for_state(feint)), "A free Rite consumes Feint Ribbon's first-card condition")

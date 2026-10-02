@@ -1381,6 +1381,9 @@ func movement_plan_for_player_action(state: Dictionary, action: Dictionary, _pre
 	return {"start": player.get("pos", INVALID_TILE), "range": budget, "target_tiles": targets, "paths": navigation.get("paths", {}), "costs": navigation.get("costs", {}), "hidden_enemy_tiles": hidden, "_source_state": state, "_source_action": action}
 
 func _player_move_navigation(state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
+	return IllusionRelicRules.movement_navigation(self, state, action, player, budget, occupied, minimum, stop_after_reaching)
+
+func _base_player_move_navigation(state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
 	# Joust's straight_line rider limits a card Move to one clear cardinal line.
 	var navigation: Dictionary
 	if bool(action.get("straight_line", false)):
@@ -1392,7 +1395,7 @@ func _player_move_navigation(state: Dictionary, action: Dictionary, player: Dict
 			navigation = ManeuverRules.straight_line_navigation(self, state, player, budget, occupied, minimum, stop_after_reaching)
 	else:
 		navigation = _unit_movement_navigation(state, player, budget, occupied, minimum, stop_after_reaching)
-	return IllusionRelicRules.movement_navigation(self, state, action, player, budget, occupied, minimum, navigation)
+	return navigation
 
 func path_from_player_movement_plan(plan: Dictionary, target_tile: Vector2i) -> Array[Vector2i]:
 	var paths: Dictionary = plan.get("paths", {})
@@ -1910,7 +1913,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	if destination == "discard":
 		next_state = _maybe_trigger_pain_recall(next_state, card_id)
 	var safe_plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(next_state)) or ItemRelicRules.free_item(card, _relic_effects(next_state)) else maxi(1, plays_spent)
-	var cards_played_before: int = int(next_state.get("cards_played_this_turn", 0))
+	var cards_played_before: int = TempoRules.cards_finished(next_state)
 	var payment_snapshot: Dictionary = next_state.get("pending_card_payment", {}) as Dictionary
 	var used_banked_play: bool = _card_payment_uses_banked_play(payment_snapshot, next_state, safe_plays_spent)
 	next_state.erase("pending_card_payment")
@@ -2870,7 +2873,7 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 		spent = PathUtils.manhattan(origin, destination)
 	var remaining_before: int = player_movement_remaining(movement_state)
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
-	next_state["player_movement_remaining"] = maxi(0, remaining_before - spent)
+	next_state["player_movement_remaining"] = clampi(remaining_before - spent, 0, player_movement_capacity(next_state))
 	next_state["last_player_movement"] = {
 		"resolved": true,
 		"action_type": str(action.get("type", "move")),
@@ -6852,10 +6855,10 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 		var cost: int = hero_move_step_cost(next_state, player, path[step_index - 1], path[step_index], previous_direction)
 		if step_index == 1 and minimum_progress and allowance > 0:
 			cost = mini(cost, allowance)
-		var refund: int = 1 if SurfaceVarietyRules.refund_available(next_state, _relic_effects(next_state)) > 0 and SurfaceVarietyRules.hero_light(next_state, path[step_index]) else 0
+		var refund: int = 1 if cost > 0 and SurfaceVarietyRules.refund_available(next_state, _relic_effects(next_state)) > 0 and SurfaceVarietyRules.hero_light(next_state, path[step_index]) else 0
 		if allowance >= 0 and spent + cost - refund > allowance:
 			break
-		cost -= SurfaceVarietyRules.claim_refund(next_state, path[step_index], _relic_effects(next_state))
+		cost -= SurfaceVarietyRules.claim_refund(next_state, path[step_index], _relic_effects(next_state), cost)
 		spent += cost
 		result["spent"] = spent
 		var vault: Dictionary = SurfaceVarietyRules.effect(_relic_effects(next_state), "move_through_enemies_stagger")
@@ -10668,6 +10671,8 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 			"restore_movement":
 				next_state["player_movement_remaining"] = player_movement_capacity(next_state)
 			"block":
+				if effect.has("rite_card_id") and DefenseRelicRules.has_effect(_relic_effects(next_state), "prevent_card_block"):
+					continue
 				var block_player: Dictionary = _normalized_player(next_state.get("player", {}))
 				block_player["block"] = int(block_player.get("block", 0)) + maxi(0, amount)
 				next_state["player"] = block_player
@@ -11170,7 +11175,7 @@ func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1,
 		var cost: int = hero_move_step_cost(state, unit, path[index - 1], path[index], previous_direction)
 		if index == 1 and minimum_progress and allowance > 0 and cost > allowance:
 			cost = allowance
-		if not unit.has("id") and refunds < SurfaceVarietyRules.refund_available(state, _relic_effects(state)) and SurfaceVarietyRules.hero_light(state, path[index]):
+		if cost > 0 and not unit.has("id") and refunds < SurfaceVarietyRules.refund_available(state, _relic_effects(state)) and SurfaceVarietyRules.hero_light(state, path[index]):
 			cost -= 1
 			refunds += 1
 		spent += cost
@@ -11206,7 +11211,7 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 	if not unit.has("id") and (GuardianRelicRules.amount(state,"ice_stride") > 0 or ManeuverRules.player_skating(state)):
 		# Winter's Spur and Skate both make some Ice steps cheaper than one tile.
 		return GuardianRelicRules.ice_navigation(state,unit,budget,blocked,hazard_cost,minimum_progress,pickup_score,stop_after_reaching)
-	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score, stop_after_reaching)
+	return PathUtils.weighted_paths(state.get("grid", []), unit.get("pos", Vector2i.ZERO), budget, blocked, step_cost, hazard_cost, minimum_progress, pickup_score, stop_after_reaching, state.get("_movement_allowed_endpoints", {}))
 
 func surface_preview_for_player_action(state: Dictionary, action: Dictionary, target: Vector2i, prevalidated: bool = false) -> Dictionary:
 	# Hover needs the exact route and outcome, but never the animation's copy of
@@ -11533,7 +11538,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			hit_action = _action_with_target_state_relic_modifiers(state, hit_action, index)
 			if not echo: hit_action = _action_with_light_target_skill_modifier(state, hit_action, index)
 			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
-			hit_action = CommonRelicRules.before_melee_hit(hit_action, hit, melee_fuel)
+			hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(self, state, hit_action, hit, index, family_context)
 			if not echo: state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = _damage_for_enemy_target(state, hit_action, index)
@@ -11544,6 +11549,7 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 				state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action), false, false)
 			else:
 				state = _damage_enemy(state, index, damage, true, _action_pierces_defense(hit_action))
+			if not melee_fuel.is_empty(): BoardSurfaceRules.sync_chilled(state)
 			if damage > 0:
 				state = _consume_enemy_expose(state, index)
 			if action.has("_group_force_context"): hit_action["_group_force_context"] = action["_group_force_context"]

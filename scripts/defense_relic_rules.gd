@@ -20,20 +20,21 @@ static func suppress_card_block(action: Dictionary, effects: Array) -> Dictionar
 	if not has_effect(effects, "prevent_card_block"):
 		return action
 	var result: Dictionary = action.duplicate(true)
-	if str(result.get("type", "")) == "block":
-		result["amount"] = 0
-		var surface_bonus: Dictionary = result.get("surface_bonus", {}) as Dictionary
-		if surface_bonus.has("amount"):
-			surface_bonus["amount"] = 0
-	if result.has("block_per_tile"):
-		result["block_per_tile"] = 0
-	for key: String in ["rewards", "actions"]:
-		if typeof(result.get(key, null)) == TYPE_ARRAY:
-			var children: Array = []
-			for child: Dictionary in result[key]:
-				children.append(suppress_card_block(child, effects))
-			result[key] = children
+	_suppress_block_in_place(result)
 	return result
+
+# Conditional schemas can nest rewards arbitrarily; inspect every container.
+static func _suppress_block_in_place(value: Variant) -> void:
+	if value is Array:
+		for child: Variant in value: _suppress_block_in_place(child)
+	elif value is Dictionary:
+		var fields: Dictionary = value
+		if str(fields.get("type", "")) == "block":
+			fields["amount"] = 0
+			var bonus: Dictionary = fields.get("surface_bonus", {}) as Dictionary
+			if bonus.has("amount"): bonus["amount"] = 0
+		if fields.has("block_per_tile"): fields["block_per_tile"] = 0
+		for child: Variant in fields.values(): _suppress_block_in_place(child)
 
 static func modify_card(card: Dictionary, effects: Array) -> Dictionary:
 	if not has_effect(effects, "prevent_card_block"):
@@ -76,8 +77,15 @@ static func pay_health_cost(engine: RefCounted, state: Dictionary, amount: int, 
 		player["stoneskin"] = int(player.get("stoneskin", 0)) - paid * rate
 		cost -= paid
 	state["player"] = player
-	engine._log(state, "Paid %d health and %d Stoneskin for %s." % [cost, skin_spent, source_name])
-	return engine._lose_player_health(state, cost, true, false, "card_health_cost") if cost > 0 else state
+	if cost > 0:
+		state = engine._lose_player_health(state, cost, true, false, "card_health_cost")
+	if skin_spent > 0:
+		engine._log(state, "Paid %d health and %d Stoneskin for %s." % [cost, skin_spent, source_name])
+	elif source_name.begins_with("Empower "):
+		engine._log(state, "Paid %d health to Empower %s." % [cost, source_name.trim_prefix("Empower ")])
+	else:
+		engine._log(state, "Paid %d health for %s." % [cost, source_name])
+	return state
 
 static func after_health_loss(engine: RefCounted, state: Dictionary, hp_lost: int) -> void:
 	if hp_lost <= 0 or not engine.is_player_turn(state) or bool(state.get("player_turn_ending", false)):
@@ -130,6 +138,7 @@ static func opening_hand(engine: RefCounted, state: Dictionary) -> Dictionary:
 static func after_exhaust(engine: RefCounted, state: Dictionary, card_id: String, time_paid: int) -> Dictionary:
 	var burned: Array = (state.get("deck", {}) as Dictionary).get("burned", []) as Array
 	state[LAST_EXHAUST_KEY] = {"card_id": card_id, "pile_index": burned.size() - 1, "returned": false}
+	if time_paid <= 0: return state
 	for effect: Dictionary in effects_of_type(engine._relic_effects(state), "exhaust_time_stoneskin"):
 		state = engine._apply_relic_rewards(state, [{"type": "stoneskin", "amount": mini(maxi(0, time_paid), int(effect.get("max_amount", 5))), "_runtime_amount": true}], effect)
 	return state
@@ -156,7 +165,8 @@ static func player_turn_start(engine: RefCounted, state: Dictionary) -> Dictiona
 	for effect: Dictionary in engine._relic_effects(state):
 		match str(effect.get("type", "")):
 			"turn_start_active_rite_block":
-				state = engine._apply_relic_rewards(state, [{"type": "block", "amount": Rites.active_rites(state).size() * int(effect.get("amount", 2))}], effect)
+				if not Rites.active_rites(state).is_empty():
+					state = engine._apply_relic_rewards(state, [{"type": "block", "amount": Rites.active_rites(state).size() * int(effect.get("amount", 2))}], effect)
 			"turn_start_return_exhaust":
 				if not engine._relic_once_available(state, effect, "return_exhaust", ""):
 					continue

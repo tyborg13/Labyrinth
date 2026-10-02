@@ -24,6 +24,9 @@ static func _flags(state: Dictionary) -> Dictionary:
 	var flags: Variant = state.get("turn_flags", {})
 	return flags as Dictionary if typeof(flags) == TYPE_DICTIONARY else {}
 
+static func cards_finished(state: Dictionary) -> int:
+	return maxi(0, int(_flags(state).get("cards_finished", 0)))
+
 static func _set_flag(state: Dictionary, key: String, value: Variant) -> void:
 	var flags: Dictionary = _flags(state).duplicate(true)
 	if typeof(value) == TYPE_NIL:
@@ -52,9 +55,11 @@ static func card_with_time_discount(card: Dictionary, state: Dictionary, effects
 	var quicken: int = quicken_pending(state)
 	var rite_discount: int = RiteRules.card_time_discount(effects, card)
 	var relic_discount: int = 0
+	var discount_relic: String = ""
 	for effect: Dictionary in effects:
 		if str(effect.get("type", "")) == "nth_card_time_discount" and int(_flags(state).get("cards_finished", 0)) + 1 == int(effect.get("card_number", 2)):
 			relic_discount += maxi(0, int(effect.get("amount", 0)))
+			discount_relic = str(effect.get("relic_id", ""))
 	if quicken + rite_discount + relic_discount <= 0:
 		return card
 	var base: int = maxi(1, int(card.get("time", 5)))
@@ -66,6 +71,7 @@ static func card_with_time_discount(card: Dictionary, state: Dictionary, effects
 	var result: Dictionary = card.duplicate(false)
 	result["_time_discount_base"] = base
 	result["_relic_time_discount"] = after_rite - after_relic
+	result["_relic_time_discount_relic"] = discount_relic
 	result["_quicken_discount"] = after_relic - after
 	result["_rite_time_discount"] = base - after_rite
 	result["time"] = after
@@ -88,7 +94,7 @@ static func pricing_state(state: Dictionary) -> Dictionary:
 static func finish_card(state: Dictionary, card_id: String, card: Dictionary, payment_snapshot: Dictionary, rite_started: bool) -> void:
 	var buffs: Array = []
 	for buff: Dictionary in next_attack_buffs(state):
-		if not bool(buff.get("card_scoped", false)) or int(buff.get("granted_at", 0)) >= int(state.get("cards_played_this_turn", 0)) - 1:
+		if not bool(buff.get("card_scoped", false)) or int(buff.get("granted_at", 0)) >= cards_finished(state) - 1:
 			buffs.append(buff)
 	_set_flag(state, NEXT_ATTACK_KEY, buffs if not buffs.is_empty() else null)
 	var priced_pool: int = maxi(0, int(payment_snapshot.get(PAYMENT_QUICKEN_KEY, quicken_pending(state))))
@@ -151,7 +157,7 @@ static func gain_next_attack(state: Dictionary, action: Dictionary, source_name:
 		"element": str(action.get("element", "")),
 		"per_tile_moved": per_tile.duplicate(true),
 		# The granting card is still resolving; only a later card may use it.
-		"granted_at": int(state.get("cards_played_this_turn", 0)),
+		"granted_at": cards_finished(state),
 		"immediate": bool(action.get("immediate", false)),
 		"card_id": str(action.get("_card_id", "")),
 		"source": source_name,
@@ -189,7 +195,7 @@ static func eligible_buffs(state: Dictionary, action: Dictionary) -> Array[Dicti
 		return result
 	if str(action.get("type", "")) not in ATTACK_ACTION_TYPES or is_forced_movement_only(action):
 		return result
-	var played: int = int(state.get("cards_played_this_turn", 0))
+	var played: int = cards_finished(state)
 	var element_id: String = _action_element(action)
 	for buff_var: Variant in next_attack_buffs(state):
 		if typeof(buff_var) != TYPE_DICTIONARY:

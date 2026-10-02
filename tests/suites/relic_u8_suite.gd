@@ -50,10 +50,12 @@ static func run(expect: Callable) -> void:
 	_test_ledger_lifetime_and_resume(engine, expect)
 	_test_ledger_healing_and_preservation(engine, expect)
 	_test_card_faces_and_forecasts(engine, expect)
+	_test_free_card_sequences(engine, expect)
 
 static func _test_bandolier_payment_and_budget(engine: Combat, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["quick_draw_bandolier"])
 	for id: String in Data.item_card_ids():
+		expect.call(engine.card_def(id, s).get("_item_time_surcharge_relic", "") == "quick_draw_bandolier", "Bandolier stamps the authored source id on " + id)
 		expect.call(engine.card_time_cost(id, s) == int(Data.card_def(id)["time"]) + 1, "Bandolier adds one Time to " + id)
 		expect.call(engine.card_plays_spent(id, s) == 0 and engine.card_plays_spent_for_actions(engine.card_play_actions(id, s)) == 0, "Bandolier item actions stamp zero plays: " + id)
 	expect.call(engine.card_time_cost("quick_stab", s) == engine.card_time_cost("quick_stab") and engine.card_plays_spent("quick_stab", s) == 1, "Bandolier is idle on non-items")
@@ -216,3 +218,43 @@ static func _test_card_faces_and_forecasts(engine: Combat, expect: Callable) -> 
 	forecast = scene.call("_preview_damage_for_action", s, engine.card_play_actions("thunderstone", s)[0], TARGET)
 	expect.call(int((forecast.get("enemy_1", {}) as Dictionary).get("hp_loss", 0)) == 8, "Boosted damage uses the existing eight-damage hover forecast")
 	scene.free()
+
+static func _test_free_card_sequences(engine: Combat, expect: Callable) -> void:
+	var tempo := preload("res://scripts/tempo_rules.gd")
+	var s: Dictionary = state(engine, ["quick_draw_bandolier"], ["throwing_net", "whetstone", "quick_stab", "quick_stab"])
+	s = play(engine, s, "throwing_net", TARGET)
+	s = resume(play(engine, s, "whetstone"))
+	var action: Dictionary = engine.card_play_actions("quick_stab", s)[0]
+	expect.call(action.get("_follow_up_active", false) and engine.final_damage_for_player_action(s, action) == 13 and engine._action_pierces_defense(engine._resolved_surface_action(s, action)), "Free Bandolier item then Whetstone preserves Follow-up, next-attack damage and Pierce")
+	var forecast: Dictionary = engine.surface_preview_for_player_action(s, action, TARGET)["state"]
+	var committed: Dictionary = play(engine, s, "quick_stab", TARGET)
+	expect.call(forecast["enemies"] == committed["enemies"] and committed["enemies"][0]["hp"] == 27, "Whetstone after a free item previews and commits thirteen damage")
+	expect.call(engine.final_damage_for_player_action(committed, engine.card_play_actions("quick_stab", committed)[0]) == 9, "The following Quick Stab keeps Follow-up and spends Whetstone once")
+	var rite: Dictionary = state(engine, ["liturgy_of_ash"], ["rite_of_the_mountain", "quick_stab"])
+	rite = play(engine, rite, "rite_of_the_mountain")
+	expect.call(rite["cards_played_this_turn"] == 0 and bool(engine.card_play_actions("quick_stab", rite)[0].get("_follow_up_active", false)), "Liturgy's free Rite activates Follow-up on the next attack")
+	var echo: Dictionary = state(engine, ["quick_draw_bandolier", "echoing_blade"], ["throwing_net", "quick_stab", "thunderstone", "quick_stab"])
+	echo = play(engine, echo, "throwing_net", TARGET)
+	echo = play(engine, echo, "quick_stab", TARGET)
+	echo = resume(echo)
+	action = engine.card_play_actions("thunderstone", echo)[0]
+	expect.call(engine.final_damage_for_player_action(echo, action) == 7, "Echoing Blade applies to the immediately following free item")
+	forecast = engine.surface_preview_for_player_action(echo, action, TARGET)["state"]
+	committed = play(engine, echo, "thunderstone", TARGET)
+	expect.call(forecast["enemies"] == committed["enemies"] and tempo.next_attack_buffs(committed).is_empty(), "Echoing Blade's free-item preview equals commit and expires at card finish")
+	var idle: Dictionary = state(engine, ["quick_draw_bandolier", "echoing_blade"], ["throwing_net", "quick_stab", "bone_ward_charm", "quick_stab"])
+	idle = play(engine, idle, "throwing_net", TARGET)
+	idle = play(engine, idle, "quick_stab", TARGET)
+	idle = play(engine, idle, "bone_ward_charm")
+	expect.call(tempo.next_attack_buffs(idle).is_empty() and engine.final_damage_for_player_action(idle, engine.card_play_actions("quick_stab", idle)[0]) == 9, "Echoing Blade expires on the next free card even when it has no attack")
+	var moved: Dictionary = state(engine, ["quick_draw_bandolier", "duelist_whetstone"], ["throwing_net", "sidestep_slash", "quick_stab"])
+	moved = play(engine, moved, "throwing_net", TARGET)
+	moved = engine.prepare_player_card(moved, 0)
+	var actions: Array = engine.card_play_actions("sidestep_slash", moved)
+	moved = engine.apply_player_action(moved, actions[0], Vector2i(3, 3))
+	var hp: int = moved["enemies"][0]["hp"]
+	forecast = engine.surface_preview_for_player_action(moved, actions[1], TARGET)["state"]
+	moved = engine.apply_player_action(moved, actions[1], TARGET)
+	expect.call(forecast == moved and hp - int(moved["enemies"][0]["hp"]) == 7, "Duelist Whetstone movement-attack retains its bonus after a free item")
+	moved = engine.finish_player_card(moved, 0)
+	expect.call(bool(engine.card_play_actions("quick_stab", moved)[0].get("_follow_up_active", false)), "Quick Stab keeps Follow-up after the Whetstone movement-attack card")

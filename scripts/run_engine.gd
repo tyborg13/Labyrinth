@@ -1858,6 +1858,11 @@ func apply_progression_update(run_state: Dictionary, progression: Dictionary, pr
 func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = combat_state.duplicate(true)
 	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
+	# Saves from before finished-card counting resume with the cards they had played.
+	var turn_flags: Dictionary = (next_state.get("turn_flags", {}) as Dictionary).duplicate(true) if typeof(next_state.get("turn_flags", null)) == TYPE_DICTIONARY else {}
+	if not turn_flags.has("cards_finished") and int(next_state.get("cards_played_this_turn", 0)) > 0:
+		turn_flags["cards_finished"] = int(next_state.get("cards_played_this_turn", 0))
+		next_state["turn_flags"] = turn_flags
 	var combat_skills: Array[String] = []
 	for skill_id: String in SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", [])):
 		if not SkillTreeLibrary.is_retired(skill_id):

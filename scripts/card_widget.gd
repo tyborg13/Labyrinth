@@ -1366,10 +1366,10 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
-	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\nRelic: -%d" % int(card["_relic_time_discount"])
+	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\n%s: -%d" % [str(GameData.relic_def(str(card.get("_relic_time_discount_relic", ""))).get("name", "Relic")), int(card["_relic_time_discount"])]
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
-	if tempo_surcharge > 0: detail += "\nWhirling Sash: +%d" % tempo_surcharge
-	if item_surcharge > 0: detail += "\nQuick-Draw Bandolier: +%d" % item_surcharge
+	if tempo_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_tempo_time_surcharge_relic", ""))).get("name", "Relic")), tempo_surcharge]
+	if item_surcharge > 0: detail += "\n%s: +%d" % [str(GameData.relic_def(str(card.get("_item_time_surcharge_relic", ""))).get("name", "Relic")), item_surcharge]
 	if total_surcharge > tempo_surcharge + item_surcharge: detail += "\nEmpower: +%d" % (total_surcharge - tempo_surcharge - item_surcharge)
 	_time_badge.setup(time_cost, detail)
 	_position_time_badge()

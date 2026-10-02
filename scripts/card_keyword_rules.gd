@@ -7,6 +7,7 @@ extends RefCounted
 
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 const PLAY_MODIFIERS_KEY: String = "card_play_modifiers"
@@ -43,9 +44,9 @@ static func _keyword_spec_present(spec: Variant) -> bool:
 	return bool(dict.get("repeat_first", false)) or not (dict.get("mods", []) as Array).is_empty() or not (dict.get("append", []) as Array).is_empty()
 
 # The card that is starting counts only cards finished earlier this activation:
-# cards_played_this_turn increments in finish_player_card, never mid-card.
+# turn_flags.cards_finished increments in finish_player_card, never mid-card.
 static func follow_up_condition_met(state: Dictionary) -> bool:
-	if int(state.get("cards_played_this_turn", 0)) <= 0 and not TempoRelicRules.follow_up_from_movement(state, GameData.relic_effects_for_state(state)):
+	if TempoRules.cards_finished(state) <= 0 and not TempoRelicRules.follow_up_from_movement(state, GameData.relic_effects_for_state(state)):
 		return false
 	var actor: Variant = state.get("current_actor", {})
 	return typeof(actor) != TYPE_DICTIONARY or str((actor as Dictionary).get("kind", "player")) == "player"

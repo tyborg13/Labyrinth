@@ -113,7 +113,12 @@ static func _test_combat_start(expect: Callable) -> void:
 	hidden_room["umbra_stage"] = "eclipse"
 	hidden_room["enemies"][0]["pos"] = Vector2i(8, 4)
 	var hidden: Dictionary = engine.create_combat(2202, hidden_room, {"hp": 24, "max_hp": 24, "relics": ["waxen_effigy"]})
-	expect.call((hidden["illusions"] as Array).is_empty(), "Effigy cannot choose toward a hidden enemy")
+	expect.call(not engine.is_enemy_visible_to_player(hidden, hidden["enemies"][0]), "Effigy fallback fixture has no enemy in sight")
+	expect.call(hidden["illusions"].size() == 1 and hidden["illusions"][0]["pos"] == Vector2i(3, 4), "Effigy without visible enemies chooses the legal neighbour closest to board centre")
+	hidden_room["player_start"] = Vector2i(2, 2)
+	hidden_room["enemies"][0]["pos"] = Vector2i(8, 6)
+	hidden = engine.create_combat(2202, hidden_room, {"hp": 24, "max_hp": 24, "relics": ["waxen_effigy"]})
+	expect.call(hidden["illusions"][0]["pos"] == Vector2i(3, 2), "Effigy centre-distance ties use up, right, down, left without reading hidden enemies")
 	var terrain_room: Dictionary = room()
 	terrain_room["terrain"] = [{"id": 1, "pos": Vector2i(2, 3), "hp": 5, "max_hp": 5, "kind": "outcrop"}]
 	var terrain: Dictionary = engine.create_combat(2202, terrain_room, {"hp": 24, "max_hp": 24, "relics": ["waxen_effigy"]})
@@ -346,9 +351,11 @@ static func _test_flint_edge(expect: Callable) -> void:
 		var attack: Dictionary = {"type": "melee", "range": 1, "damage": 3, "element": "ice"}
 		var hit: Dictionary = _forecast(engine, value, attack, Vector2i(3, 4), expect)
 		var consumes: bool = surface in ["fire", "ice", "electrified"]
-		expect.call(int(hit["enemies"][0]["hp"]) == (94 if consumes else 97), "Flint Edge consumes elemental fuel before damage: %s" % surface)
+		expect.call(int(hit["enemies"][0]["hp"]) == (92 if surface == "ice" else (94 if consumes else 97)), "Flint Edge consumes elemental fuel before damage: %s" % surface)
 		expect.call(Surface.element_at(hit, Vector2i(3, 4)).is_empty(), "Flint Edge forecast shows consumed elemental tile")
 		expect.call(int(hit["enemies"][0].get("freeze", 0)) == 0, "Flint Edge consumed Ice cannot Freeze")
+		if surface == "ice":
+			expect.call(not bool(hit["enemies"][0].get("chilled", false)), "Flint keeps the attack-start Chill bonus and clears Chill after the hit")
 		if surface == "rubble":
 			expect.call(Surface.has_rubble(hit, Vector2i(3, 4)), "Flint Edge preserves Rubble")
 	var ranged: Dictionary = state(engine, ["flint_edge"])

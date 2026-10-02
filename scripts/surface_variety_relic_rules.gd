@@ -24,6 +24,8 @@ static func knots(state: Dictionary) -> Array:
 	return state.get(KNOTS, []) as Array
 
 static func modify_card(card: Dictionary, state: Dictionary, effects: Array, equipment: Dictionary, granted_cards: Dictionary) -> Dictionary:
+	if effect(effects, "alternating_element_card_bonus").is_empty() and effect(effects, "matching_equipment_card_bonus").is_empty() and effect(effects, "combat_element_knots").is_empty():
+		return card
 	var result: Dictionary = card.duplicate(true)
 	var element: String = str(card.get("element", "none"))
 	var damage: int = 0
@@ -47,11 +49,13 @@ static func modify_card(card: Dictionary, state: Dictionary, effects: Array, equ
 	var tied: Array = knots(state).duplicate()
 	if ELEMENTS.has(element) and not tied.has(element): tied.append(element)
 	var knot_effect: Dictionary = effect(effects, "combat_element_knots")
+	var prevent_block: bool = not effect(effects, "prevent_card_block").is_empty()
+	if prevent_block: block = 0
 	var actions: Array = result.get("actions", []) as Array
 	_modify_card_actions(actions, damage, block, tied.size() if not knot_effect.is_empty() else 0, knot_effect)
 	if block > 0 and not actions.any(func(a: Dictionary) -> bool: return str(a.get("type", "")) == "block"):
 		actions.append({"type": "block", "amount": block})
-	if not knot_effect.is_empty() and tied.size() >= 5:
+	if not prevent_block and not knot_effect.is_empty() and tied.size() >= int(knot_effect.get("block_threshold", 5)):
 		actions.append({"type": "block", "amount": int(knot_effect.get("block", 3)), "_knot_reward": true})
 	result["actions"] = actions
 	return result
@@ -61,8 +65,8 @@ static func _modify_card_actions(actions: Array, damage: int, block: int, count:
 		if action.has("damage"): action["damage"] = int(action["damage"]) + damage
 		if str(action.get("type", "")) == "block": action["amount"] = int(action.get("amount", 0)) + block
 		if str(action.get("type", "")) in Tempo.ATTACK_ACTION_TYPES and not Tempo.is_forced_movement_only(action):
-			if count >= 3: action["pierce"] = true
-			if count >= 4: action["chain"] = maxi(1, int(action.get("chain", 0)))
+			if count >= int(knot_effect.get("pierce_threshold", 3)): action["pierce"] = true
+			if count >= int(knot_effect.get("chain_threshold", 4)): action["chain"] = maxi(int(knot_effect.get("chain", 1)), int(action.get("chain", 0)))
 		# Conditional rewards belong to the same card, including Block riders.
 		if action.has("rewards"): _modify_card_actions(action["rewards"], damage, block, count, knot_effect)
 		if action.has("on_result"): _modify_card_actions((action["on_result"] as Dictionary).get("rewards", []), damage, block, count, knot_effect)
@@ -83,8 +87,8 @@ static func resolve_action(state: Dictionary, action: Dictionary, effects: Array
 	var element: String = str(action.get("_card_element", "none"))
 	if ELEMENTS.has(element) and not tied.has(element): tied.append(element)
 	if not knot_effect.is_empty():
-		if tied.size() >= 3: action["pierce"] = true
-		if tied.size() >= 4: action["chain"] = maxi(1, int(action.get("chain", 0)))
+		if tied.size() >= int(knot_effect.get("pierce_threshold", 3)): action["pierce"] = true
+		if tied.size() >= int(knot_effect.get("chain_threshold", 4)): action["chain"] = maxi(int(knot_effect.get("chain", 1)), int(action.get("chain", 0)))
 	var dial: Dictionary = effect(effects, "store_consumed_surface_release")
 	if not dial.is_empty() and not stored(state).is_empty():
 		action["_stored_release"] = stored(state).duplicate()
@@ -175,8 +179,8 @@ static func refund_available(state: Dictionary, effects: Array) -> int:
 	var entry: Dictionary = effect(effects, "light_move_refund")
 	return maxi(0, int(entry.get("max", 2)) - int((state.get("turn_flags", {}) as Dictionary).get(REFUNDS, 0))) if not entry.is_empty() else 0
 
-static func claim_refund(state: Dictionary, tile: Vector2i, effects: Array) -> int:
-	if refund_available(state, effects) <= 0 or not hero_light(state, tile): return 0
+static func claim_refund(state: Dictionary, tile: Vector2i, effects: Array, step_cost: int) -> int:
+	if step_cost <= 0 or refund_available(state, effects) <= 0 or not hero_light(state, tile): return 0
 	var flags: Dictionary = state.get("turn_flags", {}) as Dictionary
 	flags[REFUNDS] = int(flags.get(REFUNDS, 0)) + 1
 	state["turn_flags"] = flags
@@ -185,59 +189,170 @@ static func claim_refund(state: Dictionary, tile: Vector2i, effects: Array) -> i
 static func move_rules(effects: Array) -> bool:
 	return not effect(effects, "light_move_refund").is_empty() or not effect(effects, "move_through_enemies_stagger").is_empty() or not effect(effects, "light_move_links").is_empty()
 
+# Cost-ordered search. A state is (tile, refunds used, direction only for
+# straight Move / Winter's Spur). Pareto labels retain safer or loot-bearing
+# alternatives within the budget, as the ordinary navigation prefers those.
+# Each label stores only its predecessor; materialize winning paths at the end.
 static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum: bool, hazard: Callable, pickup: Callable, stop: Callable, effects: Array) -> Dictionary:
 	var vault: bool = not effect(effects, "move_through_enemies_stagger").is_empty()
 	var enemy_tiles: Dictionary = engine._occupied_visible_enemy_tiles(state) if vault else {}
+	var endpoints: Dictionary = state.get("_movement_allowed_endpoints", {}) as Dictionary
+	var linked: bool = not effect(effects, "light_move_links").is_empty()
+	var straight: bool = bool(state.get("_straight_move", false))
+	var stride: bool = engine.GuardianRelicRules.amount(state, "ice_stride") > 0
+	var skating: bool = engine.ManeuverRules.player_skating(state)
+	var directional: bool = straight or (stride and not skating)
+	var max_refunds: int = refund_available(state, effects)
+	var passable: Array[Vector2i] = engine._all_passable_tiles(state)
+	var indices: Dictionary = {}
+	var lights: Dictionary = {}
 	var light_tiles: Array[Vector2i]
-	if not effect(effects, "light_move_links").is_empty():
-		for tile: Vector2i in engine._all_passable_tiles(state):
-			if hero_light(state, tile): light_tiles.append(tile)
+	var harms: Dictionary = {}
+	var loot_scores: Dictionary = {}
+	for tile: Vector2i in passable:
+		indices[tile] = indices.size()
+		if hero_light(state, tile):
+			lights[tile] = true
+			light_tiles.append(tile)
+		harms[tile] = int(hazard.call(tile))
+		loot_scores[tile] = int(pickup.call(tile))
+	# Build every geometric neighbour list once. Light jumps are explicit edges,
+	# and cardinal neighbours retain their normal Rubble/Skate cost.
+	var neighbours: Dictionary = {}
+	var step_costs: Dictionary = {}
+	for tile: Vector2i in passable:
+		var adjacent: Array[Vector2i]
+		var costs: Dictionary = {}
+		for direction: Vector2i in Paths.DIRS_4:
+			var to: Vector2i = tile + direction
+			if not indices.has(to) or (occupied.has(to) and not enemy_tiles.has(to) and not endpoints.has(to)): continue
+			adjacent.append(to)
+			costs[to] = 0 if skating and Surface.has_surface(state, to, "ice") else Surface.movement_step_cost(state, unit, tile, to)
+		if linked and not straight and lights.has(tile):
+			for to: Vector2i in light_tiles:
+				if Paths.manhattan(tile, to) <= 1 or (occupied.has(to) and not enemy_tiles.has(to) and not endpoints.has(to)): continue
+				adjacent.append(to)
+				costs[to] = 1
+		neighbours[tile] = adjacent
+		step_costs[tile] = costs
 	var start: Vector2i = unit["pos"]
-	var first_path: Array[Vector2i]
-	first_path.append(start)
-	var paths: Dictionary = {start: first_path}
-	var costs: Dictionary = {start: 0}
-	var hazards: Dictionary = {start: 0}
-	var pickups: Dictionary = {start: 0}
-	var queue: Array[Dictionary]
-	queue.append({"tile": start, "cost": 0, "harm": 0, "pickup": 0, "refunds": 0, "path": first_path, "direction": Vector2i.ZERO})
-	var best: Dictionary = {}
-	var cursor: int = 0
-	while cursor < queue.size():
-		var current: Dictionary = queue[cursor]
-		cursor += 1
-		var next_tiles: Array[Vector2i]
-		for direction: Vector2i in Paths.DIRS_4: next_tiles.append(current["tile"] + direction)
-		if not bool(state.get("_straight_move", false)) and light_tiles.has(current["tile"]):
-			for tile: Vector2i in light_tiles:
-				if not next_tiles.has(tile): next_tiles.append(tile)
-		for tile: Vector2i in next_tiles:
-			if bool(state.get("_straight_move", false)) and (current["path"] as Array).size() > 1 and tile - (current["tile"] as Vector2i) != current["direction"]: continue
-			if not Paths.is_passable(state["grid"], tile) or (occupied.has(tile) and not enemy_tiles.has(tile)) or (current["path"] as Array).has(tile): continue
-			var entry: int = engine.hero_move_step_cost(state, unit, current["tile"], tile, current["direction"])
-			if (current["path"] as Array).size() == 1 and minimum and budget > 0: entry = mini(entry, budget)
+	var records: Array[Dictionary]
+	records.append({"tile": start, "cost": 0, "harm": 0, "pickup": 0, "refunds": 0, "direction": Vector2i.ZERO, "parent": -1, "active": true})
+	var frontier: Array[int]
+	frontier.append(0)
+	var initial_labels: Array[int]
+	initial_labels.append(0)
+	var best: Dictionary = {_navigation_key(int(indices[start]), 0, Vector2i.ZERO, max_refunds, directional): initial_labels}
+	var winners: Dictionary = {start: 0}
+	while not frontier.is_empty():
+		var current_id: int = _heap_pop(frontier, records)
+		var current: Dictionary = records[current_id]
+		if not bool(current["active"]): continue
+		var from: Vector2i = current["tile"]
+		if endpoints.has(from) and current_id != 0: continue
+		for tile: Vector2i in neighbours[from]:
+			var direction: Vector2i = tile - from
+			if straight and current_id != 0 and direction != current["direction"]: continue
+			var entry: int = int(step_costs[from][tile])
+			if stride and not skating and current["direction"] == direction and Surface.has_surface(state, from, "ice") and Surface.has_surface(state, tile, "ice"):
+				entry = maxi(0, entry - 1)
+			if current_id == 0 and minimum and budget > 0: entry = mini(entry, budget)
 			var refunds: int = int(current["refunds"])
-			if refunds < refund_available(state, effects) and hero_light(state, tile):
+			if entry > 0 and refunds < max_refunds and lights.has(tile):
 				entry -= 1
 				refunds += 1
 			var spent: int = int(current["cost"]) + entry
 			if spent > budget: continue
-			var harm: int = int(current["harm"]) + int(hazard.call(tile))
-			var loot: int = int(current["pickup"]) + int(pickup.call(tile))
-			var direction: Vector2i = tile - (current["tile"] as Vector2i)
-			var key: String = "%s:%s:%d:%d" % [tile, direction, spent, refunds]
-			if best.has(key):
-				var prior: Dictionary = best[key]
-				if int(prior["harm"]) < harm or (int(prior["harm"]) == harm and int(prior["pickup"]) >= loot): continue
-			best[key] = {"harm": harm, "pickup": loot}
-			var path: Array[Vector2i]
-			path.assign(current["path"])
-			path.append(tile)
-			if not occupied.has(tile) and (not paths.has(tile) or harm < int(hazards[tile]) or (harm == int(hazards[tile]) and (loot > int(pickups[tile]) or (loot == int(pickups[tile]) and spent < int(costs[tile]))))):
-				paths[tile] = path
-				costs[tile] = spent
-				hazards[tile] = harm
-				pickups[tile] = loot
-				if stop.is_valid() and bool(stop.call(tile)): return {"paths": paths, "costs": costs, "hazards": hazards}
-			queue.append({"tile": tile, "cost": spent, "harm": harm, "pickup": loot, "refunds": refunds, "path": path, "direction": direction})
+			var harm: int = int(current["harm"]) + int(harms[tile])
+			var loot: int = int(current["pickup"]) + int(loot_scores[tile])
+			# Only a cardinal incoming direction can affect the next Ice step.
+			var next_direction: Vector2i = direction if directional and Paths.manhattan(from, tile) == 1 else Vector2i.ZERO
+			var key: int = _navigation_key(int(indices[tile]), refunds, next_direction, max_refunds, directional)
+			var labels: Array = best.get(key, [])
+			var dominated: bool = false
+			for prior_id: int in labels:
+				var prior: Dictionary = records[prior_id]
+				if int(prior["cost"]) <= spent and int(prior["harm"]) <= harm and int(prior["pickup"]) >= loot:
+					dominated = true
+					break
+			if dominated or _predecessor_contains(records, current_id, tile): continue
+			var kept: Array[int]
+			for prior_id: int in labels:
+				var prior: Dictionary = records[prior_id]
+				if spent <= int(prior["cost"]) and harm <= int(prior["harm"]) and loot >= int(prior["pickup"]):
+					prior["active"] = false
+				else: kept.append(prior_id)
+			var id: int = records.size()
+			records.append({"tile": tile, "cost": spent, "harm": harm, "pickup": loot, "refunds": refunds, "direction": next_direction, "parent": current_id, "active": true})
+			kept.append(id)
+			best[key] = kept
+			if not occupied.has(tile) or endpoints.has(tile):
+				var prior: Dictionary = records[int(winners[tile])] if winners.has(tile) else {}
+				var preferred: bool = prior.is_empty()
+				if not preferred:
+					preferred = harm < int(prior["harm"]) or (harm == int(prior["harm"]) and loot > int(prior["pickup"]))
+					preferred = preferred or (harm == int(prior["harm"]) and loot == int(prior["pickup"]) and spent < int(prior["cost"]))
+				if preferred:
+					winners[tile] = id
+					if stop.is_valid() and bool(stop.call(tile)): return _navigation_result(records, winners)
+			_heap_push(frontier, records, id)
+	return _navigation_result(records, winners)
+
+static func _navigation_key(tile_index: int, refunds: int, direction: Vector2i, max_refunds: int, directional: bool) -> int:
+	var key: int = tile_index * (max_refunds + 1) + refunds
+	return key * 5 + Paths.DIRS_4.find(direction) + 1 if directional else key
+
+static func _predecessor_contains(records: Array[Dictionary], id: int, tile: Vector2i) -> bool:
+	while id >= 0:
+		if records[id]["tile"] == tile: return true
+		id = int(records[id]["parent"])
+	return false
+
+static func _navigation_result(records: Array[Dictionary], winners: Dictionary) -> Dictionary:
+	var paths: Dictionary = {}
+	var costs: Dictionary = {}
+	var hazards: Dictionary = {}
+	for tile: Vector2i in winners:
+		var id: int = int(winners[tile])
+		costs[tile] = int(records[id]["cost"])
+		hazards[tile] = int(records[id]["harm"])
+		var path: Array[Vector2i]
+		while id >= 0:
+			path.append(records[id]["tile"])
+			id = int(records[id]["parent"])
+		path.reverse()
+		paths[tile] = path
 	return {"paths": paths, "costs": costs, "hazards": hazards}
+
+static func _heap_before(records: Array[Dictionary], a: int, b: int) -> bool:
+	var left: Dictionary = records[a]
+	var right: Dictionary = records[b]
+	if left["cost"] != right["cost"]: return int(left["cost"]) < int(right["cost"])
+	return a < b # Stable discovery order resolves otherwise identical paths.
+
+static func _heap_push(heap: Array[int], records: Array[Dictionary], id: int) -> void:
+	heap.append(id)
+	var child: int = heap.size() - 1
+	while child > 0:
+		var parent: int = (child - 1) / 2
+		if not _heap_before(records, heap[child], heap[parent]): break
+		var swap: int = heap[parent]
+		heap[parent] = heap[child]
+		heap[child] = swap
+		child = parent
+
+static func _heap_pop(heap: Array[int], records: Array[Dictionary]) -> int:
+	var result: int = heap[0]
+	var tail: int = heap.pop_back()
+	if heap.is_empty(): return result
+	heap[0] = tail
+	var parent: int = 0
+	while parent * 2 + 1 < heap.size():
+		var child: int = parent * 2 + 1
+		if child + 1 < heap.size() and _heap_before(records, heap[child + 1], heap[child]): child += 1
+		if not _heap_before(records, heap[child], heap[parent]): break
+		var swap: int = heap[parent]
+		heap[parent] = heap[child]
+		heap[child] = swap
+		parent = child
+	return result

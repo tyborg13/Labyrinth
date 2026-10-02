@@ -40,24 +40,19 @@ static func after_destroy(engine: RefCounted, state: Dictionary, illusion: Dicti
 static func can_trade(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
 	return not effect(engine, state, "movement_illusion_exchange").is_empty() and not Cards.illusion_at(engine, state, tile).is_empty()
 
-## Add each occupied endpoint using an independent route that opens only that
-## endpoint. Thus no route can pass through an illusion to reach another tile.
-static func movement_navigation(engine: RefCounted, state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, navigation: Dictionary) -> Dictionary:
-	if effect(engine, state, "movement_illusion_exchange").is_empty(): return navigation
-	for illusion: Dictionary in engine._live_illusions(state):
-		var tile: Vector2i = illusion.get("pos", INVALID)
-		if not engine.is_tile_visible_to_player(state, tile): continue
-		var open: Dictionary = occupied.duplicate()
-		open.erase(tile)
-		var candidate: Dictionary
-		if bool(action.get("straight_line", false)):
-			candidate = preload("res://scripts/maneuver_rules.gd").straight_line_navigation(engine, state, player, budget, open, minimum)
-		else:
-			candidate = engine._unit_movement_navigation(state, player, budget, open, minimum)
-		if (candidate.get("paths", {}) as Dictionary).has(tile):
-			(navigation["paths"] as Dictionary)[tile] = candidate["paths"][tile]
-			(navigation["costs"] as Dictionary)[tile] = candidate["costs"][tile]
-	return navigation
+## Open all owned illusion endpoints in one search, but never expand through
+## them. The base search still applies straight-line and U7 movement rules.
+static func movement_navigation(engine: RefCounted, state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop: Callable = Callable()) -> Dictionary:
+	var navigation_state: Dictionary = state
+	if not effect(engine, state, "movement_illusion_exchange").is_empty():
+		var endpoints: Dictionary = {}
+		for illusion: Dictionary in engine._live_illusions(state):
+			var tile: Vector2i = illusion.get("pos", INVALID)
+			if engine.is_tile_visible_to_player(state, tile): endpoints[tile] = true
+		if not endpoints.is_empty():
+			navigation_state = state.duplicate(false)
+			navigation_state["_movement_allowed_endpoints"] = endpoints
+	return engine._base_player_move_navigation(navigation_state, action, player, budget, occupied, minimum, stop)
 
 ## Both positions change before contact (the same convention as Empty Husk).
 ## The illusion arrives first; the caller then resolves normal hero arrival.

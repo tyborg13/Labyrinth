@@ -22,13 +22,24 @@ static func start_combat(engine: RefCounted, state: Dictionary) -> Dictionary:
 			var tile: Vector2i = state["player"]["pos"] + direction
 			if Surface.can_place(state, tile) and not occupied.has(tile):
 				candidates[tile] = true
+		var visible: Array[Dictionary]
+		for enemy: Dictionary in engine._live_enemies(state):
+			if engine.is_enemy_visible_to_player(state, enemy): visible.append(enemy)
 		var chosen: Vector2i = engine.INVALID_TILE
 		var best: int = 2147483647
-		for tile: Vector2i in engine._sorted_tiles_from_lookup(candidates):
-			var distance: int = 2147483647
-			for enemy: Dictionary in engine._live_enemies(state):
-				if engine.is_enemy_visible_to_player(state, enemy):
-					distance = mini(distance, engine._enemy_distance_to_tile(enemy, tile))
+		var grid: Array = state["grid"]
+		var centre := Vector2i((grid[0] as Array).size() / 2, grid.size() / 2)
+		var ordered: Array[Vector2i]
+		if visible.is_empty():
+			for direction: Vector2i in Paths.DIRS_4:
+				var tile: Vector2i = state["player"]["pos"] + direction
+				if candidates.has(tile): ordered.append(tile)
+		else:
+			ordered.assign(engine._sorted_tiles_from_lookup(candidates))
+		for tile: Vector2i in ordered:
+			var distance: int = Paths.manhattan(tile, centre) if visible.is_empty() else 2147483647
+			for enemy: Dictionary in visible:
+				distance = mini(distance, engine._enemy_distance_to_tile(enemy, tile))
 			if distance < best:
 				chosen = tile
 				best = distance
@@ -85,17 +96,22 @@ static func consume_melee_target(engine: RefCounted, state: Dictionary, action: 
 		if str(effect.get("type", "")) != "melee_consume_elemental_damage":
 			continue
 		var amount: int = Data.fixed_point_amount(int(effect.get("amount", 0)))
+		var was_chilled: bool = bool(state["enemies"][index].get("chilled", false))
 		Surface.remove(state, tile, "elemental", "consume")
 		Surface.sync_chilled(state)
 		var tiles: Array[Vector2i]
 		tiles.append(tile)
 		Surface.record_event(state, {"kind": "attack_consumed_surface", "surface": surface, "tiles": tiles, "bonus_damage": amount, "source": engine._surface_source(state, action)})
-		return {"tile": tile, "surface": surface, "amount": amount}
+		return {"tile": tile, "surface": surface, "amount": amount, "was_chilled": was_chilled}
 	return {}
 
-static func before_melee_hit(action: Dictionary, hit: Dictionary, fuel: Dictionary) -> Dictionary:
+static func before_melee_hit(state: Dictionary, action: Dictionary, hit: Dictionary, fuel: Dictionary) -> Dictionary:
 	if fuel.is_empty() or str(hit.get("kind_trace", "")) != "actor" or hit["from"] != hit["to"] or hit["to"] != fuel["tile"]:
 		return action
+	# Preserve the attack-start exposure through this hit; sync after damage.
+	if str(fuel["surface"]) == "ice" and bool(fuel.get("was_chilled", false)):
+		for enemy: Dictionary in state.get("enemies", []):
+			if int(enemy.get("id", -1)) == int(hit.get("id", -2)): enemy["chilled"] = true
 	var result: Dictionary = action.duplicate(true)
 	result["damage"] = int(result.get("damage", 0)) + int(fuel["amount"])
 	result["_skip_surface_freeze"] = str(fuel["surface"]) == "ice"

@@ -12027,11 +12027,7 @@ func _refresh_relic_bar() -> void:
 				if str(effect.get("type", "")) == "combat_element_knots":
 					var tied: Array = _combat_state.get("relic_element_knots", []) as Array
 					_add_relic_counter(frame, "RelicKnots", tied.size())
-					frame.tooltip_text += "\nKnots: %s (%d of 5)" % [_relic_element_names(tied), tied.size()]
-					if tied.size() >= 3: frame.tooltip_text += ": attacks Pierce"
-					if tied.size() >= 4: frame.tooltip_text += " and Chain 1"
-					if tied.size() >= 5: frame.tooltip_text += "; every card grants 3 Block"
-					frame.tooltip_text += "."
+					frame.tooltip_text += _relic_knots_tooltip(effect, tied)
 			_relic_icon_grid.add_child(frame)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
@@ -12051,6 +12047,13 @@ func _refresh_relic_bar() -> void:
 		call_deferred("_pulse_defiance_badge")
 	_record_runtime_performance_phase("relic_bar_deferred_effects", performance_phase_started)
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
+
+func _relic_knots_tooltip(effect: Dictionary, tied: Array) -> String:
+	var detail: String = "\nKnots: %s (%d of %d)" % [_relic_element_names(tied), tied.size(), int(effect["max_knots"])]
+	if tied.size() >= int(effect["pierce_threshold"]): detail += ": attacks Pierce"
+	if tied.size() >= int(effect["chain_threshold"]): detail += " and Chain %d" % int(effect["chain"])
+	if tied.size() >= int(effect["block_threshold"]): detail += "; every card grants %d Block" % int(effect["block"])
+	return detail + "."
 
 func _add_relic_counter(frame: Control, counter_name: String, held: int) -> void:
 	var counter := Label.new()
@@ -13615,7 +13618,8 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 		bell_badge.position = Vector2(slot_size.x - 32, 2)
 		bell_badge.z_index = 7
 		bell_badge.mouse_filter = Control.MOUSE_FILTER_PASS
-		bell_badge.tooltip_text = "Late: your attacks deal 3 more."
+		var late_effect: Dictionary = TempoRelicRules.effect_of_type(GameData.relic_effects(late_relic_id), "damage_vs_late")
+		bell_badge.tooltip_text = "Late: your attacks deal %d more." % int(late_effect.get("amount", 0))
 		bell_badge.add_theme_stylebox_override("panel", _pile_card_style(Color("261b14"), Color(GameData.relic_accent(late_relic_id)), 3.0))
 		var bell := TextureRect.new()
 		bell.texture = AssetLoader.load_texture(str(GameData.relic_def(late_relic_id).get("icon_path", "")))

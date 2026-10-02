@@ -75,6 +75,7 @@ static func run(expect: Callable) -> void:
 	var engine := CombatEngine.new()
 	_test_gorget(engine, expect)
 	_test_throne(engine, expect)
+	_test_nested_block(engine, expect)
 	_test_mirror(engine, expect)
 	_test_lung(engine, expect)
 	_test_chalice(engine, expect)
@@ -257,6 +258,7 @@ static func _test_phylactery(engine: CombatEngine, expect: Callable) -> void:
 	banked["cards_played_this_turn"] = 2
 	banked = play(engine, banked, "u5_exhaust")
 	expect.call(banked["player"]["stoneskin"] == 0 and banked["player_turn_time_spent"] == 0, "Phylactery gives no Stoneskin when Borrowed Time removes all paid Time")
+	expect.call(not str(banked.get("log", [])).contains("Ashen Phylactery triggers."), "Phylactery logs nothing when zero Time was paid")
 	var preserved: Dictionary = state(engine, ["ashen_phylactery", "pyre_keepers_urn"])
 	preserved["skill_ids"] = ["rehearsed_escape"]
 	preserved["skill_flags"] = {"burn_preserve_armed": true}
@@ -275,6 +277,7 @@ static func _test_rosary(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(next["player"]["block"] == 4, "Rosary grants two Block per active Rite after reset, even with Throne")
 	var idle: Dictionary = engine.prepare_next_player_turn(state(engine, ["rosary_of_vows"]))
 	expect.call(idle["player"]["block"] == 0, "Rosary idle without active Rites")
+	expect.call(not str(idle.get("log", [])).contains("Rosary of Vows triggers."), "Rosary logs nothing without active Rites")
 	expect.call(engine.prepare_next_player_turn(next)["player"]["block"] == 4, "Rosary grants every turn without accumulating old Block")
 
 static func _test_liturgy(engine: CombatEngine, expect: Callable) -> void:
@@ -361,3 +364,38 @@ static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	scene.call("_begin_card_play_meter_spend_preview", 0)
 	expect.call(scene.call("_displayed_card_play_count") == 0, "Liturgy meter preview spends zero plays")
 	scene.free()
+
+static func _test_nested_block(engine: CombatEngine, expect: Callable) -> void:
+	var s: Dictionary = state(engine, ["briar_throne"])
+	var surface := preload("res://scripts/board_surface_rules.gd")
+	surface.place(s, s["player"]["pos"], "fire")
+	s = engine.prepare_next_player_turn(s)
+	s["deck"]["hand"] = ["hotfoot"]
+	s["deck"]["draw"] = ["u5_guard", "u5_guard"]
+	var action: Dictionary = engine.card_play_actions("hotfoot", s)[0]
+	var target := Vector2i(2, 3)
+	var forecast: Dictionary = engine.surface_preview_for_player_action(s, action, target)["state"]
+	var committed: Dictionary = engine.apply_player_action(s, action, target)
+	expect.call(forecast == committed and committed["player"]["block"] == 0, "Throne suppresses Hotfoot's started-on-Fire Block in preview and commit")
+	expect.call(int(committed["deck"]["draw_revision"]) > int(s["deck"]["draw_revision"]), "Throne preserves Hotfoot's nested Draw reward")
+	var nested: Dictionary = {"type": "move", "if_no_adjacent_enemies": [{"type": "block", "amount": 5}], "on_result": {"rewards": [{"type": "block", "amount": 4}]}, "custom": [[{"type": "block", "amount": 3}]], "transfer_block": true}
+	var suppressed: Dictionary = Rules.suppress_card_block(nested, engine._relic_effects(s))
+	expect.call(suppressed["if_no_adjacent_enemies"][0]["amount"] == 0 and suppressed["on_result"]["rewards"][0]["amount"] == 0 and suppressed["custom"][0][0]["amount"] == 0 and suppressed["transfer_block"], "Throne walks all nested dictionaries and arrays without changing Block transfer")
+	Rites.start(s, "r1_block_rite", {"name": "Block Rite", "rite": {"effects": [{"type": "turn_start_reward", "rewards": [{"type": "block", "amount": 5}]}]}})
+	var resumed: Dictionary = engine.prepare_next_player_turn(resume(s))
+	expect.call(resumed["player"]["block"] == 0, "Throne suppresses Block from an active Rite across resume")
+	var ordinary: Dictionary = state(engine)
+	Rites.start(ordinary, "r1_block_rite", {"name": "Block Rite", "rite": {"effects": [{"type": "turn_start_reward", "rewards": [{"type": "block", "amount": 5}]}]}})
+	expect.call(engine.prepare_next_player_turn(ordinary)["player"]["block"] == 5, "Active Rite Block still applies without Throne")
+	s = state(engine, ["briar_throne"])
+	s["player"]["block"] = 4
+	s = engine._create_illusion(s, Vector2i(2, 3), 2)
+	s = play(engine, s, "empty_husk", Vector2i(2, 3))
+	expect.call(s["player"]["block"] == 0 and s["illusions"][0]["hp"] == 6, "Throne allows Empty Husk to transfer existing Block")
+	var retained: Dictionary = state(engine, ["briar_throne", "iron_buckler"])
+	retained["player"]["block"] = 5
+	expect.call(engine.prepare_next_player_turn(retained)["player"]["block"] == 3, "Throne allows Iron Buckler's retained relic Block")
+	var paid: Dictionary = Rules.pay_health_cost(engine, state(engine), 2, "Blood")
+	expect.call((paid["log"] as Array).has("Paid 2 health for Blood."), "Health payment preserves original wording without Stoneskin")
+	paid = Rules.pay_health_cost(engine, state(engine), 2, "Empower Blood")
+	expect.call((paid["log"] as Array).has("Paid 2 health to Empower Blood."), "Empower health payment preserves original wording without Stoneskin")

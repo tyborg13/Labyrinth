@@ -168,7 +168,8 @@ static func _migrate_guided_opening(state: Dictionary) -> void:
 		if int(enemy.get("hp", 0)) <= 0:
 			return
 		var deck: Dictionary = state.get("deck", {}) as Dictionary
-		var unspent: bool = int(state.get("turn", 1)) <= 1 and int(state.get("cards_played_this_turn", 0)) == 0 and (state.get("pending_card_payment", {}) as Dictionary).is_empty()
+		# Older saves carry only the play counter; newer ones also count finished cards.
+		var unspent: bool = int(state.get("turn", 1)) <= 1 and int(state.get("cards_played_this_turn", 0)) == 0 and int((state.get("turn_flags", {}) as Dictionary).get("cards_finished", 0)) == 0 and (state.get("pending_card_payment", {}) as Dictionary).is_empty()
 		for pile: String in ["discard", "burned", "consumed"]:
 			unspent = unspent and (deck.get(pile, []) as Array).is_empty()
 		if unspent and int(enemy.get("hp", 0)) == old_target_hp and int(enemy.get("max_hp", 0)) == old_target_hp:

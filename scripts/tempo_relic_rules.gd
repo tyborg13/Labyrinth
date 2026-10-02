@@ -44,7 +44,8 @@ static func end_activation(engine: RefCounted, state: Dictionary, effects: Array
 static func is_late(engine: RefCounted, state: Dictionary, enemy_id: int, effects: Array, extra_time: int = 0, plays_spent: int = 0) -> bool:
 	if not engine.is_player_turn(state):
 		return false
-	var hero_time: int = next_turn_time(engine, state, effects, extra_time, plays_spent)
+	# Late Bell must not assume the hero will leave a play unused.
+	var hero_time: int = int(state.get("initiative_clock", 0)) + engine.player_base_initiative(state) + int(state.get(DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + extra_time
 	var enemy_time: int = 2147483647
 	for entry: Dictionary in state.get("turn_queue", []):
 		if str(entry.get("kind", "")) == "enemy" and int(entry.get("enemy_id", -1)) == enemy_id:
@@ -62,11 +63,11 @@ static func late_damage(engine: RefCounted, state: Dictionary, action: Dictionar
 
 static func follow_up_from_movement(state: Dictionary, effects: Array) -> bool:
 	var effect: Dictionary = effect_of_type(effects, "movement_first_follow_up")
-	return not effect.is_empty() and int(state.get("cards_played_this_turn", 0)) == 0 and TempoRules.tiles_moved(state) >= int(effect.get("tiles", 2))
+	return not effect.is_empty() and TempoRules.cards_finished(state) == 0 and TempoRules.tiles_moved(state) >= int(effect.get("tiles", 2))
 
 static func card_surcharge(state: Dictionary, effects: Array) -> int:
 	var effect: Dictionary = effect_of_type(effects, "later_card_time_surcharge")
-	return int(effect.get("amount", 0)) if not effect.is_empty() and int(state.get("cards_played_this_turn", 0)) >= int(effect.get("after", 2)) else 0
+	return int(effect.get("amount", 0)) if not effect.is_empty() and TempoRules.cards_finished(state) >= int(effect.get("after", 2)) else 0
 
 static func modify_card(card: Dictionary, state: Dictionary, effects: Array, is_item: bool) -> Dictionary:
 	var result: Dictionary = card.duplicate(true)
@@ -75,6 +76,7 @@ static func modify_card(card: Dictionary, state: Dictionary, effects: Array, is_
 		# Add after discounts/reserve. Keep the printed-cost clamp separate from
 		# this surcharge, just as the existing Empower Time payment does.
 		result["_tempo_time_surcharge"] = surcharge
+		result["_tempo_time_surcharge_relic"] = str(effect_of_type(effects, "later_card_time_surcharge").get("relic_id", ""))
 	var empower_effect: Dictionary = effect_of_type(effects, "grant_first_action_empower")
 	if not empower_effect.is_empty() and not result.has("empower") and not result.has("rite") and not is_item and not bool(result.get("flurry", false)) and not (result.get("actions", []) as Array).is_empty():
 		result["empower"] = {"cost": {"time": int(empower_effect.get("time", 3))}, "repeat_first": true}
@@ -93,7 +95,7 @@ static func finish_card(state: Dictionary, modifiers: Dictionary, effects: Array
 				if bool(modifiers.get("follow_up", false)):
 					TempoRules.gain_quicken(state, {"amount": int(effect.get("quicken", 1))})
 					TempoRules.gain_next_attack(state, {"damage": int(effect.get("damage", 2)), "card_scoped": true}, str(effect.get("source_name", "Echoing Blade")))
-					# finish_player_card already incremented the play counter.
+					# finish_player_card already incremented the finished-card counter.
 					var buffs: Array = TempoRules.next_attack_buffs(state)
 					(buffs.back() as Dictionary)["granted_at"] = played_before
 
