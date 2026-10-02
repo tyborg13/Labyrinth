@@ -137,6 +137,7 @@ func _initialize() -> void:
 	# relic overhaul U4 suites
 	# relic overhaul U5 suites
 	# relic overhaul U6 suites
+	preload("res://tests/suites/relic_u6_suite.gd").run(Callable(self, "_assert"))
 	# relic overhaul U7 suites
 	# relic overhaul U8 suites
 	CardKeywordsW3Suite.run(Callable(self, "_assert"))

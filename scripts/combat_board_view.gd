@@ -3178,7 +3178,7 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"path_color", "path_tiles", "displacement_paths":
 				path_changed = true
-			"enemy_threat_previews":
+			"enemy_threat_previews", "illusion_echo_previews":
 				overlay_changed = true
 				path_changed = true
 				effects_changed = true
@@ -10144,6 +10144,8 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	var tiles: Array[Vector2i] = _vector2i_array([])
 	# Static intent ribbons use the target scene layer so the merged arrow sits
 	# below its target and below board objects that are visually in front of it.
+	for echo: Dictionary in source_presentation.get("illusion_echo_previews", []):
+		_elemental_append_unique_depth_tile(tiles, _ranged_preview_depth_tile(echo))
 	for threat_var: Variant in source_presentation.get("enemy_threat_previews", []):
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue
@@ -11276,6 +11278,9 @@ func _target_preview_curve_visible(effect: Dictionary) -> bool:
 	return bool(effect.get("target_curve_visible", true))
 
 func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
+	for echo: Dictionary in presentation.get("illusion_echo_previews", []):
+		if _ranged_preview_depth_tile(echo) == tile:
+			_draw_ranged_target_preview_curve(echo, _ranged_preview_source_anchor(echo), _ranged_preview_target_anchor(echo))
 	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue

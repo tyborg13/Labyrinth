@@ -69,6 +69,7 @@ const TempoRules = preload("res://scripts/tempo_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
+const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
@@ -20499,6 +20500,11 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
 	var action: Dictionary = preview.get("action", {})
+	if str(action.get("type", "")) in ["move", "blink"] and _hovered_board_tile.x >= 0 and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+		var state: Dictionary = preview.get("state", _preview_combat_state) as Dictionary
+		if IllusionRelicRules.can_trade(_combat_engine, state, _hovered_board_tile):
+			var illusion: Dictionary = IllusionCardRules.illusion_at(_combat_engine, state, _hovered_board_tile)
+			return [{"key": "illusion_preview", "role": "illusion_preview", "type": "player", "pos": state["player"]["pos"], "hp": illusion["hp"], "max_hp": illusion.get("max_hp", illusion["hp"]), "accent": ILLUSION_PREVIEW_FOCUS}]
 	if str(action.get("type", "")) != "illusion":
 		return []
 	if _selected_card_index < 0 or _hovered_board_tile.x < 0:
@@ -24104,6 +24110,11 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		var after_state: Dictionary = resolution.get("state", {})
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []))
 		animated_state = after_state
+	var echo_trace: Dictionary = {"echoes": []}
+	animated_state = IllusionRelicRules.finish_echoes(_combat_engine, animated_state, echo_trace)
+	for echo: Dictionary in echo_trace["echoes"]:
+		var choice: Dictionary = echo["choice"]
+		await _animate_player_action_step(echo["before"], echo["state"], card_id, choice["action"], choice["target"], echo["chain_hits"])
 	_set_action_step_resolution_index(actions.size())
 	await _finish_player_popup_timeline(animated_state)
 	_render_board_state(animated_state, {})
@@ -24300,7 +24311,7 @@ func _created_illusion_tiles(before_state: Dictionary, after_state: Dictionary) 
 
 func _has_electrical_trace(hits: Array) -> bool:
 	for hit: Dictionary in hits:
-		if str(hit.get("kind", "")) in ["relay", "conduction"]:
+		if str(hit.get("kind", "")) in ["relay", "conduction", "rebound"]:
 			return true
 		if hit.get("from", INVALID_TARGET_TILE) != hit.get("to", INVALID_TARGET_TILE):
 			return true
@@ -24451,7 +24462,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"melee", "ranged", "aoe", "push", "pull", "detonate", "destroy_illusion", "burst_terrain":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
-				effect_target_tile = player_before_tile
+				effect_target_tile = action.get("_origin_tile", player_before_tile)
 			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
 			if action_type == "aoe":
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
@@ -24459,6 +24470,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				focus_tiles.append_array(_combat_engine.blast_tiles_for_player_action(before_state, action, target_tile))
 			elif action_type == "detonate":
 				focus_tiles.clear()
+				if bool(action.get("_illusion_echo", false)):
+					focus_tiles.append_array(IllusionRelicRules.echo_impact(_combat_engine, before_state, action, target_tile))
 				for event: Dictionary in _surface_events_between(before_state, after_state):
 					if str(event.get("kind", "")) == "detonate":
 						focus_tiles.append_array(_vector2i_array(event.get("tiles", [])))
@@ -24469,8 +24482,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
-				"protagonist_melee": AttackFxLibrary.protagonist_uses_melee_motion(action),
-				"protagonist_ranged": preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
+				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
+				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
 				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
@@ -34920,7 +34933,9 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 				if _combat_engine.player_action_can_resolve(followup, next_action):
 					followup = _combat_engine.apply_player_action(followup, next_action)
 				cursor += 1
-			_surface_preview_cache["state"] = followup
+			var echo_trace: Dictionary = {"echoes": []}
+			_surface_preview_cache["state"] = IllusionRelicRules.finish_echoes(_combat_engine, followup, echo_trace)
+			_surface_preview_cache["echoes"] = echo_trace["echoes"]
 		_surface_preview_cache["before"] = state
 	state = _surface_preview_cache.get("before", state) as Dictionary
 	var after: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
@@ -34929,6 +34944,11 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	for hit: Dictionary in _surface_preview_cache.get("chain_hits", []):
 		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
 	result["surface_preview_arcs"] = arcs
+	var echo_curves: Array[Dictionary]
+	for echo: Dictionary in _surface_preview_cache.get("echoes", []):
+		var choice: Dictionary = echo["choice"]
+		echo_curves.append({"kind": "ranged", "preview": true, "from": choice["from"], "to": choice["target"], "element": choice["action"].get("element", choice["action"].get("_card_element", "none")), "range": choice["action"].get("range", 1)})
+	result["illusion_echo_previews"] = echo_curves
 	_append_guardian_displacement_preview(result, state, after)
 	_append_forced_displacement_preview(result, state, after)
 	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
@@ -35023,6 +35043,28 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		paths.append(path)
 		if int(moved.get("hp", 0)) > 0:
 			hints.append({"enemy_key": key, "projected_path": path, "projected_destination": to})
+	var illusion_ghosts: Array = []
+	for illusion: Dictionary in before.get("illusions", []):
+		if int(illusion.get("hp", 0)) <= 0: continue
+		var moved: Dictionary = _combat_engine._surface_actor(after, "illusion", int(illusion["id"]))
+		var from: Vector2i = illusion.get("pos", INVALID_TARGET_TILE)
+		var to: Vector2i = moved.get("pos", from)
+		if from == to or (from.x != to.x and from.y != to.y): continue
+		# Glassway uses its dedicated start-tile ghost, not a force path.
+		var traded: bool = false
+		for event: Dictionary in events:
+			if str(event.get("kind", "")) == IllusionCardRules.SWAP_EVENT and int(event.get("illusion_id", -1)) == int(illusion["id"]): traded = true
+		if traded: continue
+		var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+		var path: Array[Vector2i] = _vector2i_array([from])
+		while path[-1] != to: path.append(path[-1] + step)
+		paths.append(path)
+		if int(moved.get("hp", 0)) > 0:
+			illusion_ghosts.append({"key": "illusion_preview_%d" % int(illusion["id"]), "role": "illusion_preview", "type": "player", "pos": to, "hp": moved["hp"], "max_hp": moved.get("max_hp", moved["hp"]), "accent": ILLUSION_PREVIEW_FOCUS})
+	if not illusion_ghosts.is_empty():
+		var ghosts: Array = (result.get("preview_units", []) as Array).duplicate()
+		ghosts.append_array(illusion_ghosts)
+		result["preview_units"] = ghosts
 	if not paths.is_empty():
 		result["displacement_paths"] = paths
 	if not hints.is_empty():

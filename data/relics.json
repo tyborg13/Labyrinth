@@ -109,22 +109,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "requires_action_types": [
-          "illusion"
-        ],
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "vision",
-            "amount": 1,
-            "duration": 2
-          }
-        ]
+        "type": "illusion_death_damage",
+        "damage": 3
       }
     ]
   },
@@ -768,20 +754,7 @@
     ],
     "effects": [
       {
-        "type": "chain_hit_count_reward",
-        "threshold": 3,
-        "once": "turn",
-        "owner": "player",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 2
-          },
-          {
-            "type": "card_play",
-            "amount": 1
-          }
-        ]
+        "type": "chain_rebound"
       }
     ]
   },
@@ -1864,9 +1837,7 @@
     ],
     "effects": [
       {
-        "type": "blink_origin_illusion",
-        "health": 2,
-        "once": "turn"
+        "type": "movement_illusion_exchange"
       }
     ]
   },
@@ -2539,7 +2510,13 @@
       "tempo",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "illusion_enemy_destroy_status",
+        "stagger": 3,
+        "expose": 2
+      }
+    ]
   },
   "copper_shod_staff": {
     "name": "Copper-Shod Staff",
@@ -2556,7 +2533,11 @@
       "illusion",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "lightning_owned_construct_relays"
+      }
+    ]
   },
   "ashen_phylactery": {
     "name": "Ashen Phylactery",
@@ -2694,7 +2675,11 @@
       "forced",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "force_owned_illusion"
+      }
+    ]
   },
   "toll_late_bell": {
     "name": "Toll of the Late Bell",
@@ -2806,7 +2791,12 @@
       "illusion",
       "engine"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "first_attack_illusion_echo",
+        "limit": 3
+      }
+    ]
   },
   "liturgy_of_ash": {
     "name": "Liturgy of Ash",
