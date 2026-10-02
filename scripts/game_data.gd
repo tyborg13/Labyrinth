@@ -5,6 +5,7 @@ const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const SurfaceVarietyRules = preload("res://scripts/surface_variety_relic_rules.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 const ElementData = preload("res://scripts/element_data.gd")
@@ -143,6 +144,12 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	card = TempoRules.card_with_time_discount(card, progression, effects)
 	card = DragonTrophyRules.card_with_time_reserve(card, progression, effects)
 	card = TempoRelicRules.modify_card(card, progression, effects, card_is_item(card_id))
+	var granted: Dictionary = {}
+	if not SurfaceVarietyRules.effect(effects, "matching_equipment_card_bonus").is_empty():
+		for item_id: Variant in (progression.get("equipped_equipment", {}) as Dictionary).values():
+			granted[str(item_id)] = equipment_cards(str(item_id), progression)
+	card["id"] = card_id
+	card = SurfaceVarietyRules.modify_card(card, progression, effects, equipment(), granted)
 	card = DefenseRelicRules.modify_card(card, effects)
 	card = _tag_card_actions_for_combat(card)
 	return card
