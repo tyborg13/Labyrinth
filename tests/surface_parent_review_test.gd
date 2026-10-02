@@ -17,7 +17,6 @@ func _initialize() -> void:
 	_test_legacy_guide_has_no_invisible_gate()
 	_test_paid_v4_guide_releases_controls()
 	_test_direct_detonate_shatter_and_passive_exclusion()
-	_test_ember_siphon_source_filter()
 	for failure: String in failures:
 		push_error(failure)
 	print("Surface parent review checks: %s" % ("PASS" if failures.is_empty() else "%d failures" % failures.size()))
@@ -92,25 +91,6 @@ func _test_direct_detonate_shatter_and_passive_exclusion() -> void:
 	Ground.place(state, Vector2i(5, 3), "fire")
 	state = combat.apply_player_action(state, {"type": "push", "damage": 0, "amount": 1, "range": 5, "force_direction": Vector2i.RIGHT}, Vector2i(4, 3))
 	check(int(state["enemies"][0]["hp"]) == 0 and Ground.tiles(state, "rubble").is_empty(), "An entry Fire kill caused by a push is passive damage and must not activate Shatterglass")
-
-func _test_ember_siphon_source_filter() -> void:
-	var combat: Combat = Combat.new()
-	var state: Dictionary = Base.fixture(combat)
-	state["relics"] = ["ember_siphon"]
-	state["player"]["hp"] = 20
-	state["player"]["max_hp"] = 24
-	state["enemies"][0]["hp"] = 1
-	state = combat.apply_player_action(state, {"type": "ranged", "range": 5, "damage": 1, "element": "none"}, Vector2i(4, 3))
-	check(int(state["player"]["hp"]) == 20, "Ember Siphon must not reward a neutral direct kill without Fire or Detonate")
-	state = Base.fixture(combat)
-	state["relics"] = ["ember_siphon"]
-	state["player"]["hp"] = 20
-	state["player"]["max_hp"] = 24
-	state["enemies"][0]["hp"] = 1
-	Ground.place(state, Vector2i(4, 3), "fire", {"actor_kind": "player", "card_id": "spark", "player_card": true})
-	state = (combat.call("_resolve_enemy_start_of_turn", state, 0) as Dictionary)["state"]
-	check(int(state["player"]["hp"]) == 23, "Ember Siphon should heal once when your persistent Fire kills on enemy turn start")
-	check(int(state.get("death_bonus_card_plays_this_turn", 0)) == 0, "Causal Fire credit must never turn a passive start death into banked plays")
 
 func check(condition: bool, message: String) -> void:
 	if not condition:

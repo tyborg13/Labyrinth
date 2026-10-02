@@ -310,6 +310,14 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 			next_state[reward_key] = reward
 	if str(next_state.get("mode", "")) == "treasure" and (next_state["pending_relics"] as Array).is_empty():
 		next_state["mode"] = "room"
+	# A retired Curator reserve whose replacement is already owned would duplicate it.
+	if typeof(next_state.get(SKILL_STATE_KEY, null)) == TYPE_DICTIONARY:
+		var raw_pending_relic: String = str((next_state[SKILL_STATE_KEY] as Dictionary).get("pending_relic", ""))
+		var live_pending_relic: String = GameData.resolve_relic_id(raw_pending_relic)
+		if raw_pending_relic != live_pending_relic and (next_state["relics"] as Array).has(live_pending_relic):
+			var raw_skill_state: Dictionary = (next_state[SKILL_STATE_KEY] as Dictionary).duplicate(true)
+			raw_skill_state["pending_relic"] = ""
+			next_state[SKILL_STATE_KEY] = raw_skill_state
 	next_state[SKILL_STATE_KEY] = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	next_state["progression"] = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
 	next_state.erase("stats")
@@ -2073,7 +2081,7 @@ func _repair_skill_dependent_state(run_state: Dictionary) -> Dictionary:
 	var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	if not str(skill_state.get("pending_card", "")).is_empty() and GameData.card_def(str(skill_state.get("pending_card", ""))).is_empty():
 		skill_state["pending_card"] = ""
-	if (next_state.get("relics", []) as Array).has(str(skill_state.get("pending_relic", ""))):
+	if not str(skill_state.get("pending_relic", "")).is_empty() and GameData.relic_def(str(skill_state.get("pending_relic", ""))).is_empty():
 		skill_state["pending_relic"] = ""
 	var reservation: Dictionary = skill_state.get("reserved_merchant", {}) as Dictionary
 	if not reservation.is_empty() and not _merchant_item_is_valid(str(reservation.get("kind", "")), str(reservation.get("item_id", ""))):

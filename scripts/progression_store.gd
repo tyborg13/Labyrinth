@@ -190,7 +190,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
-	data[STARTING_RELIC_GIFTS_KEY] = pending_starting_relic_gifts(data)
+	if data.has(STARTING_RELIC_GIFTS_KEY):
+		data[STARTING_RELIC_GIFTS_KEY] = pending_starting_relic_gifts(data)
 	return data
 
 static func _migrated_legacy_combat_unit_history(data: Dictionary) -> Dictionary:
