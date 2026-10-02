@@ -4,6 +4,7 @@ class_name GameData
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 const ElementData = preload("res://scripts/element_data.gd")
 
@@ -140,6 +141,7 @@ static func card_def_for_progression(card_id: String, progression: Dictionary) -
 	# only pays whatever Time remains above the minimum of 1.
 	card = TempoRules.card_with_time_discount(card, progression, effects)
 	card = DragonTrophyRules.card_with_time_reserve(card, progression, effects)
+	card = TempoRelicRules.modify_card(card, progression, effects, card_is_item(card_id))
 	card = _tag_card_actions_for_combat(card)
 	return card
 

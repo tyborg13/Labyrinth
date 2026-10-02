@@ -134,3 +134,46 @@ Additive `card_played` fields: `quicken_spent` (Time removed by Quicken from thi
 `next_attack_bonus_used` (`{action_type, damage, chain, pierce, sources}` or null),
 `rite_started` (card id or null). Retaliate records a `retaliate_triggered` surface event
 (see [analytics](analytics.md)).
+
+## Tempo relics (relic overhaul U4)
+
+`scripts/tempo_relic_rules.gd` owns data-driven tempo effects, with small engine
+and card-definition hooks. Pocket Sundial reduces the projected and scheduled
+hero activation by unused plays (up to two). Late Bell compares the enemy's
+next queued action against that same projection, including the pending card's
+Time, Empower/sash surcharges, discounts, and plays spent. Exact Time ties are
+not late. Hidden enemies do not disclose their bell on the rail.
+
+Borrowed Hourglass schedules a normal hero activation at the current clock
+before enemies, once per combat. `relic_flags["tempo_used:<relic_id>"]` persists
+its spent state; `tempo_turn_time_debt` carries the first turn's paid Time
+(minus its Sundial reduction) until the extra activation finishes. The ordinary
+start path draws, clears Block, resets movement/plays/status-turn flags, and
+plays the turn banner. Both dictionaries survive the normal run save.
+
+Hourglass Splinter tests the actual paid card Time, including optional Empower
+and Whirling Sash, after discounts; Overclock tests the stamped Empower choice.
+Both grant pending Quicken after the card consumes its incoming pool. Whirling
+Sash adds its two-Time surcharge after printed-cost discounts/reserve, like
+Empower's surcharge; hand badges show the identical final payment.
+
+Feint Ribbon enables the normal Follow-up start snapshot after at least two
+actual tiles of independent or earlier card movement. Echoing Blade grants
+Quicken and a `card_scoped` next-attack buff. That buff applies to every attack
+of the next card and expires when that card finishes, even if it has no attack.
+The existing next-attack badge displays it; ordinary next-attack buffs still
+expire on their first attack. All unused buffs expire at activation end.
+
+Crown of Surplus grants an Empower spec with `repeat_first: true`, through
+`GameData.card_def_for_progression`. Printed Empower, Rites, items and Flurry
+are excluded. An enabled Crown repeat is inserted immediately after the first
+action, before subsequent actions. It reuses the original enemy identity (and
+follows that enemy's displacement), or the original tile for tile targeting;
+if that target is dead or no longer legal, the repeat does nothing. Targetless
+actions repeat automatically. Hover resolution includes the repeat, while its
+single-action state is retained for the existing continuation/risk forecast.
+
+Pendulum Weight deals only the Stagger removed by the six-Time activation cap,
+after dragon halving. Its secondary damage uses the existing relic damage
+context, with Block/Stoneskin absorption, no direct-hit multipliers and no
+card-play kill credit. The normal hover copy resolves the same overflow.

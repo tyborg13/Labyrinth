@@ -389,7 +389,7 @@ static func neighbor_tiles(state: Dictionary, tile: Vector2i) -> Array[Vector2i]
 ## bonuses, player-state relic mods, Expose and target modifiers apply.
 static func blast_action(action: Dictionary, damage: int, extra: Dictionary = {}) -> Dictionary:
 	var blast: Dictionary = {"type": "aoe", "damage": damage, "range": 1, "element": str(action.get("element", "none")), "no_conduction": true, "_enemies_only": true, Tempo.APPLIED_KEY: {}}
-	for key: String in ["_card_id", "_card_element", "_card_action_types"]:
+	for key: String in ["_card_id", "_card_element", "_card_action_types", "_tempo_card_time", "_tempo_plays_spent"]:
 		if action.has(key):
 			blast[key] = action[key]
 	for key_var: Variant in extra.keys():

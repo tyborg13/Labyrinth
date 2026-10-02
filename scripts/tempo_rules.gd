@@ -79,6 +79,11 @@ static func pricing_state(state: Dictionary) -> Dictionary:
 ## Consume the Quicken the finished card was priced with. Quicken the card
 ## itself granted remains pending for the next card.
 static func finish_card(state: Dictionary, card_id: String, card: Dictionary, payment_snapshot: Dictionary, rite_started: bool) -> void:
+	var buffs: Array = []
+	for buff: Dictionary in next_attack_buffs(state):
+		if not bool(buff.get("card_scoped", false)) or int(buff.get("granted_at", 0)) >= int(state.get("cards_played_this_turn", 0)) - 1:
+			buffs.append(buff)
+	_set_flag(state, NEXT_ATTACK_KEY, buffs if not buffs.is_empty() else null)
 	var priced_pool: int = maxi(0, int(payment_snapshot.get(PAYMENT_QUICKEN_KEY, quicken_pending(state))))
 	var remaining: int = maxi(0, quicken_pending(state) - priced_pool)
 	_set_flag(state, QUICKEN_KEY, remaining if remaining > 0 else null)
@@ -141,7 +146,8 @@ static func gain_next_attack(state: Dictionary, action: Dictionary, source_name:
 		# The granting card is still resolving; only a later card may use it.
 		"granted_at": int(state.get("cards_played_this_turn", 0)),
 		"card_id": str(action.get("_card_id", "")),
-		"source": source_name
+		"source": source_name,
+		"card_scoped": bool(action.get("card_scoped", false))
 	}
 	var buffs: Array = next_attack_buffs(state).duplicate(true)
 	buffs.append(buff)
@@ -240,7 +246,7 @@ static func consume_next_attack(state: Dictionary, action: Dictionary) -> void:
 	var used_ids: Array = bonus.get("ids", []) as Array
 	var remaining: Array = []
 	for buff_var: Variant in next_attack_buffs(state):
-		if typeof(buff_var) == TYPE_DICTIONARY and not used_ids.has(int((buff_var as Dictionary).get("id", 0))):
+		if typeof(buff_var) == TYPE_DICTIONARY and (bool((buff_var as Dictionary).get("card_scoped", false)) or not used_ids.has(int((buff_var as Dictionary).get("id", 0)))):
 			remaining.append(buff_var)
 	_set_flag(state, NEXT_ATTACK_KEY, remaining if not remaining.is_empty() else null)
 	if typeof(state.get("pending_card_payment", null)) == TYPE_DICTIONARY:
@@ -263,7 +269,7 @@ static func consume_for_preview(state: Dictionary, action: Dictionary) -> void:
 		return
 	var remaining: Array = []
 	for buff_var: Variant in next_attack_buffs(state):
-		if typeof(buff_var) == TYPE_DICTIONARY and not (bonus.get("ids", []) as Array).has(int((buff_var as Dictionary).get("id", 0))):
+		if typeof(buff_var) == TYPE_DICTIONARY and (bool((buff_var as Dictionary).get("card_scoped", false)) or not (bonus.get("ids", []) as Array).has(int((buff_var as Dictionary).get("id", 0)))):
 			remaining.append(buff_var)
 	var flags: Dictionary = _flags(state).duplicate(true)
 	flags[NEXT_ATTACK_KEY] = remaining
@@ -342,6 +348,8 @@ static func player_badges(state: Dictionary) -> Array[Dictionary]:
 			parts.append("Chain %d" % int(buff.get("chain", 0)))
 		var element_id: String = str(buff.get("element", ""))
 		var subject: String = "Next %s attack" % element_id.capitalize() if not element_id.is_empty() else "Next attack"
+		if bool(buff.get("card_scoped", false)):
+			subject = "Next card's attacks"
 		var source: String = str(buff.get("source", ""))
 		lines.append("%s: %s%s" % [subject, ", ".join(parts), (" (%s)" % source) if not source.is_empty() else ""])
 	badges.append({

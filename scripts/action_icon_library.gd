@@ -933,6 +933,14 @@ static func keyword_rows_for_card(card: Dictionary, state: Dictionary = {}) -> A
 
 static func tokens_for_keyword_bonus(printed_actions: Array, spec: Dictionary, tone: String = "condition") -> Array:
 	var tokens: Array = []
+	if bool(spec.get("repeat_first", false)) and not printed_actions.is_empty() and typeof(printed_actions[0]) == TYPE_DICTIONARY:
+		# Show the repeat as the first action's own tokens, as appended actions are.
+		for token_var: Variant in tokens_for_action(printed_actions[0] as Dictionary):
+			var token: Dictionary = (token_var as Dictionary).duplicate(true)
+			if str(token.get("tone", "neutral")) == "neutral":
+				token["tone"] = tone
+			token["tooltip"] = "Empower: repeat this card's first action."
+			tokens.append(token)
 	for mod_var: Variant in spec.get("mods", []):
 		if typeof(mod_var) != TYPE_DICTIONARY:
 			continue

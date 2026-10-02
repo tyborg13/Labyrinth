@@ -1310,19 +1310,9 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_time": 7,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 4
-          }
-        ]
+        "type": "high_time_quicken",
+        "min_time": 6,
+        "amount": 2
       }
     ]
   },
@@ -1518,20 +1508,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "used_banked_play": true,
-        "min_time": 7,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 4
-          },
-          {
-            "type": "card_play",
-            "amount": 3
-          }
-        ]
+        "type": "unused_play_extra_turn",
+        "once": "combat"
       }
     ]
   },
@@ -2288,7 +2266,13 @@
       "tempo",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "unused_play_time_reduction",
+        "amount": 1,
+        "max": 2
+      }
+    ]
   },
   "leaden_pommel": {
     "name": "Leaden Pommel",
@@ -2456,7 +2440,12 @@
       "movement",
       "bridge"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "movement_first_follow_up",
+        "tiles": 2
+      }
+    ]
   },
   "battering_yoke": {
     "name": "Battering Yoke",
@@ -2486,7 +2475,11 @@
       "tempo",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "stagger_overflow_damage"
+      }
+    ]
   },
   "martyrs_gorget": {
     "name": "Martyr's Gorget",
@@ -2596,7 +2589,12 @@
       "tempo",
       "convert"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "empower_quicken",
+        "amount": 2
+      }
+    ]
   },
   "fetter_spikes": {
     "name": "Fetter Spikes",
@@ -2678,7 +2676,12 @@
       "tempo",
       "amplify"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "damage_vs_late",
+        "amount": 3
+      }
+    ]
   },
   "rosary_of_vows": {
     "name": "Rosary of Vows",
@@ -2725,7 +2728,13 @@
       "followup",
       "engine"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "follow_up_next_card",
+        "quicken": 1,
+        "damage": 2
+      }
+    ]
   },
   "alchemists_retort": {
     "name": "Alchemist's Retort",
@@ -2756,7 +2765,12 @@
       "tempo",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "grant_first_action_empower",
+        "time": 3
+      }
+    ]
   },
   "mirror_triptych": {
     "name": "Mirror Triptych",
@@ -2832,7 +2846,17 @@
       "tempo",
       "transform"
     ],
-    "effects": []
+    "effects": [
+      {
+        "type": "cards_per_turn_bonus",
+        "value": 1
+      },
+      {
+        "type": "later_card_time_surcharge",
+        "after": 2,
+        "amount": 2
+      }
+    ]
   },
   "quartermasters_ledger": {
     "name": "Quartermaster's Ledger",

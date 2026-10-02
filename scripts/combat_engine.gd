@@ -17,6 +17,7 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
@@ -674,7 +675,7 @@ func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String =
 	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	if hand_index >= 0 and hand_index < hand.size():
 		var card_id: String = str(hand[hand_index])
-		if CardKeywordRules.card_id_may_have_keywords(card_id):
+		if CardKeywordRules.card_id_may_have_keywords(card_id) or not TempoRelicRules.effect_of_type(_relic_effects(next_state), "grant_first_action_empower").is_empty():
 			CardKeywordRules.stamp_card_start(next_state, card_id, card_def(card_id, next_state), play_mode == "empower")
 	return next_state
 
@@ -927,6 +928,10 @@ func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	for action_var: Variant in printed_actions:
 		if typeof(action_var) == TYPE_DICTIONARY:
 			(action_var as Dictionary)["_card_id"] = card_id
+			if bool((action_var as Dictionary).get("_empower_repeat_first", false)) and not player_action_needs_target(action_var as Dictionary):
+				(action_var as Dictionary).erase("reuse_previous_target")
+			(action_var as Dictionary)["_tempo_card_time"] = card_time_cost_from_def(card) + CardKeywordRules.empower_time_surcharge(state, card_id, card)
+			(action_var as Dictionary)["_tempo_plays_spent"] = flurry_plays_for_card(card_id, state) if bool(card.get("flurry", false)) else 1
 	var leading_actions: Array = []
 	if not bool(card.get("flurry", false)):
 		leading_actions.append_array(printed_actions)
@@ -1391,6 +1396,8 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	var next_state: Dictionary = state.duplicate(true)
 	SurfaceRelicRules.configure(next_state)
 	action = _resolved_surface_action(next_state, action)
+	if bool(action.get("_empower_repeat_first", false)) and player_action_needs_target(action):
+		target_tile = empower_repeat_target(next_state, action, target_tile)
 	if str(action.get("target", "")) == "previous_target":
 		target_tile = _previous_target_tile(next_state, action)
 	elif str(action.get("target", "")) == "player":
@@ -1404,7 +1411,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	var action_needs_target: bool = player_action_needs_target(action)
 	var target_is_valid: bool = (
 		not action_needs_target
-		or (not validate_target and not SurfaceRelicRules.mode_enabled(action, "cross"))
+		or (not validate_target and not bool(action.get("_empower_repeat_first", false)) and not SurfaceRelicRules.mode_enabled(action, "cross"))
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
@@ -1583,6 +1590,15 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
+
+func empower_repeat_target(state: Dictionary, action: Dictionary, fallback: Vector2i) -> Vector2i:
+	var actor: Dictionary = state.get("last_action_target_actor", {}) as Dictionary
+	if not actor.is_empty() and str(action.get("type", "")) not in ["aoe", "surface", "detonate", "consume_surface"]:
+		var enemy: Dictionary = _surface_actor(state, "enemy", int(actor.get("enemy_id", -1)))
+		if enemy.is_empty() or int(enemy.get("hp", 0)) <= 0:
+			return INVALID_TILE
+		return _previous_target_tile(state, action)
+	return fallback
 
 func _previous_target_tile(state: Dictionary, action: Dictionary) -> Vector2i:
 	# A follow-up strike at the previous target follows the enemy that was
@@ -1794,6 +1810,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	# the card granted itself.
 	var card: Dictionary = card_def(card_id, TempoRules.pricing_state(next_state))
 	# An opted-in Empower cost is paid with the card's own costs, after effects.
+	var tempo_modifiers: Dictionary = CardKeywordRules.play_modifiers(next_state, card_id, card)
 	var empower_payment: Dictionary = CardKeywordRules.empower_payment(next_state, card_id, card)
 	next_state.erase(CardKeywordRules.PLAY_MODIFIERS_KEY)
 	var destination: String = "discard"
@@ -1877,6 +1894,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	if rite_started:
 		_log(next_state, "%s begins. It lasts for the rest of this combat." % str(card.get("name", card_id)))
 	TempoRules.finish_card(next_state, card_id, card, payment_snapshot, rite_started)
+	TempoRelicRules.finish_card(next_state, tempo_modifiers, _relic_effects(next_state), time_cost, cards_played_before)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
@@ -1930,7 +1948,7 @@ func card_time_cost(card_id: String, state: Dictionary = {}) -> int:
 
 func card_time_cost_from_def(card: Dictionary) -> int:
 	if card.has("time"):
-		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST)
+		return clampi(int(card.get("time", DEFAULT_CARD_TIME_COST)), MIN_CARD_TIME_COST, MAX_CARD_TIME_COST) + int(card.get("_tempo_time_surcharge", 0))
 	return _estimated_card_time_cost(card)
 
 func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT, projection_context: Dictionary = {}) -> Array[Dictionary]:
@@ -1988,6 +2006,12 @@ func current_turn_order(state: Dictionary, limit: int = TURN_ORDER_PREVIEW_LIMIT
 			entry["stagger_preview"] = int((entry_var as Dictionary).get("stagger_preview", 0))
 		result.append(_umbra_presented_turn_order_entry(state, entry, projection_context))
 	ManeuverRules.mark_petrified_turn_entries(self, state, result)
+	var late_effects: Array[Dictionary] = _relic_effects(state)
+	var late_effect: Dictionary = TempoRelicRules.effect_of_type(late_effects, "damage_vs_late")
+	if not late_effect.is_empty() and is_player_turn(state):
+		for entry: Dictionary in result:
+			if str(entry.get("kind", "")) == "enemy" and not bool(entry.get("hidden_by_umbra", false)) and TempoRelicRules.is_late(self, state, int(entry.get("enemy_id", -1)), late_effects, int(state.get("turn_order_preview_time_delta", 0)), int(state.get("turn_order_preview_plays_spent", 0))):
+				entry["late_relic_id"] = str(late_effect.get("relic_id", ""))
 	_record_runtime_performance_phase("current_turn_order_present", performance_phase_started)
 	_record_runtime_performance_phase("current_turn_order_total", performance_total_started)
 	return result
@@ -2031,6 +2055,7 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state.duplicate(true)
 	if combat_outcome(next_state) != "" or not is_player_turn(next_state):
 		return next_state
+	var unused_plays: int = cards_remaining_this_turn(next_state)
 	var measured_id: String = SkillTreeLibrary.skill_id_for_effect("bank_unused_play")
 	if has_skill(next_state, measured_id) and cards_remaining_this_turn(next_state) > 0:
 		next_state["banked_plays"] = 1
@@ -2054,11 +2079,8 @@ func finish_player_activation(state: Dictionary) -> Dictionary:
 	TempoRules.expire_activation(next_state)
 	ManeuverRules.expire_flags(next_state, "activation")
 	next_state = _clear_player_bleed_after_turn(next_state)
-	var scheduled_time: int = (
-		int(next_state.get("initiative_clock", 0))
-		+ player_base_initiative(next_state)
-		+ maxi(0, int(next_state.get("player_turn_time_spent", 0)))
-	)
+	var ending: Dictionary = TempoRelicRules.end_activation(self, next_state, _relic_effects(next_state), unused_plays)
+	var scheduled_time: int = int(ending["time"])
 	_schedule_actor(next_state, _player_actor_entry(scheduled_time, 0))
 	next_state["current_actor"] = {"kind": "transition"}
 	return next_state
@@ -5156,7 +5178,7 @@ func _projected_next_entry_for_current_actor(state: Dictionary, current_actor: D
 		"player":
 			var preview_delta: int = maxi(0, int(state.get("turn_order_preview_time_delta", 0)))
 			var player_entry: Dictionary = _player_actor_entry(
-				clock + player_base_initiative(state) + maxi(0, int(state.get("player_turn_time_spent", 0))) + preview_delta,
+				TempoRelicRules.next_turn_time(self, state, _relic_effects(state), preview_delta, int(state.get("turn_order_preview_plays_spent", 0))),
 				-1
 			)
 			player_entry["projected"] = true
@@ -9946,6 +9968,7 @@ func _damage_for_enemy_target_with_context(
 		return damage
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 	damage += int(enemy.get("expose", 0))
+	damage += TempoRelicRules.late_damage(self, state, resolved_action, int(enemy.get("id", -1)), relic_effects)
 	for effect: Dictionary in relic_effects:
 		if str(effect.get("type", "")) != "damage_vs_status":
 			continue
@@ -11102,7 +11125,13 @@ func surface_preview_for_player_action(state: Dictionary, action: Dictionary, ta
 	# default; the live preview already obtained its target from the legal plan.
 	var trace: Dictionary = {"chain_hits": [], "capture_states": false}
 	var after: Dictionary = _apply_player_action(state, action, target, not prevalidated, trace)
-	var result: Dictionary = {"state": after, "chain_hits": trace["chain_hits"]}
+	var single_state: Dictionary = after
+	if bool(action.get("_empower_repeat_available", false)):
+		var repeated: Dictionary = action.duplicate(true)
+		repeated.erase("_empower_repeat_available")
+		repeated["_empower_repeat_first"] = true
+		after = _apply_player_action(after, repeated, target, true, trace)
+	var result: Dictionary = {"state": after, "single_state": single_state, "chain_hits": trace["chain_hits"]}
 	result["surface_events"] = (result.get("state", {}) as Dictionary).get("surface_events", [])
 	return result
 
