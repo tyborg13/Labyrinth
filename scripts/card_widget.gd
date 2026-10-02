@@ -1363,6 +1363,7 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
+	if int(card.get("_relic_time_discount", 0)) > 0: detail += "\nRelic: -%d" % int(card["_relic_time_discount"])
 	if int(card.get("_quicken_discount", 0)) > 0: detail += "\nQuickened: -%d" % int(card["_quicken_discount"])
 	if _time_surcharge > 0: detail += "\nEmpower: +%d" % _time_surcharge
 	_time_badge.setup(time_cost, detail)

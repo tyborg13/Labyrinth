@@ -204,7 +204,9 @@ static func _test_live_data(expect: Callable) -> void:
 			expect.call(int(raw.get("condition_tier", 0)) == int(TIERS.get(rarity, 0)) and int(raw.get("upside_tier", 0)) == int(TIERS.get(rarity, 0)), "U1 new data/%s: tiers equal rarity" % relic_id)
 			expect.call(record.contains('relic("%s",' % relic_id), "U1 new data/%s: ID appears in Python design record" % relic_id)
 			expect.call(int(raw.get("design_version", 0)) == 4, "U1 new data/%s: design version 4" % relic_id)
-			expect.call(raw.get("effects", null) is Array and (raw["effects"] as Array).is_empty(), "U1 new data/%s: no behavior before its implementation unit" % relic_id)
+			# U2 effects are covered by RelicU2Suite; other unit placeholders stay idle.
+			if relic_id not in ["tallow_candle", "leaden_pommel", "pitch_gloves", "hobnail_cleats", "grounding_pin", "rubblewalker_greaves", "grave_dirt", "waxen_effigy", "briar_vambrace", "fencers_gloves"]:
+				expect.call(raw.get("effects", null) is Array and (raw["effects"] as Array).is_empty(), "U1 new data/%s: no behavior before its implementation unit" % relic_id)
 			expect.call(str(raw.get("icon_path", "")) == "res://assets/art/relics/%s.png" % relic_id, "U1 new data/%s: supplied purpose-built icon path" % relic_id)
 		if bool(raw.get("exclusive_guardian", false)) or not str(raw.get("exclusive_boss", "")).is_empty():
 			exclusive_count += 1

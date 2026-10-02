@@ -43,23 +43,30 @@ static func gain_quicken(state: Dictionary, action: Dictionary) -> void:
 		_set_flag(state, QUICKEN_KEY, quicken_pending(state) + amount)
 
 ## Applied in GameData.card_def_for_progression before the Hourglass reserve.
-## Rite `card_time_discount` applies to every card; pending Quicken applies to
-## the next card played. Both clamp at 1 and stamp the base for the Time badge.
+## Rite discounts apply to every card; ordinal relic discounts count finished
+## cards (Flurry is one); Quicken applies to the next card. Each clamps at 1
+## and stamps the base for the existing Time badge.
 static func card_with_time_discount(card: Dictionary, state: Dictionary, effects: Array) -> Dictionary:
 	if card.is_empty() or not card.has("time"):
 		return card
 	var quicken: int = quicken_pending(state)
 	var rite_discount: int = RiteRules.card_time_discount(effects)
-	if quicken + rite_discount <= 0:
+	var relic_discount: int = 0
+	for effect: Dictionary in effects:
+		if str(effect.get("type", "")) == "nth_card_time_discount" and int(_flags(state).get("cards_finished", 0)) + 1 == int(effect.get("card_number", 2)):
+			relic_discount += maxi(0, int(effect.get("amount", 0)))
+	if quicken + rite_discount + relic_discount <= 0:
 		return card
 	var base: int = maxi(1, int(card.get("time", 5)))
 	var after_rite: int = maxi(1, base - rite_discount)
-	var after: int = maxi(1, after_rite - quicken)
+	var after_relic: int = maxi(1, after_rite - relic_discount)
+	var after: int = maxi(1, after_relic - quicken)
 	if after >= base:
 		return card
 	var result: Dictionary = card.duplicate(false)
 	result["_time_discount_base"] = base
-	result["_quicken_discount"] = after_rite - after
+	result["_relic_time_discount"] = after_rite - after_relic
+	result["_quicken_discount"] = after_relic - after
 	result["_rite_time_discount"] = base - after_rite
 	result["time"] = after
 	return result
