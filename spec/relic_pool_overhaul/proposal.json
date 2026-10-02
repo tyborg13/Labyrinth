@@ -264,10 +264,11 @@
    },
    "Rites": {
     "before": 0,
-    "after": 4,
+    "after": 5,
     "ids": [
      "reliquary_box",
      "rosary_of_vows",
+     "crown_of_surplus",
      "liturgy_of_ash",
      "pyre_keepers_urn"
     ]
@@ -291,10 +292,11 @@
    },
    "Items": {
     "before": 0,
-    "after": 3,
+    "after": 4,
     "ids": [
      "quick_draw_bandolier",
      "alchemists_retort",
+     "crown_of_surplus",
      "quartermasters_ledger"
     ]
    },
@@ -1873,7 +1875,7 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "When you Freeze an enemy, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
+   "text": "When you Freeze an enemy while you have 4 or more Block, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
    "was": "Once per turn, inflicting Freeze while you have Block converts up to 6 Block into Stoneskin.",
    "intrinsic": "Nothing without Freeze.",
    "extrinsic": "Each Mantle layer cancels a whole hit: a Freeze turn becomes a shield.",
@@ -2387,7 +2389,7 @@
    ],
    "I": 2,
    "E": 2,
-   "text": "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action.",
+   "text": "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action. Rites, items and Flurry cards are excluded.",
    "was": null,
    "intrinsic": "Any card can double up.",
    "extrinsic": "Overclock Coil and Quicken pay the Time back.",

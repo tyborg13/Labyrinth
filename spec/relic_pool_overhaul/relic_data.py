@@ -451,7 +451,7 @@ relic("witchglass_carapace", "Witchglass Carapace", EP, "keep", "Amplify", ["ill
       ["card:doppelganger", "relic:mirror_triptych"],
       "Kept.")
 relic("cold_mirror", "Cold Mirror", EP, "rework", "Convert", ["ice", "block"], 0, 3,
-      "When you Freeze an enemy, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
+      "When you Freeze an enemy while you have 4 or more Block, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
       "Nothing without Freeze.",
       "Each Mantle layer cancels a whole hit: a Freeze turn becomes a shield.",
       ["card:shatter", "relic:iron_buckler", "card:crystal_mantle"],
@@ -586,7 +586,7 @@ relic("unclouded_sun", "Unclouded Sun", L, "rework", "Transform", ["radiance", "
       "", impl=2,
       was="Once per combat, when a room that began in Umbra first becomes Clear, gain 12 Stoneskin, draw 3 and gain 3 card plays.")
 relic("crown_of_surplus", "Crown of Surplus", L, "new", "Transform", ["empower", "tempo"], 2, 2,
-      "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action.",
+      "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action. Rites, items and Flurry cards are excluded.",
       "Any card can double up.",
       "Overclock Coil and Quicken pay the Time back.",
       ["relic:overclock_coil", "relic:fencers_gloves"],
