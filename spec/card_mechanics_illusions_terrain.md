@@ -131,3 +131,44 @@ chip and hover use the same derived action (`blast_action_for_player_action`).
 ## Analytics
 
 All outcomes use the append-only `surface_event` stream; see [analytics](analytics.md).
+
+## Illusion and Lightning relics (relic pool overhaul U6)
+
+`scripts/illusion_relic_rules.gd` owns effect-type hooks for death damage, an
+attack destroyer's Stagger/Expose, single-target Push/Pull of allied illusions,
+Move/Blink endpoint exchange, first attack-card echoes, virtual Lightning
+construct relays, and Chain rebound. All use the engine's damage, arrival,
+straight-line force and attack planning paths. Area forces keep their original
+rules. With Glassway active, illusion tiles are terminal Move destinations;
+independent endpoint routes never traverse another illusion. Ordinary movement
+without Glassway retains the existing endpoint-dispel behavior.
+
+Mirror Triptych records the first attack action while the card resolves and
+executes its echoes after all card actions. `illusion_relic_pending_echo` is the
+saved action and `turn_flags.illusion_relic_attack_used` claims the first attack
+card even when no illusion can echo. A new hero turn resets that flag with the
+ordinary turn flags. Preview resolves known automatic follow-ups before echoes;
+it cannot predict an additional targeting decision the player has not made.
+Attack classification follows the existing card rules: pure zero-damage forces
+do not claim the first attack, while Detonate does. Detonate echoes require legal
+fuel at their new target but repeat only the damage footprint, leaving that fuel.
+Echo origins are ordered by hero distance then illusion id, targets by footprint
+distance then enemy id. Each actual echo loses one health. Damage is half the
+attack's computed amount before defenses, rounded down, including target
+Expose/Chill/Freeze; target defenses absorb normally. Only Push/Pull repeat as
+riders, and no card ground, status, light, health-cost, or resource actions repeat.
+Death relics still apply when echo wear destroys an illusion.
+
+Storm Crown stores each forward enemy hit's computed damage before defenses,
+then halves that amount once for the return. Return hits do not recalculate
+Expose, Chill, Freeze or relic damage bonuses, consume Expose, add Chain hops,
+conduct, or reapply riders. They remain credited to the original card. Copper
+creates a geometry-only conduction view; it never paints Electrified on the
+constructs or changes sight/collision geometry. Virtual relays do not consume the
+real ground beneath them. Enemy Lightning and non-Lightning forces are unchanged.
+
+Presentation reuses target curves, normal attack effects, Chain hop traces,
+`illusion_preview` ghosts, and force collision markers. The marker for a Hollow
+Puppet enemy collision displays remaining illusion health; normal collision
+damage is replaced for both parties. Illusion destruction still runs its ordinary
+hooks, including Mirror Shard.

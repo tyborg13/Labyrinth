@@ -50,11 +50,9 @@ const SUPPORTED_EFFECT_TYPES := [
   "surface_chill_immunity",
   "surface_damage_bonus",
   "turn_start_surface_stoneskin",
-  "blink_origin_illusion",
   "bloodied_glass_attack_bonus",
   "card_action_mod",
   "card_play_reward",
-  "chain_hit_count_reward",
   "chain_swap_endpoints",
   "conductive_fire",
   "defiance_capacity",
@@ -63,6 +61,13 @@ const SUPPORTED_EFFECT_TYPES := [
   "freeze_relocate_ice",
   "frozen_kill_rubble",
   "illusion_damage_cap",
+  "illusion_death_damage",
+  "illusion_enemy_destroy_status",
+  "force_owned_illusion",
+  "movement_illusion_exchange",
+  "first_attack_illusion_echo",
+  "lightning_owned_construct_relays",
+  "chain_rebound",
   "light_source_umbra_suppression",
   "movement_pool_bonus",
   "opening_draw_bonus",
@@ -321,9 +326,6 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var soles_state: Dictionary = _state(combat, ["static_soles"])
 	soles_state = combat.apply_player_action(soles_state, {"type": "blink", "range": 3}, Vector2i(4, 4))
 	expect.call(Surface.has_surface(soles_state, Vector2i(2, 4), "electrified") and int((soles_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Static Soles should leave a conductor at the movement origin and grant two-turn Vision")
-	var mirror_state: Dictionary = _state(combat, ["mirror_shard"])
-	mirror_state = _trigger_card(combat, mirror_state, GameData.card_def("mirror_feint"), "mirror_feint")
-	expect.call(int(mirror_state.get("card_play_bonus_this_turn", 0)) == 1 and int((mirror_state.get("umbra", {}) as Dictionary).get("vision_bonus_activations", 0)) == 2, "Mirror Shard should bridge illusion cards into tempo and two-turn Vision")
 
 	var thaw_state: Dictionary = _state(combat, ["thawing_charm"])
 	thaw_state = combat.apply_player_action(thaw_state, {"type": "heal", "amount": 3})
@@ -342,11 +344,6 @@ static func _test_package_transforming_relics(expect: Callable) -> void:
 	var edge_action: Dictionary = combat.call("_resolved_surface_action", edge_state, {"type": "melee", "damage": 2, "range": 1, "_card_action_types": ["melee"]})
 	expect.call(bool(edge_action.get("pierce", false)), "Sunlit Edge should transform attacks into Pierce while the player stands in Light")
 
-	var glassway_state: Dictionary = _state(combat, ["glassway_compass"])
-	glassway_state = combat.apply_player_action(glassway_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(4, 4))
-	glassway_state = combat.apply_player_action(glassway_state, {"type": "blink", "range": 4, "_card_action_types": ["blink"]}, Vector2i(5, 4))
-	var glassway_illusions: Array = glassway_state.get("illusions", []) as Array
-	expect.call(glassway_illusions.size() == 1 and int((glassway_illusions[0] as Dictionary).get("hp", 0)) == 2 and (glassway_illusions[0] as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(2, 4), "Glassway Compass should create one two-health illusion at the first Blink origin each turn")
 
 	var phoenix_state: Dictionary = _state(combat, ["phoenix_ember"], 2, 24)
 	(phoenix_state.get("umbra", {}) as Dictionary)["stage"] = CombatEngine.UMBRA_STAGE_DEEP
@@ -368,14 +365,6 @@ static func _test_surface_engines(expect: Callable) -> void:
 		Surface.place(conduction, Vector2i(5, 4), conductor)
 		conduction = combat.apply_player_action(conduction, {"type": "ranged", "damage": 1, "range": 5, "element": "lightning"}, Vector2i(4, 4))
 		expect.call(Surface.has_surface(conduction, Vector2i(4, 4), conductor) == (conductor == "electrified") and Surface.has_surface(conduction, Vector2i(5, 4), conductor) == (conductor == "electrified"), "Lightning preserves Electrified and consumes Stormcoal Fire")
-	var crown: Dictionary = _state(combat, ["storm_crown"])
-	crown["deck"] = _deck([], ["brace", "quick_stab", "pale_spark", "brace"], [])
-	crown["enemies"] = _two_enemies(Vector2i(3, 4), Vector2i(4, 4), 20)
-	(crown["enemies"] as Array).append({"id": 3, "type": "crawler", "pos": Vector2i(5, 4), "hp": 20, "max_hp": 20})
-	crown = combat.apply_player_action(crown, {"type": "ranged", "damage": 1, "range": 5, "chain": 1, "element": "lightning"}, Vector2i(3, 4))
-	expect.call((crown["deck"]["hand"] as Array).size() == 2 and int(crown.get("card_play_bonus_this_turn", 0)) == 1, "Storm Crown rewards three distinct native Chain targets")
-	crown = combat.apply_player_action(crown, {"type": "ranged", "damage": 1, "range": 5, "chain": 1, "element": "lightning"}, Vector2i(3, 4))
-	expect.call((crown["deck"]["hand"] as Array).size() == 2 and int(crown.get("card_play_bonus_this_turn", 0)) == 1, "Storm Crown cannot form an unbounded play refund loop")
 
 static func _test_defense_risk_and_mobility_engines(expect: Callable) -> void:
 	var combat := CombatEngine.new()

@@ -866,3 +866,20 @@ paid Time remains recorded. Urn's hand return uses the normal turn draw and
 payment and do not turn item Consume into Exhaust. Additive runtime action
 annotations `_card_plays_spent` and `_player_bleed_paid` share the payment and
 pre-hit timing with previews; preview copies never append gameplay analytics.
+
+### Illusion and Lightning relics (relic pool overhaul U6)
+
+The existing append-only `surface_event` stream adds `illusion_echo` with
+`illusion_id`, `from`, `target`, and the original card `source` (its `source_kind`
+is `illusion_echo`). Echo attacks and Chain returns retain normal card kill
+credit; illusion-death blast damage uses `source_kind: illusion_relic_shatter`,
+`player_card: false`, and `causal_owner: player`. Hollow Puppet's health damage
+uses `source_kind: illusion_force_shatter`; its existing `force_collision` event
+reports the illusion health as marker `damage`, `target_damage: 0`, and that
+health as `blocker_damage`/`total_damage`. Destruction is a separate actor death.
+Glassway reuses `illusion_swapped` without changing its fields. Rattle changes
+normal Expose and Stagger state/summary. Copper's `surface_conducted` events gain
+optional `virtual: true` and report `surface: electrified` for owned construct
+relays; they do not imply creation or consumption of actual ground. Storm Crown
+return deaths use `source_kind: chain_rebound` and the original card context.
+Forecast copies and presentation append no external analytics.
