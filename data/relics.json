@@ -2,7 +2,7 @@
   "iron_lung": {
     "name": "Iron Lung",
     "rarity": "rare",
-    "description": "@icon(health_cost)s, including @icon(empower)'s, are paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
+    "description": "Every @icon(health_cost), including an @icon(empower) cost, is paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -88,7 +88,7 @@
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "When one of your @icon(illusion)s is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+    "description": "When your @icon(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -110,7 +110,7 @@
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "When your @icon(block) stops all of an enemy attack's damage, the attacker @icon(bleed)s 1.",
+    "description": "When your @icon(block) stops all of an enemy attack's damage, the attacker gains @icon(bleed) 1.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -365,7 +365,7 @@
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "After you @icon(blink), your next attack this turn deals 1 more damage for each tile you @icon(blink)ed (max 4 more).",
+    "description": "After you @icon(blink), your next attack this turn deals 1 more damage for each tile that @icon(blink) spanned (max 4 more).",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -436,7 +436,7 @@
   "venom_signet": {
     "name": "Quarry Signet",
     "rarity": "rare",
-    "description": "Enemies standing on @icon(surface_rubble) take 1 more damage from everything: attacks, @icon(collision)s, @icon(surface_fire) and @icon(retaliate).",
+    "description": "Enemies standing on @icon(surface_rubble) take 1 more damage from everything: attacks, @icon(collision), @icon(surface_fire) and @icon(retaliate).",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -627,7 +627,7 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "Your @icon(move) can pass through enemies (you can't stop on one). Each enemy you pass through is @icon(stagger)ed 2.",
+    "description": "Your @icon(move) can pass through enemies (you can't stop on one). Each enemy you pass through suffers @icon(stagger) 2.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1031,7 +1031,7 @@
   "duelist_whetstone": {
     "name": "Duelist Whetstone",
     "rarity": "common",
-    "description": "Attacks on cards that also @icon(move) or @icon(blink) deal 1 more damage for each tile you've @icon(move)d this turn (max 3 more).",
+    "description": "Attacks on cards that also @icon(move) or @icon(blink) deal 1 more damage for each tile you've traveled this turn (max 3 more).",
     "icon_path": "res://assets/art/relics/duelist_whetstone.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -1605,7 +1605,7 @@
   "glassway_compass": {
     "name": "Glassway Compass",
     "rarity": "epic",
-    "description": "Your @icon(move) and @icon(blink) can end on one of your @icon(illusion)s: you trade places with it.",
+    "description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it.",
     "icon_path": "res://assets/art/relics/glassway_compass.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1850,7 +1850,7 @@
   "unbound_pinion": {
     "name": "Unbound Pinion",
     "rarity": "legendary",
-    "description": "The first card action each turn that @icon(move)s an enemy 2 or more tiles, or makes it collide, refills your movement and @icon(draw)s 1.",
+    "description": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you @icon(draw) 1.",
     "icon_path": "res://assets/art/relics/unbound_pinion.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1957,7 +1957,7 @@
   "recoil_plates": {
     "name": "Recoil Plates",
     "rarity": "common",
-    "description": "You take 1 damage per lost tile from @icon(collision)s instead of 2. Whenever you are part of a @icon(collision), gain 3 @icon(block).",
+    "description": "You take 1 @icon(collision) damage per lost tile instead of 2. Whenever you are part of a @icon(collision), gain 3 @icon(block).",
     "icon_path": "res://assets/art/relics/recoil_plates.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2290,7 +2290,7 @@
   "feint_ribbon": {
     "name": "Feint Ribbon",
     "rarity": "rare",
-    "description": "If you've @icon(move)d 2 or more tiles this turn, your first card counts as a @icon(follow_up).",
+    "description": "If you've traveled 2 or more tiles this turn, your first card counts as a @icon(follow_up).",
     "icon_path": "res://assets/art/relics/feint_ribbon.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2369,7 +2369,7 @@
   "reliquary_box": {
     "name": "Reliquary Box",
     "rarity": "rare",
-    "description": "Your opening hand includes a @icon(rite) from your deck, if you have one. @icon(rite)s cost 1 less @icon(time).",
+    "description": "Your opening hand includes a @icon(rite) from your deck, if you have one. Each @icon(rite) costs 1 less @icon(time).",
     "icon_path": "res://assets/art/relics/reliquary_box.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2393,7 +2393,7 @@
   "changelings_rattle": {
     "name": "Changeling's Rattle",
     "rarity": "rare",
-    "description": "When an enemy destroys one of your @icon(illusion)s, it is @icon(stagger)ed 3 and @icon(expose)d 2.",
+    "description": "When an enemy destroys your @icon(illusion), that enemy suffers @icon(stagger) 3 and @icon(expose) 2.",
     "icon_path": "res://assets/art/relics/changelings_rattle.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2415,7 +2415,7 @@
   "copper_shod_staff": {
     "name": "Copper-Shod Staff",
     "rarity": "rare",
-    "description": "Your outcrops and @icon(illusion)s count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
+    "description": "Your outcrops and @icon(illusion) count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
     "icon_path": "res://assets/art/relics/copper_shod_staff.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2436,7 +2436,7 @@
   "ashen_phylactery": {
     "name": "Ashen Phylactery",
     "rarity": "rare",
-    "description": "When a card @icon(exhaust)s, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
+    "description": "When you @icon(exhaust) a card, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
     "icon_path": "res://assets/art/relics/ashen_phylactery.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2499,7 +2499,7 @@
   "fetter_spikes": {
     "name": "Fetter Spikes",
     "rarity": "rare",
-    "description": "@icon(immobilize)d enemies take double @icon(collision) damage.",
+    "description": "Enemies with @icon(immobilize) take double @icon(collision) damage.",
     "icon_path": "res://assets/art/relics/fetter_spikes.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2548,7 +2548,7 @@
   "breaking_wheel": {
     "name": "The Breaking Wheel",
     "rarity": "epic",
-    "description": "An enemy that collides on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) @icon(freeze)s it, @icon(surface_electrified) @icon(shock)s it and its blocker, @icon(surface_rubble) @icon(stagger)s it 3.",
+    "description": "An enemy colliding on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) gives @icon(freeze), @icon(surface_electrified) gives @icon(shock) to it and its blocker, @icon(surface_rubble) gives @icon(stagger) 3.",
     "icon_path": "res://assets/art/relics/breaking_wheel.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2574,7 +2574,7 @@
   "hollow_puppet": {
     "name": "Hollow Puppet",
     "rarity": "epic",
-    "description": "Your @icon(push) and @icon(pull) can target your @icon(illusion)s without damaging them. An @icon(illusion) that collides with an enemy shatters, dealing its remaining @icon(health) to that enemy instead of @icon(collision) damage.",
+    "description": "Your @icon(push) and @icon(pull) can target your @icon(illusion) without damaging it. An @icon(illusion) that collides with an enemy shatters, dealing its remaining @icon(health) to that enemy instead of @icon(collision) damage.",
     "icon_path": "res://assets/art/relics/hollow_puppet.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2614,7 +2614,7 @@
   "rosary_of_vows": {
     "name": "Rosary of Vows",
     "rarity": "epic",
-    "description": "At the start of your turn, gain 2 @icon(block) for each of your active @icon(rite)s.",
+    "description": "At the start of your turn, gain 2 @icon(block) for each active @icon(rite) you have.",
     "icon_path": "res://assets/art/relics/rosary_of_vows.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2635,7 +2635,7 @@
   "siege_ram_totem": {
     "name": "Siege Ram Totem",
     "rarity": "epic",
-    "description": "Any enemy that takes @icon(collision) damage is @icon(stagger)ed by that much (within the normal limit).",
+    "description": "Any enemy that takes @icon(collision) damage suffers that much @icon(stagger) (within the normal limit).",
     "icon_path": "res://assets/art/relics/siege_ram_totem.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2676,7 +2676,7 @@
   "alchemists_retort": {
     "name": "Alchemist's Retort",
     "rarity": "epic",
-    "description": "Your items' damage, @icon(block), @icon(heal)ing and @icon(stoneskin) are increased by half, rounded up.",
+    "description": "Your items' damage, @icon(block), @icon(heal) and @icon(stoneskin) are increased by half, rounded up.",
     "icon_path": "res://assets/art/relics/alchemists_retort.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2697,7 +2697,7 @@
   "crown_of_surplus": {
     "name": "Crown of Surplus",
     "rarity": "legendary",
-    "description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite)s, items and @icon(flurry) cards are excluded.",
+    "description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite) cards, items and @icon(flurry) cards are excluded.",
     "icon_path": "res://assets/art/relics/crown_of_surplus.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2718,7 +2718,7 @@
   "mirror_triptych": {
     "name": "Mirror Triptych",
     "rarity": "legendary",
-    "description": "Your first attack card each turn is echoed by up to 3 of your @icon(illusion)s at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
+    "description": "Your first attack card each turn is echoed by up to 3 @icon(illusion) at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
     "icon_path": "res://assets/art/relics/mirror_triptych.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2738,7 +2738,7 @@
   "liturgy_of_ash": {
     "name": "Liturgy of Ash",
     "rarity": "legendary",
-    "description": "@icon(rite)s don't use a @icon(card_play).",
+    "description": "@icon(rite) cards don't use a @icon(card_play).",
     "icon_path": "res://assets/art/relics/liturgy_of_ash.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2757,7 +2757,7 @@
   "pyre_keepers_urn": {
     "name": "Pyre-Keeper's Urn",
     "rarity": "legendary",
-    "description": "At the start of your turn, the card you most recently @icon(exhaust)ed returns to your hand, unless it is a @icon(rite) or @icon(heal)s.",
+    "description": "At the start of your turn, the last card you sent to @icon(exhaust) returns to your hand, unless it is a @icon(rite) or has @icon(heal).",
     "icon_path": "res://assets/art/relics/pyre_keepers_urn.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2826,7 +2826,7 @@
   "quartermasters_ledger": {
     "name": "Quartermaster's Ledger",
     "rarity": "legendary",
-    "description": "Your items are no longer @icon(consume)d, except @icon(heal)ing items. Each item can be used once per combat.",
+    "description": "Your items lose @icon(consume), except items that @icon(heal). Each item can be used once per combat.",
     "icon_path": "res://assets/art/relics/quartermasters_ledger.png",
     "accent": "#d9862f",
     "design_version": 4,
