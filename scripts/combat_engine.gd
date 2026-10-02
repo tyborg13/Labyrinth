@@ -17,6 +17,7 @@ const DragonCombatRules = preload("res://scripts/dragon_combat_rules.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
+const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
 const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
@@ -894,6 +895,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	state = _initialize_initiative_queue(state)
 	ManeuverRules.record_activation_start(state)
 	state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
+	state = DefenseRelicRules.opening_hand(self, state)
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
 	return state
 
@@ -924,6 +926,7 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = CardKeywordRules.actions_for_play(card, card_id, state)
+	var plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(state)) else (maxi(1, cards_remaining_this_turn(state)) if bool(card.get("flurry", false)) else 1)
 	if RiteRules.is_rite_card(card):
 		# A Rite resolves as one targetless step; finish_player_card starts it.
 		printed_actions.append({"type": "rite", "_card_element": GameData.card_element_from_def(card)})
@@ -935,7 +938,8 @@ func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 			if bool((action_var as Dictionary).get("_empower_repeat_first", false)) and not player_action_needs_target(action_var as Dictionary):
 				(action_var as Dictionary).erase("reuse_previous_target")
 			(action_var as Dictionary)["_tempo_card_time"] = card_time_cost_from_def(card) + CardKeywordRules.empower_time_surcharge(state, card_id, card)
-			(action_var as Dictionary)["_tempo_plays_spent"] = flurry_plays_for_card(card_id, state) if bool(card.get("flurry", false)) else 1
+			(action_var as Dictionary)["_card_plays_spent"] = plays_spent
+			(action_var as Dictionary)["_tempo_plays_spent"] = plays_spent
 	var leading_actions: Array = []
 	if not bool(card.get("flurry", false)):
 		leading_actions.append_array(printed_actions)
@@ -961,11 +965,23 @@ func flurry_plays_for_card(card_id: String, state: Dictionary = {}) -> int:
 		return 1
 	return maxi(1, cards_remaining_this_turn(state))
 
+func card_plays_spent(card_id: String, state: Dictionary) -> int:
+	var card: Dictionary = card_def(card_id, state)
+	if DefenseRelicRules.free_rite(card, _relic_effects(state)):
+		return 0
+	return maxi(1, cards_remaining_this_turn(state)) if bool(card.get("flurry", false)) else 1
+
+func hand_card_has_play_budget(state: Dictionary, index: int) -> bool:
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", []) as Array
+	if index < 0 or index >= hand.size() or not is_player_turn(state):
+		return false
+	return cards_remaining_this_turn(state) > 0 or (not bool((state.get("player_turn_restrictions", {}) as Dictionary).get("frozen", false)) and card_plays_spent(str(hand[index]), state) == 0)
+
 func card_plays_spent_for_actions(actions: Array) -> int:
 	for action_var: Variant in actions:
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
-		return maxi(1, int((action_var as Dictionary).get("_flurry_repeat_count", 1)))
+		return maxi(0, int((action_var as Dictionary).get("_card_plays_spent", (action_var as Dictionary).get("_flurry_repeat_count", 1))))
 	return 1
 
 func player_action_needs_target(action: Dictionary) -> bool:
@@ -1435,6 +1451,15 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		_record_last_action_target_actor(next_state, target_tile)
 	if not bool(action.get("_movement_pool", false)):
 		_snapshot_pending_card_payment(next_state)
+	if str(action.get("type", "")) in ATTACK_ACTION_TYPES and DefenseRelicRules.has_effect(_relic_effects(next_state), "health_loss_next_attack"):
+		# Chalice includes the Bleed paid before this hit. Reprice its pending
+		# bonus before consumption; the lower resolver must not pay Bleed twice.
+		next_state = _trigger_player_bleed_for_action(next_state, action)
+		if combat_outcome(next_state) == "defeat":
+			return next_state
+		action = action.duplicate(true)
+		action["_player_bleed_paid"] = true
+		TempoRules.refresh_next_attack_in_place(next_state, action)
 	TempoRules.consume_next_attack(next_state, action)
 	var player: Dictionary = next_state.get("player", {})
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
@@ -1549,7 +1574,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 				next_state = _raise_player_outcrops(next_state, resolved_action, target_tile)
 		"retaliate":
 			RetaliateRules.gain(next_state, resolved_action, _action_card_name(resolved_action))
-			_log(next_state, "Retaliate %d until your next turn." % int(resolved_action.get("amount", 0)))
+			_log(next_state, "Retaliate %d." % int(resolved_action.get("amount", 0)))
 		"quicken":
 			TempoRules.gain_quicken(next_state, resolved_action)
 			_log(next_state, "Quicken %d: the next card costs less Time." % int(resolved_action.get("amount", 0)))
@@ -1862,7 +1887,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	next_state["last_card_destination"] = destination
 	if destination == "discard":
 		next_state = _maybe_trigger_pain_recall(next_state, card_id)
-	var safe_plays_spent: int = maxi(1, plays_spent)
+	var safe_plays_spent: int = 0 if DefenseRelicRules.free_rite(card, _relic_effects(next_state)) else maxi(1, plays_spent)
 	var cards_played_before: int = int(next_state.get("cards_played_this_turn", 0))
 	var payment_snapshot: Dictionary = next_state.get("pending_card_payment", {}) as Dictionary
 	var used_banked_play: bool = _card_payment_uses_banked_play(payment_snapshot, next_state, safe_plays_spent)
@@ -1870,14 +1895,12 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	next_state["last_card_used_banked_play"] = used_banked_play
 	if used_banked_play:
 		next_state["banked_play_spent_this_activation"] = 1
-	var health_cost: int = int(card.get("health_cost", 0)) * safe_plays_spent
+	var health_cost: int = int(card.get("health_cost", 0)) * maxi(1, safe_plays_spent)
 	if health_cost > 0:
-		next_state = _lose_player_health(next_state, health_cost, true, false, "card_health_cost")
-		_log(next_state, "Paid %d health for %s." % [health_cost, str(card.get("name", card_id))])
+		next_state = DefenseRelicRules.pay_health_cost(self, next_state, health_cost, str(card.get("name", card_id)))
 	var empower_health: int = int(empower_payment.get("health", 0))
 	if empower_health > 0:
-		next_state = _lose_player_health(next_state, empower_health, true, false, "card_health_cost")
-		_log(next_state, "Paid %d health to Empower %s." % [empower_health, str(card.get("name", card_id))])
+		next_state = DefenseRelicRules.pay_health_cost(self, next_state, empower_health, "Empower " + str(card.get("name", card_id)))
 	# A Flurry finishes one card even when it spends several play slots.
 	next_state["turn_flags"]["cards_finished"] = int((next_state.get("turn_flags", {}) as Dictionary).get("cards_finished", 0)) + 1
 	next_state["cards_played_this_turn"] = int(next_state.get("cards_played_this_turn", 0)) + safe_plays_spent
@@ -1890,6 +1913,8 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	time_cost += int(empower_payment.get("time", 0))
 	next_state["player_turn_time_spent"] = int(next_state.get("player_turn_time_spent", 0)) + time_cost
 	DragonTrophyRules.finish_card_time(next_state,card,card_id,_relic_effects(next_state),time_cost,play_context)
+	if destination == "burn" and not GameData.card_is_item(card_id):
+		next_state = DefenseRelicRules.after_exhaust(self, next_state, card_id, time_cost)
 	next_state = _trigger_card_play_relics(
 		next_state,
 		card,
@@ -1936,14 +1961,14 @@ func _card_payment_uses_banked_play(snapshot: Dictionary, state: Dictionary, pla
 		return _card_spend_uses_banked_play(state, plays_spent)
 	return (
 		int(snapshot.get("banked_remaining", 0)) > 0
-		and maxi(1, plays_spent) > int(snapshot.get("ordinary_remaining", 0))
+		and maxi(0, plays_spent) > int(snapshot.get("ordinary_remaining", 0))
 	)
 
 func _card_spend_uses_banked_play(state: Dictionary, plays_spent: int) -> bool:
 	var budget: Dictionary = card_play_budget(state)
 	return (
 		int(budget.get("banked_remaining", 0)) > 0
-		and maxi(1, plays_spent) > int(budget.get("ordinary_remaining", 0))
+		and maxi(0, plays_spent) > int(budget.get("ordinary_remaining", 0))
 	)
 
 func is_player_turn(state: Dictionary) -> bool:
@@ -2725,6 +2750,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		"first_move_bonus_used": false
 	}
 	next_state = CommonRelicRules.turn_start(self, next_state)
+	next_state = DefenseRelicRules.player_turn_start(self, next_state)
 	next_state = _resolve_player_start_of_turn(next_state)
 	if combat_outcome(next_state) != "":
 		return next_state
@@ -2851,7 +2877,14 @@ func player_turn_resources_exhausted(state: Dictionary) -> bool:
 		and is_player_turn(state)
 		and cards_remaining_this_turn(state) <= 0
 		and player_movement_remaining(state) <= 0
+		and not _has_free_rite_in_hand(state)
 	)
+
+func _has_free_rite_in_hand(state: Dictionary) -> bool:
+	for index: int in range(((state.get("deck", {}) as Dictionary).get("hand", []) as Array).size()):
+		if hand_card_has_play_budget(state, index):
+			return true
+	return false
 
 func card_play_budget(state: Dictionary) -> Dictionary:
 	var total_remaining: int = cards_remaining_this_turn(state)
@@ -4557,6 +4590,7 @@ func _damage_player(
 	var health_was_lost: bool = int(player.get("hp", 0)) < hp_before
 	next_state["player"] = player
 	_record_run_stat(next_state, RUN_STAT_DAMAGE_RECEIVED, maxi(0, hp_before - int(player.get("hp", 0))))
+	DefenseRelicRules.after_health_loss(self, next_state, maxi(0, hp_before - int(player.get("hp", 0))))
 	if was_alive and int(player.get("hp", 0)) <= 0:
 		next_state = _trigger_prevent_lethal_relics(next_state)
 		if not defer_defiance and int((_normalized_player(next_state.get("player", {}))).get("hp", 0)) <= 0:
@@ -5650,7 +5684,10 @@ func _resolved_surface_action(state: Dictionary, action: Dictionary) -> Dictiona
 				resolved[field] = int(resolved.get(field, 0)) + int(bonus[field])
 	if not action.has("_enemy_id"):
 		TempoRules.apply_next_attack_in_place(state, resolved)
-	return resolved if action.has("_enemy_id") else _action_with_player_state_relic_modifiers(state, resolved)
+	if action.has("_enemy_id"):
+		return resolved
+	resolved = _action_with_player_state_relic_modifiers(state, resolved)
+	return DefenseRelicRules.suppress_card_block(resolved, _relic_effects(state)) if action.has("_card_id") or action.has("_card_action_types") else resolved
 
 func _action_with_player_state_relic_modifiers(state: Dictionary, action: Dictionary) -> Dictionary:
 	if bool(action.get("_player_state_relic_modifiers_applied", false)):
@@ -7111,7 +7148,7 @@ func _enemy_action_triggers_bleed(action: Dictionary) -> bool:
 
 func _trigger_player_bleed_for_action(state: Dictionary, action: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
-	if not _player_action_triggers_bleed(action):
+	if bool(action.get("_player_bleed_paid", false)) or not _player_action_triggers_bleed(action):
 		return next_state
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var bleed_amount: int = int(player.get("bleed", 0))
@@ -10403,7 +10440,9 @@ func _trigger_status_relics(state: Dictionary, status_id: String, source_action:
 				_mark_relic_once(next_state, effect, "status_count_reward", status_id)
 				queued_resolutions.append({"type": "rewards", "effect": effect})
 			"status_applied_reward":
-				# Rite of Hoarfrost: every successful application pays out.
+				if not _relic_player_state_condition_met(condition_state, effect):
+					continue
+				# Every successful application pays out.
 				queued_resolutions.append({"type": "rewards", "effect": effect})
 	for resolution: Dictionary in queued_resolutions:
 		match str(resolution.get("type", "")):
@@ -10586,6 +10625,14 @@ func _apply_relic_rewards(state: Dictionary, raw_rewards: Variant, effect: Dicti
 				stoneskin_player["stoneskin"] = int(stoneskin_player.get("stoneskin", 0)) + maxi(0, amount)
 				next_state["player"] = stoneskin_player
 				next_state = _trigger_stoneskin_relics(next_state, int(stoneskin_player.get("stoneskin", 0)) - stoneskin_before)
+			"block_to_mantle":
+				var mantle_player: Dictionary = _normalized_player(next_state.get("player", {}))
+				var lost_block: int = maxi(0, int(mantle_player.get("block", 0)))
+				var layers: int = mini(lost_block / maxi(1, int(reward.get("block_per_layer", 4))), int(reward.get("max_layers", 2)))
+				if layers > 0:
+					mantle_player["block"] = 0
+					mantle_player["frost_armor"] = int(mantle_player.get("frost_armor", 0)) + layers
+					next_state["player"] = mantle_player
 			"block_to_stoneskin":
 				var converting_player: Dictionary = _normalized_player(next_state.get("player", {}))
 				var converted: int = mini(maxi(0, amount), int(converting_player.get("block", 0)))

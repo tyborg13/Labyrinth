@@ -836,3 +836,18 @@ action and `_empower_repeat_first` on its automatic repeat. These additive
 runtime annotations do not represent extra played cards. Preview copies never
 append gameplay analytics; local append-only JSONL and existing event cursors
 are unchanged.
+
+### Relic overhaul U5 defense, health and Exhaust
+
+No new event kinds or payload fields are introduced. Retaliate damage and its
+actual health loss retain the existing `retaliate_triggered` event; Gorget's
+Block is measured from damage before force riders. Chalice uses the existing
+`next_attack_bonus_used` field and includes pre-hit Bleed in that hit's bonus.
+Printed health and Empower cost fields retain their meaning; the ordinary
+health/Stoneskin state deltas and damage-received totals reflect the actual
+Iron Lung payment. Liturgy's ordinary `card_plays_spent` is zero for Rites, while
+paid Time remains recorded. Urn's hand return uses the normal turn draw and
+`draw_revision` accounting. Exhaust Time rewards use the physical card's final
+payment and do not turn item Consume into Exhaust. Additive runtime action
+annotations `_card_plays_spent` and `_player_bleed_paid` share the payment and
+pre-hit timing with previews; preview copies never append gameplay analytics.

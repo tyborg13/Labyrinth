@@ -12,6 +12,7 @@ class_name RetaliateRules
 const Data = preload("res://scripts/game_data.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
+const DefenseRelicRules = preload("res://scripts/defense_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 
 const STATE_KEY: String = "retaliate"
@@ -31,7 +32,8 @@ static func gain(state: Dictionary, action: Dictionary, source_name: String = ""
 	state[STATE_KEY] = current
 
 static func clear(state: Dictionary) -> void:
-	state.erase(STATE_KEY)
+	if not DefenseRelicRules.has_effect(Data.relic_effects_for_state(state), "persistent_retaliate"):
+		state.erase(STATE_KEY)
 
 static func totals(state: Dictionary, effects: Array) -> Dictionary:
 	var current: Dictionary = state.get(STATE_KEY, {}) as Dictionary if typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY else {}
@@ -86,6 +88,10 @@ static func after_enemy_hit(engine: RefCounted, state: Dictionary, attacker_id: 
 	var amount: int = int(total["amount"])
 	if amount > 0:
 		state = engine._damage_enemy(state, index, amount, false, false)
+	var retaliate_hp_loss: int = maxi(0, int(before.get("hp", 0)) - int(engine._surface_actor(state, "enemy", attacker_id).get("hp", 0)))
+	state = DefenseRelicRules.after_retaliate(engine, state, retaliate_hp_loss)
+	for effect: Dictionary in DefenseRelicRules.effects_of_type(engine._relic_effects(state), "persistent_retaliate"):
+		gain(state, {"amount": int(effect.get("growth", 1))}, engine._relic_effect_source_name(effect))
 	var rider: Dictionary = {"type": "retaliate", "bleed": int(total["bleed"]), "shock": int(total["shock"]), "push": int(total["push"])}
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
 	if int(rider["push"]) > 0:
@@ -216,7 +222,9 @@ static func player_badges(state: Dictionary, effects: Array) -> Array[Dictionary
 	lines.append(effect_text + ".")
 	var has_card_retaliate: bool = typeof(state.get(STATE_KEY, null)) == TYPE_DICTIONARY and not (state[STATE_KEY] as Dictionary).is_empty()
 	var has_thorns: bool = not RiteRules.effects_of_type(effects, "thorns").is_empty()
-	if has_card_retaliate and has_thorns:
+	if DefenseRelicRules.has_effect(effects, "persistent_retaliate"):
+		lines.append("Lasts for this combat; grows after every trigger.")
+	elif has_card_retaliate and has_thorns:
 		lines.append("Rite thorns last for this combat; card Retaliate lasts until your next turn.")
 	elif has_thorns:
 		lines.append("Rite: lasts for the rest of this combat.")

@@ -50,7 +50,7 @@ static func card_with_time_discount(card: Dictionary, state: Dictionary, effects
 	if card.is_empty() or not card.has("time"):
 		return card
 	var quicken: int = quicken_pending(state)
-	var rite_discount: int = RiteRules.card_time_discount(effects)
+	var rite_discount: int = RiteRules.card_time_discount(effects, card)
 	var relic_discount: int = 0
 	for effect: Dictionary in effects:
 		if str(effect.get("type", "")) == "nth_card_time_discount" and int(_flags(state).get("cards_finished", 0)) + 1 == int(effect.get("card_number", 2)):
@@ -152,6 +152,7 @@ static func gain_next_attack(state: Dictionary, action: Dictionary, source_name:
 		"per_tile_moved": per_tile.duplicate(true),
 		# The granting card is still resolving; only a later card may use it.
 		"granted_at": int(state.get("cards_played_this_turn", 0)),
+		"immediate": bool(action.get("immediate", false)),
 		"card_id": str(action.get("_card_id", "")),
 		"source": source_name,
 		"card_scoped": bool(action.get("card_scoped", false))
@@ -194,7 +195,7 @@ static func eligible_buffs(state: Dictionary, action: Dictionary) -> Array[Dicti
 		if typeof(buff_var) != TYPE_DICTIONARY:
 			continue
 		var buff: Dictionary = buff_var as Dictionary
-		if played <= int(buff.get("granted_at", 0)):
+		if not bool(buff.get("immediate", false)) and played <= int(buff.get("granted_at", 0)):
 			continue
 		var wanted: String = str(buff.get("element", ""))
 		if not wanted.is_empty() and wanted != element_id:
@@ -244,6 +245,16 @@ static func apply_next_attack_in_place(state: Dictionary, resolved: Dictionary) 
 	if bool(bonus["pierce"]):
 		resolved["pierce"] = true
 	resolved[APPLIED_KEY] = bonus
+
+## Bleed is paid before a valid hit. The health-loss relic may change the
+## pending pool after target validation but before its first consumption.
+static func refresh_next_attack_in_place(state: Dictionary, resolved: Dictionary) -> void:
+	var previous: Dictionary = resolved.get(APPLIED_KEY, {}) as Dictionary
+	resolved["damage"] = int(resolved.get("damage", 0)) - int(previous.get("damage", 0))
+	if int(previous.get("chain", 0)) > 0:
+		resolved["chain"] = int(resolved.get("chain", 0)) - int(previous["chain"])
+	resolved.erase(APPLIED_KEY)
+	apply_next_attack_in_place(state, resolved)
 
 ## Called once when a buffed attack actually resolves.
 static func consume_next_attack(state: Dictionary, action: Dictionary) -> void:

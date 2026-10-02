@@ -10148,7 +10148,7 @@ func _guided_tutorial_target_is_defeated(state: Dictionary) -> bool:
 
 func _guided_tutorial_playable_card_indices() -> Array[int]:
 	var result: Array[int]
-	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if _combat_state.is_empty():
 		return result
 	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	var expected_card_id: String = _guided_tutorial_expected_card_id()
@@ -13253,7 +13253,7 @@ func _turn_order_card_time_preview() -> Dictionary:
 	var empower_time: int = CardKeywordRules.empower_time_surcharge(_preview_combat_state, card_id, card) if index == _selected_card_index else 0
 	return {
 		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
-		"plays_spent": _combat_engine.flurry_plays_for_card(card_id, _combat_state) if bool(card.get("flurry", false)) else 1,
+		"plays_spent": _combat_engine.card_plays_spent(card_id, _combat_state),
 		"name": str(card.get("name", card_id))
 	}
 
@@ -15302,7 +15302,7 @@ func _displayed_card_play_budget() -> Dictionary:
 func _card_play_count_for_resolution_state(state: Dictionary) -> int:
 	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
 	if _card_play_count_override >= 0:
-		cards_left -= maxi(1, _card_play_resolution_spend)
+		cards_left -= maxi(0, _card_play_resolution_spend)
 	return maxi(0, cards_left)
 
 func _set_card_play_count_override(cards_left: int) -> void:
@@ -15310,7 +15310,7 @@ func _set_card_play_count_override(cards_left: int) -> void:
 	_refresh_card_play_meter()
 
 func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
-	_card_play_resolution_spend = maxi(1, plays_spent)
+	_card_play_resolution_spend = maxi(0, plays_spent)
 	var budget: Dictionary = _combat_engine.card_play_budget(_combat_state)
 	var spend_remaining: int = _card_play_resolution_spend
 	var ordinary_spent: int = mini(int(budget.get("ordinary_remaining", 0)), spend_remaining)
@@ -19548,7 +19548,7 @@ func _card_preview_for_index(index: int, play_mode: String = "play") -> Dictiona
 	var performance_phase_started: int = performance_total_started
 	if _combat_state.is_empty():
 		return {}
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return {"playable": false}
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -19595,7 +19595,7 @@ func _card_playability_for_index(index: int) -> Dictionary:
 	# Hand appearance and analytics need flags, while selection needs the complete
 	# target set. Keep their caches separate so summary-first access cannot shorten
 	# a later click/drag preview. Existing full snapshots remain authoritative.
-	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if _combat_state.is_empty() or not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return {"printed_playable": false, "any_playable": false}
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -19615,7 +19615,7 @@ func _card_playability_for_index(index: int) -> Dictionary:
 	return summary
 
 func _card_playability_for_state(state: Dictionary, index: int) -> Dictionary:
-	if state.is_empty() or _combat_engine.cards_remaining_this_turn(state) <= 0:
+	if state.is_empty() or not _combat_engine.hand_card_has_play_budget(state, index):
 		return {"printed_playable": false, "any_playable": false}
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -19904,8 +19904,6 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 func _has_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
 		return false
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
-		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		if bool(_card_playability_for_index(index).get("printed_playable", false)):
@@ -19914,8 +19912,6 @@ func _has_playable_combat_card() -> bool:
 
 func _has_any_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
-		return false
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
@@ -21986,7 +21982,7 @@ func _on_card_pressed(index: int) -> void:
 	if _combat_skill_card_selection_zone == "hand":
 		_on_combat_skill_hand_card_selected(index)
 		return
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return
 	if _drag_card_index >= 0:
 		return
@@ -22029,7 +22025,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 		return
 	if not _combat_skill_card_selection_zone.is_empty():
 		return
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return
 	if _pending_umbra_commit_locked:
 		return
