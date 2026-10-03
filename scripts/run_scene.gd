@@ -20698,9 +20698,6 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 func _preview_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	return _trade_route_endpoints(state, _combat_engine.path_from_player_movement_plan(movement_plan, target))
 
-# A move-then-attack shortcut that trades with an Illusion marks only its
-# landing, like a Blink shortcut: hero routes draw per tile, so a skipped tile
-# would leave a broken arrow.
 # The full route a Glassway trade pays for, or empty when `target` is no trade.
 func _trade_cost_route(state: Dictionary, action: Dictionary, target: Vector2i, movement_plan: Dictionary) -> Array[Vector2i]:
 	if str(action.get("type", "")) != "move" or not IllusionRelicRules.can_trade(_combat_engine, state, target):
@@ -20709,6 +20706,9 @@ func _trade_cost_route(state: Dictionary, action: Dictionary, target: Vector2i, 
 		return _combat_engine.path_from_player_movement_plan(movement_plan, target)
 	return _combat_engine.path_for_player_action(state, action, target)
 
+# A move-then-attack shortcut that trades with an Illusion marks only its
+# landing, like a Blink shortcut: hero routes draw per tile, so a skipped tile
+# would leave a broken arrow.
 func _shortcut_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	if IllusionRelicRules.can_trade(_combat_engine, state, target):
 		return _vector2i_array([target])
