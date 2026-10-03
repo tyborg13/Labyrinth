@@ -143,9 +143,9 @@ rules. With Glassway active, illusion tiles are terminal Move destinations;
 independent endpoint routes never traverse another illusion. A Move that ends on
 an illusion is a teleport trade. A second navigation search prices each
 illusion endpoint by its cheapest route, ignoring hazards and pickups and
-counting no Light refunds, and the commit spends exactly that. The trade enters
-only the landing tile: the tiles between give no hazard, loot, Vault Stagger,
-refund or hidden-body interruption. The illusion lands on the Move's origin,
+counting a Light refund only for the landing tile, and the commit spends exactly
+that. The trade enters only the landing tile: the tiles between give no hazard,
+loot, Vault Stagger, refund or hidden-body interruption. The illusion lands on the Move's origin,
 per-tile rewards (Catch the Wind, long-move relics) count the Manhattan distance
 like a Blink, and the board plays one exchange Blink. Ordinary movement without
 Glassway retains the existing endpoint-dispel behavior.

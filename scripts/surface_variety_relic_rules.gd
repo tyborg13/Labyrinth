@@ -218,8 +218,10 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 	var stride: bool = engine.GuardianRelicRules.amount(state, "ice_stride") > 0
 	var skating: bool = engine.ManeuverRules.player_skating(state)
 	var directional: bool = straight or (stride and not skating)
-	# A Glassway trade search counts no Light refunds: its tiles are never entered.
-	var max_refunds: int = 0 if bool(state.get("_movement_trade_search", false)) else refund_available(state, effects)
+	# A Glassway trade enters only its landing tile, so in the trade search only
+	# an Illusion endpoint can earn a Light refund.
+	var trade_search: bool = bool(state.get("_movement_trade_search", false))
+	var max_refunds: int = refund_available(state, effects)
 	var passable: Array[Vector2i] = engine._all_passable_tiles(state)
 	var indices: Dictionary = {}
 	var lights: Dictionary = {}
@@ -229,7 +231,7 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 	var loot_scores: Dictionary = {}
 	for tile: Vector2i in passable:
 		indices[tile] = indices.size()
-		if hero_light(state, tile):
+		if hero_light(state, tile) and (not trade_search or endpoints.has(tile)):
 			lights[tile] = true
 		if relays.has(tile):
 			relay_tiles.append(tile)

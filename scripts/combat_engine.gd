@@ -6849,21 +6849,29 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 ## Glassway Compass: a Move that ends on your Illusion trades places with it at
 ## once. It spends the movement of the cheapest route there (the trade search
 ## ignores hazards and pickups on the way) but enters only the landing tile, so
-## the tiles between give no hazard, loot, Vault Stagger or Light refund.
+## the tiles between give no hazard, loot, Vault Stagger or Light refund; a lit
+## landing tile still refunds, as it would for any Move.
 func _trade_player_with_illusion(state: Dictionary, path: Array[Vector2i], allowance: int, minimum_progress: bool, result: Dictionary) -> Dictionary:
 	var player: Dictionary = _normalized_player(state.get("player", {}))
+	var effects: Array = _relic_effects(state)
+	var landing: Vector2i = path[path.size() - 1]
+	var landing_refund: bool = false
 	var spent: int = 0
 	for step_index: int in range(1, path.size()):
 		var previous_direction: Vector2i = path[step_index - 1] - path[step_index - 2] if step_index > 1 else Vector2i.ZERO
 		var cost: int = hero_move_step_cost(state, player, path[step_index - 1], path[step_index], previous_direction)
 		if step_index == 1 and minimum_progress and allowance > 0:
 			cost = mini(cost, allowance)
+		if step_index == path.size() - 1 and cost > 0 and SurfaceVarietyRules.refund_available(state, effects) > 0 and SurfaceVarietyRules.hero_light(state, landing):
+			cost -= 1
+			landing_refund = true
 		spent += cost
 		if allowance >= 0 and spent > allowance:
 			return state
+	if landing_refund:
+		SurfaceVarietyRules.claim_refund(state, landing, effects, 1)
 	result["spent"] = spent
 	result["traded"] = true
-	var landing: Vector2i = path[path.size() - 1]
 	var next_state: Dictionary = IllusionRelicRules.trade_before_arrival(self, state, landing, path[0])
 	_collect_loot_at_player(next_state)
 	next_state = surface_actor_arrival(next_state, "player", -1, path[0])

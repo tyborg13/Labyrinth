@@ -20698,6 +20698,14 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 func _preview_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	return _trade_route_endpoints(state, _combat_engine.path_from_player_movement_plan(movement_plan, target))
 
+# A move-then-attack shortcut that trades with an Illusion marks only its
+# landing, like a Blink shortcut: hero routes draw per tile, so a skipped tile
+# would leave a broken arrow.
+func _shortcut_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	if IllusionRelicRules.can_trade(_combat_engine, state, target):
+		return _vector2i_array([target])
+	return _combat_engine.path_from_player_movement_plan(movement_plan, target)
+
 func _trade_route_endpoints(state: Dictionary, path: Array[Vector2i]) -> Array[Vector2i]:
 	if path.size() > 2 and IllusionRelicRules.can_trade(_combat_engine, state, path[path.size() - 1]):
 		return _vector2i_array([path[0], path[path.size() - 1]])
@@ -21064,7 +21072,7 @@ func _preview_shortcuts_for_current_action(
 			path_tiles = _vector2i_array([move_target])
 			after_move_state = _combat_engine.apply_player_action(preview_state, action, move_target)
 		else:
-			path_tiles = _preview_move_route(preview_state, movement_plan, move_target)
+			path_tiles = _shortcut_move_route(preview_state, movement_plan, move_target)
 			after_move_state = _combat_engine.apply_planned_player_move(preview_state, action, move_target, movement_plan)
 		if umbra_limited and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			continue
@@ -21147,7 +21155,7 @@ func _preview_immediate_attack_shortcuts(
 		var path_tiles: Array[Vector2i] = (
 			_vector2i_array([move_target])
 			if action_type == "blink"
-			else _preview_move_route(preview_state, movement_plan, move_target)
+			else _shortcut_move_route(preview_state, movement_plan, move_target)
 		)
 		if typeof(allowed_target_tiles) == TYPE_DICTIONARY and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			source_order += 1

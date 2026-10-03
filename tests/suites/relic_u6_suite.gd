@@ -154,6 +154,13 @@ static func _test_glassway_trade_edges(e: RefCounted, check: Callable) -> void:
 	var hp: int = int(detour["player"]["hp"])
 	detour = preview_commit(e, detour, {"type": "move", "range": 4}, Vector2i(2, 6), check, "Glassway cheapest route")
 	check.call(int(detour["player"]["hp"]) == hp and int(detour["turn_flags"].get(preload("res://scripts/surface_variety_relic_rules.gd").REFUNDS, 0)) == 0, "A trade takes no Fire and claims no Light refund for skipped tiles")
+	# The landing tile is entered, so a lit landing refunds like any Move.
+	var lit: Dictionary = lane.call(["glassway_compass", "beaconrunner_spurs"])
+	lit = e._create_illusion(lit, Vector2i(2, 7), 4)
+	lit["umbra"]["light_sources"].append({"pos": Vector2i(2, 7), "radius": 0, "owner": "player", "remaining_activations": 3})
+	check.call(e.valid_targets_for_player_action(lit, {"type": "move", "range": 2}).has(Vector2i(2, 7)), "A lit landing's refund lets Move 2 trade with an Illusion three tiles away")
+	lit = preview_commit(e, lit, {"type": "move", "range": 2}, Vector2i(2, 7), check, "Glassway lit landing")
+	check.call(lit["player"]["pos"] == Vector2i(2, 7) and int(lit["turn_flags"].get(preload("res://scripts/surface_variety_relic_rules.gd").REFUNDS, 0)) == 1, "A trade's lit landing claims one Light refund")
 
 static func _test_triptych(e: RefCounted, check: Callable) -> void:
 	var s: Dictionary = state(e, ["mirror_triptych"])
