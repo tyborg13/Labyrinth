@@ -2013,7 +2013,7 @@
     "relic:waxen_effigy",
     "relic:mirror_triptych"
    ],
-   "note": "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends the route's movement but enters only the landing tile.",
+   "note": "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends its cheapest route's movement but enters only the landing tile.",
    "impl": 2,
    "replacement": null
   },

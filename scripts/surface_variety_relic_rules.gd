@@ -218,7 +218,8 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 	var stride: bool = engine.GuardianRelicRules.amount(state, "ice_stride") > 0
 	var skating: bool = engine.ManeuverRules.player_skating(state)
 	var directional: bool = straight or (stride and not skating)
-	var max_refunds: int = refund_available(state, effects)
+	# A Glassway trade search counts no Light refunds: its tiles are never entered.
+	var max_refunds: int = 0 if bool(state.get("_movement_trade_search", false)) else refund_available(state, effects)
 	var passable: Array[Vector2i] = engine._all_passable_tiles(state)
 	var indices: Dictionary = {}
 	var lights: Dictionary = {}

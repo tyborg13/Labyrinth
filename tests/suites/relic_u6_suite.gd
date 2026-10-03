@@ -122,10 +122,39 @@ static func _test_glassway(e: RefCounted, check: Callable) -> void:
 	var far_swaps: Array = (far.get("surface_events", []) as Array).filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "illusion_swapped")
 	var far_segments: Array[Dictionary] = preload("res://scripts/run_scene.gd").player_move_segments(far, far_path, far_swaps[0] if not far_swaps.is_empty() else {})
 	check.call(far_segments.size() == 1 and far_segments[0].get("blink_from") == origin and far_segments[0].get("blink_to") == Vector2i(3, 5), "A Glassway Move trade is presented as one exchange blink from the origin")
+	_test_glassway_trade_edges(e, check)
 	var corridor: Dictionary = state(e, ["glassway_compass"])
 	corridor = e._create_illusion(corridor, Vector2i(3, 4), 2)
 	var line: Dictionary = {"type": "move", "range": 4, "straight_line": true}
 	check.call(not e.valid_targets_for_player_action(corridor, line).has(Vector2i(5, 4)), "Glassway cannot path through another illusion")
+# Peer-review cases: a trade skips its route, so nothing on the route counts.
+static func _test_glassway_trade_edges(e: RefCounted, check: Callable) -> void:
+	var lane: Callable = func(relics: Array) -> Dictionary: return Fixture._state(e, [Fixture._enemy(1, Vector2i(6, 2), 30), Fixture._enemy(2, Vector2i(7, 2), 30)], relics)
+	var wind: Dictionary = {"type": "move", "range": 3, "block_per_tile": 1}
+	var s: Dictionary = lane.call(["glassway_compass"])
+	s = e._create_illusion(s, Vector2i(2, 7), 4)
+	var origin: Vector2i = s["player"]["pos"]
+	s = preview_commit(e, s, wind, Vector2i(2, 7), check, "Glassway Catch the Wind")
+	check.call(s["player"]["pos"] == Vector2i(2, 7) and int(s["player"].get("block", 0)) == 3 and origin == Vector2i(2, 4) and int(s["turn_flags"].get("tiles_moved", 0)) == 3, "A trade's per-tile Block counts its whole distance")
+	var hidden: Dictionary = lane.call(["glassway_compass"])
+	hidden["enemies"][0]["pos"] = Vector2i(2, 6)
+	hidden["umbra"]["stage"] = "eclipse"
+	hidden = e._create_illusion(hidden, Vector2i(2, 7), 4)
+	hidden["umbra"]["light_sources"].append({"pos": Vector2i(2, 7), "radius": 0, "owner": "player", "remaining_activations": 3})
+	check.call(e.valid_targets_for_player_action(hidden, {"type": "move", "range": 3}).has(Vector2i(2, 7)), "A lit Illusion beyond an unseen body is a trade target")
+	hidden = e.apply_player_action(hidden, {"type": "move", "range": 3}, Vector2i(2, 7))
+	check.call(hidden["player"]["pos"] == Vector2i(2, 7) and hidden["illusions"][0]["pos"] == origin and int(hidden["umbra"].get("movement_interrupted_total", 0)) == 0, "An unseen body on the skipped tiles cannot stop a trade")
+	var detour: Dictionary = lane.call(["glassway_compass", "beaconrunner_spurs"])
+	detour = e._create_illusion(detour, Vector2i(2, 6), 4)
+	Surface.place(detour, Vector2i(2, 5), "fire")
+	for tile: Vector2i in [Vector2i(1, 5), Vector2i(1, 6)]:
+		detour["umbra"]["light_sources"].append({"pos": tile, "radius": 0, "owner": "player", "remaining_activations": 3})
+	var route: Array[Vector2i] = e.path_for_player_action(detour, {"type": "move", "range": 4}, Vector2i(2, 6))
+	check.call(route.size() == 3 and route.has(Vector2i(2, 5)), "A trade takes the cheapest route even through Fire it will never enter")
+	var hp: int = int(detour["player"]["hp"])
+	detour = preview_commit(e, detour, {"type": "move", "range": 4}, Vector2i(2, 6), check, "Glassway cheapest route")
+	check.call(int(detour["player"]["hp"]) == hp and int(detour["turn_flags"].get(preload("res://scripts/surface_variety_relic_rules.gd").REFUNDS, 0)) == 0, "A trade takes no Fire and claims no Light refund for skipped tiles")
+
 static func _test_triptych(e: RefCounted, check: Callable) -> void:
 	var s: Dictionary = state(e, ["mirror_triptych"])
 	for tile: Vector2i in [Vector2i(3, 3), Vector2i(3, 5), Vector2i(6, 5), Vector2i(1, 1)]: s = e._create_illusion(s, tile, 3)

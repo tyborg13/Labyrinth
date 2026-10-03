@@ -141,11 +141,14 @@ construct relays, and Chain rebound. All use the engine's damage, arrival,
 straight-line force and attack planning paths. Area forces keep their original
 rules. With Glassway active, illusion tiles are terminal Move destinations;
 independent endpoint routes never traverse another illusion. A Move that ends on
-an illusion is a teleport trade: it spends exactly the movement the route would
-cost (Light refunds included) but enters only the landing tile (no hazard, loot
-or Vault Stagger on the tiles between), the illusion lands on the Move's origin,
-and the board plays one exchange Blink. Ordinary movement without Glassway retains the existing
-endpoint-dispel behavior.
+an illusion is a teleport trade. A second navigation search prices each
+illusion endpoint by its cheapest route, ignoring hazards and pickups and
+counting no Light refunds, and the commit spends exactly that. The trade enters
+only the landing tile: the tiles between give no hazard, loot, Vault Stagger,
+refund or hidden-body interruption. The illusion lands on the Move's origin,
+per-tile rewards (Catch the Wind, long-move relics) count the Manhattan distance
+like a Blink, and the board plays one exchange Blink. Ordinary movement without
+Glassway retains the existing endpoint-dispel behavior.
 
 Mirror Triptych records the first attack action while the card resolves and
 executes its echoes after all card actions. `illusion_relic_pending_echo` is the

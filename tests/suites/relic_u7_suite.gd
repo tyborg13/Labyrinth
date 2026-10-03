@@ -396,9 +396,11 @@ static func _test_review_regressions(engine: Combat, check: Callable) -> void:
 	_light(combo, Vector2i(4, 3))
 	combo = engine._create_illusion(combo, Vector2i(5, 3), 2)
 	var straight: Dictionary = {"type": "move", "range": 2, "straight_line": true}
-	check.call(engine.valid_targets_for_player_action(combo, straight).has(Vector2i(5, 3)), "Glassway straight Move uses Vault and Beacon's U7 movement costs")
+	check.call(not engine.valid_targets_for_player_action(combo, straight).has(Vector2i(5, 3)), "A Glassway trade gets no Beacon refund from the Light it skips, so Move 2 cannot reach an Illusion three tiles away")
+	straight["range"] = 3
+	check.call(engine.valid_targets_for_player_action(combo, straight).has(Vector2i(5, 3)), "Glassway straight Move reaches the Illusion through Vault's enemy tile")
 	combo = _preview(engine, combo, straight, Vector2i(5, 3), check, "Glassway straight with U7 relics")
-	check.call(engine.stagger_delays_between({}, combo).is_empty() and int(combo["turn_flags"].get(Rules.REFUNDS, 0)) == 1 and combo["illusions"][0]["pos"] == Vector2i(2, 3), "A Glassway straight trade teleports: it spends the route's movement and refund but never Vaults the enemy between")
+	check.call(engine.stagger_delays_between({}, combo).is_empty() and int(combo["turn_flags"].get(Rules.REFUNDS, 0)) == 0 and combo["illusions"][0]["pos"] == Vector2i(2, 3), "A Glassway straight trade teleports: no Vault Stagger or refund for the tiles it skips")
 	var blocked: Dictionary = _state(engine, ["unclouded_sun", "glassway_compass"])
 	blocked = engine._create_illusion(blocked, Vector2i(3, 3), 2)
 	blocked = engine._create_illusion(blocked, Vector2i(5, 3), 2)

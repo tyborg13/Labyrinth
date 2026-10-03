@@ -492,7 +492,7 @@ relic("glassway_compass", "Glassway Compass", EP, "rework", "Transform", ["illus
       "Nothing without illusions.",
       "Every illusion is a door.",
       ["card:hall_of_mirrors", "relic:waxen_effigy", "relic:mirror_triptych"],
-      "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends the route's movement but enters only the landing tile.", impl=2,
+      "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends its cheapest route's movement but enters only the landing tile.", impl=2,
       was="The first Blink each turn creates a 2-health illusion on the tile you left.")
 relic("breaking_wheel", "The Breaking Wheel", EP, "new", "Bridge", ["forced", "fire", "ice", "lightning", "earth"], 0, 3,
       "An enemy colliding on a surface breaks it: Fire deals 3 more damage, Ice gives Freeze, Electrified gives Shock to it and its blocker, Rubble gives Stagger 3.",

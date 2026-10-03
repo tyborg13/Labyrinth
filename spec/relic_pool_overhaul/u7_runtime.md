@@ -45,8 +45,9 @@ instead of preloading GameData so card definitions can call it without a cycle.
   enemy once per Move using normal Stagger caps. It cannot end on an enemy,
   including a hidden body discovered on commit. Unclouded Sun links only the
   hero's Light sources (relay points): a link step costs one and enters only
-  the landing source, and the hero walks to and from the relays. Straight-line card Moves retain their cardinal line;
-  Blink retains its ordinary endpoint and range rules. The same navigation and
+  the landing source, and the hero walks to and from the relays. Straight-line
+  card Moves retain their cardinal line; Blink retains its ordinary endpoint
+  and range rules. The same navigation and
   step-cost rules serve targets, path previews and commits. Shortcuts resolve
   these effects rather than substituting only the hero's position.
 

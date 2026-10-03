@@ -1696,7 +1696,10 @@ func _apply_player_move_along_path(
 		_record_runtime_performance_phase("move_path_total", performance_total_started)
 		return next_state
 	performance_phase_started = _record_runtime_performance_phase("move_path_bleed_outcome", performance_phase_started)
-	var resolved_path: Array[Vector2i] = _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
+	# A Glassway trade enters only its landing tile, so an unseen body on the
+	# tiles between cannot stop it.
+	var trades: bool = not movement_path.is_empty() and IllusionRelicRules.can_trade(self, next_state, movement_path[movement_path.size() - 1])
+	var resolved_path: Array[Vector2i] = movement_path if trades else _player_path_until_hidden_collision(next_state, movement_path, hidden_collision_tiles, use_hidden_collision_lookup)
 	performance_phase_started = _record_runtime_performance_phase("move_path_hidden_collision", performance_phase_started)
 	var movement_result: Dictionary = {}
 	var minimum_progress: bool = not bool(resolved_action.get("_movement_pool", false)) or player_movement_remaining(next_state) == player_movement_capacity(next_state)
@@ -1723,7 +1726,7 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_loot_refund", performance_phase_started)
 	var painting_path: Array[Vector2i] = resolved_path if bool(resolved_action.get("surface_path", false)) else _vector2i_values([resolved_endpoint])
 	next_state = _place_action_surface(next_state, resolved_action, resolved_endpoint, painting_path)
-	next_state = ManeuverRules.after_player_move(self, next_state, resolved_action, resolved_path)
+	next_state = ManeuverRules.after_player_move(self, next_state, resolved_action, resolved_path, travelled)
 	_log(next_state, "Moved to %s." % str((next_state.get("player", {}) as Dictionary).get("pos", target_tile)))
 	_record_runtime_performance_phase("move_path_log", performance_phase_started)
 	_record_runtime_performance_phase("move_path_total", performance_total_started)
@@ -6844,28 +6847,20 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 	return _force_move_player_from(state, action, source_pos, pushing, amount)
 
 ## Glassway Compass: a Move that ends on your Illusion trades places with it at
-## once. It spends exactly what walking the route would (Light refunds included)
-## but enters only the landing tile: no hazard, loot or Vault Stagger between.
+## once. It spends the movement of the cheapest route there (the trade search
+## ignores hazards and pickups on the way) but enters only the landing tile, so
+## the tiles between give no hazard, loot, Vault Stagger or Light refund.
 func _trade_player_with_illusion(state: Dictionary, path: Array[Vector2i], allowance: int, minimum_progress: bool, result: Dictionary) -> Dictionary:
 	var player: Dictionary = _normalized_player(state.get("player", {}))
-	var effects: Array = _relic_effects(state)
-	var refunds_left: int = SurfaceVarietyRules.refund_available(state, effects)
-	var refunded: Array[Vector2i] = _vector2i_values([])
 	var spent: int = 0
 	for step_index: int in range(1, path.size()):
 		var previous_direction: Vector2i = path[step_index - 1] - path[step_index - 2] if step_index > 1 else Vector2i.ZERO
 		var cost: int = hero_move_step_cost(state, player, path[step_index - 1], path[step_index], previous_direction)
 		if step_index == 1 and minimum_progress and allowance > 0:
 			cost = mini(cost, allowance)
-		if cost > 0 and refunds_left > 0 and SurfaceVarietyRules.hero_light(state, path[step_index]):
-			cost -= 1
-			refunds_left -= 1
-			refunded.append(path[step_index])
 		spent += cost
 		if allowance >= 0 and spent > allowance:
 			return state
-	for tile: Vector2i in refunded:
-		SurfaceVarietyRules.claim_refund(state, tile, effects, 1)
 	result["spent"] = spent
 	result["traded"] = true
 	var landing: Vector2i = path[path.size() - 1]
@@ -11235,6 +11230,10 @@ func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int,
 		return harm
 	var pickup_scores: Dictionary = _preferred_pickup_scores(state) if not unit.has("id") else {}
 	var pickup_score: Callable = func(tile: Vector2i) -> int: return int(pickup_scores.get(tile, 0))
+	if bool(state.get(IllusionRelicRules.TRADE_SEARCH, false)):
+		# A Glassway trade never enters the tiles between: take the cheapest route.
+		hazard_cost = func(_to: Vector2i) -> int: return 0
+		pickup_score = func(_tile: Vector2i) -> int: return 0
 	if not unit.has("id") and SurfaceVarietyRules.move_rules(_relic_effects(state)):
 		return SurfaceVarietyRules.navigation(self, state, unit, budget, blocked, minimum_progress, hazard_cost, pickup_score, stop_after_reaching, _relic_effects(state))
 	if not unit.has("id") and (GuardianRelicRules.amount(state,"ice_stride") > 0 or ManeuverRules.player_skating(state)):

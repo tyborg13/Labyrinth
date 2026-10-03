@@ -10,6 +10,7 @@ const Paths = preload("res://scripts/path_utils.gd")
 const INVALID := Vector2i(-1, -1)
 const PENDING := "illusion_relic_pending_echo"
 const USED := "illusion_relic_attack_used"
+const TRADE_SEARCH := "_movement_trade_search"
 
 static func effect(engine: RefCounted, state: Dictionary, type: String) -> Dictionary:
 	for entry: Dictionary in engine._relic_effects(state):
@@ -40,19 +41,40 @@ static func after_destroy(engine: RefCounted, state: Dictionary, illusion: Dicti
 static func can_trade(engine: RefCounted, state: Dictionary, tile: Vector2i) -> bool:
 	return not effect(engine, state, "movement_illusion_exchange").is_empty() and not Cards.illusion_at(engine, state, tile).is_empty()
 
-## Open all owned illusion endpoints in one search, but never expand through
-## them. The base search still applies straight-line and U7 movement rules.
+## Open all owned illusion endpoints, but never expand through them. The base
+## search still applies straight-line and U7 movement rules. A trade enters only
+## its landing tile, so a second search prices the endpoints by their cheapest
+## route: hazards, pickups and Light refunds on the way do not count.
 static func movement_navigation(engine: RefCounted, state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop: Callable = Callable()) -> Dictionary:
-	var navigation_state: Dictionary = state
-	if not effect(engine, state, "movement_illusion_exchange").is_empty():
-		var endpoints: Dictionary = {}
-		for illusion: Dictionary in engine._live_illusions(state):
-			var tile: Vector2i = illusion.get("pos", INVALID)
-			if engine.is_tile_visible_to_player(state, tile): endpoints[tile] = true
-		if not endpoints.is_empty():
-			navigation_state = state.duplicate(false)
-			navigation_state["_movement_allowed_endpoints"] = endpoints
-	return engine._base_player_move_navigation(navigation_state, action, player, budget, occupied, minimum, stop)
+	if effect(engine, state, "movement_illusion_exchange").is_empty():
+		return engine._base_player_move_navigation(state, action, player, budget, occupied, minimum, stop)
+	var endpoints: Dictionary = {}
+	for illusion: Dictionary in engine._live_illusions(state):
+		var tile: Vector2i = illusion.get("pos", INVALID)
+		if engine.is_tile_visible_to_player(state, tile): endpoints[tile] = true
+	if endpoints.is_empty():
+		return engine._base_player_move_navigation(state, action, player, budget, occupied, minimum, stop)
+	var navigation_state: Dictionary = state.duplicate(false)
+	navigation_state["_movement_allowed_endpoints"] = endpoints
+	var navigation: Dictionary = engine._base_player_move_navigation(navigation_state, action, player, budget, occupied, minimum, stop)
+	var trade_state: Dictionary = navigation_state.duplicate(false)
+	trade_state[TRADE_SEARCH] = true
+	var trades: Dictionary = engine._base_player_move_navigation(trade_state, action, player, budget, occupied, minimum, stop)
+	var paths: Dictionary = (navigation.get("paths", {}) as Dictionary).duplicate()
+	var costs: Dictionary = (navigation.get("costs", {}) as Dictionary).duplicate()
+	var trade_paths: Dictionary = trades.get("paths", {}) as Dictionary
+	var trade_costs: Dictionary = trades.get("costs", {}) as Dictionary
+	for tile: Vector2i in endpoints:
+		if trade_paths.has(tile):
+			paths[tile] = trade_paths[tile]
+			costs[tile] = trade_costs.get(tile, 0)
+		else:
+			paths.erase(tile)
+			costs.erase(tile)
+	var result: Dictionary = navigation.duplicate(false)
+	result["paths"] = paths
+	result["costs"] = costs
+	return result
 
 ## Both positions change before contact (the same convention as Empty Husk).
 ## The illusion arrives first; the caller then resolves normal hero arrival.

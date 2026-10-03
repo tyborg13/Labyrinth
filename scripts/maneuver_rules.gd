@@ -626,7 +626,9 @@ static func move_action_with_trail_light(action: Dictionary) -> Dictionary:
 	resolved["illuminate_position_mode"] = "path"
 	return resolved
 
-static func after_player_move(engine: RefCounted, state: Dictionary, action: Dictionary, path: Array[Vector2i]) -> Dictionary:
+## `travelled` overrides the distance for per-tile rewards when the path holds
+## only endpoints (a Glassway trade); trails still follow the given path.
+static func after_player_move(engine: RefCounted, state: Dictionary, action: Dictionary, path: Array[Vector2i], travelled: int = -1) -> Dictionary:
 	var moved_tiles: int = maxi(0, path.size() - 1)
 	var source: Dictionary = engine._surface_source(state, action)
 	var trail: String = str(action.get("trail_surface", ""))
@@ -637,9 +639,10 @@ static func after_player_move(engine: RefCounted, state: Dictionary, action: Dic
 	if not origin_surface.is_empty() and moved_tiles > 0:
 		Surfaces.place(state, path[0], origin_surface, source)
 	var per_tile: int = maxi(0, int(action.get("block_per_tile", 0)))
-	if per_tile > 0 and moved_tiles > 0:
+	var block_tiles: int = travelled if travelled >= 0 else moved_tiles
+	if per_tile > 0 and block_tiles > 0:
 		var player: Dictionary = engine._normalized_player(state.get("player", {}))
-		player["block"] = int(player.get("block", 0)) + per_tile * moved_tiles
+		player["block"] = int(player.get("block", 0)) + per_tile * block_tiles
 		state["player"] = player
 	var started: Variant = action.get("if_started_on_surface", null)
 	if typeof(started) == TYPE_DICTIONARY and started_activation_on(state, str((started as Dictionary).get("surface", ""))):

@@ -20687,11 +20687,21 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		_prepare_preview_shortcuts_for_current_action(preview)
 		var movement_plan: Dictionary = _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary
 		if not movement_plan.is_empty():
-			return _combat_engine.path_from_player_movement_plan(movement_plan, _hovered_board_tile)
-		return _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile)
+			return _preview_move_route(preview_state, movement_plan, _hovered_board_tile)
+		return _trade_route_endpoints(preview_state, _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile))
 	if action_type == "blink":
 		return _vector2i_array([_hovered_board_tile])
 	return []
+
+# The route a Move preview shows. A Glassway trade enters only its endpoints,
+# so its preview never highlights or scores the tiles between.
+func _preview_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	return _trade_route_endpoints(state, _combat_engine.path_from_player_movement_plan(movement_plan, target))
+
+func _trade_route_endpoints(state: Dictionary, path: Array[Vector2i]) -> Array[Vector2i]:
+	if path.size() > 2 and IllusionRelicRules.can_trade(_combat_engine, state, path[path.size() - 1]):
+		return _vector2i_array([path[0], path[path.size() - 1]])
+	return path
 
 func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var action: Dictionary = preview.get("action", {})
@@ -21054,11 +21064,11 @@ func _preview_shortcuts_for_current_action(
 			path_tiles = _vector2i_array([move_target])
 			after_move_state = _combat_engine.apply_player_action(preview_state, action, move_target)
 		else:
-			path_tiles = _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
+			path_tiles = _preview_move_route(preview_state, movement_plan, move_target)
 			after_move_state = _combat_engine.apply_planned_player_move(preview_state, action, move_target, movement_plan)
 		if umbra_limited and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			continue
-		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
+		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" or IllusionRelicRules.can_trade(_combat_engine, preview_state, move_target) else maxi(0, path_tiles.size() - 1)
 		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
 		_collect_shortcut_attack_plans(
 			plans, card_id, actions, action_index, after_move_state, move_target, move_target,
@@ -21137,12 +21147,12 @@ func _preview_immediate_attack_shortcuts(
 		var path_tiles: Array[Vector2i] = (
 			_vector2i_array([move_target])
 			if action_type == "blink"
-			else _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
+			else _preview_move_route(preview_state, movement_plan, move_target)
 		)
 		if typeof(allowed_target_tiles) == TYPE_DICTIONARY and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			source_order += 1
 			continue
-		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
+		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" or IllusionRelicRules.can_trade(_combat_engine, preview_state, move_target) else maxi(0, path_tiles.size() - 1)
 		candidates.append({
 			"move_target": move_target,
 			"move_tile": move_target,
