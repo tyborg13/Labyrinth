@@ -3,6 +3,7 @@ extends RefCounted
 # A transient target-entry preference, shared by pointer, drag and board focus.
 # It never changes the default shortcut map or survives a selection/world change.
 const INVALID := Vector2i(-1, -1)
+const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 var tile: Vector2i = INVALID
 var entry: Vector2i = INVALID
 var revision: int = 0
@@ -63,6 +64,8 @@ func _build_plan(scene: Node, preview: Dictionary, target: Vector2i, movement_pl
 			path = scene._combat_engine.path_from_player_movement_plan(movement_plan, entry)
 			if path.is_empty():
 				return {}
+			# A Glassway trade marks only its landing (see RunScene._shortcut_move_route).
+			path = scene._shortcut_move_route(state, movement_plan, entry)
 	var allowed: Variant = null
 	if scene._preview_umbra_is_limited(state):
 		var information: Dictionary = scene._preview_information_state(state)
@@ -82,11 +85,12 @@ func _build_plan(scene: Node, preview: Dictionary, target: Vector2i, movement_pl
 	if player.get("pos", INVALID) != entry or int(player.get("hp", 0)) <= 0:
 		return {}
 	var plans: Dictionary = {}
-	var distance: int = absi(entry.x - player_tile.x) + absi(entry.y - player_tile.y) if action_type == "blink" else maxi(0, path.size() - 1)
+	var trades: bool = not skip and IllusionRelicRules.can_trade(scene._combat_engine, state, entry)
+	var distance: int = absi(entry.x - player_tile.x) + absi(entry.y - player_tile.y) if action_type == "blink" or trades else maxi(0, path.size() - 1)
 	scene._collect_shortcut_attack_plans(
 		plans, str(preview.get("card_id", "")), preview.get("actions", []),
 		int(preview.get("action_index", -1)), after, INVALID if skip else entry,
-		entry, distance, path, scene._movement_risk_chips_for_states(state, after, path), allowed
+		entry, distance, path, scene._movement_risk_chips_for_states(state, after, path, scene._trade_cost_route(state, action, entry, movement_plan) if trades else []), allowed
 	)
 	var result: Dictionary = plans.get(target, {})
 	if not result.is_empty():

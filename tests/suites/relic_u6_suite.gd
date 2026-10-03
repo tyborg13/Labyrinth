@@ -161,6 +161,21 @@ static func _test_glassway_trade_edges(e: RefCounted, check: Callable) -> void:
 	check.call(e.valid_targets_for_player_action(lit, {"type": "move", "range": 2}).has(Vector2i(2, 7)), "A lit landing's refund lets Move 2 trade with an Illusion three tiles away")
 	lit = preview_commit(e, lit, {"type": "move", "range": 2}, Vector2i(2, 7), check, "Glassway lit landing")
 	check.call(lit["player"]["pos"] == Vector2i(2, 7) and int(lit["turn_flags"].get(preload("res://scripts/surface_variety_relic_rules.gd").REFUNDS, 0)) == 1, "A trade's lit landing claims one Light refund")
+	# The preview shows only a trade's endpoints, but its movement chip prices
+	# the full route, Rubble included.
+	var rubble: Dictionary = lane.call(["glassway_compass"])
+	rubble["grid"][5][1] = "wall"
+	rubble["grid"][5][3] = "wall"
+	Surface.place(rubble, Vector2i(2, 5), "rubble")
+	rubble = e._create_illusion(rubble, Vector2i(2, 6), 4)
+	var rubble_move: Dictionary = {"type": "move", "range": 4}
+	var rubble_route: Array[Vector2i] = e.path_for_player_action(rubble, rubble_move, Vector2i(2, 6))
+	var traded: Dictionary = e.apply_player_action(rubble, rubble_move, Vector2i(2, 6))
+	var scene = preload("res://scripts/run_scene.gd").new()
+	var endpoints: Array[Vector2i] = scene._trade_route_endpoints(rubble, rubble_route)
+	var chips: Array = scene._movement_risk_chips_for_states(rubble, traded, endpoints, rubble_route)
+	check.call(endpoints.size() == 2 and int(e.trade_movement_cost(rubble, rubble_route)["spent"]) == 3 and chips.any(func(chip: Dictionary) -> bool: return str(chip.get("label", "")) == "3 movement · Rubble"), "A trade's movement chip shows the Rubble cost of the route it pays for")
+	scene.free()
 
 static func _test_triptych(e: RefCounted, check: Callable) -> void:
 	var s: Dictionary = state(e, ["mirror_triptych"])

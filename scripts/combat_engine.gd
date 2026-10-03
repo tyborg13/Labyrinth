@@ -6852,9 +6852,26 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 ## the tiles between give no hazard, loot, Vault Stagger or Light refund; a lit
 ## landing tile still refunds, as it would for any Move.
 func _trade_player_with_illusion(state: Dictionary, path: Array[Vector2i], allowance: int, minimum_progress: bool, result: Dictionary) -> Dictionary:
+	var landing: Vector2i = path[path.size() - 1]
+	var cost: Dictionary = trade_movement_cost(state, path, allowance, minimum_progress)
+	if not bool(cost["affordable"]):
+		return state
+	if bool(cost["landing_refund"]):
+		SurfaceVarietyRules.claim_refund(state, landing, _relic_effects(state), 1)
+	result["spent"] = int(cost["spent"])
+	result["traded"] = true
+	var next_state: Dictionary = IllusionRelicRules.trade_before_arrival(self, state, landing, path[0])
+	_collect_loot_at_player(next_state)
+	next_state = surface_actor_arrival(next_state, "player", -1, path[0])
+	return _dispel_illusion_at_player(next_state)
+
+## The movement a Glassway trade along `path` spends: the route's step costs,
+## less one Light refund when the landing tile is lit. Shared by the commit and
+## the Move preview's movement chip; it changes no state.
+func trade_movement_cost(state: Dictionary, path: Array[Vector2i], allowance: int = -1, minimum_progress: bool = false) -> Dictionary:
 	var player: Dictionary = _normalized_player(state.get("player", {}))
 	var effects: Array = _relic_effects(state)
-	var landing: Vector2i = path[path.size() - 1]
+	var landing: Vector2i = path[path.size() - 1] if not path.is_empty() else INVALID_TILE
 	var landing_refund: bool = false
 	var spent: int = 0
 	for step_index: int in range(1, path.size()):
@@ -6867,15 +6884,8 @@ func _trade_player_with_illusion(state: Dictionary, path: Array[Vector2i], allow
 			landing_refund = true
 		spent += cost
 		if allowance >= 0 and spent > allowance:
-			return state
-	if landing_refund:
-		SurfaceVarietyRules.claim_refund(state, landing, effects, 1)
-	result["spent"] = spent
-	result["traded"] = true
-	var next_state: Dictionary = IllusionRelicRules.trade_before_arrival(self, state, landing, path[0])
-	_collect_loot_at_player(next_state)
-	next_state = surface_actor_arrival(next_state, "player", -1, path[0])
-	return _dispel_illusion_at_player(next_state)
+			return {"spent": spent, "landing_refund": landing_refund, "affordable": false}
+	return {"spent": spent, "landing_refund": landing_refund, "affordable": true}
 
 func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance: int = -1, minimum_progress: bool = true, result: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state

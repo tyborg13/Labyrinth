@@ -20701,6 +20701,14 @@ func _preview_move_route(state: Dictionary, movement_plan: Dictionary, target: V
 # A move-then-attack shortcut that trades with an Illusion marks only its
 # landing, like a Blink shortcut: hero routes draw per tile, so a skipped tile
 # would leave a broken arrow.
+# The full route a Glassway trade pays for, or empty when `target` is no trade.
+func _trade_cost_route(state: Dictionary, action: Dictionary, target: Vector2i, movement_plan: Dictionary) -> Array[Vector2i]:
+	if str(action.get("type", "")) != "move" or not IllusionRelicRules.can_trade(_combat_engine, state, target):
+		return _vector2i_array([])
+	if not movement_plan.is_empty():
+		return _combat_engine.path_from_player_movement_plan(movement_plan, target)
+	return _combat_engine.path_for_player_action(state, action, target)
+
 func _shortcut_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
 	if IllusionRelicRules.can_trade(_combat_engine, state, target):
 		return _vector2i_array([target])
@@ -20942,7 +20950,7 @@ func _shortcut_plan_for_tile(preview: Dictionary, target_tile: Vector2i) -> Dict
 	materialized["state"] = followup_state
 	materialized["action_index"] = int(followup.get("action_index", -1))
 	materialized["action"] = _shortcut_action_with_default_force_direction(followup_state, followup_action, target_tile)
-	materialized["movement_risk_chips"] = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+	materialized["movement_risk_chips"] = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, move_action, move_target, movement_plan))
 	materialized.erase("deferred_move_resolution")
 	materialized.erase("deferred_preview_state")
 	materialized.erase("deferred_move_action")
@@ -21077,7 +21085,7 @@ func _preview_shortcuts_for_current_action(
 		if umbra_limited and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			continue
 		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" or IllusionRelicRules.can_trade(_combat_engine, preview_state, move_target) else maxi(0, path_tiles.size() - 1)
-		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, action, move_target, movement_plan))
 		_collect_shortcut_attack_plans(
 			plans, card_id, actions, action_index, after_move_state, move_target, move_target,
 			move_distance, path_tiles, movement_risk_chips, allowed_target_tiles,
@@ -21254,7 +21262,7 @@ func _preview_immediate_attack_shortcuts(
 		var movement_risk_chips: Array = (
 			[]
 			if skip_move or safely_deferred
-			else _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+			else _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, move_action, candidate.get("move_target", INVALID_TARGET_TILE), movement_plan))
 		)
 		_collect_shortcut_attack_plans(
 			plans,
@@ -21571,15 +21579,22 @@ func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vec
 	if _preview_umbra_is_limited(before_state):
 		return []
 	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
-	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
+	return _movement_risk_chips_for_states(before_state, after_state, path_tiles, _trade_cost_route(before_state, action, _hovered_board_tile, _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary))
 
-func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+## `trade_route` is the full route a Glassway trade pays for (see
+## _trade_cost_route); its preview path holds only endpoints.
+func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i], trade_route: Array = []) -> Array:
 	var chips: Array = []
 	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
 	chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
-	if path_tiles.size() > 1:
+	var route: Array[Vector2i] = _vector2i_array(trade_route)
+	if route.size() > 1:
+		var trade_cost: int = int(_combat_engine.trade_movement_cost(before_state, route).get("spent", 0))
+		if trade_cost > route.size() - 1:
+			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % trade_cost, "kind": "status"})
+	elif path_tiles.size() > 1:
 		var cost: int = _combat_engine.movement_cost_for_path(before_state, path_tiles)
 		if cost > path_tiles.size() - 1:
 			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % cost, "kind": "status"})
