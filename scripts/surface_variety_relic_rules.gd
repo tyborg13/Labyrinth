@@ -175,10 +175,21 @@ static func hero_light(state: Dictionary, tile: Vector2i) -> bool:
 		if str(source.get("owner", "")) == "player" and int(source.get("remaining_activations", -1)) != 0 and Paths.manhattan(source.get("pos", Vector2i(-999, -999)), tile) <= int(source.get("radius", 0)): return true
 	return false
 
-# One Move step between two of your Light tiles that are not neighbours: an
-# Unclouded Sun link. It costs one step and is presented as a blink.
+# Unclouded Sun relays: the source tile of each of your active Lights.
+static func light_relays(state: Dictionary) -> Dictionary:
+	var relays: Dictionary = {}
+	for source: Dictionary in (state.get("umbra", {}) as Dictionary).get("light_sources", []):
+		if str(source.get("owner", "")) == "player" and int(source.get("remaining_activations", -1)) != 0:
+			relays[source.get("pos", Vector2i(-999, -999))] = true
+	return relays
+
+# One Move step between two relays that are not neighbours: an Unclouded Sun
+# link. It costs one step and is presented as a blink from relay to relay.
 static func is_light_link(state: Dictionary, from: Vector2i, to: Vector2i) -> bool:
-	return Paths.manhattan(from, to) > 1 and hero_light(state, from) and hero_light(state, to)
+	if Paths.manhattan(from, to) <= 1:
+		return false
+	var relays: Dictionary = light_relays(state)
+	return relays.has(from) and relays.has(to)
 
 static func refund_available(state: Dictionary, effects: Array) -> int:
 	var entry: Dictionary = effect(effects, "light_move_refund")
@@ -211,18 +222,21 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 	var passable: Array[Vector2i] = engine._all_passable_tiles(state)
 	var indices: Dictionary = {}
 	var lights: Dictionary = {}
-	var light_tiles: Array[Vector2i]
+	var relays: Dictionary = light_relays(state) if linked else {}
+	var relay_tiles: Array[Vector2i]
 	var harms: Dictionary = {}
 	var loot_scores: Dictionary = {}
 	for tile: Vector2i in passable:
 		indices[tile] = indices.size()
 		if hero_light(state, tile):
 			lights[tile] = true
-			light_tiles.append(tile)
+		if relays.has(tile):
+			relay_tiles.append(tile)
 		harms[tile] = int(hazard.call(tile))
 		loot_scores[tile] = int(pickup.call(tile))
-	# Build every geometric neighbour list once. Light jumps are explicit edges,
-	# and cardinal neighbours retain their normal Rubble/Skate cost.
+	# Build every geometric neighbour list once. Light jumps are explicit edges
+	# between relays (Light sources), and cardinal neighbours retain their
+	# normal Rubble/Skate cost.
 	var neighbours: Dictionary = {}
 	var step_costs: Dictionary = {}
 	for tile: Vector2i in passable:
@@ -233,8 +247,8 @@ static func navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, 
 			if not indices.has(to) or (occupied.has(to) and not enemy_tiles.has(to) and not endpoints.has(to)): continue
 			adjacent.append(to)
 			costs[to] = 0 if skating and Surface.has_surface(state, to, "ice") else Surface.movement_step_cost(state, unit, tile, to)
-		if linked and not straight and lights.has(tile):
-			for to: Vector2i in light_tiles:
+		if linked and not straight and relays.has(tile):
+			for to: Vector2i in relay_tiles:
 				if Paths.manhattan(tile, to) <= 1 or (occupied.has(to) and not enemy_tiles.has(to) and not endpoints.has(to)): continue
 				adjacent.append(to)
 				costs[to] = 1

@@ -1706,12 +1706,17 @@ func _apply_player_move_along_path(
 	performance_phase_started = _record_runtime_performance_phase("move_path_traverse_total", performance_phase_started)
 	var resolved_endpoint: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", resolved_path[0])
 	resolved_path = _movement_path_through_endpoint(resolved_path, resolved_endpoint)
-	CardKeywordRules.record_tiles_moved(next_state, resolved_path.size() - 1)
+	# A Glassway trade covers only its endpoints and its distance, like a Blink.
+	var traded: bool = bool(movement_result.get("traded", false))
+	if traded:
+		resolved_path = _vector2i_values([resolved_path[0], resolved_endpoint])
+	var travelled: int = PathUtils.manhattan(resolved_path[0], resolved_endpoint) if traded else resolved_path.size() - 1
+	CardKeywordRules.record_tiles_moved(next_state, travelled)
 	_mark_first_move_used(next_state)
 	performance_phase_started = _record_runtime_performance_phase("move_path_endpoint", performance_phase_started)
-	next_state = _trigger_long_move_relics(next_state, resolved_path.size() - 1)
+	next_state = _trigger_long_move_relics(next_state, travelled)
 	performance_phase_started = _record_runtime_performance_phase("move_path_long_relics", performance_phase_started)
-	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, false)
+	next_state = _trigger_player_movement_radiance(next_state, resolved_action, resolved_path, traded)
 	performance_phase_started = _record_runtime_performance_phase("move_path_radiance", performance_phase_started)
 	if not bool(resolved_action.get("_movement_pool", false)):
 		next_state = _maybe_refund_loot_play(next_state, loot_before)
@@ -6838,12 +6843,45 @@ func _move_player_from_source(state: Dictionary, source_pos: Vector2i, amount: i
 		action["force_direction"] = force_direction
 	return _force_move_player_from(state, action, source_pos, pushing, amount)
 
+## Glassway Compass: a Move that ends on your Illusion trades places with it at
+## once. It spends exactly what walking the route would (Light refunds included)
+## but enters only the landing tile: no hazard, loot or Vault Stagger between.
+func _trade_player_with_illusion(state: Dictionary, path: Array[Vector2i], allowance: int, minimum_progress: bool, result: Dictionary) -> Dictionary:
+	var player: Dictionary = _normalized_player(state.get("player", {}))
+	var effects: Array = _relic_effects(state)
+	var refunds_left: int = SurfaceVarietyRules.refund_available(state, effects)
+	var refunded: Array[Vector2i] = _vector2i_values([])
+	var spent: int = 0
+	for step_index: int in range(1, path.size()):
+		var previous_direction: Vector2i = path[step_index - 1] - path[step_index - 2] if step_index > 1 else Vector2i.ZERO
+		var cost: int = hero_move_step_cost(state, player, path[step_index - 1], path[step_index], previous_direction)
+		if step_index == 1 and minimum_progress and allowance > 0:
+			cost = mini(cost, allowance)
+		if cost > 0 and refunds_left > 0 and SurfaceVarietyRules.hero_light(state, path[step_index]):
+			cost -= 1
+			refunds_left -= 1
+			refunded.append(path[step_index])
+		spent += cost
+		if allowance >= 0 and spent > allowance:
+			return state
+	for tile: Vector2i in refunded:
+		SurfaceVarietyRules.claim_refund(state, tile, effects, 1)
+	result["spent"] = spent
+	result["traded"] = true
+	var landing: Vector2i = path[path.size() - 1]
+	var next_state: Dictionary = IllusionRelicRules.trade_before_arrival(self, state, landing, path[0])
+	_collect_loot_at_player(next_state)
+	next_state = surface_actor_arrival(next_state, "player", -1, path[0])
+	return _dispel_illusion_at_player(next_state)
+
 func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance: int = -1, minimum_progress: bool = true, result: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = state
 	var spent: int = 0
 	result["spent"] = spent
 	if path.size() <= 1:
 		return next_state
+	if IllusionRelicRules.can_trade(self, next_state, path[path.size() - 1]):
+		return _trade_player_with_illusion(next_state, path, allowance, minimum_progress, result)
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_phase_started: int = performance_total_started
 	var vaulted: Dictionary = {}
@@ -6869,9 +6907,6 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 				if not vaulted.has(enemy_id):
 					vaulted[enemy_id] = true
 					_apply_stagger_to_enemy(next_state, enemy_id, int(vault.get("stagger", 2)))
-		if step_index == path.size() - 1:
-			next_state = IllusionRelicRules.trade_before_arrival(self, next_state, path[step_index], path[0])
-			player = _normalized_player(next_state.get("player", {}))
 		player["pos"] = path[step_index]
 		next_state["player"] = player
 		performance_phase_started = _record_runtime_performance_phase("traverse_position", performance_phase_started)

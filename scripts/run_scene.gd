@@ -20721,6 +20721,9 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
+			# A Glassway trade previews as the exchange blink it will play.
+			if IllusionRelicRules.can_trade(_combat_engine, state, target_tile):
+				return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true, "exchange_from": target_tile, "exchange_to": from_tile}
 			return {"kind": "move", "from": from_tile, "to": target_tile, "preview": true}
 		"blink":
 			return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true}
@@ -25636,10 +25639,10 @@ func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, p
 			return _vector2i_array(path.slice(0, endpoint_index + 1))
 	return _vector2i_array([from_tile, to_tile])
 
-# A Move is walked except where the hero does not travel on foot: an Unclouded
-# Sun Light link and a Glassway Compass trade onto an Illusion play the Blink
-# rift. Walked steps before a trade still happen, so only the last step blinks,
-# with the traded Illusion blinking back to the Move's origin.
+# A Move is walked except where the hero does not travel on foot. An Unclouded
+# Sun jump between relays (Light sources) plays the Blink rift between them, with
+# the walks before and after it. A Glassway Compass trade skips the route: hero
+# and Illusion blink past each other between the origin and the Illusion.
 func _animate_player_move_path(before_state: Dictionary, after_state: Dictionary, path: Array[Vector2i], presentation: Dictionary) -> void:
 	for segment: Dictionary in player_move_segments(before_state, path, _illusion_exchange_event(before_state, after_state)):
 		if segment.has("walk"):
@@ -25652,19 +25655,22 @@ func _animate_player_move_path(before_state: Dictionary, after_state: Dictionary
 ## swap event, or empty.
 static func player_move_segments(state: Dictionary, path: Array[Vector2i], exchange: Dictionary) -> Array[Dictionary]:
 	var segments: Array[Dictionary]
+	# A Glassway trade skips the route: one exchange blink from the origin.
+	if path.size() >= 2 and not exchange.is_empty() and exchange.get("to", INVALID_TARGET_TILE) == path[path.size() - 1]:
+		segments.append({"blink_from": path[0], "blink_to": path[path.size() - 1], "exchange": exchange})
+		return segments
 	var walk: Array[Vector2i]
 	if not path.is_empty():
 		walk.append(path[0])
 	for index: int in range(1, path.size()):
 		var from: Vector2i = path[index - 1]
 		var to: Vector2i = path[index]
-		var trades: bool = index == path.size() - 1 and not exchange.is_empty() and exchange.get("to", INVALID_TARGET_TILE) == to
-		if not trades and not SurfaceVarietyRules.is_light_link(state, from, to):
+		if not SurfaceVarietyRules.is_light_link(state, from, to):
 			walk.append(to)
 			continue
 		if walk.size() >= 2:
 			segments.append({"walk": walk.duplicate()})
-		segments.append({"blink_from": from, "blink_to": to, "exchange": exchange if trades else {}})
+		segments.append({"blink_from": from, "blink_to": to, "exchange": {}})
 		walk.clear()
 		walk.append(to)
 	if walk.size() >= 2:

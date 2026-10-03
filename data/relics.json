@@ -1605,7 +1605,7 @@
   "glassway_compass": {
     "name": "Glassway Compass",
     "rarity": "epic",
-    "description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it.",
+    "description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it instantly, skipping the tiles between.",
     "icon_path": "res://assets/art/relics/glassway_compass.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1624,7 +1624,7 @@
   "unclouded_sun": {
     "name": "Unclouded Sun",
     "rarity": "legendary",
-    "description": "Your @icon(illuminate) is a road: when you @icon(move), every tile of your @icon(illuminate) counts as next to every other tile of your @icon(illuminate).",
+    "description": "Your @icon(illuminate) sources are relay points: when you @icon(move), each of them counts as next to every other.",
     "icon_path": "res://assets/art/relics/unclouded_sun.png",
     "accent": "#d9862f",
     "design_version": 4,

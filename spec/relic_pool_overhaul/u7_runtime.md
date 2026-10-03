@@ -43,15 +43,18 @@ instead of preloading GameData so card definitions can call it without a cycle.
 - Move navigation tracks cost, refund count, direction, hazards and legal
   endpoints. Vaulting traverses enemy footprint tiles and delays each distinct
   enemy once per Move using normal Stagger caps. It cannot end on an enemy,
-  including a hidden body discovered on commit. Light links cost one and enter
-  only the landing tile. Straight-line card Moves retain their cardinal line;
+  including a hidden body discovered on commit. Unclouded Sun links only the
+  hero's Light sources (relay points): a link step costs one and enters only
+  the landing source, and the hero walks to and from the relays. Straight-line card Moves retain their cardinal line;
   Blink retains its ordinary endpoint and range rules. The same navigation and
   step-cost rules serve targets, path previews and commits. Shortcuts resolve
   these effects rather than substituting only the hero's position.
 
 The UI reuses the Hourglass counter, surface icons, damage forecast, next-attack
 badges and Stagger rail. Light jumps draw an arc with height 35% of their screen
-length, existing path colour/width, eight-pixel dashes and six-pixel gaps.
+length, existing path colour/width, eight-pixel dashes and six-pixel gaps. On
+commit each jump plays the Blink rift from relay to relay between the walked
+runs (`RunScene.player_move_segments`).
 `tests/relic_u7_probe.gd` captures the five specified states at 1920×1080/100%.
 
 Neutral card heuristics and scorer assumptions are unchanged: these are

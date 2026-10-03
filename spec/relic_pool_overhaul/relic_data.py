@@ -488,11 +488,11 @@ relic("bloodmoon_chalice", "Bloodmoon Chalice", EP, "rework", "Convert", ["blood
       "", impl=1,
       was="The first health-cost card finished at half health or less each combat heals 5, draws 2 and grants 1 card play.")
 relic("glassway_compass", "Glassway Compass", EP, "rework", "Transform", ["illusion", "movement"], 0, 3,
-      "Your Move and Blink can end on your Illusion: you trade places with it.",
+      "Your Move and Blink can end on your Illusion: you trade places with it instantly, skipping the tiles between.",
       "Nothing without illusions.",
       "Every illusion is a door.",
       ["card:hall_of_mirrors", "relic:waxen_effigy", "relic:mirror_triptych"],
-      "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it.", impl=2,
+      "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends the route's movement but enters only the landing tile.", impl=2,
       was="The first Blink each turn creates a 2-health illusion on the tile you left.")
 relic("breaking_wheel", "The Breaking Wheel", EP, "new", "Bridge", ["forced", "fire", "ice", "lightning", "earth"], 0, 3,
       "An enemy colliding on a surface breaks it: Fire deals 3 more damage, Ice gives Freeze, Electrified gives Shock to it and its blocker, Rubble gives Stagger 3.",
@@ -581,11 +581,11 @@ relic("borrowed_hourglass", "Borrowed Hourglass", L, "rework", "Transform", ["te
       "", impl=2,
       was="The first banked card play spent on a Time 7+ card each combat draws 4 and grants 3 card plays.")
 relic("unclouded_sun", "Unclouded Sun", L, "rework", "Transform", ["radiance", "movement"], 0, 3,
-      "Your Light is a road: when you Move, every tile of your Light counts as next to every other tile of your Light.",
+      "Your Light sources are relay points: when you Move, each of them counts as next to every other.",
       "Nothing without Light.",
-      "Every lit tile is in reach.",
+      "Every Light source is a relay.",
       ["relic:pilgrim_boots", "relic:beaconrunner_spurs", "card:daybreak"],
-      "", impl=2,
+      "Owner review 2026-10-03: only Light sources link, so a jump runs relay to relay and the hero walks to and from them; the jump plays as a Blink.", impl=2,
       was="Once per combat, when a room that began in Umbra first becomes Clear, gain 12 Stoneskin, draw 3 and gain 3 card plays.")
 relic("crown_of_surplus", "Crown of Surplus", L, "new", "Transform", ["empower", "tempo"], 2, 2,
       "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action. Rite cards, items and Flurry cards are excluded.",

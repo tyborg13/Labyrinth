@@ -107,6 +107,21 @@ static func _test_glassway(e: RefCounted, check: Callable) -> void:
 		var idle: Dictionary = s.duplicate(true); idle["relics"] = []
 		idle = e.apply_player_action(idle, action, Vector2i(3, 4))
 		check.call(hp(e, idle, "illusion", 1) == 0, "Glassway idle without relic preserves ordinary illusion dispel")
+	# A Move trade teleports: the Fire on the tiles between is never entered.
+	var far: Dictionary = state(e, ["glassway_compass"])
+	far = e._create_illusion(far, Vector2i(3, 5), 4)
+	Surface.place(far, Vector2i(2, 5), "fire")
+	Surface.place(far, Vector2i(3, 4), "fire")
+	var far_move: Dictionary = {"type": "move", "range": 2}
+	var origin: Vector2i = far["player"]["pos"]
+	var far_hp: int = int(far["player"]["hp"])
+	check.call(e.valid_targets_for_player_action(far, far_move).has(Vector2i(3, 5)), "Glassway Move reaches an Illusion two tiles away")
+	var far_path: Array[Vector2i] = e.path_for_player_action(far, far_move, Vector2i(3, 5))
+	far = preview_commit(e, far, far_move, Vector2i(3, 5), check, "Glassway teleport")
+	check.call(far_path.size() == 3 and far["player"]["pos"] == Vector2i(3, 5) and far["illusions"][0]["pos"] == origin and int(far["player"]["hp"]) == far_hp, "A Glassway Move trade skips the route: no Fire between, and the Illusion lands on the origin")
+	var far_swaps: Array = (far.get("surface_events", []) as Array).filter(func(event: Dictionary) -> bool: return str(event.get("kind", "")) == "illusion_swapped")
+	var far_segments: Array[Dictionary] = preload("res://scripts/run_scene.gd").player_move_segments(far, far_path, far_swaps[0] if not far_swaps.is_empty() else {})
+	check.call(far_segments.size() == 1 and far_segments[0].get("blink_from") == origin and far_segments[0].get("blink_to") == Vector2i(3, 5), "A Glassway Move trade is presented as one exchange blink from the origin")
 	var corridor: Dictionary = state(e, ["glassway_compass"])
 	corridor = e._create_illusion(corridor, Vector2i(3, 4), 2)
 	var line: Dictionary = {"type": "move", "range": 4, "straight_line": true}

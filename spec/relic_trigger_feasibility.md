@@ -82,7 +82,7 @@ Lightning under Stormcoal.
 | Pyre-Keeper's Urn | The most recently Exhausted card returns at turn start. | Once per turn; never a Rite or a healing card. |
 | Quartermaster's Ledger | Items are no longer consumed. | Each item is usable once per combat; healing items are still consumed. |
 | Beaconrunner Spurs | Entering your Light during a Move refunds movement. | At most 2 per turn. |
-| Unclouded Sun | Your Light tiles count as adjacent for your Move. | A jump costs 1 movement; landing hazards apply as usual. |
+| Unclouded Sun | Your Light sources count as adjacent for your Move (relay points). | A jump between sources costs 1 movement; landing hazards apply as usual. |
 | Ember Siphon | An enemy dying on Fire spreads Fire to the empty tiles around it. | Placement only, so no immediate contact. |
 | Overflow Censer | Placing an elemental surface over a different one spreads it to the empty tiles around. | The spread does not chain. |
 | Funeral Bell | An enemy dying with 2 or more statuses passes them to adjacent enemies. | Needs two different statuses on the dying enemy. |

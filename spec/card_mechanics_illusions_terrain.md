@@ -140,8 +140,12 @@ Move/Blink endpoint exchange, first attack-card echoes, virtual Lightning
 construct relays, and Chain rebound. All use the engine's damage, arrival,
 straight-line force and attack planning paths. Area forces keep their original
 rules. With Glassway active, illusion tiles are terminal Move destinations;
-independent endpoint routes never traverse another illusion. Ordinary movement
-without Glassway retains the existing endpoint-dispel behavior.
+independent endpoint routes never traverse another illusion. A Move that ends on
+an illusion is a teleport trade: it spends exactly the movement the route would
+cost (Light refunds included) but enters only the landing tile (no hazard, loot
+or Vault Stagger on the tiles between), the illusion lands on the Move's origin,
+and the board plays one exchange Blink. Ordinary movement without Glassway retains the existing
+endpoint-dispel behavior.
 
 Mirror Triptych records the first attack action while the card resolves and
 executes its echoes after all card actions. `illusion_relic_pending_echo` is the

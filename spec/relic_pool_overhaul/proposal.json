@@ -2004,7 +2004,7 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "Your Move and Blink can end on your Illusion: you trade places with it.",
+   "text": "Your Move and Blink can end on your Illusion: you trade places with it instantly, skipping the tiles between.",
    "was": "The first Blink each turn creates a 2-health illusion on the tile you left.",
    "intrinsic": "Nothing without illusions.",
    "extrinsic": "Every illusion is a door.",
@@ -2013,7 +2013,7 @@
     "relic:waxen_effigy",
     "relic:mirror_triptych"
    ],
-   "note": "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it.",
+   "note": "Uses the normal Move and Blink destination click; no new action. Moved from legendary to epic: its old effect is half of Eclipse Mantle, which keeps it. Owner review 2026-10-03: a Move trade is a teleport that spends the route's movement but enters only the landing tile.",
    "impl": 2,
    "replacement": null
   },
@@ -2363,16 +2363,16 @@
    ],
    "I": 0,
    "E": 3,
-   "text": "Your Light is a road: when you Move, every tile of your Light counts as next to every other tile of your Light.",
+   "text": "Your Light sources are relay points: when you Move, each of them counts as next to every other.",
    "was": "Once per combat, when a room that began in Umbra first becomes Clear, gain 12 Stoneskin, draw 3 and gain 3 card plays.",
    "intrinsic": "Nothing without Light.",
-   "extrinsic": "Every lit tile is in reach.",
+   "extrinsic": "Every Light source is a relay.",
    "combos": [
     "relic:pilgrim_boots",
     "relic:beaconrunner_spurs",
     "card:daybreak"
    ],
-   "note": "",
+   "note": "Owner review 2026-10-03: only Light sources link, so a jump runs relay to relay and the hero walks to and from them; the jump plays as a Blink.",
    "impl": 2,
    "replacement": null
   },
