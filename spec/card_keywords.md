@@ -38,9 +38,9 @@ Data: action field `stagger: N` on `melee`, `ranged`, `aoe`, `push`, `pull`
 
 Data: card field `follow_up: {"mods": [{"action": i, "add": {...}, "set": {...}}], "append": [action...]}`.
 
-- Active when `cards_played_this_turn > 0` during the player's activation at the
-  card's start (that counter increments only in `finish_player_card`, so the
-  card never counts itself).
+- Active when `turn_flags.cards_finished > 0` during the player's activation at the
+  card's start. That counter includes free cards and increments once per card in
+  `finish_player_card`, so the card never counts itself.
 - `add` increments a numeric field, `set` overrides a field; `action` indexes
   the printed action list. `append` actions follow the printed actions and
   inherit the card's element/action-type tags. Flurry repeats all use the

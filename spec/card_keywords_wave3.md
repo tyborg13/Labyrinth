@@ -48,7 +48,7 @@ N less Time, minimum 1.
 Action `{"type": "next_attack", "damage"?: n, "pierce"?: true, "chain"?: n,
 "element"?: e, "per_tile_moved"?: {"damage": d, "max": m}}`.
 
-- Stored in `turn_flags.next_attack_buffs` with `granted_at = cards_played_this_turn`; a
+- Stored in `turn_flags.next_attack_buffs` with `granted_at = turn_flags.cards_finished`; a
   buff is eligible only for an attack action (melee/ranged/aoe/push/pull/detonate) of a
   later card, and with `element` only for an attack of that element. A push/pull (or a
   push/pull-only area) that deals no damage is forced movement, not an attack
@@ -134,3 +134,105 @@ Additive `card_played` fields: `quicken_spent` (Time removed by Quicken from thi
 `next_attack_bonus_used` (`{action_type, damage, chain, pierce, sources}` or null),
 `rite_started` (card id or null). Retaliate records a `retaliate_triggered` surface event
 (see [analytics](analytics.md)).
+
+## Tempo relics (relic overhaul U4)
+
+`scripts/tempo_relic_rules.gd` owns data-driven tempo effects, with small engine
+and card-definition hooks. Pocket Sundial reduces the projected and scheduled
+hero activation by unused plays (up to two). Late Bell compares the enemy's
+next queued action against clock + base initiative + carried Time debt + paid
+Time + the pending card's Time (including discounts and surcharges). The Late
+comparison excludes Sundial's unused-play reduction and a pending Hourglass
+extra activation; the rail's hero portrait and scheduling still include them.
+Exact Time ties are not late. Hidden enemies do not disclose their bell on the rail.
+
+Borrowed Hourglass schedules a normal hero activation at the current clock
+before enemies, once per combat. `relic_flags["tempo_used:<relic_id>"]` persists
+its spent state; `tempo_turn_time_debt` carries the first turn's paid Time
+(minus its Sundial reduction) until the extra activation finishes. The ordinary
+start path draws, clears Block, resets movement/plays/status-turn flags, and
+plays the turn banner. Both dictionaries survive the normal run save.
+
+Hourglass Splinter tests the actual paid card Time, including optional Empower
+and Whirling Sash, after discounts; Overclock tests the stamped Empower choice.
+Both grant pending Quicken after the card consumes its incoming pool. Whirling
+Sash adds its two-Time surcharge after printed-cost discounts/reserve, like
+Empower's surcharge; hand badges show the identical final payment. Sash, Gloves,
+Follow-up, first-card conditions and next-attack eligibility/expiry count `turn_flags.cards_finished`;
+free Rites/items count once and Flurry counts once. `cards_played_this_turn`
+tracks only spent play slots. Time badge modifiers carry their source relic ids.
+
+Feint Ribbon enables the normal Follow-up start snapshot after at least two
+actual tiles of independent or earlier card movement. Echoing Blade grants
+Quicken and a `card_scoped` next-attack buff. That buff applies to every attack
+of the next card and expires when that card finishes, even if it has no attack.
+The existing next-attack badge displays it; ordinary next-attack buffs still
+expire on their first attack. All unused buffs expire at activation end.
+
+Crown of Surplus grants an Empower spec with `repeat_first: true`, through
+`GameData.card_def_for_progression`. Printed Empower, Rites, items and Flurry
+are excluded. An enabled Crown repeat is inserted immediately after the first
+action, before subsequent actions. It reuses the original enemy identity (and
+follows that enemy's displacement), or the original tile for tile targeting;
+if that target is dead or no longer legal, the repeat does nothing. Targetless
+actions repeat automatically. Hover resolution includes the repeat, while its
+single-action state is retained for the existing continuation/risk forecast.
+
+Pendulum Weight deals only the Stagger removed by the six-Time activation cap,
+after dragon halving. Its secondary damage uses the existing relic damage
+context, with Block/Stoneskin absorption, no direct-hit multipliers and no
+card-play kill credit. The normal hover copy resolves the same overflow.
+
+## Defense, health and Exhaust relics (relic overhaul U5)
+
+`defense_relic_rules.gd` owns the reusable payment, opening draw, health-loss,
+Exhaust history and turn-start hooks; `RetaliateRules` retains trigger ownership.
+
+- `retaliate_health_block` grants Block from the attacker's health actually
+  lost to Retaliate's damage, after Block/Stoneskin and before Push riders.
+  `persistent_retaliate` preserves the pool and adds `growth` after each
+  qualifying trigger (including absorbed hits and Rite thorns). The ordinary
+  badge reads that same pool. `prevent_card_block` suppresses printed, keyword,
+  conditional, movement-rider and active-Rite Block, including arbitrarily nested
+  rewards. Relic rewards remain allowed; Empty Husk may transfer existing Block.
+  Chorus, Bonded Set and Fivefold do not append bonus Block under this rule.
+- Cold Mirror reuses `status_applied_reward` with `player_min_block: 4` and
+  `block_to_mantle`: spend all Block, grant floor(Block/4) layers, capped at two
+  layers per successful Freeze event. Immunity/reapplying Freeze never triggers
+  it; it has no turn limit. Existing Mantle layers are retained.
+- `health_cost_stoneskin` pays every health-cost point from a complete pair
+  of Stoneskin first; an odd point of Stoneskin remains. Card costs repeat for
+  Flurry, Empower health costs occur once. Costs retain the ordinary post-effect
+  payment timing, so an attack card's health cost fuels the following attack.
+- `health_loss_next_attack` accumulates the actual own-turn health loss into
+  one immediate next-attack buff, capped at eight damage until spent. It can
+  affect a later hit in the same card. Pre-hit Bleed is paid before consumption,
+  so that hit sees the new bonus, and the cap includes earlier losses. Block,
+  Stoneskin and Mantle absorption do not count; enemy-turn losses do not count.
+  Ordinary next-attack expiration clears unused damage at activation end.
+- `opening_hand_rite` runs only after combat creation's opening draw: if no
+  Rite was drawn, swap the last drawn card with the first Rite in draw order
+  (the draw pile is read from its back). Other cards retain their positions.
+  `card_time_discount` supports `rite_only`, before Quicken/reserve and clamped
+  at one; hand Time badges disclose that discount through the existing row.
+- `exhaust_time_stoneskin` uses the final paid Time, including discounts,
+  reserve, banked-play Time removal and Empower/other surcharges, capped at five.
+  It triggers only when the physical non-item card enters `deck.burned`; a
+  preserved Exhaust card and item Consume do not trigger it.
+- `turn_start_active_rite_block` grants two Block per active Rite after the
+  Block reset. `rite_no_card_play` stamps a zero spend on Rite actions; health
+  costs and Time still apply. Hand playability, pointer/drag/controller selection,
+  the meter, banked-play accounting, initiative preview and exhausted-resource
+  auto-pass all respect zero spend. Frozen restrictions still apply.
+- `turn_start_return_exhaust` runs before the normal turn draw, once per turn.
+  `last_exhausted_card` records the newest Exhaust's id and exact pile index,
+  plus whether that occurrence has returned. Rites and cards that heal (including
+  conditional and keyword healing) are excluded; an excluded newest card does
+  not select an older one. A full hand sends the card to the back (top) of draw.
+  A hand return increments the ordinary draw revision and uses the existing
+  draw animation. Replaying it retains its own Exhaust rule.
+
+Retaliate, active Rites, the newest Exhaust record and turn flags live in the
+saved combat dictionary. New combats start with none of that history. Focused
+proof: `tests/suites/relic_u5_suite.gd`, `tests/relic_u5_test.gd`; real-renderer
+proof: `tests/relic_u5_probe.gd` at 1920×1080, 100% UI scale.

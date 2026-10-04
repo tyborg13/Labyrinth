@@ -87,6 +87,12 @@ static func place(state: Dictionary, tile: Vector2i, surface: String, source: Di
 	state["surface_revision"] = int(state.get("surface_revision", 0)) + 1
 	record_event(state, {"kind": "surface_created" if previous.is_empty() else "surface_replaced", "tile": tile, "surface": normalized, "previous_surface": previous, "source": source})
 	sync_chilled(state)
+	var hero_placement: bool = str(source.get("actor_kind", "")) == "player" or str(source.get("causal_owner", "")) == "player"
+	if normalized in ELEMENTAL_KINDS and previous in ELEMENTAL_KINDS and normalized != previous and hero_placement and not bool(source.get("spread", false)) and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("elemental_overwrite_spread", false)):
+		var spread_source: Dictionary = source.duplicate(true)
+		spread_source["spread"] = true
+		for direction: Vector2i in PathUtils.DIRS_4:
+			if element_at(state, tile + direction).is_empty(): place(state, tile + direction, normalized, spread_source)
 	return state
 
 static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String = "all", reason: String = "") -> Dictionary:
@@ -116,7 +122,7 @@ static func remove(state: Dictionary, tile: Vector2i, surface_or_layer: String =
 	state["surfaces"] = surfaces
 	state["surface_revision"] = int(state.get("surface_revision", 0)) + 1
 	for removed_kind: String in removed:
-		record_event(state, {"kind": "surface_removed", "tile": tile, "surface": removed_kind, "reason": reason, "rubble_underlay": rubble_underlay})
+		record_event(state, {"kind": "surface_removed", "tile": tile, "surface": removed_kind, "reason": reason, "rubble_underlay": rubble_underlay, "source": (state.get("damage_context", {}) as Dictionary).duplicate(true)})
 	sync_chilled(state)
 	return state
 
@@ -142,14 +148,16 @@ static func unit_on(state: Dictionary, unit: Dictionary, surface: String) -> boo
 
 static func sync_chilled(state: Dictionary) -> void:
 	var player: Dictionary = state.get("player", {}) as Dictionary
-	if not player.is_empty() and (int(player.get("freeze", 0)) > 0 or not unit_on(state, player, "ice")):
+	if not player.is_empty() and (int(player.get("freeze", 0)) > 0 or (not unit_on(state, player, "ice") and not bool(player.get("relic_chilled", false)))):
 		player["chilled"] = false
 	for collection: String in ["enemies", "illusions"]:
 		for unit: Dictionary in state.get(collection, []):
-			if int(unit.get("freeze", 0)) > 0 or not unit_on(state, unit, "ice"):
+			if int(unit.get("freeze", 0)) > 0 or (not unit_on(state, unit, "ice") and not bool(unit.get("relic_chilled", false))):
 				unit["chilled"] = false
 
 static func movement_step_cost(state: Dictionary, unit: Dictionary, from: Vector2i, to: Vector2i) -> int:
+	if not unit.has("id") and bool((state.get("surface_rule_overrides", {}) as Dictionary).get("player_ignores_rubble", false)):
+		return 1
 	var destination: Array[Vector2i] = footprint_tiles(unit, to)
 	for tile: Vector2i in footprint_tiles(unit, from):
 		if not destination.has(tile) and has_rubble(state, tile):

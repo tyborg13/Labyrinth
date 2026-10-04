@@ -132,8 +132,9 @@ static func effects_of_type(effects: Array, effect_type: String) -> Array[Dictio
 	return result
 
 ## Fire-tile damage after Rite modifiers. `surface_immunity` protects only the
-## player; `surface_damage_bonus` raises entry and turn-start damage for every
-## actor it hits (an optional "owner": "player" limits it to player-made Fire).
+## player; signed `surface_damage_bonus` adjusts entry and turn-start damage.
+## Optional `actor_kind` restricts the recipient, and `owner: player` restricts
+## the creator. Damage never falls below zero.
 static func surface_tile_damage(effects: Array, surface: String, actor_kind: String, amount: int, surface_source: Dictionary = {}, scale: int = 1) -> int:
 	if amount <= 0:
 		return amount
@@ -143,11 +144,13 @@ static func surface_tile_damage(effects: Array, surface: String, actor_kind: Str
 	for effect: Dictionary in effects_of_type(effects, "surface_damage_bonus"):
 		if str(effect.get("surface", "")) != surface:
 			continue
+		if effect.has("actor_kind") and str(effect["actor_kind"]) != actor_kind:
+			continue
 		var owner: String = str(effect.get("owner", ""))
 		if not owner.is_empty() and owner != str(surface_source.get("causal_owner", surface_source.get("actor_kind", ""))):
 			continue
 		result += int(effect.get("amount", 0)) * scale
-	return result
+	return maxi(0, result)
 
 # The three queries below run on hot rules paths (light coverage per tile, card
 # definitions per preview); iterate in place rather than allocating filters.
@@ -166,11 +169,11 @@ static func player_light_radius(effects: Array) -> int:
 			radius += maxi(0, int(effect.get("radius", 0)))
 	return radius
 
-static func card_time_discount(effects: Array) -> int:
+static func card_time_discount(effects: Array, card: Dictionary = {}) -> int:
 	var total: int = 0
 	for effect_var: Variant in effects:
 		var effect: Dictionary = effect_var as Dictionary
-		if str(effect.get("type", "")) == "card_time_discount":
+		if str(effect.get("type", "")) == "card_time_discount" and (not bool(effect.get("rite_only", false)) or is_rite_card(card)):
 			total += maxi(0, int(effect.get("amount", 0)))
 	return total
 

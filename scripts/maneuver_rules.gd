@@ -626,7 +626,9 @@ static func move_action_with_trail_light(action: Dictionary) -> Dictionary:
 	resolved["illuminate_position_mode"] = "path"
 	return resolved
 
-static func after_player_move(engine: RefCounted, state: Dictionary, action: Dictionary, path: Array[Vector2i]) -> Dictionary:
+## `travelled` overrides the distance for per-tile rewards when the path holds
+## only endpoints (a Glassway trade); trails still follow the given path.
+static func after_player_move(engine: RefCounted, state: Dictionary, action: Dictionary, path: Array[Vector2i], travelled: int = -1) -> Dictionary:
 	var moved_tiles: int = maxi(0, path.size() - 1)
 	var source: Dictionary = engine._surface_source(state, action)
 	var trail: String = str(action.get("trail_surface", ""))
@@ -637,9 +639,10 @@ static func after_player_move(engine: RefCounted, state: Dictionary, action: Dic
 	if not origin_surface.is_empty() and moved_tiles > 0:
 		Surfaces.place(state, path[0], origin_surface, source)
 	var per_tile: int = maxi(0, int(action.get("block_per_tile", 0)))
-	if per_tile > 0 and moved_tiles > 0:
+	var block_tiles: int = travelled if travelled >= 0 else moved_tiles
+	if per_tile > 0 and block_tiles > 0:
 		var player: Dictionary = engine._normalized_player(state.get("player", {}))
-		player["block"] = int(player.get("block", 0)) + per_tile * moved_tiles
+		player["block"] = int(player.get("block", 0)) + per_tile * block_tiles
 		state["player"] = player
 	var started: Variant = action.get("if_started_on_surface", null)
 	if typeof(started) == TYPE_DICTIONARY and started_activation_on(state, str((started as Dictionary).get("surface", ""))):
@@ -648,6 +651,7 @@ static func after_player_move(engine: RefCounted, state: Dictionary, action: Dic
 
 ## Joust: destinations on a clear straight cardinal line from the hero.
 static func straight_line_navigation(engine: RefCounted, state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
+	var endpoints: Dictionary = state.get("_movement_allowed_endpoints", {}) as Dictionary
 	var start: Vector2i = unit.get("pos", INVALID)
 	var start_path: Array[Vector2i] = []
 	start_path.append(start)
@@ -660,7 +664,7 @@ static func straight_line_navigation(engine: RefCounted, state: Dictionary, unit
 		var tile: Vector2i = start
 		for _step: int in range(64):
 			var next: Vector2i = tile + direction
-			if not Paths.is_passable(grid, next) or occupied.has(next):
+			if not Paths.is_passable(grid, next) or (occupied.has(next) and not endpoints.has(next)):
 				break
 			var trial: Array[Vector2i] = path.duplicate()
 			trial.append(next)
@@ -672,6 +676,7 @@ static func straight_line_navigation(engine: RefCounted, state: Dictionary, unit
 			costs[next] = engine.movement_cost_for_path(state, path, budget, minimum_progress, unit)
 			if stop_after_reaching.is_valid() and bool(stop_after_reaching.call(next)):
 				return {"paths": paths, "costs": costs}
+			if endpoints.has(next): break
 	return {"paths": paths, "costs": costs}
 
 # ------------------------------------------------------------------ blink riders

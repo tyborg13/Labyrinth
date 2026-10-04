@@ -190,6 +190,8 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
 	data[GRIMOIRE_UNLOCKED_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNLOCKED_KEY, []))
 	data[GRIMOIRE_UNREAD_KEY] = _normalized_string_array(data.get(GRIMOIRE_UNREAD_KEY, []))
+	if data.has(STARTING_RELIC_GIFTS_KEY):
+		data[STARTING_RELIC_GIFTS_KEY] = pending_starting_relic_gifts(data)
 	return data
 
 static func _migrated_legacy_combat_unit_history(data: Dictionary) -> Dictionary:
@@ -777,16 +779,25 @@ static func transact_run_wallet(data: Dictionary, run_id: String, sequence: int,
 
 static func pending_starting_relic_gifts(data: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
+	# Prefer an existing live gift over its retired alias, even if it comes later.
+	var live_gift_ids: Array[String]
+	for raw: Variant in data.get(STARTING_RELIC_GIFTS_KEY, []):
+		if typeof(raw) != TYPE_DICTIONARY or str(raw.get("id", "")).is_empty(): continue
+		var raw_id: String = str(raw.get("relic_id", ""))
+		if raw_id == GameData.resolve_relic_id(raw_id): live_gift_ids.append(raw_id)
 	for raw: Variant in data.get(STARTING_RELIC_GIFTS_KEY, []):
 		if typeof(raw) != TYPE_DICTIONARY: continue
 		var id: String = str(raw.get("id", ""))
-		var relic_id: String = str(raw.get("relic_id", ""))
-		if not id.is_empty() and not GameData.relic_def(relic_id).is_empty():
+		var raw_id: String = str(raw.get("relic_id", ""))
+		var relic_id: String = GameData.resolve_relic_id(raw_id)
+		if raw_id != relic_id and live_gift_ids.has(relic_id): continue
+		if not id.is_empty() and not relic_id.is_empty():
 			result.append({"id":id, "relic_id":relic_id})
 	return result
 
 static func award_starting_relic_gift(data: Dictionary, award_id: String, relic_id: String) -> Dictionary:
 	var next: Dictionary = normalized_data(data)
+	relic_id = GameData.resolve_relic_id(relic_id)
 	var awards: Array = _normalized_string_array(next.get(STARTING_RELIC_GIFT_AWARDS_KEY, []))
 	if award_id.is_empty() or awards.has(award_id) or GameData.relic_def(relic_id).is_empty(): return next
 	awards.append(award_id)

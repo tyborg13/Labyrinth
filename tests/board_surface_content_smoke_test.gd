@@ -48,6 +48,9 @@ func _initialize() -> void:
 				Rules.place(state,tile,"fire")
 			if variant == "follow_up":
 				state["cards_played_this_turn"] = 1
+				var smoke_flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)
+				smoke_flags["cards_finished"] = 1
+				state["turn_flags"] = smoke_flags
 			state = engine.prepare_player_card(state,0,"empower" if variant == "empower" else "play")
 			for action: Dictionary in engine.card_play_actions(id,state):
 				var target: Vector2i = state["player"]["pos"]

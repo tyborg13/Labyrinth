@@ -310,6 +310,15 @@ normal `card_drawn` only when actually drawn. Full-slot pickups produce no draw.
 Combat snapshots now own item loadout transactions, so checkpoint replay and
 reload copy the result rather than granting or consuming items a second time.
 
+Item relics (overhaul U8, [item rules](item_relic_rules.md)) reuse these saved
+transactions. Bandolier reports zero `card_plays_spent` and its actual extra
+Time in existing card-play fields. Ledger keeps non-healing copies equipped
+while sending them to the combat's burned pile; `item_card` and
+`consume_on_play` remain authored card classifications, rather than assertions
+that the played copy was permanently removed. Retort changes resolved action
+values and stored Powder Keg damage in the existing snapshots/events. No new
+event types or payload fields are introduced; forecasts emit no analytics.
+
 `item_equipped` fires when the character overlay equips or stows an owned
 consumable outside combat. Its payload records `action` (`equip` or `stow`),
 `card_id`, `inventory_index`, `equipped_index`, full `equipped_items`,
@@ -802,3 +811,84 @@ payload fields. Outcomes use the existing append-only `surface_event` stream
 
 Player-raised kegs and Worldspines use the existing `terrain_created` event with
 `terrain_kind` `powder_keg` / `worldspine`.
+
+### Surface and movement relics (relic pool overhaul U7)
+
+The existing append-only `surface_event` stream gains a `source` dictionary on
+`surface_removed`, copied from the active damage context. This distinguishes
+hero consumption from enemy or trap consumption for stored-ground relics;
+replacement and transport do not count as spending ground. Placement and death
+spreads continue to use the ordinary surface-created/replaced events.
+
+Independent `player_moved` payloads gain `light_refunds`, the number of movement
+points returned by hero-created Light during that request. `spent` remains the
+actual movement-pool expenditure, now net of those refunds. A successful Move
+with zero net expenditure emits `player_moved`; it is not an interruption.
+Stagger continues to use the existing turn-flag totals and rail projection.
+Previews emit no analytics. No new event types or card-play fields are introduced.
+
+### Forced-movement relics (relic pool overhaul U3)
+
+Collision relics retain the existing `force_collision` schema and sequence cursor.
+Per-party `damage`, `target_damage`, `blocker_damage`, `blockers[].damage` and
+`total_damage` include the party's collision modifiers and Quarry's event-time
+Rubble bonus before Block/Stoneskin. Protected outcrops report zero damage.
+Battering Yoke records each knock-on collision separately in resolution order;
+card-play collision counts and sums therefore include those events. Knock-on
+kills retain the original card context and normal death/reward records.
+
+Millstone creates ordinary `surface_created` Rubble records, with the original
+force context and its source relic. Breaking Wheel uses `surface_removed` with
+reason `force_collision` (Ice successfully freezing still uses the normal `freeze`
+removal/status event). Both layers on the contact tile are consumed. Siege and
+Wheel Stagger remain part of the existing `stagger_applied` card summary; Freeze
+and Shock keep normal status state and Freeze events. Forecast copies emit no
+analytics. No new event types or payload fields are required.
+
+### Relic overhaul U4 tempo
+
+No new event kinds are introduced. Borrowed Hourglass uses the ordinary saved
+hero-turn start boundary and records the new activation normally. Pendulum
+Weight deaths use existing `actor_death` events with `source_kind: relic`,
+`player_card: false` and `relic_id`; overflow never grants a card-play kill.
+Existing Quicken, Follow-up, Empower and next-attack card-play fields continue
+to describe these relics. Echoing Blade's next-card damage is a `card_scoped`
+next-attack buff (all attacks of that card); ordinary buffs remain first-attack.
+Card action snapshots may add `_tempo_card_time` and `_tempo_plays_spent`
+(derived projection/payment inputs), `_empower_repeat_available` on the first
+action and `_empower_repeat_first` on its automatic repeat. These additive
+runtime annotations do not represent extra played cards. Preview copies never
+append gameplay analytics; local append-only JSONL and existing event cursors
+are unchanged.
+
+### Relic overhaul U5 defense, health and Exhaust
+
+No new event kinds or payload fields are introduced. Retaliate damage and its
+actual health loss retain the existing `retaliate_triggered` event; Gorget's
+Block is measured from damage before force riders. Chalice uses the existing
+`next_attack_bonus_used` field and includes pre-hit Bleed in that hit's bonus.
+Printed health and Empower cost fields retain their meaning; the ordinary
+health/Stoneskin state deltas and damage-received totals reflect the actual
+Iron Lung payment. Liturgy's ordinary `card_plays_spent` is zero for Rites, while
+paid Time remains recorded. Urn's hand return uses the normal turn draw and
+`draw_revision` accounting. Exhaust Time rewards use the physical card's final
+payment and do not turn item Consume into Exhaust. Additive runtime action
+annotations `_card_plays_spent` and `_player_bleed_paid` share the payment and
+pre-hit timing with previews; preview copies never append gameplay analytics.
+
+### Illusion and Lightning relics (relic pool overhaul U6)
+
+The existing append-only `surface_event` stream adds `illusion_echo` with
+`illusion_id`, `from`, `target`, and the original card `source` (its `source_kind`
+is `illusion_echo`). Echo attacks and Chain returns retain normal card kill
+credit; illusion-death blast damage uses `source_kind: illusion_relic_shatter`,
+`player_card: false`, and `causal_owner: player`. Hollow Puppet's health damage
+uses `source_kind: illusion_force_shatter`; its existing `force_collision` event
+reports the illusion health as marker `damage`, `target_damage: 0`, and that
+health as `blocker_damage`/`total_damage`. Destruction is a separate actor death.
+Glassway reuses `illusion_swapped` without changing its fields. Rattle changes
+normal Expose and Stagger state/summary. Copper's `surface_conducted` events gain
+optional `virtual: true` and report `surface: electrified` for owned construct
+relays; they do not imply creation or consumption of actual ground. Storm Crown
+return deaths use `source_kind: chain_rebound` and the original card context.
+Forecast copies and presentation append no external analytics.

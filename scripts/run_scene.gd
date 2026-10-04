@@ -51,6 +51,7 @@ const BoardSurfacePresentation = preload("res://scripts/board_surface_presentati
 const MoveAttackApproach = preload("res://scripts/move_attack_approach.gd")
 const SurfaceAimFlow = preload("res://scripts/surface_aim_flow.gd")
 const SurfaceRelicRules = preload("res://scripts/surface_relic_rules.gd")
+const SurfaceVarietyRules = preload("res://scripts/surface_variety_relic_rules.gd")
 const CardKeywordRules = preload("res://scripts/card_keyword_rules.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
@@ -66,9 +67,11 @@ const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_e
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const TempoRules = preload("res://scripts/tempo_rules.gd")
+const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 const RiteRules = preload("res://scripts/rite_rules.gd")
 const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
+const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const GrimoireLibrary = preload("res://scripts/grimoire_library.gd")
 const GrimoireSearch = preload("res://scripts/grimoire_search.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
@@ -8953,7 +8956,7 @@ func _guided_tutorial_target_is_defeated(state: Dictionary) -> bool:
 
 func _guided_tutorial_playable_card_indices() -> Array[int]:
 	var result: Array[int]
-	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if _combat_state.is_empty():
 		return result
 	var hand: Array = ((_combat_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	var expected_card_id: String = _guided_tutorial_expected_card_id()
@@ -10695,7 +10698,10 @@ func _refresh_relic_bar() -> void:
 	_defiance_event_revision_seen = maxi(_defiance_event_revision_seen, defiance_event_revision)
 	var signature: String = str(hash([
 		relic_ids,
+		_combat_state.get("relic_stored_surfaces", []),
+		_combat_state.get("relic_element_knots", []),
 		_combat_state.get("relic_time_reserve", {}),
+		_combat_state.get("relic_flags", {}),
 		rite_entries,
 		skill_ids,
 		skill_sigil_presentation,
@@ -10716,7 +10722,7 @@ func _refresh_relic_bar() -> void:
 		return
 	_relic_bar_signature = signature
 	_clear_children(_relic_utility_bar)
-	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_time_reserve", {}), rite_entries])
+	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_stored_surfaces", []), _combat_state.get("relic_element_knots", []), _combat_state.get("relic_time_reserve", {}), _combat_state.get("relic_flags", {}), rite_entries])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
 		_clear_children(_relic_icon_grid)
@@ -10748,7 +10754,9 @@ func _refresh_relic_bar() -> void:
 					continue
 				capacity = int(effect.get("capacity", 3))
 				held = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state, relic_id, capacity)
-			_relic_icon_grid.add_child(CombatHudRelics.relic(relic_id, relic, held, capacity))
+			var badge: Button = CombatHudRelics.relic(relic_id, relic, held, capacity)
+			_apply_relic_badge_state(badge, relic_id, relic)
+			_relic_icon_grid.add_child(badge)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -10767,6 +10775,71 @@ func _refresh_relic_bar() -> void:
 		call_deferred("_pulse_defiance_badge")
 	_record_runtime_performance_phase("relic_bar_deferred_effects", performance_phase_started)
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
+
+func _relic_knots_tooltip(effect: Dictionary, tied: Array) -> String:
+	var detail: String = "\nKnots: %s (%d of %d)" % [_relic_element_names(tied), tied.size(), int(effect["max_knots"])]
+	if tied.size() >= int(effect["pierce_threshold"]): detail += ": attacks Pierce"
+	if tied.size() >= int(effect["chain_threshold"]): detail += " and Chain %d" % int(effect["chain"])
+	if tied.size() >= int(effect["block_threshold"]): detail += "; every card grants %d Block" % int(effect["block"])
+	return detail + "."
+
+# Relic-specific state layered onto the socket badge: a spent relic fades, the
+# Black Sun Dial shows its stored surfaces as pips along the bottom, and the
+# Fivefold Knot counts its knots on the socket's own badge.
+func _apply_relic_badge_state(badge: Button, relic_id: String, relic: Dictionary) -> void:
+	var icon: CanvasItem = badge.get_node_or_null("Icon") as CanvasItem
+	for effect: Dictionary in GameData.relic_effects_for_ids([relic_id]):
+		if str(effect.get("type", "")) == "unused_play_extra_turn" and TempoRelicRules.used(_combat_state, effect):
+			if icon != null:
+				icon.modulate.a = 0.45
+			badge.tooltip_text += "\nUsed this combat."
+	for effect: Dictionary in relic.get("effects", []):
+		if str(effect.get("type", "")) == "store_consumed_surface_release":
+			var stored: Array = _combat_state.get("relic_stored_surfaces", []) as Array
+			badge.tooltip_text += "\nStored: " + _relic_element_names(stored, true)
+			var pip_layer := Control.new()
+			pip_layer.name = "RelicStoredSurfaces"
+			pip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			pip_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			badge.add_child(pip_layer)
+			for pip_index: int in range(stored.size()):
+				var backing := Panel.new()
+				backing.name = "RelicStoredSurface_%d" % pip_index
+				backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				backing.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+				backing.offset_left = 2.0 + pip_index * 16.0
+				backing.offset_right = backing.offset_left + 16.0
+				backing.offset_top = -18.0
+				backing.offset_bottom = -2.0
+				var style := StyleBoxFlat.new()
+				style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
+				style.border_color = UiPalette.GOLD_DIM
+				style.set_border_width_all(1)
+				style.set_corner_radius_all(8)
+				backing.add_theme_stylebox_override("panel", style)
+				pip_layer.add_child(backing)
+				var pip := TextureRect.new()
+				pip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+				pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+				pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+				pip.texture = ActionIcons.icon_texture("surface_" + str(stored[pip_index]))
+				pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				backing.add_child(pip)
+		if str(effect.get("type", "")) == "combat_element_knots":
+			var tied: Array = _combat_state.get("relic_element_knots", []) as Array
+			var count_badge: Label = badge.get_node_or_null("Badge") as Label
+			if count_badge != null:
+				count_badge.name = "RelicKnots"
+				count_badge.text = str(tied.size())
+				count_badge.visible = true
+				badge.call_deferred("_layout")
+			badge.tooltip_text += _relic_knots_tooltip(effect, tied)
+
+func _relic_element_names(elements: Array, surfaces: bool = false) -> String:
+	var names := PackedStringArray()
+	for element: String in elements:
+		names.append("Electrified" if surfaces and element == "electrified" else element.capitalize())
+	return ", ".join(names) if not names.is_empty() else "nothing"
 
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
@@ -11860,6 +11933,7 @@ func _turn_order_display_state() -> Dictionary:
 	if not preview.is_empty():
 		state["turn_order_preview_time_delta"] = int(preview.get("time", 0))
 		state["turn_order_preview_card_name"] = str(preview.get("name", ""))
+		state["turn_order_preview_plays_spent"] = int(preview.get("plays_spent", 1))
 	if not stagger_delays.is_empty():
 		state[CardKeywordRules.PREVIEW_DELAYS_KEY] = stagger_delays
 	return state
@@ -11879,6 +11953,7 @@ func _turn_order_card_time_preview() -> Dictionary:
 	var empower_time: int = CardKeywordRules.empower_time_surcharge(_preview_combat_state, card_id, card) if index == _selected_card_index else 0
 	return {
 		"time": _combat_engine.card_time_cost_from_def(card) + empower_time,
+		"plays_spent": _combat_engine.card_plays_spent(card_id, _combat_state),
 		"name": str(card.get("name", card_id))
 	}
 
@@ -12182,6 +12257,27 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
+	if not str(entry.get("late_relic_id", "")).is_empty():
+		# A miniature of the relic-bar badge, so the cue reads as "this relic applies here".
+		var late_relic_id: String = str(entry["late_relic_id"])
+		var bell_badge := Panel.new()
+		bell_badge.name = "LateRelicIcon"
+		bell_badge.size = Vector2(30, 30)
+		bell_badge.position = Vector2(slot_size.x - 32, 2)
+		bell_badge.z_index = 7
+		bell_badge.mouse_filter = Control.MOUSE_FILTER_PASS
+		var late_effect: Dictionary = TempoRelicRules.effect_of_type(GameData.relic_effects(late_relic_id), "damage_vs_late")
+		bell_badge.tooltip_text = "Late: your attacks deal %d more." % int(late_effect.get("amount", 0))
+		bell_badge.add_theme_stylebox_override("panel", _pile_card_style(Color("261b14"), Color(GameData.relic_accent(late_relic_id)), 3.0))
+		var bell := TextureRect.new()
+		bell.texture = AssetLoader.load_texture(str(GameData.relic_def(late_relic_id).get("icon_path", "")))
+		bell.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bell.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		bell.size = Vector2(24, 24)
+		bell.position = Vector2(3, 3)
+		bell.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		bell_badge.add_child(bell)
+		frame.add_child(bell_badge)
 	var edge := TurnOrderInk.SlashEdge.new()
 	edge.name = "TurnOrderSlashEdge"
 	edge.skew = TurnOrderInk.SKEW_RATIO
@@ -12510,7 +12606,7 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			str(entry.get("pos", Vector2i.ZERO)),
 			int(entry.get("hp", -1)),
 			int(entry.get("max_hp", -1)),
-			"P" if bool(entry.get("petrified", false)) else ""
+			("P" if bool(entry.get("petrified", false)) else "") + str(entry.get("late_relic_id", ""))
 		])
 	return "|".join(parts)
 
@@ -13907,7 +14003,7 @@ func _displayed_card_play_budget() -> Dictionary:
 func _card_play_count_for_resolution_state(state: Dictionary) -> int:
 	var cards_left: int = _combat_engine.cards_remaining_this_turn(state)
 	if _card_play_count_override >= 0:
-		cards_left -= maxi(1, _card_play_resolution_spend)
+		cards_left -= maxi(0, _card_play_resolution_spend)
 	return maxi(0, cards_left)
 
 func _set_card_play_count_override(cards_left: int) -> void:
@@ -13915,7 +14011,7 @@ func _set_card_play_count_override(cards_left: int) -> void:
 	_refresh_card_play_meter()
 
 func _begin_card_play_meter_spend_preview(plays_spent: int = 1) -> void:
-	_card_play_resolution_spend = maxi(1, plays_spent)
+	_card_play_resolution_spend = maxi(0, plays_spent)
 	var budget: Dictionary = _combat_engine.card_play_budget(_combat_state)
 	var spend_remaining: int = _card_play_resolution_spend
 	var ordinary_spent: int = mini(int(budget.get("ordinary_remaining", 0)), spend_remaining)
@@ -14821,6 +14917,11 @@ func _pass_preview_state_after_resolved_target(resolved_state: Dictionary, actio
 			working_state = _combat_engine.apply_player_action(working_state, action)
 			cursor += 1
 			continue
+		if bool(action.get("_empower_repeat_first", false)) and _combat_engine.player_action_needs_target(action):
+			var repeat_target: Vector2i = working_state.get("last_action_target", INVALID_TARGET_TILE)
+			working_state = _combat_engine.apply_player_action(working_state, action, repeat_target)
+			cursor += 1
+			continue
 		if _combat_engine.player_action_needs_target(action):
 			var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 			var has_candidate_target: bool = _combat_engine.player_action_has_valid_target(working_state, action)
@@ -14863,7 +14964,7 @@ func _pending_card_known_forecast_state() -> Dictionary:
 		# Filter hidden causes before replaying the targetless actions, not just
 		# after them: a concealed target may otherwise trigger healing or a trap.
 		var known: Dictionary = _surface_preview_information_state(_combat_state)
-		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "play")
+		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
 		var preview: Dictionary = _card_preview_from_state(_card_id_for_hand_index(_selected_card_index), prepared, _pending_actions, 0)
 		_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
 			preview.get("state", prepared) as Dictionary,
@@ -18148,7 +18249,7 @@ func _card_preview_for_index(index: int, play_mode: String = "play") -> Dictiona
 	var performance_phase_started: int = performance_total_started
 	if _combat_state.is_empty():
 		return {}
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return {"playable": false}
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -18195,7 +18296,7 @@ func _card_playability_for_index(index: int) -> Dictionary:
 	# Hand appearance and analytics need flags, while selection needs the complete
 	# target set. Keep their caches separate so summary-first access cannot shorten
 	# a later click/drag preview. Existing full snapshots remain authoritative.
-	if _combat_state.is_empty() or _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if _combat_state.is_empty() or not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return {"printed_playable": false, "any_playable": false}
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -18215,7 +18316,7 @@ func _card_playability_for_index(index: int) -> Dictionary:
 	return summary
 
 func _card_playability_for_state(state: Dictionary, index: int) -> Dictionary:
-	if state.is_empty() or _combat_engine.cards_remaining_this_turn(state) <= 0:
+	if state.is_empty() or not _combat_engine.hand_card_has_play_budget(state, index):
 		return {"printed_playable": false, "any_playable": false}
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	if index < 0 or index >= hand.size():
@@ -18469,7 +18570,7 @@ func _card_widget_display(card_id: String, state: Dictionary) -> Dictionary:
 	}
 	# A toggled Empower +Time shows on the card's own Time badge, matching the
 	# turn-order rail's preview (and its tooltip names the surcharge).
-	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card)
+	var time_surcharge: int = CardKeywordRules.empower_time_surcharge(state, card_id, card) + int(card.get("_tempo_time_surcharge", 0)) + int(card.get("_item_time_surcharge", 0))
 	if time_surcharge > 0:
 		display["time_surcharge"] = time_surcharge
 	return display
@@ -18493,6 +18594,8 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 	if action_type not in ["melee", "ranged", "aoe", "push", "pull", "detonate"]:
 		return
 	TempoRules.consume_for_preview(state, action)
+	var resolved: Dictionary = _combat_engine.call("_resolved_surface_action", state, action)
+	preload("res://scripts/surface_variety_relic_rules.gd").before_action(state, resolved)
 	if int(action.get("damage", 0)) <= 0:
 		return
 	if _combat_engine.attack_bonus_for_current_turn(state) == 0:
@@ -18504,8 +18607,6 @@ func _consume_preview_damage_modifiers(state: Dictionary, action: Dictionary) ->
 func _has_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
 		return false
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
-		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		if bool(_card_playability_for_index(index).get("printed_playable", false)):
@@ -18514,8 +18615,6 @@ func _has_playable_combat_card() -> bool:
 
 func _has_any_playable_combat_card() -> bool:
 	if _combat_state.is_empty():
-		return false
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
 		return false
 	var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
@@ -18875,6 +18974,7 @@ func _card_preview_from_state(
 				can_use_position_only_move = (
 					use_position_only_move_legality
 					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
+					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
 					movement_trap_tiles = _preview_trap_tiles_lookup(working_state)
@@ -18990,6 +19090,7 @@ func _card_preview_continuation_is_playable(
 				can_use_position_only_move = (
 					use_position_only_move_legality
 					and int((working_state.get("player", {}) as Dictionary).get("bleed", 0)) <= 0
+					and not _movement_variety_requires_resolution(working_state)
 				)
 				if can_use_position_only_move:
 					movement_trap_tiles = _preview_trap_tiles_lookup(working_state)
@@ -19132,6 +19233,11 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 
 func _preview_units_for_action(preview: Dictionary) -> Array:
 	var action: Dictionary = preview.get("action", {})
+	if str(action.get("type", "")) in ["move", "blink"] and _hovered_board_tile.x >= 0 and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+		var state: Dictionary = preview.get("state", _preview_combat_state) as Dictionary
+		if IllusionRelicRules.can_trade(_combat_engine, state, _hovered_board_tile):
+			var illusion: Dictionary = IllusionCardRules.illusion_at(_combat_engine, state, _hovered_board_tile)
+			return [{"key": "illusion_preview", "role": "illusion_preview", "type": "player", "pos": state["player"]["pos"], "hp": illusion["hp"], "max_hp": illusion.get("max_hp", illusion["hp"]), "accent": ILLUSION_PREVIEW_FOCUS}]
 	if str(action.get("type", "")) != "illusion":
 		return []
 	if _selected_card_index < 0 or _hovered_board_tile.x < 0:
@@ -19228,11 +19334,37 @@ func _path_tiles_for_preview(preview: Dictionary) -> Array[Vector2i]:
 		_prepare_preview_shortcuts_for_current_action(preview)
 		var movement_plan: Dictionary = _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary
 		if not movement_plan.is_empty():
-			return _combat_engine.path_from_player_movement_plan(movement_plan, _hovered_board_tile)
-		return _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile)
+			return _preview_move_route(preview_state, movement_plan, _hovered_board_tile)
+		return _trade_route_endpoints(preview_state, _combat_engine.path_for_player_action(preview_state, action, _hovered_board_tile))
 	if action_type == "blink":
 		return _vector2i_array([_hovered_board_tile])
 	return []
+
+# The route a Move preview shows. A Glassway trade enters only its endpoints,
+# so its preview never highlights or scores the tiles between.
+func _preview_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	return _trade_route_endpoints(state, _combat_engine.path_from_player_movement_plan(movement_plan, target))
+
+# The full route a Glassway trade pays for, or empty when `target` is no trade.
+func _trade_cost_route(state: Dictionary, action: Dictionary, target: Vector2i, movement_plan: Dictionary) -> Array[Vector2i]:
+	if str(action.get("type", "")) != "move" or not IllusionRelicRules.can_trade(_combat_engine, state, target):
+		return _vector2i_array([])
+	if not movement_plan.is_empty():
+		return _combat_engine.path_from_player_movement_plan(movement_plan, target)
+	return _combat_engine.path_for_player_action(state, action, target)
+
+# A move-then-attack shortcut that trades with an Illusion marks only its
+# landing, like a Blink shortcut: hero routes draw per tile, so a skipped tile
+# would leave a broken arrow.
+func _shortcut_move_route(state: Dictionary, movement_plan: Dictionary, target: Vector2i) -> Array[Vector2i]:
+	if IllusionRelicRules.can_trade(_combat_engine, state, target):
+		return _vector2i_array([target])
+	return _combat_engine.path_from_player_movement_plan(movement_plan, target)
+
+func _trade_route_endpoints(state: Dictionary, path: Array[Vector2i]) -> Array[Vector2i]:
+	if path.size() > 2 and IllusionRelicRules.can_trade(_combat_engine, state, path[path.size() - 1]):
+		return _vector2i_array([path[0], path[path.size() - 1]])
+	return path
 
 func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	var action: Dictionary = preview.get("action", {})
@@ -19262,6 +19394,9 @@ func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_t
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
+			# A Glassway trade previews as the exchange blink it will play.
+			if IllusionRelicRules.can_trade(_combat_engine, state, target_tile):
+				return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true, "exchange_from": target_tile, "exchange_to": from_tile}
 			return {"kind": "move", "from": from_tile, "to": target_tile, "preview": true}
 		"blink":
 			return {"kind": "blink", "from": from_tile, "to": target_tile, "preview": true}
@@ -19307,7 +19442,7 @@ func _preview_damage_for_action(state: Dictionary, action: Dictionary, target_ti
 	# for the same hovered target. Share that immutable result within the pointer
 	# event instead of resolving dense AOEs and their relic hooks twice.
 	if _selected_card_index >= 0 and not _orientation_pending():
-		_cache_hover_resolved_preview_state(after_state)
+		_cache_hover_resolved_preview_state((resolved["actual"] as Dictionary).get("single_state", after_state) as Dictionary)
 	var known_state: Dictionary = resolved["before"]
 	var known_after: Dictionary = (resolved["damage"] as Dictionary)["state"]
 	return _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(known_state, known_after))
@@ -19462,7 +19597,7 @@ func _shortcut_plan_for_tile(preview: Dictionary, target_tile: Vector2i) -> Dict
 	materialized["state"] = followup_state
 	materialized["action_index"] = int(followup.get("action_index", -1))
 	materialized["action"] = _shortcut_action_with_default_force_direction(followup_state, followup_action, target_tile)
-	materialized["movement_risk_chips"] = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+	materialized["movement_risk_chips"] = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, move_action, move_target, movement_plan))
 	materialized.erase("deferred_move_resolution")
 	materialized.erase("deferred_preview_state")
 	materialized.erase("deferred_move_action")
@@ -19592,12 +19727,12 @@ func _preview_shortcuts_for_current_action(
 			path_tiles = _vector2i_array([move_target])
 			after_move_state = _combat_engine.apply_player_action(preview_state, action, move_target)
 		else:
-			path_tiles = _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
+			path_tiles = _shortcut_move_route(preview_state, movement_plan, move_target)
 			after_move_state = _combat_engine.apply_planned_player_move(preview_state, action, move_target, movement_plan)
 		if umbra_limited and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			continue
-		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
-		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" or IllusionRelicRules.can_trade(_combat_engine, preview_state, move_target) else maxi(0, path_tiles.size() - 1)
+		var movement_risk_chips: Array = _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, action, move_target, movement_plan))
 		_collect_shortcut_attack_plans(
 			plans, card_id, actions, action_index, after_move_state, move_target, move_target,
 			move_distance, path_tiles, movement_risk_chips, allowed_target_tiles,
@@ -19675,12 +19810,12 @@ func _preview_immediate_attack_shortcuts(
 		var path_tiles: Array[Vector2i] = (
 			_vector2i_array([move_target])
 			if action_type == "blink"
-			else _combat_engine.path_from_player_movement_plan(movement_plan, move_target)
+			else _shortcut_move_route(preview_state, movement_plan, move_target)
 		)
 		if typeof(allowed_target_tiles) == TYPE_DICTIONARY and not _shortcut_path_is_currently_visible(information_state, path_tiles, visible_lookup):
 			source_order += 1
 			continue
-		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" else maxi(0, path_tiles.size() - 1)
+		var move_distance: int = PathUtils.manhattan(player_tile, move_target) if action_type == "blink" or IllusionRelicRules.can_trade(_combat_engine, preview_state, move_target) else maxi(0, path_tiles.size() - 1)
 		candidates.append({
 			"move_target": move_target,
 			"move_tile": move_target,
@@ -19756,6 +19891,7 @@ func _preview_immediate_attack_shortcuts(
 			and not skip_move
 			and str(attack_action.get("type", "")) in ["melee", "ranged"]
 			and _shortcut_move_bleed_is_survivable(preview_state)
+			and not _movement_variety_requires_resolution(preview_state)
 			and not _shortcut_path_has_live_trap(preview_state, path_tiles)
 		)
 		if safely_deferred:
@@ -19773,7 +19909,7 @@ func _preview_immediate_attack_shortcuts(
 		var movement_risk_chips: Array = (
 			[]
 			if skip_move or safely_deferred
-			else _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles)
+			else _movement_risk_chips_for_states(preview_state, after_move_state, path_tiles, _trade_cost_route(preview_state, move_action, candidate.get("move_target", INVALID_TARGET_TILE), movement_plan))
 		)
 		_collect_shortcut_attack_plans(
 			plans,
@@ -19804,6 +19940,11 @@ func _preview_immediate_attack_shortcuts(
 		"tiles": tiles,
 		"movement_plan": movement_plan,
 	}
+
+func _movement_variety_requires_resolution(state: Dictionary) -> bool:
+	var variety = preload("res://scripts/surface_variety_relic_rules.gd")
+	var effects: Array = GameData.relic_effects_for_state(state)
+	return variety.move_rules(effects) or not variety.effect(effects, "blink_distance_next_attack").is_empty()
 
 func _shortcut_positional_state(state: Dictionary, player_tile: Vector2i) -> Dictionary:
 	var positional_state: Dictionary = state.duplicate(false)
@@ -20085,15 +20226,22 @@ func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vec
 	if _preview_umbra_is_limited(before_state):
 		return []
 	var after_state: Dictionary = _combat_engine.apply_player_action(before_state, action, _hovered_board_tile)
-	return _movement_risk_chips_for_states(before_state, after_state, path_tiles)
+	return _movement_risk_chips_for_states(before_state, after_state, path_tiles, _trade_cost_route(before_state, action, _hovered_board_tile, _preview_shortcuts_cache.get("movement_plan", {}) as Dictionary))
 
-func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+## `trade_route` is the full route a Glassway trade pays for (see
+## _trade_cost_route); its preview path holds only endpoints.
+func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i], trade_route: Array = []) -> Array:
 	var chips: Array = []
 	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
 	chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
-	if path_tiles.size() > 1:
+	var route: Array[Vector2i] = _vector2i_array(trade_route)
+	if route.size() > 1:
+		var trade_cost: int = int(_combat_engine.trade_movement_cost(before_state, route).get("spent", 0))
+		if trade_cost > route.size() - 1:
+			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % trade_cost, "kind": "status"})
+	elif path_tiles.size() > 1:
 		var cost: int = _combat_engine.movement_cost_for_path(before_state, path_tiles)
 		if cost > path_tiles.size() - 1:
 			chips.append({"tile": risk_tile, "label": "%d movement · Rubble" % cost, "kind": "status"})
@@ -20586,7 +20734,7 @@ func _on_card_pressed(index: int) -> void:
 	if _combat_skill_card_selection_zone == "hand":
 		_on_combat_skill_hand_card_selected(index)
 		return
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return
 	if _drag_card_index >= 0:
 		return
@@ -20629,7 +20777,7 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 		return
 	if not _combat_skill_card_selection_zone.is_empty():
 		return
-	if _combat_engine.cards_remaining_this_turn(_combat_state) <= 0:
+	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
 		return
 	if _pending_umbra_commit_locked:
 		return
@@ -21452,6 +21600,8 @@ func _resolve_reused_target_preview_actions(source_preview: Dictionary) -> Dicti
 		if not bool(action.get("reuse_previous_target", false)):
 			break
 		var target_tile: Vector2i = _last_resolved_pending_target()
+		if bool(action.get("_empower_repeat_first", false)):
+			target_tile = _combat_engine.empower_repeat_target(preview.get("state", {}) as Dictionary, action, target_tile)
 		var state: Dictionary = (preview.get("state", {}) as Dictionary).duplicate(true)
 		if target_tile.x >= 0 and _combat_engine.valid_targets_for_player_action(state, action).has(target_tile):
 			if str(action.get("type", "")) == "aoe" or str(action.get("type", "")) == "outcrop":
@@ -22738,6 +22888,11 @@ func _animate_player_card_resolution(animated_state: Dictionary, card_id: String
 		var after_state: Dictionary = resolution.get("state", {})
 		await _animate_player_action_step(before_state, after_state, card_id, action, target_tile, resolution.get("chain_hits", []))
 		animated_state = after_state
+	var echo_trace: Dictionary = {"echoes": []}
+	animated_state = IllusionRelicRules.finish_echoes(_combat_engine, animated_state, echo_trace)
+	for echo: Dictionary in echo_trace["echoes"]:
+		var choice: Dictionary = echo["choice"]
+		await _animate_player_action_step(echo["before"], echo["state"], card_id, choice["action"], choice["target"], echo["chain_hits"])
 	_set_action_step_resolution_index(actions.size())
 	await _finish_player_popup_timeline(animated_state)
 	_render_board_state(animated_state, {})
@@ -22934,7 +23089,7 @@ func _created_illusion_tiles(before_state: Dictionary, after_state: Dictionary) 
 
 func _has_electrical_trace(hits: Array) -> bool:
 	for hit: Dictionary in hits:
-		if str(hit.get("kind", "")) in ["relay", "conduction"]:
+		if str(hit.get("kind", "")) in ["relay", "conduction", "rebound"]:
 			return true
 		if hit.get("from", INVALID_TARGET_TILE) != hit.get("to", INVALID_TARGET_TILE):
 			return true
@@ -22981,12 +23136,13 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			movement_presentation["focus_tiles"] = move_path
 			movement_presentation["focus_color"] = Color(0.42, 0.84, 0.93, 0.24)
 			movement_presentation["path_tiles"] = move_path
-			await _animate_actor_along_path(before_state, "player", move_path, movement_presentation)
+			await _animate_player_move_path(before_state, after_state, move_path, movement_presentation)
 			_render_board_state(primary_display_state, _death_hold_presentation(before_state, primary_display_state, base_presentation))
 			await get_tree().create_timer(0.06).timeout
 			movement_ground_feedback_presented = await _animate_player_ground_result(after_state, before_state, triggered_traps, base_presentation)
 		"blink", "illusion_swap":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
+			var blink_effect: Dictionary = _player_blink_effect(player_before_tile, player_after_tile, _illusion_exchange_event(before_state, after_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
 				_render_board_state(before_state, {
@@ -22994,7 +23150,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 					"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 					"focus_tiles": [player_after_tile],
 					"focus_color": Color(0.53, 0.48, 0.92, 0.24),
-					"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
+					"effect": blink_effect,
 					"effect_progress": t
 				}, true)
 			)
@@ -23003,7 +23159,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"focus_tiles": [player_after_tile],
 				"focus_color": Color(0.53, 0.48, 0.92, 0.24),
-				"effect": {"kind": "blink", "from": player_before_tile, "to": player_after_tile},
+				"effect": blink_effect,
 				"effect_progress": 1.0
 			}))
 			await get_tree().create_timer(0.14).timeout
@@ -23085,7 +23241,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"melee", "ranged", "aoe", "push", "pull", "detonate", "destroy_illusion", "burst_terrain":
 			var effect_target_tile: Vector2i = target_tile
 			if action_type == "aoe" and int(action.get("range", 0)) <= 0:
-				effect_target_tile = player_before_tile
+				effect_target_tile = action.get("_origin_tile", player_before_tile)
 			var focus_tiles: Array[Vector2i] = _vector2i_array([effect_target_tile])
 			if action_type == "aoe":
 				focus_tiles = _aoe_tiles_for_action(before_state, action, effect_target_tile)
@@ -23093,6 +23249,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				focus_tiles.append_array(_combat_engine.blast_tiles_for_player_action(before_state, action, target_tile))
 			elif action_type == "detonate":
 				focus_tiles.clear()
+				if bool(action.get("_illusion_echo", false)):
+					focus_tiles.append_array(IllusionRelicRules.echo_impact(_combat_engine, before_state, action, target_tile))
 				for event: Dictionary in _surface_events_between(before_state, after_state):
 					if str(event.get("kind", "")) == "detonate":
 						focus_tiles.append_array(_vector2i_array(event.get("tiles", [])))
@@ -23103,8 +23261,8 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
-				"protagonist_melee": AttackFxLibrary.protagonist_uses_melee_motion(action),
-				"protagonist_ranged": preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
+				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
+				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
 				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),
 				"to": effect_target_tile,
@@ -24161,6 +24319,79 @@ func _resolved_movement_animation_path(from_tile: Vector2i, to_tile: Vector2i, p
 		if endpoint_index > 0:
 			return _vector2i_array(path.slice(0, endpoint_index + 1))
 	return _vector2i_array([from_tile, to_tile])
+
+# A Move is walked except where the hero does not travel on foot. An Unclouded
+# Sun jump between relays (Light sources) plays the Blink rift between them, with
+# the walks before and after it. A Glassway Compass trade skips the route: hero
+# and Illusion blink past each other between the origin and the Illusion.
+func _animate_player_move_path(before_state: Dictionary, after_state: Dictionary, path: Array[Vector2i], presentation: Dictionary) -> void:
+	for segment: Dictionary in player_move_segments(before_state, path, _illusion_exchange_event(before_state, after_state)):
+		if segment.has("walk"):
+			await _animate_actor_along_path(before_state, "player", _vector2i_array(segment["walk"]), presentation)
+		else:
+			await _animate_player_blink_step(before_state, segment["blink_from"], segment["blink_to"], segment["exchange"], presentation)
+
+## Splits a Move path into walked runs ({"walk": tiles}) and blinked steps
+## ({"blink_from", "blink_to", "exchange"}). `exchange` is the Move's Illusion
+## swap event, or empty.
+static func player_move_segments(state: Dictionary, path: Array[Vector2i], exchange: Dictionary) -> Array[Dictionary]:
+	var segments: Array[Dictionary]
+	# A Glassway trade skips the route: one exchange blink from the origin.
+	if path.size() >= 2 and not exchange.is_empty() and exchange.get("to", INVALID_TARGET_TILE) == path[path.size() - 1]:
+		segments.append({"blink_from": path[0], "blink_to": path[path.size() - 1], "exchange": exchange})
+		return segments
+	var walk: Array[Vector2i]
+	if not path.is_empty():
+		walk.append(path[0])
+	for index: int in range(1, path.size()):
+		var from: Vector2i = path[index - 1]
+		var to: Vector2i = path[index]
+		if not SurfaceVarietyRules.is_light_link(state, from, to):
+			walk.append(to)
+			continue
+		if walk.size() >= 2:
+			segments.append({"walk": walk.duplicate()})
+		segments.append({"blink_from": from, "blink_to": to, "exchange": {}})
+		walk.clear()
+		walk.append(to)
+	if walk.size() >= 2:
+		segments.append({"walk": walk.duplicate()})
+	return segments
+
+func _animate_player_blink_step(display_state: Dictionary, from: Vector2i, to: Vector2i, exchange: Dictionary, base_presentation: Dictionary) -> void:
+	var player: Dictionary = _animation_actor_unit(display_state, "player")
+	var frame_base: Dictionary = _movement_actor_frame_presentation(
+		base_presentation,
+		"player",
+		board_view.world_position_for_unit_origin(player, from),
+		board_view.draw_tile_for_unit_origin(player, from),
+		to
+	)
+	# The rift replaces the walked route line while the hero crosses it.
+	frame_base.erase("path_tiles")
+	frame_base["focus_tiles"] = [to]
+	frame_base["focus_color"] = Color(0.53, 0.48, 0.92, 0.24)
+	frame_base["effect"] = _player_blink_effect(from, to, exchange)
+	await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
+		var frame: Dictionary = frame_base.duplicate(false)
+		frame["effect_progress"] = float(frame_number) / float(ATTACK_FRAMES)
+		_render_board_state(display_state, frame, true)
+	)
+
+func _player_blink_effect(from: Vector2i, to: Vector2i, exchange: Dictionary) -> Dictionary:
+	var effect: Dictionary = {"kind": "blink", "from": from, "to": to}
+	if not exchange.is_empty():
+		# A traded Illusion crosses the other way: from the hero's landing tile
+		# to the tile the hero left.
+		effect["exchange_from"] = exchange.get("to", to)
+		effect["exchange_to"] = exchange.get("from", from)
+	return effect
+
+func _illusion_exchange_event(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
+	for event: Dictionary in _surface_events_between(before_state, after_state):
+		if str(event.get("kind", "")) == IllusionCardRules.SWAP_EVENT:
+			return event
+	return {}
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
@@ -31979,7 +32210,7 @@ func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dicti
 	# Cover and Illusion commands have their own idempotent surface events;
 	# spending shared Move must not count as physical player movement.
 	if bool(movement.get("utility", false)): return
-	var moved: bool = int(movement.get("spent", 0)) > 0
+	var moved: bool = int(movement.get("spent", 0)) > 0 or (resolved_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE) != (before_state.get("player", {}) as Dictionary).get("pos", INVALID_TARGET_TILE)
 	if not moved and not bool(movement.get("resolved", false)):
 		return
 	_analytics_store.write_event(
@@ -32737,7 +32968,7 @@ func _selected_card_empower_cost() -> Dictionary:
 	if _selected_card_index < 0 or _combat_state.is_empty():
 		return {}
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	if card_id.is_empty() or not CardKeywordRules.card_id_may_have_keywords(card_id):
+	if card_id.is_empty():
 		return {}
 	return CardKeywordRules.empower_cost(_card_def(card_id, _combat_state))
 
@@ -32760,7 +32991,7 @@ func _empower_command_text(active: bool) -> String:
 func _empower_command_tooltip() -> String:
 	var card_id: String = _card_id_for_hand_index(_selected_card_index)
 	var card: Dictionary = _card_def(card_id, _combat_state)
-	var bonus_text: String = ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
+	var bonus_text: String = "repeat this card's first action" if bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)) else ActionIcons.plain_text_for_tokens(ActionIcons.tokens_for_keyword_bonus(card.get("actions", []) as Array, card.get("empower", {}) as Dictionary))
 	return "Empower (%s): %s.\nThe cost is paid when the card finishes. Press E (controller: right stick)." % [CardKeywordRules.empower_cost_label(_selected_card_empower_cost()), bonus_text]
 
 func _add_empower_command() -> void:
@@ -32805,9 +33036,15 @@ func _is_empower_shortcut_event(event: InputEvent) -> bool:
 # Stagger delays for the selected card: the hovered target's resolved preview,
 # or the card's already-resolved automatic actions. Hidden enemies never move.
 func _turn_order_stagger_preview_delays() -> Dictionary:
-	if _animation_lock or _selected_card_index < 0 or _combat_state.is_empty() or _preview_combat_state.is_empty():
+	if _animation_lock or (_selected_card_index < 0 and not _player_movement_selected) or _combat_state.is_empty():
 		return {}
 	var resolved: Dictionary = _cached_hover_resolved_preview_state()
+	if resolved.is_empty() and not SurfaceRelicRules.effect(_combat_state, "move_through_enemies_stagger").is_empty():
+		var preview: Dictionary = _active_card_preview()
+		var action: Dictionary = preview.get("action", {}) as Dictionary
+		if str(action.get("type", "")) == "move" and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+			var forecast: Dictionary = _surface_resolution_for_preview(preview.get("state", _combat_state), action, _hovered_board_tile)
+			resolved = (forecast["known"] as Dictionary)["state"]
 	if resolved.is_empty():
 		resolved = _preview_combat_state
 	var delays: Dictionary = _combat_engine.stagger_delays_between(_combat_state, resolved)
@@ -32972,7 +33209,9 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 				if _combat_engine.player_action_can_resolve(followup, next_action):
 					followup = _combat_engine.apply_player_action(followup, next_action)
 				cursor += 1
-			_surface_preview_cache["state"] = followup
+			var echo_trace: Dictionary = {"echoes": []}
+			_surface_preview_cache["state"] = IllusionRelicRules.finish_echoes(_combat_engine, followup, echo_trace)
+			_surface_preview_cache["echoes"] = echo_trace["echoes"]
 		_surface_preview_cache["before"] = state
 	state = _surface_preview_cache.get("before", state) as Dictionary
 	var after: Dictionary = _surface_preview_cache.get("state", state) as Dictionary
@@ -32981,6 +33220,11 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 	for hit: Dictionary in _surface_preview_cache.get("chain_hits", []):
 		arcs.append({"kind": hit.get("kind", "actor"), "from": hit.get("from", INVALID_TARGET_TILE), "to": hit.get("to", INVALID_TARGET_TILE), "path": hit.get("path", [])})
 	result["surface_preview_arcs"] = arcs
+	var echo_curves: Array[Dictionary]
+	for echo: Dictionary in _surface_preview_cache.get("echoes", []):
+		var choice: Dictionary = echo["choice"]
+		echo_curves.append({"kind": "ranged", "preview": true, "from": choice["from"], "to": choice["target"], "element": choice["action"].get("element", choice["action"].get("_card_element", "none")), "range": choice["action"].get("range", 1)})
+	result["illusion_echo_previews"] = echo_curves
 	_append_guardian_displacement_preview(result, state, after)
 	_append_forced_displacement_preview(result, state, after)
 	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
@@ -33006,8 +33250,13 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		var old: Dictionary = before_units[key] as Dictionary
 		var current: Dictionary = after_units.get(key, {}) as Dictionary
 		if current.is_empty() or int(current.get("hp", 0)) <= 0: continue
+		var predicted: Dictionary = {}
 		if bool(old.get("chilled", false)) != bool(current.get("chilled", false)) or int(old.get("freeze", 0)) != int(current.get("freeze", 0)):
-			status_previews[key] = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
+			predicted = {"chilled": bool(current.get("chilled", false)), "freeze": int(current.get("freeze", 0))}
+		if int(old.get("shock", 0)) != int(current.get("shock", 0)):
+			predicted["shock"] = int(current.get("shock", 0))
+		if not predicted.is_empty():
+			status_previews[key] = predicted
 	result["surface_status_preview"] = status_previews
 
 func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
@@ -33070,6 +33319,28 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		paths.append(path)
 		if int(moved.get("hp", 0)) > 0:
 			hints.append({"enemy_key": key, "projected_path": path, "projected_destination": to})
+	var illusion_ghosts: Array = []
+	for illusion: Dictionary in before.get("illusions", []):
+		if int(illusion.get("hp", 0)) <= 0: continue
+		var moved: Dictionary = _combat_engine._surface_actor(after, "illusion", int(illusion["id"]))
+		var from: Vector2i = illusion.get("pos", INVALID_TARGET_TILE)
+		var to: Vector2i = moved.get("pos", from)
+		if from == to or (from.x != to.x and from.y != to.y): continue
+		# Glassway uses its dedicated start-tile ghost, not a force path.
+		var traded: bool = false
+		for event: Dictionary in events:
+			if str(event.get("kind", "")) == IllusionCardRules.SWAP_EVENT and int(event.get("illusion_id", -1)) == int(illusion["id"]): traded = true
+		if traded: continue
+		var step: Vector2i = Vector2i(signi(to.x - from.x), signi(to.y - from.y))
+		var path: Array[Vector2i] = _vector2i_array([from])
+		while path[-1] != to: path.append(path[-1] + step)
+		paths.append(path)
+		if int(moved.get("hp", 0)) > 0:
+			illusion_ghosts.append({"key": "illusion_preview_%d" % int(illusion["id"]), "role": "illusion_preview", "type": "player", "pos": to, "hp": moved["hp"], "max_hp": moved.get("max_hp", moved["hp"]), "accent": ILLUSION_PREVIEW_FOCUS})
+	if not illusion_ghosts.is_empty():
+		var ghosts: Array = (result.get("preview_units", []) as Array).duplicate()
+		ghosts.append_array(illusion_ghosts)
+		result["preview_units"] = ghosts
 	if not paths.is_empty():
 		result["displacement_paths"] = paths
 	if not hints.is_empty():
@@ -33146,7 +33417,9 @@ func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictio
 		shown["surface_feedback_events"] = events
 		shown["surface_feedback_progress"] = t
 		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, t * 0.36, _reduced_motion_enabled())
-		_render_board_state(after if t >= 0.2 else before, shown)
+		# New ground lands on the first frame; any ground it replaces or
+		# consumes breaks and fades out in the same beat (break_surface).
+		_render_board_state(after, shown)
 	)
 	_queue_player_popup_group(texts, 0.36)
 	_render_board_state(after, {})

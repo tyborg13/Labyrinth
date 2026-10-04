@@ -5,6 +5,7 @@ extends RefCounted
 const Rules = preload("res://scripts/board_surface_rules.gd")
 const SpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const StaticBatch = preload("res://scripts/board_surface_static_batch.gd")
+const BREAK_FADE_END: float = 0.55
 
 static var retained_cache_enabled: bool = true
 static var retained_electric_enabled: bool = true
@@ -621,12 +622,57 @@ static func _draw_collision_feedback(canvas: CanvasItem, center: Vector2, width:
 		var outer: Vector2 = contact + Vector2(cos(angle), sin(angle) * 0.62) * width * (0.12 + t * 0.14)
 		canvas.draw_line(inner, outer, Color(tint, alpha), maxf(1.2, width * 0.018), true)
 
+## How much of a surface that a feedback beat breaks on `tile` still shows. The
+## old layer fades over the start of the beat while the new ground arrives, and
+## is gone well before the beat ends.
+static func leaving_alpha(tile: Vector2i, kind: String, events: Array, progress: float) -> float:
+	for event_var: Variant in events:
+		if typeof(event_var) != TYPE_DICTIONARY: continue
+		var event: Dictionary = event_var as Dictionary
+		if event.get("tile", Vector2i(-1, -1)) == tile and str(event.get("break_surface", "")) == kind:
+			return 1.0 - smoothstep(0.0, BREAK_FADE_END, clampf(progress, 0.0, 1.0))
+	return 0.0
+
+static func _draw_surface_break(canvas: CanvasItem, kind: String, center: Vector2, width: float, progress: float, reduced: bool) -> void:
+	SpellFx.prepare()
+	match kind:
+		"ice":
+			if not reduced: SpellFx.ground(canvas, "ice", center, width * 0.60, progress, 0.8)
+			SpellFx.impact(canvas, "ice", center, width * 0.62, progress, 0.8, reduced, false)
+			SpellFx.impact(canvas, "ice", center, width * 0.62, progress, 0.8, reduced, true)
+		"rubble":
+			if not reduced: SpellFx.ground(canvas, "earth", center, width * 0.60, progress, 0.8)
+			SpellFx.impact(canvas, "earth", center, width * 0.58, progress, 0.75, reduced, false)
+			SpellFx.impact(canvas, "earth", center, width * 0.58, progress, 0.75, reduced, true)
+		"electrified":
+			# The stored charge discharges along the floor.
+			SpellFx.ground(canvas, "lightning", center, width * 0.62, 0.4 if reduced else progress, 0.85)
+		"fire":
+			_draw_fire_burnout(canvas, center, width, 0.4 if reduced else clampf(progress, 0.0, 1.0))
+
+static func _draw_fire_burnout(canvas: CanvasItem, center: Vector2, width: float, t: float) -> void:
+	# Doused Fire leaves a rising smudge of smoke and a few dying embers.
+	var fade: float = sin(t * PI)
+	for i: int in range(5):
+		var angle: float = float(i) * 2.4 + 0.3
+		var base: Vector2 = center + Vector2(cos(angle), sin(angle) * 0.42) * width * 0.16
+		var at: Vector2 = base + Vector2(cos(angle) * width * 0.10 * t, -width * (0.04 + 0.24 * t))
+		_floor_glow(canvas, at, Vector2(width * (0.11 + 0.07 * t), width * (0.07 + 0.05 * t)), Color(0.13, 0.11, 0.10, 0.50 * fade))
+	for i: int in range(4):
+		var angle: float = float(i) * 1.7 + 0.9
+		var at: Vector2 = center + Vector2(cos(angle) * width * 0.20, sin(angle) * width * 0.08) - Vector2(0.0, width * 0.30 * t)
+		_floor_glow(canvas, at, Vector2(width * 0.022, width * 0.022), Color(1.0, 0.55, 0.22, 0.85 * (1.0 - t)))
+
 static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, width: float, events: Array, progress: float, reduced: bool = false) -> void:
 	if progress >= 1.0 and not reduced: return
 	for event_var: Variant in events:
 		if typeof(event_var) != TYPE_DICTIONARY: continue
 		var event: Dictionary = event_var as Dictionary
 		if event.get("tile", Vector2i(-1, -1)) != tile and not (event.get("tiles", []) as Array).has(tile): continue
+		# The leaving surface breaks first, so arriving ground draws on top.
+		var broken: String = str(event.get("break_surface", ""))
+		if not broken.is_empty() and event.get("tile", Vector2i(-1, -1)) == tile:
+			_draw_surface_break(canvas, broken, center, width, progress, reduced)
 		var element: String = str(event.get("feedback_element", ""))
 		if not element.is_empty():
 			SpellFx.prepare()
@@ -637,7 +683,7 @@ static func draw_feedback(canvas: CanvasItem, tile: Vector2i, center: Vector2, w
 		if kind == "force_collision":
 			if event.get("tile", Vector2i(-1, -1)) == tile: _draw_collision_feedback(canvas, center, width, event, progress, reduced)
 			continue
-		if not element.is_empty() or kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
+		if not element.is_empty() or not broken.is_empty() or kind not in ["surface_created", "surface_replaced", "surface_removed", "surface_consumed"]: continue
 		var tint: Color = color_for(str(event.get("surface", "fire")))
 		var alpha: float = sin(clampf(progress, 0.0, 1.0) * PI) * 0.55
 		_floor_glow(canvas, center, Vector2(width * (0.5 + progress * 0.8), width * (0.18 + progress * 0.28)), Color(tint, alpha))

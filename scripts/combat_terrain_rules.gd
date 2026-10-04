@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CombatTerrainRules
 
+const ForcedRelics = preload("res://scripts/forced_relic_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const INVALID := Vector2i(-1, -1)
@@ -16,6 +17,7 @@ static func is_empty_floor(engine: RefCounted, state: Dictionary, tile: Vector2i
 # `fields` overrides the default crag outcrop (kind, sight, destroy surface, payloads).
 static func raise_outcrop(engine: RefCounted, state: Dictionary, tile: Vector2i, health: int, source: Dictionary, fields: Dictionary = {}) -> bool:
 	if health <= 0 or not is_empty_floor(engine, state, tile): return false
+	health += ForcedRelics.outcrop_health_bonus(engine, state, source, fields)
 	Surfaces.remove(state, tile, "all", "terrain_created")
 	var serial: int = int(state.get("terrain_creation_sequence", 0)) + 1
 	state["terrain_creation_sequence"] = serial

@@ -317,19 +317,7 @@ func _test_relics() -> void:
 	expect(int(state["player"]["block"]) == 8 and int(state["player"]["stoneskin"]) == 2 and int(state["enemies"][0]["hp"]) == 999, "Worldheart converts at most two Block and deals half to adjacent enemies")
 	state = combat.apply_player_action(state, {"type":"stoneskin", "amount":20})
 	expect(int(state["enemies"][0]["hp"]) == 995, "Worldheart thorns cap at four damage per Stoneskin gain")
-	state = _relic_fixture(combat, ["unbound_pinion"])
-	state["player_movement_remaining"] = 0
-	state["enemies"][0]["pos"] = Vector2i(7,3)
-	state["grid"][2][8] = "wall"
-	state["grid"][4][8] = "wall"
-	state = combat.apply_player_action(state, {"type":"push", "amount":3, "range":6, "force_direction":Vector2i.RIGHT}, Vector2i(7,3))
-	expect(int(state["player_movement_remaining"]) == 0 and (state["deck"]["hand"] as Array).is_empty(), "A wall-blocked push with only one actual tile earns no Pinion reward")
-	state["enemies"][0]["pos"] = Vector2i(4,3)
-	state = combat.apply_player_action(state, {"type":"push", "amount":2, "range":5}, Vector2i(4,3))
-	expect(int(state["player_movement_remaining"]) == combat.player_movement_capacity(state) and (state["deck"]["hand"] as Array).size() == 1, "Two actual pushed tiles refill movement and draw once")
-	state["player_movement_remaining"] = 0
-	state = combat.apply_player_action(state, {"type":"pull", "amount":2, "range":6}, Vector2i(6,3))
-	expect(int(state["player_movement_remaining"]) == 0 and (state["deck"]["hand"] as Array).size() == 1, "Subsequent displacement cannot farm movement/draw in the same turn")
+	# Pinion distance, collision and resumed-turn limits are covered by RelicU3Suite.
 	state = _relic_fixture(combat, ["crowncoal_heart", "winters_hour"])
 	state = combat.apply_player_action(state, {"type":"ranged", "damage":1, "range":5, "element":"ice", "surface":"ice"}, Vector2i(4,3))
 	expect(Surface.has_surface(state, Vector2i(4,3), "ice"), "Crowncoal preserves the attack's own Ice setup")

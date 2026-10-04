@@ -1,6 +1,7 @@
 extends Control
 class_name CombatBoardView
 
+const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
@@ -3178,7 +3179,7 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"path_color", "path_tiles", "displacement_paths":
 				path_changed = true
-			"enemy_threat_previews":
+			"enemy_threat_previews", "illusion_echo_previews":
 				overlay_changed = true
 				path_changed = true
 				effects_changed = true
@@ -10144,6 +10145,8 @@ func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictiona
 	var tiles: Array[Vector2i] = _vector2i_array([])
 	# Static intent ribbons use the target scene layer so the merged arrow sits
 	# below its target and below board objects that are visually in front of it.
+	for echo: Dictionary in source_presentation.get("illusion_echo_previews", []):
+		_elemental_append_unique_depth_tile(tiles, _ranged_preview_depth_tile(echo))
 	for threat_var: Variant in source_presentation.get("enemy_threat_previews", []):
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue
@@ -10458,6 +10461,11 @@ func _draw_effect_overlay() -> void:
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
 			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
+			# A traded Illusion (Glassway Compass, Empty Husk) blinks the other way.
+			var exchange_from: Vector2i = effect.get("exchange_from", Vector2i(-1, -1))
+			var exchange_to: Vector2i = effect.get("exchange_to", Vector2i(-1, -1))
+			if exchange_from.x >= 0 and exchange_to.x >= 0 and exchange_from != exchange_to:
+				_draw_blink_rift_effect(exchange_from, exchange_to, progress, bool(effect.get("preview", false)))
 		"ranged":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -11276,6 +11284,9 @@ func _target_preview_curve_visible(effect: Dictionary) -> bool:
 	return bool(effect.get("target_curve_visible", true))
 
 func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
+	for echo: Dictionary in presentation.get("illusion_echo_previews", []):
+		if _ranged_preview_depth_tile(echo) == tile:
+			_draw_ranged_target_preview_curve(echo, _ranged_preview_source_anchor(echo), _ranged_preview_target_anchor(echo))
 	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue
@@ -12475,7 +12486,7 @@ func _draw_path_preview() -> void:
 			and path_tiles == _vector2i_array(focused_threat.get("projected_path", []))
 		)
 	if not base_path_is_focused_enemy:
-		_draw_path_tiles(path_tiles, color)
+		_draw_path_tiles(path_tiles, color, true)
 	for threat_var: Variant in enemy_threat_previews:
 		if typeof(threat_var) != TYPE_DICTIONARY:
 			continue
@@ -12487,14 +12498,71 @@ func _draw_path_preview() -> void:
 			ENEMY_PATH_PREVIEW_COLOR
 		)
 
+func _draw_light_jump_arc(from: Vector2, to: Vector2, color: Color) -> void:
+	# A Light jump is a dashed arc, thinner than the walked shaft so it reads as a
+	# leap rather than a step; dashes scale with the line so they never become rungs.
+	var height: float = from.distance_to(to) * 0.35
+	var width: float = maxf(3.0, _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO * 0.45)
+	var dash: float = width * 2.6
+	var period: float = dash + width * 1.7
+	var samples: PackedVector2Array = PackedVector2Array()
+	var lengths: PackedFloat32Array = PackedFloat32Array()
+	for index: int in range(0, 65):
+		var t: float = float(index) / 64.0
+		samples.append(from.lerp(to, t) + Vector2.UP * (4.0 * t * (1.0 - t) * height))
+		lengths.append(0.0 if index == 0 else lengths[index - 1] + samples[index - 1].distance_to(samples[index]))
+	var total: float = lengths[lengths.size() - 1]
+	var dash_start: float = 0.0
+	while dash_start < total:
+		var dash_end: float = minf(total, dash_start + dash)
+		var points: PackedVector2Array = PackedVector2Array([_arc_point_at(samples, lengths, dash_start)])
+		for index: int in range(samples.size()):
+			if lengths[index] > dash_start and lengths[index] < dash_end:
+				points.append(samples[index])
+		points.append(_arc_point_at(samples, lengths, dash_end))
+		draw_polyline(points, color, width, true)
+		dash_start += period
+	draw_circle(to, width * 1.1, color)
+
+func _light_jump_depth_tile(a: Vector2i, b: Vector2i) -> Vector2i:
+	if a.x + a.y != b.x + b.y:
+		return a if a.x + a.y > b.x + b.y else b
+	return a if a.x > b.x else b
+
+func _arc_point_at(samples: PackedVector2Array, lengths: PackedFloat32Array, distance: float) -> Vector2:
+	for index: int in range(1, samples.size()):
+		if lengths[index] >= distance:
+			var span: float = lengths[index] - lengths[index - 1]
+			return samples[index - 1].lerp(samples[index], 0.0 if span <= 0.0 else (distance - lengths[index - 1]) / span)
+	return samples[samples.size() - 1]
+
 func _threat_has_projected_movement(threat: Dictionary) -> bool:
 	var path: Array[Vector2i] = _vector2i_array(threat.get("projected_path", []))
 	return path.size() >= 2 and path[0] != path[path.size() - 1]
 
-func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color) -> void:
+func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> void:
 	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
 	if path_tiles.is_empty():
 		return
+	if hero_path and path_tiles.size() >= 2:
+		var variety = preload("res://scripts/surface_variety_relic_rules.gd")
+		var has_jump: bool = false
+		for index: int in range(1, path_tiles.size()):
+			if variety.is_light_link(combat_state, path_tiles[index - 1], path_tiles[index]): has_jump = true
+		if has_jump:
+			var segment: Array[Vector2i]
+			segment.append(path_tiles[0])
+			for index: int in range(1, path_tiles.size()):
+				if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1:
+					if segment.size() >= 2: _draw_path_tiles(segment, color)
+					# The arc floats above the floor, so it draws once, in the later endpoint's depth pass.
+					var jump_depth_tile: Vector2i = _light_jump_depth_tile(path_tiles[index - 1], path_tiles[index])
+					if _path_depth_tile.x < 0 or _path_depth_tile == jump_depth_tile:
+						_draw_light_jump_arc(_tile_center(path_tiles[index - 1]), _tile_center(path_tiles[index]), color)
+					segment.clear()
+				segment.append(path_tiles[index])
+			if segment.size() >= 2: _draw_path_tiles(segment, color)
+			return
 	var tile_width: float = _tile_width()
 	var point_offset := Vector2(0.0, -tile_width * 0.075)
 	if path_tiles.size() == 1:
@@ -16156,6 +16224,8 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 		var chilled: bool = bool(predicted.get("chilled", false))
 		if frozen or chilled:
 			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
+		if int(predicted.get("shock", 0)) > int(unit.get("shock", 0)):
+			badges.append({"icon": "shock", "count_text": "→", "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"})
 
 	return badges
 
@@ -16297,8 +16367,14 @@ func _surface_tooltip_for_tile(tile: Vector2i) -> String:
 func _draw_board_surface(tile: Vector2i) -> void:
 	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
+	# Ground a feedback beat replaces, consumes or breaks keeps its retained
+	# layer for the start of the beat, fading out as the new ground arrives.
+	var feedback_events: Array = presentation.get("surface_feedback_events", []) as Array
+	var feedback_progress: float = float(presentation.get("surface_feedback_progress", 0.0))
 	if retained_rubble:
-		var show_rubble: bool = visible_tile and BoardSurfaceRules.has_rubble(combat_state, tile)
+		var has_rubble: bool = BoardSurfaceRules.has_rubble(combat_state, tile)
+		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)
+		var show_rubble: bool = visible_tile and (has_rubble or rubble_leaving > 0.0)
 		if show_rubble and _surface_rubble_layer == null:
 			_surface_rubble_layer = BoardSurfaceRubbleLayer.new()
 			_surface_rubble_layer.name = "SurfaceRubble"
@@ -16307,6 +16383,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if _surface_rubble_layer != null:
 			_surface_rubble_layer.visible = show_rubble
 			if show_rubble:
+				_surface_rubble_layer.modulate.a = 1.0 if has_rubble else rubble_leaving
 				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
 	elif _surface_rubble_layer != null:
 		_surface_rubble_layer.visible = false
@@ -16317,7 +16394,9 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		return
 	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
 	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
-	var retained_ice: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "ice"
+	var element: String = BoardSurfaceRules.element_at(combat_state, tile)
+	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
+	var retained_ice: bool = retained_rubble and (element == "ice" or ice_leaving > 0.0)
 	if retained_ice and _surface_ice_layer == null:
 		_surface_ice_layer = BoardSurfaceIceLayer.new()
 		_surface_ice_layer.name = "SurfaceIce"
@@ -16328,10 +16407,12 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_ice:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_ice_layer.modulate.a = 1.0 if element == "ice" else ice_leaving
 			_surface_ice_layer.configure(_tile_center(tile), _tile_width(), seed, phase)
 			# Rubble may be added after this Ice child already exists.
 			move_child(_surface_ice_layer, get_child_count() - 1)
-	var retained_fire: bool = retained_rubble and BoardSurfaceRules.element_at(combat_state, tile) == "fire"
+	var fire_leaving: float = 0.0 if element == "fire" else BoardSurfacePresentation.leaving_alpha(tile, "fire", feedback_events, feedback_progress)
+	var retained_fire: bool = retained_rubble and (element == "fire" or fire_leaving > 0.0)
 	if retained_fire and _surface_fire_layer == null:
 		_surface_fire_layer = BoardSurfaceFireLayer.new()
 		_surface_fire_layer.name = "SurfaceFire"
@@ -16342,9 +16423,12 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_fire:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_fire_layer.modulate.a = 1.0 if element == "fire" else fire_leaving
 			_surface_fire_layer.configure(_tile_center(tile), _tile_width(), seed, phase, reduced_motion)
 			move_child(_surface_fire_layer, get_child_count() - 1)
-	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and BoardSurfaceRules.is_conductive(combat_state, tile)
+	var conductive: bool = BoardSurfaceRules.is_conductive(combat_state, tile)
+	var electric_leaving: float = 0.0 if conductive else BoardSurfacePresentation.leaving_alpha(tile, "electrified", feedback_events, feedback_progress)
+	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and (conductive or electric_leaving > 0.0)
 	if retained_electric and _surface_electric_layer == null:
 		_surface_electric_layer = BoardSurfaceElectricLayer.new()
 		_surface_electric_layer.name = "SurfaceElectric"
@@ -16355,14 +16439,15 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		if retained_electric:
 			var seed: int = tile.x * 101 + tile.y * 307
 			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
-			var opacity: float = 0.75 if BoardSurfaceRules.element_at(combat_state, tile) == "fire" else 1.0
+			var opacity: float = 0.75 if element == "fire" else 1.0
+			_surface_electric_layer.modulate.a = 1.0 if conductive else electric_leaving
 			_surface_electric_layer.configure(_tile_center(tile), _tile_width(), seed, phase, opacity)
 			move_child(_surface_electric_layer, get_child_count() - 1)
 	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
 	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
 	_draw_surface_connection_preview(tile)
 	_draw_surface_conduction_floor(tile)
-	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_feedback_events", []) as Array, float(presentation.get("surface_feedback_progress", 0.0)), bool(presentation.get("reduced_motion", false)))
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), feedback_events, feedback_progress, bool(presentation.get("reduced_motion", false)))
 
 func _draw_surface_connection_preview(tile: Vector2i) -> void:
 	for arc_var: Variant in presentation.get("surface_preview_arcs", []):

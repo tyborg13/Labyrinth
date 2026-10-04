@@ -296,6 +296,28 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
 	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
+	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
+	next_state["pending_relics"] = GameData.normalized_relic_ids(next_state.get("pending_relics", []), next_state["relics"])
+	for reward_key: String in ["guardian_reward", "pending_reward", "pending_escape"]:
+		var reward: Dictionary = (next_state.get(reward_key, {}) as Dictionary).duplicate(true)
+		if reward.has("relic_id"):
+			reward["relic_id"] = GameData.resolve_relic_id(str(reward["relic_id"]))
+		var board_state: Dictionary = (reward.get("board_state", {}) as Dictionary).duplicate(true)
+		if board_state.has("relics"):
+			board_state["relics"] = GameData.normalized_relic_ids(board_state["relics"])
+			reward["board_state"] = board_state
+		if not reward.is_empty():
+			next_state[reward_key] = reward
+	if str(next_state.get("mode", "")) == "treasure" and (next_state["pending_relics"] as Array).is_empty():
+		next_state["mode"] = "room"
+	# A retired Curator reserve whose replacement is already owned would duplicate it.
+	if typeof(next_state.get(SKILL_STATE_KEY, null)) == TYPE_DICTIONARY:
+		var raw_pending_relic: String = str((next_state[SKILL_STATE_KEY] as Dictionary).get("pending_relic", ""))
+		var live_pending_relic: String = GameData.resolve_relic_id(raw_pending_relic)
+		if raw_pending_relic != live_pending_relic and (next_state["relics"] as Array).has(live_pending_relic):
+			var raw_skill_state: Dictionary = (next_state[SKILL_STATE_KEY] as Dictionary).duplicate(true)
+			raw_skill_state["pending_relic"] = ""
+			next_state[SKILL_STATE_KEY] = raw_skill_state
 	next_state[SKILL_STATE_KEY] = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	next_state["progression"] = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
 	next_state.erase("stats")
@@ -709,7 +731,7 @@ static func _normalized_skill_state(value: Variant) -> Dictionary:
 	result["events"] = events
 	result["event_revision"] = highest_revision
 	result["pending_card"] = str(source.get("pending_card", ""))
-	result["pending_relic"] = str(source.get("pending_relic", ""))
+	result["pending_relic"] = GameData.resolve_relic_id(str(source.get("pending_relic", "")))
 	result["reserved_merchant"] = (source.get("reserved_merchant", {}) as Dictionary).duplicate(true) if typeof(source.get("reserved_merchant", {})) == TYPE_DICTIONARY else {}
 	var previous_room_value: Variant = source.get("previous_room", Vector2i.ZERO)
 	result["previous_room"] = previous_room_value if typeof(previous_room_value) == TYPE_VECTOR2I else Vector2i.ZERO
@@ -1749,7 +1771,12 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 
 func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: String = "") -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
-	var offered_relics: Array = next_state.get("pending_relics", []) as Array
+	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
+	var offered_relics: Array[String] = GameData.normalized_relic_ids(next_state.get("pending_relics", []), next_state["relics"])
+	if not relic_id.is_empty() and GameData.resolve_relic_id(relic_id).is_empty():
+		return next_state
+	relic_id = GameData.resolve_relic_id(relic_id)
+	deferred_relic_id = GameData.resolve_relic_id(deferred_relic_id)
 	if relic_id.is_empty() and not (next_state.get("guardian_reward", {}) as Dictionary).is_empty():
 		return next_state
 	if relic_id.is_empty():
@@ -1830,6 +1857,12 @@ func apply_progression_update(run_state: Dictionary, progression: Dictionary, pr
 
 func _repair_combat_skill_state(combat_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = combat_state.duplicate(true)
+	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
+	# Saves from before finished-card counting resume with the cards they had played.
+	var turn_flags: Dictionary = (next_state.get("turn_flags", {}) as Dictionary).duplicate(true) if typeof(next_state.get("turn_flags", null)) == TYPE_DICTIONARY else {}
+	if not turn_flags.has("cards_finished") and int(next_state.get("cards_played_this_turn", 0)) > 0:
+		turn_flags["cards_finished"] = int(next_state.get("cards_played_this_turn", 0))
+		next_state["turn_flags"] = turn_flags
 	var combat_skills: Array[String] = []
 	for skill_id: String in SkillTreeLibrary.normalized_ids(next_state.get("skill_ids", [])):
 		if not SkillTreeLibrary.is_retired(skill_id):
@@ -2226,6 +2259,8 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
+		"equipped_equipment": (run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
+		"equipment_grafts": (run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
 		"equipped_items": run_state.get("equipped_items", []).duplicate(),
 		"item_inventory": run_state.get("item_inventory", []).duplicate(),
 		"skill_ids": ((run_state.get("progression", {}) as Dictionary).get("skill_ids", []) as Array).duplicate(),
@@ -2933,7 +2968,7 @@ func _merchant_offer_weight(category: String, item_id: String) -> int:
 	return 1
 
 func _generate_relic_choices(run_state: Dictionary, coord: Vector2i) -> Array[String]:
-	var owned: Array = run_state.get("relics", []).duplicate()
+	var owned: Array[String] = GameData.normalized_relic_ids(run_state.get("relics", []))
 	var available: Array[String] = []
 	for relic_id: String in GameData.relic_ids():
 		if bool(GameData.relic_def(relic_id).get("exclusive_guardian", false)) or not str(GameData.relic_def(relic_id).get("exclusive_boss", "")).is_empty(): continue

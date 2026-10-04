@@ -1,28 +1,21 @@
 {
   "iron_lung": {
     "name": "Iron Lung",
-    "rarity": "common",
-    "description": "The first @icon(health_cost) card you play each turn grants @icon(stoneskin) {0.reward0.amount}.",
+    "rarity": "rare",
+    "description": "Every @icon(health_cost), including an @icon(empower) cost, is paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
     "icon_path": "res://assets/art/relics/iron_lung.png",
-    "accent": "#8f9499",
-    "design_version": 3,
-    "condition_tier": 1,
-    "upside_tier": 1,
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
     "build_tags": [
       "health_cost",
       "stoneskin"
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_health_cost": 1,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 3
-          }
-        ]
+        "type": "health_cost_stoneskin",
+        "stoneskin_per_health": 2
       }
     ]
   },
@@ -95,10 +88,10 @@
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "The first card that creates @icon(illusion) each turn grants @icon(card_play) {0.reward0.amount} and @icon(vision) {0.reward1.amount} @icon(time) {0.reward1.duration}.",
+    "description": "When your @icon(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -109,32 +102,18 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "requires_action_types": [
-          "illusion"
-        ],
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "vision",
-            "amount": 1,
-            "duration": 2
-          }
-        ]
+        "type": "illusion_death_damage",
+        "damage": 3
       }
     ]
   },
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "While you have @icon(block), attacks on your cards inflict @icon(bleed) +{amount}.",
+    "description": "When your @icon(block) stops all of an enemy attack's damage, the attacker gains @icon(bleed) 1.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 1,
     "upside_tier": 1,
     "build_tags": [
@@ -143,17 +122,8 @@
     ],
     "effects": [
       {
-        "type": "player_state_action_mod",
-        "player_min_block": 1,
-        "action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "field": "bleed",
+        "type": "fully_blocked_attack_status",
+        "status": "bleed",
         "amount": 1
       }
     ]
@@ -186,10 +156,10 @@
   "iron_buckler": {
     "name": "Iron Buckler",
     "rarity": "common",
-    "description": "The first card each turn with @icon(block) or @icon(stoneskin) and no attacks grants @icon(draw) {0.reward0.amount}.",
+    "description": "At the start of your turn, keep up to 3 of your @icon(block).",
     "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 1,
     "upside_tier": 1,
     "build_tags": [
@@ -198,36 +168,18 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "requires_any_action_types": [
-          "block",
-          "stoneskin"
-        ],
-        "excludes_action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 1
-          }
-        ]
+        "type": "retain_turn_block",
+        "amount": 3
       }
     ]
   },
   "flint_edge": {
     "name": "Flint Edge",
     "rarity": "common",
-    "description": "Your @icon(melee) attacks deal +{amount} damage to enemies standing on @icon(surface_fire).",
+    "description": "Your @icon(melee) attacks consume the @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) under their target to deal 3 more damage.",
     "icon_path": "res://assets/art/relics/flint_edge.png",
     "accent": "#8f9499",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 1,
     "upside_tier": 1,
     "build_tags": [
@@ -237,13 +189,8 @@
     ],
     "effects": [
       {
-        "type": "target_state_action_mod",
-        "target_surface": "fire",
-        "action_types": [
-          "melee"
-        ],
-        "field": "damage",
-        "amount": 2
+        "type": "melee_consume_elemental_damage",
+        "amount": 3
       }
     ]
   },
@@ -308,7 +255,9 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "rubblewalker_greaves"
   },
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
@@ -416,10 +365,10 @@
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "The first @icon(blink) {threshold}+ each turn grants @icon(draw) {value} and @icon(card_play) {card_play}.",
+    "description": "After you @icon(blink), your next attack this turn deals 1 more damage for each tile that @icon(blink) spanned (max 4 more).",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -428,10 +377,9 @@
     ],
     "effects": [
       {
-        "type": "blink_draw_once_per_turn",
-        "threshold": 3,
-        "value": 1,
-        "card_play": 1
+        "type": "blink_distance_next_attack",
+        "max": 4,
+        "source_name": "Gale Tabi"
       }
     ]
   },
@@ -488,10 +436,10 @@
   "venom_signet": {
     "name": "Quarry Signet",
     "rarity": "rare",
-    "description": "Your attacks deal +{amount} damage to enemies standing on @icon(surface_rubble).",
+    "description": "Enemies standing on @icon(surface_rubble) take 1 more damage from everything: attacks, @icon(collision), @icon(surface_fire) and @icon(retaliate).",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -502,18 +450,9 @@
     ],
     "effects": [
       {
-        "type": "target_state_action_mod",
-        "target_surface": "rubble",
-        "action_types": [
-          "melee",
-          "ranged",
-          "aoe",
-          "push",
-          "pull",
-          "detonate"
-        ],
-        "field": "damage",
-        "amount": 2
+        "type": "damage_on_surface",
+        "surface": "rubble",
+        "amount": 1
       }
     ]
   },
@@ -550,10 +489,10 @@
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "Once per combat, an enemy killed by your @icon(surface_fire) or @icon(detonate) grants @icon(heal) {0.reward0.amount} and leaves @icon(illuminate) 1 @icon(time) 2.",
+    "description": "When an enemy dies while standing on @icon(surface_fire), @icon(surface_fire) spreads to each empty tile next to where it fell.",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -564,24 +503,8 @@
     ],
     "effects": [
       {
-        "type": "enemy_death_reward",
-        "damage_sources": [
-          "surface_fire",
-          "detonate"
-        ],
-        "causal_owner": "player",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "heal",
-            "amount": 3
-          },
-          {
-            "type": "illuminate_event",
-            "radius": 1,
-            "duration": 2
-          }
-        ]
+        "type": "death_on_surface_spread",
+        "surface": "fire"
       }
     ]
   },
@@ -608,10 +531,10 @@
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "Once per turn, inflicting @icon(freeze) while you have @icon(block) converts up to @icon(block) {0.reward0.amount} into @icon(stoneskin).",
+    "description": "When you @icon(freeze) an enemy while you have 4 or more @icon(block), your @icon(block) hardens: lose all your @icon(block) and gain 1 @icon(frost_armor) layer for every 4 lost (max 2).",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 3,
     "upside_tier": 3,
     "build_tags": [
@@ -620,16 +543,14 @@
     ],
     "effects": [
       {
-        "type": "status_count_reward",
+        "type": "status_applied_reward",
         "status": "freeze",
-        "threshold": 1,
-        "player_min_block": 1,
-        "count_scope": "turn",
-        "once": "turn",
+        "player_min_block": 4,
         "rewards": [
           {
-            "type": "block_to_stoneskin",
-            "amount": 6
+            "type": "block_to_mantle",
+            "block_per_layer": 4,
+            "max_layers": 2
           }
         ]
       }
@@ -706,10 +627,10 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "The first @icon(move) or @icon(blink) {threshold}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+    "description": "Your @icon(move) can pass through enemies (you can't stop on one). Each enemy you pass through suffers @icon(stagger) 2.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 3,
     "upside_tier": 3,
     "build_tags": [
@@ -718,19 +639,8 @@
     ],
     "effects": [
       {
-        "type": "long_move_card_play",
-        "threshold": 4,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 4
-          }
-        ]
+        "type": "move_through_enemies_stagger",
+        "stagger": 2
       }
     ]
   },
@@ -761,10 +671,10 @@
   "storm_crown": {
     "name": "Storm Crown",
     "rarity": "legendary",
-    "description": "The first @icon(chain) attack each turn that hits at least {threshold} different enemies grants @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+    "description": "Your @icon(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage (rounded down).",
     "icon_path": "res://assets/art/relics/storm_crown.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -775,20 +685,7 @@
     ],
     "effects": [
       {
-        "type": "chain_hit_count_reward",
-        "threshold": 3,
-        "once": "turn",
-        "owner": "player",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 2
-          },
-          {
-            "type": "card_play",
-            "amount": 1
-          }
-        ]
+        "type": "chain_rebound"
       }
     ]
   },
@@ -892,7 +789,9 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "pitch_gloves"
   },
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
@@ -947,7 +846,9 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "grounding_pin"
   },
   "updraft_bottle": {
     "name": "Updraft Bottle",
@@ -1051,7 +952,9 @@
         "duration": 2,
         "once": "turn"
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "copper_shod_staff"
   },
   "tectonic_abacus": {
     "name": "Captured Noon",
@@ -1085,10 +988,10 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "Once per combat, having {required_types} different surface types in view grants @icon(stoneskin) {0.reward0.amount} and @icon(draw) {0.reward1.amount}.",
+    "description": "When you place @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) on a tile holding a different one of them, it also spreads to each empty tile next to it.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 3,
     "upside_tier": 3,
     "build_tags": [
@@ -1098,36 +1001,17 @@
     ],
     "effects": [
       {
-        "type": "board_surface_types_reward",
-        "required_types": 3,
-        "surfaces": [
-          "fire",
-          "ice",
-          "electrified",
-          "rubble"
-        ],
-        "visible_only": true,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 6
-          },
-          {
-            "type": "draw",
-            "amount": 2
-          }
-        ]
+        "type": "elemental_overwrite_spread"
       }
     ]
   },
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Once per combat, your first elemental @icon(surface_consume) on @icon(surface_rubble) deals {0.reward0.damage} to everyone in a cross around the first consumed tile and grants @icon(stoneskin) {0.reward1.amount}.",
+    "description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -1138,60 +1022,19 @@
     ],
     "effects": [
       {
-        "type": "layered_surface_consumption_reward",
-        "requires_underlay": "rubble",
-        "surfaces": [
-          "fire",
-          "ice",
-          "electrified"
-        ],
-        "once": "combat",
-        "owner": "player",
-        "position_mode": "first_consumed_tile",
-        "rewards": [
-          {
-            "type": "surface_pulse",
-            "damage": 6,
-            "pattern": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                -1,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                0,
-                -1
-              ]
-            ],
-            "affects": "all_actors",
-            "damage_source": "relic"
-          },
-          {
-            "type": "stoneskin",
-            "amount": 6
-          }
-        ]
+        "type": "store_consumed_surface_release",
+        "capacity": 3,
+        "damage": 2
       }
     ]
   },
   "duelist_whetstone": {
     "name": "Duelist Whetstone",
     "rarity": "common",
-    "description": "Attacks on the first card each turn that also uses @icon(move) or @icon(blink) deal +{value} damage.",
+    "description": "Attacks on cards that also @icon(move) or @icon(blink) deal 1 more damage for each tile you've traveled this turn (max 3 more).",
     "icon_path": "res://assets/art/relics/duelist_whetstone.png",
     "accent": "#8f9499",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 1,
     "upside_tier": 1,
     "build_tags": [
@@ -1200,21 +1043,13 @@
     ],
     "effects": [
       {
-        "type": "first_card_attack_bonus",
-        "requires_any_action_type_groups": [
-          [
-            "move",
-            "blink"
-          ],
-          [
-            "melee",
-            "ranged",
-            "aoe",
-            "push",
-            "pull"
-          ]
+        "type": "moved_tiles_card_attack_bonus",
+        "requires_any_action_types": [
+          "move",
+          "blink"
         ],
-        "value": 2
+        "amount": 1,
+        "max": 3
       }
     ]
   },
@@ -1252,15 +1087,17 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "tallow_candle"
   },
   "chorus_mask": {
     "name": "Chorus Mask",
     "rarity": "rare",
-    "description": "The first elemental card played after a different element each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+    "description": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more @icon(block).",
     "icon_path": "res://assets/art/relics/chorus_mask.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -1269,29 +1106,19 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "previous_element": "different",
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 3
-          }
-        ]
+        "type": "alternating_element_card_bonus",
+        "damage": 2,
+        "block": 2
       }
     ]
   },
   "hourglass_splinter": {
     "name": "Hourglass Splinter",
     "rarity": "rare",
-    "description": "The first card with @icon(time) {min_time}+ each turn grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+    "description": "When you play a card that costs 6 or more @icon(time), @icon(quicken) 2.",
     "icon_path": "res://assets/art/relics/hourglass_splinter.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -1300,19 +1127,9 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_time": 7,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 4
-          }
-        ]
+        "type": "high_time_quicken",
+        "min_time": 6,
+        "amount": 2
       }
     ]
   },
@@ -1350,10 +1167,10 @@
   "funeral_bell": {
     "name": "Funeral Bell",
     "rarity": "epic",
-    "description": "When your actions kill the third enemy with a status effect this combat, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+    "description": "When an enemy dies with 2 or more different statuses, such as @icon(bleed) and @icon(expose), each enemy next to it gains them.",
     "icon_path": "res://assets/art/relics/funeral_bell.png",
     "accent": "#9b62d6",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 3,
     "upside_tier": 3,
     "build_tags": [
@@ -1362,32 +1179,18 @@
     ],
     "effects": [
       {
-        "type": "enemy_death_reward",
-        "requires_status": true,
-        "threshold": 3,
-        "count_scope": "combat",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 3
-          },
-          {
-            "type": "card_play",
-            "amount": 2
-          }
-        ],
-        "requires_player_action": true
+        "type": "death_status_spread",
+        "threshold": 2
       }
     ]
   },
   "bloodmoon_chalice": {
     "name": "Bloodmoon Chalice",
     "rarity": "epic",
-    "description": "The first @icon(health_cost) card you finish at @icon(health) 50% or less each combat grants @icon(heal) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
+    "description": "When you lose @icon(health) during your turn, your next attack this turn deals 2 more damage per @icon(health) lost (max 8 more).",
     "icon_path": "res://assets/art/relics/bloodmoon_chalice.png",
     "accent": "#9b62d6",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 3,
     "upside_tier": 3,
     "build_tags": [
@@ -1396,24 +1199,9 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "min_health_cost": 1,
-        "player_hp_percent_max": 50,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "heal",
-            "amount": 5
-          },
-          {
-            "type": "draw",
-            "amount": 2
-          },
-          {
-            "type": "card_play",
-            "amount": 1
-          }
-        ]
+        "type": "health_loss_next_attack",
+        "damage_per_health": 2,
+        "max_damage": 8
       }
     ]
   },
@@ -1457,15 +1245,17 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "echoing_blade"
   },
   "fivefold_knot": {
     "name": "Fivefold Knot",
     "rarity": "legendary",
-    "description": "Once per combat, after you play all {unique_elements_threshold} elements in one turn, gain @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+    "description": "Each element you play ties its knot for this combat. With 3 of the 5 knots, your attacks @icon(pierce); with 4, they also gain @icon(chain) 1; with all 5, every card you play also grants 3 @icon(block).",
     "icon_path": "res://assets/art/relics/fivefold_knot.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -1474,30 +1264,23 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "unique_elements_threshold": 5,
-        "unique_elements_scope": "turn",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 5
-          },
-          {
-            "type": "card_play",
-            "amount": 5
-          }
-        ]
+        "type": "combat_element_knots",
+        "max_knots": 5,
+        "pierce_threshold": 3,
+        "chain_threshold": 4,
+        "chain": 1,
+        "block_threshold": 5,
+        "block": 3
       }
     ]
   },
   "borrowed_hourglass": {
     "name": "Borrowed Hourglass",
     "rarity": "legendary",
-    "description": "The first banked @icon(card_play) spent on a @icon(time) {min_time}+ card each combat grants @icon(draw) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+    "description": "Once per combat, when you end your turn with a @icon(card_play) unused, take another turn at once. Everything it costs is added to your next turn's @icon(time).",
     "icon_path": "res://assets/art/relics/borrowed_hourglass.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -1506,20 +1289,8 @@
     ],
     "effects": [
       {
-        "type": "card_play_reward",
-        "used_banked_play": true,
-        "min_time": 7,
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "draw",
-            "amount": 4
-          },
-          {
-            "type": "card_play",
-            "amount": 3
-          }
-        ]
+        "type": "unused_play_extra_turn",
+        "once": "combat"
       }
     ]
   },
@@ -1551,7 +1322,9 @@
         "duration": 2,
         "once": "turn"
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "fencers_gloves"
   },
   "glowstone_matrix": {
     "name": "Glowstone Matrix",
@@ -1577,7 +1350,9 @@
           "duration": 2
         }
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "grave_dirt"
   },
   "briar_winch": {
     "name": "Quarry Winch",
@@ -1605,10 +1380,10 @@
   "hourglass_awl": {
     "name": "Hourglass Awl",
     "rarity": "common",
-    "description": "Attacks on cards with @icon(time) {min_time}+ gain @icon(pierce).",
+    "description": "Attacks on cards that cost 6 or more @icon(time) gain @icon(pierce).",
     "icon_path": "res://assets/art/relics/hourglass_awl.png",
     "accent": "#8f9499",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 1,
     "upside_tier": 1,
     "build_tags": [
@@ -1618,7 +1393,7 @@
     "effects": [
       {
         "type": "card_action_mod",
-        "min_time": 7,
+        "min_time": 6,
         "action_types": [
           "melee",
           "ranged",
@@ -1635,10 +1410,10 @@
   "beaconrunner_spurs": {
     "name": "Beaconrunner Spurs",
     "rarity": "rare",
-    "description": "The first @icon(move) or @icon(blink) each turn that ends in @icon(illuminate) grants @icon(card_play) {0.reward0.amount} and @icon(block) {0.reward1.amount}.",
+    "description": "Each tile of your @icon(illuminate) you enter during a @icon(move) refunds 1 movement (max 2 each turn).",
     "icon_path": "res://assets/art/relics/beaconrunner_spurs.png",
     "accent": "#4b84d8",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 2,
     "upside_tier": 2,
     "build_tags": [
@@ -1649,23 +1424,8 @@
     ],
     "effects": [
       {
-        "type": "movement_end_reward",
-        "action_types": [
-          "move",
-          "blink"
-        ],
-        "player_in_light": true,
-        "once": "turn",
-        "rewards": [
-          {
-            "type": "card_play",
-            "amount": 1
-          },
-          {
-            "type": "block",
-            "amount": 3
-          }
-        ]
+        "type": "light_move_refund",
+        "max": 2
       }
     ]
   },
@@ -1693,7 +1453,9 @@
         "field": "range",
         "amount": 1
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "bonded_set"
   },
   "dawnstitch_cord": {
     "name": "Dawnstitch Cord",
@@ -1725,7 +1487,9 @@
           }
         ]
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "martyrs_gorget"
   },
   "starless_astrolabe": {
     "name": "Starless Astrolabe",
@@ -1754,7 +1518,9 @@
         "duration": 2,
         "owner": "player"
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "changelings_rattle"
   },
   "witchglass_carapace": {
     "name": "Witchglass Carapace",
@@ -1800,7 +1566,9 @@
         "radius": 2,
         "tethered": true
       }
-    ]
+    ],
+    "retired": true,
+    "replacement_id": "hollow_puppet"
   },
   "sunlit_edge": {
     "name": "Sunlit Edge",
@@ -1836,32 +1604,30 @@
   },
   "glassway_compass": {
     "name": "Glassway Compass",
-    "rarity": "legendary",
-    "description": "The first @icon(blink) each turn creates @icon(illusion) 2 on the tile you left.",
+    "rarity": "epic",
+    "description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it instantly, skipping the tiles between.",
     "icon_path": "res://assets/art/relics/glassway_compass.png",
-    "accent": "#d9862f",
-    "design_version": 3,
-    "condition_tier": 4,
-    "upside_tier": 4,
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
     "build_tags": [
       "blink",
       "illusion"
     ],
     "effects": [
       {
-        "type": "blink_origin_illusion",
-        "health": 2,
-        "once": "turn"
+        "type": "movement_illusion_exchange"
       }
     ]
   },
   "unclouded_sun": {
     "name": "Unclouded Sun",
     "rarity": "legendary",
-    "description": "Once per combat, when a room that began with @icon(umbra) first becomes Clear, gain @icon(stoneskin) {0.reward0.amount}, @icon(draw) {0.reward1.amount}, and @icon(card_play) {0.reward2.amount}.",
+    "description": "Your @icon(illuminate) sources are relay points: when you @icon(move), each of them counts as next to every other.",
     "icon_path": "res://assets/art/relics/unclouded_sun.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -1871,24 +1637,7 @@
     ],
     "effects": [
       {
-        "type": "umbra_transition_reward",
-        "initial_stage_min": "fringe",
-        "target_stage": "clear",
-        "once": "combat",
-        "rewards": [
-          {
-            "type": "stoneskin",
-            "amount": 12
-          },
-          {
-            "type": "draw",
-            "amount": 3
-          },
-          {
-            "type": "card_play",
-            "amount": 3
-          }
-        ]
+        "type": "light_move_links"
       }
     ]
   },
@@ -2101,10 +1850,10 @@
   "unbound_pinion": {
     "name": "Unbound Pinion",
     "rarity": "legendary",
-    "description": "The first card action each turn that @icon(push) or @icon(pull) an enemy at least 2 tiles refills your @icon(move) and grants @icon(draw) 1.",
+    "description": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you @icon(draw) 1.",
     "icon_path": "res://assets/art/relics/unbound_pinion.png",
     "accent": "#d9862f",
-    "design_version": 3,
+    "design_version": 4,
     "condition_tier": 4,
     "upside_tier": 4,
     "build_tags": [
@@ -2126,7 +1875,8 @@
             "type": "draw",
             "amount": 1
           }
-        ]
+        ],
+        "collision": true
       }
     ]
   },
@@ -2201,6 +1951,894 @@
         "type": "illusion_light_aura",
         "radius": 2,
         "tethered": true
+      }
+    ]
+  },
+  "recoil_plates": {
+    "name": "Recoil Plates",
+    "rarity": "common",
+    "description": "You take 1 @icon(collision) damage per lost tile instead of 2. Whenever you are part of a @icon(collision), gain 3 @icon(block).",
+    "icon_path": "res://assets/art/relics/recoil_plates.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "forced",
+      "block",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "collision_player_defense",
+        "damage_per_tile": 1,
+        "block": 3
+      }
+    ]
+  },
+  "millstone_fob": {
+    "name": "Millstone Fob",
+    "rarity": "common",
+    "description": "When an enemy you @icon(push) or @icon(pull) collides, the tile it stopped on becomes @icon(surface_rubble).",
+    "icon_path": "res://assets/art/relics/millstone_fob.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "forced",
+      "earth",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "collision_rubble"
+      }
+    ]
+  },
+  "tallow_candle": {
+    "name": "Tallow Candle",
+    "rarity": "common",
+    "description": "At the start of each combat, create radius-2 @icon(illuminate) on your tile for 3 turns.",
+    "icon_path": "res://assets/art/relics/tallow_candle.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "radiance",
+      "setup"
+    ],
+    "effects": [
+      {
+        "type": "start_combat_light",
+        "radius": 2,
+        "duration": 3
+      }
+    ]
+  },
+  "pocket_sundial": {
+    "name": "Pocket Sundial",
+    "rarity": "common",
+    "description": "Each @icon(card_play) you leave unused at the end of your turn makes your next turn come 1 @icon(time) sooner (max 2).",
+    "icon_path": "res://assets/art/relics/pocket_sundial.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "tempo",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "unused_play_time_reduction",
+        "amount": 1,
+        "max": 2
+      }
+    ]
+  },
+  "leaden_pommel": {
+    "name": "Leaden Pommel",
+    "rarity": "common",
+    "description": "Attacks on cards that cost 5 or more @icon(time) @icon(stagger) 1.",
+    "icon_path": "res://assets/art/relics/leaden_pommel.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "tempo",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "card_action_mod",
+        "min_time": 5,
+        "action_types": [
+          "melee",
+          "ranged",
+          "aoe",
+          "push",
+          "pull",
+          "detonate"
+        ],
+        "field": "stagger",
+        "amount": 1
+      }
+    ]
+  },
+  "pitch_gloves": {
+    "name": "Pitch Gloves",
+    "rarity": "common",
+    "description": "@icon(surface_fire) deals you 1 less damage. @icon(surface_fire) you create deals enemies 1 more.",
+    "icon_path": "res://assets/art/relics/pitch_gloves.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "fire",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "surface_damage_bonus",
+        "surface": "fire",
+        "actor_kind": "player",
+        "amount": -1
+      },
+      {
+        "type": "surface_damage_bonus",
+        "surface": "fire",
+        "actor_kind": "enemy",
+        "owner": "player",
+        "amount": 1
+      }
+    ]
+  },
+  "hobnail_cleats": {
+    "name": "Hobnail Cleats",
+    "rarity": "common",
+    "description": "@icon(surface_ice) doesn't make you @icon(chilled). While you stand on @icon(surface_ice), your @icon(element_ice) attacks deal 2 more damage.",
+    "icon_path": "res://assets/art/relics/hobnail_cleats.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "ice",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "surface_chill_immunity"
+      },
+      {
+        "type": "player_state_action_mod",
+        "player_surface": "ice",
+        "element": "ice",
+        "action_types": [
+          "melee",
+          "ranged",
+          "aoe",
+          "push",
+          "pull",
+          "detonate"
+        ],
+        "field": "damage",
+        "amount": 2
+      }
+    ]
+  },
+  "grounding_pin": {
+    "name": "Grounding Pin",
+    "rarity": "common",
+    "description": "Your single-target attacks against an enemy standing on @icon(surface_electrified) gain @icon(chain) 1.",
+    "icon_path": "res://assets/art/relics/grounding_pin.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "lightning",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "target_state_action_mod",
+        "target_surface": "electrified",
+        "action_types": [
+          "melee",
+          "ranged",
+          "push",
+          "pull"
+        ],
+        "field": "chain",
+        "amount": 1,
+        "requires_damage": true
+      }
+    ]
+  },
+  "rubblewalker_greaves": {
+    "name": "Rubblewalker Greaves",
+    "rarity": "common",
+    "description": "@icon(surface_rubble) doesn't slow you. Start each turn standing on @icon(surface_rubble) with 1 @icon(stoneskin).",
+    "icon_path": "res://assets/art/relics/rubblewalker_greaves.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "earth",
+      "movement",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "ignore_rubble_movement_cost"
+      },
+      {
+        "type": "turn_start_surface_stoneskin",
+        "surface": "rubble",
+        "amount": 1
+      }
+    ]
+  },
+  "grave_dirt": {
+    "name": "Grave Dirt",
+    "rarity": "common",
+    "description": "Start each combat with 4 @icon(stoneskin).",
+    "icon_path": "res://assets/art/relics/grave_dirt.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "earth",
+      "setup"
+    ],
+    "effects": [
+      {
+        "type": "start_combat_stoneskin",
+        "value": 4
+      }
+    ]
+  },
+  "waxen_effigy": {
+    "name": "Waxen Effigy",
+    "rarity": "common",
+    "description": "At the start of each combat, create a 2-@icon(health) @icon(illusion) on the empty tile next to you nearest an enemy.",
+    "icon_path": "res://assets/art/relics/waxen_effigy.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "illusion",
+      "setup"
+    ],
+    "effects": [
+      {
+        "type": "start_combat_adjacent_illusion",
+        "health": 2
+      }
+    ]
+  },
+  "quick_draw_bandolier": {
+    "name": "Quick-Draw Bandolier",
+    "rarity": "common",
+    "description": "Your items don't use a @icon(card_play), but cost 1 more @icon(time).",
+    "icon_path": "res://assets/art/relics/quick_draw_bandolier.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "items",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "item_no_card_play",
+        "time": 1
+      }
+    ]
+  },
+  "briar_vambrace": {
+    "name": "Briar Vambrace",
+    "rarity": "common",
+    "description": "When a card gives you @icon(block), also gain @icon(retaliate) 1 until your next turn.",
+    "icon_path": "res://assets/art/relics/briar_vambrace.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "block",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "card_block_retaliate",
+        "amount": 1
+      }
+    ]
+  },
+  "fencers_gloves": {
+    "name": "Fencer's Gloves",
+    "rarity": "common",
+    "description": "Your second card each turn costs 1 less @icon(time).",
+    "icon_path": "res://assets/art/relics/fencers_gloves.png",
+    "accent": "#8f9499",
+    "design_version": 4,
+    "condition_tier": 1,
+    "upside_tier": 1,
+    "build_tags": [
+      "followup",
+      "tempo",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "nth_card_time_discount",
+        "card_number": 2,
+        "amount": 1
+      }
+    ]
+  },
+  "feint_ribbon": {
+    "name": "Feint Ribbon",
+    "rarity": "rare",
+    "description": "If you've traveled 2 or more tiles this turn, your first card counts as a @icon(follow_up).",
+    "icon_path": "res://assets/art/relics/feint_ribbon.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "followup",
+      "movement",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "movement_first_follow_up",
+        "tiles": 2
+      }
+    ]
+  },
+  "battering_yoke": {
+    "name": "Battering Yoke",
+    "rarity": "rare",
+    "description": "When an enemy you @icon(push) or @icon(pull) collides with another enemy, that enemy is knocked 1 tile in the same direction, colliding normally if it can't @icon(move).",
+    "icon_path": "res://assets/art/relics/battering_yoke.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "forced",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "collision_knock_chain",
+        "amount": 1
+      }
+    ]
+  },
+  "pendulum_weight": {
+    "name": "Pendulum Weight",
+    "rarity": "rare",
+    "description": "@icon(stagger) beyond an enemy's per-turn limit is dealt to it as damage instead.",
+    "icon_path": "res://assets/art/relics/pendulum_weight.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "tempo",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "stagger_overflow_damage"
+      }
+    ]
+  },
+  "martyrs_gorget": {
+    "name": "Martyr's Gorget",
+    "rarity": "rare",
+    "description": "When your @icon(retaliate) damages an attacker, gain that much @icon(block).",
+    "icon_path": "res://assets/art/relics/martyrs_gorget.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "block",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "retaliate_health_block"
+      }
+    ]
+  },
+  "reliquary_box": {
+    "name": "Reliquary Box",
+    "rarity": "rare",
+    "description": "Your opening hand includes a @icon(rite) from your deck, if you have one. Each @icon(rite) costs 1 less @icon(time).",
+    "icon_path": "res://assets/art/relics/reliquary_box.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "rites",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "opening_hand_rite"
+      },
+      {
+        "type": "card_time_discount",
+        "rite_only": true,
+        "amount": 1
+      }
+    ]
+  },
+  "changelings_rattle": {
+    "name": "Changeling's Rattle",
+    "rarity": "rare",
+    "description": "When an enemy destroys your @icon(illusion), that enemy suffers @icon(stagger) 3 and @icon(expose) 2.",
+    "icon_path": "res://assets/art/relics/changelings_rattle.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "illusion",
+      "tempo",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "illusion_enemy_destroy_status",
+        "stagger": 3,
+        "expose": 2
+      }
+    ]
+  },
+  "copper_shod_staff": {
+    "name": "Copper-Shod Staff",
+    "rarity": "rare",
+    "description": "Your outcrops and @icon(illusion) count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
+    "icon_path": "res://assets/art/relics/copper_shod_staff.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "lightning",
+      "earth",
+      "illusion",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "lightning_owned_construct_relays"
+      }
+    ]
+  },
+  "ashen_phylactery": {
+    "name": "Ashen Phylactery",
+    "rarity": "rare",
+    "description": "When you @icon(exhaust) a card, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
+    "icon_path": "res://assets/art/relics/ashen_phylactery.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "rites",
+      "earth",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "exhaust_time_stoneskin",
+        "max_amount": 5
+      }
+    ]
+  },
+  "bonded_set": {
+    "name": "Bonded Set",
+    "rarity": "rare",
+    "description": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more @icon(block).",
+    "icon_path": "res://assets/art/relics/bonded_set.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "gear",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "matching_equipment_card_bonus",
+        "damage": 1,
+        "block": 1
+      }
+    ]
+  },
+  "overclock_coil": {
+    "name": "Overclock Coil",
+    "rarity": "rare",
+    "description": "When you @icon(empower) a card, @icon(quicken) 2.",
+    "icon_path": "res://assets/art/relics/overclock_coil.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "empower",
+      "tempo",
+      "convert"
+    ],
+    "effects": [
+      {
+        "type": "empower_quicken",
+        "amount": 2
+      }
+    ]
+  },
+  "fetter_spikes": {
+    "name": "Fetter Spikes",
+    "rarity": "rare",
+    "description": "Enemies with @icon(immobilize) take double @icon(collision) damage.",
+    "icon_path": "res://assets/art/relics/fetter_spikes.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "status",
+      "forced",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "collision_status_multiplier",
+        "status": "immobilize",
+        "multiplier": 2
+      }
+    ]
+  },
+  "masons_plumb": {
+    "name": "Mason's Plumb",
+    "rarity": "rare",
+    "description": "Your outcrops have 2 more @icon(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+    "icon_path": "res://assets/art/relics/masons_plumb.png",
+    "accent": "#4b84d8",
+    "design_version": 4,
+    "condition_tier": 2,
+    "upside_tier": 2,
+    "build_tags": [
+      "earth",
+      "forced",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "outcrop_collision_guard",
+        "health": 2,
+        "damage": 2,
+        "terrain_kinds": [
+          "crag_outcrop",
+          "worldspine",
+          "powder_keg"
+        ]
+      }
+    ]
+  },
+  "breaking_wheel": {
+    "name": "The Breaking Wheel",
+    "rarity": "epic",
+    "description": "An enemy colliding on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) gives @icon(freeze), @icon(surface_electrified) gives @icon(shock) to it and its blocker, @icon(surface_rubble) gives @icon(stagger) 3.",
+    "icon_path": "res://assets/art/relics/breaking_wheel.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "forced",
+      "fire",
+      "ice",
+      "lightning",
+      "earth",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "collision_break_surfaces",
+        "fire_damage": 3,
+        "rubble_stagger": 3,
+        "shock": 1
+      }
+    ]
+  },
+  "hollow_puppet": {
+    "name": "Hollow Puppet",
+    "rarity": "epic",
+    "description": "Your @icon(push) and @icon(pull) can target your @icon(illusion) without damaging it. An @icon(illusion) that collides with an enemy shatters, dealing its remaining @icon(health) to that enemy instead of @icon(collision) damage.",
+    "icon_path": "res://assets/art/relics/hollow_puppet.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "illusion",
+      "forced",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "force_owned_illusion"
+      }
+    ]
+  },
+  "toll_late_bell": {
+    "name": "Toll of the Late Bell",
+    "rarity": "epic",
+    "description": "Enemies set to act after your next turn on the @icon(turn_clock) are late: your attacks deal them 3 more damage.",
+    "icon_path": "res://assets/art/relics/toll_late_bell.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "tempo",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "damage_vs_late",
+        "amount": 3
+      }
+    ]
+  },
+  "rosary_of_vows": {
+    "name": "Rosary of Vows",
+    "rarity": "epic",
+    "description": "At the start of your turn, gain 2 @icon(block) for each active @icon(rite) you have.",
+    "icon_path": "res://assets/art/relics/rosary_of_vows.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "rites",
+      "block",
+      "engine"
+    ],
+    "effects": [
+      {
+        "type": "turn_start_active_rite_block",
+        "amount": 2
+      }
+    ]
+  },
+  "siege_ram_totem": {
+    "name": "Siege Ram Totem",
+    "rarity": "epic",
+    "description": "Any enemy that takes @icon(collision) damage suffers that much @icon(stagger) (within the normal limit).",
+    "icon_path": "res://assets/art/relics/siege_ram_totem.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "forced",
+      "tempo",
+      "bridge"
+    ],
+    "effects": [
+      {
+        "type": "collision_stagger"
+      }
+    ]
+  },
+  "echoing_blade": {
+    "name": "Echoing Blade",
+    "rarity": "epic",
+    "description": "When a @icon(follow_up) bonus applies, your next card this turn costs 1 less @icon(time) and deals 2 more damage.",
+    "icon_path": "res://assets/art/relics/echoing_blade.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "followup",
+      "engine"
+    ],
+    "effects": [
+      {
+        "type": "follow_up_next_card",
+        "quicken": 1,
+        "damage": 2
+      }
+    ]
+  },
+  "alchemists_retort": {
+    "name": "Alchemist's Retort",
+    "rarity": "epic",
+    "description": "Your items' damage, @icon(block), @icon(heal) and @icon(stoneskin) are increased by half, rounded up.",
+    "icon_path": "res://assets/art/relics/alchemists_retort.png",
+    "accent": "#9b62d6",
+    "design_version": 4,
+    "condition_tier": 3,
+    "upside_tier": 3,
+    "build_tags": [
+      "items",
+      "amplify"
+    ],
+    "effects": [
+      {
+        "type": "item_value_multiplier",
+        "numerator": 3,
+        "denominator": 2
+      }
+    ]
+  },
+  "crown_of_surplus": {
+    "name": "Crown of Surplus",
+    "rarity": "legendary",
+    "description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite) cards, items and @icon(flurry) cards are excluded.",
+    "icon_path": "res://assets/art/relics/crown_of_surplus.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "empower",
+      "tempo",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "grant_first_action_empower",
+        "time": 3
+      }
+    ]
+  },
+  "mirror_triptych": {
+    "name": "Mirror Triptych",
+    "rarity": "legendary",
+    "description": "Your first attack card each turn is echoed by up to 3 @icon(illusion) at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
+    "icon_path": "res://assets/art/relics/mirror_triptych.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "illusion",
+      "engine"
+    ],
+    "effects": [
+      {
+        "type": "first_attack_illusion_echo",
+        "limit": 3
+      }
+    ]
+  },
+  "liturgy_of_ash": {
+    "name": "Liturgy of Ash",
+    "rarity": "legendary",
+    "description": "@icon(rite) cards don't use a @icon(card_play).",
+    "icon_path": "res://assets/art/relics/liturgy_of_ash.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "rites",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "rite_no_card_play"
+      }
+    ]
+  },
+  "pyre_keepers_urn": {
+    "name": "Pyre-Keeper's Urn",
+    "rarity": "legendary",
+    "description": "At the start of your turn, the last card you sent to @icon(exhaust) returns to your hand, unless it is a @icon(rite) or has @icon(heal).",
+    "icon_path": "res://assets/art/relics/pyre_keepers_urn.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "rites",
+      "engine"
+    ],
+    "effects": [
+      {
+        "type": "turn_start_return_exhaust",
+        "once": "turn"
+      }
+    ]
+  },
+  "briar_throne": {
+    "name": "Briar Throne",
+    "rarity": "legendary",
+    "description": "Your @icon(retaliate) no longer expires, and grows by 1 each time it triggers. Cards can't give you @icon(block).",
+    "icon_path": "res://assets/art/relics/briar_throne.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "block",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "persistent_retaliate",
+        "growth": 1
+      },
+      {
+        "type": "prevent_card_block"
+      }
+    ]
+  },
+  "whirling_sash": {
+    "name": "Whirling Sash",
+    "rarity": "legendary",
+    "description": "Gain 1 extra @icon(card_play) each turn. Each card after your second each turn costs 2 more @icon(time).",
+    "icon_path": "res://assets/art/relics/whirling_sash.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "followup",
+      "tempo",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "cards_per_turn_bonus",
+        "value": 1
+      },
+      {
+        "type": "later_card_time_surcharge",
+        "after": 2,
+        "amount": 2
+      }
+    ]
+  },
+  "quartermasters_ledger": {
+    "name": "Quartermaster's Ledger",
+    "rarity": "legendary",
+    "description": "Your items lose @icon(consume), except items that @icon(heal). Each item can be used once per combat.",
+    "icon_path": "res://assets/art/relics/quartermasters_ledger.png",
+    "accent": "#d9862f",
+    "design_version": 4,
+    "condition_tier": 4,
+    "upside_tier": 4,
+    "build_tags": [
+      "items",
+      "transform"
+    ],
+    "effects": [
+      {
+        "type": "item_once_per_combat"
       }
     ]
   }

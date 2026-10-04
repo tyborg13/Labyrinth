@@ -7,6 +7,8 @@ extends RefCounted
 
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
+const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 const PLAY_MODIFIERS_KEY: String = "card_play_modifiers"
 const FOLLOW_UP_FLAG: String = "_follow_up_active"
@@ -39,12 +41,12 @@ static func _keyword_spec_present(spec: Variant) -> bool:
 	if typeof(spec) != TYPE_DICTIONARY:
 		return false
 	var dict: Dictionary = spec
-	return not (dict.get("mods", []) as Array).is_empty() or not (dict.get("append", []) as Array).is_empty()
+	return bool(dict.get("repeat_first", false)) or not (dict.get("mods", []) as Array).is_empty() or not (dict.get("append", []) as Array).is_empty()
 
 # The card that is starting counts only cards finished earlier this activation:
-# cards_played_this_turn increments in finish_player_card, never mid-card.
+# turn_flags.cards_finished increments in finish_player_card, never mid-card.
 static func follow_up_condition_met(state: Dictionary) -> bool:
-	if int(state.get("cards_played_this_turn", 0)) <= 0:
+	if TempoRules.cards_finished(state) <= 0 and not TempoRelicRules.follow_up_from_movement(state, GameData.relic_effects_for_state(state)):
 		return false
 	var actor: Variant = state.get("current_actor", {})
 	return typeof(actor) != TYPE_DICTIONARY or str((actor as Dictionary).get("kind", "player")) == "player"
@@ -80,6 +82,15 @@ static func actions_with_modifiers(card: Dictionary, modifiers: Dictionary) -> A
 		actions = _apply_keyword_spec(actions, card.get("follow_up", {}) as Dictionary, printed_count, "Follow-up", FOLLOW_UP_FLAG)
 	if bool(modifiers.get("empowered", false)) and has_empower(card):
 		actions = _apply_keyword_spec(actions, card.get("empower", {}) as Dictionary, printed_count, "Empower", EMPOWERED_FLAG)
+	if bool(modifiers.get("empowered", false)) and bool((card.get("empower", {}) as Dictionary).get("repeat_first", false)) and not actions.is_empty():
+		var repeated: Dictionary = (actions[0] as Dictionary).duplicate(true)
+		(actions[0] as Dictionary)["_empower_repeat_available"] = true
+		repeated["_empower_repeat_first"] = true
+		repeated[KEYWORD_APPENDED_FLAG] = "Empower"
+		# Existing Flurry reuse path supplies the original target and skips a
+		# now-illegal repeat. Insert before later printed/Follow-up actions.
+		repeated["reuse_previous_target"] = true
+		actions.insert(1, repeated)
 	return actions
 
 static func _apply_keyword_spec(actions: Array, spec: Dictionary, printed_count: int, source: String, flag: String) -> Array:
@@ -208,6 +219,10 @@ static func apply_stagger(engine: RefCounted, state: Dictionary, enemy_id: int, 
 	if int(enemy.get("hp", 0)) <= 0:
 		return 0
 	var delay: int = stagger_delay(str(enemy.get("type", "")), amount, stagger_applied_this_turn(state, enemy_id))
+	var before_cap: int = maxi(0, amount)
+	if DragonBossLibrary.is_dragon_boss_id(str(enemy.get("type", ""))):
+		before_cap = int(before_cap / 2)
+	TempoRelicRules.stagger_overflow(engine, state, enemy_index, before_cap - delay, GameData.relic_effects_for_state(state))
 	if delay <= 0:
 		return 0
 	var flags: Dictionary = (state.get("turn_flags", {}) as Dictionary).duplicate(true)

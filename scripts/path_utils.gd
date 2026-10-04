@@ -108,7 +108,7 @@ static func has_line_of_sight(grid: Array, start: Vector2i, goal: Vector2i) -> b
 
 # Keep geometric range separate from movement cost. Each budget state is
 # considered so a slightly longer safe route can beat a short harmful route.
-static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: Dictionary = {}, step_cost: Callable = Callable(), hazard_cost: Callable = Callable(), minimum_progress: bool = true, pickup_score: Callable = Callable(), stop_after_reaching: Callable = Callable()) -> Dictionary:
+static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: Dictionary = {}, step_cost: Callable = Callable(), hazard_cost: Callable = Callable(), minimum_progress: bool = true, pickup_score: Callable = Callable(), stop_after_reaching: Callable = Callable(), allowed_endpoints: Dictionary = {}) -> Dictionary:
 	var initial_path: Array[Vector2i]
 	initial_path.append(start)
 	var paths: Dictionary = {start: initial_path}
@@ -127,7 +127,7 @@ static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: 
 		current_path.assign(current["path"])
 		for direction: Vector2i in DIRS_4:
 			var next: Vector2i = current_tile + direction
-			if not is_passable(grid, next) or occupied.has(next) or current_path.has(next):
+			if not is_passable(grid, next) or (occupied.has(next) and not allowed_endpoints.has(next)) or current_path.has(next):
 				continue
 			var entry: int = maxi(1, int(step_cost.call(current_tile, next))) if step_cost.is_valid() else 1
 			var spent: int = int(current["cost"]) + entry
@@ -156,7 +156,7 @@ static func weighted_paths(grid: Array, start: Vector2i, budget: int, occupied: 
 			# rules above still decide whether this path is legal.
 			if stop_after_reaching.is_valid() and bool(stop_after_reaching.call(next)):
 				return {"paths": paths, "costs": costs, "hazards": hazards}
-			if spent < budget:
+			if spent < budget and not allowed_endpoints.has(next):
 				queue.append({"tile": next, "cost": spent, "hazard": harm, "pickups": pickup, "path": path})
 	return {"paths": paths, "costs": costs, "hazards": hazards}
 

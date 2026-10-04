@@ -117,7 +117,9 @@ Shrug Off: all current Block becomes Stoneskin (Stoneskin relics trigger).
   turn-start resolution and at combat creation).
 - `straight_line`: destinations on a clear cardinal line from the hero (known
   enemies and terrain block; Rubble/Ice costs still apply). Targets, paths and
-  the move-then-attack plan share `ManeuverRules.straight_line_navigation`.
+  the move-then-attack plan share the same search. U7 movement relics use
+  `SurfaceVarietyRules.navigation` with the straight-line constraint; otherwise
+  they use `ManeuverRules.straight_line_navigation`.
 - `trail_light {radius, duration}`: Light on each tile entered, via the
   Pilgrim Boots / Sunpath path-light machinery (`illuminate_position_mode: path`).
 
@@ -193,3 +195,15 @@ See "Wave-4 movement, forces, flags, Petrify and Mantle" in the
 
 - Area forces animate as a single result beat (collision flash and damage
   floats), not per-enemy slides.
+
+## Relic movement search (R1 fixes)
+
+U7 uses a uniform-cost search over tile, Beacon refunds used, and incoming
+cardinal direction only for straight Move or Winter's Spur. Predecessor labels
+preserve the existing preference for fewer hazards, more pickups, then lower
+movement cost. Light jump neighbours, step costs and hazard/pickup scores are
+computed once per search. Glassway illusion tiles are allowed endpoints in that
+same search, never intermediate steps, including straight Move and Ice movement.
+Beacon refunds at most the positive cost of its landing step; a free Skate step
+uses no refund. Forecast and commit use the same clamp, and independent movement
+remaining is capped at capacity.

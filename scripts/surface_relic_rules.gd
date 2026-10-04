@@ -12,6 +12,8 @@ const CROSS: Array = [Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN,
 static func configure(state: Dictionary) -> void:
 	var overrides: Dictionary = state.get("surface_rule_overrides", {}) as Dictionary
 	overrides["conductive_fire"] = has_effect(state, "conductive_fire")
+	overrides["player_ignores_rubble"] = has_effect(state, "ignore_rubble_movement_cost")
+	overrides["elemental_overwrite_spread"] = has_effect(state, "elemental_overwrite_spread")
 	state["surface_rule_overrides"] = overrides
 
 static func effects(state: Dictionary) -> Array[Dictionary]:
@@ -357,8 +359,14 @@ static func _event_rewards(engine: RefCounted, before: Dictionary, state: Dictio
 						conducted[event.get("tile", INVALID)] = true
 				matched = conducted.size() >= int(entry.get("threshold", 2))
 			"displacement_reward":
-				if int(action.get("push", 0)) <= 0 and int(action.get("pull", 0)) <= 0 and str(action.get("type", "")) not in ["push", "pull"]:
+				if int(action.get("push", 0)) <= 0 and int(action.get("pull", 0)) <= 0 and str(action.get("type", "")) not in ["push", "pull", "force_area"]:
 					continue
+				if bool(entry.get("collision", false)):
+					for event: Dictionary in events:
+						var source: Dictionary = event.get("source", {})
+						if str(event.get("kind", "")) == "force_collision" and str(event.get("actor_kind", "")) == "enemy" and int(event.get("lost_tiles", 0)) > 0 and bool(source.get("player_card", false)) and str(source.get("source_kind", "")) != "trap":
+							matched = true
+							position = event.get("anchor", target)
 				for enemy: Dictionary in before.get("enemies", []):
 					if int(enemy.get("hp", 0)) <= 0: continue
 					var after: Dictionary = enemy_by_id(state, int(enemy.get("id", -1)))
