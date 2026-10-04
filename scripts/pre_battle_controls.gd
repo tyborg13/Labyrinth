@@ -32,7 +32,7 @@ class Foe:
 			accept_event()
 
 	func _draw() -> void:
-		if is_hovered() or has_focus():
+		if is_hovered() or has_focus(true):
 			draw_texture_rect(_glow, Rect2(Vector2.ZERO, size), false)
 
 class Strip:

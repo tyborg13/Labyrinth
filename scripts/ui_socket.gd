@@ -81,7 +81,7 @@ func _ready() -> void:
 	update_minimum_size()
 
 func _socket_active() -> bool:
-	return interactive and not disabled and (is_hovered() or has_focus())
+	return interactive and not disabled and (is_hovered() or has_focus(true))
 
 func _update_icon_material() -> void:
 	if _icon != null:

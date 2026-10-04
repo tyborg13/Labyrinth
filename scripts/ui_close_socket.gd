@@ -22,4 +22,4 @@ func set_glyph_name(node_name: String) -> void:
 	_glyph.name = node_name
 
 func _refresh_glyph() -> void:
-	_glyph.add_theme_color_override("font_color", Palette.GOLD_BRIGHT if is_hovered() or has_focus() else Palette.TEXT_2)
+	_glyph.add_theme_color_override("font_color", Palette.GOLD_BRIGHT if is_hovered() or has_focus(true) else Palette.TEXT_2)

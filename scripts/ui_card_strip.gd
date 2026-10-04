@@ -107,7 +107,7 @@ func _layout() -> void:
 	queue_redraw()
 
 func _interaction_changed() -> void:
-	var active: bool = is_hovered() or has_focus()
+	var active: bool = is_hovered() or has_focus(true)
 	if active != _inspection_active:
 		_inspection_active = active
 		if active:
@@ -119,7 +119,7 @@ func _interaction_changed() -> void:
 func _draw() -> void:
 	if size.x <= 0.0 or size.y <= 0.0:
 		return
-	var active: bool = not disabled and (is_hovered() or has_focus())
+	var active: bool = not disabled and (is_hovered() or has_focus(true))
 	if active:
 		var glow := StyleBoxFlat.new()
 		glow.bg_color = Color.TRANSPARENT
@@ -135,7 +135,7 @@ func _draw() -> void:
 	_finish.queue_redraw()
 
 func _draw_finish() -> void:
-	var active: bool = not disabled and (is_hovered() or has_focus())
+	var active: bool = not disabled and (is_hovered() or has_focus(true))
 	var outline := StyleBoxFlat.new()
 	outline.bg_color = Color.TRANSPARENT
 	outline.border_color = Color(Palette.GOLD_BRIGHT, 0.7) if active else Color(Palette.GOLD, 0.25)

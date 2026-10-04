@@ -21,13 +21,18 @@ func _initialize() -> void:
 	]
 	var popup_source_count: int = 0
 	for entry: Array in sources:
+		var source := panel.find_child(str(entry[0]), true, false) as Button
+		var kind: String = str(entry[1])
+		_expect(source != null, "%s needs its real pre-battle control" % kind)
+		if source == null:
+			continue
+		_viewport.gui_release_focus()
+		await _pointer(Vector2(80.0, 80.0))
+		await _settle()
+		var idle_backing: Image = await _backing_image(source)
+		await _capture("%s/%s_idle.png" % [OUTPUT, kind])
 		for cycle: int in range(2):
-			var source := panel.find_child(str(entry[0]), true, false) as Control
-			var kind: String = str(entry[1])
 			var prefix: String = "%d_%s" % [cycle + 1, kind]
-			_expect(source != null, "%s needs its real pre-battle control" % prefix)
-			if source == null:
-				continue
 			var tooltip_text: String = source.tooltip_text
 			var popup: Window = await _hover_popup(source, prefix)
 			if popup == null:
@@ -59,7 +64,26 @@ func _initialize() -> void:
 			_expect(source.tooltip_text == tooltip_text, "%s must restore the original source tooltip" % prefix)
 			_expect((instance.get("_pinned_pre_battle_tooltip_sources") as Dictionary).is_empty(), "%s close must clear saved hover sources" % prefix)
 			await _pointer(Vector2(80.0, 80.0))
+			await _settle()
+			_expect(not source.is_hovered(), "%s pointer must leave the source after close" % prefix)
+			_expect(source.has_focus() and not source.has_focus(true), "%s must retain hidden pointer-acquired focus to exercise its custom visual" % prefix)
+			var changed_pixels: int = _changed_pixels(idle_backing, await _backing_image(source))
+			print("POINTER FOCUS BACKING: %s changed_pixels=%d" % [prefix, changed_pixels])
+			_expect(changed_pixels <= 4, "%s closed pointer inspection must return to idle backing without glow (changed pixels=%d)" % [prefix, changed_pixels])
 			await _capture("%s/%s_closed.png" % [OUTPUT, prefix])
+		if kind == "enemy":
+			router.call("set_forced_state_for_test", "controller", "xbox")
+			_viewport.gui_release_focus()
+			await _settle()
+			var controller_idle: Image = await _backing_image(source)
+			await _capture("%s/enemy_controller_idle.png" % OUTPUT)
+			source.grab_focus()
+			await _settle()
+			_expect(not source.is_hovered() and source.has_focus(true), "Controller grab_focus must expose the foe's focus visual without pointer hover")
+			var changed_pixels: int = _changed_pixels(controller_idle, await _backing_image(source))
+			print("CONTROLLER FOCUS BACKING: changed_pixels=%d" % changed_pixels)
+			_expect(changed_pixels > 100, "Controller-focused foe must draw its ember backing glow")
+			await _capture("%s/enemy_controller_focus.png" % OUTPUT)
 	_expect(popup_source_count > 0, "Real native popups must contain tooltip-bearing controls to exercise the reported lifetime bug")
 	print("NATIVE PINNED HOVER PROOF: 2 cycles, card/equipment scrim close, foe Escape; popup tooltip controls=%d" % popup_source_count)
 	router.call("clear_forced_state_for_test")
@@ -68,6 +92,28 @@ func _initialize() -> void:
 	print(ProjectSettings.globalize_path(OUTPUT))
 	print("PRE-BATTLE PINNED HOVER PROBE: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _backing_image(source: Control) -> Image:
+	await RenderingServer.frame_post_draw
+	var image: Image = _viewport.get_texture().get_image()
+	var region := Rect2i(source.get_global_rect().grow(8.0)).intersection(Rect2i(Vector2i.ZERO, PROBE_VIEWPORT))
+	var backing: Image = image.get_region(region)
+	backing.convert(Image.FORMAT_RGBA8)
+	return backing
+
+func _changed_pixels(before: Image, after: Image) -> int:
+	_expect(before.get_size() == after.get_size(), "Focus must not change the control's backing bounds")
+	if before.get_size() != after.get_size():
+		return before.get_width() * before.get_height()
+	var before_data: PackedByteArray = before.get_data()
+	var after_data: PackedByteArray = after.get_data()
+	var changed: int = 0
+	for offset: int in range(0, before_data.size(), 4):
+		for channel: int in range(3):
+			if absi(int(before_data[offset + channel]) - int(after_data[offset + channel])) > 1:
+				changed += 1
+				break
+	return changed
 
 func _hover_popup(source: Control, context: String) -> Window:
 	await _pointer(Vector2(80.0, 80.0))
