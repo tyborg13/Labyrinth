@@ -11215,6 +11215,12 @@ func _test_run_scene_displays_owned_relic_icons() -> void:
 	var relic_grid: GridContainer = instance.get("_relic_icon_grid") as GridContainer
 	_assert(relic_bar.visible, "The run HUD should show relic icons when the player owns relics")
 	_assert(relic_grid != null and relic_grid.get_child_count() == 3, "The run HUD should render one icon per owned relic")
+	if relic_grid != null and relic_grid.get_child_count() == 3:
+		var first := relic_grid.get_child(0) as PanelContainer
+		var third := relic_grid.get_child(2) as PanelContainer
+		_assert(first != null and third != null, "Owned relic badges should retain master's passive tooltip frames")
+		_assert((first.get_theme_stylebox("panel") as StyleBoxFlat).border_color == Color(GameData.relic_accent("ember_lens")), "Relic frames should retain their exact rarity accent")
+		_assert(first.get_meta("badge_background_texture") == third.get_meta("badge_background_texture"), "Distinct relic frames with the same accent and scale should share one background texture")
 	instance.queue_free()
 	await process_frame
 

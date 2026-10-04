@@ -4,7 +4,6 @@ extends Button
 # socket_size is in layout pixels. Set interactive=false for display-only use,
 # selected for the inner gilt ring, and icon_filter for non-pixel-art icons.
 # inspect_only keeps help focus without activation; dimmed changes appearance only.
-# accent_color frames identity; status_color sits inside it when both are present.
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
@@ -43,14 +42,6 @@ var dimmed: bool = false:
 		dimmed = value
 		_update_icon_material()
 		queue_redraw()
-var status_color := Color.TRANSPARENT:
-	set(value):
-		status_color = value
-		queue_redraw()
-var accent_color := Color.TRANSPARENT:
-	set(value):
-		accent_color = value
-		queue_redraw()
 var selected: bool = false:
 	set(value):
 		selected = value
@@ -67,7 +58,6 @@ var icon_filter: CanvasItem.TextureFilter = CanvasItem.TEXTURE_FILTER_NEAREST:
 
 var _ring := TextureRect.new()
 var _icon := TextureRect.new()
-var _inner_rings := Control.new()
 var _badge := Label.new()
 var _glow: Texture2D = Surface.radial_texture(Color(Palette.EMBER, 0.55))
 var _geometry: Dictionary = {}
@@ -94,11 +84,6 @@ func _init() -> void:
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_update_icon_material()
 	add_child(_icon)
-	_inner_rings.name = "InnerRings"
-	_inner_rings.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_inner_rings)
-	_inner_rings.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_inner_rings.draw.connect(_draw_inner_rings)
 	_badge.name = "Badge"
 	_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	add_child(_badge)
@@ -203,20 +188,5 @@ func _draw() -> void:
 			var start: float = TAU * float(index) / 16.0
 			draw_arc(center, radius * 0.88, start, start + TAU / 32.0, 5, Color(Palette.GOLD_DIM, 0.35), Typography.scaled_value(self, 1.0), true)
 	_update_icon_material()
-	_inner_rings.queue_redraw()
-
-func _draw_inner_rings() -> void:
-	var diameter: float = minf(size.x, size.y)
-	if diameter <= 0.0:
-		return
-	var rect := Rect2((size - Vector2.ONE * diameter) * 0.5, Vector2.ONE * diameter)
-	var center: Vector2 = _ring_center(rect)
-	var radius: float = _ring_radius(rect, "inner_radius") - Typography.scaled_value(self, 1.0)
-	var width: float = Typography.scaled_value(self, 2.0)
-	# Draw above the icon so a second, inset status ring stays visible.
-	if accent_color.a > 0.0:
-		_inner_rings.draw_arc(center, maxf(1.0, radius), 0.0, TAU, 64, Color(accent_color, 0.9), width, true)
-		radius -= width
-	var inner_color: Color = status_color if status_color.a > 0.0 else Palette.GOLD_BRIGHT if selected else Color.TRANSPARENT
-	if inner_color.a > 0.0:
-		_inner_rings.draw_arc(center, maxf(1.0, radius), 0.0, TAU, 64, inner_color, width, true)
+	if selected:
+		draw_arc(center, maxf(1.0, radius - Typography.scaled_value(self, 1.0)), 0.0, TAU, 64, Palette.GOLD_BRIGHT, Typography.scaled_value(self, 2.0), true)

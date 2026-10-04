@@ -1,4 +1,4 @@
-extends "res://tests/combat_hud_sockets_test.gd"
+extends "res://tests/combat_hud_badges_test.gd"
 
 const Typography = preload("res://scripts/ui_typography.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")

@@ -46,6 +46,7 @@ materials, and use the brief for exact rules.
 | 1b | [True-scale foes](unit_1b_true_scale_foes.md) | Codex, after owner review |
 | 3b | [Scavenger signage](unit_3b_scavenger_signage.md) | Codex, after owner review |
 | 5b | [Restore HUD buttons](unit_5b_restore_hud_buttons.md) | Codex, after owner review |
+| 5d | [Relic badges on velvet](unit_5d_relic_badges.md) | Codex, after owner review |
 
 Painted assets for this pass are generated separately, approved by Claude, and
 recorded with their prompts and hashes under `spec/assets/visual_pass_4/`.

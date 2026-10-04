@@ -19,11 +19,62 @@ static func run(expect: Callable) -> void:
 	_test_enemy_detail_semantics(host, expect)
 	_test_enemy_detail_cursor_feedback(host, expect)
 	_test_known_move_icon_precedence(host, expect)
+	test_pinned_hover_source_lifetimes(host, expect)
 	await _test_staged_sprite_fitting_for_full_roster(host, expect)
 	await _test_foe_caption_layout(host, expect)
 	await test_true_scale_lineups(host, expect)
 	_test_stage_tag_icons(host, expect)
 	host.free()
+
+static func test_pinned_hover_source_lifetimes(host: Node, expect: Callable) -> void:
+	var panel := PanelContainer.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(panel)
+	host.set("_pre_battle_panel", panel)
+	var source := Control.new()
+	source.tooltip_text = "live source"
+	panel.add_child(source)
+	var queued := Control.new()
+	queued.tooltip_text = "queued source"
+	panel.add_child(queued)
+	queued.queue_free()
+	var queued_parent := Control.new()
+	panel.add_child(queued_parent)
+	var queued_descendant := Control.new()
+	queued_descendant.tooltip_text = "queued parent source"
+	queued_parent.add_child(queued_descendant)
+	queued_parent.queue_free()
+	var popup := PopupPanel.new()
+	panel.add_child(popup)
+	var popup_source := Control.new()
+	popup_source.tooltip_text = "native popup source"
+	popup.add_child(popup_source)
+	host.call("_suppress_pre_battle_hover_sources")
+	var suppressed: Dictionary = host.get("_pinned_pre_battle_tooltip_sources")
+	expect.call(suppressed.size() == 1 and suppressed.has(source), "Pre-battle suppression should record only live summary controls, excluding queued controls and Window descendants")
+	expect.call(source.tooltip_text.is_empty() and popup_source.tooltip_text == "native popup source" and queued.tooltip_text == "queued source" and queued_descendant.tooltip_text == "queued parent source", "Suppression should leave native popup, queued control and queued ancestor tooltips alone")
+	host.call("_restore_pre_battle_hover_sources")
+	expect.call(source.tooltip_text == "live source" and suppressed.is_empty(), "Restore should recover the summary tooltip and clear saved references")
+	var stale := Control.new()
+	suppressed[stale] = "freed source"
+	suppressed[source] = "restored source"
+	suppressed[queued] = "must not restore queued source"
+	source.tooltip_text = ""
+	stale.free()
+	host.call("_restore_pre_battle_hover_sources")
+	expect.call(source.tooltip_text == "restored source" and queued.tooltip_text == "queued source" and suppressed.is_empty(), "Restore should skip freed and queued keys while still restoring live sources")
+	host.call("_suppress_pinned_tooltip_source", queued)
+	expect.call(host.get("_pinned_tooltip_source_row") == null, "Pinned-source suppression should reject queued controls")
+	host.call("_suppress_pinned_tooltip_source", source)
+	expect.call(source.tooltip_text.is_empty(), "Pinned-source suppression should still disable its live source's native tooltip")
+	source.free()
+	host.call("_restore_pinned_tooltip_source")
+	expect.call(host.get("_pinned_tooltip_source_row") == null and str(host.get("_pinned_tooltip_source_text")).is_empty(), "Pinned-source restore should safely clear a freed source reference and saved text")
+	host.call("_suppress_pinned_tooltip_source", source)
+	expect.call(host.get("_pinned_tooltip_source_row") == null, "Pinned-source suppression should accept and ignore a stale reference before any Control cast")
+	host.call("_restore_pinned_tooltip_source")
+	host.call("_restore_pre_battle_hover_sources")
+	host.set("_pre_battle_panel", null)
+	panel.free()
 
 static func _test_room_umbra_summary(host: Node, expect: Callable) -> void:
 	var room_chip: Control = PreBattleView.build_room_chip(host, {

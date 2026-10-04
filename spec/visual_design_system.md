@@ -100,10 +100,14 @@ floor shadows); the former navy button bodies clashed with it.
     (`assets/art/ui/visual_pass_4/medallion_ring.png`; geometry read from its
     JSON) holding an icon cropped to its opaque bounds and shown at full colour.
     Hover/focus brighten the ring with an ember glow; selected adds a gold inner
-    ring; relics add a thin ring in their rarity/accent colour (status rings sit
-    inside it); wrappers never draw their own focus box. Relic, rite and
-    Defiance sockets are inspect-only. The top-right HUD buttons keep their
+    ring; wrappers never draw their own focus box. Sockets hold gear and items
+    (character menu, pre-battle kit). The top-right HUD buttons keep their
     original square plates.
+  - *Relic bar badges* keep master's square frames with the 2 px rarity/accent
+    border and an unobstructed icon, on an accent-tinted velvet fill (dark,
+    brighter toward the centre, softly lifted toward the top; cached per accent
+    in `combat_hud_badge_background.gd`). The owner chose this over socket rings,
+    which covered the art.
   - *Card strip* (`ui_card_strip.gd`): a one-line deck row with a cropped art
     thumbnail, the exact card name and an optional ×N.
   - *Stat chip* (`ui_stat_chip.gd`): a pill with a socketed icon, a value and a

@@ -8,7 +8,7 @@ const Surface = preload("res://scripts/board_surface_rules.gd")
 const Fixture = preload("res://tests/suites/surface_relic_suite.gd")
 const Base = preload("res://tests/suites/board_surface_suite.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
-const OUTPUT: String = "res://output/relic-overhaul-u7"
+const OUTPUT: String = "user://probes/relic_overhaul_u7"
 var scene: Node
 var canvas: SubViewport
 var failed: int = 0

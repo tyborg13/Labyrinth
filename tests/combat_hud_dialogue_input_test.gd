@@ -1,4 +1,4 @@
-extends "res://tests/combat_hud_sockets_test.gd"
+extends "res://tests/combat_hud_badges_test.gd"
 
 func _run() -> void:
 	Settings.set_storage_path("user://combat_hud_dialogue_input_settings.json")
@@ -28,8 +28,8 @@ func _run() -> void:
 	await _load(instance, state)
 	instance.call("_close_large_map")
 	await _settle()
-	var relic := instance.call("_relic_frame_for_id", "iron_lung") as Button
-	_expect(relic != null and bool(relic.get("inspect_only")), "Fixture must use a live inspect-only relic socket")
+	var relic := instance.call("_relic_frame_for_id", "iron_lung") as Control
+	_expect(relic is PanelContainer and not relic is BaseButton, "Fixture must use a live tooltip relic frame")
 	if relic == null:
 		_finish()
 		return

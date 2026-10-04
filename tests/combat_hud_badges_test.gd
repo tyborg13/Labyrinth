@@ -6,7 +6,8 @@ const Store = preload("res://scripts/progression_store.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
-const Socket = preload("res://scripts/combat_hud_socket.gd")
+const Background = preload("res://scripts/combat_hud_badge_background.gd")
+const Rites = preload("res://scripts/rite_rules.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
 const InputRouter = preload("res://scripts/input_router.gd")
@@ -22,14 +23,14 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
-	Settings.set_storage_path("user://combat_hud_sockets_settings.json")
+	Settings.set_storage_path("user://combat_hud_badges_settings.json")
 	var settings: Dictionary = Settings.default_settings()
 	settings["ui_scale"] = 1.0
 	settings["reduced_motion"] = false
 	Settings.save_settings(settings)
 	Settings.apply_settings(settings, root, false)
-	Store.set_storage_path("user://combat_hud_sockets_profile.json")
-	Store.set_run_storage_path("user://combat_hud_sockets_run.save")
+	Store.set_storage_path("user://combat_hud_badges_profile.json")
+	Store.set_run_storage_path("user://combat_hud_badges_run.save")
 	Store.clear_saved_run()
 	var profile: Dictionary = Store.default_data()
 	profile[Tutorial.PROGRESSION_KEY] = {"version": Tutorial.VERSION, "status": "dismissed", "completed_steps": []}
@@ -86,10 +87,10 @@ func _run() -> void:
 	await _load(instance, boss)
 	_expect((instance.get("_boss_health_overlay") as Control).is_visible_in_tree(), "Boss proof must include the live boss bar")
 	_assert_relics(instance)
-	_expect((instance.get("_defiance_badge") as Socket).accent_color == Color("d6aa5e"), "Charged Defiance retains master's gold badge accent")
+	_expect((instance.get("_defiance_badge") as Control).get_theme_stylebox("panel").get("border_color") == Color("d6aa5e"), "Charged Defiance retains master's gold badge accent")
 	await _capture("05_boss_wrapped_relics_charge")
 	var charged: Control = instance.call("_relic_frame_for_id", "winters_hour")
-	_expect(charged.get_node("RelicTimeReserve").text == "2" and charged.get_node("RelicTimeReserve").visible, "Stored Time uses the socket badge with its exact value")
+	_expect(charged.get_node("RelicTimeReserve").text == "2" and charged.get_node("RelicTimeReserve").visible, "Stored Time uses the frame badge with its exact value")
 	_expect(charged.tooltip_text.contains("Stored Time: 2 / 3"), "Charge tooltip retains exact reserve rules")
 	charged.grab_focus()
 	await _capture("06_charged_relic_focus")
@@ -103,7 +104,7 @@ func _run() -> void:
 	instance.call("_on_settings_changed", settings)
 	await _settle()
 	_assert_relics(instance)
-	_expect(charged.scale == Vector2.ONE, "Reduced motion keeps the socket stable")
+	_expect(charged.scale == Vector2.ONE, "Reduced motion keeps the frame stable")
 	await _capture("07_reduced_motion")
 	boss["defiance_capacity"] = 2
 	boss["defiance_remaining"] = 0
@@ -111,28 +112,24 @@ func _run() -> void:
 	boss["combat_state"]["defiance_remaining"] = 0
 	boss["combat_state"]["skill_flags"]["used:ghost_stride"] = true
 	await _load(instance, boss)
-	var defiance := instance.get("_defiance_badge") as Button
-	_expect((defiance as Socket).accent_color == Color("62556e"), "Spent Defiance retains master's muted badge accent")
-	_expect(defiance.get_node("DefianceCount").text == "0/2" and not defiance.disabled and bool(defiance.get("dimmed")), "0/2 Defiance must be visually spent without disabling inspection")
+	var defiance := instance.get("_defiance_badge") as Control
+	_expect(defiance.get_theme_stylebox("panel").get("border_color") == Color("62556e"), "Spent Defiance retains master's muted badge accent")
+	_expect(defiance.get_node("DefianceCount").text == "0/2" and not defiance is BaseButton, "0/2 Defiance must be a spent tooltip frame without disabling inspection")
 	_expect(not (instance.call("_controller_candidate_for_control", defiance) as Dictionary).is_empty(), "0/2 Defiance must remain a controller candidate")
 	await _assert_inspection(instance, defiance, router)
 	await _capture("08_spent_defiance_controller_inspection")
 	await _assert_skill_statuses(instance)
-	var rite := instance.call("_build_active_rite_badge", {"card_id": "rite_of_noon", "icon": "rite", "tooltip": "Active rite inspection"}, 0) as Socket
-	(instance.get("_relic_icon_grid") as Control).add_child(rite)
-	await _settle()
-	_expect(rite.accent_color == Color(str(GameData.card_def("rite_of_noon").get("accent", "#d9862f"))), "Rites retain their card's exact master badge accent")
-	_expect(((rite.get_node("RiteMarkBacking") as Panel).get_theme_stylebox("panel") as StyleBoxFlat).border_color == rite.accent_color, "The rite corner mark retains the same card accent")
+	for card_id: String in ["rite_of_noon", "rite_of_hoarfrost"]:
+		_expect(Rites.start(boss["combat_state"], card_id, GameData.card_def(card_id)), "Proof must use real active Rite effects")
+	await _load(instance, boss)
+	_assert_relics(instance, 9)
+	var rite := (instance.get("_relic_icon_grid") as Control).get_child(7) as Control
+	_expect(rite.get_theme_stylebox("panel").get("border_color") == Color(str(GameData.card_def("rite_of_noon").get("accent", "#d9862f"))), "Rites retain their card's exact master badge accent")
+	_expect(((rite.find_child("RiteMarkBacking", true, false) as Panel).get_theme_stylebox("panel") as StyleBoxFlat).border_color == rite.get_theme_stylebox("panel").get("border_color"), "The rite corner mark retains the same card accent")
+	await _pointer(Vector2(960, 500))
+	await _capture("14_boss_relics_rites_spent_defiance")
 	await _assert_inspection(instance, rite, router)
 	await _capture("10_rite_controller_inspection")
-	router.call("set_forced_state_for_test", "pointer", "xbox")
-	instance.call("_controller_clear_board_focus")
-	instance.call("_controller_hide_analog_cursor")
-	rite.release_focus()
-	await _pointer(Vector2(960, 500))
-	rite.status_color = Palette.ALLY
-	await _settle()
-	await _capture("14_accent_with_inner_status")
 	router.call("clear_forced_state_for_test")
 	instance.queue_free()
 	await process_frame
@@ -140,9 +137,7 @@ func _run() -> void:
 	await process_frame
 	_finish()
 
-func _assert_dialogue_input(instance: Node, relic: Button, router: Node) -> void:
-	var presses: Array = [0]
-	relic.pressed.connect(func() -> void: presses[0] += 1)
+func _assert_dialogue_input(instance: Node, relic: Control, router: Node) -> void:
 	await _click(relic)
 	relic.grab_focus()
 	_expect(relic.has_focus(), "Relic inspection must retain native focus")
@@ -150,10 +145,10 @@ func _assert_dialogue_input(instance: Node, relic: Button, router: Node) -> void
 		router.call("set_forced_state_for_test", "pointer", "xbox")
 		_open_dialogue(instance, relic)
 		await _key(key)
-		_expect(bool(instance.get("_dialogue_text_complete")), "%s must complete a dialogue line while an inspect-only relic has focus" % OS.get_keycode_string(key))
+		_expect(bool(instance.get("_dialogue_text_complete")), "%s must complete a dialogue line while a tooltip relic frame has focus" % OS.get_keycode_string(key))
 		relic.grab_focus()
 		await _key(key)
-		_expect(int(instance.get("_dialogue_line_index")) == 1, "%s must advance dialogue while an inspect-only relic has focus" % OS.get_keycode_string(key))
+		_expect(int(instance.get("_dialogue_line_index")) == 1, "%s must advance dialogue while a tooltip relic frame has focus" % OS.get_keycode_string(key))
 		await _capture("11_dialogue_space" if key == KEY_SPACE else "12_dialogue_enter")
 		instance.call("_close_dialogue")
 	var accept := InputEventJoypadButton.new()
@@ -163,15 +158,14 @@ func _assert_dialogue_input(instance: Node, relic: Button, router: Node) -> void
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	_open_dialogue(instance, relic)
 	await _joy(JOY_BUTTON_A)
-	_expect(bool(instance.get("_dialogue_text_complete")), "Controller A must complete a dialogue line while an inspect-only relic has focus")
+	_expect(bool(instance.get("_dialogue_text_complete")), "Controller A must complete a dialogue line while a tooltip relic frame has focus")
 	relic.grab_focus()
 	await _joy(JOY_BUTTON_A)
-	_expect(int(instance.get("_dialogue_line_index")) == 1, "Controller A must advance dialogue while an inspect-only relic has focus")
+	_expect(int(instance.get("_dialogue_line_index")) == 1, "Controller A must advance dialogue while a tooltip relic frame has focus")
 	await _capture("13_dialogue_controller")
-	_expect(presses[0] == 0, "Dialogue input must never activate the inspect-only relic")
 	instance.call("_close_dialogue")
 
-func _open_dialogue(instance: Node, relic: Button) -> void:
+func _open_dialogue(instance: Node, relic: Control) -> void:
 	instance.call("_start_dialogue", {
 		"npc_id": "emaciated_man",
 		"lines": [
@@ -181,76 +175,80 @@ func _open_dialogue(instance: Node, relic: Button) -> void:
 	})
 	relic.grab_focus()
 	_expect(bool(instance.get("_dialogue_active")) and not bool(instance.get("_dialogue_text_complete")), "Regression must start with a live incomplete dialogue line")
-	_expect(relic.has_focus(), "Inspect-only relic must own focus before dialogue input")
+	_expect(relic.has_focus(), "Tooltip relic frame must own focus before dialogue input")
 
-func _assert_inspection(instance: Node, socket: Button, router: Node) -> void:
-	_expect(socket.focus_mode == Control.FOCUS_ALL and socket.mouse_default_cursor_shape == Control.CURSOR_HELP, "Tooltip sockets must preserve focus and the help cursor")
-	_expect(not bool(CursorFeedback.context_for_control(socket).get("actionable", true)), "Relic, rite and Defiance sockets must have non-actionable help feedback")
-	var presses: Array = [0]
-	socket.pressed.connect(func() -> void: presses[0] += 1)
-	router.call("set_forced_state_for_test", "pointer", "xbox")
-	await _click(socket)
-	socket.grab_focus()
-	await _key(KEY_ENTER)
-	await _key(KEY_SPACE)
+func _assert_inspection(instance: Node, frame: Control, router: Node) -> void:
+	_expect(frame is PanelContainer and not frame is BaseButton and frame.mouse_default_cursor_shape == Control.CURSOR_HELP, "Tooltip badges must be passive help frames")
+	_expect(not bool(CursorFeedback.context_for_control(frame).get("actionable", true)), "Relic, rite and Defiance frames must have non-actionable help feedback")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	instance.set("_controller_region", "board")
-	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", socket), true)
+	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", frame), true)
 	await _settle()
 	var prompts: Array = (instance.get("_controller_prompt_bar") as Node).call("prompts_snapshot")
 	for prompt: Dictionary in prompts:
-		_expect(str(prompt.get("action", "")) != str(InputRouter.ACTION_ACCEPT), "Focused tooltip sockets must not advertise an A prompt")
+		_expect(str(prompt.get("action", "")) != str(InputRouter.ACTION_ACCEPT), "Focused tooltip frames must not advertise an A prompt")
 	var cursor: Dictionary = (instance.get("_controller_analog_cursor") as Node).call("cursor_snapshot")
-	_expect(socket.has_focus() and str(cursor.get("detail_text", "")) == socket.tooltip_text.strip_edges(), "Controller focus must expose the complete inspection tooltip")
+	_expect(frame.has_focus() and str(cursor.get("detail_text", "")) == frame.tooltip_text.strip_edges(), "Controller focus must expose the complete inspection tooltip")
+	var unchanged: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	instance.call("_controller_activate_current")
+	await _key(KEY_ENTER)
+	await _key(KEY_SPACE)
 	await _joy(JOY_BUTTON_A)
-	_expect(presses[0] == 0, "Tooltip sockets must not emit pressed for pointer, Enter, Space or controller A")
+	_expect(instance.get("_run_state") == unchanged, "Help frame input cannot activate or mutate the run")
 
 func _assert_skill_statuses(instance: Node) -> void:
 	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
 	instance.call("_controller_clear_board_focus")
 	instance.call("_controller_hide_analog_cursor")
-	(instance.get("_defiance_badge") as Button).release_focus()
+	(instance.get("_defiance_badge") as Control).release_focus()
 	await _pointer(Vector2(960, 500))
 	await _settle()
 	var sigil := instance.get("_skill_sigil") as Button
-	var spent: Socket = sigil.find_child("SkillSigilPreview_ghost_stride", true, false) as Socket
-	var ready: Socket = sigil.find_child("SkillSigilPreview_quick_wits", true, false) as Socket
+	var spent := sigil.find_child("SkillSigilPreview_ghost_stride", true, false) as PanelContainer
+	var ready := sigil.find_child("SkillSigilPreview_quick_wits", true, false) as PanelContainer
 	_expect(spent != null and ready != null, "The live ability sigil must preview spent Ghost Stride and ready Quick Wits")
 	if spent == null or ready == null:
 		return
 	_expect(str(instance.call("_skill_hud_status", "ghost_stride")) == "SPENT" and str(instance.call("_skill_hud_status", "quick_wits")) == "READY", "Status proof must use the real combat ability states")
-	_expect(spent.status_color == Palette.TEXT_3 and spent.dimmed, "Spent ability previews must retain a grey status ring and desaturated icon")
-	_expect(ready.status_color == Palette.ALLY and not ready.dimmed, "Ready ability previews must retain a teal status ring and saturated icon")
-	_expect(spent.get_node("Icon").material != ready.get_node("Icon").material, "Ready and spent previews must use independent cached saturation states")
-	await _capture("09_ready_spent_skill_status_rings")
+	_expect(spent.get_theme_stylebox("panel").get("border_color") == Color("9b8ea8") and ready.get_theme_stylebox("panel").get("border_color") == Color("8fe4b0"), "Ability preview borders must retain master's exact SPENT and READY colors")
+	_expect(spent.mouse_filter == Control.MOUSE_FILTER_IGNORE and ready.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Preview frames must preserve the ability button's input target")
+	await _capture("09_ready_spent_skill_status_borders")
 
-func _assert_relics(instance: Node) -> void:
+func _assert_relics(instance: Node, expected_count: int = 7) -> void:
 	var grid := instance.get("_relic_icon_grid") as GridContainer
-	_expect(grid.get_child_count() == 7 and grid.columns == 5, "Seven relics retain five-column wrapping")
+	_expect(grid.get_child_count() == expected_count and grid.columns == 5, "Relics and active Rites retain five-column wrapping")
 	var first_bottom: float = 0.0
 	var visible_bottom: float = 0.0
 	var rarities: Dictionary = {}
 	for index: int in range(grid.get_child_count()):
-		var socket := grid.get_child(index) as Button
-		_expect(socket is Socket and socket.size == Vector2(48, 48), "Every relic uses a 48px shared socket")
-		var relic_id: String = str(socket.get_meta("relic_id", ""))
-		_expect((socket as Socket).accent_color == Color(GameData.relic_accent(relic_id)), "Relic %s retains its exact rarity/accent color" % relic_id)
-		rarities[GameData.relic_rarity(relic_id)] = true
-		_expect(not socket.tooltip_text.is_empty() and socket.focus_mode == Control.FOCUS_ALL, "Relic inspection retains its tooltip and focus")
+		var frame := grid.get_child(index) as PanelContainer
+		_expect(frame != null and frame.size == Vector2(48, 48), "Every badge uses master's 48px tooltip frame")
+		var style := frame.get_theme_stylebox("panel") as StyleBoxFlat
+		_expect(style.border_width_left == 2 and style.corner_radius_top_left == 10 and style.shadow_size == 4, "Badge borders, corners and shadows retain master's exact geometry")
+		_expect(not frame.tooltip_text.is_empty() and frame.focus_mode == Control.FOCUS_ALL and frame.mouse_default_cursor_shape == Control.CURSOR_HELP, "Badge inspection retains its tooltip, focus and help cursor")
+		if frame.has_meta("relic_id"):
+			var relic_id: String = str(frame.get_meta("relic_id"))
+			_expect(style.border_color == Color(GameData.relic_accent(relic_id)), "Relic %s retains its exact rarity/accent color" % relic_id)
+			rarities[GameData.relic_rarity(relic_id)] = true
+			var margin := frame.get_child(0) as MarginContainer
+			_expect(margin != null and margin.get_theme_constant("margin_left") == 5 and margin.get_theme_constant("margin_top") == 5, "Relic icons retain master's five-pixel margin")
+			_expect(frame.find_child("Ring", true, false) == null, "No ring may occlude the relic artwork")
 		if index < 5:
-			first_bottom = maxf(first_bottom, socket.get_global_rect().end.y)
+			first_bottom = maxf(first_bottom, frame.get_global_rect().end.y)
 		else:
-			_expect(socket.global_position.y > (grid.get_child(0) as Control).global_position.y, "Additional relics occupy the second row")
-		visible_bottom = maxf(visible_bottom, socket.get_global_rect().end.y)
+			_expect(frame.global_position.y > (grid.get_child(0) as Control).global_position.y, "Additional relics occupy the second row")
+		visible_bottom = maxf(visible_bottom, frame.get_global_rect().end.y)
 	_expect(rarities.has("common") and rarities.has("rare") and rarities.has("legendary"), "Accent proof must cover common grey, rare blue and legendary orange relics")
-	_expect(is_equal_approx(float(instance.call("_relic_bar_first_row_bottom_y")), first_bottom), "First-row bottom continues to track the actual sockets")
+	_expect(is_equal_approx(float(instance.call("_relic_bar_first_row_bottom_y")), first_bottom), "First-row bottom continues to track the actual frames")
 	_expect(float(instance.call("_relic_bar_visible_bottom_y")) >= visible_bottom and visible_bottom > first_bottom, "Visible relic bottom includes wrapped rows")
+	var first: Control = grid.get_child(0) as Control
+	var second: Control = grid.get_child(1) as Control
+	_expect(first.get_meta(Background.TEXTURE_META) == second.get_meta(Background.TEXTURE_META), "Badge background textures must be shared per accent and scale")
 	var sigil := instance.get("_skill_sigil") as Button
 	_expect(sigil != null and (sigil.find_child("SkillSigilTitle", true, false) as Label).text == "ABILITIES", "Ability chip retains its content")
 	if sigil != null:
-		for preview: Node in sigil.find_children("SkillSigilPreview_*", "Button", true, false):
-			_expect(preview is Socket, "Ability previews share the socket ring")
+		for preview: Node in sigil.find_children("SkillSigilPreview_*", "PanelContainer", true, false):
+			_expect(not preview is BaseButton, "Ability previews retain master's passive frames")
 
 func _load(instance: Node, state: Dictionary) -> void:
 	instance.set("_progression", state.get("progression", Store.default_data()))
@@ -308,5 +306,5 @@ func _expect(condition: bool, message: String) -> void:
 		push_error(message)
 
 func _finish() -> void:
-	print("COMBAT HUD SOCKETS TEST: %s" % ("FAIL" if _failed else "PASS"))
+	print("COMBAT HUD BADGES TEST: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)

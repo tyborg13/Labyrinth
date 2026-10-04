@@ -109,9 +109,8 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
-const CombatHudSocket = preload("res://scripts/combat_hud_socket.gd")
 const CombatHudIntents = preload("res://scripts/combat_hud_intents.gd")
-const CombatHudRelics = preload("res://scripts/combat_hud_relics.gd")
+const CombatHudBadgeBackground = preload("res://scripts/combat_hud_badge_background.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ControllerNavigationScript = preload("res://scripts/controller_navigation.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
@@ -4637,17 +4636,31 @@ func _suppressed_pre_battle_tooltip() -> Control:
 
 func _suppress_pre_battle_hover_sources() -> void:
 	_restore_pre_battle_hover_sources()
-	if _pre_battle_panel == null:
+	if not _node_is_alive(_pre_battle_panel):
 		return
 	for node_var: Variant in _pre_battle_panel.find_children("*", "Control", true, false):
+		if not _node_is_alive(node_var):
+			continue
 		var control: Control = node_var as Control
-		if control == null or control.tooltip_text.is_empty() or control == _pinned_tooltip_source_row:
+		# Native popup descendants disappear when their tooltip Window is dismissed.
+		if control == null or _pre_battle_hover_source_is_transient(control) \
+				or control.tooltip_text.is_empty() or control == _pinned_tooltip_source_row:
 			continue
 		_pinned_pre_battle_tooltip_sources[control] = control.tooltip_text
 		control.tooltip_text = ""
 
+func _pre_battle_hover_source_is_transient(control: Control) -> bool:
+	var ancestor: Node = control
+	while ancestor != null and ancestor != _pre_battle_panel:
+		if ancestor is Window or ancestor.is_queued_for_deletion():
+			return true
+		ancestor = ancestor.get_parent()
+	return false
+
 func _restore_pre_battle_hover_sources() -> void:
 	for control_var: Variant in _pinned_pre_battle_tooltip_sources.keys():
+		if not is_instance_valid(control_var):
+			continue
 		var control: Control = control_var as Control
 		if _node_is_alive(control):
 			control.tooltip_text = str(_pinned_pre_battle_tooltip_sources.get(control, ""))
@@ -4708,13 +4721,14 @@ func _pinned_tooltip_cursor_feedback_context(local_position: Vector2) -> String:
 		return "inert"
 	return "action"
 
-func _suppress_pinned_tooltip_source(source_row: Control) -> void:
+func _suppress_pinned_tooltip_source(source_row: Variant) -> void:
 	_restore_pinned_tooltip_source()
-	if not _node_is_alive(source_row):
+	if not _node_is_alive(source_row) or not source_row is Control:
 		return
-	_pinned_tooltip_source_row = source_row
-	_pinned_tooltip_source_text = source_row.tooltip_text
-	source_row.tooltip_text = ""
+	var control: Control = source_row as Control
+	_pinned_tooltip_source_row = control
+	_pinned_tooltip_source_text = control.tooltip_text
+	control.tooltip_text = ""
 
 func _restore_pinned_tooltip_source() -> void:
 	if _node_is_alive(_pinned_tooltip_source_row):
@@ -10635,16 +10649,96 @@ func _refresh_relic_bar() -> void:
 			var relic: Dictionary = GameData.relic_def(relic_id)
 			if relic.is_empty():
 				continue
-			var held: int = -1
-			var capacity: int = 0
+			var frame := TooltipPanelContainer.new()
+			frame.custom_minimum_size = RELIC_BADGE_SIZE
+			frame.set_meta("relic_id", relic_id)
+			frame.focus_mode = Control.FOCUS_ALL
+			frame.tooltip_text = "%s\n%s" % [
+					str(relic.get("name", relic_id)),
+					str(relic.get("description", ""))
+			]
+			frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+			frame.add_theme_stylebox_override("panel", _pile_card_style(
+					Color("261b14"),
+					Color(GameData.relic_accent(relic_id)),
+					4.0
+			))
+			CombatHudBadgeBackground.apply(frame)
+			var margin := MarginContainer.new()
+			margin.set_anchors_preset(Control.PRESET_FULL_RECT)
+			margin.anchor_right = 1.0
+			margin.anchor_bottom = 1.0
+			margin.add_theme_constant_override("margin_left", 5)
+			margin.add_theme_constant_override("margin_top", 5)
+			margin.add_theme_constant_override("margin_right", 5)
+			margin.add_theme_constant_override("margin_bottom", 5)
+			frame.add_child(margin)
+			var icon := TextureRect.new()
+			icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+			icon.anchor_right = 1.0
+			icon.anchor_bottom = 1.0
+			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+			icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			margin.add_child(icon)
+			for effect: Dictionary in GameData.relic_effects_for_ids([relic_id]):
+				if str(effect.get("type", "")) == "unused_play_extra_turn" and TempoRelicRules.used(_combat_state, effect):
+					icon.modulate.a = 0.45
+					frame.tooltip_text += "\nUsed this combat."
+			if icon.texture == null:
+				var fallback := Label.new()
+				fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
+				fallback.anchor_right = 1.0
+				fallback.anchor_bottom = 1.0
+				fallback.text = str(relic.get("name", "?")).substr(0, 1).to_upper()
+				fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+				fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+				UiTypography.set_label_size(fallback, UiTypography.SIZE_CAPTION)
+				fallback.add_theme_color_override("font_color", Color("f0e6d2"))
+				fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
+				fallback.add_theme_constant_override("outline_size", 1)
+				margin.add_child(fallback)
 			for effect: Dictionary in relic.get("effects", []):
-				if str(effect.get("type", "")) != "element_time_reserve":
-					continue
-				capacity = int(effect.get("capacity", 3))
-				held = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state, relic_id, capacity)
-			var badge: Button = CombatHudRelics.relic(relic_id, relic, held, capacity)
-			_apply_relic_badge_state(badge, relic_id, relic)
-			_relic_icon_grid.add_child(badge)
+				if str(effect.get("type", "")) != "element_time_reserve": continue
+				var capacity: int = int(effect.get("capacity",3))
+				var held: int = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state,relic_id,capacity)
+				frame.tooltip_text += "\nStored Time: %d / %d" % [held,capacity]
+				_add_relic_counter(frame, "RelicTimeReserve", held)
+			for effect: Dictionary in relic.get("effects", []):
+				if str(effect.get("type", "")) == "store_consumed_surface_release":
+					var held: Array = _combat_state.get("relic_stored_surfaces", []) as Array
+					frame.tooltip_text += "\nStored: " + _relic_element_names(held, true)
+					var pip_layer := Control.new()
+					pip_layer.name = "RelicStoredSurfaces"
+					pip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+					frame.add_child(pip_layer)
+					for pip_index: int in range(held.size()):
+						var backing := Panel.new()
+						backing.name = "RelicStoredSurface_%d" % pip_index
+						backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+						backing.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
+						backing.offset_left = 2.0 + pip_index * 16.0
+						backing.offset_right = backing.offset_left + 16.0
+						backing.offset_top = -18.0
+						backing.offset_bottom = -2.0
+						var style := StyleBoxFlat.new()
+						style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
+						style.set_corner_radius_all(3)
+						backing.add_theme_stylebox_override("panel", style)
+						pip_layer.add_child(backing)
+						var pip := TextureRect.new()
+						pip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+						pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+						pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+						pip.texture = ActionIcons.icon_texture("surface_" + str(held[pip_index]))
+						pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+						backing.add_child(pip)
+				if str(effect.get("type", "")) == "combat_element_knots":
+					var tied: Array = _combat_state.get("relic_element_knots", []) as Array
+					_add_relic_counter(frame, "RelicKnots", tied.size())
+					frame.tooltip_text += _relic_knots_tooltip(effect, tied)
+			_relic_icon_grid.add_child(frame)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -10665,16 +10759,97 @@ func _refresh_relic_bar() -> void:
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
 
 func _relic_knots_tooltip(effect: Dictionary, tied: Array) -> String:
-	return CombatHudRelics.knots_tooltip(effect, tied)
+	var detail: String = "\nKnots: %s (%d of %d)" % [_relic_element_names(tied), tied.size(), int(effect["max_knots"])]
+	if tied.size() >= int(effect["pierce_threshold"]): detail += ": attacks Pierce"
+	if tied.size() >= int(effect["chain_threshold"]): detail += " and Chain %d" % int(effect["chain"])
+	if tied.size() >= int(effect["block_threshold"]): detail += "; every card grants %d Block" % int(effect["block"])
+	return detail + "."
 
-func _apply_relic_badge_state(badge: Button, relic_id: String, relic: Dictionary) -> void:
-	CombatHudRelics.apply_badge_state(badge, relic_id, relic, _combat_state)
+func _add_relic_counter(frame: Control, counter_name: String, held: int) -> void:
+	var counter := Label.new()
+	counter.name = counter_name
+	counter.text = str(held)
+	counter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	counter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(counter, UiTypography.SIZE_BODY)
+	counter.add_theme_color_override("font_color", Color("c3f5ff"))
+	counter.add_theme_color_override("font_outline_color", Color("14101b"))
+	counter.add_theme_constant_override("outline_size", 7)
+	frame.add_child(counter)
+
+func _relic_element_names(elements: Array, surfaces: bool = false) -> String:
+	var names := PackedStringArray()
+	for element: String in elements:
+		names.append("Electrified" if surfaces and element == "electrified" else element.capitalize())
+	return ", ".join(names) if not names.is_empty() else "nothing"
+
 
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
+	var frame := TooltipPanelContainer.new()
+	frame.name = "ActiveRite_%d" % rite_index
+	frame.custom_minimum_size = RELIC_BADGE_SIZE
+	frame.set_meta("rite_card_id", str(entry.get("card_id", "")))
+	frame.focus_mode = Control.FOCUS_ALL
+	frame.tooltip_text = str(entry.get("tooltip", ""))
+	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
+	var accent: Color = Color(str(card.get("accent", "#d9862f")))
+	frame.add_theme_stylebox_override("panel", _pile_card_style(Color("1d1420"), accent, 4.0))
+	# Each Rite shows its own card painting, with the shared Rite mark in the
+	# corner, so two active Rites are told apart without hovering.
+	var layers := Control.new()
+	layers.name = "RiteBadgeLayers"
+	layers.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layers.clip_contents = true
+	frame.add_child(layers)
 	var art_path: String = str(card.get("art_path", ""))
 	var art_texture: Texture2D = _pre_battle_card_full_bleed_texture(art_path) if not art_path.is_empty() else null
-	return CombatHudRelics.active_rite(entry, rite_index, art_texture)
+	if art_texture != null:
+		var art := TextureRect.new()
+		art.name = "RiteArt"
+		art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		art.texture = art_texture
+		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		layers.add_child(art)
+	var mark_backing := Panel.new()
+	mark_backing.name = "RiteMarkBacking"
+	mark_backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var backing_style := StyleBoxFlat.new()
+	backing_style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
+	backing_style.border_color = accent
+	backing_style.set_border_width_all(1)
+	backing_style.set_corner_radius_all(10)
+	mark_backing.add_theme_stylebox_override("panel", backing_style)
+	var mark_size: float = 20.0 if art_texture != null else 0.0
+	if art_texture != null:
+		mark_backing.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+		mark_backing.offset_left = -mark_size
+		mark_backing.offset_top = -mark_size
+		mark_backing.offset_right = 0.0
+		mark_backing.offset_bottom = 0.0
+		layers.add_child(mark_backing)
+	var icon := TextureRect.new()
+	icon.name = "RiteMark"
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = ActionIcons.icon_texture(str(entry.get("icon", "rite")))
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if art_texture != null:
+		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		icon.offset_left = 2.0
+		icon.offset_top = 2.0
+		icon.offset_right = -2.0
+		icon.offset_bottom = -2.0
+		mark_backing.add_child(icon)
+	else:
+		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		layers.add_child(icon)
+	CombatHudBadgeBackground.apply(frame)
+	return frame
 
 func _build_header_utility_divider(node_name: String) -> ColorRect:
 	var divider := ColorRect.new()
@@ -10687,7 +10862,56 @@ func _build_header_utility_divider(node_name: String) -> ColorRect:
 	return divider
 
 func _build_defiance_badge(remaining: int, capacity: int) -> Control:
-	return CombatHudRelics.defiance(remaining, capacity)
+	var frame := TooltipPanelContainer.new()
+	frame.name = "DefianceBadge"
+	frame.custom_minimum_size = RELIC_BADGE_SIZE
+	frame.tooltip_text = (
+		"DEFIANCE %d / %d\nLethal health loss spends 1 to restore 25%% max health.\n"
+		+ "Every fourth permanent level grants 1. Defiance does not refill during a run."
+	) % [remaining, capacity]
+	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+	frame.mouse_filter = Control.MOUSE_FILTER_PASS
+	frame.set_meta("header_utility", true)
+	frame.set_meta("defiance_remaining", remaining)
+	frame.set_meta("defiance_capacity", capacity)
+	var accent: Color = Color("d6aa5e") if remaining > 0 else Color("62556e")
+	frame.add_theme_stylebox_override("panel", _pile_card_style(
+		Color("211326") if remaining > 0 else Color("19151c"),
+		accent,
+		4.0
+	))
+	var icon := TextureRect.new()
+	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	icon.anchor_right = 1.0
+	icon.anchor_bottom = 1.0
+	icon.offset_left = 7.0
+	icon.offset_top = 4.0
+	icon.offset_right = -7.0
+	icon.offset_bottom = -12.0
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	icon.texture = AssetLoader.load_texture("res://assets/art/icons/defiance.png")
+	icon.modulate = Color.WHITE if remaining > 0 else Color(0.55, 0.50, 0.60, 0.86)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.add_child(icon)
+	var count := Label.new()
+	count.name = "DefianceCount"
+	count.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	count.anchor_top = 1.0
+	count.anchor_bottom = 1.0
+	count.offset_top = -17.0
+	count.offset_bottom = -2.0
+	count.text = "%d/%d" % [remaining, capacity]
+	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	UiTypography.set_label_size(count, UiTypography.SIZE_CAPTION)
+	count.add_theme_color_override("font_color", Color("ffe7a3") if remaining > 0 else Color("8d8296"))
+	count.add_theme_color_override("font_outline_color", Color("160d19"))
+	count.add_theme_constant_override("outline_size", 2)
+	frame.add_child(count)
+	CombatHudBadgeBackground.apply(frame)
+	return frame
 
 func _selected_skill_ids_for_hud() -> Array[String]:
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
@@ -10745,14 +10969,19 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	# Recomputing manual-skill legality here used to repeat path and hand scans.
 	var skill_statuses: Dictionary = presentation.get("statuses", {}) as Dictionary
 	var ready_count: int = int(presentation.get("ready_count", 0))
-	var preview_ids: Array[String] = []
+	var preview_ids: Array[String]
 	for skill_id_var: Variant in presentation.get("preview_ids", []) as Array:
 		preview_ids.append(str(skill_id_var))
 	button.set_meta("ready_count", ready_count)
 	button.set_meta("owned_count", skill_ids.size())
 	button.set_meta("preview_skill_ids", preview_ids)
-	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
-		button.add_theme_stylebox_override(state_name, StyleBoxEmpty.new())
+	for state_name: String in ["normal", "hover", "pressed", "focus"]:
+		var accent := Color("9b72cb")
+		if state_name == "hover":
+			accent = accent.lightened(0.18)
+		elif state_name == "pressed":
+			accent = accent.darkened(0.12)
+		button.add_theme_stylebox_override(state_name, _skill_sigil_style(accent, state_name == "hover"))
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -10798,18 +11027,21 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	previews.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(previews)
 	for skill_id: String in preview_ids:
-		var status: String = str(skill_statuses.get(skill_id, "PASSIVE"))
-		var accent: Color = UiPalette.ALLY if status == "READY" else UiPalette.TEXT_3 if status == "SPENT" else _skill_status_accent(status)
-		var socket := CombatHudSocket.new()
-		socket.name = "SkillSigilPreview_%s" % skill_id
-		socket.socket_size = SKILL_SIGIL_PREVIEW_ICON_SIZE.x
-		socket.interactive = false
-		socket.status_color = accent
-		socket.dimmed = status == "SPENT"
-		socket.setup(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)))
-		socket.follow_button_states(button)
-		previews.add_child(socket)
-
+		var accent: Color = _skill_status_accent(str(skill_statuses.get(skill_id, "PASSIVE")))
+		var frame := PanelContainer.new()
+		frame.name = "SkillSigilPreview_%s" % skill_id
+		frame.custom_minimum_size = SKILL_SIGIL_PREVIEW_ICON_SIZE
+		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_theme_stylebox_override("panel", _skill_sigil_preview_style(accent))
+		CombatHudBadgeBackground.apply(frame)
+		var icon := TextureRect.new()
+		icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		frame.add_child(icon)
+		previews.add_child(frame)
 	var expansion := Label.new()
 	expansion.name = "SkillSigilExpansionIndicator"
 	expansion.text = "›"
@@ -10821,6 +11053,28 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	content.add_child(expansion)
 	button.pressed.connect(_toggle_skill_status_popover)
 	return button
+
+func _skill_sigil_preview_style(accent: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("150d1c")
+	style.border_color = accent
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	style.content_margin_left = 2.0
+	style.content_margin_top = 2.0
+	style.content_margin_right = 2.0
+	style.content_margin_bottom = 2.0
+	return style
+
+func _skill_sigil_style(accent: Color, hovered: bool) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color("24172f") if not hovered else Color("342044")
+	style.border_color = accent
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(9)
+	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.25 if hovered else 0.13)
+	style.shadow_size = 7 if hovered else 3
+	return style
 
 func _skill_status_ready_count(skill_ids: Array[String]) -> int:
 	var result: int = 0
